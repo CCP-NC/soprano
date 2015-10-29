@@ -1,0 +1,5 @@
+Soprano.egg-info/PKG-INFO
+Soprano.egg-info/SOURCES.txt
+Soprano.egg-info/dependency_links.txt
+Soprano.egg-info/top_level.txt
+soprano/__init__.py
