@@ -182,7 +182,7 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None):
     # directions. We do this implicitly though.
     qmatrix = np.dot(utransf_matrix,
                      max_r*(utransf_matrix/np.linalg.norm(utransf_matrix,
-                                                         axis=1)[:, None]).T)
+                            axis=1)[:, None]).T)
     r_bounds = np.max(np.ceil(abs(qmatrix)), axis=1).astype(int)
 
     return tuple(r_bounds)

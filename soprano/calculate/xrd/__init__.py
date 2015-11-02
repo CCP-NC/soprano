@@ -7,3 +7,5 @@ spectroscopic results from structures.
 from __future__ import absolute_import
 
 from soprano.calculate.xrd.xrd import xrd_pwd_peaks
+from soprano.calculate.xrd.xrd import xrd_spec_simul
+from soprano.calculate.xrd.xrd import leBail_Ifit
