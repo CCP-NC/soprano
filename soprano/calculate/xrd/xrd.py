@@ -15,7 +15,8 @@ from collections import namedtuple
 # Internal imports
 from soprano.utils import hkl2d2_matgen, minimum_supcell, inv_plane_dist
 
-XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "I", "lambdax"))
+XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
+                                           "invd", "I", "lambdax"))
 
 
 def xrd_pwd_peaks(latt_abc, lambdax=1.54056, theta2_digits=6):
@@ -37,6 +38,8 @@ def xrd_pwd_peaks(latt_abc, lambdax=1.54056, theta2_digits=6):
     | Returns:
     |    xpeaks (XraySpectrum): a named tuple containing the peaks
     |                           with theta2, corresponding hkl indices,
+    |                           a unique hkl tuple for each peak,
+    |                           inverse reciprocal lattice distances,
     |                           intensities and wavelength
 
     | Raises:
@@ -87,8 +90,12 @@ def xrd_pwd_peaks(latt_abc, lambdax=1.54056, theta2_digits=6):
     hkl_sorted = [hkl_grid[:,
                            np.where(unique_sorting[2] == i)[0]].T.tolist()
                   for i in range(peak_n)]
+    hkl_unique = hkl_grid[:, unique_sorting[1]].T
+    invd = inv_d_grid[unique_sorting[1]]
     xpeaks = XraySpectrum(unique_sorting[0],
                           np.array(hkl_sorted),
+                          hkl_unique,
+                          invd,
                           np.zeros(peak_n),
                           lambdax)
 
@@ -251,7 +258,10 @@ def leBail_Ifit(xpeaks, th2_axis, I_axis,
             break
         rwp0 = rwp
 
-    xpeaks = XraySpectrum(peaks_th2, xpeaks.hkl, peaks_I, xpeaks.lambdax)
+    xpeaks = XraySpectrum(peaks_th2, xpeaks.hkl,
+                          xpeaks.hkl_unique,
+                          xpeaks.invd,
+                          peaks_I, xpeaks.lambdax)
 
     return xpeaks, simul_spec, simul_peaks, rwp
 
@@ -274,8 +284,11 @@ def _Rwp_eval(simul_spec, exp_spec):
 def _leBail_rescale_I(simul_peaks, simul_spec, exp_spec):
     """Returns rescaling factors for intensities in leBail fitting"""
 
+    sum_peaks = np.sum(simul_peaks, axis=0)
+    # It could be zero somewhere, fix that
+    sum_peaks = np.where(sum_peaks > 0, sum_peaks, np.inf)
     i_scale = np.sum(exp_spec[:, None]*simul_peaks/simul_spec[:, None],
-                     axis=0)/np.sum(simul_peaks, axis=0)
+                     axis=0)/sum_peaks
 
     return i_scale
 
