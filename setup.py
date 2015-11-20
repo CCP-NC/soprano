@@ -18,6 +18,8 @@ from distutils.core import setup
 setup(name='Soprano',
       version='0.1',
       packages=['soprano'],
-      package_data={},				# For data files. Example: 'soprano': ['data/*.json']
-      scripts=[],					# For scripts - just put the paths
+      # For data files. Example: 'soprano': ['data/*.json']
+      package_data={'soprano': 'data/*.json'},
+      # For scripts - just put the paths
+      scripts=[],
       )

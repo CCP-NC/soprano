@@ -1,0 +1,768 @@
+{
+    "1": {
+        "all": "True"
+    }, 
+    "2": {
+        "all": "True"
+    }, 
+    "3": {
+        "1": "True", 
+        "2": "True"
+    }, 
+    "4": {
+        "1": "ifq(h == 0 and l == 0,evenq(k),True)", 
+        "2": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "5": {
+        "1": "evenq(h+k)", 
+        "2": "evenq(k+l)", 
+        "3": "evenq(h+k+l)", 
+        "4": "evenq(k+l)", 
+        "5": "evenq(h+l)", 
+        "6": "evenq(h+k+l)"
+    }, 
+    "6": {
+        "1": "True", 
+        "2": "True"
+    }, 
+    "7": {
+        "1": "ifq(k == 0,evenq(l),True)", 
+        "2": "ifq(k == 0,evenq(h+l),True)", 
+        "3": "ifq(k == 0,evenq(h),True)", 
+        "4": "ifq(l == 0,evenq(h),True)", 
+        "5": "ifq(l == 0,evenq(h+k),True)", 
+        "6": "ifq(l == 0,evenq(k),True)"
+    }, 
+    "8": {
+        "1": "evenq(h+k)", 
+        "2": "evenq(k+l)", 
+        "3": "evenq(h+k+l)", 
+        "4": "evenq(k+l)", 
+        "5": "evenq(h+l)", 
+        "6": "evenq(h+k+l)"
+    }, 
+    "9": {
+        "1": "ifq(k == 0,evenq(h) and evenq(l),evenq(h+k))", 
+        "2": "ifq(k == 0,evenq(h) and evenq(l),evenq(k+l))", 
+        "3": "ifq(k == 0,evenq(h) and evenq(l),evenq(h+k+l))", 
+        "4": "ifq(l == 0,evenq(h) and evenq(k),evenq(k+l))", 
+        "5": "ifq(l == 0,evenq(h) and evenq(k),evenq(h+l))", 
+        "6": "ifq(l == 0,evenq(h) and evenq(k),evenq(h+k+l))"
+    }, 
+    "10": {
+        "1": "True", 
+        "2": "True"
+    }, 
+    "11": {
+        "1": "ifq(h == 0 and l == 0,evenq(k),True)", 
+        "2": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "12": {
+        "1": "evenq(h+k)", 
+        "2": "evenq(k+l)", 
+        "3": "evenq(h+k+l)", 
+        "4": "evenq(k+l)", 
+        "5": "evenq(h+l)", 
+        "6": "evenq(h+k+l)"
+    }, 
+    "13": {
+        "1": "ifq(k == 0,evenq(l),True)", 
+        "2": "ifq(k == 0,evenq(h+l),True)", 
+        "3": "ifq(k == 0,evenq(h),True)", 
+        "4": "ifq(l == 0,evenq(h),True)", 
+        "5": "ifq(l == 0,evenq(h+k),True)", 
+        "6": "ifq(l == 0,evenq(k),True)"
+    }, 
+    "14": {
+        "1": "ifq(k == 0,evenq(l),True) and ifq(h == 0 and l == 0,evenq(k),True)", 
+        "2": "ifq(k == 0,evenq(h+l),True) and ifq(h == 0 and l == 0,evenq(k),True)", 
+        "3": "ifq(k == 0,evenq(h),True) and ifq(h == 0 and l == 0,evenq(k),True)", 
+        "4": "ifq(l == 0,evenq(h),True) and ifq(h == 0 and k == 0,evenq(l),True)", 
+        "5": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0 and k == 0,evenq(l),True)", 
+        "6": "ifq(l == 0,evenq(k),True) and ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "15": {
+        "1": "ifq(k == 0,evenq(h) and evenq(l),evenq(h+k))", 
+        "2": "ifq(k == 0,evenq(h) and evenq(l),evenq(k+l))", 
+        "3": "ifq(k == 0,evenq(h) and evenq(l),evenq(h+k+l))", 
+        "4": "ifq(l == 0,evenq(h) and evenq(k),evenq(k+l))", 
+        "5": "ifq(l == 0,evenq(h) and evenq(k),evenq(h+l))", 
+        "6": "ifq(l == 0,evenq(h) and evenq(k),evenq(h+k+l))"
+    }, 
+    "16": {
+        "all": "True"
+    }, 
+    "17": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "18": {
+        "all": "ifq(k == 0 and l == 0,evenq(h),True) and ifq(h == 0 and l == 0,evenq(k),True)"
+    }, 
+    "19": {
+        "all": "ifq(h == 0 and l == 0,evenq(k),True) and ifq(h == 0 and k == 0,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "20": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),evenq(h+k))"
+    }, 
+    "21": {
+        "all": "evenq(h+k)"
+    }, 
+    "22": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "23": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "24": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "25": {
+        "all": "True"
+    }, 
+    "26": {
+        "all": "ifq(k == 0,evenq(l),True)"
+    }, 
+    "27": {
+        "all": "ifq(h == 0 or k == 0,evenq(l),True)"
+    }, 
+    "28": {
+        "all": "ifq(k == 0,evenq(h),True)"
+    }, 
+    "29": {
+        "all": "ifq(h == 0,evenq(l),True) and ifq(k == 0,evenq(h),True)"
+    }, 
+    "30": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(l),True)"
+    }, 
+    "31": {
+        "all": "ifq(k == 0,evenq(h+l),True)"
+    }, 
+    "32": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(h),True)"
+    }, 
+    "33": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h),True)"
+    }, 
+    "34": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True)"
+    }, 
+    "35": {
+        "all": "evenq(h+k)"
+    }, 
+    "36": {
+        "all": "evenq(h+k) and ifq(k == 0,evenq(l),True)"
+    }, 
+    "37": {
+        "all": "evenq(h+k) and ifq(h == 0 or k == 0,evenq(l),True)"
+    }, 
+    "38": {
+        "all": "evenq(k+l)"
+    }, 
+    "39": {
+        "all": "evenq(k+l) and ifq(h == 0,evenq(k) and evenq(l),True)"
+    }, 
+    "40": {
+        "all": "evenq(k+l) and ifq(k == 0,evenq(h) and evenq(l),True)"
+    }, 
+    "41": {
+        "all": "evenq(k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(h),True)"
+    }, 
+    "42": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "43": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True)"
+    }, 
+    "44": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "45": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(h) and evenq(l),True)"
+    }, 
+    "46": {
+        "all": "evenq(h+k+l) and ifq(k == 0,evenq(h) and evenq(l),True)"
+    }, 
+    "47": {
+        "all": "True"
+    }, 
+    "48": {
+        "1": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "49": {
+        "all": "ifq(h == 0 or k == 0,evenq(l),True)"
+    }, 
+    "50": {
+        "1": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(h),True) and ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(h),True) and ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "51": {
+        "all": "ifq(l == 0,evenq(h),True)"
+    }, 
+    "52": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h),True)"
+    }, 
+    "53": {
+        "all": "ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h),True)"
+    }, 
+    "54": {
+        "all": "ifq(h == 0 or k == 0,evenq(l),True) and ifq(l == 0,evenq(h),True)"
+    }, 
+    "55": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(h),True)"
+    }, 
+    "56": {
+        "all": "ifq(h == 0 or k == 0,evenq(l),True) and ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "57": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(l),True)"
+    }, 
+    "58": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True)"
+    }, 
+    "59": {
+        "1": "ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "60": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(l),True) and ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "61": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(l),True) and ifq(l == 0,evenq(h),True)"
+    }, 
+    "62": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(l == 0,evenq(h),True)"
+    }, 
+    "63": {
+        "all": "evenq(h+k) and ifq(k == 0,evenq(l),True)"
+    }, 
+    "64": {
+        "all": "evenq(h+k) and ifq(k == 0,evenq(l),True) and ifq(l == 0,evenq(h) and evenq(k),True)"
+    }, 
+    "65": {
+        "all": "evenq(h+k)"
+    }, 
+    "66": {
+        "all": "evenq(h+k) and ifq(h == 0 or k == 0,evenq(l),True)"
+    }, 
+    "67": {
+        "all": "evenq(h+k) and ifq(l == 0,evenq(h) and evenq(k),True)"
+    }, 
+    "68": {
+        "1": "evenq(h+k) and ifq(h == 0 or k == 0,evenq(l),True) and ifq(l == 0,evenq(h) and evenq(k),True)", 
+        "2": "evenq(h+k) and ifq(h == 0 or k == 0,evenq(l),True) and ifq(l == 0,evenq(h) and evenq(k),True)"
+    }, 
+    "69": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "70": {
+        "1": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True)", 
+        "2": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True)"
+    }, 
+    "71": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "72": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(h) and evenq(l),True)"
+    }, 
+    "73": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(h) and evenq(l),True) and ifq(l == 0,evenq(h) and evenq(k),True)"
+    }, 
+    "74": {
+        "all": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True)"
+    }, 
+    "75": {
+        "all": "True"
+    }, 
+    "76": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "77": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "78": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "79": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "80": {
+        "all": "evenq(h+k+l) and ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "81": {
+        "all": "True"
+    }, 
+    "82": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "83": {
+        "all": "True"
+    }, 
+    "84": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "85": {
+        "1": "ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "86": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0 and k == 0,evenq(l),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "87": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "88": {
+        "1": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0 and k == 0,integerq(l/4))", 
+        "2": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0 and k == 0,integerq(l/4))"
+    }, 
+    "89": {
+        "all": "True"
+    }, 
+    "90": {
+        "all": "ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "91": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "92": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/4),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "93": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "94": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "95": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "96": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/4),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "97": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "98": {
+        "all": "evenq(h+k+l) and ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "99": {
+        "all": "True"
+    }, 
+    "100": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "101": {
+        "all": "ifq(h == 0,evenq(l),True)"
+    }, 
+    "102": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "103": {
+        "all": "ifq(h == 0,evenq(l),True) and ifq(h == k,evenq(l),True)"
+    }, 
+    "104": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "105": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "106": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "107": {
+        "all": "evenq(h+k+l) and ifq(h == k,evenq(l),True)"
+    }, 
+    "108": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True)"
+    }, 
+    "109": {
+        "all": "evenq(h+k+l) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)"
+    }, 
+    "110": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)"
+    }, 
+    "111": {
+        "all": "True"
+    }, 
+    "112": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "113": {
+        "all": "ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "114": {
+        "all": "ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "115": {
+        "all": "True"
+    }, 
+    "116": {
+        "all": "ifq(h == 0,evenq(l),True)"
+    }, 
+    "117": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "118": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "119": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "120": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True)"
+    }, 
+    "121": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "122": {
+        "all": "evenq(h+k+l) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h))"
+    }, 
+    "123": {
+        "all": "True"
+    }, 
+    "124": {
+        "all": "ifq(h == 0 or h == k,evenq(l),True)"
+    }, 
+    "125": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k),True)"
+    }, 
+    "126": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k+l),True) and ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k+l),True) and ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "127": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "128": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "129": {
+        "1": "ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "130": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0 or h == k,evenq(l),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0 or h == k,evenq(l),True)"
+    }, 
+    "131": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "132": {
+        "all": "ifq(h == 0,evenq(l),True)"
+    }, 
+    "133": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k),True) and ifq(h == k,evenq(l),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k),True) and ifq(h == k,evenq(l),True)"
+    }, 
+    "134": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k+l),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(k+l),True)"
+    }, 
+    "135": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(h == k,evenq(l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "136": {
+        "all": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0 and l == 0,evenq(h),True)"
+    }, 
+    "137": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == k,evenq(l),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == k,evenq(l),True)"
+    }, 
+    "138": {
+        "1": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(l),True)", 
+        "2": "ifq(l == 0,evenq(h+k),True) and ifq(h == 0,evenq(l),True)"
+    }, 
+    "139": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "140": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True)"
+    }, 
+    "141": {
+        "1": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)", 
+        "2": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)"
+    }, 
+    "142": {
+        "1": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)", 
+        "2": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)"
+    }, 
+    "143": {
+        "all": "True"
+    }, 
+    "144": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "145": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "146": {
+        "1": "integerq((-h+k+l)/3)", 
+        "2": "True"
+    }, 
+    "147": {
+        "all": "True"
+    }, 
+    "148": {
+        "1": "integerq((-h+k+l)/3)", 
+        "2": "True"
+    }, 
+    "149": {
+        "all": "True"
+    }, 
+    "150": {
+        "all": "True"
+    }, 
+    "151": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "152": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "153": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "154": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "155": {
+        "1": "integerq((-h+k+l)/3)", 
+        "2": "True"
+    }, 
+    "156": {
+        "all": "True"
+    }, 
+    "157": {
+        "all": "True"
+    }, 
+    "158": {
+        "all": "ifq(h == -k,evenq(l),True)"
+    }, 
+    "159": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "160": {
+        "1": "integerq((-h+k+l)/3)", 
+        "2": "True"
+    }, 
+    "161": {
+        "1": "integerq((-h+k+l)/3) and ifq(h == -k,evenq(l),True)", 
+        "2": "ifq(h == k,evenq(l),True)"
+    }, 
+    "162": {
+        "all": "True"
+    }, 
+    "163": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "164": {
+        "all": "True"
+    }, 
+    "165": {
+        "all": "ifq(h == -k,evenq(l),True)"
+    }, 
+    "166": {
+        "1": "integerq((-h+k+l)/3)", 
+        "2": "True"
+    }, 
+    "167": {
+        "1": "integerq((-h+k+l)/3) and ifq(h == -k,evenq(l),True)", 
+        "2": "ifq(h == k,evenq(l),True)"
+    }, 
+    "168": {
+        "all": "True"
+    }, 
+    "169": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/6),True)"
+    }, 
+    "170": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/6),True)"
+    }, 
+    "171": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "172": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "173": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "174": {
+        "all": "True"
+    }, 
+    "175": {
+        "all": "True"
+    }, 
+    "176": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "177": {
+        "all": "True"
+    }, 
+    "178": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/6),True)"
+    }, 
+    "179": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/6),True)"
+    }, 
+    "180": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "181": {
+        "all": "ifq(h == 0 and k == 0,integerq(l/3),True)"
+    }, 
+    "182": {
+        "all": "ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "183": {
+        "all": "True"
+    }, 
+    "184": {
+        "all": "ifq(h == k,evenq(l),True) and ifq(h == -k,evenq(l),True)"
+    }, 
+    "185": {
+        "all": "ifq(h == -k,evenq(l),True)"
+    }, 
+    "186": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "187": {
+        "all": "True"
+    }, 
+    "188": {
+        "all": "ifq(h == -k,evenq(l),True)"
+    }, 
+    "189": {
+        "all": "True"
+    }, 
+    "190": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "191": {
+        "all": "True"
+    }, 
+    "192": {
+        "all": "ifq(h == k,evenq(l),True) and ifq(h == -k,evenq(l),True)"
+    }, 
+    "193": {
+        "all": "ifq(h == -k,evenq(l),True)"
+    }, 
+    "194": {
+        "all": "ifq(h == k,evenq(l),True)"
+    }, 
+    "195": {
+        "all": "True"
+    }, 
+    "196": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "197": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "198": {
+        "all": "ifq(k == 0 and l == 0,evenq(h),True) and ifq(h == 0 and l == 0,evenq(k),True) and ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "199": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "200": {
+        "all": "True"
+    }, 
+    "201": {
+        "1": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "202": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "203": {
+        "1": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True)", 
+        "2": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True)"
+    }, 
+    "204": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "205": {
+        "all": "ifq(h == 0,evenq(k),True) and ifq(k == 0,evenq(l),True) and ifq(l == 0,evenq(h),True)"
+    }, 
+    "206": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(h) and evenq(l),True) and ifq(l == 0,evenq(h) and evenq(k),True)"
+    }, 
+    "207": {
+        "all": "True"
+    }, 
+    "208": {
+        "all": "ifq(k == 0 and l == 0,evenq(h),True) and ifq(h == 0 and l == 0,evenq(k),True) and ifq(h == 0 and k == 0,evenq(l),True)"
+    }, 
+    "209": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "210": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(k == 0 and l == 0,integerq(h/4),True) and ifq(h == 0 and l == 0,integerq(k/4),True) and ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "211": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "212": {
+        "all": "ifq(k == 0 and l == 0,integerq(h/4),True) and ifq(h == 0 and l == 0,integerq(k/4),True) and ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "213": {
+        "all": "ifq(k == 0 and l == 0,integerq(h/4),True) and ifq(h == 0 and l == 0,integerq(k/4),True) and ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "214": {
+        "all": "evenq(h+k+l) and ifq(k == 0 and l == 0,integerq(h/4),True) and ifq(h == 0 and l == 0,integerq(k/4),True) and ifq(h == 0 and k == 0,integerq(l/4),True)"
+    }, 
+    "215": {
+        "all": "True"
+    }, 
+    "216": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l)"
+    }, 
+    "217": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "218": {
+        "all": "ifq(h == k,evenq(l),True) and ifq(h == l,evenq(k),True) and ifq(k == l,evenq(h),True)"
+    }, 
+    "219": {
+        "all": "evenq(h+k) and evenq(h+l) and evenq(k+l) and ifq(h == k,evenq(h) and evenq(l),True) and ifq(k == l,evenq(k) and evenq(h),True) and ifq(l == h,evenq(l) and evenq(k),True)"
+    }, 
+    "220": {
+        "all": "evenq(h+k+l) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(k == l,integerq((2*k+h)/4),True) and ifq(l == h,integerq((2*l+k)/4),True)"
+    }, 
+    "221": {
+        "all": "True"
+    }, 
+    "222": {
+        "1": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True) and ifq(h == k,evenq(l),True) and ifq(h == l,evenq(k),True) and ifq(k == l,evenq(h),True)", 
+        "2": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True) and ifq(h == k,evenq(l),True) and ifq(h == l,evenq(k),True) and ifq(k == l,evenq(h),True)"
+    }, 
+    "223": {
+        "all": "ifq(h == k,evenq(l),True) and ifq(h == l,evenq(k),True) and ifq(k == l,evenq(h),True)"
+    }, 
+    "224": {
+        "1": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True)", 
+        "2": "ifq(h == 0,evenq(k+l),True) and ifq(k == 0,evenq(h+l),True) and ifq(l == 0,evenq(h+k),True)"
+    }, 
+    "225": {
+        "all": "evenq(h+l) and evenq(h+k) and evenq(k+l)"
+    }, 
+    "226": {
+        "all": "evenq(h+l) and evenq(h+k) and evenq(k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(l) and evenq(h),True) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == k,evenq(h) and evenq(l),True) and ifq(k == l,evenq(k) and evenq(h),True) and ifq(l == h,evenq(l) and evenq(k),True)"
+    }, 
+    "227": {
+        "1": "evenq(h+l) and evenq(h+k) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True)", 
+        "2": "evenq(h+l) and evenq(h+k) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True)"
+    }, 
+    "228": {
+        "1": "evenq(h+l) and evenq(h+k) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True) and ifq(h == k,evenq(h) and evenq(l),True) and ifq(k == l,evenq(k) and evenq(h),True) and ifq(l == h,evenq(l) and evenq(k),True)", 
+        "2": "evenq(h+l) and evenq(h+k) and evenq(k+l) and ifq(h == 0,integerq((k+l)/4),True) and ifq(k == 0,integerq((h+l)/4),True) and ifq(l == 0,integerq((h+k)/4),True) and ifq(h == k,evenq(h) and evenq(l),True) and ifq(k == l,evenq(k) and evenq(h),True) and ifq(l == h,evenq(l) and evenq(k),True)"
+    }, 
+    "229": {
+        "all": "evenq(h+k+l)"
+    }, 
+    "230": {
+        "all": "evenq(h+k+l) and ifq(h == 0,evenq(k) and evenq(l),True) and ifq(k == 0,evenq(l) and evenq(h),True) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(k == l,integerq((2*k+h)/4),True) and ifq(l == h,integerq((2*l+k)/4),True)"
+    }
+}

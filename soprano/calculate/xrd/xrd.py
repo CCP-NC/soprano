@@ -9,6 +9,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import copy
 import inspect
 import numpy as np
 from collections import namedtuple
@@ -16,7 +17,9 @@ from collections import namedtuple
 from soprano.utils import hkl2d2_matgen, minimum_supcell, inv_plane_dist
 
 XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
-                                           "invd", "I", "lambdax"))
+                                           "invd", "intensity", "lambdax"))
+
+XraySpectrumData = namedtuple("XraySpectrumData", ("theta2", "intensity"))
 
 
 def xrd_pwd_peaks(latt_abc, lambdax=1.54056, theta2_digits=6):
@@ -102,19 +105,16 @@ def xrd_pwd_peaks(latt_abc, lambdax=1.54056, theta2_digits=6):
     return xpeaks
 
 
-def xrd_spec_simul(peaks_th2, peaks_I, th2_axis, peak_func=None,
-                   peak_f_args=[], baseline=0.0):
+def xrd_spec_simul(xpeaks, th2_axis, peak_func=None,
+                   peak_f_args=None, baseline=0.0):
     """
     Simulate an XRD spectrum given positions of peaks, intensities, baseline,
     and a peak function (a Gaussian by default).
 
     | Args:
-    |   peaks_th2 (np.ndarray): 2*theta positions of the peaks to simulate,
-    |                           in degrees
-    |   peaks_I (np.ndarray): intensities of the peaks to simulate, arbitrary
-    |                           units
-    |   th2_axis (np.ndarray): theta2 axis along which to simulate the
-    |                          spectrum
+    |   xpeaks (XraySpectrum): object containing the details of the XRD peaks
+    |   th2_axis (np.ndarray): theta2 axis points on which the
+    |                          spectrum should be simulated
     |   peak_func (Optional[function<float, float, *kargs>
     |                       => <np.ndarray>]): the function used to simulate
     |                                          peaks. Should take th2 as its
@@ -132,8 +132,8 @@ def xrd_spec_simul(peaks_th2, peaks_I, th2_axis, peak_func=None,
     |                               simulated spectrum
 
     | Returns:
-    |   simul_spec (np.ndarray): simulated XRD spectrum
-    |   simul_peaks (np.ndarray): simulated spectrum broken by peak
+    |   simul_spec (XraySpectrumData): simulated XRD spectrum
+    |   simul_peaks (np.ndarray): simulated spectrum intensities broken by peak
     |                             contribution along axis 1
 
     | Raises:
@@ -143,12 +143,8 @@ def xrd_spec_simul(peaks_th2, peaks_I, th2_axis, peak_func=None,
 
     # Sanity checks here
 
-    peaks_th2 = np.array(peaks_th2, copy=False)
-    if len(peaks_th2.shape) != 1:
-        raise ValueError("Invalid peaks_th2 passed to xrd_spec_simul")
-    peaks_I = np.array(peaks_I, copy=False)
-    if peaks_th2.shape != peaks_I.shape:
-        raise ValueError("peaks_I should have the same shape as peaks_th2")
+    peaks_th2 = np.array(xpeaks.theta2, copy=False)
+    peaks_int = np.array(xpeaks.intensity, copy=False)
     th2_axis = np.array(th2_axis, copy=False)
     if len(th2_axis.shape) != 1:
         raise ValueError("Invalid th2_axis passed to xrd_spec_simul")
@@ -160,23 +156,46 @@ def xrd_spec_simul(peaks_th2, peaks_I, th2_axis, peak_func=None,
     else:
         # A gaussian here
         peak_func = _gauss_peak_default
-        if len(peak_f_args) == 0:
+        if peak_f_args is None:
             # Use default width
             peak_f_args = [0.1]
         else:
             peak_f_args = peak_f_args[:1]
 
     # So here we are. Actual simulation!
-    simul_peaks = peaks_I[None, :]*peak_func(th2_axis[:, None],
-                                             peaks_th2[None, :],
-                                             *peak_f_args)
+    simul_peaks = peaks_int[None, :]*peak_func(th2_axis[:, None],
+                                               peaks_th2[None, :],
+                                               *peak_f_args)
 
     simul_spec = np.sum(simul_peaks, axis=1) + np.ones(len(th2_axis))*baseline
+    simul_spec = XraySpectrumData(th2_axis, simul_spec)
 
     return simul_spec, simul_peaks
 
 
-def leBail_Ifit(xpeaks, th2_axis, I_axis,
+def xrd_exp_dataset(th2_axis, int_axis):
+    """Build an experimental dataset as an XraySpectrumData object.
+
+    | Args:
+    |   th2_axis (np.ndarray): array containing the values for 2*theta
+    |   int_axis (np.ndarray): array containing the values for intensity
+
+    | Returns:
+    |   exp_spec (XraySpectrumData): named tuple containing the experimental
+    |                                dataset
+    """
+
+    # Sanity checks as usual
+    th2_axis = np.array(th2_axis, copy=False)
+    int_axis = np.array(int_axis, copy=False)
+
+    if th2_axis.shape != int_axis.shape or len(th2_axis.shape) != 1:
+        raise ValueError("Invalid dataset passed to xrd_exp_dataset")
+
+    return XraySpectrumData(th2_axis, int_axis)
+
+
+def xrd_leBail_Ifit(xpeaks, exp_spec,
                 peak_func=None, peak_f_args=[], baseline=0.0,
                 rwp_tol=1e-2, max_iter=100):
     """
@@ -185,10 +204,8 @@ def leBail_Ifit(xpeaks, th2_axis, I_axis,
 
     | Args:
     |   xpeaks (XraySpectrum): object containing the details of the XRD peaks
-    |   th2_axis (np.ndarray): array of 2*theta values for the experimental
-    |                          data
-    |   I_axis (np.ndarray): array of intensity values for the experimental
-    |                        data
+    |   exp_spec (XraySpectrumData): experimental data, dataset built using
+    |                                xrd_exp_dataset
     |   peak_func (Optional[function<float, float, *kargs>
     |                       => <np.ndarray>]): the function used to simulate
     |                                          peaks. Should take th2 as its
@@ -226,42 +243,46 @@ def leBail_Ifit(xpeaks, th2_axis, I_axis,
     # Sanity check (the rest is up to the other functions)
     if type(xpeaks) != XraySpectrum:
         raise ValueError("Invalid xpeaks passed to leBail_Ifit")
+    if type(exp_spec) != XraySpectrumData:
+        raise ValueError("Invalid exp_spec passed to leBail_Ifit")
+
+    # Copy xpeaks so that the original object will stay unaltered
+    xpeaks = copy.deepcopy(xpeaks)
 
     # Fetch the data
     peaks_th2 = xpeaks.theta2
-
+    th2_axis = np.array(exp_spec.theta2, copy=False)
+    int_axis = np.array(exp_spec.intensity, copy=False)
     # Find a suitable starting height for the peaks
-    peaks_I = (xpeaks.I*0.0)+np.amax(I_axis)/4.0
+    peaks_int = (xpeaks.intensity*0.0)+np.amax(int_axis)/4.0
 
     # Perform the first simulation
-    simul_spec, simul_peaks = xrd_spec_simul(peaks_th2, peaks_I, th2_axis,
+    simul_spec, simul_peaks = xrd_spec_simul(xpeaks, th2_axis,
                                              peak_func=peak_func,
                                              peak_f_args=peak_f_args,
                                              baseline=baseline)
     # Calculate Rwp
-    rwp0 = _Rwp_eval(simul_spec, I_axis)
+    rwp0 = _Rwp_eval(simul_spec.intensity, int_axis)
 
     # Now the iterations
     for i in range(max_iter):
         # Perform a correction
-        peaks_I *= _leBail_rescale_I(simul_peaks, simul_spec, I_axis)
+        peaks_int *= _leBail_rescale_I(simul_peaks, simul_spec.intensity,
+                                       int_axis)
+        # Store
+        np.copyto(xpeaks.intensity, peaks_int)
         # Recalculate
-        simul_spec, simul_peaks = xrd_spec_simul(peaks_th2, peaks_I, th2_axis,
+        simul_spec, simul_peaks = xrd_spec_simul(xpeaks, th2_axis,
                                                  peak_func=peak_func,
                                                  peak_f_args=peak_f_args,
                                                  baseline=baseline)
         # Calculate Rwp
-        rwp = _Rwp_eval(simul_spec, I_axis)
+        rwp = _Rwp_eval(simul_spec.intensity, int_axis)
         # Gain?
         delta_rwp = abs((rwp-rwp0)/rwp)
         if delta_rwp < rwp_tol:
             break
         rwp0 = rwp
-
-    xpeaks = XraySpectrum(peaks_th2, xpeaks.hkl,
-                          xpeaks.hkl_unique,
-                          xpeaks.invd,
-                          peaks_I, xpeaks.lambdax)
 
     return xpeaks, simul_spec, simul_peaks, rwp
 
@@ -270,13 +291,13 @@ def leBail_Ifit(xpeaks, th2_axis, I_axis,
 # Tread at your own peril.
 
 
-def _Rwp_eval(simul_spec, exp_spec):
+def _Rwp_eval(simul_int, exp_int):
     """Evaluate Rwp for use in LeBail fitting"""
 
-    weights = 1.0/exp_spec
+    weights = 1.0/exp_int
 
-    r_wp = np.sqrt(np.sum(weights*(exp_spec-simul_spec)**2.0) /
-                   np.sum(weights*exp_spec**2.0))
+    r_wp = np.sqrt(np.sum(weights*(exp_int-simul_int)**2.0) /
+                   np.sum(weights*exp_int**2.0))
 
     return r_wp
 
