@@ -76,15 +76,100 @@
 <p>Contains the following package-wide useful routines:</p>
 <p>[TO ADD]</p>
 <dl class="function">
-<dt id="soprano.utils.test_method">
-<code class="descclassname">soprano.utils.</code><code class="descname">test_method</code><span class="sig-paren">(</span><em>xthing</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.test_method" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do something with x</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>x</dd>
-<dt>Returns:</dt>
-<dd>y</dd>
-</dl>
+<dt id="soprano.utils.abc2cart">
+<code class="descclassname">soprano.utils.</code><code class="descname">abc2cart</code><span class="sig-paren">(</span><em>abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.abc2cart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms an axes and angles representation of lattice parameters
+into a Cartesian one</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.cart2abc">
+<code class="descclassname">soprano.utils.</code><code class="descname">cart2abc</code><span class="sig-paren">(</span><em>cart</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.cart2abc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a Cartesian representation of lattice parameters
+into an axes and angles one</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.hkl2d2_matgen">
+<code class="descclassname">soprano.utils.</code><code class="descname">hkl2d2_matgen</code><span class="sig-paren">(</span><em>abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.hkl2d2_matgen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a matrix that turns hkl indices into inverse crystal
+plane distances for a given lattice in ABC form</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.inv_plane_dist">
+<code class="descclassname">soprano.utils.</code><code class="descname">inv_plane_dist</code><span class="sig-paren">(</span><em>hkl</em>, <em>hkl2d2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.inv_plane_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate inverse planar distance for a given set of
+Miller indices h, k, l.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.minimum_supcell">
+<code class="descclassname">soprano.utils.</code><code class="descname">minimum_supcell</code><span class="sig-paren">(</span><em>max_r</em>, <em>latt_cart=None</em>, <em>r_matrix=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_supcell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the bounds for a supercell containing a sphere
+of given radius, knowing the unit cell.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">max_r (float): radius of the sphere contained in the supercell</div>
+<div class="line">latt_cart (np.ndarray): unit cell in cartesian form</div>
+<div class="line">r_matrix (np.ndarray): matrix for the quadratic form returning</div>
+<div class="line-block">
+<div class="line">r^2 for this supercell.</div>
+<div class="line">Alternative to latt_cart, for a direct</div>
+<div class="line">space cell would be equal to</div>
+<div class="line">np.dot(latt_cart, latt_cart.T)</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">bounds (tuple[int]): bounds of the supercell to be built.</div>
+<div class="line-block">
+<div class="line">These are to be interpreted as the</div>
+<div class="line">thickness of the &#8220;shell&#8221; one has to build</div>
+<div class="line">around a core unit cell: for example (1,2,1)</div>
+<div class="line">means the supercell will be 3x5x3</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">ValueError: if some of the arguments are invalid</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.supcell_gridgen">
+<code class="descclassname">soprano.utils.</code><code class="descname">supcell_gridgen</code><span class="sig-paren">(</span><em>latt_cart</em>, <em>r_bounds</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.supcell_gridgen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a full linearized grid for a supercell with r_bounds
+and a base unit cell in Cartesian form.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">latt_cart (np.ndarray): unit cell in cartesian form</div>
+<div class="line">r_bounds (tuple[int]): bounds of the supercell to be built,</div>
+<div class="line-block">
+<div class="line">as returned by minimum_supcell.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">neigh_i_grid (np.ndarray): supercell grid in fractional coordinates</div>
+<div class="line">neigh_grid (np.ndarray): supercell grid in cartesian coordinates</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">ValueError: if some of the arguments are invalid</div>
+</div>
+</div>
 </dd></dl>
 
 </div>

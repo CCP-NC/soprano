@@ -313,8 +313,8 @@
         "all": "evenq(h+k+l)"
     }, 
     "88": {
-        "1": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0 and k == 0,integerq(l/4))", 
-        "2": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0 and k == 0,integerq(l/4))"
+        "1": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0 and k == 0,integerq(l/4),True)", 
+        "2": "evenq(h+k+l) and ifq(l == 0,evenq(h) and evenq(k),True) and ifq(h == 0 and k == 0,integerq(l/4),True)"
     }, 
     "89": {
         "all": "True"
@@ -416,7 +416,7 @@
         "all": "evenq(h+k+l)"
     }, 
     "122": {
-        "all": "evenq(h+k+l) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h))"
+        "all": "evenq(h+k+l) and ifq(h == k,integerq((2*h+l)/4),True) and ifq(h == -k and l == 0,evenq(h),True)"
     }, 
     "123": {
         "all": "True"

@@ -47,15 +47,17 @@
 <p>Classes and functions for simulating X-ray diffraction
 spectroscopic results from structures.</p>
 <dl class="class">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum">
-<em class="property">class </em><code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">XraySpectrum</code><span class="sig-paren">(</span><em>theta2</em>, <em>hkl</em>, <em>I</em>, <em>lambdax</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
-<dl class="attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.I">
-<code class="descname">I</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.I" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 2</p>
+<dt id="soprano.calculate.xrd.xrd.XDRCalculator">
+<em class="property">class </em><code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">XDRCalculator</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XDRCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A class implementing methods for XRD simulations, comparisons and
+fittings.</p>
 </dd></dl>
 
+<dl class="class">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrum">
+<em class="property">class </em><code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">XraySpectrum</code><span class="sig-paren">(</span><em>theta2</em>, <em>hkl</em>, <em>hkl_unique</em>, <em>invd</em>, <em>intensity</em>, <em>lambdax</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
 <dl class="attribute">
 <dt id="soprano.calculate.xrd.xrd.XraySpectrum.hkl">
 <code class="descname">hkl</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl" title="Permalink to this definition">¶</a></dt>
@@ -63,9 +65,27 @@ spectroscopic results from structures.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique">
+<code class="descname">hkl_unique</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrum.intensity">
+<code class="descname">intensity</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrum.invd">
+<code class="descname">invd</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="soprano.calculate.xrd.xrd.XraySpectrum.lambdax">
 <code class="descname">lambdax</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alias for field number 3</p>
+<dd><p>Alias for field number 5</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -76,29 +96,204 @@ spectroscopic results from structures.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrumData">
+<em class="property">class </em><code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">XraySpectrumData</code><span class="sig-paren">(</span><em>theta2</em>, <em>intensity</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">tuple</span></code></p>
+<dl class="attribute">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.intensity">
+<code class="descname">intensity</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.theta2">
+<code class="descname">theta2</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.calculate.xrd.xrd.xrd_exp_dataset">
+<code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">xrd_exp_dataset</code><span class="sig-paren">(</span><em>th2_axis</em>, <em>int_axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.xrd_exp_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build an experimental dataset as an XraySpectrumData object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">th2_axis (np.ndarray): array containing the values for 2*theta</div>
+<div class="line">int_axis (np.ndarray): array containing the values for intensity</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">exp_spec (XraySpectrumData): named tuple containing the experimental</div>
+<div class="line-block">
+<div class="line">dataset</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.calculate.xrd.xrd.xrd_leBail_Ifit">
+<code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">xrd_leBail_Ifit</code><span class="sig-paren">(</span><em>xpeaks</em>, <em>exp_spec</em>, <em>peak_func=None</em>, <em>peak_f_args=[]</em>, <em>baseline=0.0</em>, <em>rwp_tol=0.01</em>, <em>max_iter=100</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.xrd_leBail_Ifit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a refining on an XraySpectrum object&#8217;s intensities based on
+experimental data with leBail&#8217;s method.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">xpeaks (XraySpectrum): object containing the details of the XRD peaks</div>
+<div class="line">exp_spec (XraySpectrumData): experimental data, dataset built using</div>
+<div class="line-block">
+<div class="line">xrd_exp_dataset</div>
+</div>
+<div class="line">peak_func (Optional[function&lt;float, float, <a href="#id1"><span class="problematic" id="id2">*</span></a>kargs&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; &lt;np.ndarray&gt;]): the function used to simulate</div>
+<div class="line-block">
+<div class="line">peaks. Should take th2 as its</div>
+<div class="line">first argument, peak centre as</div>
+<div class="line">its second, and any number of</div>
+<div class="line">optional arguments. Returns a</div>
+<div class="line">numpy array containing the peak</div>
+<div class="line">shape. Should be able to work</div>
+<div class="line">with numpy arrays as input</div>
+</div>
+</div>
+<div class="line">peak_f_args (Optional[list&lt;float&gt;]): optional arguments for peak_func.</div>
+<div class="line-block">
+<div class="line">If no peak_func has been supplied</div>
+<div class="line">by the user, the first value will</div>
+<div class="line">be used as the Gaussian width</div>
+</div>
+<div class="line">baseline (Optional[float]): baseline of experimental data, if present</div>
+<div class="line">rwp_tol (Optional[float]): tolerance on the Rwp error value between</div>
+<div class="line-block">
+<div class="line">two iterations that stops the calculation.</div>
+<div class="line">Default is 1e-2</div>
+</div>
+<div class="line">max_iter (Optional[int]): maximum number of iterations to perform</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">xpeaks_scaled (XraySpectrum): a new XraySpectrum object, with</div>
+<div class="line-block">
+<div class="line">intensities properly scaled to match the</div>
+<div class="line">experimental data</div>
+</div>
+<div class="line">simul_spec (np.ndarray): final simulated XRD spectrum</div>
+<div class="line">simul_peaks (np.ndarray): final simulated spectrum broken by peak</div>
+<div class="line-block">
+<div class="line">contribution along axis 1</div>
+</div>
+<div class="line">rwp (float): the final value of Rwp (fitness of simulated to</div>
+<div class="line-block">
+<div class="line">experimental data)</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">ValueError: if some of the arguments are invalid</div>
+</div>
+</div>
+</dd></dl>
+
 <dl class="function">
 <dt id="soprano.calculate.xrd.xrd.xrd_pwd_peaks">
-<code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">xrd_pwd_peaks</code><span class="sig-paren">(</span><em>latt_abc</em>, <em>lambdax=1.54056</em>, <em>theta2_tol=1e-06</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.xrd_pwd_peaks" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">xrd_pwd_peaks</code><span class="sig-paren">(</span><em>latt_abc</em>, <em>lambdax=1.54056</em>, <em>theta2_digits=6</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.xrd_pwd_peaks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the peaks (without intensities) of a powder
-XRD spectrum given the lattice in ABC form and the 
+XRD spectrum given the lattice in ABC form and the
 X-ray wavelength</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">latt_abc (np.ndarray): periodic lattice in ABC form, Angstroms and radians</div>
-<div class="line">lambdax (Optional[float]): X-ray wavelength in Angstroms (default is 1.54056 Ang)</div>
-<div class="line">theta2_tol (Optional[float]): Tolerance within which two theta angles (in degrees)</div>
+<div class="line">latt_abc (np.ndarray): periodic lattice in ABC form,</div>
 <div class="line-block">
-<div class="line">are considered to be one and the same (default is 1e-6 deg)</div>
+<div class="line">Angstroms and radians</div>
+</div>
+<div class="line">lambdax (Optional[float]): X-ray wavelength in Angstroms</div>
+<div class="line-block">
+<div class="line">(default is 1.54056 Ang)</div>
+</div>
+<div class="line">theta2_digits (Optional[int]): Rounding within which</div>
+<div class="line-block">
+<div class="line">two theta angles (in degrees)</div>
+<div class="line">are considered to be equivalent</div>
+<div class="line">(default is 6 digits)</div>
 </div>
 </div>
 </div>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">xpeaks (XraySpectrum): a named tuple containing the peaks with theta2,</div>
+<div class="line">xpeaks (XraySpectrum): a named tuple containing the peaks</div>
 <div class="line-block">
-<div class="line">corresponding hkl indices, intensities and wavelength</div>
+<div class="line">with theta2, corresponding hkl indices,</div>
+<div class="line">a unique hkl tuple for each peak,</div>
+<div class="line">inverse reciprocal lattice distances,</div>
+<div class="line">intensities and wavelength</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">ValueError: if some of the arguments are invalid</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.calculate.xrd.xrd.xrd_spec_simul">
+<code class="descclassname">soprano.calculate.xrd.xrd.</code><code class="descname">xrd_spec_simul</code><span class="sig-paren">(</span><em>xpeaks</em>, <em>th2_axis</em>, <em>peak_func=None</em>, <em>peak_f_args=None</em>, <em>baseline=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.xrd_spec_simul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simulate an XRD spectrum given positions of peaks, intensities, baseline,
+and a peak function (a Gaussian by default).</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">xpeaks (XraySpectrum): object containing the details of the XRD peaks</div>
+<div class="line">th2_axis (np.ndarray): theta2 axis points on which the</div>
+<div class="line-block">
+<div class="line">spectrum should be simulated</div>
+</div>
+<div class="line">peak_func (Optional[function&lt;float, float, <a href="#id3"><span class="problematic" id="id4">*</span></a>kargs&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; &lt;np.ndarray&gt;]): the function used to simulate</div>
+<div class="line-block">
+<div class="line">peaks. Should take th2 as its</div>
+<div class="line">first argument, peak centre as</div>
+<div class="line">its second, and any number of</div>
+<div class="line">optional arguments. Returns a</div>
+<div class="line">numpy array containing the peak</div>
+<div class="line">shape. Should be able to work</div>
+<div class="line">with numpy arrays as input</div>
+</div>
+</div>
+<div class="line">peak_f_args (Optional[list&lt;float&gt;]): optional arguments for peak_func.</div>
+<div class="line-block">
+<div class="line">If no peak_func has been supplied</div>
+<div class="line">by the user, the first value will</div>
+<div class="line">be used as the Gaussian width</div>
+</div>
+<div class="line">baseline (Optional[float]): baseline to use as starting point for the</div>
+<div class="line-block">
+<div class="line">simulated spectrum</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">simul_spec (XraySpectrumData): simulated XRD spectrum</div>
+<div class="line">simul_peaks (np.ndarray): simulated spectrum intensities broken by peak</div>
+<div class="line-block">
+<div class="line">contribution along axis 1</div>
 </div>
 </div>
 </div>

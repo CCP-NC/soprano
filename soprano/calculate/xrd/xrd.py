@@ -12,9 +12,11 @@ from __future__ import unicode_literals
 import copy
 import inspect
 import numpy as np
+from pyspglib import spglib
 from collections import namedtuple
 # Internal imports
-from soprano.utils import hkl2d2_matgen, minimum_supcell, inv_plane_dist
+from soprano import utils
+from soprano.calculate.xrd import sel_rules as xrdsel
 
 XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
                                            "invd", "intensity", "lambdax"))
@@ -22,87 +24,235 @@ XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
 XraySpectrumData = namedtuple("XraySpectrumData", ("theta2", "intensity"))
 
 
-def xrd_pwd_peaks(latt_abc, lambdax=1.54056, theta2_digits=6):
-    """
-    Calculate the peaks (without intensities) of a powder
-    XRD spectrum given the lattice in ABC form and the
-    X-ray wavelength
+class XRDCalculator(object):
 
-    | Args:
-    |    latt_abc (np.ndarray): periodic lattice in ABC form,
-    |                           Angstroms and radians
-    |    lambdax (Optional[float]): X-ray wavelength in Angstroms
-    |                               (default is 1.54056 Ang)
-    |    theta2_digits (Optional[int]): Rounding within which
-    |                                  two theta angles (in degrees)
-    |                                  are considered to be equivalent
-    |                                  (default is 6 digits)
-
-    | Returns:
-    |    xpeaks (XraySpectrum): a named tuple containing the peaks
-    |                           with theta2, corresponding hkl indices,
-    |                           a unique hkl tuple for each peak,
-    |                           inverse reciprocal lattice distances,
-    |                           intensities and wavelength
-
-    | Raises:
-    |   ValueError: if some of the arguments are invalid
+    """A class implementing methods for XRD simulations, comparisons and
+    fittings.
 
     """
 
-    # First a sanity check
-    latt_abc = np.array(latt_abc, copy=False)
-    if latt_abc.shape != (2, 3):
-        raise ValueError("Invalid argument latt_abc passed to xrd_pwd_peaks")
+    def __init__(self, lambdax=1.54056, theta2_digits=6, baseline=0.0,
+                 peak_func=None, peak_f_args=None):
+        """
+        Initialize the XDRCalculator object's main parameters
 
-    inv_d_max = 2.0/lambdax  # Upper limit to the inverse distance
+        | Args:
+        |    lambdax (Optional[float]): X-ray wavelength in Angstroms
+        |                               (default is 1.54056 Ang)
+        |    theta2_digits (Optional[int]): Rounding within which
+        |                                  two theta angles (in degrees)
+        |                                  are considered to be equivalent
+        |                                  (default is 6 digits) when
+        |                                  calculating theoretical peaks
+        |   baseline (Optional[float]): baseline to use as starting point for
+        |                               simulated spectra
+        |   peak_func (Optional[function<float, float, *kargs>
+        |                       => <np.ndarray>]): the function used to
+        |                                          simulate peaks. Should take
+        |                                          th2 as its first argument,
+        |                                          peak centre as its second,
+        |                                          and any number of optional
+        |                                          arguments. Returns a numpy
+        |                                          array containing the peak
+        |                                          shape. Should be able to
+        |                                          work with numpy arrays as
+        |                                          input
+        |   peak_f_args (Optional[list<float>]): optional arguments for
+        |                                        peak_func. If no peak_func
+        |                                        has been supplied by the
+        |                                        user, the first value will
+        |                                        be used as the Gaussian width
 
-    # Second, find the matrix linking hkl indices to the inverse distance
-    hkl2d2 = hkl2d2_matgen(latt_abc)
-    hkl_bounds = minimum_supcell(inv_d_max, r_matrix=hkl2d2)
+        """
 
-    hrange = range(-hkl_bounds[0], hkl_bounds[0]+1)
-    krange = range(-hkl_bounds[1], hkl_bounds[1]+1)
-    lrange = range(-hkl_bounds[2], hkl_bounds[2]+1)
+        # These properties are basic and can be changed by the user directly
+        self.lambdax = lambdax
+        self.theta2_digits = 6
+        self.baseline = baseline
+        # These ones not so much and need checking
+        self.set_peak_func(peak_func, peak_f_args)
 
-    # We now build a full grid of hkl indices. In this way
-    # iteration is performed over numpy arrays and thus faster
-    hkl_grid = np.array(np.meshgrid(hrange, krange, lrange)).reshape((3, -1))
-    inv_d_grid = np.sqrt(np.sum(hkl_grid *
-                                np.tensordot(hkl2d2, hkl_grid,
-                                             axes=((1,), (0,))), axis=0))
+    @property
+    def peak_func(self):
+        """The function used to build peaks in simulated spectra
 
-    # Some will still have inv_d > inv_d_max, we fix that here
-    # We also eliminate both 2theta = 0 and 2theta = pi to avoid
-    # divergence later in the geometric factor
-    valid_i = np.where((inv_d_grid < inv_d_max)*(inv_d_grid > 0))[0]
-    hkl_grid = hkl_grid[:, valid_i]
-    inv_d_grid = inv_d_grid[valid_i]
-    theta_grid = np.arcsin(inv_d_grid/inv_d_max)
-    # Now we calculate theta2.
-    # Theta needs to be truncated to a certain number of
-    # digits to avoid the same peak to be wrongly
-    # considered as two.
-    # This function also takes care of the sorting
-    unique_sorting = np.unique(np.round(2.0*theta_grid*180.0/np.pi,
-                                        theta2_digits),
-                               return_index=True,
-                               return_inverse=True)
+           Should be of form peak_func(theta2, peak_position, *peak_f_args)
 
-    peak_n = len(unique_sorting[0])
-    hkl_sorted = [hkl_grid[:,
-                           np.where(unique_sorting[2] == i)[0]].T.tolist()
-                  for i in range(peak_n)]
-    hkl_unique = hkl_grid[:, unique_sorting[1]].T
-    invd = inv_d_grid[unique_sorting[1]]
-    xpeaks = XraySpectrum(unique_sorting[0],
-                          np.array(hkl_sorted),
-                          hkl_unique,
-                          invd,
-                          np.zeros(peak_n),
-                          lambdax)
+        """
+        return self._peak_func
 
-    return xpeaks
+    @property
+    def peak_f_args(self):
+        """Additional arguments to be passed to peak_func"""
+        return self._peak_f_args
+
+    # The setter isn't part of the property because the option to pass None
+    # has to be made clear as well
+    def set_peak_func(self, peak_func=None, peak_f_args=None):
+        """Set a new peak_func for this XDRCalculator. If no new function is
+           passed, reset the default Gaussian function.
+
+           | Args:
+           |   peak_func (Optional[function<float, float, *kargs>
+           |                       => <np.ndarray>]): the function used to
+           |                                          simulate peaks. Should
+           |                                          take th2 as its first
+           |                                          argument, peak centre as
+           |                                          its second, and any
+           |                                          number of optional
+           |                                          arguments. Returns a
+           |                                          numpy array containing
+           |                                          the peak shape. Should
+           |                                          be able to work with
+           |                                          numpy arrays as input
+           |   peak_f_args (Optional[list<float>]): optional arguments for
+           |                                        peak_func. If no peak_func
+           |                                        has been supplied by the
+           |                                        user, the first value will
+           |                                        be used as the Gaussian
+           |                                        width
+        """
+
+        # If there's no peak function args...
+        if peak_f_args is None:
+            if peak_func is not None:
+                peak_f_args = []
+            else:
+                peak_f_args = [0.1]  # Default Gaussian width
+
+        # For peak_func there's little we can do to check, mostly it's the
+        # user's responsibility.
+        if peak_func is not None:
+            argspec = inspect.getargspec(peak_func)
+            nargs = len(argspec.args)
+            nargs_def = 0 if argspec.defaults is None else len(
+                argspec.defaults)
+            if nargs < 2:
+                raise ValueError("Invalid peak_func passed to set_peak_func")
+            elif (nargs-(2+nargs_def)) > len(peak_f_args):
+                raise ValueError("""Invalid number of peak_f_args passed to
+                                    set_peak_func""")
+        else:
+            # A gaussian here
+            peak_func = _gauss_peak_default
+            if peak_f_args is None:
+                # Use default width
+                peak_f_args = [0.1]
+            else:
+                peak_f_args = peak_f_args[:1]  # Ignore all args but one
+
+        self._peak_func = peak_func
+        self._peak_f_args = peak_f_args
+
+    def powder_peaks(self, atoms=None, latt_abc=None, n=1, o='all'):
+        """
+        Calculate the peaks (without intensities) of a powder
+        XRD spectrum given either an Atoms object or the lattice in ABC form
+        and the spacegroup indices to apply the selection rules
+
+        | Args:
+        |    atoms (Optional[soprano.Atoms]): atoms object to gather lattice
+        |                                     and spacegroup information from 
+        |    latt_abc (Optional[np.ndarray]): periodic lattice in ABC form,
+        |                                     Angstroms and radians
+        |   n (Optional[int]): International number of the required spacegroup
+        |   o (Optional[int]): Sub-option of the required spacegroup
+
+        | Returns:
+        |    xpeaks (XraySpectrum): a named tuple containing the peaks
+        |                           with theta2, corresponding hkl indices,
+        |                           a unique hkl tuple for each peak,
+        |                           inverse reciprocal lattice distances,
+        |                           intensities and wavelength
+
+        | Raises:
+        |   ValueError: if some of the arguments are invalid
+
+        """
+
+        # First a sanity check
+        if [atoms, latt_abc].count(None) != 1:
+            raise ValueError("""One and only one between atoms and latt_abc
+                                must be passed to powder_peaks""")
+        if atoms is not None:
+            # Define the lattice
+            latt_abc = utils.cart2abc(atoms.get_cell())
+            # And the symmetry
+            symm_data = spglib.get_symmetry_dataset(atoms)
+            h = int(symm_data['hall_number'])
+            try:
+                sel_rule = xrdsel.get_sel_rule_from_hall(h)
+            except ValueError:
+                # Not found?
+                raise RuntimeWarning("""Required symmetry not found - 
+                                        No selection rules will be applied to
+                                        XRD powder spectrum""")
+        else:
+            latt_abc = np.array(latt_abc, copy=False)
+            if latt_abc.shape != (2, 3):
+                raise ValueError(
+                    "Invalid argument latt_abc passed to xrd_pwd_peaks")
+            try:
+                sel_rule = xrdsel.get_sel_rule_from_international(n, o)
+            except ValueError:
+                # Not found?
+                raise RuntimeWarning("""Required symmetry not found - 
+                                        No selection rules will be applied to
+                                        XRD powder spectrum""")
+
+        inv_d_max = 2.0/self.lambdax  # Upper limit to the inverse distance
+
+        # Second, find the matrix linking hkl indices to the inverse distance
+        hkl2d2 = utils.hkl2d2_matgen(latt_abc)
+        hkl_bounds = utils.minimum_supcell(inv_d_max, r_matrix=hkl2d2)
+
+        hrange = range(-hkl_bounds[0], hkl_bounds[0]+1)
+        krange = range(-hkl_bounds[1], hkl_bounds[1]+1)
+        lrange = range(-hkl_bounds[2], hkl_bounds[2]+1)
+
+        # We now build a full grid of hkl indices. In this way
+        # iteration is performed over numpy arrays and thus faster
+        hkl_grid = np.array(
+            np.meshgrid(hrange, krange, lrange)).reshape((3, -1))
+        inv_d_grid = np.sqrt(np.sum(hkl_grid *
+                                    np.tensordot(hkl2d2, hkl_grid,
+                                                 axes=((1,), (0,))), axis=0))
+
+        # Some will still have inv_d > inv_d_max, we fix that here
+        # We also eliminate both 2theta = 0 and 2theta = pi to avoid
+        # divergence later in the geometric factor
+        valid_i = np.where((inv_d_grid < inv_d_max)*(inv_d_grid > 0))[0]
+        hkl_grid = hkl_grid[:, valid_i]
+        inv_d_grid = inv_d_grid[valid_i]
+        # Now applying the selection rule
+        selected_i = np.where(np.apply_along_axis(sel_rule, 0, hkl_grid))[0]
+        hkl_grid = hkl_grid[:, selected_i]
+        inv_d_grid = inv_d_grid[selected_i]
+        theta_grid = np.arcsin(inv_d_grid/inv_d_max)
+        # Now we calculate theta2.
+        # Theta needs to be truncated to a certain number of
+        # digits to avoid the same peak to be wrongly
+        # considered as two.
+        # This function also takes care of the sorting
+        unique_sorting = np.unique(np.round(2.0*theta_grid*180.0/np.pi,
+                                            self.theta2_digits),
+                                   return_index=True,
+                                   return_inverse=True)
+
+        peak_n = len(unique_sorting[0])
+        hkl_sorted = [hkl_grid[:,
+                               np.where(unique_sorting[2] == i)[0]].T.tolist()
+                      for i in range(peak_n)]
+        hkl_unique = hkl_grid[:, unique_sorting[1]].T
+        invd = inv_d_grid[unique_sorting[1]]
+        xpeaks = XraySpectrum(unique_sorting[0],
+                              np.array(hkl_sorted),
+                              hkl_unique,
+                              invd,
+                              np.zeros(peak_n),
+                              self.lambdax)
+
+        return xpeaks
 
 
 def xrd_spec_simul(xpeaks, th2_axis, peak_func=None,
@@ -196,8 +346,8 @@ def xrd_exp_dataset(th2_axis, int_axis):
 
 
 def xrd_leBail_Ifit(xpeaks, exp_spec,
-                peak_func=None, peak_f_args=[], baseline=0.0,
-                rwp_tol=1e-2, max_iter=100):
+                    peak_func=None, peak_f_args=[], baseline=0.0,
+                    rwp_tol=1e-2, max_iter=100):
     """
     Perform a refining on an XraySpectrum object's intensities based on
     experimental data with leBail's method.

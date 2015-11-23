@@ -6,7 +6,7 @@ spectroscopic results from structures.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.calculate.xrd.xrd import (xrd_pwd_peaks,
-                                       xrd_spec_simul,
-                                       xrd_exp_dataset,
-                                       xrd_leBail_Ifit)
+from soprano.calculate.xrd.xrd import XRDCalculator
+
+from soprano.calculate.xrd.sel_rules import (get_sel_rule_from_international,
+                                             get_sel_rule_from_hall)

@@ -11,7 +11,9 @@ v 0.1
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from __future__ import unicode_literals
+# The next line is removed because it causes issues in interpreting 
+# the package_data line, unfortunately
+# from __future__ import unicode_literals
 
 from distutils.core import setup
 
@@ -19,7 +21,7 @@ setup(name='Soprano',
       version='0.1',
       packages=['soprano'],
       # For data files. Example: 'soprano': ['data/*.json']
-      package_data={'soprano': 'data/*.json'},
+      package_data={'soprano': ['data/*.json']},
       # For scripts - just put the paths
       scripts=[],
       )
