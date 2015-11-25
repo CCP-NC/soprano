@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.abspath(
                    os.path.join(os.path.dirname(__file__), "../")))  # noqa
 from soprano.calculate import xrd
+from soprano.calculate.xrd.xrd import XraySpectrum, XraySpectrumData
 import unittest
 import numpy as np
 
@@ -59,13 +60,36 @@ class TestXRDCalculator(unittest.TestCase):
     def test_powder_peaks(self):
         xr = xrd.XRDCalculator()
 
-        abc = [[3,5,10],[np.pi/2, np.pi/2, np.pi/2]]
+        abc = [[3, 5, 10], [np.pi/2, np.pi/2, np.pi/2]]
         peaks_nosym = xr.powder_peaks(latt_abc=abc)
         peaks_sym = xr.powder_peaks(latt_abc=abc, n=230, o=1)
 
         # A very crude test for now
         self.assertTrue(len(peaks_nosym.theta2) >= len(peaks_sym.theta2))
 
+    def test_lebail_fit(self):
+        xr = xrd.XRDCalculator()
+
+        # Define a fake experimental spectrum to fit
+        peak_n = 3
+        th2_axis = np.linspace(0, np.pi, 1000)
+
+        xpeaks = XraySpectrum(np.random.random(peak_n)*np.pi,
+                              [],
+                              [],
+                              [],
+                              np.random.random(peak_n)*3.0+1.0,
+                              xr.lambdax)
+
+        # Build a simulated spectrum
+        xpeaks_exp_mock, simul_peaks = xr.spec_simul(xpeaks, th2_axis)
+        # Now clear the intensities
+        np.copyto(xpeaks.intensity, np.ones(peak_n))
+        # And carry out the leBail fit
+        xpeaks, simul_spec, simul_peaks, rwp = xr.lebail_fit(xpeaks,
+                                                             xpeaks_exp_mock)
+
+        self.assertAlmostEqual(rwp, 0.0)
 
 
 class TestXRDRules(unittest.TestCase):
