@@ -248,7 +248,7 @@ class XRDCalculator(object):
                               np.array(hkl_sorted),
                               hkl_unique,
                               invd,
-                              np.zeros(peak_n),
+                              np.ones(peak_n)*self.baseline,
                               self.lambdax)
 
         return xpeaks
