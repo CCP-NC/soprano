@@ -146,5 +146,26 @@ class TestCollection(unittest.TestCase):
         self.assertTrue(np.all(testcoll.get_array('sorted') == range(struct_n,
                                                                      0, -1)))
 
+    def test_slices(self):
+
+        aselist = [
+            Atoms('C'),
+            Atoms('C'),
+            Atoms('H'),
+            Atoms('C')
+        ]
+
+        testcoll = AtomsCollection(aselist)
+
+        coll_h = testcoll[2]
+        coll_c = testcoll[(0, 1, 3)]
+
+        self.assertTrue(all([s.get_chemical_formula() == 'H'
+                             for s in coll_h.structures]))
+        self.assertTrue(all([s.get_chemical_formula() == 'C'
+                             for s in coll_c.structures]))
+
+
+
 if __name__ == '__main__':
     unittest.main()

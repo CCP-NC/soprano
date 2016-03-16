@@ -7,9 +7,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import copy
+import cPickle
 import numpy as np
+from scipy.cluster import hierarchy, vq
+from scipy.spatial import distance as spdist
 from soprano.collection import AtomsCollection
-from soprano.analyse.phylogen.genes import Gene, GeneDictionary
+from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
+                                            GeneError, load_genefile)
 
 
 class PhylogenCluster(object):
@@ -35,12 +39,14 @@ class PhylogenCluster(object):
         |                           in order to operate on a modified
         |                           collection, a new PhylogenCluster should
         |                           be created.
-        |   genes (list[tuple]): list of the genes that should be loaded
-        |                        immediately; each gene comes in the form of a
-        |                        tuple (name (str), weight (float),
-        |                        params (dict)). These can also be loaded
-        |                        directly from an existing file with the
-        |                        static method loadgenes().
+        |   genes (list[tuple], str, file): list of the genes that should be
+        |                                   loaded immediately; each gene
+        |                                   comes in the form of a tuple
+        |                                   (name (str), weight (float),
+        |                                   params (dict)). A path or open 
+        |                                   file can also be passed for a
+        |                                   .gene file, from which the values
+        |                                   will be loaded.
         |   norm_range (list[float?]): ranges to constrain the values of
         |                              single genes in between. Default is
         |                              (0, 1). A value of "None" in either
@@ -80,14 +86,28 @@ class PhylogenCluster(object):
         if genes is not None:
             self.set_genes(genes=genes)
 
-    def set_genes(self, genes):
+    def set_genes(self, genes, load_arrays=False):
         """Calculate, store and set a list of genes as used for clustering.
 
         | Args:
-        |   genes (list[soprano.analyse.phylogen.Gene]): a list of Genes to 
-        |                                                calculate and store.
+        |   genes (list[soprano.analyse.phylogen.Gene],
+        |          file, str): a list of Genes to calculate and store. A path
+        |                      or open file can also be passed for a .gene
+        |                      file, from which the values will be loaded.
+        |   load_arrays (bool): try loading the genes as arrays from the
+        |                       collection before generating them. Warning:
+        |                       if there are arrays named like genes but with
+        |                       different contents this can lead to
+        |                       unpredictable results.
 
         """
+
+        # Check if it can be opened:
+        try:
+            temp = load_genefile(genes)
+            genes = temp
+        except TypeError:
+            pass
 
         self._genes = []
 
@@ -99,13 +119,27 @@ class PhylogenCluster(object):
                 if self._gene_storage[g.name]['def'] == g:
                     continue
             # If it's not, it needs to be calculated
-            gene_entry = GeneDictionary.get_gene(g.name)
-            gene_params = gene_entry['default_params']
-            gene_params.update(g.params if g.params is not None else {})
+            gene_val = None
+            if load_arrays:
+                # Check if it is present
+                try:
+                    gene_val = self._collection.get_array(g.name)
+                except ValueError:
+                    pass
+            # And confirm that there are no NaNs inside
+            if gene_val is None or np.any(np.isnan(gene_val)):
+                gene_entry = GeneDictionary.get_gene(g.name)
+                gene_params = g.params if g.params is not None else {}
+                # Check that the parameters are valid
+                if any([p not in gene_entry['default_params']
+                        for p in gene_params]):
+                    raise ValueError('Invalid parameters for gene '
+                                     '{0}'.format(g.name))
+                gene_val = gene_entry['parser'](self._collection,
+                                                **gene_params)
             self._gene_storage[g.name] = {
                 'def': g,
-                'val': gene_entry['parser'](self._collection,
-                                            **gene_params)
+                'val': gene_val
             }
 
         self._needs_recalc = True
@@ -124,6 +158,9 @@ class PhylogenCluster(object):
         for g in self._genes:
             gene_entry = GeneDictionary.get_gene(g.name)
             gene_val = self._gene_storage[g.name]['val']
+            # For single values genes we need to perform a reshaping
+            if len(gene_val.shape) == 1:
+                gene_val = gene_val.reshape((-1, 1))
             # Now normalization and weights
             if not gene_entry['pair']:
                 # Append
@@ -154,7 +191,10 @@ class PhylogenCluster(object):
             else:
                 vmin = np.amin(vnorm, axis=0)
                 vmax = np.amax(vnorm, axis=0)
-                vnorm = (vnorm-vmin)/(vmax-vmin)
+                vspan = vmax-vmin
+                # Fix the risk of division by zero
+                vspan = np.where(np.isclose(vspan, 0), np.inf, vspan)
+                vnorm = (vnorm-vmin)/vspan
                 vnorm *= self._normrng[1]-self._normrng[0]
                 vnorm += self._normrng[0]
         self._gene_vectors_norm = vnorm*g_vecs_weights
@@ -278,3 +318,167 @@ class PhylogenCluster(object):
             self._recalc()
 
         return self._distmat
+
+    def get_linkage(self, method='single'):
+        """Get the linkage matrix between structures in the collection,
+        based on the genes currently in use. Only used in hierarchical
+        clustering.
+
+        Calls scipy.cluster.hierarchy.linkage.
+
+        | Args:
+        |   method (str): clustering method to employ. Valid entries are 
+        |                 'single', 'complete', 'weighted' and 'average'.
+        |                 Refer to Scipy documentation for further details.
+
+        | Returns:
+        |   Z (np.ndarray): linkage matrix for the structures in the
+        |                   collection. Refer to Scipy documentation for 
+        |                   details about the method
+
+        """
+
+        if self._needs_recalc:
+            self._recalc()
+
+        cdist = spdist.squareform(self._distmat)
+
+        return hierarchy.linkage(cdist, method=method)
+
+    def get_hier_clusters(self, t, method='single'):
+        """Get multiple clusters (in the form of a list of collections) based
+        on the hierarchical clustering methods and the currently set genes.
+
+        Calls scipy.cluster.hierarchy.fcluster
+
+        | Args:
+        |   t (float): minimum distance of separation required to consider
+        |              two clusters separate. This controls the number of
+        |              clusters: a smaller value will produce more fine
+        |              grained clustering. At the limit, a value smaller than
+        |              the distance between the two closest structures will
+        |              return a cluster for each structure. Remember that the
+        |              'distances' in this case refer to distances between the
+        |              'gene' values attributed to each structure. In other
+        |              words they are a function of the chosen genes,
+        |              normalization conditions and weights employed.
+        |              In addition, the way they are calculated depends on the
+        |              choice of method.
+        |   method (str): clustering method to employ. Valid entries are 
+        |                 'single', 'complete', 'weighted' and 'average'.
+        |                 Refer to Scipy documentation for further details.
+
+        | Returns:
+        |   clusters (list[AtomsCollection]): clusters of structures formed
+        |                                     by hierarchical algorithm.
+
+        """
+
+        if self._needs_recalc:
+            self._recalc()
+
+        Z = self.get_linkage(method=method)
+        clusts = hierarchy.fcluster(Z, t, criterion='distance')
+        clust_n = np.amax(clusts)
+        clust_slices = [np.where(clusts == i)[0] for i in range(1, clust_n+1)]
+
+        return [self._collection[sl] for sl in clust_slices]
+
+    def get_hier_tree(self, method='single'):
+        """Get a tree data structure describing the clustering order of based
+        on the hierarchical clustering methods and the currently set genes.
+
+        Calls scipy.cluster.hierarchy.to_tree
+
+        | Args:
+        |   method (str): clustering method to employ. Valid entries are 
+        |                 'single', 'complete', 'weighted' and 'average'.
+        |                 Refer to Scipy documentation for further details.
+
+        | Returns:
+        |   root_node (ClusterNode): the root node of the tree. Access child
+        |                            members with .left and .right, while .id
+        |                            holds the number of the corresponding
+        |                            cluster. Refer to Scipy documentation for
+        |                            further details.
+
+        """
+
+        if self._needs_recalc:
+            self._recalc()
+
+        Z = self.get_linkage(method=method)
+        return hierarchy.to_tree(Z)
+
+    def get_max_cluster_dist(self):
+        """Return the maximum possible distance between two clusters"""
+
+        return np.linalg.norm([g.weight for g in self._genes])
+
+    def get_kmeans_clusters(self, n):
+        """Get a given number of clusters (in the form of a list of
+        collections) based on the k-means clustering methods
+        and the currently set genes.
+        Warning: this method only works if there are no genes that work only
+        with pairs of structures - as specific points, and not just distances
+        between them, are required for this algorithm.
+
+        Calls scipy.cluster.vq.kmeans
+
+        | Args:
+        |   n (int):    the desired number of clusters.
+
+        | Returns:
+        |   clusters (list[AtomsCollection]): clusters of structures formed
+        |                                     by k-means algorithm.
+
+        """
+
+        # Sanity check
+        if self._gene_matrices_raw.shape[2] > 0:
+            # Then this method can't work!
+            raise RuntimeError('k-means clustering can not be used with'
+                               'presence of pair distance genes')
+
+        if self._needs_recalc:
+            self._recalc()
+
+        centroids, dist = vq.kmeans(self._gene_vectors_norm, n)
+        clusts, cdists = vq.vq(self._gene_vectors_norm, centroids)
+        clust_n = np.amax(clusts)+1
+        clust_slices = [np.where(clusts == i)[0] for i in range(clust_n)]
+
+        return [self._collection[sl] for sl in clust_slices]
+
+    def save_collection(self, filename):
+        """Save as pickle the collection bound to this PhylogenCluster.
+        The calculated genes are also stored in it as arrays for future use.
+
+        """
+
+        saveC = self._collection[:]
+
+        for g in self._gene_storage:
+            saveC.set_array(g, self._gene_storage[g]['val'])
+
+        saveC.save(filename)
+
+    def save(self, filename):
+        """Simply save a pickled copy to a given file path"""
+
+        f = open(filename, 'w')
+        cPickle.dump(self, f)
+
+    @staticmethod
+    def load(filename):
+        """Load a pickled copy from a given file path"""
+
+        f = open(filename)
+        f = cPickle.load(f)
+        if not isinstance(f, PhylogenCluster):
+            raise ValueError('File does not contain a PhylogenCluster object')
+        return f
+
+
+
+

@@ -75,7 +75,7 @@ class CalcEnergy(AtomsProperty):
     @staticmethod
     def extract(s):
         try:
-            return s.calc.results['energy']
+            return s.get_potential_energy()
         except:
             return None
 

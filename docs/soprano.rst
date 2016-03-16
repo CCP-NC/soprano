@@ -6,9 +6,10 @@ Subpackages
 
 .. toctree::
 
+    soprano.analyse
     soprano.calculate
-    soprano.cluster
     soprano.collection
+    soprano.properties
 
 Submodules
 ----------

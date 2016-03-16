@@ -24,6 +24,9 @@ class AtomsProperty(object):
         only argument to get the property with the given parameters.
 
         | Args:
+        |   name (str): a name to give to this specific instance of the
+        |               property (will be used to store it as array if
+        |               requested)
         |   params: named arguments specific to this type of property
 
         """

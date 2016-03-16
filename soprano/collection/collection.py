@@ -12,12 +12,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import sys
 import ase
 import uuid
-import pickle
+import cPickle
 import inspect
 import numpy as np
 # Internal imports
+from ase import io as ase_io
+from ase.utils.geometry import niggli_reduce
 from soprano import utils
 
 
@@ -84,31 +87,55 @@ class AtomsCollection(object):
     """
 
     def __init__(self, structures=[],
-                 info={}):
+                 info={},
+                 cell_reduce=False,
+                 progress=False):
         """
         Initialize the AtomsCollection
 
         | Args:
-        |    structures ([str] or [ase.Atoms]): list of file names or Atoms
-        |                                       that will form the collection
-        |    info (dict):   dictionary of general information to attach
-        |                   to this collection
+        |    structures (list[str] or list[ase.Atoms]): list of file names or
+        |                                               Atoms that will form
+        |                                               the collection
+        |    info (dict): dictionary of general information to attach
+        |                 to this collection
+        |    cell_reduce (bool): if True, perform a Niggli cell reduction on
+        |                        all loaded structures
+        |    progress (bool): visualize a progress bar for the loading process
         """
 
         # Start by parsing out the structures
         self.structures = []
 
-        for struct in structures:
+        if isinstance(structures, ase.Atoms):
+            # Well, it's just one...
+            structures = [structures]
+
+        if progress:
+            sys.stdout.write("Loading collection...\n")
+        s_n = len(structures)
+        for s_i, struct in enumerate(structures):
+            if progress:
+                # Progress bar
+                sys.stdout.write("\rLoading: {0}".format(utils.progbar(s_i+1,
+                                                                       s_n)))
             # Is it an Atoms object?
             if type(struct) is ase.Atoms:
                 self.structures.append(ase.Atoms(struct))
             # Or is it a string?
             elif utils.is_string(struct):
-                self.structures.append(ase.io.read(str(struct)))
+                self.structures.append(ase_io.read(str(struct)))
+                # If there's no name, give it the filename
+                if 'name' not in self.structures[-1].info:
+                    self.structures[-1].info['name'] = utils.seedname(struct)
             else:
                 raise TypeError('Structures must be Atoms objects or valid '
                                 'file names,'
                                 ' not {0}'.format(type(struct).__name__))
+            if cell_reduce:
+                niggli_reduce(self.structures[-1])
+        if progress:
+            sys.stdout.write('\nLoaded {0} structures\n'.format(s_n))
 
         self._all = _AllCaller(self.structures, ase.Atoms)
 
@@ -119,7 +146,7 @@ class AtomsCollection(object):
             raise TypeError('Info must be dict,'
                             ' not {0}'.format(type(info).__name__))
         else:
-            self.info = info
+            self.info = info.copy()
 
     def __add__(self, other):
         """Addition of two collections brings a merging"""
@@ -152,7 +179,7 @@ class AtomsCollection(object):
             if aname in other._arrays:
                 all_arr += list(other.get_array(aname))
             else:
-                all_arr += [np.zeros(shape)]*other.length
+                all_arr += [np.zeros(shape)*np.nan]*other.length
             sum_struct.set_array(aname, all_arr, shape=shape)
 
         for aname in other._arrays:
@@ -170,6 +197,21 @@ class AtomsCollection(object):
     def __iadd__(self, other):
         self = self + other
         return self
+
+    def __getitem__(self, indices):
+        """Allow sophisticated slicing"""
+        try:
+            struct_slice = self.structures[indices]
+        except TypeError:
+            struct_slice = [self.structures[i] for i in indices]
+
+        sliced = AtomsCollection(struct_slice, info=self.info)
+
+        # Now to add the arrays
+        for a in self._arrays:
+            sliced.set_array(a, self._arrays[a][indices])
+
+        return sliced
 
     @property
     def length(self):
@@ -285,6 +327,8 @@ class AtomsCollection(object):
             else:
                 label = labels[i]
             calc = calctype(atoms=s, label=label, **params)
+            # To make sure...
+            s.set_calculator(calc)
 
     def run_calculators(self, properties=None, system_changes=None):
         """Run all previously set ASE calculators.
@@ -384,11 +428,27 @@ class AtomsCollection(object):
         """Simply save a pickled copy to a given file path"""
 
         f = open(filename, 'w')
-        pickle.dump(self, f)
+        # Pickling doesn't deal well with the _AllCaller, so we get rid of it
+        selfcopy = self[:]
+        selfcopy._all = None
+        cPickle.dump(selfcopy, f)
 
     @staticmethod
     def load(filename):
         """Load a pickled copy from a given file path"""
 
         f = open(filename)
-        return pickle.load(f)
+        f = cPickle.load(f)
+        if not isinstance(f, AtomsCollection):
+            raise ValueError('File does not contain an AtomsCollection'
+                             ' object')
+        # Restore the _AllCaller
+        f._all = _AllCaller(f.structures, ase.Atoms)
+        return f
+
+if __name__ == '__main__':
+
+    # Just load whatever was passed in the command line!
+
+    if len(sys.argv) > 1:
+        coll = AtomsCollection(sys.argv[1:], progress=True, cell_reduce=True)

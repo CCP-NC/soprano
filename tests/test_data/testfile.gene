@@ -1,0 +1,6 @@
+# This is a full line comment
+latt_abc_len 1.0    
+linkage_list 0.5    # And this is a continuation comment
+{
+    size    3
+}

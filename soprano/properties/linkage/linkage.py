@@ -20,19 +20,19 @@ class LinkageList(AtomsProperty):
     reduced to their shortest periodic version and sorted min to max.
 
     | Parameters: 
-    |   num (int): maximum number of distances to include. If not present, all
-    |              of them will be included. If present, arrays will be cut or
-    |              padded to reach this number
+    |   size (int): maximum sizeber of distances to include. If not present,
+    |               all of them will be included. If present, arrays will be
+    |               cut or padded to reach this sizeber.
 
     """
 
     default_name = 'linkage_list'
     default_params = {
-            'num': 0
+            'size': 0
     }
 
     @staticmethod
-    def extract(s, num):
+    def extract(s, size):
         # Get the interatomic pair distances
         v = s.get_positions()
         v = v[:, None, :]-v[None, :, :]
@@ -42,12 +42,12 @@ class LinkageList(AtomsProperty):
         # And now compile the list
         link_list = np.linalg.norm(v, axis=-1)
         link_list.sort()
-        if num > 0:
-            if link_list.shape[0] >= num:
-                link_list = link_list[:num]
+        if size > 0:
+            if link_list.shape[0] >= size:
+                link_list = link_list[:size]
             else:
                 link_list = np.pad(link_list,
-                                   (0, num-link_list.shape[0]),
+                                   (0, size-link_list.shape[0]),
                                    mode=str('constant'),
                                    constant_values=np.inf)
 

@@ -12,7 +12,44 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
 import numpy as np
+
+def seedname(path):
+    """Get the filename (with no extension) from a full path"""
+    return os.path.splitext(os.path.basename(path))[0]
+
+def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
+    """A textual progress bar for the command line
+
+    | Args:
+    |   i (int): current progress index
+    |   max_i (int): final progress index
+    |   bar_len (Optional[int]): length in characters of the bar (no brackets)
+    |   spinner (Optional[bool]): show a spinner at the end
+    |   spin_rate (Optional[float]): spinner rotation speed (turns per full
+    |                                progress)
+
+    | Returns:
+    |   bar (str): a progress bar formatted as requested
+
+    """
+    block = {True: '\u2588', False: ' '}
+    spin = '|\\-/'
+    perc = i/float(i_max)*bar_len
+    bar = '[{0}]'.format(''.join([block[i < perc] for i in range(bar_len)]))
+    if spinner:
+        bar += ' {0}'.format(spin[int(perc*spin_rate)%len(spin)])
+
+    return bar
+
+def parse_intlist(string):
+    """Parse a list of ints from a string"""
+    return [int(x) for x in string.split()]
+
+def parse_floatlist(string):
+    """Parse a list of floats from a string"""
+    return [float(x) for x in string.split()]
 
 def abc2cart(abc):
     """Transforms an axes and angles representation of lattice parameters

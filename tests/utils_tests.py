@@ -17,6 +17,10 @@ from soprano.utils import *
 import unittest
 import numpy as np
 
+class TestOthers(unittest.TestCase):
+
+    def test_seedname(self):
+        self.assertEqual(seedname('a/b/seed.txt'), 'seed')
 
 class TestLatticeMethods(unittest.TestCase):
 
