@@ -1,0 +1,394 @@
+"""
+Definition of the Collection class.
+
+It handles multiple Atoms ASE objects and mirrors in this sense the structure
+of the Atoms object itself.
+"""
+
+# Python 2-to-3 compatibility code
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import os
+import ase
+import uuid
+import pickle
+import inspect
+import numpy as np
+# Internal imports
+from soprano import utils
+
+
+class _AllCaller(object):
+
+    """_AllCaller class.
+
+    A meta-object that serves the purpose of calling a function on all members
+    of a list in a natural way.
+    """
+
+    def __init__(self, all_list, all_class=None):
+        """Initialize the AllCaller with an 'all' list"""
+        if all_class is None:
+            self._class = all_list[0].__class__
+        else:
+            self._class = all_class
+        if not all([x.__class__ is self._class for x in all_list]):
+            raise ValueError('Elements of list passed to an _AllCaller'
+                             ' must be of the same type.')
+        self._all = all_list
+
+    def __getattr__(self, name):
+        """Here's the magic of the class - when a method isn't found belonging
+        to it, go looking for it in its ._all list..."""
+
+        if hasattr(self._class, name):
+            attr = getattr(self._class, name)
+            # Is it a function?
+            if not hasattr(attr, '__call__'):
+                return [getattr(x, name) for x in self._all]
+
+            def iterfunc(*args, **kwargs):
+                return [getattr(x, name)(*args, **kwargs) for x in self._all]
+            return iterfunc
+        else:
+            raise AttributeError(('\'{0}\' object has no attribute'
+                                  ' \'{1}\'').format(self._class.__name__,
+                                                     name))
+
+    def map(self, f, *args, **kwargs):
+        """Map a function to each element of the ._all list and return the
+        results."""
+
+        # First, check the signature
+        if not hasattr(f, '__call__'):
+            raise TypeError('Only functions can be mapped')
+
+        argspec = inspect.getargspec(f)
+        nargs = len(argspec.args)
+        if nargs < 1 + len(args) + len(kwargs):
+            # Function is invalid!
+            raise ValueError('Invalid function passed to map')
+        return [f(x, *args, **kwargs) for x in self._all]
+
+
+class AtomsCollection(object):
+
+    """AtomsCollection object.
+
+    An AtomsCollection represents a group of ASE Atoms objects.
+    It handles them together, can perform mass operations on them, and stores
+    arrays of informations related to them.
+    """
+
+    def __init__(self, structures=[],
+                 info={}):
+        """
+        Initialize the AtomsCollection
+
+        | Args:
+        |    structures ([str] or [ase.Atoms]): list of file names or Atoms
+        |                                       that will form the collection
+        |    info (dict):   dictionary of general information to attach
+        |                   to this collection
+        """
+
+        # Start by parsing out the structures
+        self.structures = []
+
+        for struct in structures:
+            # Is it an Atoms object?
+            if type(struct) is ase.Atoms:
+                self.structures.append(ase.Atoms(struct))
+            # Or is it a string?
+            elif utils.is_string(struct):
+                self.structures.append(ase.io.read(str(struct)))
+            else:
+                raise TypeError('Structures must be Atoms objects or valid '
+                                'file names,'
+                                ' not {0}'.format(type(struct).__name__))
+
+        self._all = _AllCaller(self.structures, ase.Atoms)
+
+        self._arrays = {}
+
+        # Now assign the info
+        if type(info) is not dict:
+            raise TypeError('Info must be dict,'
+                            ' not {0}'.format(type(info).__name__))
+        else:
+            self.info = info
+
+    def __add__(self, other):
+        """Addition of two collections brings a merging"""
+
+        if not isinstance(other, self.__class__):
+            raise TypeError('\'AtomsCollection\' does not support operator +'
+                            ' with object of type'
+                            ' \'{0}\''.format(type(other).__name__))
+
+        # Create a common collection, join arrays where present, copy all info
+        all_struct = list(self.structures)
+        all_struct += list(other.structures)
+
+        all_info = dict(self.info)
+        for k in other.info:
+            if k not in all_info:
+                all_info[k] = other.info[k]
+            else:
+                all_info.pop(k)
+
+        sum_struct = AtomsCollection(all_struct, all_info)
+
+        # Now arrays
+        all_arrays = {}
+        for aname in self._arrays:
+            # Grab the shape
+            shape = self._arrays[aname].shape[1:]
+            # Check if present in the other as well
+            all_arr = list(self.get_array(aname))
+            if aname in other._arrays:
+                all_arr += list(other.get_array(aname))
+            else:
+                all_arr += [np.zeros(shape)]*other.length
+            sum_struct.set_array(aname, all_arr, shape=shape)
+
+        for aname in other._arrays:
+            # Can not be present in both
+            if aname in self._arrays:
+                continue
+            # Grab the shape
+            shape = other._arrays[aname].shape[1:]
+            all_arr = list(other.get_array(aname))
+            all_arr = [np.zeros(shape)]*self.length + all_arr
+            sum_struct.set_array(aname, all_arr, shape=shape)
+
+        return sum_struct
+
+    def __iadd__(self, other):
+        self = self + other
+        return self
+
+    @property
+    def length(self):
+        return len(self.structures)
+
+    @property
+    def all(self):
+        return self._all
+
+    def set_array(self, name, a, dtype=None, shape=None, args={}):
+        """Add or modify an array of data related to the Atoms objects
+        in this collection.
+
+        | Args:
+        |   name (str): name of the array to operate on.
+        |   a (np.ndarray or function<Atoms, **kwargs>
+        |                    => Any): the data to assign to the array (must
+        |                             be same length as the collection) or
+        |                             a function that takes an Atoms object
+        |                             as the first argument and returns a
+        |                             value. This will be mapped over the
+        |                             structures to create the array.
+        |   dtype (type): type to cast the values of the array to.
+        |   shape (tuple [int]): shape of each entry of the array. Will be
+        |                        checked if provided.
+        |   args (dict): named arguments to pass to the function provided
+        |                as a. Will be ignored if an array is passed instead.
+
+        """
+
+        # a can be an actual array or a function that operates on each
+        # separate Atoms object and returns a value
+
+        if type(a) in (np.ndarray, list, tuple):
+            a = np.array(a, dtype)
+        elif hasattr(a, '__call__'):
+            # It's a function
+            a = np.array(self.all.map(a, **args), dtype)
+        else:
+            # Invalid
+            raise TypeError('new_array requires to pass either an array'
+                            ' or a function taking an Atoms object as its'
+                            ' first argument and returning a value.')
+
+        # Now check that the shape is valid
+        if shape is not None:
+            if shape == (1,):
+                targ_shape = (self.length,)
+            else:
+                targ_shape = (self.length,) + shape
+            if a.shape != targ_shape:
+                raise ValueError('Array of invalid shape passed to new_array')
+        else:
+            if a.shape[0] != self.length:
+                raise ValueError('Array passed to new_array should be'
+                                 ' as long as the number of structures')
+
+        # And finally, assign
+        self._arrays[name] = a
+
+    def get_array(self, name, copy=True):
+        """Get a copy of an array of given name (or a reference if copy=False)
+
+        | Args:
+        |   name (str): name of the array to retrieve.
+        |   copy (bool): if the array should be copied or a reference should
+        |                be returned instead.
+
+        | Returns:
+        |   array (np.ndarray): the requested array
+
+        """
+
+        if name not in self._arrays:
+            raise ValueError('Array \'{0}\' does not exist'.format(name))
+        else:
+            return np.array(self._arrays[name], copy=copy)
+
+    def has(self, name):
+        """Check if array of given name exists"""
+
+        return name in self._arrays
+
+    def set_calculators(self, calctype, labels=None, params={}):
+        """Set an ASE calculator on each structure in the collection,
+        and set said calculator's parameters.
+
+        | Args:
+        |   calctype (ASE Calculator type): the type of calculator
+        |                                   to instantiate.
+        |   labels (Optional[list[str]]): names to use for the calculators'
+        |                                 files. If not present, random
+        |                                 generated names are used.
+        |   params (Optional[dict]): parameters of the calculator to set.
+
+        """
+
+        # First, a check
+        try:
+            Calculator = ase.calculators.calculator.Calculator
+            if Calculator not in calctype.__bases__:
+                raise ValueError('calctype must be a type of ASE Calculator')
+        except:
+            raise TypeError('calctype must be a type of ASE Calculator')
+
+        if labels is not None and len(labels) != self.length:
+            raise ValueError('labels must be long as the collection itself')
+
+        # Then set it up
+        for i, s in enumerate(self.structures):
+            if labels is None:
+                label = '{0}-{1}'.format(os.getpid(), str(uuid.uuid4()))
+            else:
+                label = labels[i]
+            calc = calctype(atoms=s, label=label, **params)
+
+    def run_calculators(self, properties=None, system_changes=None):
+        """Run all previously set ASE calculators.
+
+        | Args:
+        |   properties (list[str]): list of properties to calculate (depends
+        |                           on type of Calculator used)
+        |   system_changes (list[str]): list of changes to the structure
+        |                               since the last calculation. Can be
+        |                               any combination of these five:
+        |                               'positions', 'numbers', 'cell',
+        |                               'pbc', 'initial_charges' and
+        |                               'initial_magmoms'.
+
+        """
+
+        # First, check if we even have those
+        if None in self.all.calc:
+            raise RuntimeError('Not all structures in collection'
+                               ' have a calculator')
+        kwargs = {}
+        if properties is not None:
+            kwargs['properties'] = properties
+        if system_changes is not None:
+            kwargs['system_changes'] = system_changes
+        self.all.map(lambda s: s.calc.calculate(atoms=s, **kwargs))
+
+    def chunkify(self, chunk_size=None, chunk_n=None):
+        """Split this collection into multiple collections based on either
+        size or number of chunks.
+
+        | Args:
+        |   chunk_size (Optional[int]): maximum size of a generated chunk
+        |   chunk_n (Optional[int]): number of chunks to generate
+
+        | Returns:
+        |   chunks (list[AtomsCollection]): a list of the generated chunks
+
+        """
+
+        if [chunk_size, chunk_n].count(None) != 1:
+            raise RuntimeError('Only one between chunk_size and chunk_n'
+                               'must be passed')
+
+        if chunk_size is not None and type(chunk_size) is not int:
+            raise TypeError('chunk_size must be an int')
+        if chunk_n is not None and type(chunk_n) is not int:
+            raise TypeError('chunk_n must be an int')
+
+        # Now determine the size
+        if chunk_size is None:
+            chunk_size = int(np.ceil(self.length*1.0/chunk_n))
+
+        struct_chunks = [self.structures[i:i+chunk_size]
+                         for i in range(0, self.length, chunk_size)]
+        chunks = [AtomsCollection(s, self.info) for s in struct_chunks]
+
+        # Now the arrays
+        for aname in self._arrays:
+            for i, c in enumerate(chunks):
+                c.set_array(aname, self._arrays[aname][i*chunk_size:
+                                                       i*(chunk_size+1)])
+
+        return chunks
+
+    def sorted_byarray(self, name, reverse=False):
+        """Return a copy of this collection sorted by a given array.
+
+        | Args:
+        |   name (str): name of the array to use for the sorting
+        |   reverse (Optional[bool]): reverse order of sorting (max to min)
+
+        | Returns:
+        |   sorted (AtomsCollection): a sorted copy of the collection
+
+        """
+
+        # First, check that we do have the array
+        if not self.has(name):
+            raise ValueError("Array \'{0}\' does not exist".format(name))
+
+        arr_names = self._arrays.keys()
+        data_block = zip(self.structures,
+                         *[self._arrays[n] for n in arr_names])
+        key_i = arr_names.index(name)
+        data_block = zip(*sorted(data_block,
+                                 key=lambda x: x[key_i+1],
+                                 reverse=reverse))
+
+        sorted_copy = AtomsCollection(data_block[0], info=self.info)
+        for ai, an in enumerate(arr_names):
+            sorted_copy.set_array(an, data_block[ai+1])
+
+        return sorted_copy
+
+    def save(self, filename):
+        """Simply save a pickled copy to a given file path"""
+
+        f = open(filename, 'w')
+        pickle.dump(self, f)
+
+    @staticmethod
+    def load(filename):
+        """Load a pickled copy from a given file path"""
+
+        f = open(filename)
+        return pickle.load(f)

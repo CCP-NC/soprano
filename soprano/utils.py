@@ -14,7 +14,6 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-
 def abc2cart(abc):
     """Transforms an axes and angles representation of lattice parameters
        into a Cartesian one
@@ -227,3 +226,40 @@ def supcell_gridgen(latt_cart, r_bounds):
     neigh_grid = np.dot(neigh_i_grid, latt_cart)
 
     return neigh_i_grid, neigh_grid
+
+def minimum_periodic(v, latt_cart):
+    """
+    Find the shortest periodic equivalent vector for a list of vectors and a
+    given lattice.
+
+    | Args:
+    |   v (np.ndarray): list of 3-vectors representing points or vectors to
+    |                   reduce to their closest periodic version
+    |   latt_cart (np.ndarray): unit cell in cartesian form
+
+    | Returns:
+    |   v_period (np.ndarray): array with the same shape as v, containing the
+    |                          vectors in periodic reduced form
+
+    """
+
+    max_r = np.amax(np.linalg.norm(v, axis=1))
+    r_bounds = minimum_supcell(max_r, latt_cart)
+    neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, r_bounds)
+    v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
+    v_period = v_period[range(len(v)),
+                        np.argmin(np.linalg.norm(v_period,
+                                                 axis=-1),
+                                  axis=1),
+                        :]
+
+    return v_period
+
+
+def is_string(s):
+    # Checks whether s is a string, with Python 2 and 3 compatibility
+    try:
+        return isinstance(s, basestring)
+    except NameError:
+        # It must be Python 3!
+        return isinstance(s, str)

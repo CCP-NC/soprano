@@ -171,7 +171,7 @@ class XRDCalculator(object):
         """
 
         # First a sanity check
-        if [atoms, latt_abc].count(None) != 1:
+        if sum(arg is not None for arg in [atoms, latt_abc]) != 1:
             raise ValueError("""One and only one between atoms and latt_abc
                                 must be passed to powder_peaks""")
         if atoms is not None:
@@ -248,7 +248,7 @@ class XRDCalculator(object):
                               np.array(hkl_sorted),
                               hkl_unique,
                               invd,
-                              np.ones(peak_n)*self.baseline,
+                              np.ones(peak_n),
                               self.lambdax)
 
         return xpeaks
@@ -263,6 +263,10 @@ class XRDCalculator(object):
         | Returns:
         |   exp_spec (XraySpectrumData): named tuple containing the experimental
         |                                dataset
+
+        | Raises:
+        |   ValueError: if some of the values passed are invalid
+
         """
 
         # Sanity checks as usual
@@ -273,6 +277,51 @@ class XRDCalculator(object):
             raise ValueError("Invalid dataset passed to xrd_exp_dataset")
 
         return XraySpectrumData(th2_axis, int_axis)
+
+    def dataset_range(self, xpeaks, theta2_range=(None, None)):
+        """Restrict the given dataset (XraySpectrum or XraySpectrumData) to
+           only the values that lie within a certain theta2 range.
+
+        | Args:
+        |   xpeaks (XraySpectrum or XraySpectrumData): the dataset to modify
+        |   theta2_range (tuple<int>): a tuple indicating minimum and maximum
+        |                              of the desired theta2 range (degrees).
+        |                              A value of None means no boundary
+
+        | Returns:
+        |   xpeaks_restrict (XraySpectrum or XraySpectrumData): the restricted
+        |                                                       dataset
+
+        | Raises:
+        |   ValueError: if some of the values passed are invalid
+
+        """
+
+        if type(xpeaks) not in (XraySpectrum, XraySpectrumData):
+            raise ValueError("Invalid xpeaks passed to dataset_range")
+        try:
+            th2_min, th2_max = theta2_range
+        except TypeError, ValueError:
+            raise ValueError("Invalid theta2_range passed to dataset_range")
+
+        # Find the good indices
+        th2_min = -np.inf if th2_min is None else th2_min
+        th2_max = np.inf if th2_max is None else th2_max
+
+        range_i = np.where((th2_min <= xpeaks.theta2) &
+                           (xpeaks.theta2 <= th2_max))[0]
+
+        # Switch type
+        if type(xpeaks) is XraySpectrum:
+            return XraySpectrum(xpeaks.theta2[range_i],
+                                xpeaks.hkl[range_i],
+                                xpeaks.hkl_unique[range_i],
+                                xpeaks.invd[range_i],
+                                xpeaks.intensity[range_i],
+                                xpeaks.lambdax)
+        else:
+            return XraySpectrumData(xpeaks.theta2[range_i],
+                                    xpeaks.intensity[range_i])
 
     def spec_simul(self, xpeaks, th2_axis):
         """
@@ -313,9 +362,8 @@ class XRDCalculator(object):
 
         return simul_spec, simul_peaks
 
-
     def lebail_fit(self, xpeaks, exp_spec,
-                        rwp_tol=1e-2, max_iter=100):
+                   rwp_tol=1e-2, max_iter=100):
         """
         Perform a refining on an XraySpectrum object's intensities based on
         experimental data with leBail's method.
