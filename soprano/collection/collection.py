@@ -15,9 +15,13 @@ import os
 import sys
 import ase
 import uuid
-import cPickle
 import inspect
 import numpy as np
+# 2-to-3 compatibility
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 # Internal imports
 from ase import io as ase_io
 from ase.utils.geometry import niggli_reduce
@@ -110,6 +114,9 @@ class AtomsCollection(object):
         if isinstance(structures, ase.Atoms):
             # Well, it's just one...
             structures = [structures]
+        elif inspect.isgenerator(structures):
+            # Let's unravel it
+            structures = [s for s in structures]
 
         if progress:
             sys.stdout.write("Loading collection...\n")
@@ -431,14 +438,14 @@ class AtomsCollection(object):
         # Pickling doesn't deal well with the _AllCaller, so we get rid of it
         selfcopy = self[:]
         selfcopy._all = None
-        cPickle.dump(selfcopy, f)
+        pickle.dump(selfcopy, f)
 
     @staticmethod
     def load(filename):
         """Load a pickled copy from a given file path"""
 
         f = open(filename)
-        f = cPickle.load(f)
+        f = pickle.load(f)
         if not isinstance(f, AtomsCollection):
             raise ValueError('File does not contain an AtomsCollection'
                              ' object')

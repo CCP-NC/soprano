@@ -7,10 +7,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import copy
-import cPickle
 import numpy as np
 from scipy.cluster import hierarchy, vq
 from scipy.spatial import distance as spdist
+# 2-to-3 compatibility
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+# Internal imports
 from soprano.collection import AtomsCollection
 from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
                                             GeneError, load_genefile)
@@ -467,14 +472,14 @@ class PhylogenCluster(object):
         """Simply save a pickled copy to a given file path"""
 
         f = open(filename, 'w')
-        cPickle.dump(self, f)
+        pickle.dump(self, f)
 
     @staticmethod
     def load(filename):
         """Load a pickled copy from a given file path"""
 
         f = open(filename)
-        f = cPickle.load(f)
+        f = pickle.load(f)
         if not isinstance(f, PhylogenCluster):
             raise ValueError('File does not contain a PhylogenCluster object')
         return f
