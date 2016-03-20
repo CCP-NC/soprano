@@ -7,15 +7,18 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import hashlib
 import subprocess as sp
 from io import StringIO
 from ase import io as ase_io
+# Internal imports
+import soprano.utils as utils
+
 
 def airssGen(input_file,
-             n = 100,
+             n=100,
              buildcell_command='buildcell',
              buildcell_path=None):
-
     """Generator function binding to AIRSS' Buildcell. 
 
     This functions searches for a buildcell executable and uses it to 
@@ -59,6 +62,8 @@ def airssGen(input_file,
     except TypeError:
         pass                            # If it's already a file
     template = input_file.read()
+    # Now get the file name
+    basename = utils.seedname(input_file.name)
     input_file.close()
 
     # And keep track of the count!
@@ -85,4 +90,9 @@ def airssGen(input_file,
 
         # Now turn it into a proper Atoms object
         # To do this we need to make it look like a file
-        yield ase_io.read(StringIO(stdout), format='castep-cell')
+        newcell = ase_io.read(StringIO(stdout), format='castep-cell')
+        # Generate it a name, function of its properties
+        postfix = hashlib.md5(str(newcell.get_positions()
+                                  ).encode()).hexdigest()
+        newcell.info['name'] = '{0}_{1}'.format(basename, postfix)
+        yield newcell

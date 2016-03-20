@@ -46,6 +46,10 @@ class _AllCaller(object):
             raise ValueError('Elements of list passed to an _AllCaller'
                              ' must be of the same type.')
         self._all = all_list
+        # Now get a list of all members in common between these instances
+        if len(self._all) > 0:
+            self._instance_attrs = set.intersection(*[set(ins.__dict__.keys())
+                                                      for ins in self._all])
 
     def __getattr__(self, name):
         """Here's the magic of the class - when a method isn't found belonging
@@ -60,8 +64,11 @@ class _AllCaller(object):
             def iterfunc(*args, **kwargs):
                 return [getattr(x, name)(*args, **kwargs) for x in self._all]
             return iterfunc
+        elif name in self._instance_attrs:
+            # It's an instance attribute
+            return [getattr(x, name) for x in self._all]            
         else:
-            raise AttributeError(('\'{0}\' object has no attribute'
+            raise AttributeError(('Not all \'{0}\' objects have attribute'
                                   ' \'{1}\'').format(self._class.__name__,
                                                      name))
 
