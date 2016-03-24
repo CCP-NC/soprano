@@ -202,9 +202,6 @@ class DaemonRunner(object):
         """Callback for the completed processes. Includes all values returned
         by the functions of the given batch.
 
-        This is a map-wise function and should not be overridden. It will
-        call then on_complete for each single process that finished running.
-
         """
 
         for msg in close_msgs:

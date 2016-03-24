@@ -325,8 +325,10 @@ class AtomsCollection(object):
 
         # First, a check
         try:
-            Calculator = ase.calculators.calculator.Calculator
-            if Calculator not in calctype.__bases__:
+            gCalculator = ase.calculators.general.Calculator
+            cCalculator = ase.calculators.calculator.Calculator
+            if gCalculator not in calctype.__bases__ and \
+               cCalculator not in calctype.__bases__:
                 raise ValueError('calctype must be a type of ASE Calculator')
         except:
             raise TypeError('calctype must be a type of ASE Calculator')
@@ -337,10 +339,16 @@ class AtomsCollection(object):
         # Then set it up
         for i, s in enumerate(self.structures):
             if labels is None:
-                label = '{0}-{1}'.format(os.getpid(), str(uuid.uuid4()))
+                # First: do we have a name?
+                if 'name' in s.info:
+                    label = s.info['name']
+                else:
+                    label = 'struct_{0}'.format(i)
             else:
                 label = labels[i]
-            calc = calctype(atoms=s, label=label, **params)
+            calc = calctype(atoms=s,
+                            label=str(label),
+                            **params)
             # To make sure...
             s.set_calculator(calc)
 

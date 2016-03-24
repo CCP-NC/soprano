@@ -67,6 +67,7 @@ def airssGen(input_file,
     input_file.close()
 
     # And keep track of the count!
+    # (at least if it's not infinite)
     i = 0
 
     while True:
@@ -89,7 +90,7 @@ def airssGen(input_file,
             pass
 
         # Now turn it into a proper Atoms object
-        # To do this we need to make it look like a file
+        # To do this we need to make it look like a file to ASE's io.read
         newcell = ase_io.read(StringIO(stdout), format='castep-cell')
         # Generate it a name, function of its properties
         postfix = hashlib.md5(str(newcell.get_positions()
