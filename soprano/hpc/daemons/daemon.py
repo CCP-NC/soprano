@@ -47,7 +47,7 @@ def _daemon_runner_mainloop(daemon_loopid):
             except EmptyQueue:
                 return ('Execution of process {0} '
                         'stopped due to empty queue').format(os.getpid())
-            rval = daemon.run_process(**qval)
+            rval = daemon.run_process(loop_id, **qval)
             daemon.on_complete(rval)
             logfile.write('Iteration {0} completed\n'.format(iter_i))
             iter_i += 1
@@ -99,12 +99,21 @@ class DaemonHPC(object):
         self.queue = daemon_manager.Queue()
         self.timeout = timeout
 
+    def set_parameters(self):
+        """Set additional parameters. In this generic example class it has no
+        arguments, but in general it can be used to apply all the parameters
+        passed to DaemonRunner through daemon_args."""
+
+        pass
+
     def log(self, msg):
+        """Produce a log message"""
 
         if self._logfile is not None:
             self._logfile.write(msg + '\n')
 
-    def run_process(self, daemon_pid):
+    def run_process(self, loop_id, daemon_pid):
+        """Run a specific process. Action that needs to be parallelized"""
 
         stdout, stderr = sp.Popen(['sleep', str(self.timeout)],
                                   stdout=sp.PIPE,
@@ -123,8 +132,7 @@ class DaemonHPC(object):
             return
 
     def next_processes(self, n=1):
-        """Get input data for n new processes. Must be a list of lists,
-        even if it's just one argument per process.
+        """Get input data for n new processes. Must be a list of dicts.
 
         """
 
@@ -181,8 +189,8 @@ class DaemonRunner(object):
         self._manager = mp.Manager()
         self._daemon = daemon_type(daemon_manager=self._manager,
                                    daemon_id=daemon_id,
-                                   verbose=verbose,
-                                   **daemon_args)
+                                   verbose=verbose)
+        self._daemon.set_parameters(**daemon_args)
 
         # Now start up the pool
         self._pool = mp.Pool(processes=self._pnum)

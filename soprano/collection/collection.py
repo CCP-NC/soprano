@@ -324,13 +324,11 @@ class AtomsCollection(object):
         """
 
         # First, a check
-        try:
-            gCalculator = ase.calculators.general.Calculator
-            cCalculator = ase.calculators.calculator.Calculator
-            if gCalculator not in calctype.__bases__ and \
-               cCalculator not in calctype.__bases__:
-                raise ValueError('calctype must be a type of ASE Calculator')
-        except:
+        from ase.calculators.general import Calculator as gCalculator
+        from ase.calculators.calculator import Calculator as cCalculator
+        
+        if (gCalculator not in calctype.__bases__) and \
+           (cCalculator not in calctype.__bases__):
             raise TypeError('calctype must be a type of ASE Calculator')
 
         if labels is not None and len(labels) != self.length:

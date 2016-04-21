@@ -21,7 +21,7 @@ def airssGen(input_file,
              buildcell_path=None):
     """Generator function binding to AIRSS' Buildcell. 
 
-    This functions searches for a buildcell executable and uses it to 
+    This function searches for a buildcell executable and uses it to 
     generate multiple new Atoms structures for a collection.
 
     | Args:
