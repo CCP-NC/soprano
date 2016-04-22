@@ -21,7 +21,7 @@ class CastepDaemon(DaemonHPC):
         |   collection (AtomsCollection): AtomsCollection object containing
         |                                 the atoms to perform calculations
         |                                 on. These must already have a CASTEP
-        |                                 calculator set.        
+        |                                 calculator set.
 
         """
 
@@ -31,7 +31,8 @@ class CastepDaemon(DaemonHPC):
     def next_processes(self, n=1):
 
         procs = [{'atoms': a}
-                 for a in self.atoms[self.atoms_i:self.atoms_i+n]]
+                 for a in self.atoms[self.atoms_i:
+                                     self.atoms_i+n]]
         self.atoms_i += n
 
         return procs
@@ -42,8 +43,7 @@ class CastepDaemon(DaemonHPC):
             self.start_processes()
 
     def run_process(self, loop_id, atoms):
-        
+
         print(atoms.get_potential_energy())
 
         return "Complete"
-

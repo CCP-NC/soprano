@@ -37,7 +37,7 @@ class TestHPC(unittest.TestCase):
         testdaemon = DaemonRunner(CastepDaemon,
                                   daemon_args={'structures':
                                                testcoll.structures},
-                                  proc_num=2,
+                                  proc_num=3,
                                   verbose=True)
 
 
