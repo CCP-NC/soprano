@@ -19,6 +19,10 @@ def seedname(path):
     """Get the filename (with no extension) from a full path"""
     return os.path.splitext(os.path.basename(path))[0]
 
+def replace_folder(path, new_folder):
+    """Replace the folder of the given path with a new one"""
+    return os.path.join(new_folder, os.path.basename(path))
+
 def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
     """A textual progress bar for the command line
 

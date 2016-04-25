@@ -52,8 +52,8 @@ def _daemon_runner_mainloop(daemon_loopid):
                 return ('Execution of process {0} '
                         'stopped due to empty queue').format(os.getpid())
             rval = daemon.run_process(loop_id, **qval)
-            daemon.on_complete(rval)
             logfile.write('Iteration {0} completed\n'.format(iter_i))
+            daemon.on_complete(rval)
             iter_i += 1
     except Exception as e:
         logfile.close()
