@@ -7,3 +7,4 @@ soprano/__init__.py
 soprano/utils.py
 soprano/data/hall_2_no.json
 soprano/data/xrd_sel_rules.json
+soprano/data/xrd_sel_rules.json

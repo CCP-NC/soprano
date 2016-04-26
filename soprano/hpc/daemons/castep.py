@@ -23,28 +23,41 @@ from soprano.utils import seedname, replace_folder
 
 class CastepDaemon(DaemonHPC):
 
-    def set_parameters(self, folder_in, folder_out, castep_command):
-        """Set a collection to draw Atoms objects from, and an index keeping
-        track of where we are in scanning it.
+    def set_parameters(self, folder_in, folder_out, castep_command,
+                             castep_path=None,
+                             copy_extensions=['.castep']):
+        """Set the parameters of the CASTEP Daemon
 
         | Args:
-        |   collection (AtomsCollection): AtomsCollection object containing
-        |                                 the atoms to perform calculations
-        |                                 on. These must already have a CASTEP
-        |                                 calculator set.
+        |   folder_in (str): path of the folder to extract cell files from
+        |   folder_out (str): path of the folder where the results will be
+        |                     saved
+        |   castep_command (str): command used to call the CASTEP executable on
+        |                         this system
+        |   castep_path (Optional[str]): folder where the CASTEP executable is 
+        |                                located (if not part of the system
+        |                                PATH)
+        |   copy_extensions (Optional[list[str]]): extensions of output files to
+        |                                          copy to the output folder (by
+        |                                          default only .castep file)
 
         """
 
         self.folder_in = folder_in
         self.folder_out = folder_out
         self.castep_command = castep_command
+        self.cp_ext = copy_extensions
 
-        # Initialize the CASTEP keywords file in the IN folder
+        # Initialize the CASTEP keywords file in a dedicated temporary folder
         self.kwdir = tempfile.mkdtemp()
         create_castep_keywords(castep_command,
                                os.path.join(self.kwdir, 
                                             'castep_keywords.py'))
         sys.path.append(self.kwdir)
+
+        # Finally add the castep_path to PATH if needed
+        if castep_path is not None:
+            sys.path.append(castep_path)
 
     def next_processes(self, n=1):
 
@@ -86,9 +99,11 @@ class CastepDaemon(DaemonHPC):
                                   cwd=calcfold,
                                   stdout=sp.PIPE,
                                   stderr=sp.PIPE).communicate()
-        # Copy all output files
+        # Copy all required output files
         outfiles = glob.glob(os.path.join(calcfold, '*'))
         for of in outfiles:
+            if not any([of.endswith(ext) for ext in self.cp_ext]):
+                continue
             shutil.move(of, replace_folder(of, self.folder_out))
         shutil.rmtree(calcfold)
 
