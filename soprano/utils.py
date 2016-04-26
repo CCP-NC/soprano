@@ -148,7 +148,8 @@ def inv_plane_dist(hkl, hkl2d2):
     return np.sqrt(np.dot(np.dot(hkl2d2, hkl), hkl)[0, 0])
 
 
-def minimum_supcell(max_r, latt_cart=None, r_matrix=None):
+def minimum_supcell(max_r, latt_cart=None, r_matrix=None,
+                    pbc=[True, True, True]):
     """
     Generate the bounds for a supercell containing a sphere
     of given radius, knowing the unit cell.
@@ -161,6 +162,10 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None):
     |                          Alternative to latt_cart, for a direct
     |                          space cell would be equal to
     |                          np.dot(latt_cart, latt_cart.T)
+    |   pbc ([bool, bool, bool]): periodic boundary conditions - if
+    |                             a boundary is not periodic the
+    |                             range returned will always be zero
+    |                             in that dimension
 
     | Returns:
     |   bounds (tuple[int]): bounds of the supercell to be built.
@@ -224,6 +229,7 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None):
                      max_r*(utransf_matrix/np.linalg.norm(utransf_matrix,
                             axis=1)[:, None]).T)
     r_bounds = np.max(np.ceil(abs(qmatrix)), axis=1).astype(int)
+    r_bounds = np.where(pbc, r_bounds, 0)
 
     return tuple(r_bounds)
 
