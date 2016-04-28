@@ -13,12 +13,16 @@ import os
 import sys
 import glob
 from ase import Atoms
+from ase.io import read, write
 sys.path.insert(0, os.path.abspath(
                    os.path.join(os.path.dirname(__file__), "../")))  # noqa
 from soprano.collection import AtomsCollection
 from soprano.properties import AtomsProperty
 import unittest
 import numpy as np
+
+_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "test_data")
 
 
 class TestPropertyLoad(unittest.TestCase):
@@ -60,7 +64,8 @@ class TestPropertyLoad(unittest.TestCase):
     def test_basicprop(self):
 
         from soprano.utils import cart2abc
-        from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
+        from soprano.properties.basic import (LatticeCart, LatticeABC,
+                                              CalcEnergy)
 
         cell = np.array([[1, 0, 0], [0, 2, 0], [0, 0.5, 3.0]])
         a = Atoms(cell=cell)
@@ -72,6 +77,16 @@ class TestPropertyLoad(unittest.TestCase):
         ans = cart2abc(cell)
         ans[1, :] *= 180.0/np.pi
         self.assertTrue(np.all(degLatt(a) == ans))
+
+    def test_linkageprops(self):
+
+        from soprano.properties.linkage import Molecules, MoleculeNumber
+
+        a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
+
+        mols = Molecules.get(a)
+
+        self.assertTrue(MoleculeNumber.get(a) == 4)
 
 if __name__ == '__main__':
     unittest.main()

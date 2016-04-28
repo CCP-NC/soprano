@@ -1,6 +1,11 @@
 soprano.calculate package
 =========================
 
+.. automodule:: soprano.calculate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -8,10 +13,3 @@ Subpackages
 
     soprano.calculate.xrd
 
-Module contents
----------------
-
-.. automodule:: soprano.calculate
-    :members:
-    :undoc-members:
-    :show-inheritance:

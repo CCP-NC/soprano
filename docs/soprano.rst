@@ -1,6 +1,11 @@
 soprano package
 ===============
 
+.. automodule:: soprano
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -9,10 +14,19 @@ Subpackages
     soprano.analyse
     soprano.calculate
     soprano.collection
+    soprano.hpc
     soprano.properties
 
 Submodules
 ----------
+
+soprano.selection module
+------------------------
+
+.. automodule:: soprano.selection
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 soprano.utils module
 --------------------
@@ -23,10 +37,3 @@ soprano.utils module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: soprano
-    :members:
-    :undoc-members:
-    :show-inheritance:

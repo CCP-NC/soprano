@@ -76,6 +76,16 @@ class TestSelection(unittest.TestCase):
     	self.assertTrue(set(s2.indices) == set([2,3]))
     	self.assertTrue(set(s3.indices) == set([0,2,3]))
 
+        # Sphere test
+
+        s1 = AtomSelection.from_sphere(a, [0.5]*3, 3, periodic=True)
+        s2 = AtomSelection.from_sphere(a, [0.5]*3, 3, periodic=False)
+
+        self.assertTrue(set(s1.indices) == set([0,1,2,3]))
+        self.assertTrue(set(s2.indices) == set([0,1,2]))
+
+        
+
 
 if __name__ == '__main__':
     unittest.main()

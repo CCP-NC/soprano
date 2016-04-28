@@ -1,6 +1,18 @@
 soprano.collection package
 ==========================
 
+.. automodule:: soprano.collection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    soprano.collection.generate
+
 Submodules
 ----------
 
@@ -13,10 +25,3 @@ soprano.collection.collection module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: soprano.collection
-    :members:
-    :undoc-members:
-    :show-inheritance:
