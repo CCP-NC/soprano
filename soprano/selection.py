@@ -80,6 +80,8 @@ class AtomSelection(object):
         else:
             self._auth = None
 
+        self._arrays = {}
+
     @property
     def indices(self):
         return self._indices
@@ -97,6 +99,38 @@ class AtomSelection(object):
         h.update(''.join(atoms.get_chemical_symbols()))
 
         return h.hexdigest()
+
+    def set_array(self, name, array):
+        """Save an array of given name containing arbitraty information
+        tied to the selected atoms.
+        This must match the length of the selection and will be passed on to
+        any Atoms objects created with .subset.
+
+        | Args:
+        |   name (str): name of the array to be set or created
+        |   array (np.ndarray): array of data to be saved
+
+        """
+
+        # First a check
+        if len(array) != len(self):
+            raise ValueError("Invalid array passed to set_array")
+
+        self._arrays[name] = np.array(array)
+
+    def get_array(self, name):
+        """Retrieve a previously stored data array.
+
+        | Args:
+        |   name (str): name of the array to be set or created
+
+        | Returns:
+        |   array (np.ndarray): array of data to be saved
+
+        """
+
+        # If the name isn't right just let the KeyError happen
+        return self._arrays[name]
 
     def validate(self, atoms):
         """Check that the given Atoms object validates with this selection."""
@@ -117,6 +151,14 @@ class AtomSelection(object):
         not_sel = list(set(range(atoms.get_number_of_atoms())) -
                        set(self._indices))
         del subset[not_sel]
+
+        # Now the arrays
+        for k in self._arrays:
+            # The array needs to be sorted with the indices
+            # in order to match the order of the atoms in the Atoms object
+            _, arr = zip(*sorted(zip(self._indices, self._arrays[k]),
+                                 key = lambda t: t[0]))
+            subset.new_array(k, np.array(arr))
 
         return subset
 

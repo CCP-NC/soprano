@@ -80,13 +80,26 @@ class TestPropertyLoad(unittest.TestCase):
 
     def test_linkageprops(self):
 
-        from soprano.properties.linkage import Molecules, MoleculeNumber
+        from soprano.properties.linkage import (Molecules, MoleculeNumber,
+                                                MoleculeMass)
 
         a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
 
         mols = Molecules.get(a)
 
+
+        # for i, m in enumerate(mols):
+        #     ai = m.subset(a)
+        #     ai.arrays['positions'] += np.tensordot(ai.get_cell(),
+        #                                            ai.arrays['cell_indices'],
+        #                                            axes=(0,1)).T
+        #     #write('mol{0}.cell'.format(i+1), ai)
+        #     #print(ai.get_chemical_symbols())
+        #     print(m.get_array('cell_indices'))
+
         self.assertTrue(MoleculeNumber.get(a) == 4)
+
+        print(MoleculeMass.get(a))
 
 if __name__ == '__main__':
     unittest.main()

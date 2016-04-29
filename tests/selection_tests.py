@@ -84,8 +84,15 @@ class TestSelection(unittest.TestCase):
         self.assertTrue(set(s1.indices) == set([0,1,2,3]))
         self.assertTrue(set(s2.indices) == set([0,1,2]))
 
-        
+    def test_arrays(self):
 
+        a = Atoms('HCHC', positions=[[i]*3 for i in range(4)],
+                  cell=[4]*3, pbc=[True]*3)
+
+        s = AtomSelection.from_element(a, 'C')
+        s.set_array('testarr', [1, 2])
+
+        self.assertTrue(all(s.subset(a).get_array('testarr') == [1, 2]))
 
 if __name__ == '__main__':
     unittest.main()

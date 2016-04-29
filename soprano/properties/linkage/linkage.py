@@ -55,7 +55,7 @@ class LinkageList(AtomsProperty):
         v = v[:, None, :]-v[None, :, :]
         v = v[np.triu_indices(v.shape[0], k=1)]
         # Reduce them
-        v = minimum_periodic(v, s.get_cell())
+        v, _ = minimum_periodic(v, s.get_cell())
         # And now compile the list
         link_list = np.linalg.norm(v, axis=-1)
         link_list.sort()
@@ -121,7 +121,8 @@ class Molecules(AtomsProperty):
         v = s.get_positions()
         v = (v[:, None, :]-v[None, :, :])[triui]
         # Reduce them
-        v = np.linalg.norm(minimum_periodic(v, s.get_cell()), axis=-1)
+        v, v_cells = minimum_periodic(v, s.get_cell())
+        v = np.linalg.norm(v, axis=-1)
 
         # Now distance and VdW matrices
         vdw_M = ((vdw_vals[None,:]+vdw_vals[:,None])/2.0)[triui]
@@ -133,27 +134,34 @@ class Molecules(AtomsProperty):
         def get_linked(i):
             inds = np.concatenate((np.where(triui[1] == i)[0],
                                    np.where(triui[0] == i)[0]))
+            cells = np.array([v_cells[j] for j in inds if link_M[j]])
             links = np.where(link_M[inds])[0]
+            cells = np.where(links[:,None] < i, cells, -cells)
             links = np.where(links < i, links, links + 1)
 
-            return links
+            return links, cells
 
         while len(unsorted_atoms) > 0:
-            mol_queue = [unsorted_atoms.pop(0)]
+            mol_queue = [(unsorted_atoms.pop(0), np.zeros(3))]           
             current_mol = []
             while len(mol_queue) > 0:
-                a1 = mol_queue.pop(0)
-                current_mol.append(a1)
+                a1, cell1 = mol_queue.pop(0)
+                current_mol.append((a1, cell1))
                 # Find linked atoms
-                links = get_linked(a1)
-                for l in links:
+                links, cells = get_linked(a1)
+                for i, l in enumerate(links):
                     if l in unsorted_atoms:
-                        mol_queue.append(l)
+                        mol_queue.append((l, cell1 + cells[i]))
                         unsorted_atoms.remove(l)
 
             mol_sets.append(current_mol)
 
-        mols = [AtomSelection(s, m) for m in mol_sets]
+
+        mols = []
+        for m in mol_sets:
+            m_i, m_cells = zip(*m)
+            mols.append(AtomSelection(s, m_i))
+            mols[-1].set_array('cell_indices', m_cells)
 
         if save_info:
             s.info['molecules'] = mols
@@ -190,6 +198,89 @@ class MoleculeNumber(AtomsProperty):
             Molecules.get(s)
 
         return len(s.info['molecules'])
+
+class MoleculeMass(AtomsProperty):
+
+    """
+    MoleculeMass
+
+    Total mass of each of the molecules detected in this system. By default will
+    use already existing molecules if they're present as a saved array in the
+    system.
+
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+
+    | Returns:
+    |   molecule_m ([float]): mass of each of the molecules present, sorted.
+
+    """
+
+    default_name = 'molecule_mass'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        if not 'molecules' in s.info or force_recalc:
+            Molecules.get(s)
+
+        mol_m = []
+        all_m = s.get_masses()
+        for mol in s.info['molecules']:
+            mol_m.append(np.sum(all_m[mol.indices]))
+
+        return sorted(mol_m)
+
+class MoleculeCOMLinkage(AtomsProperty):
+
+    """
+    MoleculeCOMLinkage
+
+    Linkage list - following the same criteria as the atomic one - calculated
+    for the centers of mass of the molecules present in the system. By default
+    will use already existing molecules if they're present as a saved array in
+    the system.
+
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+
+    | Returns:
+    |   molecule_linkage ([float]): distances between all centers of mass of
+    |   molecules in the system, sorted.
+
+    """
+
+    default_name = 'molecule_com_linkage'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        if not 'molecules' in s.info or force_recalc:
+            Molecules.get(s)
+
+        mol_com = []
+        all_m = s.get_masses()
+        all_pos = s.get_positions()
+
+        for mol in s.info['molecules']:
+
+            mol_pos = all_pos[mol.indices]
+
+
+        return sorted(mol_m)
+
+
+
 
 
 

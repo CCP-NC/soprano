@@ -73,5 +73,15 @@ class TestSupercellMethods(unittest.TestCase):
             sphere_bf_p = set([tuple(p) for p in sphere_bf_p])
             self.assertEqual(sphere_p, sphere_bf_p)
 
+    def test_min_periodic(self):
+
+        # Just a simple check
+
+        c = np.identity(3)
+        v = [[0.1, 0, 0], [0.9, 0, 0]]
+
+        vp, vcells = minimum_periodic(v, c)
+        self.assertTrue(np.isclose(np.linalg.norm(vp, axis=-1), 0.1).all())
+
 if __name__ == '__main__':
     unittest.main()

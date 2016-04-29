@@ -287,6 +287,10 @@ def minimum_periodic(v, latt_cart):
     | Returns:
     |   v_period (np.ndarray): array with the same shape as v, containing the
     |                          vectors in periodic reduced form
+    |   v_cells (np.ndarray): array of triples of ints, corresponding to the 
+    |                         cells from which the various periodic copies of
+    |                         the vectors were taken. For an unchanged vector
+    |                         will be all [0,0,0]
 
     """
 
@@ -294,13 +298,10 @@ def minimum_periodic(v, latt_cart):
     r_bounds = minimum_supcell(max_r, latt_cart)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, r_bounds)
     v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
-    v_period = v_period[range(len(v)),
-                        np.argmin(np.linalg.norm(v_period,
-                                                 axis=-1),
-                                  axis=1),
-                        :]
+    min_copies = np.argmin(np.linalg.norm(v_period, axis=-1), axis=1)
+    v_period = v_period[range(len(v)), min_copies, :]
 
-    return v_period
+    return v_period, neigh_i_grid[min_copies]
 
 
 def is_string(s):
