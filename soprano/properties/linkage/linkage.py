@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 import json
 import pkgutil
 import numpy as np
+from ase.quaternions import Quaternion
 from soprano.utils import minimum_periodic
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
@@ -194,7 +195,7 @@ class MoleculeNumber(AtomsProperty):
     @staticmethod
     def extract(s, force_recalc):
 
-        if not 'molecules' in s.info or force_recalc:
+        if not Molecules.default_name in s.info or force_recalc:
             Molecules.get(s)
 
         return len(s.info['molecules'])
@@ -231,7 +232,7 @@ class MoleculeMass(AtomsProperty):
 
         mol_m = []
         all_m = s.get_masses()
-        for mol in s.info['molecules']:
+        for mol in s.info[Molecules.default_name]:
             mol_m.append(np.sum(all_m[mol.indices]))
 
         return sorted(mol_m)
@@ -253,7 +254,7 @@ class MoleculeCOMLinkage(AtomsProperty):
 
     | Returns:
     |   molecule_linkage ([float]): distances between all centers of mass of
-    |   molecules in the system, sorted.
+    |                               molecules in the system, sorted.
 
     """
 
@@ -265,19 +266,128 @@ class MoleculeCOMLinkage(AtomsProperty):
     @staticmethod
     def extract(s, force_recalc):
 
-        if not 'molecules' in s.info or force_recalc:
+        if not Molecules.default_name in s.info or force_recalc:
             Molecules.get(s)
 
         mol_com = []
         all_m = s.get_masses()
         all_pos = s.get_positions()
 
-        for mol in s.info['molecules']:
+        for mol in s.info[Molecules.default_name]:
 
             mol_pos = all_pos[mol.indices]
+            mol_pos += np.tensordot(mol.get_array('cell_indices'),
+                                    s.get_cell(),
+                                    axes=(1,1))
+            mol_ms = all_m[mol.indices]
+            mol_com.append(np.sum(mol_pos*mol_ms[:,None],
+                                  axis=0)/np.sum(mol_ms))
+            
+        # Now make the linkage
+        v = np.array(mol_com)
+        v = v[:, None, :]-v[None, :, :]
+        v = v[np.triu_indices(v.shape[0], k=1)]
+        # Reduce them
+        v, _ = minimum_periodic(v, s.get_cell())
+        # And now compile the list
+        link_list = np.linalg.norm(v, axis=-1)
+        link_list.sort()
+
+        return link_list
+
+class MoleculeRelativeRotation(AtomsProperty):
+
+    """
+    MoleculeRelativeRotation
+
+    A list of relative rotations between molecules. Uses the inertia tensor
+    eigenvectors to establish a local frame for each molecule, then uses
+    quaternions to define a rotational distance between molecules. It then
+    produces a list of geodesic distances between these quaternions.
 
 
-        return sorted(mol_m)
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+
+    | Returns:
+    |   molecule_relrot ([float]): list of relative rotations, as quaternion
+    |                              distances, with the required ordering.
+
+    """
+
+    default_name = 'molecule_rel_rotation'
+    default_params = {
+        'force_recalc': False,
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        if not Molecules.default_name in s.info or force_recalc:
+            Molecules.get(s)
+
+        mol_quat = []
+        all_m = s.get_masses()
+        all_pos = s.get_positions()
+
+        for mol in s.info[Molecules.default_name]:            
+            
+            mol_pos = all_pos[mol.indices]
+            mol_pos += np.tensordot(mol.get_array('cell_indices'),
+                                    s.get_cell(),
+                                    axes=(1,1))
+            mol_ms = all_m[mol.indices]
+
+            # We still need to correct the positions with the COM
+            mol_com = np.sum(mol_pos*mol_ms[:,None],
+                             axis=0)/np.sum(mol_ms)
+            mol_pos -= mol_com
+
+            tens_i = np.identity(3)[None,:,:]* \
+                     np.linalg.norm(mol_pos, axis=1)[:,None,None]**2
+
+            tens_i -= mol_pos[:,None,:]*mol_pos[:,:,None]
+            tens_i *= mol_ms[:,None,None]
+            tens_i = np.sum(tens_i, axis=0)
+
+            evals, evecs = np.linalg.eigh(tens_i)
+            # General ordering convention: we want the component of the 
+            # longest position to be positive along evecs_0, and the component
+            # of the second longest (and non-parallel) position to be positive
+            # along evecs_1, and the triple to be right-handed of course.
+            mol_pos = sorted(mol_pos, key=lambda x: -np.linalg.norm(x))
+            if len(mol_pos) > 1:
+                evecs[0] *= np.sign(np.dot(evecs[0], mol_pos[0]))
+            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos,
+                                                      mol_pos[0])) > 0)[0]
+            if len(e1dirs) > 0:
+                evecs[1] *= np.sign(np.dot(evecs[1], mol_pos[e1dirs[0]]))
+            evecs[2] *= np.sign(np.dot(evecs[2],
+                                       np.cross(evecs[0], evecs[1])))
+            # Evecs must be proper
+            evecs /= np.linalg.det(evecs)
+
+            quat = Quaternion()
+            quat = quat.from_matrix(evecs.T)
+            mol_quat.append(quat.q)
+
+        # Now make the linkage
+        v = np.array(mol_quat)
+        v = np.sum(v[:, None, :]*v[None, :, :], axis=-1)
+        v = 2*v**2-1.0
+        link_list = np.arccos(v[np.triu_indices(v.shape[0], k=1)])/np.pi
+        link_list.sort()
+
+        return np.array(link_list)
+
+
+
+
+
+
+
+
 
 
 
