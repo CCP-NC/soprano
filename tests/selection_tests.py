@@ -94,5 +94,19 @@ class TestSelection(unittest.TestCase):
 
         self.assertTrue(all(s.subset(a).get_array('testarr') == [1, 2]))
 
+    def test_mapsel(self):
+
+        from soprano.collection import AtomsCollection
+
+        rand_el = ['H' if x > 0.5 else 'C' for x in np.random.random(10)]
+        coll = AtomsCollection([Atoms(el) for el in rand_el])
+
+        h_sel = coll.all.map(AtomSelection.from_element, element='H')
+
+        self.assertTrue(all([len(s) == 1 if rand_el[i] == 'H'
+                             else len(s) == 0
+                             for i, s in enumerate(h_sel)]))
+
+
 if __name__ == '__main__':
     unittest.main()

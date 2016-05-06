@@ -59,7 +59,7 @@ class TestPropertyLoad(unittest.TestCase):
         DummyProperty.get(c1, store_array=True)
         dummyDoubled(c2, store_array=True)
         self.assertTrue(np.all(c1.get_array('dummy') == [2, 4]))
-        self.assertTrue(np.all(c2.get_array('doubledummy') == [8, 4]))
+        self.assertTrue(np.all(c2.get_array('doubledummy') == [8, 4]))    
 
     def test_basicprop(self):
 
@@ -78,6 +78,17 @@ class TestPropertyLoad(unittest.TestCase):
         ans[1, :] *= 180.0/np.pi
         self.assertTrue(np.all(degLatt(a) == ans))
 
+    def test_propertymap(self):
+
+        from soprano.properties.basic import NumAtoms
+
+        num_atoms = np.random.random_integers(1, 10, 10)
+        coll = AtomsCollection([Atoms('H'*n) for n in num_atoms])
+
+        num_atoms_prop = coll.all.map(NumAtoms.get)
+
+        self.assertTrue((num_atoms == num_atoms_prop).all)
+
     def test_linkageprops(self):
 
         from soprano.properties.linkage import (LinkageList,
@@ -85,6 +96,7 @@ class TestPropertyLoad(unittest.TestCase):
                                                 MoleculeMass,
                                                 MoleculeCOMLinkage,
                                                 MoleculeRelativeRotation)
+        from soprano.properties.transform import Rotate
 
         a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
 
@@ -103,7 +115,35 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(np.isclose(MoleculeMass.get(a), 142.06788).all())
         self.assertTrue(len(MoleculeCOMLinkage.get(a)) == 6)
 
-        print(MoleculeRelativeRotation.get(a))
+        #print(MoleculeRelativeRotation.get(a))
+
+    def test_transformprops(self):
+
+        from ase.quaternions import Quaternion
+        from soprano.selection import AtomSelection        
+        from soprano.properties.transform import (Translate, Rotate, Mirror)
+
+        a = Atoms('CH', positions=[[0,0,0],[0.5,0,0]])
+
+        sel = AtomSelection.from_element(a, 'C')
+        transl = Translate(selection=sel, vector=[0.5,0,0])        
+        rot = Rotate(selection=sel, center=[0.25,0.0,0.25],
+                     quaternion=Quaternion([np.cos(np.pi/4.0),
+                                            0,
+                                            np.sin(np.pi/4.0),
+                                            0]))
+        mirr = Mirror(selection=sel, plane=[1, 0, 0, -0.25])
+
+        aT = transl(a)
+        aR = rot(a)
+        aM = mirr(a)
+
+        self.assertAlmostEqual(np.linalg.norm(aT.get_positions()[0]),
+                               np.linalg.norm(aT.get_positions()[1]))
+        self.assertAlmostEqual(np.linalg.norm(aR.get_positions()[0]),
+                               np.linalg.norm(aR.get_positions()[1]))
+        self.assertAlmostEqual(np.linalg.norm(aM.get_positions()[0]),
+                               np.linalg.norm(aM.get_positions()[1]))
 
 if __name__ == '__main__':
     unittest.main()
