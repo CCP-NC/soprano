@@ -11,7 +11,9 @@ import numpy as np
 from collections import namedtuple
 from soprano.utils import parse_intlist, parse_floatlist
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
-from soprano.properties.linkage import LinkageList
+from soprano.properties.linkage import (LinkageList, MoleculeNumber,
+                                        MoleculeMass, MoleculeCOMLinkage,
+                                        MoleculeRelativeRotation)
 
 
 Gene = namedtuple('Gene', ['name', 'weight', 'params'])
@@ -52,6 +54,20 @@ def parsegene_linkage_list(c, size=10):
     linkl = LinkageList(size=size)
     return np.array(linkl(c))
 
+def parsegene_mol_num(c):
+    return np.array([MoleculeNumber.get(c)])
+
+def parsegene_mol_m(c, Z=0):
+    molm = MoleculeMass(size=Z)
+    return np.array(molm(c))
+
+def parsegene_mol_com(c, Z=0):
+    molc = MoleculeCOMLinkage(size=int(Z*(Z-1)/2))
+    return np.array(molc(c))
+
+def parsegene_mol_rot(c, Z=0):
+    molr = MoleculeRelativeRotation(size=int(Z*(Z-1)/2))
+    return np.array(molr(c))
 
 class GeneDictionary(object):
 
@@ -85,7 +101,38 @@ class GeneDictionary(object):
             },
             'parser': parsegene_linkage_list,
             'pair': False
-        }
+        },
+
+        'molecule_number': {
+            'default_params': {},
+            'parser': parsegene_mol_num,
+            'pair': False,
+        },
+
+        'molecule_mass': {
+            'default_params': {
+                'Z': int
+            },
+            'parser': parsegene_mol_m,
+            'pair': False,
+        },
+
+        'molecule_com_linkage': {
+            'default_params': {
+                'Z': int
+            },
+            'parser': parsegene_mol_com,
+            'pair': False,
+        },
+
+        'molecule_rot_linkage': {
+            'default_params': {
+                'Z': int
+            },
+            'parser': parsegene_mol_rot,
+            'pair': False,
+        },        
+
     }
 
     _gene_help = {
@@ -126,7 +173,46 @@ class GeneDictionary(object):
         Parameters: 
             size (int): how many distances are used (default = 10)
         Length: [size]
-        """
+        """,
+
+        'molecule_number': """
+        Number of molecules found in the structure.
+
+        Parameters: None
+        Length: 1
+        """,
+
+        'molecule_mass': """
+        Masses of each of the molecules found in the structure.
+
+        Parameters:
+            Z (int): expected number of molecules (default = total number of 
+                     molecules)
+        Length: Z
+        """,
+
+        'molecule_com_linkage': """
+        A list of the n shortest intermolecular distances in the structure
+        (periodic boundaries are taken into account and the molecules are
+         considered coincident with their Center Of Mass).
+
+        Parameters:
+            Z (int): expected number of molecules (default = total number of 
+                     molecules)
+        Length: Z*(Z-1)/2
+        """,
+
+        'molecule_rot_linkage': """
+        A list of the n shortest intermolecular rotational distances in the
+        structure (orientation is considered to be the one of the molecules'
+        principal inertia axis system, standard 1-|q1.q2| quaternion distance is
+        used).
+
+        Parameters:
+            Z (int): expected number of molecules (default = total number of 
+                     molecules)
+        Length: Z*(Z-1)/2
+        """,
     }
 
     @classmethod

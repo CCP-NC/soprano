@@ -35,7 +35,7 @@ class LinkageList(AtomsProperty):
     reduced to their shortest periodic version and sorted min to max.
 
     | Parameters: 
-    |   size (int): maximum sizeber of distances to include. If not present,
+    |   size (int): maximum number of distances to include. If not present,
     |               all of them will be included. If present, arrays will be
     |               cut or padded to reach this sizeber.
 
@@ -165,7 +165,7 @@ class Molecules(AtomsProperty):
             mols[-1].set_array('cell_indices', m_cells)
 
         if save_info:
-            s.info['molecules'] = mols
+            s.info[Molecules.default_name] = mols
 
         return mols
 
@@ -213,6 +213,9 @@ class MoleculeMass(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always recalculate the molecules even if
     |                        already present.
+    |   size (int): maximum number of distances to include. If not present,
+    |               all of them will be included. If present, arrays will be
+    |               cut or padded to reach this sizeber.
 
     | Returns:
     |   molecule_m ([float]): mass of each of the molecules present, sorted.
@@ -221,11 +224,12 @@ class MoleculeMass(AtomsProperty):
 
     default_name = 'molecule_mass'
     default_params = {
-        'force_recalc': False
+        'force_recalc': False,
+        'size': 0,
     }
 
     @staticmethod
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, size):
 
         if not 'molecules' in s.info or force_recalc:
             Molecules.get(s)
@@ -235,7 +239,19 @@ class MoleculeMass(AtomsProperty):
         for mol in s.info[Molecules.default_name]:
             mol_m.append(np.sum(all_m[mol.indices]))
 
-        return sorted(mol_m)
+        mol_m = np.array(mol_m)
+        mol_m.sort()
+
+        if size > 0:
+            if mol_m.shape[0] >= size:
+                mol_m = mol_m[:size]
+            else:
+                mol_m = np.pad(mol_m,
+                               (0, size-mol_m.shape[0]),
+                               mode=str('constant'),
+                               constant_values=np.inf)
+
+        return mol_m
 
 class MoleculeCOMLinkage(AtomsProperty):
 
@@ -251,6 +267,9 @@ class MoleculeCOMLinkage(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always recalculate the molecules even if
     |                        already present.
+    |   size (int): maximum number of distances to include. If not present,
+    |               all of them will be included. If present, arrays will be
+    |               cut or padded to reach this sizeber.
 
     | Returns:
     |   molecule_linkage ([float]): distances between all centers of mass of
@@ -260,11 +279,12 @@ class MoleculeCOMLinkage(AtomsProperty):
 
     default_name = 'molecule_com_linkage'
     default_params = {
-        'force_recalc': False
+        'force_recalc': False,
+        'size': 0,
     }
 
     @staticmethod
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, size):
 
         if not Molecules.default_name in s.info or force_recalc:
             Molecules.get(s)
@@ -282,7 +302,11 @@ class MoleculeCOMLinkage(AtomsProperty):
             mol_ms = all_m[mol.indices]
             mol_com.append(np.sum(mol_pos*mol_ms[:,None],
                                   axis=0)/np.sum(mol_ms))
-            
+        
+        # Safety check
+        if len(mol_com) < 2:
+            return [np.inf]*size
+
         # Now make the linkage
         v = np.array(mol_com)
         v = v[:, None, :]-v[None, :, :]
@@ -292,6 +316,15 @@ class MoleculeCOMLinkage(AtomsProperty):
         # And now compile the list
         link_list = np.linalg.norm(v, axis=-1)
         link_list.sort()
+
+        if size > 0:
+            if link_list.shape[0] >= size:
+                link_list = link_list[:size]
+            else:
+                link_list = np.pad(link_list,
+                                   (0, size-link_list.shape[0]),
+                                   mode=str('constant'),
+                                   constant_values=np.inf)
 
         return link_list
 
@@ -309,6 +342,9 @@ class MoleculeRelativeRotation(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always recalculate the molecules even if
     |                        already present.
+    |   size (int): maximum number of distances to include. If not present,
+    |               all of them will be included. If present, arrays will be
+    |               cut or padded to reach this sizeber.
 
     | Returns:
     |   molecule_relrot ([float]): list of relative rotations, as quaternion
@@ -319,10 +355,11 @@ class MoleculeRelativeRotation(AtomsProperty):
     default_name = 'molecule_rel_rotation'
     default_params = {
         'force_recalc': False,
+        'size': 0,
     }
 
     @staticmethod
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, size):
 
         if not Molecules.default_name in s.info or force_recalc:
             Molecules.get(s)
@@ -372,12 +409,24 @@ class MoleculeRelativeRotation(AtomsProperty):
             quat = quat.from_matrix(evecs.T)
             mol_quat.append(quat.q)
 
+        # Safety check
+        if len(mol_quat) < 2:
+            return [np.inf]*size
+
         # Now make the linkage
         v = np.array(mol_quat)
-        v = np.sum(v[:, None, :]*v[None, :, :], axis=-1)
-        v = 2*v**2-1.0
-        link_list = np.arccos(v[np.triu_indices(v.shape[0], k=1)])/np.pi
+        v = np.tensordot(v, v, axes=(-1, -1))
+        link_list = 1.0-np.abs(v[np.triu_indices(v.shape[0], k=1)])
         link_list.sort()
+
+        if size > 0:
+            if link_list.shape[0] >= size:
+                link_list = link_list[:size]
+            else:
+                link_list = np.pad(link_list,
+                                   (0, size-link_list.shape[0]),
+                                   mode=str('constant'),
+                                   constant_values=np.inf)
 
         return np.array(link_list)
 

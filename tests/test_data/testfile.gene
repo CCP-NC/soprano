@@ -4,3 +4,12 @@ linkage_list 0.5    # And this is a continuation comment
 {
     size    3
 }
+molecule_number 1.0
+molecule_mass 1.0
+{
+	Z = 1
+}
+molecule_com_linkage 1.0
+{
+	Z = 1	
+}
