@@ -110,9 +110,9 @@ class DaemonHPC(object):
     def get_next(self):
         return self._queue.get(timeout=self._timeout)
 
-    def set_parameters(self, daemon_manager):
+    def set_parameters(self):
         """Set additional parameters. In this generic example class it has
-        only daemon_manager as an argument, but in general it will be used to
+        no arguments, but in general it will be used to
         apply all the parameters passed to DaemonRunner through
         daemon_args."""
 
@@ -125,9 +125,11 @@ class DaemonHPC(object):
             self._logfile.write(msg + '\n')
 
     def run_process(self, loop_id, daemon_pid):
-        """Run a specific process. Action that needs to be parallelized"""
+        """Run a specific process. Action that needs to be parallelized
 
-        stdout, stderr = sp.Popen(['sleep', str(self.timeout)],
+        The value returned by this process is then passed to on_complete."""
+
+        stdout, stderr = sp.Popen(['sleep', str(self._timeout)],
                                   stdout=sp.PIPE,
                                   stderr=sp.PIPE).communicate()
         return "{0}: {1}".format(daemon_pid, stdout)
