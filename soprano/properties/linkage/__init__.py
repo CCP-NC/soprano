@@ -9,4 +9,6 @@ from __future__ import absolute_import
 from soprano.properties.linkage.linkage import (LinkageList, Molecules,
                                                 MoleculeNumber, MoleculeMass,
                                                 MoleculeCOMLinkage,
-                                                MoleculeRelativeRotation)
+                                                MoleculeRelativeRotation,
+                                                HydrogenBonds,
+                                                HydrogenBondsNumber)

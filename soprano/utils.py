@@ -185,8 +185,8 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None,
         if r_matrix.shape != (3, 3):
             raise ValueError("Invalid r_matrix passed to minimum_supcell")
     else:
-        raise ValueError("One between latt_cart and r_matrix has to \
-                          be present")
+        raise ValueError("One between latt_cart and r_matrix has to"
+                         "be present")
 
     # The logic of this algorithm isn't obvious, so let's make it clearer.
     #
@@ -292,7 +292,7 @@ def minimum_periodic(v, latt_cart):
 
     """
 
-    max_r = np.amax(np.linalg.norm(v, axis=1))
+    max_r = np.amax(np.linalg.norm(v, axis=-1))
     scell_shape = minimum_supcell(max_r, latt_cart)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
     v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]

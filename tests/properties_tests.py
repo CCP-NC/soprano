@@ -95,27 +95,27 @@ class TestPropertyLoad(unittest.TestCase):
                                                 Molecules, MoleculeNumber,
                                                 MoleculeMass,
                                                 MoleculeCOMLinkage,
-                                                MoleculeRelativeRotation)
+                                                MoleculeRelativeRotation,
+                                                HydrogenBonds,
+                                                HydrogenBondsNumber)
+
         from soprano.properties.transform import Rotate
 
         a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
 
         mols = Molecules.get(a)
 
-        # for i, m in enumerate(mols):
-        #     ai = m.subset(a)
-        #     ai.arrays['positions'] += np.tensordot(ai.get_cell(),
-        #                                            ai.arrays['cell_indices'],
-        #                                            axes=(0,1)).T
-        #     #write('mol{0}.cell'.format(i+1), ai)
-        #     #print(ai.get_chemical_symbols())
-        #     print(m.get_array('cell_indices'))
-
         self.assertTrue(MoleculeNumber.get(a) == 4)
-        self.assertTrue(np.isclose(MoleculeMass.get(a), 142.06788).all())
+        self.assertTrue(np.isclose(MoleculeMass.get(a), 89.09408).all())
         self.assertTrue(len(MoleculeCOMLinkage.get(a)) == 6)
 
-        #print(MoleculeRelativeRotation.get(a))
+        # Now testing hydrogen bonds
+        hbs = HydrogenBonds.get(a)
+        hbn = HydrogenBondsNumber.get(a)
+
+        self.assertTrue(hbn['NH..O'] == 12)
+        self.assertTrue(hbn['OH..O'] == 0)
+
 
     def test_transformprops(self):
 
