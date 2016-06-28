@@ -115,6 +115,7 @@ class PhylogenCluster(object):
             pass
 
         self._genes = []
+        self._has_pairgenes = False
 
         for g in genes:
             self._genes.append(g)
@@ -125,6 +126,10 @@ class PhylogenCluster(object):
                     continue
             # If it's not, it needs to be calculated
             gene_val = None
+            gene_entry = GeneDictionary.get_gene(g.name) 
+            self._has_pairgenes = self._has_pairgenes or\
+                                  gene_entry['pair']
+
             if load_arrays:
                 # Check if it is present
                 try:
@@ -133,7 +138,6 @@ class PhylogenCluster(object):
                     pass
             # And confirm that there are no NaNs inside
             if gene_val is None or np.any(np.isnan(gene_val)):
-                gene_entry = GeneDictionary.get_gene(g.name)
                 gene_params = g.params if g.params is not None else {}
                 # Check that the parameters are valid
                 if any([p not in gene_entry['default_params']
@@ -440,7 +444,7 @@ class PhylogenCluster(object):
         """
 
         # Sanity check
-        if self._gene_matrices_raw.shape[2] > 0:
+        if self._has_pairgenes:
             # Then this method can't work!
             raise RuntimeError('k-means clustering can not be used with'
                                'presence of pair distance genes')
