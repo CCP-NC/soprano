@@ -25,6 +25,7 @@ except ImportError:
 # Internal imports
 from ase import io as ase_io
 from ase.utils.geometry import niggli_reduce
+from ase.calculators.singlepoint import SinglePointCalculator
 from soprano import utils
 
 
@@ -66,7 +67,7 @@ class _AllCaller(object):
             return iterfunc
         elif name in self._instance_attrs:
             # It's an instance attribute
-            return [getattr(x, name) for x in self._all]            
+            return [getattr(x, name) for x in self._all]
         else:
             raise AttributeError(('Not all \'{0}\' objects have attribute'
                                   ' \'{1}\'').format(self._class.__name__,
@@ -147,7 +148,20 @@ class AtomsCollection(object):
                                 'file names,'
                                 ' not {0}'.format(type(struct).__name__))
             if cell_reduce:
+                # Here we must keep the energy if it was present
+                # We do this by hand because ASE has its good reasons
+                # for severing the atoms-calculator connection when changing
+                # the unit cell.
+                try:
+                    _E = self.structures[-1].calc.results['energy']
+                except KeyError:
+                    _E = None
                 niggli_reduce(self.structures[-1])
+                if _E is not None:
+                    _calc = SinglePointCalculator(self.structures[-1],
+                                                  energy=_E)
+                    self.structures[-1].set_calculator(_calc)
+
         if progress:
             sys.stdout.write('\nLoaded {0} structures\n'.format(s_n))
 
@@ -326,7 +340,7 @@ class AtomsCollection(object):
         # First, a check
         from ase.calculators.general import Calculator as gCalculator
         from ase.calculators.calculator import Calculator as cCalculator
-        
+
         if (gCalculator not in calctype.__bases__) and \
            (cCalculator not in calctype.__bases__):
             raise TypeError('calctype must be a type of ASE Calculator')

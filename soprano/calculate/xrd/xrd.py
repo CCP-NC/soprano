@@ -204,11 +204,14 @@ class XRDCalculator(object):
 
         # Second, find the matrix linking hkl indices to the inverse distance
         hkl2d2 = utils.hkl2d2_matgen(latt_abc)
-        hkl_bounds = utils.minimum_supcell(inv_d_max, r_matrix=hkl2d2)
+        hkl_shape = utils.minimum_supcell(inv_d_max, r_matrix=hkl2d2)
 
-        hrange = range(-hkl_bounds[0], hkl_bounds[0]+1)
-        krange = range(-hkl_bounds[1], hkl_bounds[1]+1)
-        lrange = range(-hkl_bounds[2], hkl_bounds[2]+1)
+        min_hkl_bounds = (-((np.array(hkl_shape)-1)/2)).astype(int)
+        max_hkl_bounds = hkl_shape+min_hkl_bounds
+
+        hrange = range(min_hkl_bounds[0], max_hkl_bounds[0])
+        krange = range(min_hkl_bounds[1], max_hkl_bounds[1])
+        lrange = range(min_hkl_bounds[2], max_hkl_bounds[2])
 
         # We now build a full grid of hkl indices. In this way
         # iteration is performed over numpy arrays and thus faster

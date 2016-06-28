@@ -240,9 +240,9 @@ class AtomSelection(object):
         if periodic and any(atoms.get_pbc()):
             # Get the range
             max_r = np.linalg.norm(np.array(abc1)-abc0)
-            r_bounds = minimum_supcell(max_r, latt_cart=atoms.get_cell(),
-                                       pbc=atoms.get_pbc())
-            grid_frac, grid = supcell_gridgen(atoms.get_cell(), r_bounds)
+            scell_shape = minimum_supcell(max_r, latt_cart=atoms.get_cell(),
+                                          pbc=atoms.get_pbc())
+            grid_frac, grid = supcell_gridgen(atoms.get_cell(), scell_shape)
             if scaled:
                 pos = (pos[:,None,:]+grid_frac[None,:,:])
             else:

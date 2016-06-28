@@ -203,8 +203,8 @@ a given spherical volume.</p>
 <div class="line">Args:</div>
 <div class="line-block">
 <div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
-<div class="line">abc0 ([float, float, float]): bottom corner of box</div>
-<div class="line">abc1 ([float, float, float]): top corner of box</div>
+<div class="line">center ([float, float, float]): center of the sphere</div>
+<div class="line">r (float): radius of the sphere</div>
 <div class="line">periodic (Optional[bool]): if True, include periodic copies of the</div>
 <div class="line-block">
 <div class="line">atoms</div>
@@ -223,10 +223,44 @@ a given spherical volume.</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="soprano.selection.AtomSelection.get_array">
+<code class="descname">get_array</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.get_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a previously stored data array.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to be set or created</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">array (np.ndarray): array of data to be saved</div>
+</div>
+</div>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="soprano.selection.AtomSelection.indices">
 <code class="descname">indices</code><a class="headerlink" href="#soprano.selection.AtomSelection.indices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.selection.AtomSelection.set_array">
+<code class="descname">set_array</code><span class="sig-paren">(</span><em>name</em>, <em>array</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.set_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an array of given name containing arbitraty information
+tied to the selected atoms.
+This must match the length of the selection and will be passed on to
+any Atoms objects created with .subset.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to be set or created</div>
+<div class="line">array (np.ndarray): array of data to be saved</div>
+</div>
+</div>
+</dd></dl>
 
 <dl class="method">
 <dt id="soprano.selection.AtomSelection.subset">
@@ -303,6 +337,12 @@ given lattice.</p>
 <div class="line-block">
 <div class="line">vectors in periodic reduced form</div>
 </div>
+<div class="line">v_cells (np.ndarray): array of triples of ints, corresponding to the </div>
+<div class="line-block">
+<div class="line">cells from which the various periodic copies of</div>
+<div class="line">the vectors were taken. For an unchanged vector</div>
+<div class="line">will be all [0,0,0]</div>
+</div>
 </div>
 </div>
 </dd></dl>
@@ -335,13 +375,7 @@ of given radius, knowing the unit cell.</p>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">bounds (tuple[int]): bounds of the supercell to be built.</div>
-<div class="line-block">
-<div class="line">These are to be interpreted as the</div>
-<div class="line">thickness of the &#8220;shell&#8221; one has to build</div>
-<div class="line">around a core unit cell: for example (1,2,1)</div>
-<div class="line">means the supercell will be 3x5x3</div>
-</div>
+<div class="line">shape (tuple[int]):  shape of the supercell to be built.</div>
 </div>
 </div>
 <div class="line-block">
@@ -403,14 +437,14 @@ of given radius, knowing the unit cell.</p>
 
 <dl class="function">
 <dt id="soprano.utils.supcell_gridgen">
-<code class="descclassname">soprano.utils.</code><code class="descname">supcell_gridgen</code><span class="sig-paren">(</span><em>latt_cart</em>, <em>r_bounds</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.supcell_gridgen" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">soprano.utils.</code><code class="descname">supcell_gridgen</code><span class="sig-paren">(</span><em>latt_cart</em>, <em>shape</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.supcell_gridgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a full linearized grid for a supercell with r_bounds
 and a base unit cell in Cartesian form.</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
 <div class="line">latt_cart (np.ndarray): unit cell in cartesian form</div>
-<div class="line">r_bounds (tuple[int]): bounds of the supercell to be built,</div>
+<div class="line">shape (tuple[int]):  shape of the supercell to be built,</div>
 <div class="line-block">
 <div class="line">as returned by minimum_supcell.</div>
 </div>

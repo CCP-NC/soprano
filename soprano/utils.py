@@ -168,11 +168,7 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None,
     |                             in that dimension
 
     | Returns:
-    |   bounds (tuple[int]): bounds of the supercell to be built.
-    |                        These are to be interpreted as the
-    |                        thickness of the "shell" one has to build
-    |                        around a core unit cell: for example (1,2,1)
-    |                        means the supercell will be 3x5x3
+    |   shape (tuple[int]):  shape of the supercell to be built.
 
     | Raises:
     |   ValueError: if some of the arguments are invalid
@@ -231,18 +227,18 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None,
     r_bounds = np.max(np.ceil(abs(qmatrix)), axis=1).astype(int)
     r_bounds = np.where(pbc, r_bounds, 0)
 
-    return tuple(r_bounds)
+    return tuple([2*r+1 for r in r_bounds])
 
 
-def supcell_gridgen(latt_cart, r_bounds):
+def supcell_gridgen(latt_cart, shape):
     """
     Generate a full linearized grid for a supercell with r_bounds
     and a base unit cell in Cartesian form.
 
     | Args:
     |   latt_cart (np.ndarray): unit cell in cartesian form
-    |   r_bounds (tuple[int]): bounds of the supercell to be built,
-    |                          as returned by minimum_supcell.
+    |   shape (tuple[int]):  shape of the supercell to be built,
+    |                        as returned by minimum_supcell.
 
     | Returns:
     |   neigh_i_grid (np.ndarray): supercell grid in fractional coordinates
@@ -255,15 +251,17 @@ def supcell_gridgen(latt_cart, r_bounds):
 
     latt_cart = np.array(latt_cart, copy=False)
     if latt_cart.shape != (3, 3):
-        raise ValueError("Invalid latt_cart passed to minimum_supcell")
+        raise ValueError("Invalid latt_cart passed to supcell_gridgen")
 
-    r_bounds = np.array(r_bounds, copy=False)
-    if r_bounds.shape != (3,):
-        raise ValueError("Invalid r_bounds passed to minimum_supcell")
+    shape = np.array(shape, copy=False).astype(int)
+    if shape.shape != (3,):
+        raise ValueError("Invalid shape passed to supcell_gridgen")
 
-    x_range = range(-r_bounds[0], r_bounds[0]+1)
-    y_range = range(-r_bounds[1], r_bounds[1]+1)
-    z_range = range(-r_bounds[2], r_bounds[2]+1)
+    min_bounds = (-((shape-1)/2)).astype(int)
+    max_bounds = shape+min_bounds
+    x_range = range(min_bounds[0], max_bounds[0])
+    y_range = range(min_bounds[1], max_bounds[1])
+    z_range = range(min_bounds[2], max_bounds[2])
 
     # We now generate a grid of neighbours to check for contact with
     # First just the supercell indicess
@@ -295,8 +293,8 @@ def minimum_periodic(v, latt_cart):
     """
 
     max_r = np.amax(np.linalg.norm(v, axis=1))
-    r_bounds = minimum_supcell(max_r, latt_cart)
-    neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, r_bounds)
+    scell_shape = minimum_supcell(max_r, latt_cart)
+    neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
     v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
     min_copies = np.argmin(np.linalg.norm(v_period, axis=-1), axis=1)
     v_period = v_period[range(len(v)), min_copies, :]

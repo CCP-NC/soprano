@@ -61,8 +61,8 @@ class TestSupercellMethods(unittest.TestCase):
             # Pick a suitable radius
             max_r = np.random.random()*cell_scale+cell_min
             # Find the supercell
-            r_bounds = minimum_supcell(max_r, latt_cart=cart)
-            grid_i, grid = supcell_gridgen(cart, r_bounds)
+            scell_shape = minimum_supcell(max_r, latt_cart=cart)
+            grid_i, grid = supcell_gridgen(cart, scell_shape)
             grid -= centre  # We refer to the centre
             grid_norm = np.linalg.norm(grid, axis=1)
             # Now let's check the sphere points
