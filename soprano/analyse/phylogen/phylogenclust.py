@@ -19,6 +19,9 @@ except ImportError:
 from soprano.collection import AtomsCollection
 from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
                                             GeneError, load_genefile)
+from soprano.analyse.phylogen.mapping import (total_principal_component,
+                                              classcond_principal_component,
+                                              standard_classcond_component)
 
 
 class PhylogenCluster(object):
@@ -127,7 +130,7 @@ class PhylogenCluster(object):
             # If it's not, it needs to be calculated
             gene_val = None
             self._has_pairgenes = self._has_pairgenes or\
-                                  g.is_pair
+                g.is_pair
 
             if load_arrays:
                 # Check if it is present
@@ -370,8 +373,12 @@ class PhylogenCluster(object):
         |                 Refer to Scipy documentation for further details.
 
         | Returns:
-        |   clusters (list[AtomsCollection]): clusters of structures formed
-        |                                     by hierarchical algorithm.
+        |   clusters (tuple(list[int],
+        |                   list[slices])): list of cluster index for each
+        |                                   structure (counting from 1) and
+        |                                   list of slices defining the
+        |                                   clusters as formed by hierarchical
+        |                                   algorithm.
 
         """
 
@@ -383,7 +390,7 @@ class PhylogenCluster(object):
         clust_n = np.amax(clusts)
         clust_slices = [np.where(clusts == i)[0] for i in range(1, clust_n+1)]
 
-        return [self._collection[sl] for sl in clust_slices]
+        return clusts, clust_slices
 
     def get_hier_tree(self, method='single'):
         """Get a tree data structure describing the clustering order of based
@@ -430,8 +437,13 @@ class PhylogenCluster(object):
         |   n (int):    the desired number of clusters.
 
         | Returns:
-        |   clusters (list[AtomsCollection]): clusters of structures formed
-        |                                     by k-means algorithm.
+        |   clusters (tuple(list[int],
+        |                   list[slices])): list of cluster index for each
+        |                                   structure (counting from 1) and
+        |                                   list of slices defining the
+        |                                   clusters as formed by k-means
+        |                                   algorithm.
+
 
         """
 
@@ -448,8 +460,46 @@ class PhylogenCluster(object):
         clusts, cdists = vq.vq(self._gene_vectors_norm, centroids)
         clust_n = np.amax(clusts)+1
         clust_slices = [np.where(clusts == i)[0] for i in range(clust_n)]
+        clusts += 1
 
-        return [self._collection[sl] for sl in clust_slices]
+        return clusts, clust_slices
+
+    def create_mapping(self, method="total_principal"):
+        """Return an array of 2-dimensional points representing a reduced
+        dimensionality mapping of the given genes using the algorithm of 
+        choice. All algorithms are described in [W. Siedlecki et al., Patt.
+        Recog. vol. 21, num. 5, pp. 411 429 (1988)].
+
+        | Args:
+        |   method (str): can be one of the following algorithms:
+        |                     - total_principal (default)
+        |                     - clafic
+        |                     - fukunaga-koontz
+
+        """
+
+        # Sanity check
+        if self._has_pairgenes:
+            # Then this method can't work!
+            raise RuntimeError('Total principal component mapping can not be'
+                               'used with presence of pair distance genes')
+
+        if self._needs_recalc:
+            self._recalc()
+
+        algos = {
+            'total_principal': total_principal_component,
+            'clafic': classcond_principal_component,
+            'fukunaga-koontz': standard_classcond_component
+        }
+
+        # Make covalence matrix
+        try:
+            return algos[method](self._gene_vectors_norm)
+        except KeyError:
+            raise ValueError(('Invalid method passed to create_mapping.\n'
+                             'Valid methods are: \n-')+\
+                             ('\n-'.join(algos.keys())))
 
     def save_collection(self, filename):
         """Save as pickle the collection bound to this PhylogenCluster.
@@ -479,7 +529,3 @@ class PhylogenCluster(object):
         if not isinstance(f, PhylogenCluster):
             raise ValueError('File does not contain a PhylogenCluster object')
         return f
-
-
-
-
