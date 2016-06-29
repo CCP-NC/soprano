@@ -126,9 +126,8 @@ class PhylogenCluster(object):
                     continue
             # If it's not, it needs to be calculated
             gene_val = None
-            gene_entry = GeneDictionary.get_gene(g.name) 
             self._has_pairgenes = self._has_pairgenes or\
-                                  gene_entry['pair']
+                                  g.is_pair
 
             if load_arrays:
                 # Check if it is present
@@ -138,14 +137,7 @@ class PhylogenCluster(object):
                     pass
             # And confirm that there are no NaNs inside
             if gene_val is None or np.any(np.isnan(gene_val)):
-                gene_params = g.params if g.params is not None else {}
-                # Check that the parameters are valid
-                if any([p not in gene_entry['default_params']
-                        for p in gene_params]):
-                    raise ValueError('Invalid parameters for gene '
-                                     '{0}'.format(g.name))
-                gene_val = gene_entry['parser'](self._collection,
-                                                **gene_params)
+                gene_val = g.evaluate(self._collection)
             self._gene_storage[g.name] = {
                 'def': g,
                 'val': gene_val

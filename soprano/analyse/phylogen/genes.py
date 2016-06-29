@@ -8,7 +8,6 @@ from __future__ import unicode_literals
 
 import re
 import numpy as np
-from collections import namedtuple
 from soprano.utils import parse_intlist, parse_floatlist
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
@@ -16,7 +15,74 @@ from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeRelativeRotation)
 
 
-Gene = namedtuple('Gene', ['name', 'weight', 'params'])
+class Gene(object):
+
+    """Gene
+
+    A description of a property, a 'gene', characterizing a structure, to be
+    used with a PhylogenCluster. A number of default genes is provided, but
+    custom ones can be created as well by passing a parser. Only default genes
+    can be used in a .genefile with the phylogen.py script though.
+
+    | Args:
+    |   name (str): name of the gene. Must be one of the existing ones or a 
+    |               custom one (in which case a parser must be provided as
+    |               well). Custom names can't conflict with existing ones
+    |   weight (float): weight of the gene to be applied, default is 1.0
+    |   params (dict): additional parameters to be passed to the gene parser
+    |                  function; when not specified, defaults will be used
+    |   parser (function<AtomsCollection, **kwargs>
+    |           => np.array): parser function to be used when defining custom
+    |                         genes. Must return a one-dimensional Numpy array
+    |   is_pair (bool): False if the gene returns a multi dimensional point
+    |                   for each structure, True if it only returns pair 
+    |                   distances. Default is False
+
+    """
+
+    def __init__(self, name, weight=1.0, params={}, parser=None, pair=False):
+
+        # Is the gene default or custom?
+        try:
+            gdef = GeneDictionary.get_gene(name)
+            if parser is not None:
+                raise ValueError('A default gene of name {0} already exists'
+                                 .format(name))
+            self._parser = gdef['parser']
+            self._pair = gdef['pair']
+            # Check the validity of parameters as well
+            if any([p not in gdef['default_params'] for p in params]):
+                raise ValueError('Invalid parameters passed for gene {0}'
+                                 .format(name))
+        except KeyError:
+            # Custom!
+            if parser is None:
+                raise RuntimeError('A parser function is required to create'
+                                   ' custom gene of name {0}'.format(name))
+            self._parser = parser
+            self._pair = pair
+
+        self.name = name
+        self.weight = weight
+        self.params = params
+
+    def __eq__(self, other):
+
+        iseq = False
+
+        try:
+            return (self.name == other.name) and\
+                   (self.weight == other.weight) and\
+                   (self.params == other.params)
+        except:
+            return False
+
+    @property
+    def is_pair(self):
+        return self._pair
+
+    def evaluate(self, c):
+        return self._parser(c, **self.params)
 
 
 class GeneError(Exception):
@@ -32,6 +98,7 @@ def generic_parser(AtomsCollection, **parameters):
     return np.array [shape = (AtomsCollection.length, :)]
 
 """
+
 
 def parsegene_energy(c):
     return np.array(CalcEnergy.get(c))
@@ -54,20 +121,25 @@ def parsegene_linkage_list(c, size=10):
     linkl = LinkageList(size=size)
     return np.array(linkl(c))
 
+
 def parsegene_mol_num(c):
     return np.array([MoleculeNumber.get(c)])
+
 
 def parsegene_mol_m(c, Z=0):
     molm = MoleculeMass(size=Z)
     return np.array(molm(c))
 
+
 def parsegene_mol_com(c, Z=0):
     molc = MoleculeCOMLinkage(size=int(Z*(Z-1)/2))
     return np.array(molc(c))
 
+
 def parsegene_mol_rot(c, Z=0):
     molr = MoleculeRelativeRotation(size=int(Z*(Z-1)/2))
     return np.array(molr(c))
+
 
 class GeneDictionary(object):
 
@@ -131,7 +203,7 @@ class GeneDictionary(object):
             },
             'parser': parsegene_mol_rot,
             'pair': False,
-        },        
+        },
 
     }
 

@@ -33,10 +33,9 @@ class TestPhylogen(unittest.TestCase):
 
     def test_genefail(self):
 
-        # Test that it DOES fail if a gene with wrong parameters is passed
-        c1 = AtomsCollection([Atoms('C')])
-        g1 = Gene('latt_abc_len', 1.0, {'wrong': True})
-        self.assertRaises(ValueError, PhylogenCluster, c1, [g1])
+        # Test that it DOES fail if a gene with wrong parameters is created
+        self.assertRaises(ValueError, Gene, 'latt_abc_len',
+                          1.0, {'wrong': True})
 
     def test_gene(self):
 
@@ -48,6 +47,22 @@ class TestPhylogen(unittest.TestCase):
 
         graw = p1.get_genome_vectors()
         self.assertTrue(np.allclose(graw[0], [0.15, 0.2, 0.35]))
+
+    def test_customgene(self):
+
+        c1 = AtomsCollection([Atoms('C', positions=[[i/5.0, 0, 0]])
+                              for i in range(5)])
+
+        # First, check failure
+        self.assertRaises(RuntimeError, Gene, 'first_x_coord')
+
+        # Then actual success
+        def first_x_parser(c):
+            return np.array(c.all.get_positions())[:,0,0]
+
+        g1 = Gene('first_x_coord', parser=first_x_parser)
+        self.assertTrue(np.all(g1.evaluate(c1) == [i/5.0 for i in range(5)]))
+
 
     def test_loadgene(self):
 
