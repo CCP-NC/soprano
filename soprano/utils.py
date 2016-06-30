@@ -15,13 +15,16 @@ from __future__ import unicode_literals
 import os
 import numpy as np
 
+
 def seedname(path):
     """Get the filename (with no extension) from a full path"""
     return os.path.splitext(os.path.basename(path))[0]
 
+
 def replace_folder(path, new_folder):
     """Replace the folder of the given path with a new one"""
     return os.path.join(new_folder, os.path.basename(path))
+
 
 def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
     """A textual progress bar for the command line
@@ -43,17 +46,20 @@ def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
     perc = i/float(i_max)*bar_len
     bar = '[{0}]'.format(''.join([block[i < perc] for i in range(bar_len)]))
     if spinner:
-        bar += ' {0}'.format(spin[int(perc*spin_rate)%len(spin)])
+        bar += ' {0}'.format(spin[int(perc*spin_rate) % len(spin)])
 
     return bar
+
 
 def parse_intlist(string):
     """Parse a list of ints from a string"""
     return [int(x) for x in string.split()]
 
+
 def parse_floatlist(string):
     """Parse a list of floats from a string"""
     return [float(x) for x in string.split()]
+
 
 def abc2cart(abc):
     """Transforms an axes and angles representation of lattice parameters
@@ -223,7 +229,7 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None,
     # directions. We do this implicitly though.
     qmatrix = np.dot(utransf_matrix,
                      max_r*(utransf_matrix/np.linalg.norm(utransf_matrix,
-                            axis=1)[:, None]).T)
+                                                          axis=1)[:, None]).T)
     r_bounds = np.max(np.ceil(abs(qmatrix)), axis=1).astype(int)
     r_bounds = np.where(pbc, r_bounds, 0)
 
@@ -272,6 +278,7 @@ def supcell_gridgen(latt_cart, shape):
 
     return neigh_i_grid, neigh_grid
 
+
 def minimum_periodic(v, latt_cart):
     """
     Find the shortest periodic equivalent vector for a list of vectors and a
@@ -309,3 +316,19 @@ def is_string(s):
     except NameError:
         # It must be Python 3!
         return isinstance(s, str)
+
+# Inspecting arguments of a function, Python 2 and 3 way
+import inspect
+if hasattr(inspect, 'signature'):
+    def inspect_args(f):
+        fsig = inspect.signature(f)
+        args = fsig.parameters
+        nargs = len(args)
+        nargs_def = len([p for p in args
+                         if args[p].default != inspect.Signature.empty])
+        return (nargs, nargs_def)
+else:
+    def inspect_args(f):
+        argspec = inspect.getargspec(f)
+        return (len(argspec.args),
+                (0 if argspec.defaults is None else len(argspec.defaults)))

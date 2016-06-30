@@ -13,14 +13,16 @@ import json
 import pkgutil
 
 try:
-    xrd_sel_rules = json.loads(pkgutil.get_data('soprano',
-                                                'data/xrd_sel_rules.json'))
+    _xrd_seldata = pkgutil.get_data('soprano',
+                                    'data/xrd_sel_rules.json').decode('utf-8')
+    xrd_sel_rules = json.loads(_xrd_seldata)
 except IOError:
     xrd_sel_rules = None
 
 try:
-    hall_2_no = json.loads(pkgutil.get_data('soprano',
-                                            'data/hall_2_no.json'))
+    _halldata = pkgutil.get_data('soprano',
+                                 'data/hall_2_no.json').decode('utf-8')
+    hall_2_no = json.loads(_halldata)
 except IOError:
     hall_2_no = None
 

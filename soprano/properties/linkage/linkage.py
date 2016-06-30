@@ -17,8 +17,8 @@ from soprano.selection import AtomSelection
 
 # Pre load VdW radii
 from ase.data.vdw import vdw_radii as _vdw_radii_ase
-_vdw_radii_jmol = np.array(json.loads(pkgutil.get_data('soprano',
-                                                       'data/vdw_jmol.json')))
+_vdw_data = pkgutil.get_data('soprano', 'data/vdw_jmol.json').decode('utf-8')
+_vdw_radii_jmol = np.array(json.loads(_vdw_data))
 
 _vdw_radii = {
     'ase': _vdw_radii_ase,
@@ -130,7 +130,7 @@ class Molecules(AtomsProperty):
         link_M = v <= vdw_M
 
         mol_sets = []
-        unsorted_atoms = range(atomn)
+        unsorted_atoms = list(range(atomn))
 
         def get_linked(i):
             inds = np.concatenate((np.where(triui[1] == i)[0],
@@ -541,20 +541,21 @@ class HydrogenBonds(AtomsProperty):
         rngh = range(len(h_atoms))
         # Condition one: closest atom, A, is bonded
         h_bonded = h_links_norm[rngh,
-                                h_closest[:,0]] <= bonds_vdw[h_closest[:,0]]
+                                h_closest[:, 0]] <= bonds_vdw[h_closest[:, 0]]
         # Condition two: furthest atom, B, is NOT bonded...
         h_bonded = np.logical_and(h_bonded,
                                   h_links_norm[rngh,
-                                               h_closest[:,1]
-                                               ] > bonds_vdw[h_closest[:,1]])
+                                               h_closest[:, 1]
+                                               ] > bonds_vdw[h_closest[:, 1]])
         # Condition three: ...but still closer to A than max_length
-        links_ab = h_links[rngh, h_closest[:,0]]-h_links[rngh, h_closest[:,1]]
+        links_ab = h_links[rngh, h_closest[:, 0]] - \
+            h_links[rngh, h_closest[:, 1]]
         links_ab_norm = np.linalg.norm(links_ab, axis=-1)
         h_bonded = np.logical_and(h_bonded, links_ab_norm <= max_length)
         # Condition four: finally, the angle between AH and AB in A-H..B
         # must be smaller than max_angle
-        angles_abah = np.sum(links_ab*h_links[rngh, h_closest[:,0]], axis=-1)
-        angles_abah /= links_ab_norm*h_links_norm[rngh, h_closest[:,0]]
+        angles_abah = np.sum(links_ab*h_links[rngh, h_closest[:, 0]], axis=-1)
+        angles_abah /= links_ab_norm*h_links_norm[rngh, h_closest[:, 0]]
         angles_abah = np.arccos(angles_abah)*180.0/np.pi
         h_bonded = np.logical_and(h_bonded, angles_abah <= max_angle)
 
@@ -624,8 +625,3 @@ class HydrogenBondsNumber(AtomsProperty):
             hbonds_n[hbt] = len(hbonds[hbt])
 
         return hbonds_n
-
-
-
-
-

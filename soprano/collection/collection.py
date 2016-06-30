@@ -22,9 +22,10 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
+# More 2-to-3 compatibility, defining a wrapper function for inspect
 # Internal imports
 from ase import io as ase_io
-from ase.utils.geometry import niggli_reduce
+from ase.build import niggli_reduce
 from ase.calculators.singlepoint import SinglePointCalculator
 from soprano import utils
 
@@ -81,8 +82,7 @@ class _AllCaller(object):
         if not hasattr(f, '__call__'):
             raise TypeError('Only functions can be mapped')
 
-        argspec = inspect.getargspec(f)
-        nargs = len(argspec.args)
+        nargs, nargs_def = utils.inspect_args(f)
         if nargs < 1 + len(args) + len(kwargs):
             # Function is invalid!
             raise ValueError('Invalid function passed to map')
@@ -241,6 +241,15 @@ class AtomsCollection(object):
 
         return sliced
 
+    def __deepcopy__(self, memodict={}):
+        """Protects against problems with infinite recursion in AllCaller"""
+
+        dcopy = AtomsCollection(self.structures, self.info)
+        for arr in self._arrays:
+            dcopy.set_array(arr, self._arrays[arr])
+
+        return dcopy
+
     @property
     def length(self):
         return len(self.structures)
@@ -273,16 +282,17 @@ class AtomsCollection(object):
         # a can be an actual array or a function that operates on each
         # separate Atoms object and returns a value
 
-        if type(a) in (np.ndarray, list, tuple):
-            a = np.array(a, dtype)
-        elif hasattr(a, '__call__'):
-            # It's a function
-            a = np.array(self.all.map(a, **args), dtype)
-        else:
-            # Invalid
-            raise TypeError('new_array requires to pass either an array'
-                            ' or a function taking an Atoms object as its'
-                            ' first argument and returning a value.')
+        a = np.array(a, dtype)
+        if a.shape == ():
+            a = a.item()
+            if hasattr(a, '__call__'):
+                # It's a function
+                a = np.array(self.all.map(a, **args), dtype)
+            else:
+                # Invalid
+                raise TypeError('new_array requires to pass either an array'
+                                ' or a function taking an Atoms object as its'
+                                ' first argument and returning a value.')
 
         # Now check that the shape is valid
         if shape is not None:
@@ -340,9 +350,11 @@ class AtomsCollection(object):
         # First, a check
         from ase.calculators.general import Calculator as gCalculator
         from ase.calculators.calculator import Calculator as cCalculator
+        from ase.calculators.calculator import FileIOCalculator as ioCalculator
 
         if (gCalculator not in calctype.__bases__) and \
-           (cCalculator not in calctype.__bases__):
+           (cCalculator not in calctype.__bases__) and \
+           (ioCalculator not in calctype.__bases__):
             raise TypeError('calctype must be a type of ASE Calculator')
 
         if labels is not None and len(labels) != self.length:
@@ -444,13 +456,13 @@ class AtomsCollection(object):
         if not self.has(name):
             raise ValueError("Array \'{0}\' does not exist".format(name))
 
-        arr_names = self._arrays.keys()
+        arr_names = list(self._arrays.keys())
         data_block = zip(self.structures,
                          *[self._arrays[n] for n in arr_names])
         key_i = arr_names.index(name)
-        data_block = zip(*sorted(data_block,
-                                 key=lambda x: x[key_i+1],
-                                 reverse=reverse))
+        data_block = list(zip(*sorted(data_block,
+                                      key=lambda x: x[key_i+1],
+                                      reverse=reverse)))
 
         sorted_copy = AtomsCollection(data_block[0], info=self.info)
         for ai, an in enumerate(arr_names):

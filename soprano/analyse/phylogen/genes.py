@@ -12,7 +12,8 @@ from soprano.utils import parse_intlist, parse_floatlist
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,
-                                        MoleculeRelativeRotation)
+                                        MoleculeRelativeRotation,
+                                        HydrogenBonds, HydrogenBondsNumber)
 
 
 class Gene(object):
@@ -33,7 +34,9 @@ class Gene(object):
     |                  function; when not specified, defaults will be used
     |   parser (function<AtomsCollection, **kwargs>
     |           => np.array): parser function to be used when defining custom
-    |                         genes. Must return a one-dimensional Numpy array
+    |                         genes. Must return a two-dimensional Numpy array
+    |                         (axis 0 for the elements of the collection,
+    |                          axis 1 for the values of the gene)
     |   is_pair (bool): False if the gene returns a multi dimensional point
     |                   for each structure, True if it only returns pair 
     |                   distances. Default is False
@@ -141,6 +144,17 @@ def parsegene_mol_rot(c, Z=0):
     return np.array(molr(c))
 
 
+def parsegene_hbonds_totn(c):
+    hblen = HydrogenBondsNumber.get(c)
+    return np.array([sum(ld.values()) for ld in hblen])
+
+
+def parsegene_hbonds_fprint(c):
+    hblen = HydrogenBondsNumber.get(c)
+    return np.array([zip(*sorted(zip(ld.keys(), ld.values())))[1]
+                     for ld in hblen])
+
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
@@ -204,6 +218,18 @@ class GeneDictionary(object):
             'parser': parsegene_mol_rot,
             'pair': False,
         },
+
+        'hbonds_tot_n': {
+            'default_params': {},
+            'parser': parsegene_hbonds_totn,
+            'pair': False
+        },
+
+        'hbonds_fingerprint': {
+            'default_params': {},
+            'parser': parsegene_hbonds_fprint,
+            'pair': False
+        }
 
     }
 
@@ -277,14 +303,33 @@ class GeneDictionary(object):
         'molecule_rot_linkage': """
         A list of the n shortest intermolecular rotational distances in the
         structure (orientation is considered to be the one of the molecules'
-        principal inertia axis system, standard 1-|q1.q2| quaternion distance is
-        used).
+        principal inertia axis system, standard 1-|q1.q2| quaternion distance
+        is used).
 
         Parameters:
             Z (int): expected number of molecules (default = total number of 
                      molecules)
         Length: Z*(Z-1)/2
         """,
+
+        'hbonds_tot_n': """
+        Total number of hydrogen bonds in the system. If the hydrogen bonds 
+        have already been calculated, the stored data will be used.
+
+        Parameters: None
+        Length: 1
+        """,
+
+        'hbonds_fingerprint': """
+        Hydrogen bonds fingerprint, i.e. number of hydrogen bonds split by
+        type. By convention the ordering is alphabetical, with the types
+        described as AH..B (A, B replaced by the respective chemical symbols).
+        If the hydrogen bonds have already been calculated, the stored data
+        will be used.
+
+        Parameters: None
+        Length: 1
+        """
     }
 
     @classmethod
@@ -311,10 +356,12 @@ def load_genefile(gfile):
 
     """
 
-    if isinstance(gfile, file):
+    if hasattr(gfile, '__read__'):
         genefile = gfile.read()
     else:
-        genefile = open(gfile).read()
+        gfile = open(gfile)
+        genefile = gfile.read()
+        gfile.close()
 
     comment_re = re.compile('#[^\n]*\n')
     gene_re = re.compile('\s*([a-zA-Z_]+)\s+([0-9\.]+)(?:\s*{([^}]+)})*')

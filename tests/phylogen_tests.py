@@ -101,11 +101,11 @@ class TestPhylogen(unittest.TestCase):
         c1 = AtomsCollection([a1, a2, a3])
         p1 = PhylogenCluster(c1, [Gene('latt_abc_len', 1.0, {})])
 
-        clustc = p1.get_hier_clusters(0.5, method='complete')
+        clinds, clslice = p1.get_hier_clusters(0.5, method='complete')
 
         getname = lambda a: a.info['name']
 
-        cnames = [sorted(c.all.map(getname)) for c in clustc]
+        cnames = [sorted(c1[sl].all.map(getname)) for sl in clslice]
         cnames.sort(key=lambda x: len(x))
 
         self.assertTrue(cnames == [['a3'], ['a1', 'a2']])
@@ -114,7 +114,7 @@ class TestPhylogen(unittest.TestCase):
 
         clustc = p1.get_kmeans_clusters(2)
 
-        cnames = [sorted(c.all.map(getname)) for c in clustc]
+        cnames = [sorted(c1[sl].all.map(getname)) for sl in clslice]
         cnames.sort(key=lambda x: len(x))
 
         self.assertTrue(cnames == [['a3'], ['a1', 'a2']])

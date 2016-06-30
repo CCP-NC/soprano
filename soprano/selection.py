@@ -3,7 +3,7 @@ selection.py
 
 Contains the definition of an AtomSelection class,
 namely a group of selected atoms for a given structure,
-and methods to build it. 
+and methods to build it.
 """
 
 # Python 2-to-3 compatibility code
@@ -37,6 +37,7 @@ def _operator_checks(opfunc):
 
     return decorated_opfunc
 
+
 class AtomSelection(object):
 
     """AtomSelection object.
@@ -69,8 +70,8 @@ class AtomSelection(object):
         # A quick check: are the indices actually contained in the Atoms?
         if len(sel_indices) > 0:
             if (min(sel_indices) < 0 or
-                max(sel_indices) >= atoms.get_number_of_atoms()):
-               raise ValueError('Invalid indices for given Atoms object')
+                    max(sel_indices) >= atoms.get_number_of_atoms()):
+                raise ValueError('Invalid indices for given Atoms object')
 
         self._indices = np.array(sel_indices)
 
@@ -96,7 +97,7 @@ class AtomSelection(object):
         """
 
         h = hashlib.md5()
-        h.update(''.join(atoms.get_chemical_symbols()))
+        h.update(''.join(atoms.get_chemical_symbols()).encode())
 
         return h.hexdigest()
 
@@ -145,7 +146,8 @@ class AtomSelection(object):
         """Generate an Atoms object containing only the selected atoms."""
 
         if not self.validate(atoms):
-            raise ValueError('Given Atoms object does not match this selection')
+            raise ValueError(
+                'Given Atoms object does not match this selection')
 
         subset = atoms.copy()
         not_sel = list(set(range(atoms.get_number_of_atoms())) -
@@ -157,7 +159,7 @@ class AtomSelection(object):
             # The array needs to be sorted with the indices
             # in order to match the order of the atoms in the Atoms object
             _, arr = zip(*sorted(zip(self._indices, self._arrays[k]),
-                                 key = lambda t: t[0]))
+                                 key=lambda t: t[0]))
             subset.new_array(k, np.array(arr))
 
         return subset
@@ -244,9 +246,9 @@ class AtomSelection(object):
                                           pbc=atoms.get_pbc())
             grid_frac, grid = supcell_gridgen(atoms.get_cell(), scell_shape)
             if scaled:
-                pos = (pos[:,None,:]+grid_frac[None,:,:])
+                pos = (pos[:, None, :]+grid_frac[None, :, :])
             else:
-                pos = (pos[:,None,:]+grid[None,:,:])
+                pos = (pos[:, None, :]+grid[None, :, :])
 
         sel_i = np.where(np.logical_and(np.all(pos > abc0, axis=-1),
                                         np.all(pos < abc1, axis=-1)))[0]
@@ -283,18 +285,10 @@ class AtomSelection(object):
                                        pbc=atoms.get_pbc())
             grid_frac, grid = supcell_gridgen(atoms.get_cell(), r_bounds)
             if scaled:
-                pos = (pos[:,None,:]+grid_frac[None,:,:])
+                pos = (pos[:, None, :]+grid_frac[None, :, :])
             else:
-                pos = (pos[:,None,:]+grid[None,:,:])
+                pos = (pos[:, None, :]+grid[None, :, :])
 
         sel_i = np.where(np.linalg.norm(pos-center, axis=-1) <= r)[0]
 
         return AtomSelection(atoms, sel_i)
-
-
-        
-
-
-
-
-

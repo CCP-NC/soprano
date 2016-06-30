@@ -10,7 +10,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import copy
-import inspect
 import numpy as np
 from pyspglib import spglib
 from collections import namedtuple
@@ -123,10 +122,7 @@ class XRDCalculator(object):
         # For peak_func there's little we can do to check, mostly it's the
         # user's responsibility.
         if peak_func is not None:
-            argspec = inspect.getargspec(peak_func)
-            nargs = len(argspec.args)
-            nargs_def = 0 if argspec.defaults is None else len(
-                argspec.defaults)
+            nargs, nargs_def = utils.inspect_args(peak_func)
             if nargs < 2:
                 raise ValueError("Invalid peak_func passed to set_peak_func")
             elif (nargs-(2+nargs_def)) > len(peak_f_args):
@@ -304,7 +300,7 @@ class XRDCalculator(object):
             raise ValueError("Invalid xpeaks passed to dataset_range")
         try:
             th2_min, th2_max = theta2_range
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             raise ValueError("Invalid theta2_range passed to dataset_range")
 
         # Find the good indices

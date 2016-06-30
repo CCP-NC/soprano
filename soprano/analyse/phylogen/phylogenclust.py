@@ -19,9 +19,7 @@ except ImportError:
 from soprano.collection import AtomsCollection
 from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
                                             GeneError, load_genefile)
-from soprano.analyse.phylogen.mapping import (total_principal_component,
-                                              classcond_principal_component,
-                                              standard_classcond_component)
+from soprano.analyse.phylogen import mapping
 
 
 class PhylogenCluster(object):
@@ -464,7 +462,7 @@ class PhylogenCluster(object):
 
         return clusts, clust_slices
 
-    def create_mapping(self, method="total_principal"):
+    def create_mapping(self, method="total-principal"):
         """Return an array of 2-dimensional points representing a reduced
         dimensionality mapping of the given genes using the algorithm of 
         choice. All algorithms are described in [W. Siedlecki et al., Patt.
@@ -481,16 +479,17 @@ class PhylogenCluster(object):
         # Sanity check
         if self._has_pairgenes:
             # Then this method can't work!
-            raise RuntimeError('Total principal component mapping can not be'
-                               'used with presence of pair distance genes')
+            raise RuntimeError('No mapping can be performed in presence of'
+                               'pair distance genes')
 
         if self._needs_recalc:
             self._recalc()
 
         algos = {
-            'total_principal': total_principal_component,
-            'clafic': classcond_principal_component,
-            'fukunaga-koontz': standard_classcond_component
+            'total-principal': mapping.total_principal_component,
+            'clafic': mapping.classcond_principal_component,
+            'fukunaga-koontz': mapping.standard_classcond_component,
+            'opt-discr': mapping.optimal_discriminant_plane
         }
 
         # Make covalence matrix

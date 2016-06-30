@@ -48,9 +48,9 @@ class TestCollection(unittest.TestCase):
 
         testcoll = AtomsCollection(asernd)
         # Now try assigning some arrays
-        arr = range(testcoll.length)
+        arr = np.arange(testcoll.length)
         testcoll.set_array('testarr', arr, shape=(1,))
-        testcoll.set_array('testarr_2', zip(arr, arr), shape=(2,))
+        testcoll.set_array('testarr_2', list(zip(arr, arr)), shape=(2,))
         testcoll.set_array('testarr_func',
                            lambda a: len(a.get_positions()),
                            shape=(1,))

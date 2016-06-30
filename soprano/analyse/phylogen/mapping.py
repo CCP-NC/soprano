@@ -54,7 +54,7 @@ def classcond_principal_component(p):
 
 @_check_dimensionality
 def standard_classcond_component(p):
-    """Standardized class conditional princial component mapping (Fukunaga-
+    """Standardized class conditional principal component mapping (Fukunaga-
     Koontz)"""
 
     # Use k-means clustering to create two classes
@@ -70,4 +70,38 @@ def standard_classcond_component(p):
 
     evals, evecs = linalg.eig(a=S1, b=(S1+S2))
     A = evecs[:, :2]
-    return np.tensordot(A, p, axes=(0, 1))    
+    return np.tensordot(A, p, axes=(0, 1))
+
+@_check_dimensionality
+def optimal_discriminant_plane(p):
+    """Optimal discriminant plane mapping (using Fischer direction)"""
+
+    # First, split in two classes
+    centroids, dist = vq.kmeans(p, 2)
+    clusts, cdists = vq.vq(p, centroids)
+
+    p1 = p[np.where(clusts == 0)]
+    p2 = p[np.where(clusts == 1)]
+
+    # Find the average points
+    m1 = np.average(p1, axis=0)
+    m2 = np.average(p2, axis=0)
+    mdiff = m1-m2
+
+    B = np.dot(mdiff[:,None], mdiff[None,:])
+
+    S1 = np.cov(p1.T)
+    S2 = np.cov(p2.T)
+    S = S1+S2
+
+    # So the fisher direction is found analytically...
+    A = np.zeros((B.shape[0], 2))
+    invS = np.linalg.inv(S)
+    A[:,0] = np.dot(invS, mdiff)
+    A[:,0] /= np.linalg.norm(A[:,0]) # Normalized
+    # And then the second one
+    z = np.dot(invS, A[:,0])
+    A[:,1] = A[:,0]-np.dot(A[:,0], z)*z
+
+    return np.tensordot(A, p, axes=(0, 1))
+
