@@ -310,7 +310,7 @@ def minimum_periodic(v, latt_cart):
 
 
 def is_string(s):
-    # Checks whether s is a string, with Python 2 and 3 compatibility
+    """Checks whether s is a string, with Python 2 and 3 compatibility"""
     try:
         return isinstance(s, basestring)
     except NameError:

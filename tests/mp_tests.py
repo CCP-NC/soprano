@@ -27,7 +27,7 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "test_data")
 
 
-class TestHPC(unittest.TestCase):
+class TestMP(unittest.TestCase):
 
     def test_castep(self):
 
