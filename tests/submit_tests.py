@@ -13,9 +13,10 @@ import os
 import sys
 import stat
 import glob
+import time
 import shutil
 import subprocess as sp
-from soprano.hpc.submitter import QueueInterface
+from soprano.hpc.submitter import QueueInterface, Submitter
 
 import unittest
 import numpy as np
@@ -53,6 +54,33 @@ class TestSubmit(unittest.TestCase):
         jobs = qInt.list()
 
         self.assertEqual(len(jobs), 0)
+
+    def test_submitter(self):
+
+        # Clean up the mock queue for any eventuality
+        try:
+            os.remove(os.path.join(_TESTCMD_DIR, 'queue.pkl'))
+        except OSError:
+            pass
+        
+        qInt = QueueInterface(sub_cmd='mocksub.py',
+                              list_cmd='mocklist.py',
+                              kill_cmd='mockkill.py',
+                              sub_outre='\<(?P<job_id>[0-9]+)\>',
+                              list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
+                                         '(?P<job_status>RUN|PEND)')
+
+        # Now create a Submitter sub class
+
+        subm = Submitter('test_sub', qInt, '<name>', max_time=20,
+                         check_time=1)
+        subm.start()
+        print("\nSubmitter launched")
+        time.sleep(10)
+        # Now kill it
+        Submitter.stop('test_sub')
+        print("Submitter stopped")
+
 
 if __name__ == "__main__":
 
