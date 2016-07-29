@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+import time
 import pickle
 
 # A "mock" queue submission system to test how well QueueInterface works
@@ -21,6 +22,22 @@ try:
 except IOError:
 	sys.exit("No unfinished jobs found")
 
+# Check if any jobs are finished and in case remove them
+joblist_updated = {}
+for job in joblist:
+    if joblist[job]['end'] > time.time():
+        joblist_updated[job] = joblist[job]
+    else:
+        # Do the fake CASTEP thing
+        if 'path' in joblist[job]:
+            open(os.path.join(joblist[job]['path'],
+                              joblist[job]['name'] + '.castep'),
+                 'w').write('Fake CASTEP')
+
+joblist = joblist_updated
+
 for job in joblist:
 	print(("{0}\tusername\tRUN\tqueuename\tnodeURL\t{1}"
-		   "MM DD HH:MM").format(job, joblist[job]))
+		   "\tMM DD HH:MM").format(job, joblist[job]['name']))
+
+pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'w'))

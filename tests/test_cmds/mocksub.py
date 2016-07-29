@@ -8,6 +8,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+import time
 import pickle
 import numpy as np
 
@@ -27,11 +28,19 @@ except IOError:
 	joblist = {}
 
 # Well, add a job with the name of the script's first word
-jobname = script_first_line.split()[0]
+fline_spl = script_first_line.split()
+jobname = fline_spl[0]
+joblength = float(fline_spl[1])
+
 rnd_id = np.random.randint(100000, 999999)
 while rnd_id in joblist:
 	rnd_id = np.random.randint(100000, 999999)
-joblist[str(rnd_id)] = jobname
+rnd_id = str(rnd_id)
+joblist[rnd_id] = {'name': jobname,
+                        'end': time.time()+joblength}
+if len(fline_spl) > 2:
+    joblist[rnd_id]['path'] = fline_spl[2]
+
 print("Job <{0}> submitted".format(rnd_id))
 
 pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'w'))

@@ -41,7 +41,7 @@ class TestSubmit(unittest.TestCase):
                               list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
                                          '(?P<job_status>RUN|PEND)')
 
-        test_id = qInt.submit('test_job')
+        test_id = qInt.submit('test_job 1 .')
         # Is the id correct?
         jobs = qInt.list()
 
@@ -72,7 +72,7 @@ class TestSubmit(unittest.TestCase):
 
         # Now create a Submitter sub class
 
-        subm = Submitter('test_sub', qInt, '<name>', max_time=20,
+        subm = Submitter('test_sub', qInt, '<name> 1', max_time=20,
                          check_time=1)
         subm.start()
         print("\nSubmitter launched")
@@ -95,6 +95,11 @@ if __name__ == "__main__":
             sys.exit('Mock queue system for test not found')
         os.chmod(mfpath, st.st_mode | stat.S_IEXEC)
 
+    # Remove the pipe if left over
+    try:
+        os.remove('.test_sub.fifo')
+    except OSError:
+        pass
     # Then add the folder to the system's PATH temporarily and we're good to go
     os.environ['PATH'] += ":"+_TESTCMD_DIR
 

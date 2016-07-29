@@ -11,9 +11,12 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
 import sys
+import glob
 import numpy as np
 
+from soprano import utils
 from soprano.hpc.submitter import Submitter
 
 
@@ -55,5 +58,25 @@ class CastepSubmitter(Submitter):
         if castep_path is not None:
             sys.path.append(castep_path)
 
-    
+    def next_job(self):
+        """Grab the next job from folder_in"""
+
+        cfile_list = glob.glob(os.path.join(self.folder_in, '*.cell'))
+        if len(cfile_list) == 0:
+            return None
+
+        cfile = cfile_list[0]
+        name = utils.seedname(cfile)
+        files = [cfile]
+        # Check if .param file is available too
+        if os.path.isfile(os.path.join(self.folder_in, name + '.param')):
+            files += [os.path.join(self.folder_in, name + '.param')]
+        job = {
+                'name': name,
+                'args': {
+                    'files': files
+                }
+              }
+
+        return job
 

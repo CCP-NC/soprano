@@ -127,7 +127,7 @@ class Submitter(object):
         self._t0 = time.time()  # Starting time. Second precision is fine
 
         mthr = thr.Thread(target=self._main_loop)
-        mthr.daemon = True
+        mthr.setDaemon(True)
         mthr.start()
 
     def _main_loop(self):
