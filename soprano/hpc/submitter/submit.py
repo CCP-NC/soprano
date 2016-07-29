@@ -1,5 +1,5 @@
 """
-Definition of Submitter class and script to start/stop it.
+Definition of Submitter class
 
 Base class for all Submitters to inherit from.
 """
@@ -29,7 +29,7 @@ class Submitter(object):
     submit and post-process any number of jobs on a queueing system in the form
     of a background process running on a head node. It implements
     methods that should be mostly overridden by the child classes.
-    Four methods define its core behaviour:
+    Six methods define its core behaviour:
 
     1) next_job is the function that outputs the specification for each new job
        to submit. The specification should be a dict with two members, 'name'
@@ -46,7 +46,11 @@ class Submitter(object):
        the post processing once a job is complete. Here meaningful data should
        be extracted and useful files copied to permament locations, as the
        temporary folder will be deleted immediately afterwards. It returns
-       nothing.
+       nothing;
+    5) start_run takes no arguments, executes at the beginning of a run,
+       before the pipe is opened;
+    6) finish_run takes no arguments, executes at the end of a run, after the
+       pipe is closed.
 
     In addition, the Submitter takes a template launching script which can
     be tagged with keywords, mainly <name> for the job name or any other
@@ -56,6 +60,32 @@ class Submitter(object):
 
     def __init__(self, name, queue, submit_script, max_jobs=4, check_time=10,
                  max_time=3600):
+        """Initialize the Submitter object
+
+        | Args:
+        |   name (str): name to be used for this Submitter (two Submitters
+        |               with the same name can't be launched in the same
+        |               working directory)
+        |   queue (QueueInterface): object describing the properties of the 
+        |                           interface to the queue system in use
+        |   submit_script (str): text of the script to use when submitting a
+        |                        job to the queue. All tags of the form <name>
+        |                        will be replaced with the job's name, and all
+        |                        similar tags of the form <[arg]> will be
+        |                        replaced if the argument name is present in
+        |                        the job's args dictionary
+        |   max_jobs (Optional[int]): maximum number of jobs to submit at a 
+        |                             given time. Default is 4
+        |   check_time (Optional[float]): time in seconds between consecutive
+        |                                 checks for the queue status and 
+        |                                 attempts to submit new jobs. Default
+        |                                 is 10
+        |   max_time (Optional[float]): time in seconds the Submitter thread
+        |                               will run for before shutting down. If
+        |                               set to zero the thread won't stop
+        |                               until killed with Submitter.stop.
+
+        """
 
         # Check type
         if not isinstance(queue, QueueInterface):
@@ -81,18 +111,30 @@ class Submitter(object):
             raise RuntimeError('A Submitter with the given name already '
                                'exists')
 
+    def set_parameters(self):
+        """Set additional parameters. In this generic example class it has
+        no arguments, but in specific implementations it will be used to
+        add more variables without overriding __init__."""
+
+        pass        
+
     def start(self):
+        """Start up Submitter process in a Daemon thread"""
 
         self._jobs = {}
 
         self._running = True
         self._t0 = time.time()  # Starting time. Second precision is fine
 
-        mthr = thr.Thread(target=self.main_loop)
+        mthr = thr.Thread(target=self._main_loop)
         mthr.daemon = True
         mthr.start()
 
-    def main_loop(self):
+    def _main_loop(self):
+        """Main loop run as separate thread. Should not be edited when
+        inheriting from the class"""
+
+        self.start_run()
 
         self._pipe = os.open(self._fifo_path, os.O_RDONLY|os.O_NONBLOCK)
 
@@ -141,17 +183,33 @@ class Submitter(object):
             time.sleep(sleep_time)
 
         os.close(self._pipe)
+        self.finish_run()
 
     def next_job(self):
+        """Return a dictionary definition of the next job in line"""
         return {'name': 'default_job', 'args': {}}
 
     def setup_job(self, name, args, folder):
+        """Perform preparatory operations on the job"""
         pass
 
     def check_job(self, job_id, name, args, folder):
+        """Checks if given job is complete"""
         return job_id in self.queue.list()
 
     def finish_job(self, name, args, folder):
+        """Performs completiion operations on the job. At this point any 
+        relevant output files should be copied from 'folder' to their final
+        destination as the temporary folder itself will be deleted immediately
+        after"""
+        pass
+
+    def start_run(self):
+        """Operations to perform when the daemon thread starts running"""
+        pass
+
+    def finish_run(self):
+        """Operations to perform after the daemon thread stops running"""
         pass
 
     @staticmethod

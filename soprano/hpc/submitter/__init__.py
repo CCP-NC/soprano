@@ -7,3 +7,4 @@ from __future__ import absolute_import
 
 from soprano.hpc.submitter.queues import QueueInterface
 from soprano.hpc.submitter.submit import Submitter
+from soprano.hpc.submitter.castep import CastepSubmitter

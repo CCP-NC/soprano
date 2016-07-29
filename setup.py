@@ -15,7 +15,7 @@ from __future__ import print_function
 # the package_data line, unfortunately
 # from __future__ import unicode_literals
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='Soprano',
       version='0.1',
