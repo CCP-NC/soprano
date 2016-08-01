@@ -161,7 +161,8 @@ class DaemonHPC(object):
         """Execute any operations required upon end of the process
         """
 
-        self._logfile.close()
+        if self._logfile is not None:
+            self._logfile.close()
 
 
 class DaemonRunner(object):

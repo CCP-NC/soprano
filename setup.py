@@ -23,5 +23,5 @@ setup(name='Soprano',
       # For data files. Example: 'soprano': ['data/*.json']
       package_data={'soprano': ['data/*.json']},
       # For scripts - just put the paths
-      scripts=['scripts/phylogen.py', 'scripts/all2cell.py'],
+      scripts=['scripts/phylogen.py', 'scripts/vasp2cell.py'],
       )
