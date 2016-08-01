@@ -2,8 +2,8 @@ Soprano.egg-info/PKG-INFO
 Soprano.egg-info/SOURCES.txt
 Soprano.egg-info/dependency_links.txt
 Soprano.egg-info/top_level.txt
-scripts/all2cell.py
 scripts/phylogen.py
+scripts/vasp2cell.py
 soprano/__init__.py
 soprano/selection.py
 soprano/utils.py
