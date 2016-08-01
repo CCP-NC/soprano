@@ -25,6 +25,7 @@ except IOError:
 # Check if any jobs are finished and in case remove them
 joblist_updated = {}
 for job in joblist:
+    print("{0} => {1}".format(joblist[job]['end'], time.time()))
     if joblist[job]['end'] > time.time():
         joblist_updated[job] = joblist[job]
     else:

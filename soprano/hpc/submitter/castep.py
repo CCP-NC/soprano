@@ -14,10 +14,13 @@ from __future__ import unicode_literals
 import os
 import sys
 import glob
+import shutil
+import tempfile
 import numpy as np
 
 from soprano import utils
 from soprano.hpc.submitter import Submitter
+from ase.calculators.castep import create_castep_keywords
 
 
 class CastepSubmitter(Submitter):
@@ -49,6 +52,7 @@ class CastepSubmitter(Submitter):
 
         # Initialize the CASTEP keywords file in a dedicated temporary folder
         self.kwdir = tempfile.mkdtemp()
+        self.castpath = castep_path
         create_castep_keywords(castep_command,
                                os.path.join(self.kwdir, 
                                             'castep_keywords.py'))
@@ -79,4 +83,30 @@ class CastepSubmitter(Submitter):
               }
 
         return job
+
+    def setup_job(self, name, args, folder):
+        """Copy files to temporary folder to prepare for execution"""
+
+        for f in args['files']:
+            shutil.move(f, folder)       
+
+    def finish_job(self, name, args, folder):
+        """Save required output files to the output folder"""
+
+        for cext in self.cp_ext:
+            files = glob.glob(os.path.join(folder, '*'+cext))
+            for f in files:
+                shutil.move(f, self.folder_out)                
+
+    def finish_run(self):
+        """Try removing the temporary keywords directory"""
+        try:
+            shutil.rmtree(self.kwdir)
+        except OSError:
+            self.log("Could not delete temporary castep_keywords.py"
+                     "directory at {0}".format(self.kwdir))
+        sys.path.remove(self.kwdir)
+
+        if self.castpath is not None:
+            sys.path.remove(castep_path)
 

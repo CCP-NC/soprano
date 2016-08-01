@@ -41,6 +41,7 @@ joblist[rnd_id] = {'name': jobname,
 if len(fline_spl) > 2:
     joblist[rnd_id]['path'] = fline_spl[2]
 
+print(joblist[rnd_id])
 print("Job <{0}> submitted".format(rnd_id))
 
 pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'w'))

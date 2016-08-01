@@ -158,7 +158,10 @@ class Submitter(object):
                 # Replace the rest of the tags
                 for tag in njob['args']:
                     job_script = job_script.replace('<{0}>'.format(tag),
-                                                    njob['args'][tag])
+                                                    str(njob['args'][tag]))
+                job_script = job_script.replace('<folder>',
+                                                njob['folder'])
+
                 # And submit!
                 job_id = self.queue.submit(job_script, cwd=njob['folder'])
                 self._jobs[job_id] = njob
@@ -194,8 +197,8 @@ class Submitter(object):
         pass
 
     def check_job(self, job_id, name, args, folder):
-        """Checks if given job is complete"""
-        return job_id in self.queue.list()
+        """Checks if given job is complete or not"""
+        return job_id not in self.queue.list()
 
     def finish_job(self, name, args, folder):
         """Performs completiion operations on the job. At this point any 
