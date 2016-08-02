@@ -61,14 +61,15 @@ class _AllCaller(object):
             attr = getattr(self._class, name)
             # Is it a function?
             if not hasattr(attr, '__call__'):
-                return [getattr(x, name) for x in self._all]
+                return np.array([getattr(x, name) for x in self._all])
 
             def iterfunc(*args, **kwargs):
-                return [getattr(x, name)(*args, **kwargs) for x in self._all]
+                return np.array([getattr(x, name)(*args, **kwargs)
+                                 for x in self._all])
             return iterfunc
         elif name in self._instance_attrs:
             # It's an instance attribute
-            return [getattr(x, name) for x in self._all]
+            return np.array([getattr(x, name) for x in self._all])
         else:
             raise AttributeError(('Not all \'{0}\' objects have attribute'
                                   ' \'{1}\'').format(self._class.__name__,
