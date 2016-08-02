@@ -16,7 +16,7 @@ from ase import io, Atoms
 sys.path.insert(0, os.path.abspath(
                    os.path.join(os.path.dirname(__file__), "../")))  # noqa
 from soprano.collection import AtomsCollection
-from soprano.collection.generate import airssGen, linspaceGen
+from soprano.collection.generate import airssGen, linspaceGen, rattleGen
 import unittest
 import numpy as np
 
@@ -69,6 +69,18 @@ class TestGenerate(unittest.TestCase):
                                           np.linspace(0.2, -0.2, 5)
                                           )
         ))
+
+    def test_rattle(self):
+
+        a = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.5, 0.0]])   
+
+        # Some exception tests
+        self.assertRaises(ValueError, rattleGen, a, [3,4,5])
+        self.assertRaises(ValueError, rattleGen, a, [[1,2],[4,5]])
+
+        rgen = rattleGen(a, [[0.01, 0, 0], [0, 0.01, 0]])
+        
+
 
 if __name__ == '__main__':
     unittest.main()
