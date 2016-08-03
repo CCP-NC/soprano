@@ -155,7 +155,7 @@ class AtomsCollection(object):
                 # the unit cell.
                 try:
                     _E = self.structures[-1].calc.results['energy']
-                except KeyError:
+                except (KeyError, AttributeError):
                     _E = None
                 niggli_reduce(self.structures[-1])
                 if _E is not None:

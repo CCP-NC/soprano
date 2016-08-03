@@ -13,74 +13,74 @@ import soprano.utils as utils
 
 
 def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
-	"""Generator function to create multiple structures by randomly displacing
-	atoms of a given amount.
+    """Generator function to create multiple structures by randomly displacing
+    atoms of a given amount.
 
-	| Args:
-	|	struct (ase.Atoms): the starting structure to randomize
-	|	amplitude (float or np.ndarray): the amplitude of the random
-	|									 displacement. Can be a single float for
-	|									 all atoms, a 1D numpy array of length N
-	|									 (N being the number of atoms, one value
-	|									 each) or a 2D numpy array of shape
-	|									 (N,3) (one value for each dimension). 
-	|									 These values are used as interval for
-	|									 uniform random numbers and as stdev
-	|									 for normal random numbers
-	|   n (int): maximum number of structures to generate. If set to None will
-	|			 generate infinite structures 
-	|	method (str): must be either 'uniform' or 'normal'. In the first case
-	|				  the rattling will be a uniform random number between
-	|				  +amplitude and -amplitude. In the second case it will be a
-	|				  a gaussian random number with +amplitude standard
-	|				  deviation.
+    | Args:
+    |   struct (ase.Atoms): the starting structure to randomize
+    |   amplitude (float or np.ndarray): the amplitude of the random
+    |                                    displacement. Can be a single float for
+    |                                    all atoms, a 1D numpy array of length N
+    |                                    (N being the number of atoms, one value
+    |                                    each) or a 2D numpy array of shape
+    |                                    (N,3) (one value for each dimension). 
+    |                                    These values are used as interval for
+    |                                    uniform random numbers and as stdev
+    |                                    for normal random numbers
+    |   n (int): maximum number of structures to generate. If set to None will
+    |            generate infinite structures 
+    |   method (str): must be either 'uniform' or 'normal'. In the first case
+    |                 the rattling will be a uniform random number between
+    |                 +amplitude and -amplitude. In the second case it will be a
+    |                 a gaussian random number with +amplitude standard
+    |                 deviation.
 
-	| Returns:
-	|	rattleGenerator (generator): an iterator that yields copies of the base
-	|								 structure with randomly displaced atoms.
+    | Returns:
+    |   rattleGenerator (generator): an iterator that yields copies of the base
+    |                                structure with randomly displaced atoms.
 
-	"""
+    """
 
-	if method not in ('uniform', 'normal'):
-		raise ValueError('Invalid method argument passed to rattleGen')
+    if method not in ('uniform', 'normal'):
+        raise ValueError('Invalid method argument passed to rattleGen')
 
-	pos = struct.get_positions()
+    pos = struct.get_positions()
 
-	# Check amplitude shape
-	try:
-		amplitude = np.array(amplitude)*1.0
-	except TypeError:
-		raise ValueError('Invalid amplitude argument passed to rattleGen')
+    # Check amplitude shape
+    try:
+        amplitude = np.array(amplitude)*1.0
+    except TypeError:
+        raise ValueError('Invalid amplitude argument passed to rattleGen')
 
-	ampsh = amplitude.shape
-	if len(ampsh) == 1:
-		if ampsh != (pos.shape[0],):
-			raise ValueError('Shape mismatch between amplitude and struct '
-							 'arguments passed to rattleGen')
-		amplitude = amplitude[:,None]
-	elif len(ampsh) == 2:
-		if ampsh != pos.shape:
-			raise ValueError('Shape mismatch between amplitude and struct '
-							 'arguments passed to rattleGen')
+    ampsh = amplitude.shape
+    if len(ampsh) == 1:
+        if ampsh != (pos.shape[0],):
+            raise ValueError('Shape mismatch between amplitude and struct '
+                             'arguments passed to rattleGen')
+        amplitude = amplitude[:,None]
+    elif len(ampsh) == 2:
+        if ampsh != pos.shape:
+            raise ValueError('Shape mismatch between amplitude and struct '
+                             'arguments passed to rattleGen')
 
-	i = 0
+    i = 0
 
-	n = np.inf if n is None else n
+    n = np.inf if n is None else n
 
-	while i < n:
+    while i < n:
 
-		rnds = struct.copy()
+        rnds = struct.copy()
 
-		# Rattle positions
-		if method == 'uniform':
-			dxyz = (np.random.random(pos.shape)-0.5)*2*amplitude
-		elif method == 'normal':
-			dxyz = np.random.normal(size=pos.shape)*amplitude
+        # Rattle positions
+        if method == 'uniform':
+            dxyz = (np.random.random(pos.shape)-0.5)*2*amplitude
+        elif method == 'normal':
+            dxyz = np.random.normal(size=pos.shape)*amplitude
 
-		rnds.set_positions(pos+dxyz)
+        rnds.set_positions(pos+dxyz)
 
-		yield rnds
-		++i
+        yield rnds        
+        i += 1
 
 
 

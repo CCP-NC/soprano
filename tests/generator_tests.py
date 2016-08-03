@@ -73,13 +73,21 @@ class TestGenerate(unittest.TestCase):
     def test_rattle(self):
 
         a = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.5, 0.0]])   
+        pos = a.get_positions()
 
         # Some exception tests
-        self.assertRaises(ValueError, rattleGen, a, [3,4,5])
-        self.assertRaises(ValueError, rattleGen, a, [[1,2],[4,5]])
+        wronggen = rattleGen(a, [3,4,5])
+        self.assertRaises(ValueError, next, wronggen)
+        wronggen = rattleGen(a, [[1,2],[4,5]])
+        self.assertRaises(ValueError, next, wronggen)
 
-        rgen = rattleGen(a, [[0.01, 0, 0], [0, 0.01, 0]])
-        
+        rgen = rattleGen(a, [[0.01, 0, 0], [0, 0.02, 0]])
+        rcoll = AtomsCollection(rgen)
+        rpos = rcoll.all.get_positions()
+
+        self.assertTrue(np.all(np.abs((rpos-pos)[:,0,0]) <= 0.01))
+        self.assertTrue(np.all(np.abs((rpos-pos)[:,1,1]) <= 0.02))
+
 
 
 if __name__ == '__main__':
