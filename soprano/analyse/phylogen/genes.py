@@ -7,6 +7,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
+import itertools
 import numpy as np
 from soprano.utils import parse_intlist, parse_floatlist
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
@@ -155,6 +156,46 @@ def parsegene_hbonds_fprint(c):
                      for ld in hblen])
 
 
+def parsegene_hbonds_length(c):
+    hblist = HydrogenBonds.get(c)
+    hbnlist = HydrogenBondsNumber.get(c)
+    # Grab the maximum number for each of these
+    hbnmax = np.amax(np.array(hbnlist), axis=0)
+
+    # Now actually gather the lengths
+    def cap_to(a, n):
+        return a + [np.inf]*(n-len(a))
+    hblens = []
+    for hbn in hblist:
+        # Extract lengths, order by key
+        hblen = [sorted(cap_to([hb['length'] for hb in hbn[hbs]],
+                                hbnmax[hbs]))
+                 for hbs in hbn]
+        hblen = list(itertools.chain(*hblen))
+        hblens.append(hblen)
+
+    return np.array(hblens)
+
+def parsegene_hbonds_angle(c):
+    hblist = HydrogenBonds.get(c)
+    hbnlist = HydrogenBondsNumber.get(c)
+    # Grab the maximum number for each of these
+    hbnmax = np.amax(np.array(hbnlist), axis=0)
+
+    # Now actually gather the lengths
+    def cap_to(a, n):
+        return a + [np.inf]*(n-len(a))
+    hblens = []
+    for hbn in hblist:
+        # Extract lengths, order by key
+        hblen = [sorted(cap_to([hb['angle'] for hb in hbn[hbs]],
+                                hbnmax[hbs]))
+                 for hbs in hbn]
+        hblen = list(itertools.chain(*hblen))
+        hblens.append(hblen)
+
+    return np.array(hblens)
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
@@ -228,6 +269,18 @@ class GeneDictionary(object):
         'hbonds_fingerprint': {
             'default_params': {},
             'parser': parsegene_hbonds_fprint,
+            'pair': False
+        },
+
+        'hbonds_length': {
+            'default_params': {},
+            'parser': parsegene_hbonds_length,
+            'pair': False
+        }, 
+
+        'hbonds_length': {
+            'default_params': {},
+            'parser': parsegene_hbonds_angle,
             'pair': False
         }
 
@@ -329,6 +382,22 @@ class GeneDictionary(object):
 
         Parameters: None
         Length: 1
+        """,
+
+        'hbonds_length': """
+        Hydrogen bonds lengths, i.e. length of all hydrogen bonds in the
+        system, sorted by type and value.
+
+        Parameters: None
+        Length: sum of maximum number of hydrogen bonds per type
+        """,
+
+        'hbonds_angle': """
+        Hydrogen bonds angles, i.e. amplitude of all hydrogen bonds angles in
+        the system, sorted by type and value.
+
+        Parameters: None
+        Length: sum of maximum number of hydrogen bonds per type
         """
     }
 
