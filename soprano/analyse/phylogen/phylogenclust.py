@@ -473,6 +473,7 @@ class PhylogenCluster(object):
         |                     - total_principal (default)
         |                     - clafic
         |                     - fukunaga-koontz
+        |                     - optimal-discriminant
 
         """
 
@@ -489,7 +490,7 @@ class PhylogenCluster(object):
             'total-principal': mapping.total_principal_component,
             'clafic': mapping.classcond_principal_component,
             'fukunaga-koontz': mapping.standard_classcond_component,
-            'opt-discr': mapping.optimal_discriminant_plane
+            'optimal-discriminant': mapping.optimal_discriminant_plane
         }
 
         # Make covalence matrix
