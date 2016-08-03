@@ -278,7 +278,7 @@ class GeneDictionary(object):
             'pair': False
         }, 
 
-        'hbonds_length': {
+        'hbonds_angle': {
             'default_params': {},
             'parser': parsegene_hbonds_angle,
             'pair': False
