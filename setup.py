@@ -4,7 +4,7 @@ Soprano - A library for cracking crystals!
 by Simone Sturniolo et al.
 Copyright whatever whatever (TODO)
 
-v 0.1
+v 0.5
 """
 
 # Python 2-to-3 compatibility code
