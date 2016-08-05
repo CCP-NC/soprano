@@ -121,7 +121,7 @@ def parsegene_latt_ang(c):
     return np.array(LatticeABC.get(c))[:, 1]
 
 
-def parsegene_linkage_list(c, size=10):
+def parsegene_linkage_list(c, size=0):
     linkl = LinkageList(size=size)
     return np.array(linkl(c))
 
