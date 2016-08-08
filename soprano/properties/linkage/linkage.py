@@ -145,23 +145,30 @@ class Molecules(AtomsProperty):
         while len(unsorted_atoms) > 0:
             mol_queue = [(unsorted_atoms.pop(0), np.zeros(3))]
             current_mol = []
+            current_mol_cells = []
+            current_mol_bonds = []
             while len(mol_queue) > 0:
                 a1, cell1 = mol_queue.pop(0)
-                current_mol.append((a1, cell1))
+                current_mol.append(a1)
+                current_mol_cells.append(cell1)
+                current_mol_bonds.append([])
                 # Find linked atoms
                 links, cells = get_linked(a1)
                 for i, l in enumerate(links):
                     if l in unsorted_atoms:
                         mol_queue.append((l, cell1 + cells[i]))
                         unsorted_atoms.remove(l)
+                    current_mol_bonds[-1].append(l)
+                            
 
-            mol_sets.append(current_mol)
+            mol_sets.append((current_mol, current_mol_cells,
+                             current_mol_bonds))
 
         mols = []
-        for m in mol_sets:
-            m_i, m_cells = zip(*m)
+        for m_i, m_cells, m_bonds in mol_sets:
             mols.append(AtomSelection(s, m_i))
             mols[-1].set_array('cell_indices', m_cells)
+            mols[-1].set_array('bonds', m_bonds)
 
         if save_info:
             s.info[Molecules.default_name] = mols
