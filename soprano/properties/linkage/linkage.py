@@ -503,6 +503,7 @@ class HydrogenBonds(AtomsProperty):
         def bname(A, B):
             return '{0}H..{1}'.format(A, B)
 
+
         # Define types
         hbonds = {}
         for elA in hbond_elems:
@@ -513,6 +514,8 @@ class HydrogenBonds(AtomsProperty):
         h_atoms = elem_inds(s, 'H')
         if len(h_atoms) == 0:
             # Nothing to do
+            if save_info:
+                s.info[HydrogenBonds.default_name] = hbonds
             return hbonds
 
         bond_atoms = []
@@ -520,6 +523,8 @@ class HydrogenBonds(AtomsProperty):
             bond_atoms += elem_inds(s, el_b)
 
         if len(bond_atoms) < 2:
+            if save_info:
+                s.info[HydrogenBonds.default_name] = hbonds
             return hbonds
 
         # Now to pick the positions

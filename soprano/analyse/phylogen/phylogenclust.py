@@ -158,13 +158,16 @@ class PhylogenCluster(object):
         g_mats_weights = []
 
         for g in self._genes:
-            gene_entry = GeneDictionary.get_gene(g.name)
             gene_val = self._gene_storage[g.name]['val']
-            # For single values genes we need to perform a reshaping
+            # Here we need to perform a reshaping
             if len(gene_val.shape) == 1:
                 gene_val = gene_val.reshape((-1, 1))
+            elif len(gene_val.shape) == 2:
+                gene_val = gene_val.reshape((gene_val.shape[0],
+                                             gene_val.shape[1],
+                                             1))
             # Now normalization and weights
-            if not gene_entry['pair']:
+            if not g.is_pair:
                 # Append
                 self._gene_vectors_raw = np.append(self._gene_vectors_raw,
                                                    gene_val,
