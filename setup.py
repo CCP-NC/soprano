@@ -18,7 +18,7 @@ from __future__ import print_function
 from setuptools import setup
 
 setup(name='Soprano',
-      version='0.1',
+      version='0.5',
       packages=['soprano'],
       # For data files. Example: 'soprano': ['data/*.json']
       package_data={'soprano': ['data/*.json']},
