@@ -440,6 +440,99 @@ class MoleculeRelativeRotation(AtomsProperty):
 
         return np.array(link_list)
 
+class MoleculeSites(AtomsProperty):
+
+    """
+    MoleculeSites
+
+    Assigns univoque labels to atoms belonging to molecules by exploiting
+    network topology. Atoms can have the same label, but only if they're
+    fundamentally indistinguishable in the molecule's chemical context
+    (for example, three hydrogen atoms on a CH3 group). The molecule will be
+    described by a characteristic string and by a series of labels in the
+    format [element]_[number]. These sites will be saved by default and can
+    be used for better insight when carrying out other analysis.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+    |   save_info (bool): if True, save the found molecular sites as part of
+    |                     the Atoms object info. By default True.
+
+    | Returns:
+    |   molecular_sites (dict): A dictionary containing info characterising
+    |                           the molecule's chemical sites unequivocally.
+    |                           These are a string representation of the
+    |                           molecule itself and a dictionary linking
+    |                           atomic indices (as found in the molecule in
+    |                           AtomSelection form) to site labels.
+    """
+
+    default_name = 'molecule_sites'
+    default_params = {
+        'force_recalc': False,
+        'save_info': True
+    }
+
+    @staticmethod
+    def extract(s, force_recalc, save_info):
+
+        # First, we need the molecules
+        if not Molecules.default_name in s.info or force_recalc:
+            Molecules.get(s)
+
+        elems = s.get_chemical_symbols()
+
+        def recursive_label(i, bonds, to_visit):
+            # Remove from to_visit
+            if i in to_visit:
+                to_visit.remove(i)
+            my_bonds = sorted([b for b in bonds[i] if b in to_visit])
+            if len(my_bonds) > 0:
+                bonded_label = sorted([recursive_label(j,
+                                                       bonds,
+                                                       to_visit)
+                                       for j in my_bonds])
+                return '{0}[{1}]'.format(elems[i], ','.join(bonded_label))
+            else:
+                return '{0}'.format(elems[i])
+
+        mol_sites = []
+
+        for mol in s.info[Molecules.default_name]:
+
+            # For each atom we do a depth-first traversal of the network
+            sites = {}
+            bonds = mol.get_array('bonds')
+            # This is a necessary step since the bonds are not classified
+            # by original structure index yet
+            bonds = {a: bonds[i] for i, a in enumerate(mol.indices)}
+            for a in mol.indices:
+                to_visit = list(mol.indices)
+                sites[a] = recursive_label(a, bonds, to_visit)
+
+            # Now grab the unique sites and pick the name of the molecule
+            site_names = sorted(list(set(sites.values())))
+            site_dict = {'name': site_names[0]}
+            # Now rename the sites
+            elem_sites = {}
+            for a in sites:
+                s_i = site_names.index(sites[a])
+                if elems[a] not in elem_sites:
+                    elem_sites[elems[a]] = [s_i]
+                elif s_i not in elem_sites[elems[a]]:
+                    elem_sites[elems[a]].append(s_i)
+                sites[a] = '{0}_{1}'.format(elems[a],
+                                            elem_sites[elems[a]].index(s_i)+1)
+            
+            site_dict['sites'] = sites
+            mol_sites.append(site_dict)
+
+        if save_info:
+            s.info[MoleculeSites.default_name] = mol_sites
+
+        return mol_sites
+
 
 class HydrogenBonds(AtomsProperty):
 
