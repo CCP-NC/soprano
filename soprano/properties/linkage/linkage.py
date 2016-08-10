@@ -534,8 +534,7 @@ class MoleculeSites(AtomsProperty):
             if save_asarray:
                 arr = [sites[a] for a in mol.indices]
                 mol.set_array(MoleculeSites.default_name, arr)
-                s.info[Molecules.default_name][mol_i] = mol
-
+                
         if save_info:
             s.info[MoleculeSites.default_name] = mol_sites
 

@@ -197,6 +197,9 @@ class AtomSelection(object):
     def __len__(self):
         return len(self._indices)
 
+    def __contains__(self, item):
+        return item in self._indices
+
     @staticmethod
     def from_element(atoms, element):
         """Generate a selection for the given Atoms object of all atoms of a

@@ -160,9 +160,9 @@ class PhylogenCluster(object):
         for g in self._genes:
             gene_val = self._gene_storage[g.name]['val']
             # Here we need to perform a reshaping
-            if len(gene_val.shape) == 1:
+            if not g.is_pair and len(gene_val.shape) == 1:
                 gene_val = gene_val.reshape((-1, 1))
-            elif len(gene_val.shape) == 2:
+            elif g.is_pair and len(gene_val.shape) == 2:
                 gene_val = gene_val.reshape((gene_val.shape[0],
                                              gene_val.shape[1],
                                              1))
@@ -171,16 +171,16 @@ class PhylogenCluster(object):
                 # Append
                 self._gene_vectors_raw = np.append(self._gene_vectors_raw,
                                                    gene_val,
-                                                   axis=1)
-                gn = gene_val.shape[1]
+                                                   axis=-1)
+                gn = gene_val.shape[-1]
                 g_vecs_weights += [g.weight/np.sqrt(gn)]*gn
                 self._gene_legend[0].append((g.name, gn))
             else:
                 # Append
                 self._gene_matrices_raw = np.append(self._gene_matrices_raw,
                                                     gene_val,
-                                                    axis=2)
-                gn = gene_val.shape[2]
+                                                    axis=-1)
+                gn = gene_val.shape[-1]
                 g_mats_weights += [g.weight/np.sqrt(gn)]*gn
                 self._gene_legend[1].append((g.name, gn))
 
@@ -206,7 +206,9 @@ class PhylogenCluster(object):
 
         mnorm = self._gene_matrices_raw.copy()
         if self._normdist is not None:
-            mnorm *= self._normdist/np.amax(mnorm, axis=(0, 1))
+            mmax = np.amax(mnorm, axis=(0, 1))
+            if not np.isclose(mmax, 0):
+                mnorm *= self._normdist/mmax
         self._gene_matrices_norm = mnorm*g_mats_weights
 
         # Distmat: start with vectors, add distances
