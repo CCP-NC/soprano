@@ -458,6 +458,8 @@ class MoleculeSites(AtomsProperty):
     |                        already present.
     |   save_info (bool): if True, save the found molecular sites as part of
     |                     the Atoms object info. By default True.
+    |   save_asarray (bool): if True the molecular site names are also saved
+    |                        as an array of the molecule selection.
 
     | Returns:
     |   molecular_sites (dict): A dictionary containing info characterising
@@ -471,11 +473,12 @@ class MoleculeSites(AtomsProperty):
     default_name = 'molecule_sites'
     default_params = {
         'force_recalc': False,
-        'save_info': True
+        'save_info': True,
+        'save_asarray': False
     }
 
     @staticmethod
-    def extract(s, force_recalc, save_info):
+    def extract(s, force_recalc, save_info, save_asarray):
 
         # First, we need the molecules
         if not Molecules.default_name in s.info or force_recalc:
@@ -499,7 +502,7 @@ class MoleculeSites(AtomsProperty):
 
         mol_sites = []
 
-        for mol in s.info[Molecules.default_name]:
+        for mol_i, mol in enumerate(s.info[Molecules.default_name]):
 
             # For each atom we do a depth-first traversal of the network
             sites = {}
@@ -528,8 +531,14 @@ class MoleculeSites(AtomsProperty):
             site_dict['sites'] = sites
             mol_sites.append(site_dict)
 
+            if save_asarray:
+                arr = [sites[a] for a in mol.indices]
+                mol.set_array(MoleculeSites.default_name, arr)
+                s.info[Molecules.default_name][mol_i] = mol
+
         if save_info:
             s.info[MoleculeSites.default_name] = mol_sites
+
 
         return mol_sites
 
