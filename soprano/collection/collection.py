@@ -228,7 +228,12 @@ class AtomsCollection(object):
         return self
 
     def __getitem__(self, indices):
-        """Allow sophisticated slicing"""
+        """Allow sophisticated slicing"""        
+        
+        if type(indices) is int:
+            # Special case, a single element!
+            indices = slice(indices, indices+1)
+
         try:
             struct_slice = self.structures[indices]
         except TypeError:
@@ -470,6 +475,28 @@ class AtomsCollection(object):
             sorted_copy.set_array(an, data_block[ai+1])
 
         return sorted_copy
+
+    def filter(self, filter_func):
+        """Return a collection composed only of the elements for which a given
+        filter function returns True.
+
+        | Args:
+        |   filter_func (function<Atoms>
+        |                       => bool): filter function. Should take an
+        |                                 Atoms object and return a boolean
+
+        | Returns:
+        |   filtered (AtomsCollection): the filtered version of the collection
+
+        """
+
+        filter_slice = []
+
+        for i, s in enumerate(self.structures):
+            if (filter_func(s)):
+                filter_slice.append(i)
+
+        return self[filter_slice]
 
     def save(self, filename):
         """Simply save a pickled copy to a given file path"""
