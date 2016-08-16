@@ -332,3 +332,14 @@ else:
         argspec = inspect.getargspec(f)
         return (len(argspec.args),
                 (0 if argspec.defaults is None else len(argspec.defaults)))
+
+
+def list_distance(l1, l2):
+    """Return an integer distance between two lists (number of differing
+    elements)"""
+
+    ldiff = l2[:]
+    d = 0
+    d += len(l1)-len([ldiff.remove(el) for el in l1 if el in ldiff])
+    d += len(ldiff)
+    return d

@@ -59,7 +59,7 @@ class TestPropertyLoad(unittest.TestCase):
         DummyProperty.get(c1, store_array=True)
         dummyDoubled(c2, store_array=True)
         self.assertTrue(np.all(c1.get_array('dummy') == [2, 4]))
-        self.assertTrue(np.all(c2.get_array('doubledummy') == [8, 4]))    
+        self.assertTrue(np.all(c2.get_array('doubledummy') == [8, 4]))
 
     def test_basicprop(self):
 
@@ -116,18 +116,40 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(hbn['NH..O'] == 12)
         self.assertTrue(hbn['OH..O'] == 0)
 
+    def test_labelprops(self):
+
+        from soprano.properties.labeling import (MoleculeSites,
+                                                 HydrogenBondTypes)
+
+        a = read(os.path.join(_TESTDATA_DIR, 'nh3.cif'))
+
+        nh3_sites = MoleculeSites.get(a)[0]
+
+        # Check the name
+        self.assertEqual(nh3_sites['name'], 'H[N[H,H]]')
+        # Check the sites
+        self.assertEqual(set(nh3_sites['sites'].values()),
+                         set(['N_1', 'H_1']))
+
+        # Now we test hydrogen bond types with alanine
+        a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
+        # We expect 12 identical ones
+        hbtypes = ['C[C[C[H,H,H],H,N[H,H,H]],O,O]<N_1,H_3>'
+                   '..C[C[C[H,H,H],H,N[H,H,H]],O,O]<O_1>']*12
+
+        self.assertEqual(HydrogenBondTypes.get(a), hbtypes)
 
     def test_transformprops(self):
 
         from ase.quaternions import Quaternion
-        from soprano.selection import AtomSelection        
+        from soprano.selection import AtomSelection
         from soprano.properties.transform import (Translate, Rotate, Mirror)
 
-        a = Atoms('CH', positions=[[0,0,0],[0.5,0,0]])
+        a = Atoms('CH', positions=[[0, 0, 0], [0.5, 0, 0]])
 
         sel = AtomSelection.from_element(a, 'C')
-        transl = Translate(selection=sel, vector=[0.5,0,0])        
-        rot = Rotate(selection=sel, center=[0.25,0.0,0.25],
+        transl = Translate(selection=sel, vector=[0.5, 0, 0])
+        rot = Rotate(selection=sel, center=[0.25, 0.0, 0.25],
                      quaternion=Quaternion([np.cos(np.pi/4.0),
                                             0,
                                             np.sin(np.pi/4.0),

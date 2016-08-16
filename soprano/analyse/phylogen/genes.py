@@ -9,13 +9,13 @@ from __future__ import unicode_literals
 import re
 import itertools
 import numpy as np
-from soprano.utils import parse_intlist, parse_floatlist
+from soprano.utils import parse_intlist, parse_floatlist, list_distance
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,
                                         MoleculeRelativeRotation,
-                                        MoleculeSites,
                                         HydrogenBonds, HydrogenBondsNumber)
+from soprano.properties.labeling import (MoleculeSites, HydrogenBondTypes)
 
 
 class Gene(object):
@@ -197,6 +197,32 @@ def parsegene_hbonds_angle(c):
 
     return np.array(hblens)
 
+def parsegene_hbonds_site_reference(c, ref=None):
+    
+    if ref is None:
+        ref = c.structures[0]
+
+    # First, calculate molecules, molecule sites and hydrogen bonds
+    MoleculeSites.get(ref)
+    HydrogenBonds.get(ref)
+
+    MoleculeSites.get(c)
+    HydrogenBonds.get(c)
+
+    # Now for the actual comparison we need to compile a list of Hbonds
+    # for each structure, expressed in terms of molecular sites
+
+    reflabels = HydrogenBondTypes.get(ref)
+    hblabels = HydrogenBondTypes.get(c)    
+    
+    # And now to actually create a comparison
+    distL = []
+
+    for hb_lab in hblabels:
+        distL.append(list_distance(hb_lab, reflabels))
+
+    return np.array(distL)
+
 def parsegene_hbonds_site_compare(c):
 
     # First, calculate molecules, molecule sites and hydrogen bonds
@@ -206,52 +232,14 @@ def parsegene_hbonds_site_compare(c):
     # Now for the actual comparison we need to compile a list of Hbonds
     # for each structure, expressed in terms of molecular sites
 
-    hblabels = []
-
-    for s in c.structures:
-        hbonds = s.info['hydrogen_bonds']
-        mols = s.info['molecules']
-        hblabels.append([])
-        for hbtype in hbonds:
-            for hb in hbonds[hbtype]:
-                A_i = hb['A'][0]
-                H_i = hb['H']
-                B_i = hb['B'][0]
-
-                # Check in which molecule they are
-                AH_sites = None
-                B_sites = None
-                for m_i, m in enumerate(mols):
-                    if A_i in m:
-                        AH_sites = s.info['molecule_sites'][m_i]
-                    if B_i in m:
-                        B_sites = s.info['molecule_sites'][m_i]
-
-                if AH_sites is None or B_sites is None:
-                    raise RuntimeError('Invalid hydrogen bond detected')
-
-                # Now build the proper definition
-                hblabel = ('{0}<{1},{2}>'
-                           '..{3}<{4}>').format(AH_sites['name'],
-                                                  AH_sites['sites'][A_i],
-                                                  AH_sites['sites'][H_i],
-                                                  B_sites['name'],
-                                                  B_sites['sites'][B_i])
-                hblabels[-1].append(hblabel)
-
+    hblabels = HydrogenBondTypes.get(c)
+    
     # And now to actually create a comparison
     distM = np.zeros((c.length, c.length))
 
     for hb_i1, hb_lab1 in enumerate(hblabels):
         for hb_i2, hb_lab2 in enumerate(hblabels[hb_i1+1:]):
-            hbdiff = list(hb_lab2)
-            d = 0.0
-            for hb in hb_lab1:
-                if hb in hbdiff:
-                    hbdiff.remove(hb)
-                else:
-                    d += 1
-            d += len(hbdiff)
+            d = list_distance(hb_lab1, hb_lab2)
             d /= (len(hb_lab1)+len(hb_lab2))*0.5
             distM[hb_i1, hb_i1+hb_i2+1] = d
             distM[hb_i1+hb_i2+1, hb_i1] = d
@@ -345,6 +333,14 @@ class GeneDictionary(object):
             'parser': parsegene_hbonds_angle,
             'pair': False
         },
+
+        'hbonds_site_reference': {
+            'default_params': {
+                'ref': None,
+            },
+            'parser': parsegene_hbonds_site_reference,
+            'pair': False
+        }, 
 
         'hbonds_site_compare': {
             'default_params': {},
@@ -466,6 +462,19 @@ class GeneDictionary(object):
 
         Parameters: None
         Length: sum of maximum number of hydrogen bonds per type
+        """,
+
+        'hbonds_site_reference': """
+        Comparison between hydrogen bonds in the given systems and a reference
+        system, site-wise.
+        Works for molecular systems. Bonds are compared to see how many share
+        the same structure (namely, are established between equivalent sites
+        in equivalent molecules). The number of different bonds is given.
+
+        Parameters: 
+            ref (ase.Atoms): reference system to compare against (default = 
+                             first system in the collection)
+        Length: 1
         """,
 
         'hbonds_site_compare': """
