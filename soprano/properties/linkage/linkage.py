@@ -109,6 +109,14 @@ class Molecules(AtomsProperty):
 
     @staticmethod
     def extract(s, vdw_set, vdw_scale, default_vdw, save_info):
+
+        # Sanity check
+        if len(s) < 2:
+            # WTF?
+            print('WARNING: impossible to calculate molecules on single-atom '
+                  'system')
+            return None
+
         # First, we need the biggest Van der Waals radius
         # So that we know how big the supercell needs to be
         vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
