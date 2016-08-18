@@ -16,19 +16,23 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
+import json
 import pkgutil
 import numpy as np
+import subprocess as sp
+from ase.calculators.singlepoint import SinglePointCalculator
 from soprano.properties.linkage import Molecules
 
 _w99_data = pkgutil.get_data('soprano',
                              'data/w99_parameters.json').decode('utf-8')
-
+_w99_data = json.loads(_w99_data)
 
 class W99Error(Exception):
     pass
 
 def find_w99_atomtypes(s, force_recalc=False):
-    """Calculate the W99 force field atom types for a given structure
+    """Calculate the W99 force field atom types for a given structure.
 
     | Parameters:
     |   s (ase.Atoms): the structure to calculate the atomtypes on
@@ -49,7 +53,7 @@ def find_w99_atomtypes(s, force_recalc=False):
     mols = s.info['molecules']
 
     # Now the types!
-    w99types = ['' for sym in chsyms]
+    w99types = np.array(['XXX' for sym in chsyms])
 
     for m_i, m in enumerate(mols):
 
@@ -87,18 +91,170 @@ def find_w99_atomtypes(s, force_recalc=False):
                     oxys = [b for b in bonds[c_mi]
                             if chsyms[b] == 'O' and b != bnd_i[0]]
                     # What is it?
-                    if len(oxys) == 0:
-                        # Alcoholic!
-                        w99types[a_i] = 'H_2'
-                    elif len(oxys) == 1:
+                    if len(oxys) == 1 and len(bonds[c_mi]) == 3:
                         # Carboxylic!
                         w99types[a_i] = 'H_3'
                     else:
-                        raise W99Error('ERROR - Anomalous chemical group '
-                                       'found')
+                        # Alcoholic!
+                        w99types[a_i] = 'H_2'
             elif el_i == 'C':
                 # Carbon case
-                pass
+                val = len(bnd_i)
+                if val > 1 and val < 5:
+                    w99types[a_i] = 'C_{0}'.format(val)
+                else:
+                    raise W99Error('ERROR - Anomalous chemical group found')
+            elif el_i == 'O':
+                # Oxygen case
+                val = len(bnd_i)
+                if val > 0 and val < 3:
+                    w99types[a_i] = 'O_{0}'.format(val)
+                else:
+                    raise W99Error('ERROR - Anomalous chemical group found')
+            elif el_i == 'N':
+                # Nitrogen case
+                val = len(bnd_i)
+                if val == 3:
+                    w99types[a_i] = 'N_1'
+                else:
+                    # Count hydrogens
+                    hydros = [b for b in bnd_i if chsyms[b] == 'H']
+                    if len(hydros) == 0:
+                        w99types[a_i] = 'N_2'
+                    elif len(hydros) == 1:
+                        w99types[a_i] = 'N_3'
+                    else:
+                        w99types[a_i] = 'N_4'
+
+        m.set_array('w99_types', w99types[inds])
+
+    s.set_array('w99_types', w99types)
+
+def _w99_field_definition(s, etol):
+    """Output the W99 field definition for GULP input. System must already
+    have w99 types calculated"""
+
+    w99types = s.get_array('w99_types')
+
+    # Which types are present?
+    w99types = list(set(w99types))
+
+    field_def = ''
+    # Now take care of all permutations
+    for i, t1 in enumerate(w99types):
+        for t2 in w99types[i:]:
+            # Calculate parameters
+            if t1 == t2:
+                A, rho, C = _w99_data[t1]
+            else:
+                A1, rho1, C1 = _w99_data[t1]
+                A2, rho2, C2 = _w99_data[t2]
+                A = np.sqrt(A1*A2)
+                rho = 2.0/(1.0/rho1+1.0/rho2)
+                C = np.sqrt(C1*C2)
+
+            # Calculate the optimal cutoff to meet the required energy
+            # tolerance
+            expcut = -rho*np.log(etol/abs(A))
+            r6cut = (abs(C)/etol)**(1.0/6.0)
+            cut = max(expcut, r6cut, 0)
+            field_def += 'buck inter\n{0} {1} {2} {3} {4} {5}\n'.format(t1,
+                                                                        t2, 
+                                                                        A,
+                                                                        rho,
+                                                                        C,
+                                                                        cut)
+
+    return field_def
+
+def get_w99_energy(s, charge_method='eem', Etol=1e-6,
+                   gulp_command='gulp',
+                   gulp_path=None):
+    """Calculate the W99 force field energy using GULP. 
+
+    | Parameters:
+    |   s (ase.Atoms): the structure to calculate the energy of
+    |   charge_method (Optional[str]): which method to use for atomic partial
+    |                                  charge calculation. Can be any of
+    |                                  'eem', 'qeq' and 'pacha'.
+    |                                  Default is 'eem'.
+    |   Etol (Optional[float]): tolerance on energy for intermolecular
+    |                           potential cutoffs (relative to single
+    |                           interaction energy). Default is 1e-6 eV.
+    |   gulp_command (Optional[str]): command required to call the GULP
+    |                                 executable.
+    |   gulp_path (Optional[str]): path where the GULP executable can be
+    |                              found. If not present, the GULP command
+    |                              will be invoked directly (assuming the
+    |                              executable is in the system PATH).
+    
+    | Returns:
+    |   energy (float): the calculated energy
+
+    """
+
+    # Sanity check
+    if charge_method not in ['eem', 'qeq', 'pacha']:
+        raise ValueError('Invalid charge_method passed to get_w99_energy')
+
+    # First, atom types
+    find_w99_atomtypes(s)    
+
+
+
+    # Now define the input
+    gin = "molq {0}\n".format(charge_method)
+
+    gin += "vectors\n{0}\n".format('\n'.join(['\t'.join([str(x) for x in row])
+                                              for row in s.get_cell()]))
+    gin += "frac\n"
+    types = s.get_array('w99_types')
+    pos = s.get_scaled_positions()
+    for i, t in enumerate(types):
+        gin += "{0} {1} {2} {3}\n".format(t, *pos[i])
+
+    # Finally, the potential definition
+    gin += _w99_field_definition(s, Etol)
+
+    # AND GO!
+    if gulp_path is None:
+        gulp_path = ''
+
+    gulp_cmd = [os.path.join(gulp_path, gulp_command)]
+
+    try:
+        stdout, stderr = sp.Popen(gulp_cmd,
+                                  universal_newlines=True,
+                                  stdin=sp.PIPE,
+                                  stdout=sp.PIPE,
+                                  stderr=sp.PIPE).communicate(gin)
+    except OSError:
+        raise RuntimeError('GULP not found on this system with the given '
+                           'command')
+
+    # Necessary for compatibility in Python2
+    try:
+        stdout = unicode(stdout)
+    except NameError:
+        pass
+
+    # Now parse the energy
+    E = None
+    for l in stdout.split('\n')[::-1]:
+        if 'Total lattice energy       =' in l and 'eV' in l:
+            E = float(l.split()[4])
+    if E is None:
+        raise RuntimeError('ERROR - GULP run failed to return energy')
+
+    # Remember it with a mock ASE calculator
+    calc = SinglePointCalculator(s, energy=E)
+    s.set_calculator(calc)
+
+    return E
+
+
+
+
 
 
 
