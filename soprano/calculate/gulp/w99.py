@@ -28,8 +28,10 @@ _w99_data = pkgutil.get_data('soprano',
                              'data/w99_parameters.json').decode('utf-8')
 _w99_data = json.loads(_w99_data)
 
+
 class W99Error(Exception):
     pass
+
 
 def find_w99_atomtypes(s, force_recalc=False):
     """Calculate the W99 force field atom types for a given structure.
@@ -57,7 +59,7 @@ def find_w99_atomtypes(s, force_recalc=False):
 
     for m_i, m in enumerate(mols):
 
-        inds = m.indices
+        inds = list(m.indices)
         bonds = m.get_array('bonds')
         msyms = chsyms[inds]
 
@@ -130,6 +132,7 @@ def find_w99_atomtypes(s, force_recalc=False):
 
     s.set_array('w99_types', w99types)
 
+
 def _w99_field_definition(s, etol):
     """Output the W99 field definition for GULP input. System must already
     have w99 types calculated"""
@@ -159,13 +162,30 @@ def _w99_field_definition(s, etol):
             r6cut = (abs(C)/etol)**(1.0/6.0)
             cut = max(expcut, r6cut, 0)
             field_def += 'buck inter\n{0} {1} {2} {3} {4} {5}\n'.format(t1,
-                                                                        t2, 
+                                                                        t2,
                                                                         A,
                                                                         rho,
                                                                         C,
                                                                         cut)
 
     return field_def
+
+
+def _gulp_cell_definition(s, syms=None):
+    """Create a cell definition for a GULP input file. Will use syms if 
+    passed, otherwise standard chemical symbols"""
+
+    gcell = "vectors\n{0}\n".format('\n'.join(['\t'.join([str(x)
+                                                          for x in row])
+                                               for row in s.get_cell()]))
+    gcell += "frac\n"
+    syms = s.get_chemical_symbols() if syms is None else syms
+    pos = s.get_scaled_positions()
+    for i, s in enumerate(syms):
+        gcell += "{0} {1} {2} {3}\n".format(s, *pos[i])
+
+    return gcell
+
 
 def get_w99_energy(s, charge_method='eem', Etol=1e-6,
                    gulp_command='gulp',
@@ -187,7 +207,7 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
     |                              found. If not present, the GULP command
     |                              will be invoked directly (assuming the
     |                              executable is in the system PATH).
-    
+
     | Returns:
     |   energy (float): the calculated energy
 
@@ -198,20 +218,11 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
         raise ValueError('Invalid charge_method passed to get_w99_energy')
 
     # First, atom types
-    find_w99_atomtypes(s)    
-
-
+    find_w99_atomtypes(s)
 
     # Now define the input
-    gin = "molq {0}\n".format(charge_method)
-
-    gin += "vectors\n{0}\n".format('\n'.join(['\t'.join([str(x) for x in row])
-                                              for row in s.get_cell()]))
-    gin += "frac\n"
-    types = s.get_array('w99_types')
-    pos = s.get_scaled_positions()
-    for i, t in enumerate(types):
-        gin += "{0} {1} {2} {3}\n".format(t, *pos[i])
+    gin = "molq {0} dipole\n".format(charge_method)
+    gin += _gulp_cell_definition(s, syms=s.get_array('w99_types'))
 
     # Finally, the potential definition
     gin += _w99_field_definition(s, Etol)
@@ -251,12 +262,3 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
     s.set_calculator(calc)
 
     return E
-
-
-
-
-
-
-
-
-
