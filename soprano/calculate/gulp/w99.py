@@ -16,6 +16,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import re
 import os
 import json
 import pkgutil
@@ -186,6 +187,40 @@ def _gulp_cell_definition(s, syms=None):
 
     return gcell
 
+def _gulp_parse_energy(lines):
+    """Parse energy out of a GULP output split in lines"""
+    for l in lines[::-1]:
+        if 'Total lattice energy       =' in l and 'eV' in l:
+            return float(l.split()[4])
+
+    return None
+
+def _gulp_parse_charges(lines):
+    """Parse charges out of a GULP output split in lines"""
+    q_re = re.compile('Final charges from\s+([a-zA-Z\-]+)\s+:')
+    qline_re = re.compile('([0-9]+)\s+([0-9]+)\s+([0-9\.\-]+)')
+    for i, l in enumerate(lines[::-1]):
+        q_type = q_re.findall(l)
+        if len(q_type) == 1:
+            # Found it!
+            charges = {'type': q_type[0],
+                       'q': [],
+                       'Z': []}
+            # Go forward until you find the first valid line
+            in_block = False
+            for l2 in lines[(len(lines)-i):]:
+                parsed = qline_re.findall(l2)
+                if len(parsed) == 0:
+                    if in_block:
+                        return charges
+                    else:
+                        continue
+                else:
+                    in_block = True
+                    charges['q'].append(float(parsed[0][2]))
+                    charges['Z'].append(int(parsed[0][1]))
+
+    return None
 
 def get_w99_energy(s, charge_method='eem', Etol=1e-6,
                    gulp_command='gulp',
@@ -250,10 +285,8 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
         pass
 
     # Now parse the energy
-    E = None
-    for l in stdout.split('\n')[::-1]:
-        if 'Total lattice energy       =' in l and 'eV' in l:
-            E = float(l.split()[4])
+    gulp_lines = stdout.split('\n')
+    E = _gulp_parse_energy(gulp_lines)
     if E is None:
         raise RuntimeError('ERROR - GULP run failed to return energy')
 
