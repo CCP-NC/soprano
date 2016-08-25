@@ -122,23 +122,23 @@ class QueueInterface(object):
                                                     stderr=sp.PIPE)
         stdout, stderr = subproc.communicate()
 
-    @property
-    def LSF(self):
-        return QueueInterface(sub_cmd='bsub',
-                              list_cmd='bjobs',
-                              kill_cmd='bkill',
-                              sub_outre='Job \<(?P<job_id>[0-9]+)\>',
-                              list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
-                                         '(?P<job_status>RUN|PEND)')
+    @classmethod
+    def LSF(cls):
+        return cls(sub_cmd='bsub',
+                   list_cmd='bjobs',
+                   kill_cmd='bkill',
+                   sub_outre='Job \<(?P<job_id>[0-9]+)\>',
+                   list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
+                              '(?P<job_status>RUN|PEND)')
 
-    @property
-    def GridEngine(self):
-        return QueueInterface(sub_cmd='qsub',
-                              list_cmd='qstat',
-                              kill_cmd='qdel',
-                              sub_outre='Your job (?P<job_id>[0-9]+)',
-                              list_outre='(?P<job_id>[0-9]+)\s.*'
-                                         '\s(?P<job_status>r|qw)\s')
+    @classmethod
+    def GridEngine(cls):
+        return cls(sub_cmd='qsub',
+                   list_cmd='qstat',
+                   kill_cmd='qdel',
+                   sub_outre='Your job (?P<job_id>[0-9]+)',
+                   list_outre='(?P<job_id>[0-9]+)\s.*'
+                              '\s(?P<job_status>r|qw)\s')
     
 
 
