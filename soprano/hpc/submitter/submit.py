@@ -12,7 +12,9 @@ from __future__ import unicode_literals
 
 import os
 import time
+import pickle
 import shutil
+import signal
 import tempfile
 import numpy as np
 import threading as thr
@@ -102,15 +104,6 @@ class Submitter(object):
         self.check_time = check_time
         self.max_time = max_time if max_time > 0 else np.inf
 
-        # Message pipe. Used to stop the thread from the outside
-        self._fifo_path = ".{0}.fifo".format(name)
-        # And create the FIFO PIPE
-        try:
-            os.mkfifo(self._fifo_path, 0777)
-        except OSError:
-            raise RuntimeError('A Submitter with the given name already '
-                               'exists')
-
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
         no arguments, but in specific implementations it will be used to
@@ -120,23 +113,37 @@ class Submitter(object):
 
     def start(self):
         """Start up Submitter process in a Daemon thread"""
+        import inspect
+        fname = '.{0}.submitter'.format(self.name)
+        classfile = inspect.getfile(self.__class__)
+        classmodule = os.path.splitext(os.path.basename(classfile))[0]
+        classname = self.__class__.__name__
+        pickle.dump(self, open(fname, 'w'))
+        sp.Popen(['python', '-m', 'soprano.hpc.spawn', fname, 
+                  classmodule, classname, '&'])
+
+    def _start_execution(self):
 
         self._jobs = {}
 
         self._running = True
         self._t0 = time.time()  # Starting time. Second precision is fine
 
-        mthr = thr.Thread(target=self._main_loop)
-        mthr.setDaemon(True)
-        mthr.start()
+        # Initialise signal catching
+        signal.signal(signal.SIGINT, self._catch_signal)
+        signal.signal(signal.SIGTERM, self._catch_signal)
+
+        self.start_run()
+        self._main_loop()
+        self.finish_run()
+
+    def _catch_signal(self, signum, frame):
+        # This catches the signal when termination is asked
+        self._running = False
 
     def _main_loop(self):
         """Main loop run as separate thread. Should not be edited when
         inheriting from the class"""
-
-        self.start_run()
-
-        self._pipe = os.open(self._fifo_path, os.O_RDONLY|os.O_NONBLOCK)
 
         while self._running and (time.time()-self._t0) < self.max_time:
 
@@ -176,17 +183,9 @@ class Submitter(object):
                 # Finally delete it from our list
                 del(self._jobs[job_id])
 
-            # Finally, grab messages from the PIPE
-            msg = os.read(self._pipe, 16)
-            if 'STOP' in msg:
-                self._running = False
-
             sleep_time = self.check_time - (time.time()-loop_t0)
             sleep_time = sleep_time if sleep_time > 0 else 0
             time.sleep(sleep_time)
-
-        os.close(self._pipe)
-        self.finish_run()
 
     def next_job(self):
         """Return a dictionary definition of the next job in line"""
@@ -217,16 +216,6 @@ class Submitter(object):
 
     @staticmethod
     def stop(name):
-        """Stop a Submitter thread, given its name"""
-
-        pipename = ".{0}.fifo".format(name)
-
-        try:
-            pipe = os.open(pipename,
-                           os.O_WRONLY|os.O_NONBLOCK)
-            os.write(pipe, 'STOP')
-            os.close(pipe)
-        except OSError:
-            raise RuntimeError('No Submitter with the given name could be '
-                               'found')
-        os.remove(pipename)
+        """Stop daemon of given name"""
+        fname = '.{0}.submitter'.format(name)
+        sp.Popen(['pkill', '-f', fname])
