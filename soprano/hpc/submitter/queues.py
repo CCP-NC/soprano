@@ -78,7 +78,6 @@ class QueueInterface(object):
 
         # Parse out the job id!
         match = self.sub_outre.search(stdout)
-        print(stdout)
         if match is None:
             raise RuntimeError('Submission of job has failed with output:\n'
                                '\tSTDOUT: {0}\n\tSTDERR: {1}'.format(stdout,
