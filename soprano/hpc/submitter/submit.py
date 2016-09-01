@@ -112,17 +112,6 @@ class Submitter(object):
         pass        
 
     def start(self):
-        """Start up Submitter process in a Daemon thread"""
-        import inspect
-        fname = '.{0}.submitter'.format(self.name)
-        classfile = inspect.getfile(self.__class__)
-        classmodule = os.path.splitext(os.path.basename(classfile))[0]
-        classname = self.__class__.__name__
-        pickle.dump(self, open(fname, 'w'))
-        sp.Popen(['python', '-m', 'soprano.hpc.spawn', fname, 
-                  classmodule, classname, '&'])
-
-    def _start_execution(self):
 
         self._jobs = {}
 
@@ -140,6 +129,11 @@ class Submitter(object):
     def _catch_signal(self, signum, frame):
         # This catches the signal when termination is asked
         self._running = False
+        # Also, kill all jobs still running
+        for job_id in self._jobs:
+            self.queue.kill(job_id)
+            self.finish_job(**self._jobs[job_id])
+            shutil.rmtree(self._jobs[job_id]['folder'])
 
     def _main_loop(self):
         """Main loop run as separate thread. Should not be edited when
