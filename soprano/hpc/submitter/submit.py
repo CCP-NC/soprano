@@ -49,10 +49,8 @@ class Submitter(object):
        be extracted and useful files copied to permament locations, as the
        temporary folder will be deleted immediately afterwards. It returns
        nothing;
-    5) start_run takes no arguments, executes at the beginning of a run,
-       before the pipe is opened;
-    6) finish_run takes no arguments, executes at the end of a run, after the
-       pipe is closed.
+    5) start_run takes no arguments, executes at the beginning of a run;
+    6) finish_run takes no arguments, executes at the end of a run.
 
     In addition, the Submitter takes a template launching script which can
     be tagged with keywords, mainly <name> for the job name or any other
@@ -61,7 +59,7 @@ class Submitter(object):
     """
 
     def __init__(self, name, queue, submit_script, max_jobs=4, check_time=10,
-                 max_time=3600):
+                 max_time=3600, temp_folder=None):
         """Initialize the Submitter object
 
         | Args:
@@ -82,10 +80,15 @@ class Submitter(object):
         |                                 checks for the queue status and 
         |                                 attempts to submit new jobs. Default
         |                                 is 10
-        |   max_time (Optional[float]): time in seconds the Submitter thread
-        |                               will run for before shutting down. If
-        |                               set to zero the thread won't stop
-        |                               until killed with Submitter.stop.
+        |   max_time (Optional[float]): time in seconds the Submitter will run
+        |                               for before shutting down. If set to
+        |                               zero the thread won't stop until
+        |                               killed with Submitter.stop.
+        |   temp_folder (Optional[str]): where to store the temporary folders
+        |                                for the calculations. By default it's
+        |                                the system's tmp/ folder, but might
+        |                                be changed if there's a need because
+        |                                of writing permissions.
 
         """
 
@@ -103,6 +106,8 @@ class Submitter(object):
         self.max_jobs = max_jobs
         self.check_time = check_time
         self.max_time = max_time if max_time > 0 else np.inf
+        self.tmp_dir = (os.path.abspath(temp_folder)
+                        if temp_folder is not None else '')
 
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
@@ -150,7 +155,7 @@ class Submitter(object):
                 if njob is None:
                     break
                 # Create the temporary folder
-                njob['folder'] = tempfile.mkdtemp()
+                njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
                 # Perform setup
                 self.setup_job(**njob)
                 # Create custom script
@@ -209,7 +214,6 @@ class Submitter(object):
         pass
 
     @staticmethod
-    def stop(name):
-        """Stop daemon of given name"""
-        fname = '.{0}.submitter'.format(name)
-        sp.Popen(['pkill', '-f', fname])
+    def stop(fname, subname):
+        """Stop Submitter process from filename and name"""
+        sp.Popen(['pkill', '-f', fname + ' ' + subname])

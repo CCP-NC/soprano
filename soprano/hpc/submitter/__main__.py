@@ -29,7 +29,8 @@ def submitter_handler():
             else:
                 setattr(namespace, self.dest, splname[0])
 
-    parser = ap.ArgumentParser()
+    parser = ap.ArgumentParser(description="Use this script to start or stop "
+                               "a Submitter object as a background process.")
     # Required arguments
     parser.add_argument('action', type=str, nargs=1,
                         choices=['start', 'stop'],
@@ -83,7 +84,7 @@ def submitter_handler():
                   args.submitter_file, submitter_name, '&'])
     else:
         # PKILL the process
-        sp.Popen(['pkill', '-f', args.submitter_file])
+        Submitter.stop(args.submitter_file, submitter_name)
 
 
 
