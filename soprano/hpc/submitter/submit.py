@@ -39,7 +39,8 @@ class Submitter(object):
        it should return None;
     2) setup_job takes as arguments name, args and folder (a temporary one
        created independently) and is supposed to generate the input files
-       for the job before submission. It returns nothing;
+       for the job before submission. It returns a boolean, confirming that
+       the setup went well; if False, the job will be skipped;
     3) check_job takes as arguments job ID, name, args and folder and should
        return a bool confirmation of whether the job has finished or not. By
        default it simply checks whether the job is still listed in the queue,
@@ -109,6 +110,8 @@ class Submitter(object):
         self.tmp_dir = (os.path.abspath(temp_folder)
                         if temp_folder is not None else '')
 
+        self.log = '' # Will keep track of failed jobs etc.
+
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
         no arguments, but in specific implementations it will be used to
@@ -130,6 +133,8 @@ class Submitter(object):
         self.start_run()
         self._main_loop()
         self.finish_run()
+        # And print out logfile
+        open(self.name + '.log', 'w').write(self.log)
 
     def _catch_signal(self, signum, frame):
         # This catches the signal when termination is asked
@@ -157,7 +162,10 @@ class Submitter(object):
                 # Create the temporary folder
                 njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
                 # Perform setup
-                self.setup_job(**njob)
+                if not self.setup_job(**njob):
+                    self.log += ('Job {0} did not pass setup check,'
+                                 'skipping\n').format(njob['name'])
+                    continue
                 # Create custom script
                 job_script = self.submit_script.replace('<name>',
                                                         njob['name'])
@@ -192,7 +200,7 @@ class Submitter(object):
 
     def setup_job(self, name, args, folder):
         """Perform preparatory operations on the job"""
-        pass
+        return True
 
     def check_job(self, job_id, name, args, folder):
         """Checks if given job is complete or not"""
