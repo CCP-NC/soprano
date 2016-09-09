@@ -61,12 +61,15 @@ class MoleculeSites(AtomsProperty):
             # Remove from to_visit
             if i in to_visit:
                 to_visit.remove(i)
+            else:
+                return None
             my_bonds = sorted([b for b in bonds[i] if b in to_visit])
             if len(my_bonds) > 0:
                 bonded_label = sorted([recursive_label(j,
                                                        bonds,
                                                        to_visit)
                                        for j in my_bonds])
+                bonded_label = [bl for bl in bonded_label if bl is not None]
                 return '{0}[{1}]'.format(elems[i], ','.join(bonded_label))
             else:
                 return '{0}'.format(elems[i])
