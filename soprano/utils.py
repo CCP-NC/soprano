@@ -354,14 +354,6 @@ def swing_twist_decomp(quat, axis):
     Returns two quaternions: Swing, Twist.
     """
 
-    """
-        vector3 ra( rotation.x, rotation.y, rotation.z ); // rotation axis
-    vector3 p = projection( ra, direction ); // return projection v1 on to v2  (parallel component)
-    twist.set( p.x, p.y, p.z, rotation.w );
-    twist.normalize();
-    swing = rotation * twist.conjugated();
-    """
-
     # Current rotation axis
     ra = quat.q[1:]
     # Ensure that axis is normalised

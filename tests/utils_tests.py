@@ -22,6 +22,38 @@ class TestOthers(unittest.TestCase):
     def test_seedname(self):
         self.assertEqual(seedname('a/b/seed.txt'), 'seed')
 
+    def test_swing_twist(self):
+        
+        from ase.quaternions import Quaternion
+
+        test_n = 10
+
+        for t_i in range(test_n):
+
+            # Create two quaternions with random rotations
+            theta1, theta2 = np.random.random(2)*2*np.pi
+            ax1 = np.random.random(3)
+            ax2 = np.cross(np.random.random(3), ax1)
+            ax1 /= np.linalg.norm(ax1)
+            ax2 /= np.linalg.norm(ax2)
+
+            q1 = Quaternion([np.cos(theta1/2)] + list(ax1*np.sin(theta1/2)))
+            q2 = Quaternion([np.cos(theta2/2)] + list(ax2*np.sin(theta2/2)))
+
+            qT = q1*q2
+
+            # Now decompose
+            qsw, qtw = swing_twist_decomp(qT, ax2)
+            # And check
+            q1.q *= np.sign(q1.q[0])
+            q2.q *= np.sign(q2.q[0])
+            qsw.q *= np.sign(qsw.q[0])
+            qtw.q *= np.sign(qtw.q[0])
+
+            self.assertTrue(np.allclose(q1.q, qsw.q))
+            self.assertTrue(np.allclose(q2.q, qtw.q))
+
+
 class TestLatticeMethods(unittest.TestCase):
 
     def test_abc2cart(self):
