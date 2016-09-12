@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 
 import os
 import numpy as np
+from ase.quaternions import Quaternion
 
 
 def seedname(path):
@@ -343,3 +344,34 @@ def list_distance(l1, l2):
     d += len(l1)-len([ldiff.remove(el) for el in l1 if el in ldiff])
     d += len(ldiff)
     return d
+
+
+def swing_twist_decomp(quat, axis):
+    """Perform a Swing*Twist decomposition of a Quaternion. This splits the
+    quaternion in two: one containing the rotation around axis (Twist), the
+    other containing the rotation around a vector parallel to axis (Swing).
+
+    Returns two quaternions: Swing, Twist.
+    """
+
+    """
+        vector3 ra( rotation.x, rotation.y, rotation.z ); // rotation axis
+    vector3 p = projection( ra, direction ); // return projection v1 on to v2  (parallel component)
+    twist.set( p.x, p.y, p.z, rotation.w );
+    twist.normalize();
+    swing = rotation * twist.conjugated();
+    """
+
+    # Current rotation axis
+    ra = quat.q[1:]
+    # Ensure that axis is normalised
+    axis_norm = axis/np.linalg.norm(axis)
+    # Projection of ra along the given axis
+    p = np.dot(ra, axis_norm)*axis_norm
+    # Create Twist
+    qin = [quat.q[0], p[0], p[1], p[2]]
+    twist = Quaternion(qin/np.linalg.norm(qin))
+    # And Swing
+    swing = quat*twist.conjugate()
+
+    return swing, twist

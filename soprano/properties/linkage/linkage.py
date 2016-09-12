@@ -13,6 +13,7 @@ from ase.quaternions import Quaternion
 from soprano.utils import minimum_periodic
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
+from soprano.utils import swing_twist_decomp
 
 
 # Pre load VdW radii
@@ -361,7 +362,19 @@ class MoleculeRelativeRotation(AtomsProperty):
     |                        already present.
     |   size (int): maximum number of distances to include. If not present,
     |               all of them will be included. If present, arrays will be
-    |               cut or padded to reach this sizeber.
+    |               cut or padded to reach this size.
+    |   twist_axis ([float]): if present, only compare the Twist component of
+    |                         quaternion along the given axis. The Twist/Swing
+    |                         decomposition splits a quaternion in a rotation
+    |                         around an axis and one around an orthogonal
+    |                         direction. Only one between this and swing_plane
+    |                         can be present.
+    |   swing_plane ([float]): if present, only compare the Swing component of
+    |                         quaternion along the given axis. The Twist/Swing
+    |                         decomposition splits a quaternion in a rotation
+    |                         around an axis and one around an orthogonal
+    |                         direction. Only one between this and twist_axis
+    |                         can be present.
 
     | Returns:
     |   molecule_relrot ([float]): list of relative rotations, as quaternion
@@ -373,10 +386,17 @@ class MoleculeRelativeRotation(AtomsProperty):
     default_params = {
         'force_recalc': False,
         'size': 0,
+        'swing_plane': None,
+        'twist_axis': None,
     }
 
     @staticmethod
-    def extract(s, force_recalc, size):
+    def extract(s, force_recalc, size, swing_plane, twist_axis):
+
+        # Sanity check
+        if swing_plane is not None and twist_axis is not None:
+            raise RuntimeError('Only one between swing_plane and twist_axis '
+                               'can be passed to MoleculeRelativeRotation')
 
         if not Molecules.default_name in s.info or force_recalc:
             Molecules.get(s)
@@ -424,6 +444,10 @@ class MoleculeRelativeRotation(AtomsProperty):
 
             quat = Quaternion()
             quat = quat.from_matrix(evecs.T)
+            if swing_plane is not None:
+                quat, dummy = swing_twist_decomp(quat, swing_plane)
+            elif twist_axis is not None:
+                dummy, quat = swing_twist_decomp(quat, twist_axis)
             mol_quat.append(quat.q)
 
         # Safety check
