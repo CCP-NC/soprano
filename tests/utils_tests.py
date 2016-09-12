@@ -53,6 +53,14 @@ class TestOthers(unittest.TestCase):
             self.assertTrue(np.allclose(q1.q, qsw.q))
             self.assertTrue(np.allclose(q2.q, qtw.q))
 
+    def test_periodic_c(self):
+
+        v = np.array([[0.2, 0.0, 0.0], [0.5, 0.0, 0.0]])
+
+        for x in np.random.random(10):
+            v += x
+            print((v-periodic_center(v))%1)
+
 
 class TestLatticeMethods(unittest.TestCase):
 

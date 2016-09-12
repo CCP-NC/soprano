@@ -367,3 +367,24 @@ def swing_twist_decomp(quat, axis):
     swing = quat*twist.conjugate()
 
     return swing, twist
+
+def periodic_center(v_frac):
+    # Apply an operation meant to find a center for a set of periodic points
+    # and cancel out translational effects, allowing direct mapping
+
+    # Calculate the sums of sines and cosines along the three dimensions
+    sinS = np.sum(np.sin(2*np.pi*v_frac), axis=0)
+    cosS = np.sum(np.cos(2*np.pi*v_frac), axis=0)
+    # Then find the candidate points
+    x_base = np.arctan(-sinS/cosS)/(2*np.pi)
+    # Now this is just one possible point, but we must consider that the
+    # gradient goes to zero in all the various combinations where we added
+    # 0.5 to these coordinates
+    x = (x_base[:,None] + np.reshape(np.meshgrid(*[[0, 0.5]]*3), (3,-1))).T
+    # So calculate the overall function at all these points
+    f = np.sum(np.cos(2*np.pi*x)*cosS-np.sin(2*np.pi*x)*sinS, axis=1)
+    # Not sure why the minus sign is needed here, but it works.
+    # Needs checking.
+    x = (-x[np.argmin(f)])%1
+
+    return x
