@@ -373,8 +373,8 @@ def periodic_center(v_frac):
     # and cancel out translational effects, allowing direct mapping
 
     # Calculate the sums of sines and cosines along the three dimensions
-    sinS = np.sum(np.sin(2*np.pi*v_frac), axis=0)
-    cosS = np.sum(np.cos(2*np.pi*v_frac), axis=0)
+    sinS = np.sum(np.sin(-2*np.pi*v_frac), axis=0)
+    cosS = np.sum(np.cos(-2*np.pi*v_frac), axis=0)
     # Then find the candidate points
     x_base = np.arctan(-sinS/cosS)/(2*np.pi)
     # Now this is just one possible point, but we must consider that the
@@ -383,8 +383,6 @@ def periodic_center(v_frac):
     x = (x_base[:,None] + np.reshape(np.meshgrid(*[[0, 0.5]]*3), (3,-1))).T
     # So calculate the overall function at all these points
     f = np.sum(np.cos(2*np.pi*x)*cosS-np.sin(2*np.pi*x)*sinS, axis=1)
-    # Not sure why the minus sign is needed here, but it works.
-    # Needs checking.
-    x = (-x[np.argmin(f)])%1
+    x = (x[np.argmin(f)])%1
 
     return x

@@ -36,7 +36,7 @@ class TestOthers(unittest.TestCase):
             ax2 = np.cross(np.random.random(3), ax1)
             ax1 /= np.linalg.norm(ax1)
             ax2 /= np.linalg.norm(ax2)
-
+            
             q1 = Quaternion([np.cos(theta1/2)] + list(ax1*np.sin(theta1/2)))
             q2 = Quaternion([np.cos(theta2/2)] + list(ax2*np.sin(theta2/2)))
 
@@ -55,11 +55,14 @@ class TestOthers(unittest.TestCase):
 
     def test_periodic_c(self):
 
-        v = np.array([[0.2, 0.0, 0.0], [0.5, 0.0, 0.0]])
+        testn = 10
+        pointn = 10
+        v = np.random.random((pointn, 3))
+        v_centred = (v-periodic_center(v))%1
 
-        for x in np.random.random(10):
-            v += x
-            print((v-periodic_center(v))%1)
+        for i in range(testn):
+            v += np.random.random(3)
+            self.assertTrue(np.allclose((v-periodic_center(v))%1, v_centred))
 
 
 class TestLatticeMethods(unittest.TestCase):
