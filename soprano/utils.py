@@ -383,6 +383,6 @@ def periodic_center(v_frac):
     x = (x_base[:,None] + np.reshape(np.meshgrid(*[[0, 0.5]]*3), (3,-1))).T
     # So calculate the overall function at all these points
     f = np.sum(np.cos(2*np.pi*x)*cosS-np.sin(2*np.pi*x)*sinS, axis=1)
-    x = (x[np.argmin(f)])%1
+    x = (x[np.argmax(f)])%1
 
     return x

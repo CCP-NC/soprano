@@ -201,6 +201,20 @@ class AtomSelection(object):
         return item in self._indices
 
     @staticmethod
+    def all(atoms):
+        """Generate a selection for the given Atoms object of all atoms.
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+
+        | Returns:
+        |   selection (AtomSelection)
+
+        """
+
+        return AtomSelection(atoms, range(len(atoms)))
+
+    @staticmethod
     def from_element(atoms, element):
         """Generate a selection for the given Atoms object of all atoms of a
         specific element.

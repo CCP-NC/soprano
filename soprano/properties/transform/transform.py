@@ -10,7 +10,9 @@ from __future__ import unicode_literals
 import numpy as np
 from ase import Atoms
 from ase.quaternions import Quaternion
+from soprano.utils import periodic_center
 from soprano.properties import AtomsProperty
+from soprano.selection import AtomSelection
 
 
 class Translate(AtomsProperty):
@@ -43,7 +45,6 @@ class Translate(AtomsProperty):
     @staticmethod
     def extract(s, selection, vector, scaled):
 
-        # Some necessary checks
         if not selection.validate(s):
             raise ValueError('Selection passed to Translate does not apply to'
                              ' system.')
@@ -94,7 +95,7 @@ class Rotate(AtomsProperty):
 
     """
 
-    default_name = "translated"
+    default_name = "rotated"
     default_params = {
         'selection': None,
         'center': [0, 0, 0],
@@ -164,7 +165,7 @@ class Mirror(AtomsProperty):
 
     """
 
-    default_name = "translated"
+    default_name = "reflected"
     default_params = {
         'selection': None,
         'center': None,
@@ -218,5 +219,48 @@ class Mirror(AtomsProperty):
             sT.set_positions(pos)
         else:
             sT.set_scaled_positions(pos)
+
+        return sT
+
+
+class Regularise(AtomsProperty):
+
+    """
+    Regularize
+
+    Perform a translation by a vector calculated to cancel out the effect of
+    global translational symmetry. In theory, given two copies of the same
+    system that only differ by a translation of all atoms in the unit cell,
+    this should produce two systems that overlap perfectly. Can be used to 
+    compare slightly different systems if they're similar enough. If a
+    selection is given, only those atoms will be used for the centering
+    operation. The same atoms have to be used in all systems for comparisons
+    to make sense (for example one might use all the heavy atoms and not
+    include hydrogens).
+
+    | Parameters:
+    |   selection (AtomSelection): selection object defining which atoms to 
+    |                              act on. By default, all of them.
+
+    | Returns:
+    |   regularised (ase.Atoms): Atoms object translated by the regularizing
+    |                            vector.
+
+    """
+
+    default_name = "regularised"
+    default_params = {
+        'selection': None,
+    }
+
+    @staticmethod
+    def extract(s, selection):
+
+        # Calculate the vector to shift by
+        v_frac = s.get_scaled_positions()
+        reg_v = 0.5-periodic_center(v_frac)
+
+        sT = s.copy()
+        sT.set_scaled_positions(v_frac+reg_v)
 
         return sT
