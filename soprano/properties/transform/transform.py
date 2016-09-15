@@ -14,6 +14,20 @@ from soprano.utils import periodic_center
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 
+def _transform_sel_check(extrfunc):
+
+    def decorated_extrfunc(s, selection, **kwargs):
+
+        # Perform basic checks on selection
+        if selection is None:
+            selection = AtomSelection.all(s)            
+        elif not selection.validate(s):
+            raise ValueError('Selection passed to transform does not apply to'
+                             ' system.')
+
+        return extrfunc(s, selection, **kwargs)
+
+    return decorated_extrfunc
 
 class Translate(AtomsProperty):
 
@@ -43,11 +57,8 @@ class Translate(AtomsProperty):
     }
 
     @staticmethod
+    @_transform_sel_check
     def extract(s, selection, vector, scaled):
-
-        if not selection.validate(s):
-            raise ValueError('Selection passed to Translate does not apply to'
-                             ' system.')
 
         vector = np.array(vector)
         if vector.shape != (3,):
@@ -104,12 +115,8 @@ class Rotate(AtomsProperty):
     }
 
     @staticmethod
+    @_transform_sel_check
     def extract(s, selection, center, quaternion, scaled):
-
-        # Some necessary checks
-        if not selection.validate(s):
-            raise ValueError('Selection passed to Rotate does not apply to'
-                             ' system.')
 
         center = np.array(center)
         if center.shape != (3,):
@@ -174,12 +181,8 @@ class Mirror(AtomsProperty):
     }
 
     @staticmethod
+    @_transform_sel_check
     def extract(s, selection, center, plane, scaled):
-
-        # Some necessary checks
-        if not selection.validate(s):
-            raise ValueError('Selection passed to Mirror does not apply to'
-                             ' system.')
 
         if plane is not None and center is not None:
             raise ValueError('Can\'t pass both center and plane to Mirror')
@@ -233,10 +236,10 @@ class Regularise(AtomsProperty):
     system that only differ by a translation of all atoms in the unit cell,
     this should produce two systems that overlap perfectly. Can be used to 
     compare slightly different systems if they're similar enough. If a
-    selection is given, only those atoms will be used for the centering
-    operation. The same atoms have to be used in all systems for comparisons
-    to make sense (for example one might use all the heavy atoms and not
-    include hydrogens).
+    selection is given, only those atoms will be used to calculate the center,
+    but the translation will still be applied to all atoms. The same atoms
+    have to be used in all systems for comparisons to make sense (for example
+    one might use all the heavy atoms and not include hydrogens).
 
     | Parameters:
     |   selection (AtomSelection): selection object defining which atoms to 
@@ -254,13 +257,14 @@ class Regularise(AtomsProperty):
     }
 
     @staticmethod
+    @_transform_sel_check
     def extract(s, selection):
 
         # Calculate the vector to shift by
         v_frac = s.get_scaled_positions()
-        reg_v = 0.5-periodic_center(v_frac)
+        reg_v = 0.5-periodic_center(v_frac[selection._indices])
 
         sT = s.copy()
-        sT.set_scaled_positions(v_frac+reg_v)
+        sT.set_scaled_positions((v_frac+reg_v)%1)
 
         return sT
