@@ -419,6 +419,7 @@ def periodic_center(v_frac):
     # For each of them, find the minimum
     x = []
     for a_i, axis in enumerate(roots):
+        print(distf(axis, v_frac[:,a_i]))
         x.append(axis[np.argmin(distf(axis, v_frac[:,a_i]))])
 
-    return x
+    return np.array(x)
