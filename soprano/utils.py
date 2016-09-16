@@ -372,17 +372,53 @@ def periodic_center(v_frac):
     # Apply an operation meant to find a center for a set of periodic points
     # and cancel out translational effects, allowing direct mapping
 
-    # Calculate the sums of sines and cosines along the three dimensions
-    sinS = np.sum(np.sin(-2*np.pi*v_frac), axis=0)
-    cosS = np.sum(np.cos(-2*np.pi*v_frac), axis=0)
-    # Then find the candidate points
-    x_base = np.arctan(-sinS/cosS)/(2*np.pi)
-    # Now this is just one possible point, but we must consider that the
-    # gradient goes to zero in all the various combinations where we added
-    # 0.5 to these coordinates
-    x = (x_base[:,None] + np.reshape(np.meshgrid(*[[0, 0.5]]*3), (3,-1))).T
-    # So calculate the overall function at all these points
-    f = np.sum(np.cos(2*np.pi*x)*cosS-np.sin(2*np.pi*x)*sinS, axis=1)
-    x = (x[np.argmax(f)])%1
+    """ Alright, how does this work?
+    Basically, we're looking for the point, inside the unit cell, which
+    minimizes the sum of the squared distance from all ions.
+    Of course we need to consider the periodic boundaries. So the distance
+    on a single axis isn't simply abs(x), but a triangular wave.
+    Fun times! A triangular wave can be represented as a Fourier series. And
+    we can truncate that series to the first term because the minimum
+    basically stays the same and get:
+    sum((x-x_i)**2) ~ sum((4/pi**2*sin(2*pi*(x-x_i-1/4))+0.5)**2)
+    All the factors depend on the fact that we need to move the triangular
+    wave to the interval [0,1] and center it so that it's 0 for x-x_i == 0.
+    It gets better! We take the derivative of this thing and look for a spot
+    where it becomes zero. The derivative is kind of a trigonometric
+    monstrosity but we can solve the equation by setting t = e^(2*pi*1.0j*x)
+    and then replacing cosines and sines with it. As a result, we get an
+    equation of 4th degree in t. And then we solve that with numpy.roots, take
+    the phase, turn that into a coordinate, find the one corresponding to the
+    absolute minimum.
+    All of which we can perform independently on each of the three axes
+    because the function is just the sum of the three components:
+    sum((r-r_i)**2) = sum((x-x_i)**2) + sum((y-y_i)**2) + sum((z-z_i)**2).
+    And there you go! Problem solved.
+    """
+
+    # The distance function. Will be required to find the absolute minimum
+    # later
+    def distf(x, x_i):
+        return np.sum((4/np.pi**2*np.sin(2*np.pi*\
+                      (x[:,None]-x_i[None,:]-0.25))+0.5)**2, axis=-1);
+    # These coefficients appear in the derivative
+    sinS = np.sum(np.sin(2*np.pi*v_frac), axis=0)
+    cosS = np.sum(np.cos(2*np.pi*v_frac), axis=0)
+    sin2S = np.sum(np.sin(4*np.pi*v_frac), axis=0)
+    cos2S = np.sum(np.cos(4*np.pi*v_frac), axis=0)
+
+    # Here's the equation coefficients instead
+    coeffs = np.array([32/np.pi**3*(sin2S+1.0j*cos2S),
+                       8/np.pi*(sinS+1.0j*cosS),
+                       0*sinS,
+                       8/np.pi*(sinS-1.0j*cosS),
+                       32/np.pi**3*(sin2S-1.0j*cos2S)])*0.5
+    # Finding the roots, turning them to coordinates
+    roots = [np.roots(c) for c in coeffs.T]
+    roots = np.angle(roots)/(2*np.pi)
+    # For each of them, find the minimum
+    x = []
+    for a_i, axis in enumerate(roots):
+        x.append(axis[np.argmin(distf(axis, v_frac[:,a_i]))])
 
     return x
