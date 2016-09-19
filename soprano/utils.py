@@ -14,6 +14,7 @@ from __future__ import unicode_literals
 
 import os
 import numpy as np
+from itertools import product as iter_product
 from ase.quaternions import Quaternion
 
 
@@ -417,9 +418,32 @@ def periodic_center(v_frac):
     roots = [np.roots(c) for c in coeffs.T]
     roots = np.angle(roots)/(2*np.pi)
     # For each of them, find the minimum
-    x = []
+    x_mins = []
     for a_i, axis in enumerate(roots):
-        print(distf(axis, v_frac[:,a_i]))
-        x.append(axis[np.argmin(distf(axis, v_frac[:,a_i]))])
+        R2 = distf(axis, v_frac[:,a_i])
+        R2min = np.amin(R2)
+        x_mins.append(axis[np.where(np.isclose(R2, R2min))[0]])
+
+    # How to decide if there are multiple minima?
+    x_mins = np.array(np.meshgrid(*x_mins)).reshape((3,-1)).T
+    if x_mins.shape[0] > 1:
+        dpos = (x_mins[:,None]-v_frac[None,:]+0.5)%1-0.5
+        dposMag = np.sum(dpos**2, axis=-1)
+        dist4 = np.sum(dposMag**2, axis=-1)
+        dist2XP = np.sum(np.where(dpos[:,:,0] > 0,
+                                  dposMag,
+                                  dpos[:,:,0]*0), axis=-1)
+        dist2YP = np.sum(np.where(dpos[:,:,1] > 0,
+                                  dposMag,
+                                  dpos[:,:,0]*0), axis=-1)
+        dist2ZP = np.sum(np.where(dpos[:,:,2] > 0,
+                                  dposMag,
+                                  dpos[:,:,0]*0), axis=-1)
+        distSort = np.lexsort((dist2XP, dist2YP, dist2ZP, dist4))
+        # And take a minimum
+        # This removes SOME ambiguity but still not ALL ambiguity, sadly
+        x = x_mins[distSort[0]]
+    else:
+        x = x_mins[0]
 
     return np.array(x)
