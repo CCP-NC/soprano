@@ -256,6 +256,9 @@ class AtomsCollection(object):
 
         return dcopy
 
+    def __len__(self):
+        return self.length
+
     @property
     def length(self):
         return len(self.structures)
