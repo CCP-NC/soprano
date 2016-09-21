@@ -18,6 +18,23 @@ from soprano.properties.linkage import (LinkageList, MoleculeNumber,
 from soprano.properties.labeling import (MoleculeSites, HydrogenBondTypes)
 
 
+# Useful functions for parsing of complex genes
+def _int_array(size=0):
+    def parser(s):
+        try:
+            return np.array([int(x) for x in re.split('[\s,]+', s, size)])
+        except:
+            raise RuntimeError(('Could not parse line {0}'
+                                ' as [int]*{1} array').format(s, size))
+
+def _float_array(size=0):
+    def parser(s):
+        try:
+            return np.array([float(x) for x in re.split('[\s,]+', s, size)])
+        except:
+            raise RuntimeError(('Could not parse line {0}'
+                                ' as [float]*{1} array').format(s, size))
+
 class Gene(object):
 
     """Gene
@@ -72,8 +89,6 @@ class Gene(object):
         self.params = params
 
     def __eq__(self, other):
-
-        iseq = False
 
         try:
             return (self.name == other.name) and\
@@ -141,8 +156,10 @@ def parsegene_mol_com(c, Z=0):
     return np.array(molc(c))
 
 
-def parsegene_mol_rot(c, Z=0):
-    molr = MoleculeRelativeRotation(size=int(Z*(Z-1)/2))
+def parsegene_mol_rot(c, Z=0, twist_axis=None, swing_plane=None):
+    molr = MoleculeRelativeRotation(size=int(Z*(Z-1)/2),
+                                    twist_axis=twist_axis,
+                                    swing_plane=swing_plane)
     return np.array(molr(c))
 
 
@@ -304,7 +321,9 @@ class GeneDictionary(object):
 
         'molecule_rot_linkage': {
             'default_params': {
-                'Z': int
+                'Z': int,
+                'twist_axis': _float_array(3),
+                'swing_plane': _float_array(3),
             },
             'parser': parsegene_mol_rot,
             'pair': False,
@@ -426,6 +445,20 @@ class GeneDictionary(object):
         Parameters:
             Z (int): expected number of molecules (default = total number of 
                      molecules)
+            twist_axis ([float]*3): if present, only compare the Twist
+                                    component of quaternion along the given
+                                    axis. The Twist/Swing decomposition splits
+                                    a quaternion in a rotation around an axis
+                                    and one around an orthogonal direction.
+                                    Only one between this and swing_plane can
+                                    be present.
+            swing_plane ([float]*3): if present, only compare the Swing
+                                     component of quaternion along the given
+                                     axis. The Twist/Swing decomposition
+                                     splits a quaternion in a rotation around
+                                     an axis and one around an orthogonal
+                                     direction. Only one between this and
+                                     twist_axis can be present.
         Length: Z*(Z-1)/2
         """,
 

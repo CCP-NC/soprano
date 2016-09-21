@@ -13,3 +13,8 @@ molecule_com_linkage 1.0
 {
 	Z = 1	
 }
+molecule_rot_linkage 1.0
+{
+    Z = 1
+    twist_axis = 1 0 0
+}
