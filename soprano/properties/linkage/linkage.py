@@ -605,6 +605,8 @@ class HydrogenBonds(AtomsProperty):
         # Now on to defining them
         h_bonded = np.where(h_bonded)[0]
         if len(h_bonded) == 0:
+            if save_info:
+                s.info[HydrogenBonds.default_name] = hbonds
             return hbonds
 
         # Moving to structure indices
