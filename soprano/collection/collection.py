@@ -398,7 +398,7 @@ class AtomsCollection(object):
         """
 
         # First, check if we even have those
-        if None in self.all.calc:
+        if any([c is None for c in self.all.calc]):
             raise RuntimeError('Not all structures in collection'
                                ' have a calculator')
         kwargs = {}
