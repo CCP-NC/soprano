@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 import re
 import itertools
 import numpy as np
-from soprano.utils import parse_intlist, parse_floatlist, list_distance
+from soprano.utils import list_distance
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,

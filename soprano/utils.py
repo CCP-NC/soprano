@@ -52,17 +52,6 @@ def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
 
     return bar
 
-
-def parse_intlist(string):
-    """Parse a list of ints from a string"""
-    return [int(x) for x in string.split()]
-
-
-def parse_floatlist(string):
-    """Parse a list of floats from a string"""
-    return [float(x) for x in string.split()]
-
-
 def abc2cart(abc):
     """Transforms an axes and angles representation of lattice parameters
        into a Cartesian one
