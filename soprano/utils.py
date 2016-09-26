@@ -416,23 +416,16 @@ def periodic_center(v_frac):
     # How to decide if there are multiple minima?
     x_mins = np.array(np.meshgrid(*x_mins)).reshape((3,-1)).T
     if x_mins.shape[0] > 1:
-        dpos = (x_mins[:,None]-v_frac[None,:]+0.5)%1-0.5
+        dpos = (x_mins[:,None]-v_frac[None,:]+0.5)%1-0.5        
         dposMag = np.sum(dpos**2, axis=-1)
-        dist4 = np.sum(dposMag**2, axis=-1)
-        dist2XP = np.sum(np.where(dpos[:,:,0] > 0,
-                                  dposMag,
-                                  dpos[:,:,0]*0), axis=-1)
-        dist2YP = np.sum(np.where(dpos[:,:,1] > 0,
-                                  dposMag,
-                                  dpos[:,:,0]*0), axis=-1)
-        dist2ZP = np.sum(np.where(dpos[:,:,2] > 0,
-                                  dposMag,
-                                  dpos[:,:,0]*0), axis=-1)
-        distSort = np.lexsort((dist2XP, dist2YP, dist2ZP, dist4))
-        # And take a minimum
-        # This removes SOME ambiguity but still not ALL ambiguity, sadly
-        x = x_mins[distSort[0]]
+        dpos_nn_i = np.argmin(dposMag, axis=-1)
+        dpos_nn = dpos[range(8),dpos_nn_i].round(5)
+        dpos_nn_M = dposMag[range(8),dpos_nn_i]
+        x = x_mins[np.lexsort((-dpos_nn[:,2],
+                               -dpos_nn[:,1],
+                               -dpos_nn[:,0],
+                               dpos_nn_M))[0]]
     else:
         x = x_mins[0]
 
-    return np.array(x)
+    return x
