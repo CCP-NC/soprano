@@ -12,4 +12,4 @@ provided here.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.calculate.gulp.w99 import get_w99_energy
+from soprano.calculate.gulp.w99 import get_w99_energy, W99Error
