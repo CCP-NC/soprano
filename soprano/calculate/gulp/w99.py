@@ -25,7 +25,8 @@ import subprocess as sp
 from ase.calculators.singlepoint import SinglePointCalculator
 from soprano.properties.linkage import Molecules
 from soprano.calculate.gulp.utils import (_gulp_cell_definition,
-                                          _gulp_parse_energy)
+                                          _gulp_parse_energy,
+                                          _gulp_parse_charges)
 
 _w99_data = pkgutil.get_data('soprano',
                              'data/w99_parameters.json').decode('utf-8')
@@ -176,7 +177,8 @@ def _w99_field_definition(s, etol):
 
 def get_w99_energy(s, charge_method='eem', Etol=1e-6,
                    gulp_command='gulp',
-                   gulp_path=None):
+                   gulp_path=None,
+                   save_charges=False):
     """Calculate the W99 force field energy using GULP. 
 
     | Parameters:
@@ -194,6 +196,9 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
     |                              found. If not present, the GULP command
     |                              will be invoked directly (assuming the
     |                              executable is in the system PATH).
+    |   save_charges (Optional[bool]): whether to retrieve also the charges
+    |                                  and save them in the Atoms object.
+    |                                  False by default.
 
     | Returns:
     |   energy (float): the calculated energy
@@ -245,5 +250,9 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
     # Remember it with a mock ASE calculator
     calc = SinglePointCalculator(s, energy=E)
     s.set_calculator(calc)
+
+    if save_charges:
+        qs = _gulp_parse_charges(gulp_lines)
+        s.set_initial_charges(qs['q'])
 
     return E
