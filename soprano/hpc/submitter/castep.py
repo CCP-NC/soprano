@@ -83,9 +83,12 @@ class CastepSubmitter(Submitter):
         self.kwdir = tempfile.mkdtemp()
         self.log('Creating CASTEP keywords in folder '
                  '{0}\n'.format(self.kwdir))
+        # Avoid the annoying print out to screen!
+        _stdout, sys.stdout = sys.stdout, self._log
         create_castep_keywords(self.castep_command,
                                os.path.join(self.kwdir,
                                             'castep_keywords.py'))
+        sys.stdout = _stdout
         sys.path.append(self.kwdir)
         self.log('CASTEP keywords created\n')
 
