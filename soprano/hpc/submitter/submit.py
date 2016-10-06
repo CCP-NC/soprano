@@ -111,7 +111,7 @@ class Submitter(object):
         self.tmp_dir = (os.path.abspath(temp_folder)
                         if temp_folder is not None else '')
 
-        self.log = None # Will keep track of failed jobs etc.
+        self._log = None # Will keep track of failed jobs etc.
 
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
@@ -131,13 +131,13 @@ class Submitter(object):
         signal.signal(signal.SIGINT, self._catch_signal)
         signal.signal(signal.SIGTERM, self._catch_signal)
 
-        self.log = open(self.name + '.log', 'w')
-        self.log.write('Starting run on {0}'.format(datetime.now()))
+        self._log = open(self.name + '.log', 'w')
+        self.log('Starting run on {0}'.format(datetime.now()))
         self.start_run()
         self._main_loop()
         self.finish_run()
-        self.log.write('Run finished on {0}'.format(datetime.now()))
-        self.log.close()
+        self.log('Run finished on {0}'.format(datetime.now()))
+        self._log.close()
 
     def _catch_signal(self, signum, frame):
         # This catches the signal when termination is asked
@@ -223,6 +223,9 @@ class Submitter(object):
     def finish_run(self):
         """Operations to perform after the daemon thread stops running"""
         pass
+
+    def log(self, logtxt):
+        self._log.write(logtxt)
 
     @staticmethod
     def stop(fname, subname):
