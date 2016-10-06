@@ -81,10 +81,13 @@ class CastepSubmitter(Submitter):
     def start_run(self):
         # Initialize the CASTEP keywords file in a dedicated temporary folder
         self.kwdir = tempfile.mkdtemp()
+        self.log('Creating CASTEP keywords in folder '
+                 '{0}\n'.format(self.kwdir))
         create_castep_keywords(self.castep_command,
                                os.path.join(self.kwdir,
                                             'castep_keywords.py'))
         sys.path.append(self.kwdir)
+        self.log('CASTEP keywords created\n')
 
     def next_job(self):
         """Grab the next job from folder_in"""
@@ -95,6 +98,7 @@ class CastepSubmitter(Submitter):
 
         cfile = cfile_list[0]
         name = utils.seedname(cfile)
+        self.log('Starting job {0}\n'.format(name))
         files = [cfile]
         # Check if .param file is available too
         if os.path.isfile(os.path.join(self.folder_in, name + '.param')):
@@ -119,8 +123,11 @@ class CastepSubmitter(Submitter):
 
         success = True
 
+        self.log('Copying files for job {0}\n'.format(name))
+
         # Perform dryrun test if required
         if self.drun:
+            self.log('Performing DRYRUN\n')
             stdout, stderr = sp.Popen([self.castep_command, name, '--dryrun'],
                                       cwd=folder, stdout=sp.PIPE,
                                       stderr=sp.PIPE).communicate()

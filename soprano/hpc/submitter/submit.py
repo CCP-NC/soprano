@@ -141,6 +141,7 @@ class Submitter(object):
 
     def _catch_signal(self, signum, frame):
         # This catches the signal when termination is asked
+        self.log('SIGTERM received - Starting termination of this run...\n')
         self._running = False
         # Also, kill all jobs still running
         for job_id in self._jobs:
@@ -166,8 +167,8 @@ class Submitter(object):
                 njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
                 # Perform setup
                 if not self.setup_job(**njob):
-                    self.log += ('Job {0} did not pass setup check,'
-                                 'skipping\n').format(njob['name'])
+                    self.log('Job {0} did not pass setup check,'
+                             'skipping\n').format(njob['name'])
                     continue
                 # Create custom script
                 job_script = self.submit_script.replace('<name>',
@@ -180,6 +181,7 @@ class Submitter(object):
                                                 njob['folder'])
 
                 # And submit!
+                self.log('Submitting job {0} to queue\n'.format(njob['name']))
                 job_id = self.queue.submit(job_script, cwd=njob['folder'])
                 self._jobs[job_id] = njob
 
@@ -187,9 +189,11 @@ class Submitter(object):
             completed = [job_id for job_id in self._jobs
                          if self.check_job(job_id, **self._jobs[job_id])]
             for job_id in completed:
-                self.finish_job(**self._jobs[job_id])
+                cjob = self._jobs[job_id]
+                self.log('Job {0} completed\n'.format((cjob['name'])))
+                self.finish_job(**cjob)
                 # Remove the temporary directory
-                shutil.rmtree(self._jobs[job_id]['folder'])
+                shutil.rmtree(cjob['folder'])
                 # Finally delete it from our list
                 del(self._jobs[job_id])
 
