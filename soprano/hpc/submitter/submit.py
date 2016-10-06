@@ -132,11 +132,11 @@ class Submitter(object):
         signal.signal(signal.SIGTERM, self._catch_signal)
 
         self._log = open(self.name + '.log', 'w')
-        self.log('Starting run on {0}'.format(datetime.now()))
+        self.log('Starting run on {0}\n'.format(datetime.now()))
         self.start_run()
         self._main_loop()
         self.finish_run()
-        self.log('Run finished on {0}'.format(datetime.now()))
+        self.log('Run finished on {0}\n'.format(datetime.now()))
         self._log.close()
 
     def _catch_signal(self, signum, frame):
@@ -226,6 +226,7 @@ class Submitter(object):
 
     def log(self, logtxt):
         self._log.write(logtxt)
+        self._log.flush()
 
     @staticmethod
     def stop(fname, subname):
