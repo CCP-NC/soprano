@@ -144,10 +144,11 @@ class Submitter(object):
         self.log('SIGTERM received - Starting termination of this run...\n')
         self._running = False
         # Also, kill all jobs still running
-        for job_id in self._jobs:
+        for job_id in self._jobs.keys():
             self.queue.kill(job_id)
             self.finish_job(**self._jobs[job_id])
             shutil.rmtree(self._jobs[job_id]['folder'])
+            del(self._jobs[job_id])
 
     def _main_loop(self):
         """Main loop run as separate thread. Should not be edited when
