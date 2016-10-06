@@ -19,6 +19,7 @@ import tempfile
 import numpy as np
 import threading as thr
 import subprocess as sp
+from datetime import datetime
 
 from soprano.utils import is_string
 from soprano.hpc.submitter import QueueInterface
@@ -110,7 +111,7 @@ class Submitter(object):
         self.tmp_dir = (os.path.abspath(temp_folder)
                         if temp_folder is not None else '')
 
-        self.log = '' # Will keep track of failed jobs etc.
+        self.log = None # Will keep track of failed jobs etc.
 
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
@@ -130,11 +131,13 @@ class Submitter(object):
         signal.signal(signal.SIGINT, self._catch_signal)
         signal.signal(signal.SIGTERM, self._catch_signal)
 
+        self.log = open(self.name + '.log', 'w')
+        self.log.write('Starting run on {0}'.format(datetime.now()))
         self.start_run()
         self._main_loop()
         self.finish_run()
-        # And print out logfile
-        open(self.name + '.log', 'w').write(self.log)
+        self.log.write('Run finished on {0}'.format(datetime.now()))
+        self.log.close()
 
     def _catch_signal(self, signum, frame):
         # This catches the signal when termination is asked
