@@ -29,6 +29,8 @@ class QueueInterface(object):
     QueueInterface.<NAME>. The currently implemented names are the following:
 
     - LSF (IBM's managing system, using the command bsub)
+    - GridEngine (Sun's managing system, also available in an open version,
+                  using the command qsub)
     """
 
     def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre):
