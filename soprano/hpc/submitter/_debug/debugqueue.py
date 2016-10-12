@@ -12,9 +12,10 @@ import time
 import numpy as np
 import subprocess as sp
 from threading import Thread
+from soprano.hpc.submitter.queues import QueueInterface
 
 
-class DebugQueueInterface(object):
+class DebugQueueInterface(QueueInterface):
 
     """DebugQueueInterface object
 
@@ -71,6 +72,7 @@ class DebugQueueInterface(object):
                      and (t-job['t0']-job['WAIT']) > job['RUN']:
                      # Just eliminate it
                      del(self._job_list[j_id])
+            time.sleep(self._dt)            
 
 
     def submit(self, script, cwd=None):

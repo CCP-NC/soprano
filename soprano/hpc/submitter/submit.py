@@ -181,7 +181,9 @@ class Submitter(object):
                 job_script = job_script.replace('<folder>',
                                                 njob['folder'])
 
-                # And submit!
+                # And submit! [Only if still running]
+                if not self._running:
+                    break
                 self.log('Submitting job {0} to queue\n'.format(njob['name']))
                 job_id = self.queue.submit(job_script, cwd=njob['folder'])
                 self._jobs[job_id] = njob
