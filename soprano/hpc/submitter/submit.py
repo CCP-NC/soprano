@@ -148,7 +148,7 @@ class Submitter(object):
             self.queue.kill(job_id)
             self.finish_job(**self._jobs[job_id])
             shutil.rmtree(self._jobs[job_id]['folder'])
-            del(self._jobs[job_id])
+        self._jobs = {}
 
     def _main_loop(self):
         """Main loop run as separate thread. Should not be edited when
@@ -184,9 +184,12 @@ class Submitter(object):
                 # And submit! [Only if still running]
                 if not self._running:
                     break
-                self.log('Submitting job {0} to queue\n'.format(njob['name']))
-                job_id = self.queue.submit(job_script, cwd=njob['folder'])
-                self._jobs[job_id] = njob
+                else:
+                    self.log('Submitting job '
+                             '{0} to queue\n'.format(njob['name']))
+                    job_id = self.queue.submit(job_script,
+                                               cwd=njob['folder'])
+                    self._jobs[job_id] = njob
 
             # Now check for finished jobs
             completed = [job_id for job_id in self._jobs
@@ -197,6 +200,7 @@ class Submitter(object):
                 self.finish_job(**cjob)
                 # Remove the temporary directory
                 shutil.rmtree(cjob['folder'])
+                self.log('Folder {0} deleted\n'.format(cjob['folder']))
                 # Finally delete it from our list
                 del(self._jobs[job_id])
 
