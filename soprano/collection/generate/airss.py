@@ -9,10 +9,15 @@ from __future__ import unicode_literals
 import os
 import hashlib
 import subprocess as sp
-from io import StringIO
 from ase import io as ase_io
 # Internal imports
 import soprano.utils as utils
+
+# Python 2-to-3 compatibility
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 def airssGen(input_file,

@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 import time
 import numpy as np
+
 import subprocess as sp
 from threading import Thread
 from soprano.hpc.submitter.queues import QueueInterface
@@ -57,6 +58,7 @@ class DebugQueueInterface(QueueInterface):
 
         while(len(self._job_list) > 0):
             t = time.time()
+            completed_jobs = []
             for j_id in self._job_list.keys():
                 job = self._job_list[j_id]
                 if job['status'] == 'w' and (t-job['t0']) > job['WAIT']:
@@ -71,7 +73,11 @@ class DebugQueueInterface(QueueInterface):
                 elif job['status'] == 'r' \
                      and (t-job['t0']-job['WAIT']) > job['RUN']:
                      # Just eliminate it
-                     del(self._job_list[j_id])
+                     completed_jobs.append(j_id)
+
+            for cj in completed_jobs:
+                del self._job_list[cj]
+
             time.sleep(self._dt)            
 
 
@@ -105,6 +111,12 @@ class DebugQueueInterface(QueueInterface):
                             job[keyw] = float(vals[0])
                         elif len(vals) == 2:
                             job[keyw] = np.random.uniform(*map(float, vals))
+
+        # Python 2-to-3 compatibility
+        try:
+            script = bytes(script, 'utf-8')
+        except TypeError:
+            pass
 
         # Ok, now add the actual script
         job['script'] = script
