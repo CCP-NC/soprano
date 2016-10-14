@@ -13,7 +13,7 @@ import re
 
 
 def _gulp_cell_definition(s, syms=None):
-    """Create a cell definition for a GULP input file. Will use syms if 
+    """Create a cell definition for a GULP input file. Will use syms if
     passed, otherwise standard chemical symbols"""
 
     gcell = "vectors\n{0}\n".format('\n'.join(['\t'.join([str(x)

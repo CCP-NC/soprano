@@ -9,7 +9,8 @@ from __future__ import unicode_literals
 
 def submitter_handler():
 
-    import os, sys
+    import os
+    import sys
     import argparse as ap
     import subprocess as sp
     from soprano.hpc.submitter import Submitter
@@ -62,7 +63,7 @@ def submitter_handler():
     # Now load the actual Submitter!
     subms = {v: getattr(loaded_module, v) for v in dir(loaded_module)
              if v[:2] != '__' and
-                issubclass(getattr(loaded_module, v).__class__, Submitter)}
+             issubclass(getattr(loaded_module, v).__class__, Submitter)}
 
     if len(subms) == 0:
         sys.exit('No Submitter instance found in '
@@ -85,7 +86,6 @@ def submitter_handler():
     else:
         # PKILL the process
         Submitter.stop(args.submitter_file, submitter_name)
-
 
 
 submitter_handler()

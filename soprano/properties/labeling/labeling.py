@@ -52,7 +52,7 @@ class MoleculeSites(AtomsProperty):
     def extract(s, force_recalc, save_info, save_asarray):
 
         # First, we need the molecules
-        if not Molecules.default_name in s.info or force_recalc:
+        if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
         elems = s.get_chemical_symbols()
@@ -149,15 +149,15 @@ class HydrogenBondTypes(AtomsProperty):
     def extract(s, force_recalc, save_info):
 
         # First, we need the molecules
-        if not Molecules.default_name in s.info or force_recalc:
+        if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
         # Then the hydrogen bonds
-        if not HydrogenBonds.default_name in s.info or force_recalc:
-            HydrogenBonds.get(s)        
+        if HydrogenBonds.default_name not in s.info or force_recalc:
+            HydrogenBonds.get(s)
 
         # Finally the sites
-        if not MoleculeSites.default_name in s.info or force_recalc:
+        if MoleculeSites.default_name not in s.info or force_recalc:
             MoleculeSites.get(s)
 
         mols = s.info[Molecules.default_name]

@@ -27,7 +27,7 @@ def get_gulp_charges(s, charge_method="eem", save_charges=True,
     |                                  charge calculation. Can be any of
     |                                  'eem', 'qeq' and 'pacha'.
     |                                  Default is 'eem'.
-    |   save_charges (Optional[bool]): whether to save or not the charges in 
+    |   save_charges (Optional[bool]): whether to save or not the charges in
     |                                  the given ase.Atoms object. Default is
     |                                  True.
     |   gulp_command (Optional[str]): command required to call the GULP

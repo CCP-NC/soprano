@@ -1,5 +1,5 @@
 """
-Module containing functions and classes for phylogenetic clustering of 
+Module containing functions and classes for phylogenetic clustering of
 collections.
 """
 

@@ -28,8 +28,8 @@ class CastepEnthalpy(AtomsProperty):
 
     default_name = 'castep_enthalpy'
     default_params = {
-            'castep_path': '.',
-            'seedname_info': 'name'
+        'castep_path': '.',
+        'seedname_info': 'name'
     }
 
     @staticmethod

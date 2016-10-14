@@ -49,7 +49,7 @@ class PhylogenCluster(object):
         |                                   loaded immediately; each gene
         |                                   comes in the form of a tuple
         |                                   (name (str), weight (float),
-        |                                   params (dict)). A path or open 
+        |                                   params (dict)). A path or open
         |                                   file can also be passed for a
         |                                   .gene file, from which the values
         |                                   will be loaded.
@@ -334,13 +334,13 @@ class PhylogenCluster(object):
         Calls scipy.cluster.hierarchy.linkage.
 
         | Args:
-        |   method (str): clustering method to employ. Valid entries are 
+        |   method (str): clustering method to employ. Valid entries are
         |                 'single', 'complete', 'weighted' and 'average'.
         |                 Refer to Scipy documentation for further details.
 
         | Returns:
         |   Z (np.ndarray): linkage matrix for the structures in the
-        |                   collection. Refer to Scipy documentation for 
+        |                   collection. Refer to Scipy documentation for
         |                   details about the method
 
         """
@@ -371,7 +371,7 @@ class PhylogenCluster(object):
         |              normalization conditions and weights employed.
         |              In addition, the way they are calculated depends on the
         |              choice of method.
-        |   method (str): clustering method to employ. Valid entries are 
+        |   method (str): clustering method to employ. Valid entries are
         |                 'single', 'complete', 'weighted' and 'average'.
         |                 Refer to Scipy documentation for further details.
 
@@ -402,7 +402,7 @@ class PhylogenCluster(object):
         Calls scipy.cluster.hierarchy.to_tree
 
         | Args:
-        |   method (str): clustering method to employ. Valid entries are 
+        |   method (str): clustering method to employ. Valid entries are
         |                 'single', 'complete', 'weighted' and 'average'.
         |                 Refer to Scipy documentation for further details.
 
@@ -469,7 +469,7 @@ class PhylogenCluster(object):
 
     def create_mapping(self, method="total-principal"):
         """Return an array of 2-dimensional points representing a reduced
-        dimensionality mapping of the given genes using the algorithm of 
+        dimensionality mapping of the given genes using the algorithm of
         choice. All algorithms are described in [W. Siedlecki et al., Patt.
         Recog. vol. 21, num. 5, pp. 411 429 (1988)].
 
@@ -503,7 +503,7 @@ class PhylogenCluster(object):
             return algos[method](self._gene_vectors_norm)
         except KeyError:
             raise ValueError(('Invalid method passed to create_mapping.\n'
-                             'Valid methods are: \n-')+\
+                              'Valid methods are: \n-') +
                              ('\n-'.join(algos.keys())))
 
     def save_collection(self, filename):

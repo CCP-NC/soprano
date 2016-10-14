@@ -19,25 +19,27 @@ def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
     | Args:
     |   struct (ase.Atoms): the starting structure to randomize
     |   amplitude (float or np.ndarray): the amplitude of the random
-    |                                    displacement. Can be a single float for
-    |                                    all atoms, a 1D numpy array of length N
-    |                                    (N being the number of atoms, one value
-    |                                    each) or a 2D numpy array of shape
-    |                                    (N,3) (one value for each dimension). 
+    |                                    displacement. Can be a single float
+    |                                    for all atoms, a 1D numpy array of
+    |                                    length N (N being the number of
+    |                                    atoms, one value each) or a 2D numpy
+    |                                    array of shape (N,3) (one value for
+    |                                    each dimension).
     |                                    These values are used as interval for
     |                                    uniform random numbers and as stdev
     |                                    for normal random numbers
     |   n (int): maximum number of structures to generate. If set to None will
-    |            generate infinite structures 
+    |            generate infinite structures
     |   method (str): must be either 'uniform' or 'normal'. In the first case
     |                 the rattling will be a uniform random number between
-    |                 +amplitude and -amplitude. In the second case it will be a
+    |                 +amplitude and -amplitude. In the second case it will be
     |                 a gaussian random number with +amplitude standard
     |                 deviation.
 
     | Returns:
-    |   rattleGenerator (generator): an iterator that yields copies of the base
-    |                                structure with randomly displaced atoms.
+    |   rattleGenerator (generator): an iterator that yields copies of the
+    |                                base structure with randomly displaced
+    |                                atoms.
 
     """
 
@@ -57,7 +59,7 @@ def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
         if ampsh != (pos.shape[0],):
             raise ValueError('Shape mismatch between amplitude and struct '
                              'arguments passed to rattleGen')
-        amplitude = amplitude[:,None]
+        amplitude = amplitude[:, None]
     elif len(ampsh) == 2:
         if ampsh != pos.shape:
             raise ValueError('Shape mismatch between amplitude and struct '
@@ -79,8 +81,5 @@ def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
 
         rnds.set_positions(pos+dxyz)
 
-        yield rnds        
+        yield rnds
         i += 1
-
-
-

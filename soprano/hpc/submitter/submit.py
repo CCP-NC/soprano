@@ -24,6 +24,7 @@ from datetime import datetime
 from soprano.utils import is_string
 from soprano.hpc.submitter import QueueInterface
 
+
 class Submitter(object):
 
     """Submitter object
@@ -68,7 +69,7 @@ class Submitter(object):
         |   name (str): name to be used for this Submitter (two Submitters
         |               with the same name can't be launched in the same
         |               working directory)
-        |   queue (QueueInterface): object describing the properties of the 
+        |   queue (QueueInterface): object describing the properties of the
         |                           interface to the queue system in use
         |   submit_script (str): text of the script to use when submitting a
         |                        job to the queue. All tags of the form <name>
@@ -76,10 +77,10 @@ class Submitter(object):
         |                        similar tags of the form <[arg]> will be
         |                        replaced if the argument name is present in
         |                        the job's args dictionary
-        |   max_jobs (Optional[int]): maximum number of jobs to submit at a 
+        |   max_jobs (Optional[int]): maximum number of jobs to submit at a
         |                             given time. Default is 4
         |   check_time (Optional[float]): time in seconds between consecutive
-        |                                 checks for the queue status and 
+        |                                 checks for the queue status and
         |                                 attempts to submit new jobs. Default
         |                                 is 10
         |   max_time (Optional[float]): time in seconds the Submitter will run
@@ -111,14 +112,14 @@ class Submitter(object):
         self.tmp_dir = (os.path.abspath(temp_folder)
                         if temp_folder is not None else '')
 
-        self._log = None # Will keep track of failed jobs etc.
+        self._log = None  # Will keep track of failed jobs etc.
 
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
         no arguments, but in specific implementations it will be used to
         add more variables without overriding __init__."""
 
-        pass        
+        pass
 
     def start(self):
 
@@ -221,7 +222,7 @@ class Submitter(object):
         return job_id not in self.queue.list()
 
     def finish_job(self, name, args, folder):
-        """Performs completiion operations on the job. At this point any 
+        """Performs completiion operations on the job. At this point any
         relevant output files should be copied from 'folder' to their final
         destination as the temporary folder itself will be deleted immediately
         after"""

@@ -27,6 +27,7 @@ def _int_array(size=0):
             raise RuntimeError(('Could not parse line {0}'
                                 ' as [int]*{1} array').format(s, size))
 
+
 def _float_array(size=0):
     def parser(s):
         try:
@@ -34,6 +35,7 @@ def _float_array(size=0):
         except:
             raise RuntimeError(('Could not parse line {0}'
                                 ' as [float]*{1} array').format(s, size))
+
 
 class Gene(object):
 
@@ -45,7 +47,7 @@ class Gene(object):
     can be used in a .genefile with the phylogen.py script though.
 
     | Args:
-    |   name (str): name of the gene. Must be one of the existing ones or a 
+    |   name (str): name of the gene. Must be one of the existing ones or a
     |               custom one (in which case a parser must be provided as
     |               well). Custom names can't conflict with existing ones
     |   weight (float): weight of the gene to be applied, default is 1.0
@@ -57,7 +59,7 @@ class Gene(object):
     |                         (axis 0 for the elements of the collection,
     |                          axis 1 for the values of the gene)
     |   is_pair (bool): False if the gene returns a multi dimensional point
-    |                   for each structure, True if it only returns pair 
+    |                   for each structure, True if it only returns pair
     |                   distances. Default is False
 
     """
@@ -187,12 +189,13 @@ def parsegene_hbonds_length(c):
     for hbn in hblist:
         # Extract lengths, order by key
         hblen = [sorted(cap_to([hb['length'] for hb in hbn[hbs]],
-                                hbnmax[hbs]))
+                               hbnmax[hbs]))
                  for hbs in hbn]
         hblen = list(itertools.chain(*hblen))
         hblens.append(hblen)
 
     return np.array(hblens)
+
 
 def parsegene_hbonds_angle(c):
     hblist = HydrogenBonds.get(c)
@@ -207,15 +210,16 @@ def parsegene_hbonds_angle(c):
     for hbn in hblist:
         # Extract lengths, order by key
         hblen = [sorted(cap_to([hb['angle'] for hb in hbn[hbs]],
-                                hbnmax[hbs]))
+                               hbnmax[hbs]))
                  for hbs in hbn]
         hblen = list(itertools.chain(*hblen))
         hblens.append(hblen)
 
     return np.array(hblens)
 
+
 def parsegene_hbonds_site_reference(c, ref=None):
-    
+
     if ref is None:
         ref = c.structures[0]
 
@@ -230,8 +234,8 @@ def parsegene_hbonds_site_reference(c, ref=None):
     # for each structure, expressed in terms of molecular sites
 
     reflabels = HydrogenBondTypes.get(ref)
-    hblabels = HydrogenBondTypes.get(c)    
-    
+    hblabels = HydrogenBondTypes.get(c)
+
     # And now to actually create a comparison
     distL = []
 
@@ -239,6 +243,7 @@ def parsegene_hbonds_site_reference(c, ref=None):
         distL.append(list_distance(hb_lab, reflabels))
 
     return np.array(distL)
+
 
 def parsegene_hbonds_site_compare(c):
 
@@ -250,7 +255,7 @@ def parsegene_hbonds_site_compare(c):
     # for each structure, expressed in terms of molecular sites
 
     hblabels = HydrogenBondTypes.get(c)
-    
+
     # And now to actually create a comparison
     distM = np.zeros((c.length, c.length))
 
@@ -262,6 +267,7 @@ def parsegene_hbonds_site_compare(c):
             distM[hb_i1+hb_i2+1, hb_i1] = d
 
     return distM
+
 
 class GeneDictionary(object):
 
@@ -345,7 +351,7 @@ class GeneDictionary(object):
             'default_params': {},
             'parser': parsegene_hbonds_length,
             'pair': False
-        }, 
+        },
 
         'hbonds_angle': {
             'default_params': {},
@@ -359,7 +365,7 @@ class GeneDictionary(object):
             },
             'parser': parsegene_hbonds_site_reference,
             'pair': False
-        }, 
+        },
 
         'hbonds_site_compare': {
             'default_params': {},
@@ -404,7 +410,7 @@ class GeneDictionary(object):
         A list of the n shortest interatomic distances in the structure
         (periodic boundaries are taken into account).
 
-        Parameters: 
+        Parameters:
             size (int): how many distances are used (default = 10)
         Length: [size]
         """,
@@ -420,7 +426,7 @@ class GeneDictionary(object):
         Masses of each of the molecules found in the structure.
 
         Parameters:
-            Z (int): expected number of molecules (default = total number of 
+            Z (int): expected number of molecules (default = total number of
                      molecules)
         Length: Z
         """,
@@ -431,7 +437,7 @@ class GeneDictionary(object):
          considered coincident with their Center Of Mass).
 
         Parameters:
-            Z (int): expected number of molecules (default = total number of 
+            Z (int): expected number of molecules (default = total number of
                      molecules)
         Length: Z*(Z-1)/2
         """,
@@ -443,7 +449,7 @@ class GeneDictionary(object):
         is used).
 
         Parameters:
-            Z (int): expected number of molecules (default = total number of 
+            Z (int): expected number of molecules (default = total number of
                      molecules)
             twist_axis ([float]*3): if present, only compare the Twist
                                     component of quaternion along the given
@@ -463,7 +469,7 @@ class GeneDictionary(object):
         """,
 
         'hbonds_tot_n': """
-        Total number of hydrogen bonds in the system. If the hydrogen bonds 
+        Total number of hydrogen bonds in the system. If the hydrogen bonds
         have already been calculated, the stored data will be used.
 
         Parameters: None
@@ -504,8 +510,8 @@ class GeneDictionary(object):
         the same structure (namely, are established between equivalent sites
         in equivalent molecules). The number of different bonds is given.
 
-        Parameters: 
-            ref (ase.Atoms): reference system to compare against (default = 
+        Parameters:
+            ref (ase.Atoms): reference system to compare against (default =
                              first system in the collection)
         Length: 1
         """,

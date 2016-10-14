@@ -35,7 +35,7 @@ class LinkageList(AtomsProperty):
     Produces an array containing the atomic pair distances in a system,
     reduced to their shortest periodic version and sorted min to max.
 
-    | Parameters: 
+    | Parameters:
     |   size (int): maximum number of distances to include. If not present,
     |               all of them will be included. If present, arrays will be
     |               cut or padded to reach this sizeber.
@@ -91,11 +91,11 @@ class Molecules(AtomsProperty):
     |                      tolerant molecules.
     |   default_vdw (float): default Van der Waals radius for species for
     |                        whom no data is available.
-    |   save_info (bool): if True, save the found molecules as part of the 
+    |   save_info (bool): if True, save the found molecules as part of the
     |                     Atoms object info. By default True.
 
     | Returns:
-    |   molecules ([AtomSelection]): list of molecules in the form of 
+    |   molecules ([AtomSelection]): list of molecules in the form of
     |                                AtomSelection objects.
 
     """
@@ -210,7 +210,7 @@ class MoleculeNumber(AtomsProperty):
     @staticmethod
     def extract(s, force_recalc):
 
-        if not Molecules.default_name in s.info or force_recalc:
+        if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
         return len(s.info[Molecules.default_name])
@@ -221,9 +221,9 @@ class MoleculeMass(AtomsProperty):
     """
     MoleculeMass
 
-    Total mass of each of the molecules detected in this system. By default will
-    use already existing molecules if they're present as a saved array in the
-    system.
+    Total mass of each of the molecules detected in this system. By default
+    will use already existing molecules if they're present as a saved array in
+    the system.
 
 
     | Parameters:
@@ -247,7 +247,7 @@ class MoleculeMass(AtomsProperty):
     @staticmethod
     def extract(s, force_recalc, size):
 
-        if not 'molecules' in s.info or force_recalc:
+        if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
         mol_m = []
@@ -303,7 +303,7 @@ class MoleculeCOMLinkage(AtomsProperty):
     @staticmethod
     def extract(s, force_recalc, size):
 
-        if not Molecules.default_name in s.info or force_recalc:
+        if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
         mol_com = []
@@ -398,7 +398,7 @@ class MoleculeRelativeRotation(AtomsProperty):
             raise RuntimeError('Only one between swing_plane and twist_axis '
                                'can be passed to MoleculeRelativeRotation')
 
-        if not Molecules.default_name in s.info or force_recalc:
+        if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
         mol_quat = []
@@ -497,7 +497,7 @@ class HydrogenBonds(AtomsProperty):
     |                       Angstrom - default is 3.5 Ang
     |   max_angle (float): maximum A-H/A-B angle in the hydrogen bond in
     |                      degrees - default is 45 deg
-    |   save_info (bool): if True, save the found hydrogen bonds as part of 
+    |   save_info (bool): if True, save the found hydrogen bonds as part of
     |                     the Atoms object info. By default True.
 
 
@@ -659,7 +659,7 @@ class HydrogenBondsNumber(AtomsProperty):
     @staticmethod
     def extract(s, force_recalc):
 
-        if not HydrogenBonds.default_name in s.info or force_recalc:
+        if HydrogenBonds.default_name not in s.info or force_recalc:
             hbonds = HydrogenBonds.get(s)
         else:
             hbonds = s.info[HydrogenBonds.default_name]

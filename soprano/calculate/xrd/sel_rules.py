@@ -26,6 +26,7 @@ try:
 except IOError:
     hall_2_no = None
 
+
 def _ifq(cond, ifT, ifF):
     """ Fortran-style ternary if """
     return ifT if cond else ifF
@@ -52,7 +53,7 @@ def get_sel_rule_from_international(n, o='all'):
     | Returns:
     |   rule_func (function< list<int> >
     |              => <bool>): a function that can be used to test triples of
-    |                          Miller indices h,k,l to verify whether the 
+    |                          Miller indices h,k,l to verify whether the
     |                          related plane gives rise or not to a peak
 
     | Raises:
@@ -85,7 +86,7 @@ def get_sel_rule_from_international(n, o='all'):
                 raise ValueError("""Invalid o passed to
                                     get_sel_rule_from_international""")
             else:
-                raise ValueError("""An option o must be specified for 
+                raise ValueError("""An option o must be specified for
                                     n = {0}""".format(n))
 
     xrd_rule_instr = compile(xrd_sel_rules[n][o], '<string>', 'eval')
@@ -93,9 +94,10 @@ def get_sel_rule_from_international(n, o='all'):
     return lambda hkl: eval(xrd_rule_instr, {'ifq': _ifq,
                                              'evenq': _evenq,
                                              'integerq': _integerq},
-                                            {'h': hkl[0],
-                                             'k': hkl[1],
-                                             'l': hkl[2]})
+                            {'h': hkl[0],
+                             'k': hkl[1],
+                             'l': hkl[2]})
+
 
 def get_sel_rule_from_hall(h):
     """ Generate a function object that acts as a selection rule for XRD lines
@@ -107,11 +109,11 @@ def get_sel_rule_from_hall(h):
     | Returns:
     |   rule_func (function< list<int> >
     |              => <bool>): a function that can be used to test triples of
-    |                          Miller indices h,k,l to verify whether the 
+    |                          Miller indices h,k,l to verify whether the
     |                          related plane gives rise or not to a peak
 
     | Raises:
-    |   RuntimeError: if the database of XRD selection rules or that of 
+    |   RuntimeError: if the database of XRD selection rules or that of
     |                 Hall numbers was not properly loaded
     |   ValueError: if the passed argument is invalid
 
@@ -130,4 +132,3 @@ def get_sel_rule_from_hall(h):
     o = hall_2_no[h]['o']
 
     return get_sel_rule_from_international(n, o)
-

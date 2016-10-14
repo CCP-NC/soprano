@@ -24,16 +24,16 @@ def airssGen(input_file,
              n=100,
              buildcell_command='buildcell',
              buildcell_path=None):
-    """Generator function binding to AIRSS' Buildcell. 
+    """Generator function binding to AIRSS' Buildcell.
 
-    This function searches for a buildcell executable and uses it to 
+    This function searches for a buildcell executable and uses it to
     generate multiple new Atoms structures for a collection.
 
     | Args:
     |   input_file (str or file): the .cell file with appropriate comments
     |                             specifying the details of buildcell's
     |                             construction work.
-    |   n (int): number of structures to generate. If set to None the 
+    |   n (int): number of structures to generate. If set to None the
     |            generator goes on indefinitely.
     |   buildcell_command (str): command required to call the buildcell
     |                            executable.

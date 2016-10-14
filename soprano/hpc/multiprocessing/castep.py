@@ -24,22 +24,23 @@ from soprano.utils import seedname, replace_folder
 class CastepDaemon(DaemonHPC):
 
     def set_parameters(self, folder_in, folder_out, castep_command,
-                             castep_path=None,
-                             copy_extensions=['.castep']):
+                       castep_path=None,
+                       copy_extensions=['.castep']):
         """Set the parameters of the CASTEP Daemon
 
         | Args:
         |   folder_in (str): path of the folder to extract cell files from
         |   folder_out (str): path of the folder where the results will be
         |                     saved
-        |   castep_command (str): command used to call the CASTEP executable on
-        |                         this system
-        |   castep_path (Optional[str]): folder where the CASTEP executable is 
+        |   castep_command (str): command used to call the CASTEP executable
+        |                         on this system
+        |   castep_path (Optional[str]): folder where the CASTEP executable is
         |                                located (if not part of the system
         |                                PATH)
-        |   copy_extensions (Optional[list[str]]): extensions of output files to
-        |                                          copy to the output folder (by
-        |                                          default only .castep file)
+        |   copy_extensions (Optional[list[str]]): extensions of output files
+        |                                          to copy to the output
+        |                                          folder (by default only
+        |                                          .castep file)
 
         """
 
@@ -51,7 +52,7 @@ class CastepDaemon(DaemonHPC):
         # Initialize the CASTEP keywords file in a dedicated temporary folder
         self.kwdir = tempfile.mkdtemp()
         create_castep_keywords(castep_command,
-                               os.path.join(self.kwdir, 
+                               os.path.join(self.kwdir,
                                             'castep_keywords.py'))
         sys.path.append(self.kwdir)
 
@@ -70,14 +71,14 @@ class CastepDaemon(DaemonHPC):
         for a in cfile_list[:n]:
             try:
                 procs.append({'atoms': read_cell(a),
-                              'seedname': seedname(a)})                
+                              'seedname': seedname(a)})
             except IOError:
                 pass
         # It is better to reset the calculators as they don't serialize well
         # Also, move the files to the out folder!
         for i, p in enumerate(procs):
             p['atoms'].set_calculator(None)
-            shutil.move(cfile_list[i], 
+            shutil.move(cfile_list[i],
                         replace_folder(cfile_list[i], self.folder_out))
 
         return procs
@@ -121,4 +122,3 @@ class CastepDaemon(DaemonHPC):
         sys.path.remove(self.kwdir)
 
         super(CastepDaemon, self).terminate()
-

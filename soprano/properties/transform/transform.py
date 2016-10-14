@@ -14,13 +14,14 @@ from soprano.utils import periodic_center
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 
+
 def _transform_sel_check(extrfunc):
 
     def decorated_extrfunc(s, selection, **kwargs):
 
         # Perform basic checks on selection
         if selection is None:
-            selection = AtomSelection.all(s)            
+            selection = AtomSelection.all(s)
         elif not selection.validate(s):
             raise ValueError('Selection passed to transform does not apply to'
                              ' system.')
@@ -28,6 +29,7 @@ def _transform_sel_check(extrfunc):
         return extrfunc(s, selection, **kwargs)
 
     return decorated_extrfunc
+
 
 class Translate(AtomsProperty):
 
@@ -37,8 +39,8 @@ class Translate(AtomsProperty):
     Returns an Atoms object with some or all the atoms translated by a given
     vector. Absolute or scaled coordinates may be used.
 
-    | Parameters: 
-    |   selection (AtomSelection): selection object defining which atoms to 
+    | Parameters:
+    |   selection (AtomSelection): selection object defining which atoms to
     |                              act on. By default, all of them.
     |   vector ([float]*3): vector by which to translate the atoms.
     |   scaled (bool): if True, treat the input vector as expressed in scaled,
@@ -90,13 +92,13 @@ class Rotate(AtomsProperty):
     quaternion and with a given center. Absolute or scaled coordinates may be
     used.
 
-    | Parameters: 
-    |   selection (AtomSelection): selection object defining which atoms to 
+    | Parameters:
+    |   selection (AtomSelection): selection object defining which atoms to
     |                              act on. By default, all of them.
     |   center ([float]*3): center around which the rotation should take
     |                       place. By default the origin of the axes.
     |   quaternion (ase.quaternions.Quaternion): quaternion expressing the
-    |                                            rotation that should be 
+    |                                            rotation that should be
     |                                            applied.
     |   scaled (bool): if True, treat the input vector as expressed in scaled,
     |                  not absolute, coordinates.
@@ -153,8 +155,8 @@ class Mirror(AtomsProperty):
     Returns an Atoms object with some or all the atoms reflected with either a
     given center or a given plane. Absolute or scaled coordinates may be used.
 
-    | Parameters: 
-    |   selection (AtomSelection): selection object defining which atoms to 
+    | Parameters:
+    |   selection (AtomSelection): selection object defining which atoms to
     |                              act on. By default, all of them.
     |   center ([float]*3): center around which the reflection should take
     |                       place. By default the origin of the axes. Can't be
@@ -234,7 +236,7 @@ class Regularise(AtomsProperty):
     Perform a translation by a vector calculated to cancel out the effect of
     global translational symmetry. In theory, given two copies of the same
     system that only differ by a translation of all atoms in the unit cell,
-    this should produce two systems that overlap perfectly. Can be used to 
+    this should produce two systems that overlap perfectly. Can be used to
     compare slightly different systems if they're similar enough. If a
     selection is given, only those atoms will be used to calculate the center,
     but the translation will still be applied to all atoms. The same atoms
@@ -242,7 +244,7 @@ class Regularise(AtomsProperty):
     one might use all the heavy atoms and not include hydrogens).
 
     | Parameters:
-    |   selection (AtomSelection): selection object defining which atoms to 
+    |   selection (AtomSelection): selection object defining which atoms to
     |                              act on. By default, all of them.
 
     | Returns:
@@ -265,6 +267,6 @@ class Regularise(AtomsProperty):
         reg_v = 0.5-periodic_center(v_frac[selection._indices])
 
         sT = s.copy()
-        sT.set_scaled_positions((v_frac+reg_v)%1)
+        sT.set_scaled_positions((v_frac+reg_v) % 1)
 
         return sT

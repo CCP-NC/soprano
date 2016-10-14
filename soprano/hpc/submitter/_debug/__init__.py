@@ -1,4 +1,4 @@
-"""Functions useful for debugging QueueInterface and Submitters. These 
+"""Functions useful for debugging QueueInterface and Submitters. These
 provide a 'fake' queue that executes basic jobs with artificial delays
 in order to simulate an environment similar to what can be found on an HPC
 machine."""

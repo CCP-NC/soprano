@@ -48,7 +48,7 @@ def classcond_principal_component(p):
 
     evals1, evecs1 = linalg.eig(a=S1)
     evals2, evecs2 = linalg.eig(a=S2)
-    A = np.concatenate((evecs1[:,0][:,None], evecs2[:,0][:,None]), axis=1)
+    A = np.concatenate((evecs1[:, 0][:, None], evecs2[:, 0][:, None]), axis=1)
     return np.tensordot(A, p, axes=(0, 1))
 
 
@@ -72,6 +72,7 @@ def standard_classcond_component(p):
     A = evecs[:, :2]
     return np.tensordot(A, p, axes=(0, 1))
 
+
 @_check_dimensionality
 def optimal_discriminant_plane(p):
     """Optimal discriminant plane mapping (using Fischer direction)"""
@@ -88,7 +89,7 @@ def optimal_discriminant_plane(p):
     m2 = np.average(p2, axis=0)
     mdiff = m1-m2
 
-    B = np.dot(mdiff[:,None], mdiff[None,:])
+    B = np.dot(mdiff[:, None], mdiff[None, :])
 
     S1 = np.cov(p1.T)
     S2 = np.cov(p2.T)
@@ -97,11 +98,10 @@ def optimal_discriminant_plane(p):
     # So the fisher direction is found analytically...
     A = np.zeros((B.shape[0], 2))
     invS = np.linalg.inv(S)
-    A[:,0] = np.dot(invS, mdiff)
-    A[:,0] /= np.linalg.norm(A[:,0]) # Normalized
+    A[:, 0] = np.dot(invS, mdiff)
+    A[:, 0] /= np.linalg.norm(A[:, 0])  # Normalized
     # And then the second one
-    z = np.dot(invS, A[:,0])
-    A[:,1] = A[:,0]-np.dot(A[:,0], z)*z
+    z = np.dot(invS, A[:, 0])
+    A[:, 1] = A[:, 0]-np.dot(A[:, 0], z)*z
 
     return np.tensordot(A, p, axes=(0, 1))
-

@@ -228,8 +228,8 @@ class AtomsCollection(object):
         return self
 
     def __getitem__(self, indices):
-        """Allow sophisticated slicing"""        
-        
+        """Allow sophisticated slicing"""
+
         if type(indices) is int:
             # Special case, a single element!
             indices = slice(indices, indices+1)

@@ -66,20 +66,19 @@ class DebugQueueInterface(QueueInterface):
                     job['status'] = 'r'
                     # And actually run it!
                     proc = sp.Popen(['bash'], stdin=sp.PIPE,
-                                              stdout=sp.PIPE,
-                                              stderr=sp.PIPE,
-                                              cwd=job['cwd'])
+                                    stdout=sp.PIPE,
+                                    stderr=sp.PIPE,
+                                    cwd=job['cwd'])
                     stdout, stderr = proc.communicate(job['script'])
                 elif job['status'] == 'r' \
-                     and (t-job['t0']-job['WAIT']) > job['RUN']:
-                     # Just eliminate it
-                     completed_jobs.append(j_id)
+                        and (t-job['t0']-job['WAIT']) > job['RUN']:
+                    # Just eliminate it
+                    completed_jobs.append(j_id)
 
             for cj in completed_jobs:
                 del self._job_list[cj]
 
-            time.sleep(self._dt)            
-
+            time.sleep(self._dt)
 
     def submit(self, script, cwd=None):
         """Submit a job to the queue.
@@ -89,7 +88,7 @@ class DebugQueueInterface(QueueInterface):
         |   cwd (Optional[str]): path to the desired working directory
         |
         | Returns:
-        |   job_id (str): the job ID assigned by the queue system and parsed 
+        |   job_id (str): the job ID assigned by the queue system and parsed
         |                 with sub_outre
         """
 
@@ -145,7 +144,7 @@ class DebugQueueInterface(QueueInterface):
         |                that can be matched through list_outre
         |
         """
-        
+
         jobs = {}
         for j_id in self._job_list:
             jobs[j_id] = {'job_id': j_id,

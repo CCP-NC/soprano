@@ -37,20 +37,21 @@ class CastepSubmitter(Submitter):
         |   folder_in (str): path of the folder to extract cell files from
         |   folder_out (str): path of the folder where the results will be
         |                     saved
-        |   castep_command (str): command used to call the CASTEP executable on
-        |                         this system
-        |   castep_path (Optional[str]): folder where the CASTEP executable is 
+        |   castep_command (str): command used to call the CASTEP executable
+        |                         on this system
+        |   castep_path (Optional[str]): folder where the CASTEP executable is
         |                                located (if not part of the system
         |                                PATH)
-        |   pspot_files (Optional[list[str]]): additional pseudopotential files
-        |                                      to be copied in the input
+        |   pspot_files (Optional[list[str]]): additional pseudopotential
+        |                                      files to be copied in the input
         |                                      temporary folders
-        |   copy_extensions (Optional[list[str]]): extensions of output files to
-        |                                          copy to the output folder (by
-        |                                          default only .castep file)
-        |   dryrun_test (Optional[bool]): run a dryrun test on files before 
-        |                                 actually running the calculation. Off
-        |                                 by default.
+        |   copy_extensions (Optional[list[str]]): extensions of output files
+        |                                          to copy to the output
+        |                                          folder (by default only
+        |                                          .castep file)
+        |   dryrun_test (Optional[bool]): run a dryrun test on files before
+        |                                 actually running the calculation.
+        |                                 Off by default.
 
         """
 

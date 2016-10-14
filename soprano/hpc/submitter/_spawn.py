@@ -24,7 +24,6 @@ except Exception as e:
         try:
             shutil.rmtree(subm._jobs[j]['folder'])
         except OSError:
-            pass # Whatever, it was deleted already I guess
+            pass  # Whatever, it was deleted already I guess
     subm.log('Submitter crashed following error:'
              '\n{0}:\n\t{1}'.format(type(e).__name__, e))
-

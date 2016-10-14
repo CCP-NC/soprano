@@ -13,6 +13,7 @@ import subprocess as sp
 
 from soprano.utils import is_string
 
+
 class QueueInterface(object):
 
     """QueueInterface object
@@ -41,7 +42,8 @@ class QueueInterface(object):
         |   list_cmd (str): command used to list all queued jobs for the user
         |   kill_cmd (str): command used to kill a job given its id
         |   sub_outre (str): regular expression used to parse the output of
-        |                    sub_cmd. Must contain at least a job_id named group
+        |                    sub_cmd. Must contain at least a job_id named
+        |                    group
         |   list_outre (str): regular expression used to parse the output of
         |                     list_cmd. Must contain at least a job_id named
         |                     group
@@ -67,14 +69,14 @@ class QueueInterface(object):
         |   cwd (Optional[str]): path to the desired working directory
         |
         | Returns:
-        |   job_id (str): the job ID assigned by the queue system and parsed 
+        |   job_id (str): the job ID assigned by the queue system and parsed
         |                 with sub_outre
         """
 
         subproc = sp.Popen([self.sub_cmd], stdin=sp.PIPE,
-                                           stdout=sp.PIPE,
-                                           stderr=sp.PIPE,
-                                           cwd=cwd)
+                           stdout=sp.PIPE,
+                           stderr=sp.PIPE,
+                           cwd=cwd)
 
         stdout, stderr = subproc.communicate(script)
 
@@ -96,7 +98,7 @@ class QueueInterface(object):
         |
         """
         subproc = sp.Popen([self.list_cmd], stdout=sp.PIPE,
-                                            stderr=sp.PIPE)
+                           stderr=sp.PIPE)
 
         stdout, stderr = subproc.communicate()
 
@@ -121,7 +123,7 @@ class QueueInterface(object):
         """
 
         subproc = sp.Popen([self.kill_cmd, job_id], stdout=sp.PIPE,
-                                                    stderr=sp.PIPE)
+                           stderr=sp.PIPE)
         stdout, stderr = subproc.communicate()
 
     @classmethod
@@ -141,8 +143,3 @@ class QueueInterface(object):
                    sub_outre='Your job (?P<job_id>[0-9]+)',
                    list_outre='(?P<job_id>[0-9]+)\s.*'
                               '\s(?P<job_status>r|qw)\s')
-    
-
-
-
-

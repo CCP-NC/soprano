@@ -25,7 +25,7 @@ class LatticeCart(AtomsProperty):
 
     default_name = 'lattice_cart'
     default_params = {
-            'shape': (3, 3)
+        'shape': (3, 3)
     }
 
     @staticmethod
@@ -48,8 +48,8 @@ class LatticeABC(AtomsProperty):
 
     default_name = 'lattice_abc'
     default_params = {
-            'shape': (2, 3),
-            'deg': False
+        'shape': (2, 3),
+        'deg': False
     }
 
     @staticmethod

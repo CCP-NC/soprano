@@ -1,6 +1,6 @@
 """
 Classes and functions for using the W99 force field in GULP.
-This force field only applies to organic molecules. More information can be 
+This force field only applies to organic molecules. More information can be
 found in the original paper by Donald E. Williams:
 
 D.E. Williams,
@@ -42,8 +42,8 @@ def find_w99_atomtypes(s, force_recalc=False):
 
     | Parameters:
     |   s (ase.Atoms): the structure to calculate the atomtypes on
-    |   force_recalc (bool): whether to recalculate the molecules even if 
-    |                        already present. Default is False.    
+    |   force_recalc (bool): whether to recalculate the molecules even if
+    |                        already present. Default is False.
     """
 
     # First, check that W99 even applies to this system
@@ -179,7 +179,7 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
                    gulp_command='gulp',
                    gulp_path=None,
                    save_charges=False):
-    """Calculate the W99 force field energy using GULP. 
+    """Calculate the W99 force field energy using GULP.
 
     | Parameters:
     |   s (ase.Atoms): the structure to calculate the energy of
@@ -215,7 +215,7 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
     # Now define the input
     gin = "molq {0} dipole\n".format(charge_method)
     gin += _gulp_cell_definition(s, syms=s.get_array('w99_types'))
-    
+
     # Finally, the potential definition
     gin += _w99_field_definition(s, Etol)
 

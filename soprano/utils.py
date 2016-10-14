@@ -13,6 +13,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import inspect
 import numpy as np
 from itertools import product as iter_product
 from ase.quaternions import Quaternion
@@ -51,6 +52,7 @@ def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
         bar += ' {0}'.format(spin[int(perc*spin_rate) % len(spin)])
 
     return bar
+
 
 def abc2cart(abc):
     """Transforms an axes and angles representation of lattice parameters
@@ -283,7 +285,7 @@ def minimum_periodic(v, latt_cart):
     | Returns:
     |   v_period (np.ndarray): array with the same shape as v, containing the
     |                          vectors in periodic reduced form
-    |   v_cells (np.ndarray): array of triples of ints, corresponding to the 
+    |   v_cells (np.ndarray): array of triples of ints, corresponding to the
     |                         cells from which the various periodic copies of
     |                         the vectors were taken. For an unchanged vector
     |                         will be all [0,0,0]
@@ -309,7 +311,6 @@ def is_string(s):
         return isinstance(s, str)
 
 # Inspecting arguments of a function, Python 2 and 3 way
-import inspect
 if hasattr(inspect, 'signature'):
     def inspect_args(f):
         fsig = inspect.signature(f)
@@ -358,10 +359,10 @@ def swing_twist_decomp(quat, axis):
 
     return swing, twist
 
+
 def periodic_center(v_frac):
     # Apply an operation meant to find a center for a set of periodic points
     # and cancel out translational effects, allowing direct mapping
-
     """ Alright, how does this work?
     Basically, we're looking for the point, inside the unit cell, which
     minimizes the sum of the squared distance from all ions.
@@ -389,8 +390,9 @@ def periodic_center(v_frac):
     # The distance function. Will be required to find the absolute minimum
     # later
     def distf(x, x_i):
-        return np.sum((4/np.pi**2*np.sin(2*np.pi*\
-                      (x[:,None]-x_i[None,:]-0.25))+0.5)**2, axis=-1);
+        return np.sum((4/np.pi**2*np.sin(2*np.pi *
+                                         (x[:, None]-x_i[None, :]-0.25)) +
+                       0.5)**2, axis=-1)
     # These coefficients appear in the derivative
     sinS = np.sum(np.sin(2*np.pi*v_frac), axis=0)
     cosS = np.sum(np.cos(2*np.pi*v_frac), axis=0)
@@ -409,21 +411,21 @@ def periodic_center(v_frac):
     # For each of them, find the minimum
     x_mins = []
     for a_i, axis in enumerate(roots):
-        R2 = distf(axis, v_frac[:,a_i])
+        R2 = distf(axis, v_frac[:, a_i])
         R2min = np.amin(R2)
         x_mins.append(axis[np.where(np.isclose(R2, R2min))[0]])
 
     # How to decide if there are multiple minima?
-    x_mins = np.array(np.meshgrid(*x_mins)).reshape((3,-1)).T
+    x_mins = np.array(np.meshgrid(*x_mins)).reshape((3, -1)).T
     if x_mins.shape[0] > 1:
-        dpos = (x_mins[:,None]-v_frac[None,:]+0.5)%1-0.5        
+        dpos = (x_mins[:, None]-v_frac[None, :]+0.5) % 1-0.5
         dposMag = np.sum(dpos**2, axis=-1)
         dpos_nn_i = np.argmin(dposMag, axis=-1)
-        dpos_nn = dpos[range(8),dpos_nn_i].round(5)
-        dpos_nn_M = dposMag[range(8),dpos_nn_i]
-        x = x_mins[np.lexsort((-dpos_nn[:,2],
-                               -dpos_nn[:,1],
-                               -dpos_nn[:,0],
+        dpos_nn = dpos[range(8), dpos_nn_i].round(5)
+        dpos_nn_M = dposMag[range(8), dpos_nn_i]
+        x = x_mins[np.lexsort((-dpos_nn[:, 2],
+                               -dpos_nn[:, 1],
+                               -dpos_nn[:, 0],
                                dpos_nn_M))[0]]
     else:
         x = x_mins[0]

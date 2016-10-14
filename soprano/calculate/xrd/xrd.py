@@ -148,7 +148,7 @@ class XRDCalculator(object):
 
         | Args:
         |    atoms (Optional[soprano.Atoms]): atoms object to gather lattice
-        |                                     and spacegroup information from 
+        |                                     and spacegroup information from
         |    latt_abc (Optional[np.ndarray]): periodic lattice in ABC form,
         |                                     Angstroms and radians
         |   n (Optional[int]): International number of the required spacegroup
@@ -180,7 +180,7 @@ class XRDCalculator(object):
                 sel_rule = xrdsel.get_sel_rule_from_hall(h)
             except ValueError:
                 # Not found?
-                raise RuntimeWarning("""Required symmetry not found - 
+                raise RuntimeWarning("""Required symmetry not found -
                                         No selection rules will be applied to
                                         XRD powder spectrum""")
         else:
@@ -192,7 +192,7 @@ class XRDCalculator(object):
                 sel_rule = xrdsel.get_sel_rule_from_international(n, o)
             except ValueError:
                 # Not found?
-                raise RuntimeWarning("""Required symmetry not found - 
+                raise RuntimeWarning("""Required symmetry not found -
                                         No selection rules will be applied to
                                         XRD powder spectrum""")
 
@@ -260,8 +260,8 @@ class XRDCalculator(object):
         |   int_axis (np.ndarray): array containing the values for intensity
 
         | Returns:
-        |   exp_spec (XraySpectrumData): named tuple containing the experimental
-        |                                dataset
+        |   exp_spec (XraySpectrumData): named tuple containing the
+        |                                experimental dataset
 
         | Raises:
         |   ValueError: if some of the values passed are invalid
@@ -324,18 +324,19 @@ class XRDCalculator(object):
 
     def spec_simul(self, xpeaks, th2_axis):
         """
-        Simulate an XRD spectrum given positions of peaks, intensities, baseline,
-        and a peak function (a Gaussian by default).
+        Simulate an XRD spectrum given positions of peaks, intensities,
+        baseline, and a peak function (a Gaussian by default).
 
         | Args:
-        |   xpeaks (XraySpectrum): object containing the details of the XRD peaks
+        |   xpeaks (XraySpectrum): object containing the details of the XRD
+        |                          peaks
         |   th2_axis (np.ndarray): theta2 axis points on which the
         |                          spectrum should be simulated
 
         | Returns:
         |   simul_spec (XraySpectrumData): simulated XRD spectrum
-        |   simul_peaks (np.ndarray): simulated spectrum intensities broken by peak
-        |                             contribution along axis 1
+        |   simul_peaks (np.ndarray): simulated spectrum intensities broken by
+        |                             peak contribution along axis 1
 
         | Raises:
         |   ValueError: if some of the arguments are invalid
@@ -368,18 +369,19 @@ class XRDCalculator(object):
         experimental data with leBail's method.
 
         | Args:
-        |   xpeaks (XraySpectrum): object containing the details of the XRD peaks
-        |   exp_spec (XraySpectrumData): experimental data, dataset built using
-        |                                xrd_exp_dataset
-        |   rwp_tol (Optional[float]): tolerance on the Rwp error value between
-        |                              two iterations that stops the calculation.
-        |                              Default is 1e-2
+        |   xpeaks (XraySpectrum): object containing the details of the XRD
+        |                          peaks
+        |   exp_spec (XraySpectrumData): experimental data, dataset built
+        |                                using xrd_exp_dataset
+        |   rwp_tol (Optional[float]): tolerance on the Rwp error value
+        |                              between two iterations that stops the
+        |                              calculation. Default is 1e-2
         |   max_iter (Optional[int]): maximum number of iterations to perform
 
         | Returns:
         |   xpeaks_scaled (XraySpectrum): a new XraySpectrum object, with
-        |                                 intensities properly scaled to match the
-        |                                 experimental data
+        |                                 intensities properly scaled to match
+        |                                 the experimental data
         |   simul_spec (np.ndarray): final simulated XRD spectrum
         |   simul_peaks (np.ndarray): final simulated spectrum broken by peak
         |                             contribution along axis 1
