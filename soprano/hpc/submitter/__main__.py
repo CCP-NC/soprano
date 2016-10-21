@@ -34,9 +34,11 @@ def submitter_handler():
                                "a Submitter object as a background process.")
     # Required arguments
     parser.add_argument('action', type=str, nargs=1,
-                        choices=['start', 'stop'],
-                        help="Action to perform on the given Submitter -"
-                             " whether to start or stop it")
+                        choices=['start', 'stop', 'list'],
+                        help="Action to perform: "
+                             "start -> start the given submitter, "
+                             "stop -> stop the given submitter if running, "
+                             "list -> list the currently running submitters")
     parser.add_argument('submitter_file', type=str, action=IsValidModule,
                         help="Name of the Python module file containing the"
                              " declaration for the Submitter to use")
@@ -85,14 +87,26 @@ def submitter_handler():
         submitter_name = subms.keys()[0]
 
     if args.action[0] == 'start':
+        # Ok, first let's check that nothing like that is running already
+        subm_l = Submitter.list()
+        for s in subm_l:
+            if args.submitter_file == s[0] and submitter_name == s[1]:
+                sys.exit('The requested submitter is already'
+                         ' running')
         cmd = ['python', '-m', 'soprano.hpc.submitter._spawn',
                args.submitter_file, submitter_name, '&']
         if args.nohup:
             cmd = ['nohup'] + cmd
         sp.Popen(cmd)
-    else:
+    elif args.action[0] == 'stop':
         # PKILL the process
         Submitter.stop(args.submitter_file, submitter_name)
+    elif args.action[0] == 'list':
+        subm_l = Submitter.list()
+        tabf = "{1: >10}\t| {0: >20}\t| {2: >10}"
+        print(tabf.format('File', 'Name', 'Time'))
+        for s in subm_l:
+            print(tabf.format(*s))
 
 
 submitter_handler()
