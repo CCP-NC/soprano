@@ -17,11 +17,12 @@ from __future__ import print_function
 
 from setuptools import setup
 
-setup(name='Soprano',
-      version='0.5',
-      packages=['soprano'],
-      # For data files. Example: 'soprano': ['data/*.json']
-      package_data={'soprano': ['data/*.json']},
-      # For scripts - just put the paths
-      scripts=['scripts/phylogen.py', 'scripts/vasp2cell.py'],
-      )
+if __name__ == '__main__':
+    setup(name='Soprano',
+          version='0.5',
+          packages=['soprano'],
+          # For data files. Example: 'soprano': ['data/*.json']
+          package_data={'soprano': ['data/*.json']},
+          # For scripts - just put the paths
+          scripts=['scripts/phylogen.py', 'scripts/vasp2cell.py'],
+          )

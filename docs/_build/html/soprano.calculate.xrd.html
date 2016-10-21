@@ -66,7 +66,7 @@ for the given symmetry group expressed in Hall number notation</p>
 <div class="line-block">
 <div class="line">=&gt; &lt;bool&gt;): a function that can be used to test triples of</div>
 <div class="line-block">
-<div class="line">Miller indices h,k,l to verify whether the </div>
+<div class="line">Miller indices h,k,l to verify whether the</div>
 <div class="line">related plane gives rise or not to a peak</div>
 </div>
 </div>
@@ -75,7 +75,7 @@ for the given symmetry group expressed in Hall number notation</p>
 <div class="line-block">
 <div class="line">Raises:</div>
 <div class="line-block">
-<div class="line">RuntimeError: if the database of XRD selection rules or that of </div>
+<div class="line">RuntimeError: if the database of XRD selection rules or that of</div>
 <div class="line-block">
 <div class="line">Hall numbers was not properly loaded</div>
 </div>
@@ -103,7 +103,7 @@ for the given symmetry group expressed in international number notation</p>
 <div class="line-block">
 <div class="line">=&gt; &lt;bool&gt;): a function that can be used to test triples of</div>
 <div class="line-block">
-<div class="line">Miller indices h,k,l to verify whether the </div>
+<div class="line">Miller indices h,k,l to verify whether the</div>
 <div class="line">related plane gives rise or not to a peak</div>
 </div>
 </div>
@@ -181,9 +181,9 @@ fittings.</p>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">exp_spec (XraySpectrumData): named tuple containing the experimental</div>
+<div class="line">exp_spec (XraySpectrumData): named tuple containing the</div>
 <div class="line-block">
-<div class="line">dataset</div>
+<div class="line">experimental dataset</div>
 </div>
 </div>
 </div>
@@ -203,15 +203,18 @@ experimental data with leBail&#8217;s method.</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">xpeaks (XraySpectrum): object containing the details of the XRD peaks</div>
-<div class="line">exp_spec (XraySpectrumData): experimental data, dataset built using</div>
+<div class="line">xpeaks (XraySpectrum): object containing the details of the XRD</div>
 <div class="line-block">
-<div class="line">xrd_exp_dataset</div>
+<div class="line">peaks</div>
 </div>
-<div class="line">rwp_tol (Optional[float]): tolerance on the Rwp error value between</div>
+<div class="line">exp_spec (XraySpectrumData): experimental data, dataset built</div>
 <div class="line-block">
-<div class="line">two iterations that stops the calculation.</div>
-<div class="line">Default is 1e-2</div>
+<div class="line">using xrd_exp_dataset</div>
+</div>
+<div class="line">rwp_tol (Optional[float]): tolerance on the Rwp error value</div>
+<div class="line-block">
+<div class="line">between two iterations that stops the</div>
+<div class="line">calculation. Default is 1e-2</div>
 </div>
 <div class="line">max_iter (Optional[int]): maximum number of iterations to perform</div>
 </div>
@@ -221,8 +224,8 @@ experimental data with leBail&#8217;s method.</p>
 <div class="line-block">
 <div class="line">xpeaks_scaled (XraySpectrum): a new XraySpectrum object, with</div>
 <div class="line-block">
-<div class="line">intensities properly scaled to match the</div>
-<div class="line">experimental data</div>
+<div class="line">intensities properly scaled to match</div>
+<div class="line">the experimental data</div>
 </div>
 <div class="line">simul_spec (np.ndarray): final simulated XRD spectrum</div>
 <div class="line">simul_peaks (np.ndarray): final simulated spectrum broken by peak</div>
@@ -268,7 +271,7 @@ and the spacegroup indices to apply the selection rules</p>
 <div class="line-block">
 <div class="line">atoms (Optional[soprano.Atoms]): atoms object to gather lattice</div>
 <div class="line-block">
-<div class="line">and spacegroup information from </div>
+<div class="line">and spacegroup information from</div>
 </div>
 <div class="line">latt_abc (Optional[np.ndarray]): periodic lattice in ABC form,</div>
 <div class="line-block">
@@ -338,12 +341,15 @@ passed, reset the default Gaussian function.</p>
 <dl class="method">
 <dt id="soprano.calculate.xrd.xrd.XRDCalculator.spec_simul">
 <code class="descname">spec_simul</code><span class="sig-paren">(</span><em>xpeaks</em>, <em>th2_axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul" title="Permalink to this definition">¶</a></dt>
-<dd><p>Simulate an XRD spectrum given positions of peaks, intensities, baseline,
-and a peak function (a Gaussian by default).</p>
+<dd><p>Simulate an XRD spectrum given positions of peaks, intensities,
+baseline, and a peak function (a Gaussian by default).</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">xpeaks (XraySpectrum): object containing the details of the XRD peaks</div>
+<div class="line">xpeaks (XraySpectrum): object containing the details of the XRD</div>
+<div class="line-block">
+<div class="line">peaks</div>
+</div>
 <div class="line">th2_axis (np.ndarray): theta2 axis points on which the</div>
 <div class="line-block">
 <div class="line">spectrum should be simulated</div>
@@ -354,9 +360,9 @@ and a peak function (a Gaussian by default).</p>
 <div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">simul_spec (XraySpectrumData): simulated XRD spectrum</div>
-<div class="line">simul_peaks (np.ndarray): simulated spectrum intensities broken by peak</div>
+<div class="line">simul_peaks (np.ndarray): simulated spectrum intensities broken by</div>
 <div class="line-block">
-<div class="line">contribution along axis 1</div>
+<div class="line">peak contribution along axis 1</div>
 </div>
 </div>
 </div>

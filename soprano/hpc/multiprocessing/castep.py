@@ -17,7 +17,7 @@ import numpy as np
 import subprocess as sp
 from ase.io.castep import read_cell, write_castep_cell
 from ase.calculators.castep import create_castep_keywords
-from soprano.hpc.daemons import DaemonHPC
+from soprano.hpc.multiprocessing.daemon import DaemonHPC
 from soprano.utils import seedname, replace_folder
 
 

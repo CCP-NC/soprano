@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.properties package &mdash; Soprano 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.properties">
+<span id="soprano-properties-package"></span><h1>soprano.properties package<a class="headerlink" href="#module-soprano.properties" title="Permalink to this headline">¶</a></h1>
+<p>Contains classes, modules and functions relevant to Properties,
+a catch-all term for things we might want to extract or calculate from
+Atoms and AtomsCollections. Some will require running an external ASE
+calculator first, some will just work on their own, some will require
+some calculations and parameters.</p>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.basic.html">soprano.properties.basic package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.basic.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.basic.html#module-soprano.properties.basic.basic">soprano.properties.basic.basic module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.castep.html">soprano.properties.castep package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.castep.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.castep.html#module-soprano.properties.castep.castep">soprano.properties.castep.castep module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.labeling.html">soprano.properties.labeling package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.labeling.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.labeling.html#module-soprano.properties.labeling.labeling">soprano.properties.labeling.labeling module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.linkage.html">soprano.properties.linkage package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.linkage.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.linkage.html#module-soprano.properties.linkage.linkage">soprano.properties.linkage.linkage module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.transform.html">soprano.properties.transform package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.transform.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.transform.html#module-soprano.properties.transform.transform">soprano.properties.transform.transform module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-soprano.properties.atomsproperty">
+<span id="soprano-properties-atomsproperty-module"></span><h2>soprano.properties.atomsproperty module<a class="headerlink" href="#module-soprano.properties.atomsproperty" title="Permalink to this headline">¶</a></h2>
+<p>Definition of AtomsProperty class.</p>
+<p>A generic template class that specific Properties will inherit from.</p>
+<dl class="class">
+<dt id="soprano.properties.atomsproperty.AtomsProperty">
+<em class="property">class </em><code class="descclassname">soprano.properties.atomsproperty.</code><code class="descname">AtomsProperty</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.atomsproperty.AtomsProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="soprano.properties.atomsproperty.AtomsProperty.default_name">
+<code class="descname">default_name</code><em class="property"> = u'generic_property'</em><a class="headerlink" href="#soprano.properties.atomsproperty.AtomsProperty.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.atomsproperty.AtomsProperty.default_params">
+<code class="descname">default_params</code><em class="property"> = {}</em><a class="headerlink" href="#soprano.properties.atomsproperty.AtomsProperty.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.atomsproperty.AtomsProperty.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.atomsproperty.AtomsProperty.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="soprano.properties.atomsproperty.AtomsProperty.get">
+<em class="property">classmethod </em><code class="descname">get</code><span class="sig-paren">(</span><em>s</em>, <em>store_array=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.atomsproperty.AtomsProperty.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">soprano.properties package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-soprano.properties.atomsproperty">soprano.properties.atomsproperty module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/soprano.properties.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Simone Sturniolo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/soprano.properties.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

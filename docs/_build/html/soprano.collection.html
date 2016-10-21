@@ -49,6 +49,8 @@ collections of structures.</p>
 <li class="toctree-l1"><a class="reference internal" href="soprano.collection.generate.html">soprano.collection.generate package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="soprano.collection.generate.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="soprano.collection.generate.html#module-soprano.collection.generate.airss">soprano.collection.generate.airss module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.collection.generate.html#module-soprano.collection.generate.linspace">soprano.collection.generate.linspace module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="soprano.collection.generate.html#module-soprano.collection.generate.rattle">soprano.collection.generate.rattle module</a></li>
 </ul>
 </li>
 </ul>
@@ -91,6 +93,31 @@ size or number of chunks.</p>
 <div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">chunks (list[AtomsCollection]): a list of the generated chunks</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>filter_func</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a collection composed only of the elements for which a given
+filter function returns True.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">filter_func (function&lt;Atoms&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; bool): filter function. Should take an</div>
+<div class="line-block">
+<div class="line">Atoms object and return a boolean</div>
+</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">filtered (AtomsCollection): the filtered version of the collection</div>
 </div>
 </div>
 </dd></dl>

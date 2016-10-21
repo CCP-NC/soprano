@@ -11,5 +11,6 @@ Subpackages
 
 .. toctree::
 
+    soprano.calculate.gulp
     soprano.calculate.xrd
 
