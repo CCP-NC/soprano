@@ -249,15 +249,15 @@ class Submitter(object):
     @staticmethod
     def list():
         stdout, stderr = sp.Popen(['ps', 'aux'],
-                          stdin=sp.PIPE,
-                          stdout=sp.PIPE,
-                          stderr=sp.PIPE).communicate()
+                                  stdin=sp.PIPE,
+                                  stdout=sp.PIPE,
+                                  stderr=sp.PIPE).communicate()
         # Parse stdout
         all_subms = []
         for l in stdout.split('\n'):
             if 'soprano.hpc.submitter._spawn' in l:
                 lspl = l.split()
-                subm = lspl[-3], lspl[-2], lspl[-7] # File, time and name
+                subm = lspl[-3], lspl[-2], lspl[-7]  # File, time and name
                 all_subms.append(subm)
 
         return all_subms
