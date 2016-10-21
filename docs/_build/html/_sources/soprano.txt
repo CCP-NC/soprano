@@ -20,20 +20,8 @@ Subpackages
 Submodules
 ----------
 
-soprano.selection module
-------------------------
+.. toctree::
 
-.. automodule:: soprano.selection
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-soprano.utils module
---------------------
-
-.. automodule:: soprano.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.selection
+   soprano.utils
 

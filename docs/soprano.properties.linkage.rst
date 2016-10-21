@@ -9,12 +9,7 @@ soprano.properties.linkage package
 Submodules
 ----------
 
-soprano.properties.linkage.linkage module
------------------------------------------
+.. toctree::
 
-.. automodule:: soprano.properties.linkage.linkage
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.properties.linkage.linkage
 

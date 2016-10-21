@@ -45,43 +45,11 @@ passing the path of the .castep file as a parameter and actually parsing its
 contents.</p>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.castep.castep.html">soprano.properties.castep.castep module</a></li>
+</ul>
 </div>
-<div class="section" id="module-soprano.properties.castep.castep">
-<span id="soprano-properties-castep-castep-module"></span><h2>soprano.properties.castep.castep module<a class="headerlink" href="#module-soprano.properties.castep.castep" title="Permalink to this headline">¶</a></h2>
-<p>Implementation of some CASTEP related AtomsProperties</p>
-<dl class="class">
-<dt id="soprano.properties.castep.castep.CastepEnthalpy">
-<em class="property">class </em><code class="descclassname">soprano.properties.castep.castep.</code><code class="descname">CastepEnthalpy</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.castep.castep.CastepEnthalpy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.properties.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
-<p>Enthalpy as found in the .castep file of a GeometryOptimization
-calculation. If not present, this will fall back on the final free energy.</p>
-<div class="line-block">
-<div class="line">Parameters:</div>
-<div class="line-block">
-<div class="line">castep_path (str): the path in which the .castep file is to be found.</div>
-<div class="line">seedname_info (str): the Atoms.info key that contains the seedname</div>
-<div class="line-block">
-<div class="line">of the .castep file. By default is &#8216;name&#8217;.</div>
-</div>
-</div>
-</div>
-<dl class="attribute">
-<dt id="soprano.properties.castep.castep.CastepEnthalpy.default_name">
-<code class="descname">default_name</code><em class="property"> = u'castep_enthalpy'</em><a class="headerlink" href="#soprano.properties.castep.castep.CastepEnthalpy.default_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="soprano.properties.castep.castep.CastepEnthalpy.default_params">
-<code class="descname">default_params</code><em class="property"> = {u'seedname_info': u'name', u'castep_path': u'.'}</em><a class="headerlink" href="#soprano.properties.castep.castep.CastepEnthalpy.default_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="soprano.properties.castep.castep.CastepEnthalpy.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>castep_path</em>, <em>seedname_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.castep.castep.CastepEnthalpy.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </div>
 </div>
 
@@ -95,7 +63,6 @@ calculation. If not present, this will fall back on the final free energy.</p>
   <ul>
 <li><a class="reference internal" href="#">soprano.properties.castep package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-soprano.properties.castep.castep">soprano.properties.castep.castep module</a></li>
 </ul>
 </li>
 </ul>

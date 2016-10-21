@@ -9,28 +9,9 @@ soprano.collection.generate package
 Submodules
 ----------
 
-soprano.collection.generate.airss module
-----------------------------------------
+.. toctree::
 
-.. automodule:: soprano.collection.generate.airss
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-soprano.collection.generate.linspace module
--------------------------------------------
-
-.. automodule:: soprano.collection.generate.linspace
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-soprano.collection.generate.rattle module
------------------------------------------
-
-.. automodule:: soprano.collection.generate.rattle
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.collection.generate.airss
+   soprano.collection.generate.linspace
+   soprano.collection.generate.rattle
 

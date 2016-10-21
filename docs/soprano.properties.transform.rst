@@ -9,12 +9,7 @@ soprano.properties.transform package
 Submodules
 ----------
 
-soprano.properties.transform.transform module
----------------------------------------------
+.. toctree::
 
-.. automodule:: soprano.properties.transform.transform
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.properties.transform.transform
 

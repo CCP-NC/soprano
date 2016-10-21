@@ -16,12 +16,7 @@ Subpackages
 Submodules
 ----------
 
-soprano.collection.collection module
-------------------------------------
+.. toctree::
 
-.. automodule:: soprano.collection.collection
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.collection.collection
 

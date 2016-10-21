@@ -20,12 +20,7 @@ Subpackages
 Submodules
 ----------
 
-soprano.properties.atomsproperty module
----------------------------------------
+.. toctree::
 
-.. automodule:: soprano.properties.atomsproperty
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.properties.atomsproperty
 

@@ -9,20 +9,8 @@ soprano.hpc.multiprocessing package
 Submodules
 ----------
 
-soprano.hpc.multiprocessing.castep module
------------------------------------------
+.. toctree::
 
-.. automodule:: soprano.hpc.multiprocessing.castep
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-soprano.hpc.multiprocessing.daemon module
------------------------------------------
-
-.. automodule:: soprano.hpc.multiprocessing.daemon
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.hpc.multiprocessing.castep
+   soprano.hpc.multiprocessing.daemon
 

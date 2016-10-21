@@ -43,164 +43,12 @@
 They actually manage the running of multi-core processes at a local level.</p>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="soprano.hpc.multiprocessing.castep.html">soprano.hpc.multiprocessing.castep module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.hpc.multiprocessing.daemon.html">soprano.hpc.multiprocessing.daemon module</a></li>
+</ul>
 </div>
-<div class="section" id="module-soprano.hpc.multiprocessing.castep">
-<span id="soprano-hpc-multiprocessing-castep-module"></span><h2>soprano.hpc.multiprocessing.castep module<a class="headerlink" href="#module-soprano.hpc.multiprocessing.castep" title="Permalink to this headline">¶</a></h2>
-<p>A basic Daemon to run CASTEP calculations</p>
-<dl class="class">
-<dt id="soprano.hpc.multiprocessing.castep.CastepDaemon">
-<em class="property">class </em><code class="descclassname">soprano.hpc.multiprocessing.castep.</code><code class="descname">CastepDaemon</code><span class="sig-paren">(</span><em>daemon_id=None</em>, <em>verbose=False</em>, <em>timeout=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.castep.CastepDaemon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC" title="soprano.hpc.multiprocessing.daemon.DaemonHPC"><code class="xref py py-class docutils literal"><span class="pre">soprano.hpc.multiprocessing.daemon.DaemonHPC</span></code></a></p>
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.castep.CastepDaemon.next_processes">
-<code class="descname">next_processes</code><span class="sig-paren">(</span><em>n=1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.castep.CastepDaemon.next_processes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.castep.CastepDaemon.on_complete">
-<code class="descname">on_complete</code><span class="sig-paren">(</span><em>rval</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.castep.CastepDaemon.on_complete" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.castep.CastepDaemon.run_process">
-<code class="descname">run_process</code><span class="sig-paren">(</span><em>loop_id</em>, <em>atoms</em>, <em>seedname</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.castep.CastepDaemon.run_process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.castep.CastepDaemon.set_parameters">
-<code class="descname">set_parameters</code><span class="sig-paren">(</span><em>folder_in, folder_out, castep_command, castep_path=None, copy_extensions=[u'.castep']</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.castep.CastepDaemon.set_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of the CASTEP Daemon</p>
-<div class="line-block">
-<div class="line">Args:</div>
-<div class="line-block">
-<div class="line">folder_in (str): path of the folder to extract cell files from</div>
-<div class="line">folder_out (str): path of the folder where the results will be</div>
-<div class="line-block">
-<div class="line">saved</div>
-</div>
-<div class="line">castep_command (str): command used to call the CASTEP executable</div>
-<div class="line-block">
-<div class="line">on this system</div>
-</div>
-<div class="line">castep_path (Optional[str]): folder where the CASTEP executable is</div>
-<div class="line-block">
-<div class="line">located (if not part of the system</div>
-<div class="line">PATH)</div>
-</div>
-<div class="line">copy_extensions (Optional[list[str]]): extensions of output files</div>
-<div class="line-block">
-<div class="line">to copy to the output</div>
-<div class="line">folder (by default only</div>
-<div class="line">.castep file)</div>
-</div>
-</div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.castep.CastepDaemon.terminate">
-<code class="descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.castep.CastepDaemon.terminate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-soprano.hpc.multiprocessing.daemon">
-<span id="soprano-hpc-multiprocessing-daemon-module"></span><h2>soprano.hpc.multiprocessing.daemon module<a class="headerlink" href="#module-soprano.hpc.multiprocessing.daemon" title="Permalink to this headline">¶</a></h2>
-<p>Definition of DaemonHPC class</p>
-<p>Base class for all Daemons to inherit from.</p>
-<dl class="class">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC">
-<em class="property">class </em><code class="descclassname">soprano.hpc.multiprocessing.daemon.</code><code class="descname">DaemonHPC</code><span class="sig-paren">(</span><em>daemon_id=None</em>, <em>verbose=False</em>, <em>timeout=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>DaemonHPC object</p>
-<p>A class that serves as template for all Daemons for HPC use. It implements
-methods that should be mostly overridden by the child classes. It is
-passed to the DaemonRunner that handles the heavy weight parallelization
-stuff.
-Four methods define its core behaviour:</p>
-<ol class="arabic simple">
-<li>run_process is the core function that gets parallelized. This could for
-example include a subprocess.Popen to call some external program;</li>
-<li>next_processes generates input data for a number of new processes. This
-should be overridden preferrably over start_processes to edit behaviour
-of the Daemon;</li>
-<li>start_processes queues up a number of new processes with input data
-gotten by next_processes in the Pool;</li>
-<li>on_complete is a callback that defines behaviour once a process is
-finished. By default, it grabs a new process to replace it from
-next_processes and submits it to start_processes. Here data should be
-stored/saved and so on.</li>
-</ol>
-<p>In addition, the Daemon will store a log of its activities if required.</p>
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.get_id">
-<code class="descname">get_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.get_id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.get_next">
-<code class="descname">get_next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.get_next" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.log">
-<code class="descname">log</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.log" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produce a log message</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.next_processes">
-<code class="descname">next_processes</code><span class="sig-paren">(</span><em>n=1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.next_processes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get input data for n new processes. Must be a list of dicts.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.on_complete">
-<code class="descname">on_complete</code><span class="sig-paren">(</span><em>rval</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.on_complete" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.run_process">
-<code class="descname">run_process</code><span class="sig-paren">(</span><em>loop_id</em>, <em>daemon_pid</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.run_process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run a specific process. Action that needs to be parallelized</p>
-<p>The value returned by this process is then passed to on_complete.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.set_parameters">
-<code class="descname">set_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.set_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set additional parameters. In this generic example class it has
-no arguments, but in general it will be used to
-apply all the parameters passed to DaemonRunner through
-daemon_args.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.start_processes">
-<code class="descname">start_processes</code><span class="sig-paren">(</span><em>n=1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.start_processes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Launch n new processes.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonHPC.terminate">
-<code class="descname">terminate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonHPC.terminate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute any operations required upon end of the process</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="soprano.hpc.multiprocessing.daemon.DaemonRunner">
-<em class="property">class </em><code class="descclassname">soprano.hpc.multiprocessing.daemon.</code><code class="descname">DaemonRunner</code><span class="sig-paren">(</span><em>daemon_type=&lt;class 'soprano.hpc.multiprocessing.daemon.DaemonHPC'&gt;</em>, <em>daemon_args={}</em>, <em>daemon_id=None</em>, <em>proc_num=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.multiprocessing.daemon.DaemonRunner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>DaemonRunner object</p>
-<p>The engine that runs DaemonHPC and derived classes. It does all the heavy
-lifting! At its core, it uses the multiprocessing module to create a Pool
-of processes, then runs endless loops in it that will only stop when the
-queue of the Daemon is empty.</p>
-</dd></dl>
-
 </div>
 </div>
 
@@ -214,8 +62,6 @@ queue of the Daemon is empty.</p>
   <ul>
 <li><a class="reference internal" href="#">soprano.hpc.multiprocessing package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-soprano.hpc.multiprocessing.castep">soprano.hpc.multiprocessing.castep module</a></li>
-<li><a class="reference internal" href="#module-soprano.hpc.multiprocessing.daemon">soprano.hpc.multiprocessing.daemon module</a></li>
 </ul>
 </li>
 </ul>

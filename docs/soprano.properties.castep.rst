@@ -9,12 +9,7 @@ soprano.properties.castep package
 Submodules
 ----------
 
-soprano.properties.castep.castep module
----------------------------------------
+.. toctree::
 
-.. automodule:: soprano.properties.castep.castep
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.properties.castep.castep
 

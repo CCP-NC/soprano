@@ -9,12 +9,7 @@ soprano.properties.basic package
 Submodules
 ----------
 
-soprano.properties.basic.basic module
--------------------------------------
+.. toctree::
 
-.. automodule:: soprano.properties.basic.basic
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.properties.basic.basic
 

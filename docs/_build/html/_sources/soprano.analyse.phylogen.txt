@@ -9,28 +9,9 @@ soprano.analyse.phylogen package
 Submodules
 ----------
 
-soprano.analyse.phylogen.genes module
--------------------------------------
+.. toctree::
 
-.. automodule:: soprano.analyse.phylogen.genes
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-soprano.analyse.phylogen.mapping module
----------------------------------------
-
-.. automodule:: soprano.analyse.phylogen.mapping
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-soprano.analyse.phylogen.phylogenclust module
----------------------------------------------
-
-.. automodule:: soprano.analyse.phylogen.phylogenclust
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.analyse.phylogen.genes
+   soprano.analyse.phylogen.mapping
+   soprano.analyse.phylogen.phylogenclust
 

@@ -43,143 +43,13 @@
 on different criteria.</p>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="soprano.collection.generate.airss.html">soprano.collection.generate.airss module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.collection.generate.linspace.html">soprano.collection.generate.linspace module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.collection.generate.rattle.html">soprano.collection.generate.rattle module</a></li>
+</ul>
 </div>
-<div class="section" id="module-soprano.collection.generate.airss">
-<span id="soprano-collection-generate-airss-module"></span><h2>soprano.collection.generate.airss module<a class="headerlink" href="#module-soprano.collection.generate.airss" title="Permalink to this headline">¶</a></h2>
-<p>Bindings for AIRSS Buildcell program for random structure generation</p>
-<dl class="function">
-<dt id="soprano.collection.generate.airss.airssGen">
-<code class="descclassname">soprano.collection.generate.airss.</code><code class="descname">airssGen</code><span class="sig-paren">(</span><em>input_file</em>, <em>n=100</em>, <em>buildcell_command=u'buildcell'</em>, <em>buildcell_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.airss.airssGen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function binding to AIRSS&#8217; Buildcell.</p>
-<p>This function searches for a buildcell executable and uses it to
-generate multiple new Atoms structures for a collection.</p>
-<div class="line-block">
-<div class="line">Args:</div>
-<div class="line-block">
-<div class="line">input_file (str or file): the .cell file with appropriate comments</div>
-<div class="line-block">
-<div class="line">specifying the details of buildcell&#8217;s</div>
-<div class="line">construction work.</div>
-</div>
-<div class="line">n (int): number of structures to generate. If set to None the</div>
-<div class="line-block">
-<div class="line">generator goes on indefinitely.</div>
-</div>
-<div class="line">buildcell_command (str): command required to call the buildcell</div>
-<div class="line-block">
-<div class="line">executable.</div>
-</div>
-<div class="line">buildcell_path (str): path where the buildcell executable can be</div>
-<div class="line-block">
-<div class="line">found. If not present, the buildcell command</div>
-<div class="line">will be invoked directly (assuming the</div>
-<div class="line">executable is in the system PATH).</div>
-</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line">Returns:</div>
-<div class="line-block">
-<div class="line">airssGenerator (generator): an iterable object that yields structures</div>
-<div class="line-block">
-<div class="line">created by buildcell.</div>
-</div>
-</div>
-</div>
-</dd></dl>
-
-</div>
-<div class="section" id="module-soprano.collection.generate.linspace">
-<span id="soprano-collection-generate-linspace-module"></span><h2>soprano.collection.generate.linspace module<a class="headerlink" href="#module-soprano.collection.generate.linspace" title="Permalink to this headline">¶</a></h2>
-<p>Generator producing structures interpolated between two extremes</p>
-<dl class="function">
-<dt id="soprano.collection.generate.linspace.linspaceGen">
-<code class="descclassname">soprano.collection.generate.linspace.</code><code class="descname">linspaceGen</code><span class="sig-paren">(</span><em>struct_0</em>, <em>struct_1</em>, <em>steps=10</em>, <em>periodic=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.linspace.linspaceGen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function to create multiple structures with positions
-interpolated linearly between two extremes.</p>
-<div class="line-block">
-<div class="line">Args:</div>
-<div class="line-block">
-<div class="line">struct_0 (ase.Atoms): the starting structure</div>
-<div class="line">struct_1 (ase.Atoms): the final structure. The atoms should be in the</div>
-<div class="line-block">
-<div class="line">same order as the ones in struct_0</div>
-</div>
-<div class="line">steps (Optional[int]): number of interpolated steps to produce</div>
-<div class="line-block">
-<div class="line">(extremes included). Default is 10</div>
-</div>
-<div class="line">periodic (Optional[bool]): if True the interpolation will take into</div>
-<div class="line-block">
-<div class="line">account periodic boundaries and interpolate</div>
-<div class="line">between positions in struct_0 and the</div>
-<div class="line">closest periodic copy of positions in</div>
-<div class="line">struct_1. By default set to False</div>
-</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line">Returns:</div>
-<div class="line-block">
-<div class="line">linspaceGenerator (generator): an iterator object that yields</div>
-<div class="line-block">
-<div class="line">structures created by linear</div>
-<div class="line">interpolation.</div>
-</div>
-</div>
-</div>
-</dd></dl>
-
-</div>
-<div class="section" id="module-soprano.collection.generate.rattle">
-<span id="soprano-collection-generate-rattle-module"></span><h2>soprano.collection.generate.rattle module<a class="headerlink" href="#module-soprano.collection.generate.rattle" title="Permalink to this headline">¶</a></h2>
-<p>Generator producing structures rattled of a given amount</p>
-<dl class="function">
-<dt id="soprano.collection.generate.rattle.rattleGen">
-<code class="descclassname">soprano.collection.generate.rattle.</code><code class="descname">rattleGen</code><span class="sig-paren">(</span><em>struct</em>, <em>amplitude=0.01</em>, <em>n=100</em>, <em>method=u'uniform'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.rattle.rattleGen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function to create multiple structures by randomly displacing
-atoms of a given amount.</p>
-<div class="line-block">
-<div class="line">Args:</div>
-<div class="line-block">
-<div class="line">struct (ase.Atoms): the starting structure to randomize</div>
-<div class="line">amplitude (float or np.ndarray): the amplitude of the random</div>
-<div class="line-block">
-<div class="line">displacement. Can be a single float</div>
-<div class="line">for all atoms, a 1D numpy array of</div>
-<div class="line">length N (N being the number of</div>
-<div class="line">atoms, one value each) or a 2D numpy</div>
-<div class="line">array of shape (N,3) (one value for</div>
-<div class="line">each dimension).</div>
-<div class="line">These values are used as interval for</div>
-<div class="line">uniform random numbers and as stdev</div>
-<div class="line">for normal random numbers</div>
-</div>
-<div class="line">n (int): maximum number of structures to generate. If set to None will</div>
-<div class="line-block">
-<div class="line">generate infinite structures</div>
-</div>
-<div class="line">method (str): must be either &#8216;uniform&#8217; or &#8216;normal&#8217;. In the first case</div>
-<div class="line-block">
-<div class="line">the rattling will be a uniform random number between</div>
-<div class="line">+amplitude and -amplitude. In the second case it will be</div>
-<div class="line">a gaussian random number with +amplitude standard</div>
-<div class="line">deviation.</div>
-</div>
-</div>
-</div>
-<div class="line-block">
-<div class="line">Returns:</div>
-<div class="line-block">
-<div class="line">rattleGenerator (generator): an iterator that yields copies of the</div>
-<div class="line-block">
-<div class="line">base structure with randomly displaced</div>
-<div class="line">atoms.</div>
-</div>
-</div>
-</div>
-</dd></dl>
-
 </div>
 </div>
 
@@ -193,9 +63,6 @@ atoms of a given amount.</p>
   <ul>
 <li><a class="reference internal" href="#">soprano.collection.generate package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-soprano.collection.generate.airss">soprano.collection.generate.airss module</a></li>
-<li><a class="reference internal" href="#module-soprano.collection.generate.linspace">soprano.collection.generate.linspace module</a></li>
-<li><a class="reference internal" href="#module-soprano.collection.generate.rattle">soprano.collection.generate.rattle module</a></li>
 </ul>
 </li>
 </ul>

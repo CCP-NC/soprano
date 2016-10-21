@@ -9,12 +9,7 @@ soprano.properties.labeling package
 Submodules
 ----------
 
-soprano.properties.labeling.labeling module
--------------------------------------------
+.. toctree::
 
-.. automodule:: soprano.properties.labeling.labeling
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   soprano.properties.labeling.labeling
 
