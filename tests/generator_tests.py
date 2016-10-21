@@ -20,6 +20,10 @@ from soprano.collection.generate import airssGen, linspaceGen, rattleGen
 import unittest
 import numpy as np
 
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "test_data")
@@ -30,18 +34,23 @@ class TestGenerate(unittest.TestCase):
 
         to_gen = 10
 
-        # Load the Al.cell file
+        # Load the Al.cell file (capture the annoying ASE output...)
+        _stdout, sys.stdout = sys.stdout, StringIO()
         agen = airssGen(os.path.join(_TESTDATA_DIR, 'Al.cell'), n=to_gen)
+
         try:
             acoll = AtomsCollection(agen)
         except RuntimeError as e:
             if 'Buildcell' in str(e):
+                sys.stdout = _stdout
                 # Then we just don't have the program
                 print('WARNING - The AIRSS generator could not be tested as no '
                       'AIRSS installation has been found on this system.')
                 return
             else:
                 raise e
+
+        sys.stdout = _stdout
 
         # Some basic checks
         self.assertEqual(acoll.length, to_gen)

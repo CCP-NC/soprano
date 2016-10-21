@@ -19,7 +19,7 @@ import tempfile
 import subprocess as sp
 
 from soprano.hpc.submitter import QueueInterface, Submitter, CastepSubmitter
-from soprano.hpc.submitter._debug import DebugQueueInterface
+from soprano.hpc.submitter.debug import DebugQueueInterface
 
 import unittest
 import numpy as np
