@@ -3,9 +3,9 @@ Classes and functions for using the W99 force field in GULP.
 This force field only applies to organic molecules. More information can be
 found in the original paper by Donald E. Williams:
 
-D.E. Williams,
-"Improved Intermolecular Force Field for Molecules Containing H, C, N, and O
-Atoms, with Application to Nucleoside and Peptide Crystals"
+D.E. Williams, 
+*Improved Intermolecular Force Field for Molecules Containing H, C, N, and O
+Atoms, with Application to Nucleoside and Peptide Crystals*
 Journal of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)
 
 """
