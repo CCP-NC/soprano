@@ -46,6 +46,10 @@ def submitter_handler():
                         "more than one is present in the given file. "
                         "CAREFUL: this is the name of the variable, not the "
                         "one passed as parameter in the constructor.")
+    parser.add_argument('-nohup', action='store_true', default=False,
+                        help="If True, nohup is used to make sure that the "
+                        "process does not quit in case the user logs out "
+                        "(for example on a login node of an HPC machine).")
 
     try:
         args = parser.parse_args()
@@ -81,8 +85,11 @@ def submitter_handler():
         submitter_name = subms.keys()[0]
 
     if args.action[0] == 'start':
-        sp.Popen(['python', '-m', 'soprano.hpc.submitter._spawn',
-                  args.submitter_file, submitter_name, '&'])
+        cmd = ['python', '-m', 'soprano.hpc.submitter._spawn',
+               args.submitter_file, submitter_name, '&']
+        if args.nohup:
+            cmd = ['nohup'] + cmd
+        sp.Popen(cmd)
     else:
         # PKILL the process
         Submitter.stop(args.submitter_file, submitter_name)
