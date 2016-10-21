@@ -12,8 +12,8 @@ from __future__ import unicode_literals
 import os
 import numpy as np
 import subprocess as sp
-from soprano.calculate.gulp.utils import (_gulp_cell_definition,
-                                          _gulp_parse_charges)
+from soprano.calculate.gulp._utils import (_gulp_cell_definition,
+                                           _gulp_parse_charges)
 
 
 def get_gulp_charges(s, charge_method="eem", save_charges=True,

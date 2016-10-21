@@ -13,3 +13,4 @@ provided here.
 from __future__ import absolute_import
 
 from soprano.calculate.gulp.w99 import get_w99_energy, W99Error
+from soprano.calculate.gulp.charges import get_gulp_charges

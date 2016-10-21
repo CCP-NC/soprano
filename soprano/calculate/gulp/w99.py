@@ -24,9 +24,9 @@ import numpy as np
 import subprocess as sp
 from ase.calculators.singlepoint import SinglePointCalculator
 from soprano.properties.linkage import Molecules
-from soprano.calculate.gulp.utils import (_gulp_cell_definition,
-                                          _gulp_parse_energy,
-                                          _gulp_parse_charges)
+from soprano.calculate.gulp._utils import (_gulp_cell_definition,
+                                           _gulp_parse_energy,
+                                           _gulp_parse_charges)
 
 _w99_data = pkgutil.get_data('soprano',
                              'data/w99_parameters.json').decode('utf-8')
