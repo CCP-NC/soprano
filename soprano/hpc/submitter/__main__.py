@@ -38,7 +38,8 @@ def submitter_handler():
                         help="Action to perform: "
                              "start -> start the given submitter, "
                              "stop -> stop the given submitter if running, "
-                             "list -> list the currently running submitters")
+                             "list -> list the currently running submitters"
+                             " from the given file")
     parser.add_argument('submitter_file', type=str, action=IsValidModule,
                         help="Name of the Python module file containing the"
                              " declaration for the Submitter to use")
@@ -98,14 +99,25 @@ def submitter_handler():
         if args.nohup:
             cmd = ['nohup'] + cmd
         sp.Popen(cmd)
+        print("Submitter "
+              "{0} from file {1} started".format(submitter_name,
+                                                 args.submitter_file))
     elif args.action[0] == 'stop':
         # PKILL the process
-        Submitter.stop(args.submitter_file, submitter_name)
+        succ = Submitter.stop(args.submitter_file, submitter_name)
+        if succ:
+            print("Submitter "
+                  "{0} from file {1} stopped".format(submitter_name,
+                                                     args.submitter_file))
+        else:
+            print ("The requested submitter is not running")
     elif args.action[0] == 'list':
         subm_l = Submitter.list()
-        tabf = "{1: >10}\t| {0: >20}\t| {2: >10}"
-        print(tabf.format('File', 'Name', 'Time'))
+        tabf = "{1: >10}\t| {2: >10}"
+        print(tabf.format('', 'Name', 'Time'))
         for s in subm_l:
+            if s[0] != args.submitter_file:
+                continue
             print(tabf.format(*s))
 
 

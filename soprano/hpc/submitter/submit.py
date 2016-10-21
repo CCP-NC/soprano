@@ -242,8 +242,9 @@ class Submitter(object):
 
     @staticmethod
     def stop(fname, subname):
-        """Stop Submitter process from filename and name"""
-        sp.Popen(['pkill', '-f', fname + ' ' + subname])
+        """Stop Submitter process from filename and name,
+        return False if failed"""
+        return sp.Popen(['pkill', '-f', fname + ' ' + subname]).wait() == 0
 
     @staticmethod
     def list():
