@@ -1,9 +1,9 @@
 """
 utils.py
 
-Contains the following package-wide useful routines:
-
-[TO ADD]
+Contains package-wide useful routines that don't fall under any specific
+category. Many of these handle common operations involving periodicity,
+conversions between different representations etc.
 """
 
 # Python 2-to-3 compatibility code
