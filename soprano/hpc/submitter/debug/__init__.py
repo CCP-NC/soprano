@@ -6,4 +6,4 @@ machine."""
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.hpc.submitter._debug.debugqueue import DebugQueueInterface
+from soprano.hpc.submitter.debug.debugqueue import DebugQueueInterface
