@@ -1,0 +1,7 @@
+soprano.hpc.submitter.queues module
+===================================
+
+.. automodule:: soprano.hpc.submitter.queues
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.analyse.phylogen.phylogenclust module &#8212; Soprano 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="up" title="soprano.analyse.phylogen package" href="soprano.analyse.phylogen.html" />
+    <link rel="next" title="soprano.calculate package" href="soprano.calculate.html" />
+    <link rel="prev" title="soprano.analyse.phylogen.mapping module" href="soprano.analyse.phylogen.mapping.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.analyse.phylogen.phylogenclust">
+<span id="soprano-analyse-phylogen-phylogenclust-module"></span><h1>soprano.analyse.phylogen.phylogenclust module<a class="headerlink" href="#module-soprano.analyse.phylogen.phylogenclust" title="Permalink to this headline">¶</a></h1>
+<p>Phylogenetic clustering class definitions</p>
+<dl class="class">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster">
+<em class="property">class </em><code class="descclassname">soprano.analyse.phylogen.phylogenclust.</code><code class="descname">PhylogenCluster</code><span class="sig-paren">(</span><em>coll</em>, <em>genes=None</em>, <em>norm_range=(0.0</em>, <em>1.0)</em>, <em>norm_dist=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>An object that, given an AtomsCollection and a series of &#8220;genes&#8221; and
+weights, will build clusters out of the structures in the collection based
+on their reciprocal positions as points in a multi-dimensional space
+defined by those &#8220;genes&#8221;.</p>
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping">
+<code class="descname">create_mapping</code><span class="sig-paren">(</span><em>method=u'total-principal'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an array of 2-dimensional points representing a reduced
+dimensionality mapping of the given genes using the algorithm of
+choice. All algorithms are described in [W. Siedlecki et al., Patt.
+Recog. vol. 21, num. 5, pp. 411 429 (1988)].</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">method (str): can be one of the following algorithms:</div>
+<div class="line-block">
+<div class="line">- total_principal (default)</div>
+<div class="line">- clafic</div>
+<div class="line">- fukunaga-koontz</div>
+<div class="line">- optimal-discriminant</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat">
+<code class="descname">get_distmat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the distance matrix between structures in the collection,
+based on the genes currently in use.</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">distmat (np.ndarray): a (collection.length, collection.length)</div>
+<div class="line-block">
+<div class="line">array, containing the overall distance</div>
+<div class="line">(the norm of all individual gene distances)</div>
+<div class="line">between all pairs of structures.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices">
+<code class="descname">get_genome_matrices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the genome matrices in raw form (not normalized).
+The matrices refer to genes that only allow to define a distance
+between structures. The element at i,j represents the distance
+between said structures. The matrix is symmetric and has
+null diagonal.</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">genome_matrix (np.ndarray): a (collection.length,</div>
+<div class="line-block">
+<div class="line">collection.length, gene.length)</div>
+<div class="line">array, containing the distances for</div>
+<div class="line">each gene and pair of structures in</div>
+<div class="line">row and column</div>
+</div>
+<div class="line">genome_legend (list[tuple]): a list of tuples containing (name,</div>
+<div class="line-block">
+<div class="line">length) of the gene fragments in the</div>
+<div class="line">array</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm">
+<code class="descname">get_genome_matrices_norm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the genome matrices in normalized and weighted form.
+The matrices refer to genes that only allow to define a distance
+between structures. The element at i,j represents the distance
+between said structures. The matrix is symmetric and has
+null diagonal.</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">genome_matrix (np.ndarray): a (collection.length,</div>
+<div class="line-block">
+<div class="line">collection.length, gene.length)</div>
+<div class="line">array, containing the distances for</div>
+<div class="line">each gene and pair of structures in</div>
+<div class="line">row and column</div>
+</div>
+<div class="line">genome_legend (list[tuple]): a list of tuples containing (name,</div>
+<div class="line-block">
+<div class="line">length) of the gene fragments in the</div>
+<div class="line">array</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors">
+<code class="descname">get_genome_vectors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the genome vectors in raw form (not normalized).
+The vectors refer to genes that allow to define a specific point for
+each structure.</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">genome_vectors (np.ndarray): a (collection.length, gene.length)</div>
+<div class="line-block">
+<div class="line">array, containing the whole extent</div>
+<div class="line">of the gene values for each structure</div>
+<div class="line">in the collection on each row</div>
+</div>
+<div class="line">genome_legend (list[tuple]): a list of tuples containing (name,</div>
+<div class="line-block">
+<div class="line">length) of the gene fragments in the</div>
+<div class="line">array</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm">
+<code class="descname">get_genome_vectors_norm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the genome vectors in normalized and weighted form.
+The vectors refer to genes that allow to define a specific point for
+each structure.</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">genome_vectors (np.ndarray): a (collection.length, gene.length)</div>
+<div class="line-block">
+<div class="line">array, containing the whole extent</div>
+<div class="line">of the gene values for each structure</div>
+<div class="line">in the collection on each row</div>
+</div>
+<div class="line">genome_legend (list[tuple]): a list of tuples containing (name,</div>
+<div class="line-block">
+<div class="line">length) of the gene fragments in the</div>
+<div class="line">array</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters">
+<code class="descname">get_hier_clusters</code><span class="sig-paren">(</span><em>t</em>, <em>method=u'single'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get multiple clusters (in the form of a list of collections) based
+on the hierarchical clustering methods and the currently set genes.</p>
+<p>Calls scipy.cluster.hierarchy.fcluster</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">t (float): minimum distance of separation required to consider</div>
+<div class="line-block">
+<div class="line">two clusters separate. This controls the number of</div>
+<div class="line">clusters: a smaller value will produce more fine</div>
+<div class="line">grained clustering. At the limit, a value smaller than</div>
+<div class="line">the distance between the two closest structures will</div>
+<div class="line">return a cluster for each structure. Remember that the</div>
+<div class="line">&#8216;distances&#8217; in this case refer to distances between the</div>
+<div class="line">&#8216;gene&#8217; values attributed to each structure. In other</div>
+<div class="line">words they are a function of the chosen genes,</div>
+<div class="line">normalization conditions and weights employed.</div>
+<div class="line">In addition, the way they are calculated depends on the</div>
+<div class="line">choice of method.</div>
+</div>
+<div class="line">method (str): clustering method to employ. Valid entries are</div>
+<div class="line-block">
+<div class="line">&#8216;single&#8217;, &#8216;complete&#8217;, &#8216;weighted&#8217; and &#8216;average&#8217;.</div>
+<div class="line">Refer to Scipy documentation for further details.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">clusters (tuple(list[int],</div>
+<div class="line-block">
+<div class="line">list[slices])): list of cluster index for each</div>
+<div class="line-block">
+<div class="line">structure (counting from 1) and</div>
+<div class="line">list of slices defining the</div>
+<div class="line">clusters as formed by hierarchical</div>
+<div class="line">algorithm.</div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree">
+<code class="descname">get_hier_tree</code><span class="sig-paren">(</span><em>method=u'single'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a tree data structure describing the clustering order of based
+on the hierarchical clustering methods and the currently set genes.</p>
+<p>Calls scipy.cluster.hierarchy.to_tree</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">method (str): clustering method to employ. Valid entries are</div>
+<div class="line-block">
+<div class="line">&#8216;single&#8217;, &#8216;complete&#8217;, &#8216;weighted&#8217; and &#8216;average&#8217;.</div>
+<div class="line">Refer to Scipy documentation for further details.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">root_node (ClusterNode): the root node of the tree. Access child</div>
+<div class="line-block">
+<div class="line">members with .left and .right, while .id</div>
+<div class="line">holds the number of the corresponding</div>
+<div class="line">cluster. Refer to Scipy documentation for</div>
+<div class="line">further details.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters">
+<code class="descname">get_kmeans_clusters</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a given number of clusters (in the form of a list of
+collections) based on the k-means clustering methods
+and the currently set genes.
+Warning: this method only works if there are no genes that work only
+with pairs of structures - as specific points, and not just distances
+between them, are required for this algorithm.</p>
+<p>Calls scipy.cluster.vq.kmeans</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">n (int):    the desired number of clusters.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">clusters (tuple(list[int],</div>
+<div class="line-block">
+<div class="line">list[slices])): list of cluster index for each</div>
+<div class="line-block">
+<div class="line">structure (counting from 1) and</div>
+<div class="line">list of slices defining the</div>
+<div class="line">clusters as formed by k-means</div>
+<div class="line">algorithm.</div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage">
+<code class="descname">get_linkage</code><span class="sig-paren">(</span><em>method=u'single'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the linkage matrix between structures in the collection,
+based on the genes currently in use. Only used in hierarchical
+clustering.</p>
+<p>Calls scipy.cluster.hierarchy.linkage.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">method (str): clustering method to employ. Valid entries are</div>
+<div class="line-block">
+<div class="line">&#8216;single&#8217;, &#8216;complete&#8217;, &#8216;weighted&#8217; and &#8216;average&#8217;.</div>
+<div class="line">Refer to Scipy documentation for further details.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">Z (np.ndarray): linkage matrix for the structures in the</div>
+<div class="line-block">
+<div class="line">collection. Refer to Scipy documentation for</div>
+<div class="line">details about the method</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist">
+<code class="descname">get_max_cluster_dist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the maximum possible distance between two clusters</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a pickled copy from a given file path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply save a pickled copy to a given file path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection">
+<code class="descname">save_collection</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save as pickle the collection bound to this PhylogenCluster.
+The calculated genes are also stored in it as arrays for future use.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes">
+<code class="descname">set_genes</code><span class="sig-paren">(</span><em>genes</em>, <em>load_arrays=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate, store and set a list of genes as used for clustering.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">genes (list[soprano.analyse.phylogen.Gene],</div>
+<div class="line-block">
+<div class="line">file, str): a list of Genes to calculate and store. A path</div>
+<div class="line-block">
+<div class="line">or open file can also be passed for a .gene</div>
+<div class="line">file, from which the values will be loaded.</div>
+</div>
+</div>
+<div class="line">load_arrays (bool): try loading the genes as arrays from the</div>
+<div class="line-block">
+<div class="line">collection before generating them. Warning:</div>
+<div class="line">if there are arrays named like genes but with</div>
+<div class="line">different contents this can lead to</div>
+<div class="line">unpredictable results.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">soprano</a><ul>
+  <li><a href="soprano.html">soprano package</a><ul>
+  <li><a href="soprano.analyse.html">soprano.analyse package</a><ul>
+  <li><a href="soprano.analyse.phylogen.html">soprano.analyse.phylogen package</a><ul>
+      <li>Previous: <a href="soprano.analyse.phylogen.mapping.html" title="previous chapter">soprano.analyse.phylogen.mapping module</a></li>
+      <li>Next: <a href="soprano.calculate.html" title="next chapter">soprano.calculate package</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/soprano.analyse.phylogen.phylogenclust.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Simone Sturniolo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/soprano.analyse.phylogen.phylogenclust.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

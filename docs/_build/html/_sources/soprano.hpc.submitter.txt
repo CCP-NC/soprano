@@ -1,0 +1,24 @@
+soprano.hpc.submitter package
+=============================
+
+.. automodule:: soprano.hpc.submitter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+
+    soprano.hpc.submitter.debug
+
+Submodules
+----------
+
+.. toctree::
+
+   soprano.hpc.submitter.castep
+   soprano.hpc.submitter.queues
+   soprano.hpc.submitter.submit
+

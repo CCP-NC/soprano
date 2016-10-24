@@ -1,0 +1,285 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.analyse.phylogen.genes module &#8212; Soprano 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="up" title="soprano.analyse.phylogen package" href="soprano.analyse.phylogen.html" />
+    <link rel="next" title="soprano.analyse.phylogen.mapping module" href="soprano.analyse.phylogen.mapping.html" />
+    <link rel="prev" title="soprano.analyse.phylogen package" href="soprano.analyse.phylogen.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.analyse.phylogen.genes">
+<span id="soprano-analyse-phylogen-genes-module"></span><h1>soprano.analyse.phylogen.genes module<a class="headerlink" href="#module-soprano.analyse.phylogen.genes" title="Permalink to this headline">¶</a></h1>
+<p>Definitions for the various genes used by PhylogenCluster</p>
+<dl class="class">
+<dt id="soprano.analyse.phylogen.genes.Gene">
+<em class="property">class </em><code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">Gene</code><span class="sig-paren">(</span><em>name</em>, <em>weight=1.0</em>, <em>params={}</em>, <em>parser=None</em>, <em>pair=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>A description of a property, a &#8216;gene&#8217;, characterizing a structure, to be
+used with a PhylogenCluster. A number of default genes is provided, but
+custom ones can be created as well by passing a parser. Only default genes
+can be used in a .genefile with the phylogen.py script though.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the gene. Must be one of the existing ones or a</div>
+<div class="line-block">
+<div class="line">custom one (in which case a parser must be provided as</div>
+<div class="line">well). Custom names can&#8217;t conflict with existing ones</div>
+</div>
+<div class="line">weight (float): weight of the gene to be applied, default is 1.0</div>
+<div class="line">params (dict): additional parameters to be passed to the gene parser</div>
+<div class="line-block">
+<div class="line">function; when not specified, defaults will be used</div>
+</div>
+<div class="line">parser (function&lt;AtomsCollection, <a href="#id1"><span class="problematic" id="id2">**</span></a>kwargs&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; np.array): parser function to be used when defining custom</div>
+<div class="line-block">
+<div class="line">genes. Must return a two-dimensional Numpy array</div>
+<div class="line">(axis 0 for the elements of the collection,</div>
+<div class="line-block">
+<div class="line">axis 1 for the values of the gene)</div>
+</div>
+</div>
+</div>
+<div class="line">is_pair (bool): False if the gene returns a multi dimensional point</div>
+<div class="line-block">
+<div class="line">for each structure, True if it only returns pair</div>
+<div class="line">distances. Default is False</div>
+</div>
+</div>
+</div>
+<dl class="method">
+<dt id="soprano.analyse.phylogen.genes.Gene.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.analyse.phylogen.genes.Gene.is_pair">
+<code class="descname">is_pair</code><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.is_pair" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.analyse.phylogen.genes.GeneDictionary">
+<em class="property">class </em><code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">GeneDictionary</code><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Container class holding gene definitions</p>
+<dl class="classmethod">
+<dt id="soprano.analyse.phylogen.genes.GeneDictionary.get_gene">
+<em class="property">classmethod </em><code class="descname">get_gene</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.get_gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the definition for a given gene</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="soprano.analyse.phylogen.genes.GeneDictionary.help">
+<em class="property">classmethod </em><code class="descname">help</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an help string for a given gene</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="soprano.analyse.phylogen.genes.GeneError">
+<em class="property">exception </em><code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">GeneError</code><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.load_genefile">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">load_genefile</code><span class="sig-paren">(</span><em>gfile</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.load_genefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a gene file and return the (validated) list of genes contained
+within.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">gfile (file or str): file to parse</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">genelist: a list of genes parsed from the given file, ready to be</div>
+<div class="line-block">
+<div class="line">passed to a PhylogenCluster</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_energy">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_energy</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_energy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_angle">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_hbonds_angle</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_angle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_fprint">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_hbonds_fprint</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_fprint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_length">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_hbonds_length</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_hbonds_site_compare</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_hbonds_site_reference</code><span class="sig-paren">(</span><em>c</em>, <em>ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_totn">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_hbonds_totn</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_totn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_latt_abc">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_latt_abc</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_abc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_latt_ang">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_latt_ang</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_ang" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_latt_cart">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_latt_cart</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_cart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_linkage_list">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_linkage_list</code><span class="sig-paren">(</span><em>c</em>, <em>size=0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_linkage_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_mol_com">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_mol_com</code><span class="sig-paren">(</span><em>c</em>, <em>Z=0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_com" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_mol_m">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_mol_m</code><span class="sig-paren">(</span><em>c</em>, <em>Z=0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_m" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_mol_num">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_mol_num</code><span class="sig-paren">(</span><em>c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_num" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.genes.parsegene_mol_rot">
+<code class="descclassname">soprano.analyse.phylogen.genes.</code><code class="descname">parsegene_mol_rot</code><span class="sig-paren">(</span><em>c</em>, <em>Z=0</em>, <em>twist_axis=None</em>, <em>swing_plane=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_rot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">soprano</a><ul>
+  <li><a href="soprano.html">soprano package</a><ul>
+  <li><a href="soprano.analyse.html">soprano.analyse package</a><ul>
+  <li><a href="soprano.analyse.phylogen.html">soprano.analyse.phylogen package</a><ul>
+      <li>Previous: <a href="soprano.analyse.phylogen.html" title="previous chapter">soprano.analyse.phylogen package</a></li>
+      <li>Next: <a href="soprano.analyse.phylogen.mapping.html" title="next chapter">soprano.analyse.phylogen.mapping module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/soprano.analyse.phylogen.genes.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Simone Sturniolo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/soprano.analyse.phylogen.genes.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

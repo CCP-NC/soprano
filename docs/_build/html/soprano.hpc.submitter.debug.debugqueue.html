@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.hpc.submitter.debug.debugqueue module &#8212; Soprano 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="up" title="soprano.hpc.submitter.debug package" href="soprano.hpc.submitter.debug.html" />
+    <link rel="next" title="soprano.hpc.submitter.castep module" href="soprano.hpc.submitter.castep.html" />
+    <link rel="prev" title="soprano.hpc.submitter.debug package" href="soprano.hpc.submitter.debug.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.hpc.submitter.debug.debugqueue">
+<span id="soprano-hpc-submitter-debug-debugqueue-module"></span><h1>soprano.hpc.submitter.debug.debugqueue module<a class="headerlink" href="#module-soprano.hpc.submitter.debug.debugqueue" title="Permalink to this headline">¶</a></h1>
+<p>Definition of a fake QueueInterface class, useful for debugging Submitters.</p>
+<dl class="class">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface">
+<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.debug.debugqueue.</code><code class="descname">DebugQueueInterface</code><span class="sig-paren">(</span><em>dt=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.queues.html#soprano.hpc.submitter.queues.QueueInterface" title="soprano.hpc.submitter.queues.QueueInterface"><code class="xref py py-class docutils literal"><span class="pre">soprano.hpc.submitter.queues.QueueInterface</span></code></a></p>
+<p>DebugQueueInterface object</p>
+<p>A class meant to emulate a QueueInterface while doing absolutely nothing
+of what it does. Jobs are simply stored locally, there&#8217;s a fixed waiting
+time, and are then executed. Ideally they should be simple, quick stuff
+(like an echo command). No guarantees for actually long jobs.</p>
+<p>In the submitted script a syntax for additional variables is allowed,
+similar to real queue systems. These follow the convention of many engines
+of having to start with #$. For example</p>
+<p>#$ WAIT 10</p>
+<p>means the job will be put in a &#8220;wait&#8221; state for 10 seconds. The currently
+available variables are:</p>
+<p>WAIT - specify how long the job has to stay in a &#8220;wait&#8221; state. If two
+values are provided, these are considered bounds for a random number
+RUN - same as above, but for the running state. This has no bearing on the
+<em>actual</em> running time (it&#8217;s suggested that it&#8217;s something very quick)</p>
+<dl class="method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill">
+<code class="descname">kill</code><span class="sig-paren">(</span><em>job_id</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the job with the given ID</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">job_id (str): ID of the job to kill</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list">
+<code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all jobs found in the queue</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">jobs (dict): a dict of jobs classified by ID containing all info</div>
+<div class="line-block">
+<div class="line">that can be matched through list_outre</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><em>script</em>, <em>cwd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a job to the queue.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">script (str): content of the submission script</div>
+<div class="line">cwd (Optional[str]): path to the desired working directory</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">job_id (str): the job ID assigned by the queue system and parsed</div>
+<div class="line-block">
+<div class="line">with sub_outre</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">soprano</a><ul>
+  <li><a href="soprano.html">soprano package</a><ul>
+  <li><a href="soprano.hpc.html">soprano.hpc package</a><ul>
+  <li><a href="soprano.hpc.submitter.html">soprano.hpc.submitter package</a><ul>
+  <li><a href="soprano.hpc.submitter.debug.html">soprano.hpc.submitter.debug package</a><ul>
+      <li>Previous: <a href="soprano.hpc.submitter.debug.html" title="previous chapter">soprano.hpc.submitter.debug package</a></li>
+      <li>Next: <a href="soprano.hpc.submitter.castep.html" title="next chapter">soprano.hpc.submitter.castep module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/soprano.hpc.submitter.debug.debugqueue.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Simone Sturniolo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/soprano.hpc.submitter.debug.debugqueue.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,15 @@
+soprano.properties.linkage package
+==================================
+
+.. automodule:: soprano.properties.linkage
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+
+   soprano.properties.linkage.linkage
+

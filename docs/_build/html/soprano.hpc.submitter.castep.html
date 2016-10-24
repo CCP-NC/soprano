@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.hpc.submitter.castep module &#8212; Soprano 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="up" title="soprano.hpc.submitter package" href="soprano.hpc.submitter.html" />
+    <link rel="next" title="soprano.hpc.submitter.queues module" href="soprano.hpc.submitter.queues.html" />
+    <link rel="prev" title="soprano.hpc.submitter.debug.debugqueue module" href="soprano.hpc.submitter.debug.debugqueue.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.hpc.submitter.castep">
+<span id="soprano-hpc-submitter-castep-module"></span><h1>soprano.hpc.submitter.castep module<a class="headerlink" href="#module-soprano.hpc.submitter.castep" title="Permalink to this headline">¶</a></h1>
+<p>Definition of CastepSubmitter class.</p>
+<p>A basic &#8220;rolling&#8221; submitter for Castep calculations, grabbing from one folder
+and depositing results in another.</p>
+<dl class="class">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter">
+<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.castep.</code><code class="descname">CastepSubmitter</code><span class="sig-paren">(</span><em>name</em>, <em>queue</em>, <em>submit_script</em>, <em>max_jobs=4</em>, <em>check_time=10</em>, <em>max_time=3600</em>, <em>temp_folder=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter" title="soprano.hpc.submitter.submit.Submitter"><code class="xref py py-class docutils literal"><span class="pre">soprano.hpc.submitter.submit.Submitter</span></code></a></p>
+<dl class="method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.finish_job">
+<code class="descname">finish_job</code><span class="sig-paren">(</span><em>name</em>, <em>args</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save required output files to the output folder</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.finish_run">
+<code class="descname">finish_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try removing the temporary keywords directory</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.next_job">
+<code class="descname">next_job</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.next_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the next job from folder_in</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.set_parameters">
+<code class="descname">set_parameters</code><span class="sig-paren">(</span><em>folder_in, folder_out, castep_command, castep_path=None, copy_extensions=[u'.castep'], pspot_files=[], dryrun_test=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of the CASTEP Submitter</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">folder_in (str): path of the folder to extract cell files from</div>
+<div class="line">folder_out (str): path of the folder where the results will be</div>
+<div class="line-block">
+<div class="line">saved</div>
+</div>
+<div class="line">castep_command (str): command used to call the CASTEP executable</div>
+<div class="line-block">
+<div class="line">on this system</div>
+</div>
+<div class="line">castep_path (Optional[str]): folder where the CASTEP executable is</div>
+<div class="line-block">
+<div class="line">located (if not part of the system</div>
+<div class="line">PATH)</div>
+</div>
+<div class="line">pspot_files (Optional[list[str]]): additional pseudopotential</div>
+<div class="line-block">
+<div class="line">files to be copied in the input</div>
+<div class="line">temporary folders</div>
+</div>
+<div class="line">copy_extensions (Optional[list[str]]): extensions of output files</div>
+<div class="line-block">
+<div class="line">to copy to the output</div>
+<div class="line">folder (by default only</div>
+<div class="line">.castep file)</div>
+</div>
+<div class="line">dryrun_test (Optional[bool]): run a dryrun test on files before</div>
+<div class="line-block">
+<div class="line">actually running the calculation.</div>
+<div class="line">Off by default.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.setup_job">
+<code class="descname">setup_job</code><span class="sig-paren">(</span><em>name</em>, <em>args</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.setup_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy files to temporary folder to prepare for execution</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.start_run">
+<code class="descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.start_run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">soprano</a><ul>
+  <li><a href="soprano.html">soprano package</a><ul>
+  <li><a href="soprano.hpc.html">soprano.hpc package</a><ul>
+  <li><a href="soprano.hpc.submitter.html">soprano.hpc.submitter package</a><ul>
+      <li>Previous: <a href="soprano.hpc.submitter.debug.debugqueue.html" title="previous chapter">soprano.hpc.submitter.debug.debugqueue module</a></li>
+      <li>Next: <a href="soprano.hpc.submitter.queues.html" title="next chapter">soprano.hpc.submitter.queues module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/soprano.hpc.submitter.castep.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Simone Sturniolo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/soprano.hpc.submitter.castep.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

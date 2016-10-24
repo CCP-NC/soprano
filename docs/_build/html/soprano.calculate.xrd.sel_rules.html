@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.calculate.xrd.sel_rules module &#8212; Soprano 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="up" title="soprano.calculate.xrd package" href="soprano.calculate.xrd.html" />
+    <link rel="next" title="soprano.calculate.xrd.xrd module" href="soprano.calculate.xrd.xrd.html" />
+    <link rel="prev" title="soprano.calculate.xrd package" href="soprano.calculate.xrd.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.calculate.xrd.sel_rules">
+<span id="soprano-calculate-xrd-sel-rules-module"></span><h1>soprano.calculate.xrd.sel_rules module<a class="headerlink" href="#module-soprano.calculate.xrd.sel_rules" title="Permalink to this headline">¶</a></h1>
+<p>Providing an interface to selection rules for XRD peaks and various
+spacegroups.</p>
+<dl class="function">
+<dt id="soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall">
+<code class="descclassname">soprano.calculate.xrd.sel_rules.</code><code class="descname">get_sel_rule_from_hall</code><span class="sig-paren">(</span><em>h</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a function object that acts as a selection rule for XRD lines
+for the given symmetry group expressed in Hall number notation</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">h (int): Hall number of the required spacegroup</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">rule_func (function&lt; list&lt;int&gt; &gt;</div>
+<div class="line-block">
+<div class="line">=&gt; &lt;bool&gt;): a function that can be used to test triples of</div>
+<div class="line-block">
+<div class="line">Miller indices h,k,l to verify whether the</div>
+<div class="line">related plane gives rise or not to a peak</div>
+</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">RuntimeError: if the database of XRD selection rules or that of</div>
+<div class="line-block">
+<div class="line">Hall numbers was not properly loaded</div>
+</div>
+<div class="line">ValueError: if the passed argument is invalid</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.calculate.xrd.sel_rules.get_sel_rule_from_international">
+<code class="descclassname">soprano.calculate.xrd.sel_rules.</code><code class="descname">get_sel_rule_from_international</code><span class="sig-paren">(</span><em>n</em>, <em>o=u'all'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.sel_rules.get_sel_rule_from_international" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a function object that acts as a selection rule for XRD lines
+for the given symmetry group expressed in international number notation</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">n (int): International number of the required spacegroup</div>
+<div class="line">o (Optional[int]): Sub-option of the required spacegroup</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">rule_func (function&lt; list&lt;int&gt; &gt;</div>
+<div class="line-block">
+<div class="line">=&gt; &lt;bool&gt;): a function that can be used to test triples of</div>
+<div class="line-block">
+<div class="line">Miller indices h,k,l to verify whether the</div>
+<div class="line">related plane gives rise or not to a peak</div>
+</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">RuntimeError: if the database of XRD selection rules was not properly</div>
+<div class="line-block">
+<div class="line">loaded</div>
+</div>
+<div class="line">ValueError: if some of the passed arguments are invalid</div>
+</div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">soprano</a><ul>
+  <li><a href="soprano.html">soprano package</a><ul>
+  <li><a href="soprano.calculate.html">soprano.calculate package</a><ul>
+  <li><a href="soprano.calculate.xrd.html">soprano.calculate.xrd package</a><ul>
+      <li>Previous: <a href="soprano.calculate.xrd.html" title="previous chapter">soprano.calculate.xrd package</a></li>
+      <li>Next: <a href="soprano.calculate.xrd.xrd.html" title="next chapter">soprano.calculate.xrd.xrd module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/soprano.calculate.xrd.sel_rules.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Simone Sturniolo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/soprano.calculate.xrd.sel_rules.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
