@@ -91,7 +91,7 @@ class TestPropertyLoad(unittest.TestCase):
 
     def test_linkageprops(self):
 
-        from soprano.properties.linkage import (LinkageList,
+        from soprano.properties.linkage import (LinkageList, Bonds,
                                                 Molecules, MoleculeNumber,
                                                 MoleculeMass,
                                                 MoleculeCOMLinkage,
@@ -103,6 +103,12 @@ class TestPropertyLoad(unittest.TestCase):
 
         a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
 
+        # Test bonds
+        testA = Atoms(['C', 'C', 'C', 'C'],
+                      cell=[5,5,5],
+                      positions=np.array([[0,0,0],[4.9,0,0],[3,3,3],[3,4,3]]))
+
+        # Test molecules
         mols = Molecules.get(a)
 
         self.assertTrue(MoleculeNumber.get(a) == 4)

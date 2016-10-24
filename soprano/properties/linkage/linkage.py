@@ -70,8 +70,77 @@ class LinkageList(AtomsProperty):
                                    mode=str('constant'),
                                    constant_values=np.inf)
 
-        return link_list
+        return link_lis
 
+class Bonds(AtomsProperty):
+
+    """
+    Bonds
+
+    Produces an array of tuples identifying all bonds existing within the 
+    system (calculated using Van der Waals radii). The tuples are structured
+    as:
+
+    (atom_1, atom_2, atom_2_cell, bond_length)
+
+    with atom_1 and atom_2 being indices and atom_2_cell being an array of
+    integers identifying the unit cell to which atom_2 belongs with respect
+    to atom_1 (which is assumed to be in (0,0,0), the central cell). This is
+    to account for the possibility of course that the bond exists through the
+    periodic boundary. WARNING: the possibility of an atom bonding with
+    another throughout two different periodic boundaries is not accounted for.
+
+    | Parameters:
+    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is
+    |                         the one extracted from JMol.
+    |   vdw_scale (float): scaling factor to apply to the base Van der Waals
+    |                      radii values. Values bigger than one make for more
+    |                      tolerant molecules.
+    |   default_vdw (float): default Van der Waals radius for species for
+    |                        whom no data is available.
+
+    | Returns:
+    |   bonds([tuple]): list of bonds in the form of 3-tuples structured as
+    |                   explained above
+
+    """
+
+    default_name = 'bonds'
+    default_params = {
+        'vdw_set': 'jmol',
+        'vdw_scale': 1.0,
+        'default_vdw': 2.0
+    }
+
+    @staticmethod
+    def extract(s, vdw_set, vdw_scale, default_vdw):
+
+        # First, we need the biggest Van der Waals radius
+        # So that we know how big the supercell needs to be
+        vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
+        vdw_vals = np.where(np.isnan(vdw_vals), default_vdw, vdw_vals)
+        vdw_vals *= vdw_scale
+        vdw_max = max(vdw_vals)
+
+        # Get the interatomic pair distances
+        atomn = s.get_number_of_atoms()
+        triui = np.triu_indices(atomn, k=1)
+        v = s.get_positions()
+        v = (v[:, None, :]-v[None, :, :])[triui]
+        # Reduce them
+        v, v_cells = minimum_periodic(v, s.get_cell())
+        v = np.linalg.norm(v, axis=-1)
+
+        # Now distance and VdW matrices
+        vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
+        link_M = v <= vdw_M
+
+        linked = np.where(link_M) # Bonded atoms
+
+        bonds = zip(triui[0][linked], triui[1][linked],
+                    -v_cells[linked], v[linked])
+        
+        return bonds
 
 class Molecules(AtomsProperty):
 
@@ -118,6 +187,12 @@ class Molecules(AtomsProperty):
                   'system')
             return None
 
+        # Get the bonds
+        bond_calc = Bonds({'vdw_set': vdw_set,
+                           'vdw_scale': vdw_scale,
+                           'default_vdw': default_vdw})
+        bonds = bond_calc(s)
+
         # First, we need the biggest Van der Waals radius
         # So that we know how big the supercell needs to be
         vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
@@ -142,14 +217,10 @@ class Molecules(AtomsProperty):
         unsorted_atoms = list(range(atomn))
 
         def get_linked(i):
-            inds = np.concatenate((np.where(triui[1] == i)[0],
-                                   np.where(triui[0] == i)[0]))
-            cells = np.array([v_cells[j] for j in inds if link_M[j]])
-            links = np.where(link_M[inds])[0]
-            cells = np.where(links[:, None] < i, cells, -cells)
-            links = np.where(links < i, links, links + 1)
-
-            return links, cells
+            i_bonds = filter(lambda b: i in b[:2], bonds)
+            links = map(lambda b: (b[1],b[2]) if b[0] == i else (b[0],-b[2]),
+                                 i_bonds)
+            return links
 
         while len(unsorted_atoms) > 0:
             mol_queue = [(unsorted_atoms.pop(0), np.zeros(3))]
@@ -162,10 +233,10 @@ class Molecules(AtomsProperty):
                 current_mol_cells.append(cell1)
                 current_mol_bonds.append([])
                 # Find linked atoms
-                links, cells = get_linked(a1)
-                for i, l in enumerate(links):
+                links = get_linked(a1)
+                for l, cl in links:
                     if l in unsorted_atoms:
-                        mol_queue.append((l, cell1 + cells[i]))
+                        mol_queue.append((l, cell1 + cl))
                         unsorted_atoms.remove(l)
                     current_mol_bonds[-1].append(l)
 
