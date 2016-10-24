@@ -110,8 +110,11 @@ class TestPropertyLoad(unittest.TestCase):
                                           [4,0,0],
                                           [3,3,3],
                                           [3,3.5,3]]))
-        testBonds = Bonds.get(testA)
+        testBonds = Bonds.get(testAtoms)
         self.assertTrue(testBonds[0][:2] == (0,1))
+        self.assertTrue(testBonds[1][:2] == (2,3))
+        self.assertTrue(np.all(testBonds[0][2] == (-1,0,0)))
+        self.assertAlmostEqual(testBonds[0][3], 2*testBonds[1][3])
 
         # Test molecules
         mols = Molecules.get(a)
