@@ -104,9 +104,14 @@ class TestPropertyLoad(unittest.TestCase):
         a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
 
         # Test bonds
-        testA = Atoms(['C', 'C', 'C', 'C'],
+        testAtoms = Atoms(['C', 'C', 'C', 'C'],
                       cell=[5,5,5],
-                      positions=np.array([[0,0,0],[4.9,0,0],[3,3,3],[3,4,3]]))
+                      positions=np.array([[0,0,0],
+                                          [4,0,0],
+                                          [3,3,3],
+                                          [3,3.5,3]]))
+        testBonds = Bonds.get(testA)
+        self.assertTrue(testBonds[0][:2] == (0,1))
 
         # Test molecules
         mols = Molecules.get(a)
