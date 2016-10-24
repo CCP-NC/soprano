@@ -16,7 +16,10 @@ from collections import namedtuple
 from soprano import utils
 from soprano.calculate.xrd import sel_rules as xrdsel
 try:
-    from pyspglib import spglib
+    try:
+        import spglib
+    except ImportError:
+        from pyspglib import spglib
 except ImportError:
     raise ImportError('pySPGLIB not installed on this system, XRD'
                        ' functionality cannot be used.')
