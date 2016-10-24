@@ -10,5 +10,6 @@ from soprano.properties.linkage.linkage import (LinkageList, Bonds, Molecules,
                                                 MoleculeNumber, MoleculeMass,
                                                 MoleculeCOMLinkage,
                                                 MoleculeRelativeRotation,
+                                                CoordinationHistogram,
                                                 HydrogenBonds,
                                                 HydrogenBondsNumber)

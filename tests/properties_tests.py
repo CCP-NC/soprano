@@ -96,6 +96,7 @@ class TestPropertyLoad(unittest.TestCase):
                                                 MoleculeMass,
                                                 MoleculeCOMLinkage,
                                                 MoleculeRelativeRotation,
+                                                CoordinationHistogram,
                                                 HydrogenBonds,
                                                 HydrogenBondsNumber)
 
@@ -115,6 +116,8 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(testBonds[1][:2] == (2,3))
         self.assertTrue(np.all(testBonds[0][2] == (-1,0,0)))
         self.assertAlmostEqual(testBonds[0][3], 2*testBonds[1][3])
+
+        print(CoordinationHistogram.get(a))
 
         # Test molecules
         mols = Molecules.get(a)

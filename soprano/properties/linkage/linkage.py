@@ -72,6 +72,7 @@ class LinkageList(AtomsProperty):
 
         return link_lis
 
+
 class Bonds(AtomsProperty):
 
     """
@@ -95,7 +96,7 @@ class Bonds(AtomsProperty):
     |                         the one extracted from JMol.
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
-    |                      tolerant molecules.
+    |                      tolerant bonds.
     |   default_vdw (float): default Van der Waals radius for species for
     |                        whom no data is available.
 
@@ -135,12 +136,92 @@ class Bonds(AtomsProperty):
         vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
         link_M = v <= vdw_M
 
-        linked = np.where(link_M) # Bonded atoms
+        linked = np.where(link_M)  # Bonded atoms
 
         bonds = zip(triui[0][linked], triui[1][linked],
                     -v_cells[linked], v[linked])
-        
+
         return bonds
+
+
+class CoordinationHistogram(AtomsProperty):
+
+    """
+    CoordinationHistogram
+
+    Produces an histogram representing, for each pair of species present in
+    the system, how many atoms of species 1 have n bonds with species 2, n
+    being the histogram bins. The histogram is topped at a 'maximum
+    coordination' parameter which is 6 by default but can be user defined;
+    the last bin represents all higher values (so by default '6 or more').
+    Two species or lists of species can be given if one wants to restrict the
+    search; otherwise a full histogram for all pairs of species is returned.
+
+    | Parameters:
+    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is
+    |                         the one extracted from JMol.
+    |   vdw_scale (float): scaling factor to apply to the base Van der Waals
+    |                      radii values. Values bigger than one make for more
+    |                      tolerant bonds.
+    |   default_vdw (float): default Van der Waals radius for species for
+    |                        whom no data is available.
+    |   species_1 (str or [str]): list of species to compute the histogram
+    |                             for. By default all of them.
+    |   species_2 (str or [str]): list of species whose coordination with 
+    |                             species_1 should be checked. By default all
+    |                             of them.
+    |   max_coord (int): what should be the largest coordination number
+    |                    considered for an atom (default 6).
+
+    | Returns:
+    |   coord_hist (dict): dictionary of dictionaries indexed by species_1
+    |                      followed by species_2. The elements are arrays of
+    |                      integers constituting the histogram.
+
+    """
+
+    default_name = 'coord_histogram'
+    default_params = {
+        'vdw_set': 'jmol',
+        'vdw_scale': 1.0,
+        'default_vdw': 2.0,
+        'species_1': None,
+        'species_2': None,
+        'max_coord': 6
+    }
+
+    @staticmethod
+    def extract(s, vdw_set, vdw_scale, default_vdw,
+                species_1, species_2, max_coord):
+
+        elems = np.array(s.get_chemical_symbols())
+
+        # Get the bonds
+        bond_calc = Bonds({'vdw_set': vdw_set,
+                           'vdw_scale': vdw_scale,
+                           'default_vdw': default_vdw})
+        bonds = bond_calc(s)
+        bond_elems = map(lambda b: [(b[0], elems[b[1]]), 
+                                    (b[1], elems[b[0]])], bonds)
+        print(bond_elems)
+        raise RuntimeError('INCOMPLETE')
+
+        if species_1 is None:
+            species_1 = elems
+
+        if species_2 is None:
+            species_2 = elems
+
+        for s1 in species_1:
+            i1 = np.where(elems == s1)[0]
+            for s2 in species_2:
+                i2 = np.where(elems == s2)[0]
+                # Get bonds where both are involved
+                b1 = [filter(lambda b: i in b[:2], bonds) for i in i1]
+
+
+
+
 
 class Molecules(AtomsProperty):
 
@@ -218,8 +299,8 @@ class Molecules(AtomsProperty):
 
         def get_linked(i):
             i_bonds = filter(lambda b: i in b[:2], bonds)
-            links = map(lambda b: (b[1],b[2]) if b[0] == i else (b[0],-b[2]),
-                                 i_bonds)
+            links = map(lambda b: (b[1], b[2]) if b[0] == i else (b[0], -b[2]),
+                        i_bonds)
             return links
 
         while len(unsorted_atoms) > 0:
