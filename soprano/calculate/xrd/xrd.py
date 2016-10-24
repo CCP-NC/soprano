@@ -11,11 +11,16 @@ from __future__ import unicode_literals
 
 import copy
 import numpy as np
-from pyspglib import spglib
 from collections import namedtuple
 # Internal imports
 from soprano import utils
 from soprano.calculate.xrd import sel_rules as xrdsel
+try:
+    from pyspglib import spglib
+except ImportError:
+    raise ImportError('pySPGLIB not installed on this system, XRD'
+                       ' functionality cannot be used.')
+
 
 XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
                                            "invd", "intensity", "lambdax"))
