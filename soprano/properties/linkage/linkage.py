@@ -201,26 +201,49 @@ class CoordinationHistogram(AtomsProperty):
                            'vdw_scale': vdw_scale,
                            'default_vdw': default_vdw})
         bonds = bond_calc(s)
-        bond_elems = map(lambda b: [(b[0], elems[b[1]]), 
-                                    (b[1], elems[b[0]])], bonds)
-        print(bond_elems)
-        raise RuntimeError('INCOMPLETE')
+        bond_inds = np.concatenate(zip(*bonds)[:2])
+        bond_elems = elems[bond_inds]
+        bN = len(bonds)
 
         if species_1 is None:
-            species_1 = elems
+            species_1 = np.unique(elems)
 
         if species_2 is None:
-            species_2 = elems
+            species_2 = np.unique(elems)
+
+        # Initialise the histogram
+        hist = {s1: {s2: np.zeros(max_coord+1)
+                     for s2 in species_2}
+                for s1 in species_1}
 
         for s1 in species_1:
-            i1 = np.where(elems == s1)[0]
+            # Which atoms are of species 1, and what are they bonded to?
+            i1 = np.where(bond_elems == s1)[0]
+            b1 = bond_inds[i1]
+            be1 = bond_elems[(i1-bN).astype(int)]
             for s2 in species_2:
-                i2 = np.where(elems == s2)[0]
-                # Get bonds where both are involved
-                b1 = [filter(lambda b: i in b[:2], bonds) for i in i1]
+                # Which ones are bonded to species 2?
+                i2 = np.where(be1 == s2)
+                b2 = b1[i2]
+                b2, counts = np.unique(b2, return_counts=True)
+                hist_i, hist_n = np.unique(counts, return_counts=True)
+                # Fix for numbers that are too high...
+                hist_big = np.where(hist_i > max_coord)[0]
+                if (len(hist_big) > 0):
+                    # In this case find the max_coord index, if absent add it
+                    hist_maxc = np.where(hist_i == max_coord)[0]
+                    if len(hist_maxc) == 0:
+                        hist_i = np.concatenate([hist_i, [max_coord]])
+                        hist_n = np.concatenate([hist_n, [0]])
+                        hist_maxc = [-1]                    
+                    hist_n[hist_maxc] += np.sum(hist_n[hist_big])
+                    # Then slice away, keep only the admissible indices
+                    hist_small = np.where(hist_i <= max_coord)[0]
+                    hist_i = hist_i[hist_small]
+                    hist_n = hist_n[hist_small]
+                hist[s1][s2][hist_i] += hist_n
 
-
-
+        return hist
 
 
 class Molecules(AtomsProperty):

@@ -117,7 +117,13 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(np.all(testBonds[0][2] == (-1,0,0)))
         self.assertAlmostEqual(testBonds[0][3], 2*testBonds[1][3])
 
-        print(CoordinationHistogram.get(a))
+        # Also test coordination histogram
+        coord_hist = CoordinationHistogram.get(a)
+        # Testing some qualities of the Alanine crystal...
+        self.assertTrue(coord_hist['H']['C'][1], 16)    # 16 H bonded to a C
+        self.assertTrue(coord_hist['H']['N'][1], 12)    # 12 H bonded to a N
+        self.assertTrue(coord_hist['C']['H'][3], 4)     # 4 CH3 groups
+        self.assertTrue(coord_hist['C']['O'][2], 4)     # 4 COO groups
 
         # Test molecules
         mols = Molecules.get(a)
