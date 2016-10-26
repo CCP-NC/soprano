@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 """
 Soprano - A library for cracking crystals!
-by Simone Sturniolo et al.
-Copyright whatever whatever (TODO)
-
-v 0.5
+by Simone Sturniolo
 """
 
 # Python 2-to-3 compatibility code
