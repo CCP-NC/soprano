@@ -1,0 +1,274 @@
+\indexentry{soprano (module)|hyperpage}{3}
+\indexentry{soprano.analyse (module)|hyperpage}{3}
+\indexentry{soprano.analyse.phylogen (module)|hyperpage}{3}
+\indexentry{soprano.analyse.phylogen.genes (module)|hyperpage}{3}
+\indexentry{Gene (class in soprano.analyse.phylogen.genes)|hyperpage}{3}
+\indexentry{evaluate() (soprano.analyse.phylogen.genes.Gene method)|hyperpage}{4}
+\indexentry{is\_pair (soprano.analyse.phylogen.genes.Gene attribute)|hyperpage}{4}
+\indexentry{GeneDictionary (class in soprano.analyse.phylogen.genes)|hyperpage}{4}
+\indexentry{get\_gene() (soprano.analyse.phylogen.genes.GeneDictionary class method)|hyperpage}{4}
+\indexentry{help() (soprano.analyse.phylogen.genes.GeneDictionary class method)|hyperpage}{4}
+\indexentry{GeneError|hyperpage}{4}
+\indexentry{load\_genefile() (in module soprano.analyse.phylogen.genes)|hyperpage}{4}
+\indexentry{parsegene\_energy() (in module soprano.analyse.phylogen.genes)|hyperpage}{4}
+\indexentry{parsegene\_hbonds\_angle() (in module soprano.analyse.phylogen.genes)|hyperpage}{4}
+\indexentry{parsegene\_hbonds\_fprint() (in module soprano.analyse.phylogen.genes)|hyperpage}{4}
+\indexentry{parsegene\_hbonds\_length() (in module soprano.analyse.phylogen.genes)|hyperpage}{4}
+\indexentry{parsegene\_hbonds\_site\_compare() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_hbonds\_site\_reference() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_hbonds\_totn() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_latt\_abc() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_latt\_ang() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_latt\_cart() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_linkage\_list() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_mol\_com() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_mol\_m() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_mol\_num() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{parsegene\_mol\_rot() (in module soprano.analyse.phylogen.genes)|hyperpage}{5}
+\indexentry{soprano.analyse.phylogen.mapping (module)|hyperpage}{5}
+\indexentry{classcond\_principal\_component() (in module soprano.analyse.phylogen.mapping)|hyperpage}{5}
+\indexentry{optimal\_discriminant\_plane() (in module soprano.analyse.phylogen.mapping)|hyperpage}{5}
+\indexentry{standard\_classcond\_component() (in module soprano.analyse.phylogen.mapping)|hyperpage}{5}
+\indexentry{total\_principal\_component() (in module soprano.analyse.phylogen.mapping)|hyperpage}{5}
+\indexentry{soprano.analyse.phylogen.phylogenclust (module)|hyperpage}{5}
+\indexentry{PhylogenCluster (class in soprano.analyse.phylogen.phylogenclust)|hyperpage}{5}
+\indexentry{create\_mapping() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{6}
+\indexentry{get\_distmat() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{6}
+\indexentry{get\_genome\_matrices() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{6}
+\indexentry{get\_genome\_matrices\_norm() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{7}
+\indexentry{get\_genome\_vectors() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{7}
+\indexentry{get\_genome\_vectors\_norm() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{7}
+\indexentry{get\_hier\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{8}
+\indexentry{get\_hier\_tree() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{8}
+\indexentry{get\_kmeans\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{9}
+\indexentry{get\_linkage() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{9}
+\indexentry{get\_max\_cluster\_dist() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{9}
+\indexentry{load() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster static method)|hyperpage}{9}
+\indexentry{save() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{10}
+\indexentry{save\_collection() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{10}
+\indexentry{set\_genes() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)|hyperpage}{10}
+\indexentry{soprano.calculate (module)|hyperpage}{10}
+\indexentry{soprano.calculate.gulp (module)|hyperpage}{10}
+\indexentry{soprano.calculate.gulp.charges (module)|hyperpage}{10}
+\indexentry{get\_gulp\_charges() (in module soprano.calculate.gulp.charges)|hyperpage}{10}
+\indexentry{soprano.calculate.gulp.w99 (module)|hyperpage}{11}
+\indexentry{W99Error|hyperpage}{11}
+\indexentry{find\_w99\_atomtypes() (in module soprano.calculate.gulp.w99)|hyperpage}{11}
+\indexentry{get\_w99\_energy() (in module soprano.calculate.gulp.w99)|hyperpage}{11}
+\indexentry{soprano.calculate.xrd (module)|hyperpage}{12}
+\indexentry{soprano.calculate.xrd.sel\_rules (module)|hyperpage}{12}
+\indexentry{get\_sel\_rule\_from\_hall() (in module soprano.calculate.xrd.sel\_rules)|hyperpage}{12}
+\indexentry{get\_sel\_rule\_from\_international() (in module soprano.calculate.xrd.sel\_rules)|hyperpage}{12}
+\indexentry{soprano.calculate.xrd.xrd (module)|hyperpage}{13}
+\indexentry{XRDCalculator (class in soprano.calculate.xrd.xrd)|hyperpage}{13}
+\indexentry{dataset\_range() (soprano.calculate.xrd.xrd.XRDCalculator method)|hyperpage}{14}
+\indexentry{exp\_dataset() (soprano.calculate.xrd.xrd.XRDCalculator method)|hyperpage}{14}
+\indexentry{lebail\_fit() (soprano.calculate.xrd.xrd.XRDCalculator method)|hyperpage}{14}
+\indexentry{peak\_f\_args (soprano.calculate.xrd.xrd.XRDCalculator attribute)|hyperpage}{15}
+\indexentry{peak\_func (soprano.calculate.xrd.xrd.XRDCalculator attribute)|hyperpage}{15}
+\indexentry{powder\_peaks() (soprano.calculate.xrd.xrd.XRDCalculator method)|hyperpage}{15}
+\indexentry{set\_peak\_func() (soprano.calculate.xrd.xrd.XRDCalculator method)|hyperpage}{16}
+\indexentry{spec\_simul() (soprano.calculate.xrd.xrd.XRDCalculator method)|hyperpage}{16}
+\indexentry{XraySpectrum (class in soprano.calculate.xrd.xrd)|hyperpage}{17}
+\indexentry{hkl (soprano.calculate.xrd.xrd.XraySpectrum attribute)|hyperpage}{17}
+\indexentry{hkl\_unique (soprano.calculate.xrd.xrd.XraySpectrum attribute)|hyperpage}{17}
+\indexentry{intensity (soprano.calculate.xrd.xrd.XraySpectrum attribute)|hyperpage}{17}
+\indexentry{invd (soprano.calculate.xrd.xrd.XraySpectrum attribute)|hyperpage}{17}
+\indexentry{lambdax (soprano.calculate.xrd.xrd.XraySpectrum attribute)|hyperpage}{17}
+\indexentry{theta2 (soprano.calculate.xrd.xrd.XraySpectrum attribute)|hyperpage}{17}
+\indexentry{XraySpectrumData (class in soprano.calculate.xrd.xrd)|hyperpage}{17}
+\indexentry{intensity (soprano.calculate.xrd.xrd.XraySpectrumData attribute)|hyperpage}{17}
+\indexentry{theta2 (soprano.calculate.xrd.xrd.XraySpectrumData attribute)|hyperpage}{17}
+\indexentry{soprano.collection (module)|hyperpage}{17}
+\indexentry{soprano.collection.generate (module)|hyperpage}{17}
+\indexentry{soprano.collection.generate.airss (module)|hyperpage}{17}
+\indexentry{airssGen() (in module soprano.collection.generate.airss)|hyperpage}{17}
+\indexentry{soprano.collection.generate.linspace (module)|hyperpage}{18}
+\indexentry{linspaceGen() (in module soprano.collection.generate.linspace)|hyperpage}{18}
+\indexentry{soprano.collection.generate.rattle (module)|hyperpage}{18}
+\indexentry{rattleGen() (in module soprano.collection.generate.rattle)|hyperpage}{18}
+\indexentry{soprano.collection.collection (module)|hyperpage}{19}
+\indexentry{AtomsCollection (class in soprano.collection.collection)|hyperpage}{19}
+\indexentry{all (soprano.collection.collection.AtomsCollection attribute)|hyperpage}{20}
+\indexentry{chunkify() (soprano.collection.collection.AtomsCollection method)|hyperpage}{20}
+\indexentry{filter() (soprano.collection.collection.AtomsCollection method)|hyperpage}{20}
+\indexentry{get\_array() (soprano.collection.collection.AtomsCollection method)|hyperpage}{20}
+\indexentry{has() (soprano.collection.collection.AtomsCollection method)|hyperpage}{20}
+\indexentry{length (soprano.collection.collection.AtomsCollection attribute)|hyperpage}{20}
+\indexentry{load() (soprano.collection.collection.AtomsCollection static method)|hyperpage}{20}
+\indexentry{run\_calculators() (soprano.collection.collection.AtomsCollection method)|hyperpage}{21}
+\indexentry{save() (soprano.collection.collection.AtomsCollection method)|hyperpage}{21}
+\indexentry{set\_array() (soprano.collection.collection.AtomsCollection method)|hyperpage}{21}
+\indexentry{set\_calculators() (soprano.collection.collection.AtomsCollection method)|hyperpage}{21}
+\indexentry{sorted\_byarray() (soprano.collection.collection.AtomsCollection method)|hyperpage}{22}
+\indexentry{soprano.hpc (module)|hyperpage}{22}
+\indexentry{soprano.hpc.submitter (module)|hyperpage}{22}
+\indexentry{soprano.hpc.submitter.debug (module)|hyperpage}{23}
+\indexentry{soprano.hpc.submitter.debug.debugqueue (module)|hyperpage}{23}
+\indexentry{DebugQueueInterface (class in soprano.hpc.submitter.debug.debugqueue)|hyperpage}{23}
+\indexentry{kill() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method)|hyperpage}{23}
+\indexentry{list() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method)|hyperpage}{23}
+\indexentry{submit() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method)|hyperpage}{23}
+\indexentry{soprano.hpc.submitter.castep (module)|hyperpage}{24}
+\indexentry{CastepSubmitter (class in soprano.hpc.submitter.castep)|hyperpage}{24}
+\indexentry{finish\_job() (soprano.hpc.submitter.castep.CastepSubmitter method)|hyperpage}{25}
+\indexentry{finish\_run() (soprano.hpc.submitter.castep.CastepSubmitter method)|hyperpage}{25}
+\indexentry{next\_job() (soprano.hpc.submitter.castep.CastepSubmitter method)|hyperpage}{25}
+\indexentry{set\_parameters() (soprano.hpc.submitter.castep.CastepSubmitter method)|hyperpage}{25}
+\indexentry{setup\_job() (soprano.hpc.submitter.castep.CastepSubmitter method)|hyperpage}{25}
+\indexentry{start\_run() (soprano.hpc.submitter.castep.CastepSubmitter method)|hyperpage}{25}
+\indexentry{soprano.hpc.submitter.queues (module)|hyperpage}{25}
+\indexentry{QueueInterface (class in soprano.hpc.submitter.queues)|hyperpage}{25}
+\indexentry{GridEngine() (soprano.hpc.submitter.queues.QueueInterface class method)|hyperpage}{26}
+\indexentry{LSF() (soprano.hpc.submitter.queues.QueueInterface class method)|hyperpage}{26}
+\indexentry{kill() (soprano.hpc.submitter.queues.QueueInterface method)|hyperpage}{26}
+\indexentry{list() (soprano.hpc.submitter.queues.QueueInterface method)|hyperpage}{26}
+\indexentry{submit() (soprano.hpc.submitter.queues.QueueInterface method)|hyperpage}{26}
+\indexentry{soprano.hpc.submitter.submit (module)|hyperpage}{27}
+\indexentry{Submitter (class in soprano.hpc.submitter.submit)|hyperpage}{27}
+\indexentry{check\_job() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{finish\_job() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{finish\_run() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{list() (soprano.hpc.submitter.submit.Submitter static method)|hyperpage}{28}
+\indexentry{log() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{next\_job() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{set\_parameters() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{setup\_job() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{start() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{start\_run() (soprano.hpc.submitter.submit.Submitter method)|hyperpage}{28}
+\indexentry{stop() (soprano.hpc.submitter.submit.Submitter static method)|hyperpage}{28}
+\indexentry{soprano.properties (module)|hyperpage}{29}
+\indexentry{soprano.properties.basic (module)|hyperpage}{29}
+\indexentry{soprano.properties.basic.basic (module)|hyperpage}{29}
+\indexentry{CalcEnergy (class in soprano.properties.basic.basic)|hyperpage}{29}
+\indexentry{default\_name (soprano.properties.basic.basic.CalcEnergy attribute)|hyperpage}{29}
+\indexentry{default\_params (soprano.properties.basic.basic.CalcEnergy attribute)|hyperpage}{29}
+\indexentry{extract() (soprano.properties.basic.basic.CalcEnergy static method)|hyperpage}{29}
+\indexentry{LatticeABC (class in soprano.properties.basic.basic)|hyperpage}{29}
+\indexentry{default\_name (soprano.properties.basic.basic.LatticeABC attribute)|hyperpage}{30}
+\indexentry{default\_params (soprano.properties.basic.basic.LatticeABC attribute)|hyperpage}{30}
+\indexentry{extract() (soprano.properties.basic.basic.LatticeABC static method)|hyperpage}{30}
+\indexentry{LatticeCart (class in soprano.properties.basic.basic)|hyperpage}{30}
+\indexentry{default\_name (soprano.properties.basic.basic.LatticeCart attribute)|hyperpage}{30}
+\indexentry{default\_params (soprano.properties.basic.basic.LatticeCart attribute)|hyperpage}{30}
+\indexentry{extract() (soprano.properties.basic.basic.LatticeCart static method)|hyperpage}{30}
+\indexentry{NumAtoms (class in soprano.properties.basic.basic)|hyperpage}{30}
+\indexentry{default\_name (soprano.properties.basic.basic.NumAtoms attribute)|hyperpage}{30}
+\indexentry{default\_params (soprano.properties.basic.basic.NumAtoms attribute)|hyperpage}{30}
+\indexentry{extract() (soprano.properties.basic.basic.NumAtoms static method)|hyperpage}{30}
+\indexentry{soprano.properties.castep (module)|hyperpage}{31}
+\indexentry{soprano.properties.castep.castep (module)|hyperpage}{31}
+\indexentry{CastepEnthalpy (class in soprano.properties.castep.castep)|hyperpage}{31}
+\indexentry{default\_name (soprano.properties.castep.castep.CastepEnthalpy attribute)|hyperpage}{31}
+\indexentry{default\_params (soprano.properties.castep.castep.CastepEnthalpy attribute)|hyperpage}{31}
+\indexentry{extract() (soprano.properties.castep.castep.CastepEnthalpy static method)|hyperpage}{31}
+\indexentry{soprano.properties.labeling (module)|hyperpage}{31}
+\indexentry{soprano.properties.labeling.labeling (module)|hyperpage}{31}
+\indexentry{HydrogenBondTypes (class in soprano.properties.labeling.labeling)|hyperpage}{31}
+\indexentry{default\_name (soprano.properties.labeling.labeling.HydrogenBondTypes attribute)|hyperpage}{32}
+\indexentry{default\_params (soprano.properties.labeling.labeling.HydrogenBondTypes attribute)|hyperpage}{32}
+\indexentry{extract() (soprano.properties.labeling.labeling.HydrogenBondTypes static method)|hyperpage}{32}
+\indexentry{MoleculeSites (class in soprano.properties.labeling.labeling)|hyperpage}{32}
+\indexentry{default\_name (soprano.properties.labeling.labeling.MoleculeSites attribute)|hyperpage}{33}
+\indexentry{default\_params (soprano.properties.labeling.labeling.MoleculeSites attribute)|hyperpage}{33}
+\indexentry{extract() (soprano.properties.labeling.labeling.MoleculeSites static method)|hyperpage}{33}
+\indexentry{soprano.properties.linkage (module)|hyperpage}{33}
+\indexentry{soprano.properties.linkage.linkage (module)|hyperpage}{33}
+\indexentry{Bonds (class in soprano.properties.linkage.linkage)|hyperpage}{33}
+\indexentry{default\_name (soprano.properties.linkage.linkage.Bonds attribute)|hyperpage}{34}
+\indexentry{default\_params (soprano.properties.linkage.linkage.Bonds attribute)|hyperpage}{34}
+\indexentry{extract() (soprano.properties.linkage.linkage.Bonds static method)|hyperpage}{34}
+\indexentry{CoordinationHistogram (class in soprano.properties.linkage.linkage)|hyperpage}{34}
+\indexentry{default\_name (soprano.properties.linkage.linkage.CoordinationHistogram attribute)|hyperpage}{35}
+\indexentry{default\_params (soprano.properties.linkage.linkage.CoordinationHistogram attribute)|hyperpage}{35}
+\indexentry{extract() (soprano.properties.linkage.linkage.CoordinationHistogram static method)|hyperpage}{35}
+\indexentry{HydrogenBonds (class in soprano.properties.linkage.linkage)|hyperpage}{35}
+\indexentry{default\_name (soprano.properties.linkage.linkage.HydrogenBonds attribute)|hyperpage}{36}
+\indexentry{default\_params (soprano.properties.linkage.linkage.HydrogenBonds attribute)|hyperpage}{36}
+\indexentry{extract() (soprano.properties.linkage.linkage.HydrogenBonds static method)|hyperpage}{36}
+\indexentry{HydrogenBondsNumber (class in soprano.properties.linkage.linkage)|hyperpage}{36}
+\indexentry{default\_name (soprano.properties.linkage.linkage.HydrogenBondsNumber attribute)|hyperpage}{36}
+\indexentry{default\_params (soprano.properties.linkage.linkage.HydrogenBondsNumber attribute)|hyperpage}{37}
+\indexentry{extract() (soprano.properties.linkage.linkage.HydrogenBondsNumber static method)|hyperpage}{37}
+\indexentry{LinkageList (class in soprano.properties.linkage.linkage)|hyperpage}{37}
+\indexentry{default\_name (soprano.properties.linkage.linkage.LinkageList attribute)|hyperpage}{37}
+\indexentry{default\_params (soprano.properties.linkage.linkage.LinkageList attribute)|hyperpage}{37}
+\indexentry{extract() (soprano.properties.linkage.linkage.LinkageList static method)|hyperpage}{37}
+\indexentry{MoleculeCOMLinkage (class in soprano.properties.linkage.linkage)|hyperpage}{37}
+\indexentry{default\_name (soprano.properties.linkage.linkage.MoleculeCOMLinkage attribute)|hyperpage}{38}
+\indexentry{default\_params (soprano.properties.linkage.linkage.MoleculeCOMLinkage attribute)|hyperpage}{38}
+\indexentry{extract() (soprano.properties.linkage.linkage.MoleculeCOMLinkage static method)|hyperpage}{38}
+\indexentry{MoleculeMass (class in soprano.properties.linkage.linkage)|hyperpage}{38}
+\indexentry{default\_name (soprano.properties.linkage.linkage.MoleculeMass attribute)|hyperpage}{38}
+\indexentry{default\_params (soprano.properties.linkage.linkage.MoleculeMass attribute)|hyperpage}{38}
+\indexentry{extract() (soprano.properties.linkage.linkage.MoleculeMass static method)|hyperpage}{39}
+\indexentry{MoleculeNumber (class in soprano.properties.linkage.linkage)|hyperpage}{39}
+\indexentry{default\_name (soprano.properties.linkage.linkage.MoleculeNumber attribute)|hyperpage}{39}
+\indexentry{default\_params (soprano.properties.linkage.linkage.MoleculeNumber attribute)|hyperpage}{39}
+\indexentry{extract() (soprano.properties.linkage.linkage.MoleculeNumber static method)|hyperpage}{39}
+\indexentry{MoleculeRelativeRotation (class in soprano.properties.linkage.linkage)|hyperpage}{39}
+\indexentry{default\_name (soprano.properties.linkage.linkage.MoleculeRelativeRotation attribute)|hyperpage}{40}
+\indexentry{default\_params (soprano.properties.linkage.linkage.MoleculeRelativeRotation attribute)|hyperpage}{40}
+\indexentry{extract() (soprano.properties.linkage.linkage.MoleculeRelativeRotation static method)|hyperpage}{40}
+\indexentry{Molecules (class in soprano.properties.linkage.linkage)|hyperpage}{40}
+\indexentry{default\_name (soprano.properties.linkage.linkage.Molecules attribute)|hyperpage}{41}
+\indexentry{default\_params (soprano.properties.linkage.linkage.Molecules attribute)|hyperpage}{41}
+\indexentry{extract() (soprano.properties.linkage.linkage.Molecules static method)|hyperpage}{41}
+\indexentry{soprano.properties.symmetry (module)|hyperpage}{41}
+\indexentry{soprano.properties.symmetry.symmetry (module)|hyperpage}{41}
+\indexentry{SymmetryDataset (class in soprano.properties.symmetry.symmetry)|hyperpage}{41}
+\indexentry{default\_name (soprano.properties.symmetry.symmetry.SymmetryDataset attribute)|hyperpage}{42}
+\indexentry{default\_params (soprano.properties.symmetry.symmetry.SymmetryDataset attribute)|hyperpage}{42}
+\indexentry{extract() (soprano.properties.symmetry.symmetry.SymmetryDataset static method)|hyperpage}{42}
+\indexentry{soprano.properties.transform (module)|hyperpage}{42}
+\indexentry{soprano.properties.transform.transform (module)|hyperpage}{42}
+\indexentry{Mirror (class in soprano.properties.transform.transform)|hyperpage}{42}
+\indexentry{default\_name (soprano.properties.transform.transform.Mirror attribute)|hyperpage}{43}
+\indexentry{default\_params (soprano.properties.transform.transform.Mirror attribute)|hyperpage}{43}
+\indexentry{extract() (soprano.properties.transform.transform.Mirror static method)|hyperpage}{43}
+\indexentry{Regularise (class in soprano.properties.transform.transform)|hyperpage}{43}
+\indexentry{default\_name (soprano.properties.transform.transform.Regularise attribute)|hyperpage}{43}
+\indexentry{default\_params (soprano.properties.transform.transform.Regularise attribute)|hyperpage}{43}
+\indexentry{extract() (soprano.properties.transform.transform.Regularise static method)|hyperpage}{43}
+\indexentry{Rotate (class in soprano.properties.transform.transform)|hyperpage}{43}
+\indexentry{default\_name (soprano.properties.transform.transform.Rotate attribute)|hyperpage}{44}
+\indexentry{default\_params (soprano.properties.transform.transform.Rotate attribute)|hyperpage}{44}
+\indexentry{extract() (soprano.properties.transform.transform.Rotate static method)|hyperpage}{44}
+\indexentry{Translate (class in soprano.properties.transform.transform)|hyperpage}{44}
+\indexentry{default\_name (soprano.properties.transform.transform.Translate attribute)|hyperpage}{45}
+\indexentry{default\_params (soprano.properties.transform.transform.Translate attribute)|hyperpage}{45}
+\indexentry{extract() (soprano.properties.transform.transform.Translate static method)|hyperpage}{45}
+\indexentry{soprano.properties.atomsproperty (module)|hyperpage}{45}
+\indexentry{AtomsProperty (class in soprano.properties.atomsproperty)|hyperpage}{45}
+\indexentry{default\_name (soprano.properties.atomsproperty.AtomsProperty attribute)|hyperpage}{45}
+\indexentry{default\_params (soprano.properties.atomsproperty.AtomsProperty attribute)|hyperpage}{45}
+\indexentry{extract() (soprano.properties.atomsproperty.AtomsProperty static method)|hyperpage}{45}
+\indexentry{get() (soprano.properties.atomsproperty.AtomsProperty class method)|hyperpage}{46}
+\indexentry{soprano.selection (module)|hyperpage}{46}
+\indexentry{AtomSelection (class in soprano.selection)|hyperpage}{46}
+\indexentry{all() (soprano.selection.AtomSelection static method)|hyperpage}{47}
+\indexentry{from\_box() (soprano.selection.AtomSelection static method)|hyperpage}{47}
+\indexentry{from\_element() (soprano.selection.AtomSelection static method)|hyperpage}{47}
+\indexentry{from\_sphere() (soprano.selection.AtomSelection static method)|hyperpage}{47}
+\indexentry{get\_array() (soprano.selection.AtomSelection method)|hyperpage}{48}
+\indexentry{indices (soprano.selection.AtomSelection attribute)|hyperpage}{48}
+\indexentry{set\_array() (soprano.selection.AtomSelection method)|hyperpage}{48}
+\indexentry{subset() (soprano.selection.AtomSelection method)|hyperpage}{48}
+\indexentry{validate() (soprano.selection.AtomSelection method)|hyperpage}{48}
+\indexentry{soprano.utils (module)|hyperpage}{48}
+\indexentry{abc2cart() (in module soprano.utils)|hyperpage}{48}
+\indexentry{cart2abc() (in module soprano.utils)|hyperpage}{48}
+\indexentry{hkl2d2\_matgen() (in module soprano.utils)|hyperpage}{48}
+\indexentry{inspect\_args() (in module soprano.utils)|hyperpage}{49}
+\indexentry{inv\_plane\_dist() (in module soprano.utils)|hyperpage}{49}
+\indexentry{is\_string() (in module soprano.utils)|hyperpage}{49}
+\indexentry{list\_distance() (in module soprano.utils)|hyperpage}{49}
+\indexentry{minimum\_periodic() (in module soprano.utils)|hyperpage}{49}
+\indexentry{minimum\_supcell() (in module soprano.utils)|hyperpage}{49}
+\indexentry{periodic\_center() (in module soprano.utils)|hyperpage}{50}
+\indexentry{progbar() (in module soprano.utils)|hyperpage}{50}
+\indexentry{replace\_folder() (in module soprano.utils)|hyperpage}{50}
+\indexentry{seedname() (in module soprano.utils)|hyperpage}{50}
+\indexentry{supcell\_gridgen() (in module soprano.utils)|hyperpage}{50}
+\indexentry{swing\_twist\_decomp() (in module soprano.utils)|hyperpage}{51}
+\indexentry{soprano (module)|hyperpage}{51}

@@ -1,0 +1,69 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}soprano}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}soprano package}{3}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Subpackages}{3}{subsection.1.1.1}
+\contentsline {subsubsection}{soprano.analyse package}{3}{subsubsection*.3}
+\contentsline {paragraph}{Subpackages}{3}{paragraph*.4}
+\contentsline {subparagraph}{soprano.analyse.phylogen package}{3}{subparagraph*.5}
+\contentsline {subparagraph}{Submodules}{3}{subparagraph*.6}
+\contentsline {subparagraph}{soprano.analyse.phylogen.genes module}{3}{subparagraph*.7}
+\contentsline {subparagraph}{soprano.analyse.phylogen.mapping module}{5}{subparagraph*.31}
+\contentsline {subparagraph}{soprano.analyse.phylogen.phylogenclust module}{5}{subparagraph*.36}
+\contentsline {subsubsection}{soprano.calculate package}{10}{subsubsection*.53}
+\contentsline {paragraph}{Subpackages}{10}{paragraph*.54}
+\contentsline {subparagraph}{soprano.calculate.gulp package}{10}{subparagraph*.55}
+\contentsline {subparagraph}{Submodules}{10}{subparagraph*.56}
+\contentsline {subparagraph}{soprano.calculate.gulp.charges module}{10}{subparagraph*.57}
+\contentsline {subparagraph}{soprano.calculate.gulp.w99 module}{11}{subparagraph*.59}
+\contentsline {subparagraph}{soprano.calculate.xrd package}{12}{subparagraph*.63}
+\contentsline {subparagraph}{Submodules}{12}{subparagraph*.64}
+\contentsline {subparagraph}{soprano.calculate.xrd.sel\_rules module}{12}{subparagraph*.65}
+\contentsline {subparagraph}{soprano.calculate.xrd.xrd module}{13}{subparagraph*.68}
+\contentsline {subsubsection}{soprano.collection package}{17}{subsubsection*.88}
+\contentsline {paragraph}{Subpackages}{17}{paragraph*.89}
+\contentsline {subparagraph}{soprano.collection.generate package}{17}{subparagraph*.90}
+\contentsline {subparagraph}{Submodules}{17}{subparagraph*.91}
+\contentsline {subparagraph}{soprano.collection.generate.airss module}{17}{subparagraph*.92}
+\contentsline {subparagraph}{soprano.collection.generate.linspace module}{18}{subparagraph*.94}
+\contentsline {subparagraph}{soprano.collection.generate.rattle module}{18}{subparagraph*.96}
+\contentsline {paragraph}{Submodules}{19}{paragraph*.98}
+\contentsline {subparagraph}{soprano.collection.collection module}{19}{subparagraph*.99}
+\contentsline {subsubsection}{soprano.hpc package}{22}{subsubsection*.113}
+\contentsline {paragraph}{Subpackages}{22}{paragraph*.114}
+\contentsline {subparagraph}{soprano.hpc.submitter package}{22}{subparagraph*.115}
+\contentsline {subparagraph}{Subpackages}{22}{subparagraph*.116}
+\contentsline {subparagraph}{soprano.hpc.submitter.debug package}{23}{subparagraph*.117}
+\contentsline {subparagraph}{Submodules}{23}{subparagraph*.118}
+\contentsline {subparagraph}{soprano.hpc.submitter.debug.debugqueue module}{23}{subparagraph*.119}
+\contentsline {subparagraph}{Submodules}{24}{subparagraph*.124}
+\contentsline {subparagraph}{soprano.hpc.submitter.castep module}{24}{subparagraph*.125}
+\contentsline {subparagraph}{soprano.hpc.submitter.queues module}{25}{subparagraph*.133}
+\contentsline {subparagraph}{soprano.hpc.submitter.submit module}{27}{subparagraph*.140}
+\contentsline {subsubsection}{soprano.properties package}{29}{subsubsection*.153}
+\contentsline {paragraph}{Subpackages}{29}{paragraph*.154}
+\contentsline {subparagraph}{soprano.properties.basic package}{29}{subparagraph*.155}
+\contentsline {subparagraph}{Submodules}{29}{subparagraph*.156}
+\contentsline {subparagraph}{soprano.properties.basic.basic module}{29}{subparagraph*.157}
+\contentsline {subparagraph}{soprano.properties.castep package}{31}{subparagraph*.174}
+\contentsline {subparagraph}{Submodules}{31}{subparagraph*.175}
+\contentsline {subparagraph}{soprano.properties.castep.castep module}{31}{subparagraph*.176}
+\contentsline {subparagraph}{soprano.properties.labeling package}{31}{subparagraph*.181}
+\contentsline {subparagraph}{Submodules}{31}{subparagraph*.182}
+\contentsline {subparagraph}{soprano.properties.labeling.labeling module}{31}{subparagraph*.183}
+\contentsline {subparagraph}{soprano.properties.linkage package}{33}{subparagraph*.192}
+\contentsline {subparagraph}{Submodules}{33}{subparagraph*.193}
+\contentsline {subparagraph}{soprano.properties.linkage.linkage module}{33}{subparagraph*.194}
+\contentsline {subparagraph}{soprano.properties.symmetry package}{41}{subparagraph*.235}
+\contentsline {subparagraph}{Submodules}{41}{subparagraph*.236}
+\contentsline {subparagraph}{soprano.properties.symmetry.symmetry module}{41}{subparagraph*.237}
+\contentsline {subparagraph}{soprano.properties.transform package}{42}{subparagraph*.242}
+\contentsline {subparagraph}{Submodules}{42}{subparagraph*.243}
+\contentsline {subparagraph}{soprano.properties.transform.transform module}{42}{subparagraph*.244}
+\contentsline {paragraph}{Submodules}{45}{paragraph*.261}
+\contentsline {subparagraph}{soprano.properties.atomsproperty module}{45}{subparagraph*.262}
+\contentsline {subsection}{\numberline {1.1.2}Submodules}{46}{subsection.1.1.2}
+\contentsline {subsubsection}{soprano.selection module}{46}{subsubsection*.268}
+\contentsline {subsubsection}{soprano.utils module}{48}{subsubsection*.279}
+\contentsline {chapter}{\numberline {2}Indices and tables}{53}{chapter.2}
+\contentsline {chapter}{Python Module Index}{55}{section*.296}
+\contentsline {chapter}{Index}{57}{section*.297}
