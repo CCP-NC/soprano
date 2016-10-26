@@ -53,7 +53,7 @@ class XRDCalculator(object):
         |                                  calculating theoretical peaks
         |   baseline (Optional[float]): baseline to use as starting point for
         |                               simulated spectra
-        |   peak_func (Optional[function<float, float, *kargs>
+        |   peak_func (Optional[function<float, float, \*kargs>
         |                       => <np.ndarray>]): the function used to
         |                                          simulate peaks. Should take
         |                                          th2 as its first argument,
@@ -83,7 +83,7 @@ class XRDCalculator(object):
     def peak_func(self):
         """The function used to build peaks in simulated spectra
 
-           Should be of form peak_func(theta2, peak_position, *peak_f_args)
+           Should be of form peak_func(theta2, peak_position, \*peak_f_args)
 
         """
         return self._peak_func
@@ -100,7 +100,7 @@ class XRDCalculator(object):
            passed, reset the default Gaussian function.
 
            | Args:
-           |   peak_func (Optional[function<float, float, *kargs>
+           |   peak_func (Optional[function<float, float, \*kargs>
            |                       => <np.ndarray>]): the function used to
            |                                          simulate peaks. Should
            |                                          take th2 as its first

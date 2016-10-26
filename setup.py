@@ -16,10 +16,11 @@ from __future__ import print_function
 # from __future__ import unicode_literals
 
 from setuptools import setup
+from soprano import __version__
 
 if __name__ == '__main__':
     setup(name='Soprano',
-          version='0.5',
+          version=__version__,
           packages=['soprano'],
           # For data files. Example: 'soprano': ['data/*.json']
           package_data={'soprano': ['data/*.json']},

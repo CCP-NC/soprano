@@ -53,7 +53,7 @@ class Gene(object):
     |   weight (float): weight of the gene to be applied, default is 1.0
     |   params (dict): additional parameters to be passed to the gene parser
     |                  function; when not specified, defaults will be used
-    |   parser (function<AtomsCollection, **kwargs>
+    |   parser (function<AtomsCollection, \*\*kwargs>
     |           => np.array): parser function to be used when defining custom
     |                         genes. Must return a two-dimensional Numpy array
     |                         (axis 0 for the elements of the collection,
@@ -101,9 +101,13 @@ class Gene(object):
 
     @property
     def is_pair(self):
+        """Whether the gene can only compare a pair of structures or can also
+        give an absolute value for each structure individually (required for
+        k-means clustering)"""
         return self._pair
 
     def evaluate(self, c):
+        """Evaluate the gene on a given AtomsCollection"""
         return self._parser(c, **self.params)
 
 

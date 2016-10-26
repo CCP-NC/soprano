@@ -273,7 +273,7 @@ class AtomsCollection(object):
 
         | Args:
         |   name (str): name of the array to operate on.
-        |   a (np.ndarray or function<Atoms, **kwargs>
+        |   a (np.ndarray or function<Atoms, \*\*kwargs>
         |                    => Any): the data to assign to the array (must
         |                             be same length as the collection) or
         |                             a function that takes an Atoms object

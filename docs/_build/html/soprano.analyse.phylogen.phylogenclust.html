@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.analyse.phylogen.phylogenclust module &#8212; Soprano 0.1 documentation</title>
+    <title>soprano.analyse.phylogen.phylogenclust module &mdash; Soprano alpha (Andrews) documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1',
+        VERSION:     'alpha (Andrews)',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,21 +24,16 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="top" title="Soprano alpha (Andrews) documentation" href="index.html" />
     <link rel="up" title="soprano.analyse.phylogen package" href="soprano.analyse.phylogen.html" />
     <link rel="next" title="soprano.calculate package" href="soprano.calculate.html" />
     <link rel="prev" title="soprano.analyse.phylogen.mapping module" href="soprano.analyse.phylogen.mapping.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-  
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
@@ -56,6 +51,45 @@
 weights, will build clusters out of the structures in the collection based
 on their reciprocal positions as points in a multi-dimensional space
 defined by those &#8220;genes&#8221;.</p>
+<p>Initialize the PhylogenCluster object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">coll (AtomsCollection): an AtomsCollection containing the</div>
+<div class="line-block">
+<div class="line">structures that should be classified.</div>
+<div class="line">This will be copied and frozen for the</div>
+<div class="line">entirety of the life of this instance;</div>
+<div class="line">in order to operate on a modified</div>
+<div class="line">collection, a new PhylogenCluster should</div>
+<div class="line">be created.</div>
+</div>
+<div class="line">genes (list[tuple], str, file): list of the genes that should be</div>
+<div class="line-block">
+<div class="line">loaded immediately; each gene</div>
+<div class="line">comes in the form of a tuple</div>
+<div class="line">(name (str), weight (float),</div>
+<div class="line">params (dict)). A path or open</div>
+<div class="line">file can also be passed for a</div>
+<div class="line">.gene file, from which the values</div>
+<div class="line">will be loaded.</div>
+</div>
+<div class="line">norm_range (list[float?]): ranges to constrain the values of</div>
+<div class="line-block">
+<div class="line">single genes in between. Default is</div>
+<div class="line">(0, 1). A value of &#8220;None&#8221; in either</div>
+<div class="line">place can be used to indicate no</div>
+<div class="line">normalization on one or both sides.</div>
+</div>
+<div class="line">norm_dist (float?): value to normalize distance genes to. These</div>
+<div class="line-block">
+<div class="line">are the genes that only make sense on pairs of</div>
+<div class="line">structures. Their minimum value is always 0.</div>
+<div class="line">This number would become their maximum value,</div>
+<div class="line">or can be set to None to avoid normalization.</div>
+</div>
+</div>
+</div>
 <dl class="method">
 <dt id="soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping">
 <code class="descname">create_mapping</code><span class="sig-paren">(</span><em>method=u'total-principal'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping" title="Permalink to this definition">¶</a></dt>
@@ -423,11 +457,14 @@ The calculated genes are also stored in it as arrays for future use.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -438,8 +475,8 @@ The calculated genes are also stored in it as arrays for future use.</p>
       &copy;2015, Simone Sturniolo.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
       
       |
       <a href="_sources/soprano.analyse.phylogen.phylogenclust.txt"

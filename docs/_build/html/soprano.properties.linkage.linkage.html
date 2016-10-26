@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.properties.linkage.linkage module &#8212; Soprano 0.1 documentation</title>
+    <title>soprano.properties.linkage.linkage module &mdash; Soprano alpha (Andrews) documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1',
+        VERSION:     'alpha (Andrews)',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,21 +24,16 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Soprano 0.1 documentation" href="index.html" />
+    <link rel="top" title="Soprano alpha (Andrews) documentation" href="index.html" />
     <link rel="up" title="soprano.properties.linkage package" href="soprano.properties.linkage.html" />
     <link rel="next" title="soprano.properties.symmetry package" href="soprano.properties.symmetry.html" />
     <link rel="prev" title="soprano.properties.linkage package" href="soprano.properties.linkage.html" />
    
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body role="document">
-  
+  <body role="document">  
 
     <div class="document">
       <div class="documentwrapper">
@@ -48,6 +43,161 @@
   <div class="section" id="module-soprano.properties.linkage.linkage">
 <span id="soprano-properties-linkage-linkage-module"></span><h1>soprano.properties.linkage.linkage module<a class="headerlink" href="#module-soprano.properties.linkage.linkage" title="Permalink to this headline">¶</a></h1>
 <p>Implementation of AtomsProperties that relate to linkage of atoms</p>
+<dl class="class">
+<dt id="soprano.properties.linkage.linkage.Bonds">
+<em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">Bonds</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces an array of tuples identifying all bonds existing within the 
+system (calculated using Van der Waals radii). The tuples are structured
+as:</p>
+<p>(atom_1, atom_2, atom_2_cell, bond_length)</p>
+<p>with atom_1 and atom_2 being indices and atom_2_cell being an array of
+integers identifying the unit cell to which atom_2 belongs with respect
+to atom_1 (which is assumed to be in (0,0,0), the central cell). This is
+to account for the possibility of course that the bond exists through the
+periodic boundary. WARNING: the possibility of an atom bonding with
+another throughout two different periodic boundaries is not accounted for.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is</div>
+<div class="line-block">
+<div class="line">the one extracted from JMol.</div>
+</div>
+<div class="line">vdw_scale (float): scaling factor to apply to the base Van der Waals</div>
+<div class="line-block">
+<div class="line">radii values. Values bigger than one make for more</div>
+<div class="line">tolerant bonds.</div>
+</div>
+<div class="line">default_vdw (float): default Van der Waals radius for species for</div>
+<div class="line-block">
+<div class="line">whom no data is available.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">bonds([tuple]): list of bonds in the form of 3-tuples structured as</div>
+<div class="line-block">
+<div class="line">explained above</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.Bonds.default_name">
+<code class="descname">default_name</code><em class="property"> = u'bonds'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.Bonds.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'default_vdw': 2.0, u'vdw_scale': 1.0, u'vdw_set': u'jmol'}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.linkage.linkage.Bonds.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>vdw_set</em>, <em>vdw_scale</em>, <em>default_vdw</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.linkage.linkage.CoordinationHistogram">
+<em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">CoordinationHistogram</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces an histogram representing, for each pair of species present in
+the system, how many atoms of species 1 have n bonds with species 2, n
+being the histogram bins. The histogram is topped at a &#8216;maximum
+coordination&#8217; parameter which is 6 by default but can be user defined;
+the last bin represents all higher values (so by default &#8216;6 or more&#8217;).
+Two species or lists of species can be given if one wants to restrict the
+search; otherwise a full histogram for all pairs of species is returned.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is</div>
+<div class="line-block">
+<div class="line">the one extracted from JMol.</div>
+</div>
+<div class="line">vdw_scale (float): scaling factor to apply to the base Van der Waals</div>
+<div class="line-block">
+<div class="line">radii values. Values bigger than one make for more</div>
+<div class="line">tolerant bonds.</div>
+</div>
+<div class="line">default_vdw (float): default Van der Waals radius for species for</div>
+<div class="line-block">
+<div class="line">whom no data is available.</div>
+</div>
+<div class="line">species_1 (str or [str]): list of species to compute the histogram</div>
+<div class="line-block">
+<div class="line">for. By default all of them.</div>
+</div>
+<div class="line">species_2 (str or [str]): list of species whose coordination with </div>
+<div class="line-block">
+<div class="line">species_1 should be checked. By default all</div>
+<div class="line">of them.</div>
+</div>
+<div class="line">max_coord (int): what should be the largest coordination number</div>
+<div class="line-block">
+<div class="line">considered for an atom (default 6).</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">coord_hist (dict): dictionary of dictionaries indexed by species_1</div>
+<div class="line-block">
+<div class="line">followed by species_2. The elements are arrays of</div>
+<div class="line">integers constituting the histogram.</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.CoordinationHistogram.default_name">
+<code class="descname">default_name</code><em class="property"> = u'coord_histogram'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.CoordinationHistogram.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'species_2': None, u'species_1': None, u'default_vdw': 2.0, u'max_coord': 6, u'vdw_set': u'jmol', u'vdw_scale': 1.0}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.linkage.linkage.CoordinationHistogram.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>vdw_set</em>, <em>vdw_scale</em>, <em>default_vdw</em>, <em>species_1</em>, <em>species_2</em>, <em>max_coord</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="soprano.properties.linkage.linkage.HydrogenBonds">
 <em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">HydrogenBonds</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds" title="Permalink to this definition">¶</a></dt>
@@ -106,6 +256,20 @@ bonded to the proton and B the one of the hydrogen bonded one.</p>
 </div>
 </div>
 </div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
 <dl class="attribute">
 <dt id="soprano.properties.linkage.linkage.HydrogenBonds.default_name">
 <code class="descname">default_name</code><em class="property"> = u'hydrogen_bonds'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.default_name" title="Permalink to this definition">¶</a></dt>
@@ -145,6 +309,20 @@ a saved array in the system.</p>
 <div class="line">hbonds_n (int): number of hydrogen bonds found</div>
 </div>
 </div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
 <dl class="attribute">
 <dt id="soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name">
 <code class="descname">default_name</code><em class="property"> = u'hydrogen_bonds_n'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name" title="Permalink to this definition">¶</a></dt>
@@ -182,6 +360,20 @@ reduced to their shortest periodic version and sorted min to max.</p>
 <div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">link_list ([float]): sorted list of interatomic linkage distances</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
 <dl class="attribute">
@@ -232,6 +424,20 @@ the system.</p>
 </div>
 </div>
 </div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
 <dl class="attribute">
 <dt id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name">
 <code class="descname">default_name</code><em class="property"> = u'molecule_com_linkage'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name" title="Permalink to this definition">¶</a></dt>
@@ -276,6 +482,20 @@ the system.</p>
 <div class="line">molecule_m ([float]): mass of each of the molecules present, sorted.</div>
 </div>
 </div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
 <dl class="attribute">
 <dt id="soprano.properties.linkage.linkage.MoleculeMass.default_name">
 <code class="descname">default_name</code><em class="property"> = u'molecule_mass'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.default_name" title="Permalink to this definition">¶</a></dt>
@@ -312,6 +532,20 @@ existing molecules if they&#8217;re present as a saved array in the system.</p>
 <div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">molecule_n (int): number of molecules found</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
 <dl class="attribute">
@@ -378,6 +612,20 @@ produces a list of geodesic distances between these quaternions.</p>
 </div>
 </div>
 </div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
 <dl class="attribute">
 <dt id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name">
 <code class="descname">default_name</code><em class="property"> = u'molecule_rel_rotation'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name" title="Permalink to this definition">¶</a></dt>
@@ -434,6 +682,20 @@ the system can not be split in molecules at all.</p>
 </div>
 </div>
 </div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
 <dl class="attribute">
 <dt id="soprano.properties.linkage.linkage.Molecules.default_name">
 <code class="descname">default_name</code><em class="property"> = u'molecules'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.default_name" title="Permalink to this definition">¶</a></dt>
@@ -485,11 +747,14 @@ the system can not be split in molecules at all.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -500,8 +765,8 @@ the system can not be split in molecules at all.</p>
       &copy;2015, Simone Sturniolo.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
       
       |
       <a href="_sources/soprano.properties.linkage.linkage.txt"
