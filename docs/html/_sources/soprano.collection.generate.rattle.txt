@@ -1,7 +1,0 @@
-soprano.collection.generate.rattle module
-=========================================
-
-.. automodule:: soprano.collection.generate.rattle
-    :members:
-    :undoc-members:
-    :show-inheritance:

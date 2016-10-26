@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.5.5)  26 OCT 2016 15:01
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2016.5.5)  26 OCT 2016 16:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2182,12 +2182,12 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 5358.
  ) 
 Here is how much of TeX's memory you used:
  10041 strings out of 494953
- 159639 string characters out of 6180978
+ 162711 string characters out of 6180978
  253069 words of memory out of 5000000
  12686 multiletter control sequences out of 15000+600000
  64805 words of font info for 69 fonts, out of 8000000 for 9000
  15 hyphenation exceptions out of 8191
- 36i,12n,45p,370b,628s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 36i,12n,45p,378b,628s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/urw/courier/ucrb8a.pfb></usr/share/texlive/texmf-dist/
 fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/u
@@ -2197,7 +2197,7 @@ uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb>
 texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-d
 ist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1
 /urw/times/utmri8a.pfb>
-Output written on Soprano.pdf (66 pages, 233291 bytes).
+Output written on Soprano.pdf (66 pages, 233296 bytes).
 PDF statistics:
  1088 PDF objects out of 1200 (max. 8388607)
  996 compressed objects within 10 object streams

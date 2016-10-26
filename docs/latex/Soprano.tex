@@ -133,11 +133,11 @@ Contents:
 
 
 \chapter{soprano}
-\label{modules:welcome-to-soprano-s-documentation}\label{modules:soprano}\label{modules::doc}
+\label{doctree/modules:welcome-to-soprano-s-documentation-release-release}\label{doctree/modules:soprano}\label{doctree/modules::doc}
 
 \section{soprano package}
-\label{soprano:module-soprano}\label{soprano::doc}\label{soprano:soprano-package}\index{soprano (module)}
-Soprano
+\label{doctree/soprano:module-soprano}\label{doctree/soprano::doc}\label{doctree/soprano:soprano-package}\index{soprano (module)}
+Soprano 0.5.0
 
 A Python library to crack crystals
 by Simone Sturniolo
@@ -159,33 +159,33 @@ along with this program.  If not, see \textless{}\href{http://www.gnu.org/licens
 
 
 \subsection{Subpackages}
-\label{soprano:subpackages}
+\label{doctree/soprano:subpackages}
 
 \subsubsection{soprano.analyse package}
-\label{soprano.analyse:module-soprano.analyse}\label{soprano.analyse:soprano-analyse-package}\label{soprano.analyse::doc}\index{soprano.analyse (module)}
+\label{doctree/soprano.analyse:module-soprano.analyse}\label{doctree/soprano.analyse:soprano-analyse-package}\label{doctree/soprano.analyse::doc}\index{soprano.analyse (module)}
 Contains all modules, classes and functions relevant
 to analysing collections after calculations have been performed.
 
 
 \paragraph{Subpackages}
-\label{soprano.analyse:subpackages}
+\label{doctree/soprano.analyse:subpackages}
 
 \subparagraph{soprano.analyse.phylogen package}
-\label{soprano.analyse.phylogen::doc}\label{soprano.analyse.phylogen:soprano-analyse-phylogen-package}\label{soprano.analyse.phylogen:module-soprano.analyse.phylogen}\index{soprano.analyse.phylogen (module)}
+\label{doctree/soprano.analyse.phylogen::doc}\label{doctree/soprano.analyse.phylogen:soprano-analyse-phylogen-package}\label{doctree/soprano.analyse.phylogen:module-soprano.analyse.phylogen}\index{soprano.analyse.phylogen (module)}
 Module containing functions and classes for phylogenetic clustering of
 collections.
 
 
 \subparagraph{Submodules}
-\label{soprano.analyse.phylogen:submodules}
+\label{doctree/soprano.analyse.phylogen:submodules}
 
 \subparagraph{soprano.analyse.phylogen.genes module}
-\label{soprano.analyse.phylogen.genes:soprano-analyse-phylogen-genes-module}\label{soprano.analyse.phylogen.genes:module-soprano.analyse.phylogen.genes}\label{soprano.analyse.phylogen.genes::doc}\index{soprano.analyse.phylogen.genes (module)}
+\label{doctree/soprano.analyse.phylogen.genes:soprano-analyse-phylogen-genes-module}\label{doctree/soprano.analyse.phylogen.genes:module-soprano.analyse.phylogen.genes}\label{doctree/soprano.analyse.phylogen.genes::doc}\index{soprano.analyse.phylogen.genes (module)}
 Definitions for the various genes used by PhylogenCluster
 \index{Gene (class in soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.Gene}\pysiglinewithargsret{\strong{class }\code{soprano.analyse.phylogen.genes.}\bfcode{Gene}}{\emph{name}, \emph{weight=1.0}, \emph{params=\{\}}, \emph{parser=None}, \emph{pair=False}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.Gene}\pysiglinewithargsret{\strong{class }\code{soprano.analyse.phylogen.genes.}\bfcode{Gene}}{\emph{name}, \emph{weight=1.0}, \emph{params=\{\}}, \emph{parser=None}, \emph{pair=False}}{}
 Bases: \code{object}
 
 A description of a property, a `gene', characterizing a structure, to be
@@ -234,7 +234,7 @@ can be used in a .genefile with the phylogen.py script though.
 \index{evaluate() (soprano.analyse.phylogen.genes.Gene method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.Gene.evaluate}\pysiglinewithargsret{\bfcode{evaluate}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.Gene.evaluate}\pysiglinewithargsret{\bfcode{evaluate}}{\emph{c}}{}
 Evaluate the gene on a given AtomsCollection
 
 \end{fulllineitems}
@@ -242,7 +242,7 @@ Evaluate the gene on a given AtomsCollection
 \index{is\_pair (soprano.analyse.phylogen.genes.Gene attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.Gene.is_pair}\pysigline{\bfcode{is\_pair}}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.Gene.is_pair}\pysigline{\bfcode{is\_pair}}
 Whether the gene can only compare a pair of structures or can also
 give an absolute value for each structure individually (required for
 k-means clustering)
@@ -255,14 +255,14 @@ k-means clustering)
 \index{GeneDictionary (class in soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneDictionary}\pysigline{\strong{class }\code{soprano.analyse.phylogen.genes.}\bfcode{GeneDictionary}}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneDictionary}\pysigline{\strong{class }\code{soprano.analyse.phylogen.genes.}\bfcode{GeneDictionary}}
 Bases: \code{object}
 
 Container class holding gene definitions
 \index{get\_gene() (soprano.analyse.phylogen.genes.GeneDictionary class method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneDictionary.get_gene}\pysiglinewithargsret{\strong{classmethod }\bfcode{get\_gene}}{\emph{g}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneDictionary.get_gene}\pysiglinewithargsret{\strong{classmethod }\bfcode{get\_gene}}{\emph{g}}{}
 Get the definition for a given gene
 
 \end{fulllineitems}
@@ -270,7 +270,7 @@ Get the definition for a given gene
 \index{help() (soprano.analyse.phylogen.genes.GeneDictionary class method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneDictionary.help}\pysiglinewithargsret{\strong{classmethod }\bfcode{help}}{\emph{g}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneDictionary.help}\pysiglinewithargsret{\strong{classmethod }\bfcode{help}}{\emph{g}}{}
 Get an help string for a given gene
 
 \end{fulllineitems}
@@ -281,7 +281,7 @@ Get an help string for a given gene
 \index{GeneError}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneError}\pysigline{\strong{exception }\code{soprano.analyse.phylogen.genes.}\bfcode{GeneError}}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.GeneError}\pysigline{\strong{exception }\code{soprano.analyse.phylogen.genes.}\bfcode{GeneError}}
 Bases: \code{exceptions.Exception}
 
 \end{fulllineitems}
@@ -289,7 +289,7 @@ Bases: \code{exceptions.Exception}
 \index{load\_genefile() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.load_genefile}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{load\_genefile}}{\emph{gfile}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.load_genefile}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{load\_genefile}}{\emph{gfile}}{}
 Load a gene file and return the (validated) list of genes contained
 within.
 
@@ -318,131 +318,131 @@ within.
 \index{parsegene\_energy() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_energy}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_energy}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_energy}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_energy}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_hbonds\_angle() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_angle}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_angle}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_angle}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_angle}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_hbonds\_fprint() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_fprint}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_fprint}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_fprint}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_fprint}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_hbonds\_length() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_length}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_length}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_length}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_length}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_hbonds\_site\_compare() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_site\_compare}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_site\_compare}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_hbonds\_site\_reference() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_site\_reference}}{\emph{c}, \emph{ref=None}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_site\_reference}}{\emph{c}, \emph{ref=None}}{}
 \end{fulllineitems}
 
 \index{parsegene\_hbonds\_totn() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_totn}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_totn}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_hbonds_totn}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_hbonds\_totn}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_latt\_abc() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_latt_abc}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_latt\_abc}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_latt_abc}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_latt\_abc}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_latt\_ang() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_latt_ang}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_latt\_ang}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_latt_ang}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_latt\_ang}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_latt\_cart() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_latt_cart}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_latt\_cart}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_latt_cart}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_latt\_cart}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_linkage\_list() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_linkage_list}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_linkage\_list}}{\emph{c}, \emph{size=0}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_linkage_list}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_linkage\_list}}{\emph{c}, \emph{size=0}}{}
 \end{fulllineitems}
 
 \index{parsegene\_mol\_com() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_com}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_com}}{\emph{c}, \emph{Z=0}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_com}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_com}}{\emph{c}, \emph{Z=0}}{}
 \end{fulllineitems}
 
 \index{parsegene\_mol\_m() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_m}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_m}}{\emph{c}, \emph{Z=0}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_m}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_m}}{\emph{c}, \emph{Z=0}}{}
 \end{fulllineitems}
 
 \index{parsegene\_mol\_num() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_num}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_num}}{\emph{c}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_num}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_num}}{\emph{c}}{}
 \end{fulllineitems}
 
 \index{parsegene\_mol\_rot() (in module soprano.analyse.phylogen.genes)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_rot}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_rot}}{\emph{c}, \emph{Z=0}, \emph{twist\_axis=None}, \emph{swing\_plane=None}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.genes:soprano.analyse.phylogen.genes.parsegene_mol_rot}\pysiglinewithargsret{\code{soprano.analyse.phylogen.genes.}\bfcode{parsegene\_mol\_rot}}{\emph{c}, \emph{Z=0}, \emph{twist\_axis=None}, \emph{swing\_plane=None}}{}
 \end{fulllineitems}
 
 
 
 \subparagraph{soprano.analyse.phylogen.mapping module}
-\label{soprano.analyse.phylogen.mapping:soprano-analyse-phylogen-mapping-module}\label{soprano.analyse.phylogen.mapping:module-soprano.analyse.phylogen.mapping}\label{soprano.analyse.phylogen.mapping::doc}\index{soprano.analyse.phylogen.mapping (module)}
+\label{doctree/soprano.analyse.phylogen.mapping:soprano-analyse-phylogen-mapping-module}\label{doctree/soprano.analyse.phylogen.mapping:module-soprano.analyse.phylogen.mapping}\label{doctree/soprano.analyse.phylogen.mapping::doc}\index{soprano.analyse.phylogen.mapping (module)}
 2D mapping algorithms
 \index{classcond\_principal\_component() (in module soprano.analyse.phylogen.mapping)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.classcond_principal_component}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{classcond\_principal\_component}}{\emph{p}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.classcond_principal_component}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{classcond\_principal\_component}}{\emph{p}}{}
 \end{fulllineitems}
 
 \index{optimal\_discriminant\_plane() (in module soprano.analyse.phylogen.mapping)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.optimal_discriminant_plane}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{optimal\_discriminant\_plane}}{\emph{p}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.optimal_discriminant_plane}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{optimal\_discriminant\_plane}}{\emph{p}}{}
 \end{fulllineitems}
 
 \index{standard\_classcond\_component() (in module soprano.analyse.phylogen.mapping)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.standard_classcond_component}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{standard\_classcond\_component}}{\emph{p}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.standard_classcond_component}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{standard\_classcond\_component}}{\emph{p}}{}
 \end{fulllineitems}
 
 \index{total\_principal\_component() (in module soprano.analyse.phylogen.mapping)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.total_principal_component}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{total\_principal\_component}}{\emph{p}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.mapping:soprano.analyse.phylogen.mapping.total_principal_component}\pysiglinewithargsret{\code{soprano.analyse.phylogen.mapping.}\bfcode{total\_principal\_component}}{\emph{p}}{}
 \end{fulllineitems}
 
 
 
 \subparagraph{soprano.analyse.phylogen.phylogenclust module}
-\label{soprano.analyse.phylogen.phylogenclust:module-soprano.analyse.phylogen.phylogenclust}\label{soprano.analyse.phylogen.phylogenclust:soprano-analyse-phylogen-phylogenclust-module}\label{soprano.analyse.phylogen.phylogenclust::doc}\index{soprano.analyse.phylogen.phylogenclust (module)}
+\label{doctree/soprano.analyse.phylogen.phylogenclust:module-soprano.analyse.phylogen.phylogenclust}\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano-analyse-phylogen-phylogenclust-module}\label{doctree/soprano.analyse.phylogen.phylogenclust::doc}\index{soprano.analyse.phylogen.phylogenclust (module)}
 Phylogenetic clustering class definitions
 \index{PhylogenCluster (class in soprano.analyse.phylogen.phylogenclust)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster}\pysiglinewithargsret{\strong{class }\code{soprano.analyse.phylogen.phylogenclust.}\bfcode{PhylogenCluster}}{\emph{coll}, \emph{genes=None}, \emph{norm\_range=(0.0}, \emph{1.0)}, \emph{norm\_dist=1.0}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster}\pysiglinewithargsret{\strong{class }\code{soprano.analyse.phylogen.phylogenclust.}\bfcode{PhylogenCluster}}{\emph{coll}, \emph{genes=None}, \emph{norm\_range=(0.0}, \emph{1.0)}, \emph{norm\_dist=1.0}}{}
 Bases: \code{object}
 
 An object that, given an AtomsCollection and a series of ``genes'' and
@@ -498,7 +498,7 @@ Initialize the PhylogenCluster object.
 \index{create\_mapping() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping}\pysiglinewithargsret{\bfcode{create\_mapping}}{\emph{method=u'total-principal'}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping}\pysiglinewithargsret{\bfcode{create\_mapping}}{\emph{method=u'total-principal'}}{}
 Return an array of 2-dimensional points representing a reduced
 dimensionality mapping of the given genes using the algorithm of
 choice. All algorithms are described in {[}W. Siedlecki et al., Patt.
@@ -524,7 +524,7 @@ Recog. vol. 21, num. 5, pp. 411 429 (1988){]}.
 \index{get\_distmat() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat}\pysiglinewithargsret{\bfcode{get\_distmat}}{}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat}\pysiglinewithargsret{\bfcode{get\_distmat}}{}{}
 Get the distance matrix between structures in the collection,
 based on the genes currently in use.
 
@@ -547,7 +547,7 @@ based on the genes currently in use.
 \index{get\_genome\_matrices() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices}\pysiglinewithargsret{\bfcode{get\_genome\_matrices}}{}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices}\pysiglinewithargsret{\bfcode{get\_genome\_matrices}}{}{}
 Return the genome matrices in raw form (not normalized).
 The matrices refer to genes that only allow to define a distance
 between structures. The element at i,j represents the distance
@@ -580,7 +580,7 @@ null diagonal.
 \index{get\_genome\_matrices\_norm() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm}\pysiglinewithargsret{\bfcode{get\_genome\_matrices\_norm}}{}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm}\pysiglinewithargsret{\bfcode{get\_genome\_matrices\_norm}}{}{}
 Return the genome matrices in normalized and weighted form.
 The matrices refer to genes that only allow to define a distance
 between structures. The element at i,j represents the distance
@@ -613,7 +613,7 @@ null diagonal.
 \index{get\_genome\_vectors() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors}\pysiglinewithargsret{\bfcode{get\_genome\_vectors}}{}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors}\pysiglinewithargsret{\bfcode{get\_genome\_vectors}}{}{}
 Return the genome vectors in raw form (not normalized).
 The vectors refer to genes that allow to define a specific point for
 each structure.
@@ -643,7 +643,7 @@ each structure.
 \index{get\_genome\_vectors\_norm() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm}\pysiglinewithargsret{\bfcode{get\_genome\_vectors\_norm}}{}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm}\pysiglinewithargsret{\bfcode{get\_genome\_vectors\_norm}}{}{}
 Return the genome vectors in normalized and weighted form.
 The vectors refer to genes that allow to define a specific point for
 each structure.
@@ -673,7 +673,7 @@ each structure.
 \index{get\_hier\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters}\pysiglinewithargsret{\bfcode{get\_hier\_clusters}}{\emph{t}, \emph{method=u'single'}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters}\pysiglinewithargsret{\bfcode{get\_hier\_clusters}}{\emph{t}, \emph{method=u'single'}}{}
 Get multiple clusters (in the form of a list of collections) based
 on the hierarchical clustering methods and the currently set genes.
 
@@ -731,7 +731,7 @@ Calls scipy.cluster.hierarchy.fcluster
 \index{get\_hier\_tree() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree}\pysiglinewithargsret{\bfcode{get\_hier\_tree}}{\emph{method=u'single'}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree}\pysiglinewithargsret{\bfcode{get\_hier\_tree}}{\emph{method=u'single'}}{}
 Get a tree data structure describing the clustering order of based
 on the hierarchical clustering methods and the currently set genes.
 
@@ -770,7 +770,7 @@ Calls scipy.cluster.hierarchy.to\_tree
 \index{get\_kmeans\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters}\pysiglinewithargsret{\bfcode{get\_kmeans\_clusters}}{\emph{n}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters}\pysiglinewithargsret{\bfcode{get\_kmeans\_clusters}}{\emph{n}}{}
 Get a given number of clusters (in the form of a list of
 collections) based on the k-means clustering methods
 and the currently set genes.
@@ -812,7 +812,7 @@ Calls scipy.cluster.vq.kmeans
 \index{get\_linkage() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage}\pysiglinewithargsret{\bfcode{get\_linkage}}{\emph{method=u'single'}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage}\pysiglinewithargsret{\bfcode{get\_linkage}}{\emph{method=u'single'}}{}
 Get the linkage matrix between structures in the collection,
 based on the genes currently in use. Only used in hierarchical
 clustering.
@@ -850,7 +850,7 @@ Calls scipy.cluster.hierarchy.linkage.
 \index{get\_max\_cluster\_dist() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist}\pysiglinewithargsret{\bfcode{get\_max\_cluster\_dist}}{}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist}\pysiglinewithargsret{\bfcode{get\_max\_cluster\_dist}}{}{}
 Return the maximum possible distance between two clusters
 
 \end{fulllineitems}
@@ -858,7 +858,7 @@ Return the maximum possible distance between two clusters
 \index{load() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load}\pysiglinewithargsret{\strong{static }\bfcode{load}}{\emph{filename}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load}\pysiglinewithargsret{\strong{static }\bfcode{load}}{\emph{filename}}{}
 Load a pickled copy from a given file path
 
 \end{fulllineitems}
@@ -866,7 +866,7 @@ Load a pickled copy from a given file path
 \index{save() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save}\pysiglinewithargsret{\bfcode{save}}{\emph{filename}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save}\pysiglinewithargsret{\bfcode{save}}{\emph{filename}}{}
 Simply save a pickled copy to a given file path
 
 \end{fulllineitems}
@@ -874,7 +874,7 @@ Simply save a pickled copy to a given file path
 \index{save\_collection() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection}\pysiglinewithargsret{\bfcode{save\_collection}}{\emph{filename}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection}\pysiglinewithargsret{\bfcode{save\_collection}}{\emph{filename}}{}
 Save as pickle the collection bound to this PhylogenCluster.
 The calculated genes are also stored in it as arrays for future use.
 
@@ -883,7 +883,7 @@ The calculated genes are also stored in it as arrays for future use.
 \index{set\_genes() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes}\pysiglinewithargsret{\bfcode{set\_genes}}{\emph{genes}, \emph{load\_arrays=False}}{}
+\phantomsection\label{doctree/soprano.analyse.phylogen.phylogenclust:soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes}\pysiglinewithargsret{\bfcode{set\_genes}}{\emph{genes}, \emph{load\_arrays=False}}{}
 Calculate, store and set a list of genes as used for clustering.
 
 \begin{DUlineblock}{0em}
@@ -919,17 +919,17 @@ Calculate, store and set a list of genes as used for clustering.
 
 
 \subsubsection{soprano.calculate package}
-\label{soprano.calculate:module-soprano.calculate}\label{soprano.calculate::doc}\label{soprano.calculate:soprano-calculate-package}\index{soprano.calculate (module)}
+\label{doctree/soprano.calculate:module-soprano.calculate}\label{doctree/soprano.calculate::doc}\label{doctree/soprano.calculate:soprano-calculate-package}\index{soprano.calculate (module)}
 Contains all modules, classes and functions relevant
 to calculating properties of existing structures and collections,
 from basic ones to energetic and spectroscopic properties.
 
 
 \paragraph{Subpackages}
-\label{soprano.calculate:subpackages}
+\label{doctree/soprano.calculate:subpackages}
 
 \subparagraph{soprano.calculate.gulp package}
-\label{soprano.calculate.gulp:module-soprano.calculate.gulp}\label{soprano.calculate.gulp::doc}\label{soprano.calculate.gulp:soprano-calculate-gulp-package}\index{soprano.calculate.gulp (module)}
+\label{doctree/soprano.calculate.gulp:module-soprano.calculate.gulp}\label{doctree/soprano.calculate.gulp::doc}\label{doctree/soprano.calculate.gulp:soprano-calculate-gulp-package}\index{soprano.calculate.gulp (module)}
 Classes and functions to carry out calculations using the bindings to GULP
 (General Utility Lattice Program), a software providing a lot of useful
 calculations with empirical force fields, partial charge calculations, Ewald
@@ -942,15 +942,15 @@ provided here.
 
 
 \subparagraph{Submodules}
-\label{soprano.calculate.gulp:submodules}
+\label{doctree/soprano.calculate.gulp:submodules}
 
 \subparagraph{soprano.calculate.gulp.charges module}
-\label{soprano.calculate.gulp.charges:soprano-calculate-gulp-charges-module}\label{soprano.calculate.gulp.charges:module-soprano.calculate.gulp.charges}\label{soprano.calculate.gulp.charges::doc}\index{soprano.calculate.gulp.charges (module)}
+\label{doctree/soprano.calculate.gulp.charges:soprano-calculate-gulp-charges-module}\label{doctree/soprano.calculate.gulp.charges:module-soprano.calculate.gulp.charges}\label{doctree/soprano.calculate.gulp.charges::doc}\index{soprano.calculate.gulp.charges (module)}
 Get charges using GULP
 \index{get\_gulp\_charges() (in module soprano.calculate.gulp.charges)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.gulp.charges:soprano.calculate.gulp.charges.get_gulp_charges}\pysiglinewithargsret{\code{soprano.calculate.gulp.charges.}\bfcode{get\_gulp\_charges}}{\emph{s}, \emph{charge\_method=u'eem'}, \emph{save\_charges=True}, \emph{gulp\_command=u'gulp'}, \emph{gulp\_path=None}}{}
+\phantomsection\label{doctree/soprano.calculate.gulp.charges:soprano.calculate.gulp.charges.get_gulp_charges}\pysiglinewithargsret{\code{soprano.calculate.gulp.charges.}\bfcode{get\_gulp\_charges}}{\emph{s}, \emph{charge\_method=u'eem'}, \emph{save\_charges=True}, \emph{gulp\_command=u'gulp'}, \emph{gulp\_path=None}}{}
 Calculate the atomic partial charges using GULP.
 
 \begin{DUlineblock}{0em}
@@ -999,7 +999,7 @@ Calculate the atomic partial charges using GULP.
 
 
 \subparagraph{soprano.calculate.gulp.w99 module}
-\label{soprano.calculate.gulp.w99:soprano-calculate-gulp-w99-module}\label{soprano.calculate.gulp.w99:module-soprano.calculate.gulp.w99}\label{soprano.calculate.gulp.w99::doc}\index{soprano.calculate.gulp.w99 (module)}
+\label{doctree/soprano.calculate.gulp.w99:soprano-calculate-gulp-w99-module}\label{doctree/soprano.calculate.gulp.w99:module-soprano.calculate.gulp.w99}\label{doctree/soprano.calculate.gulp.w99::doc}\index{soprano.calculate.gulp.w99 (module)}
 Classes and functions for using the W99 force field in GULP.
 This force field only applies to organic molecules. More information can be
 found in the original paper by Donald E. Williams:
@@ -1011,7 +1011,7 @@ of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)
 \index{W99Error}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.gulp.w99:soprano.calculate.gulp.w99.W99Error}\pysigline{\strong{exception }\code{soprano.calculate.gulp.w99.}\bfcode{W99Error}}
+\phantomsection\label{doctree/soprano.calculate.gulp.w99:soprano.calculate.gulp.w99.W99Error}\pysigline{\strong{exception }\code{soprano.calculate.gulp.w99.}\bfcode{W99Error}}
 Bases: \code{exceptions.Exception}
 
 \end{fulllineitems}
@@ -1019,7 +1019,7 @@ Bases: \code{exceptions.Exception}
 \index{find\_w99\_atomtypes() (in module soprano.calculate.gulp.w99)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.gulp.w99:soprano.calculate.gulp.w99.find_w99_atomtypes}\pysiglinewithargsret{\code{soprano.calculate.gulp.w99.}\bfcode{find\_w99\_atomtypes}}{\emph{s}, \emph{force\_recalc=False}}{}
+\phantomsection\label{doctree/soprano.calculate.gulp.w99:soprano.calculate.gulp.w99.find_w99_atomtypes}\pysiglinewithargsret{\code{soprano.calculate.gulp.w99.}\bfcode{find\_w99\_atomtypes}}{\emph{s}, \emph{force\_recalc=False}}{}
 Calculate the W99 force field atom types for a given structure.
 
 \begin{DUlineblock}{0em}
@@ -1040,7 +1040,7 @@ Calculate the W99 force field atom types for a given structure.
 \index{get\_w99\_energy() (in module soprano.calculate.gulp.w99)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.gulp.w99:soprano.calculate.gulp.w99.get_w99_energy}\pysiglinewithargsret{\code{soprano.calculate.gulp.w99.}\bfcode{get\_w99\_energy}}{\emph{s}, \emph{charge\_method=u'eem'}, \emph{Etol=1e-06}, \emph{gulp\_command=u'gulp'}, \emph{gulp\_path=None}, \emph{save\_charges=False}}{}
+\phantomsection\label{doctree/soprano.calculate.gulp.w99:soprano.calculate.gulp.w99.get_w99_energy}\pysiglinewithargsret{\code{soprano.calculate.gulp.w99.}\bfcode{get\_w99\_energy}}{\emph{s}, \emph{charge\_method=u'eem'}, \emph{Etol=1e-06}, \emph{gulp\_command=u'gulp'}, \emph{gulp\_path=None}, \emph{save\_charges=False}}{}
 Calculate the W99 force field energy using GULP.
 
 \begin{DUlineblock}{0em}
@@ -1095,22 +1095,22 @@ Calculate the W99 force field energy using GULP.
 
 
 \subparagraph{soprano.calculate.xrd package}
-\label{soprano.calculate.xrd:soprano-calculate-xrd-package}\label{soprano.calculate.xrd::doc}\label{soprano.calculate.xrd:module-soprano.calculate.xrd}\index{soprano.calculate.xrd (module)}
+\label{doctree/soprano.calculate.xrd:soprano-calculate-xrd-package}\label{doctree/soprano.calculate.xrd::doc}\label{doctree/soprano.calculate.xrd:module-soprano.calculate.xrd}\index{soprano.calculate.xrd (module)}
 Classes and functions for simulating X-ray diffraction
 spectroscopic results from structures.
 
 
 \subparagraph{Submodules}
-\label{soprano.calculate.xrd:submodules}
+\label{doctree/soprano.calculate.xrd:submodules}
 
 \subparagraph{soprano.calculate.xrd.sel\_rules module}
-\label{soprano.calculate.xrd.sel_rules::doc}\label{soprano.calculate.xrd.sel_rules:module-soprano.calculate.xrd.sel_rules}\label{soprano.calculate.xrd.sel_rules:soprano-calculate-xrd-sel-rules-module}\index{soprano.calculate.xrd.sel\_rules (module)}
+\label{doctree/soprano.calculate.xrd.sel_rules::doc}\label{doctree/soprano.calculate.xrd.sel_rules:module-soprano.calculate.xrd.sel_rules}\label{doctree/soprano.calculate.xrd.sel_rules:soprano-calculate-xrd-sel-rules-module}\index{soprano.calculate.xrd.sel\_rules (module)}
 Providing an interface to selection rules for XRD peaks and various
 spacegroups.
 \index{get\_sel\_rule\_from\_hall() (in module soprano.calculate.xrd.sel\_rules)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.sel_rules:soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall}\pysiglinewithargsret{\code{soprano.calculate.xrd.sel\_rules.}\bfcode{get\_sel\_rule\_from\_hall}}{\emph{h}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.sel_rules:soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall}\pysiglinewithargsret{\code{soprano.calculate.xrd.sel\_rules.}\bfcode{get\_sel\_rule\_from\_hall}}{\emph{h}}{}
 Generate a function object that acts as a selection rule for XRD lines
 for the given symmetry group expressed in Hall number notation
 
@@ -1157,7 +1157,7 @@ for the given symmetry group expressed in Hall number notation
 \index{get\_sel\_rule\_from\_international() (in module soprano.calculate.xrd.sel\_rules)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.sel_rules:soprano.calculate.xrd.sel_rules.get_sel_rule_from_international}\pysiglinewithargsret{\code{soprano.calculate.xrd.sel\_rules.}\bfcode{get\_sel\_rule\_from\_international}}{\emph{n}, \emph{o=u'all'}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.sel_rules:soprano.calculate.xrd.sel_rules.get_sel_rule_from_international}\pysiglinewithargsret{\code{soprano.calculate.xrd.sel\_rules.}\bfcode{get\_sel\_rule\_from\_international}}{\emph{n}, \emph{o=u'all'}}{}
 Generate a function object that acts as a selection rule for XRD lines
 for the given symmetry group expressed in international number notation
 
@@ -1205,13 +1205,13 @@ for the given symmetry group expressed in international number notation
 
 
 \subparagraph{soprano.calculate.xrd.xrd module}
-\label{soprano.calculate.xrd.xrd:module-soprano.calculate.xrd.xrd}\label{soprano.calculate.xrd.xrd::doc}\label{soprano.calculate.xrd.xrd:soprano-calculate-xrd-xrd-module}\index{soprano.calculate.xrd.xrd (module)}
+\label{doctree/soprano.calculate.xrd.xrd:module-soprano.calculate.xrd.xrd}\label{doctree/soprano.calculate.xrd.xrd::doc}\label{doctree/soprano.calculate.xrd.xrd:soprano-calculate-xrd-xrd-module}\index{soprano.calculate.xrd.xrd (module)}
 Classes and functions for simulating X-ray diffraction
 spectroscopic results from structures.
 \index{XRDCalculator (class in soprano.calculate.xrd.xrd)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator}\pysiglinewithargsret{\strong{class }\code{soprano.calculate.xrd.xrd.}\bfcode{XRDCalculator}}{\emph{lambdax=1.54056}, \emph{theta2\_digits=6}, \emph{baseline=0.0}, \emph{peak\_func=None}, \emph{peak\_f\_args=None}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator}\pysiglinewithargsret{\strong{class }\code{soprano.calculate.xrd.xrd.}\bfcode{XRDCalculator}}{\emph{lambdax=1.54056}, \emph{theta2\_digits=6}, \emph{baseline=0.0}, \emph{peak\_func=None}, \emph{peak\_f\_args=None}}{}
 Bases: \code{object}
 
 A class implementing methods for XRD simulations, comparisons and
@@ -1274,7 +1274,7 @@ Initialize the XDRCalculator object's main parameters
 \index{dataset\_range() (soprano.calculate.xrd.xrd.XRDCalculator method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.dataset_range}\pysiglinewithargsret{\bfcode{dataset\_range}}{\emph{xpeaks}, \emph{theta2\_range=(None}, \emph{None)}}{}~\begin{description}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.dataset_range}\pysiglinewithargsret{\bfcode{dataset\_range}}{\emph{xpeaks}, \emph{theta2\_range=(None}, \emph{None)}}{}~\begin{description}
 \item[{Restrict the given dataset (XraySpectrum or XraySpectrumData) to}] \leavevmode
 only the values that lie within a certain theta2 range.
 
@@ -1319,7 +1319,7 @@ only the values that lie within a certain theta2 range.
 \index{exp\_dataset() (soprano.calculate.xrd.xrd.XRDCalculator method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset}\pysiglinewithargsret{\bfcode{exp\_dataset}}{\emph{th2\_axis}, \emph{int\_axis}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset}\pysiglinewithargsret{\bfcode{exp\_dataset}}{\emph{th2\_axis}, \emph{int\_axis}}{}
 Build an experimental dataset as an XraySpectrumData object.
 
 \begin{DUlineblock}{0em}
@@ -1356,7 +1356,7 @@ Build an experimental dataset as an XraySpectrumData object.
 \index{lebail\_fit() (soprano.calculate.xrd.xrd.XRDCalculator method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit}\pysiglinewithargsret{\bfcode{lebail\_fit}}{\emph{xpeaks}, \emph{exp\_spec}, \emph{rwp\_tol=0.01}, \emph{max\_iter=100}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit}\pysiglinewithargsret{\bfcode{lebail\_fit}}{\emph{xpeaks}, \emph{exp\_spec}, \emph{rwp\_tol=0.01}, \emph{max\_iter=100}}{}
 Perform a refining on an XraySpectrum object's intensities based on
 experimental data with leBail's method.
 
@@ -1421,7 +1421,7 @@ experimental data with leBail's method.
 \index{peak\_f\_args (soprano.calculate.xrd.xrd.XRDCalculator attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args}\pysigline{\bfcode{peak\_f\_args}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args}\pysigline{\bfcode{peak\_f\_args}}
 Additional arguments to be passed to peak\_func
 
 \end{fulllineitems}
@@ -1429,7 +1429,7 @@ Additional arguments to be passed to peak\_func
 \index{peak\_func (soprano.calculate.xrd.xrd.XRDCalculator attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.peak_func}\pysigline{\bfcode{peak\_func}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.peak_func}\pysigline{\bfcode{peak\_func}}
 The function used to build peaks in simulated spectra
 
 Should be of form peak\_func(theta2, peak\_position, *peak\_f\_args)
@@ -1439,7 +1439,7 @@ Should be of form peak\_func(theta2, peak\_position, *peak\_f\_args)
 \index{powder\_peaks() (soprano.calculate.xrd.xrd.XRDCalculator method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks}\pysiglinewithargsret{\bfcode{powder\_peaks}}{\emph{atoms=None}, \emph{latt\_abc=None}, \emph{n=1}, \emph{o=u'all'}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks}\pysiglinewithargsret{\bfcode{powder\_peaks}}{\emph{atoms=None}, \emph{latt\_abc=None}, \emph{n=1}, \emph{o=u'all'}}{}
 Calculate the peaks (without intensities) of a powder
 XRD spectrum given either an Atoms object or the lattice in ABC form
 and the spacegroup indices to apply the selection rules
@@ -1494,7 +1494,7 @@ and the spacegroup indices to apply the selection rules
 \index{set\_peak\_func() (soprano.calculate.xrd.xrd.XRDCalculator method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func}\pysiglinewithargsret{\bfcode{set\_peak\_func}}{\emph{peak\_func=None}, \emph{peak\_f\_args=None}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func}\pysiglinewithargsret{\bfcode{set\_peak\_func}}{\emph{peak\_func=None}, \emph{peak\_f\_args=None}}{}
 Set a new peak\_func for this XDRCalculator. If no new function is
 passed, reset the default Gaussian function.
 
@@ -1537,7 +1537,7 @@ passed, reset the default Gaussian function.
 \index{spec\_simul() (soprano.calculate.xrd.xrd.XRDCalculator method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.spec_simul}\pysiglinewithargsret{\bfcode{spec\_simul}}{\emph{xpeaks}, \emph{th2\_axis}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XRDCalculator.spec_simul}\pysiglinewithargsret{\bfcode{spec\_simul}}{\emph{xpeaks}, \emph{th2\_axis}}{}
 Simulate an XRD spectrum given positions of peaks, intensities,
 baseline, and a peak function (a Gaussian by default).
 
@@ -1587,12 +1587,12 @@ baseline, and a peak function (a Gaussian by default).
 \index{XraySpectrum (class in soprano.calculate.xrd.xrd)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum}\pysiglinewithargsret{\strong{class }\code{soprano.calculate.xrd.xrd.}\bfcode{XraySpectrum}}{\emph{theta2}, \emph{hkl}, \emph{hkl\_unique}, \emph{invd}, \emph{intensity}, \emph{lambdax}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum}\pysiglinewithargsret{\strong{class }\code{soprano.calculate.xrd.xrd.}\bfcode{XraySpectrum}}{\emph{theta2}, \emph{hkl}, \emph{hkl\_unique}, \emph{invd}, \emph{intensity}, \emph{lambdax}}{}
 Bases: \code{tuple}
 \index{hkl (soprano.calculate.xrd.xrd.XraySpectrum attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.hkl}\pysigline{\bfcode{hkl}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.hkl}\pysigline{\bfcode{hkl}}
 Alias for field number 1
 
 \end{fulllineitems}
@@ -1600,7 +1600,7 @@ Alias for field number 1
 \index{hkl\_unique (soprano.calculate.xrd.xrd.XraySpectrum attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique}\pysigline{\bfcode{hkl\_unique}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique}\pysigline{\bfcode{hkl\_unique}}
 Alias for field number 2
 
 \end{fulllineitems}
@@ -1608,7 +1608,7 @@ Alias for field number 2
 \index{intensity (soprano.calculate.xrd.xrd.XraySpectrum attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.intensity}\pysigline{\bfcode{intensity}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.intensity}\pysigline{\bfcode{intensity}}
 Alias for field number 4
 
 \end{fulllineitems}
@@ -1616,7 +1616,7 @@ Alias for field number 4
 \index{invd (soprano.calculate.xrd.xrd.XraySpectrum attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.invd}\pysigline{\bfcode{invd}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.invd}\pysigline{\bfcode{invd}}
 Alias for field number 3
 
 \end{fulllineitems}
@@ -1624,7 +1624,7 @@ Alias for field number 3
 \index{lambdax (soprano.calculate.xrd.xrd.XraySpectrum attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.lambdax}\pysigline{\bfcode{lambdax}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.lambdax}\pysigline{\bfcode{lambdax}}
 Alias for field number 5
 
 \end{fulllineitems}
@@ -1632,7 +1632,7 @@ Alias for field number 5
 \index{theta2 (soprano.calculate.xrd.xrd.XraySpectrum attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.theta2}\pysigline{\bfcode{theta2}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrum.theta2}\pysigline{\bfcode{theta2}}
 Alias for field number 0
 
 \end{fulllineitems}
@@ -1643,12 +1643,12 @@ Alias for field number 0
 \index{XraySpectrumData (class in soprano.calculate.xrd.xrd)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrumData}\pysiglinewithargsret{\strong{class }\code{soprano.calculate.xrd.xrd.}\bfcode{XraySpectrumData}}{\emph{theta2}, \emph{intensity}}{}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrumData}\pysiglinewithargsret{\strong{class }\code{soprano.calculate.xrd.xrd.}\bfcode{XraySpectrumData}}{\emph{theta2}, \emph{intensity}}{}
 Bases: \code{tuple}
 \index{intensity (soprano.calculate.xrd.xrd.XraySpectrumData attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrumData.intensity}\pysigline{\bfcode{intensity}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrumData.intensity}\pysigline{\bfcode{intensity}}
 Alias for field number 1
 
 \end{fulllineitems}
@@ -1656,7 +1656,7 @@ Alias for field number 1
 \index{theta2 (soprano.calculate.xrd.xrd.XraySpectrumData attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrumData.theta2}\pysigline{\bfcode{theta2}}
+\phantomsection\label{doctree/soprano.calculate.xrd.xrd:soprano.calculate.xrd.xrd.XraySpectrumData.theta2}\pysigline{\bfcode{theta2}}
 Alias for field number 0
 
 \end{fulllineitems}
@@ -1667,31 +1667,31 @@ Alias for field number 0
 
 
 \subsubsection{soprano.collection package}
-\label{soprano.collection:soprano-collection-package}\label{soprano.collection::doc}\label{soprano.collection:module-soprano.collection}\index{soprano.collection (module)}
+\label{doctree/soprano.collection:soprano-collection-package}\label{doctree/soprano.collection::doc}\label{doctree/soprano.collection:module-soprano.collection}\index{soprano.collection (module)}
 Contains all modules, classes and functions relevant
 to handling, loading or randomly generating
 collections of structures.
 
 
 \paragraph{Subpackages}
-\label{soprano.collection:subpackages}
+\label{doctree/soprano.collection:subpackages}
 
 \subparagraph{soprano.collection.generate package}
-\label{soprano.collection.generate:module-soprano.collection.generate}\label{soprano.collection.generate:soprano-collection-generate-package}\label{soprano.collection.generate::doc}\index{soprano.collection.generate (module)}
+\label{doctree/soprano.collection.generate:module-soprano.collection.generate}\label{doctree/soprano.collection.generate:soprano-collection-generate-package}\label{doctree/soprano.collection.generate::doc}\index{soprano.collection.generate (module)}
 This module contains generators meant to produce AtomsCollections based
 on different criteria.
 
 
 \subparagraph{Submodules}
-\label{soprano.collection.generate:submodules}
+\label{doctree/soprano.collection.generate:submodules}
 
 \subparagraph{soprano.collection.generate.airss module}
-\label{soprano.collection.generate.airss::doc}\label{soprano.collection.generate.airss:module-soprano.collection.generate.airss}\label{soprano.collection.generate.airss:soprano-collection-generate-airss-module}\index{soprano.collection.generate.airss (module)}
+\label{doctree/soprano.collection.generate.airss::doc}\label{doctree/soprano.collection.generate.airss:module-soprano.collection.generate.airss}\label{doctree/soprano.collection.generate.airss:soprano-collection-generate-airss-module}\index{soprano.collection.generate.airss (module)}
 Bindings for AIRSS Buildcell program for random structure generation
 \index{airssGen() (in module soprano.collection.generate.airss)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.generate.airss:soprano.collection.generate.airss.airssGen}\pysiglinewithargsret{\code{soprano.collection.generate.airss.}\bfcode{airssGen}}{\emph{input\_file}, \emph{n=100}, \emph{buildcell\_command=u'buildcell'}, \emph{buildcell\_path=None}}{}
+\phantomsection\label{doctree/soprano.collection.generate.airss:soprano.collection.generate.airss.airssGen}\pysiglinewithargsret{\code{soprano.collection.generate.airss.}\bfcode{airssGen}}{\emph{input\_file}, \emph{n=100}, \emph{buildcell\_command=u'buildcell'}, \emph{buildcell\_path=None}}{}
 Generator function binding to AIRSS' Buildcell.
 
 This function searches for a buildcell executable and uses it to
@@ -1744,12 +1744,12 @@ generate multiple new Atoms structures for a collection.
 
 
 \subparagraph{soprano.collection.generate.linspace module}
-\label{soprano.collection.generate.linspace::doc}\label{soprano.collection.generate.linspace:soprano-collection-generate-linspace-module}\label{soprano.collection.generate.linspace:module-soprano.collection.generate.linspace}\index{soprano.collection.generate.linspace (module)}
+\label{doctree/soprano.collection.generate.linspace::doc}\label{doctree/soprano.collection.generate.linspace:soprano-collection-generate-linspace-module}\label{doctree/soprano.collection.generate.linspace:module-soprano.collection.generate.linspace}\index{soprano.collection.generate.linspace (module)}
 Generator producing structures interpolated between two extremes
 \index{linspaceGen() (in module soprano.collection.generate.linspace)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.generate.linspace:soprano.collection.generate.linspace.linspaceGen}\pysiglinewithargsret{\code{soprano.collection.generate.linspace.}\bfcode{linspaceGen}}{\emph{struct\_0}, \emph{struct\_1}, \emph{steps=10}, \emph{periodic=False}}{}
+\phantomsection\label{doctree/soprano.collection.generate.linspace:soprano.collection.generate.linspace.linspaceGen}\pysiglinewithargsret{\code{soprano.collection.generate.linspace.}\bfcode{linspaceGen}}{\emph{struct\_0}, \emph{struct\_1}, \emph{steps=10}, \emph{periodic=False}}{}
 Generator function to create multiple structures with positions
 interpolated linearly between two extremes.
 
@@ -1797,12 +1797,12 @@ interpolated linearly between two extremes.
 
 
 \subparagraph{soprano.collection.generate.rattle module}
-\label{soprano.collection.generate.rattle::doc}\label{soprano.collection.generate.rattle:soprano-collection-generate-rattle-module}\label{soprano.collection.generate.rattle:module-soprano.collection.generate.rattle}\index{soprano.collection.generate.rattle (module)}
+\label{doctree/soprano.collection.generate.rattle::doc}\label{doctree/soprano.collection.generate.rattle:soprano-collection-generate-rattle-module}\label{doctree/soprano.collection.generate.rattle:module-soprano.collection.generate.rattle}\index{soprano.collection.generate.rattle (module)}
 Generator producing structures rattled of a given amount
 \index{rattleGen() (in module soprano.collection.generate.rattle)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.generate.rattle:soprano.collection.generate.rattle.rattleGen}\pysiglinewithargsret{\code{soprano.collection.generate.rattle.}\bfcode{rattleGen}}{\emph{struct}, \emph{amplitude=0.01}, \emph{n=100}, \emph{method=u'uniform'}}{}
+\phantomsection\label{doctree/soprano.collection.generate.rattle:soprano.collection.generate.rattle.rattleGen}\pysiglinewithargsret{\code{soprano.collection.generate.rattle.}\bfcode{rattleGen}}{\emph{struct}, \emph{amplitude=0.01}, \emph{n=100}, \emph{method=u'uniform'}}{}
 Generator function to create multiple structures by randomly displacing
 atoms of a given amount.
 
@@ -1858,10 +1858,10 @@ atoms of a given amount.
 
 
 \paragraph{Submodules}
-\label{soprano.collection:submodules}
+\label{doctree/soprano.collection:submodules}
 
 \subparagraph{soprano.collection.collection module}
-\label{soprano.collection.collection:module-soprano.collection.collection}\label{soprano.collection.collection::doc}\label{soprano.collection.collection:soprano-collection-collection-module}\index{soprano.collection.collection (module)}
+\label{doctree/soprano.collection.collection:module-soprano.collection.collection}\label{doctree/soprano.collection.collection::doc}\label{doctree/soprano.collection.collection:soprano-collection-collection-module}\index{soprano.collection.collection (module)}
 Definition of the Collection class.
 
 It handles multiple Atoms ASE objects and mirrors in this sense the structure
@@ -1869,7 +1869,7 @@ of the Atoms object itself.
 \index{AtomsCollection (class in soprano.collection.collection)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection}\pysiglinewithargsret{\strong{class }\code{soprano.collection.collection.}\bfcode{AtomsCollection}}{\emph{structures={[}{]}}, \emph{info=\{\}}, \emph{cell\_reduce=False}, \emph{progress=False}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection}\pysiglinewithargsret{\strong{class }\code{soprano.collection.collection.}\bfcode{AtomsCollection}}{\emph{structures={[}{]}}, \emph{info=\{\}}, \emph{cell\_reduce=False}, \emph{progress=False}}{}
 Bases: \code{object}
 
 AtomsCollection object.
@@ -1906,13 +1906,13 @@ Initialize the AtomsCollection
 \index{all (soprano.collection.collection.AtomsCollection attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.all}\pysigline{\bfcode{all}}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.all}\pysigline{\bfcode{all}}
 \end{fulllineitems}
 
 \index{chunkify() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.chunkify}\pysiglinewithargsret{\bfcode{chunkify}}{\emph{chunk\_size=None}, \emph{chunk\_n=None}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.chunkify}\pysiglinewithargsret{\bfcode{chunkify}}{\emph{chunk\_size=None}, \emph{chunk\_n=None}}{}
 Split this collection into multiple collections based on either
 size or number of chunks.
 
@@ -1938,7 +1938,7 @@ size or number of chunks.
 \index{filter() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.filter}\pysiglinewithargsret{\bfcode{filter}}{\emph{filter\_func}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.filter}\pysiglinewithargsret{\bfcode{filter}}{\emph{filter\_func}}{}
 Return a collection composed only of the elements for which a given
 filter function returns True.
 
@@ -1971,7 +1971,7 @@ filter function returns True.
 \index{get\_array() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.get_array}\pysiglinewithargsret{\bfcode{get\_array}}{\emph{name}, \emph{copy=True}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.get_array}\pysiglinewithargsret{\bfcode{get\_array}}{\emph{name}, \emph{copy=True}}{}
 Get a copy of an array of given name (or a reference if copy=False)
 
 \begin{DUlineblock}{0em}
@@ -2000,7 +2000,7 @@ Get a copy of an array of given name (or a reference if copy=False)
 \index{has() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.has}\pysiglinewithargsret{\bfcode{has}}{\emph{name}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.has}\pysiglinewithargsret{\bfcode{has}}{\emph{name}}{}
 Check if array of given name exists
 
 \end{fulllineitems}
@@ -2008,13 +2008,13 @@ Check if array of given name exists
 \index{length (soprano.collection.collection.AtomsCollection attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.length}\pysigline{\bfcode{length}}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.length}\pysigline{\bfcode{length}}
 \end{fulllineitems}
 
 \index{load() (soprano.collection.collection.AtomsCollection static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.load}\pysiglinewithargsret{\strong{static }\bfcode{load}}{\emph{filename}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.load}\pysiglinewithargsret{\strong{static }\bfcode{load}}{\emph{filename}}{}
 Load a pickled copy from a given file path
 
 \end{fulllineitems}
@@ -2022,7 +2022,7 @@ Load a pickled copy from a given file path
 \index{run\_calculators() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.run_calculators}\pysiglinewithargsret{\bfcode{run\_calculators}}{\emph{properties=None}, \emph{system\_changes=None}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.run_calculators}\pysiglinewithargsret{\bfcode{run\_calculators}}{\emph{properties=None}, \emph{system\_changes=None}}{}
 Run all previously set ASE calculators.
 
 \begin{DUlineblock}{0em}
@@ -2051,7 +2051,7 @@ Run all previously set ASE calculators.
 \index{save() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.save}\pysiglinewithargsret{\bfcode{save}}{\emph{filename}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.save}\pysiglinewithargsret{\bfcode{save}}{\emph{filename}}{}
 Simply save a pickled copy to a given file path
 
 \end{fulllineitems}
@@ -2059,7 +2059,7 @@ Simply save a pickled copy to a given file path
 \index{set\_array() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.set_array}\pysiglinewithargsret{\bfcode{set\_array}}{\emph{name}, \emph{a}, \emph{dtype=None}, \emph{shape=None}, \emph{args=\{\}}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.set_array}\pysiglinewithargsret{\bfcode{set\_array}}{\emph{name}, \emph{a}, \emph{dtype=None}, \emph{shape=None}, \emph{args=\{\}}}{}
 Add or modify an array of data related to the Atoms objects
 in this collection.
 
@@ -2100,7 +2100,7 @@ in this collection.
 \index{set\_calculators() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.set_calculators}\pysiglinewithargsret{\bfcode{set\_calculators}}{\emph{calctype}, \emph{labels=None}, \emph{params=\{\}}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.set_calculators}\pysiglinewithargsret{\bfcode{set\_calculators}}{\emph{calctype}, \emph{labels=None}, \emph{params=\{\}}}{}
 Set an ASE calculator on each structure in the collection,
 and set said calculator's parameters.
 
@@ -2128,7 +2128,7 @@ and set said calculator's parameters.
 \index{sorted\_byarray() (soprano.collection.collection.AtomsCollection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.collection.collection:soprano.collection.collection.AtomsCollection.sorted_byarray}\pysiglinewithargsret{\bfcode{sorted\_byarray}}{\emph{name}, \emph{reverse=False}}{}
+\phantomsection\label{doctree/soprano.collection.collection:soprano.collection.collection.AtomsCollection.sorted_byarray}\pysiglinewithargsret{\bfcode{sorted\_byarray}}{\emph{name}, \emph{reverse=False}}{}
 Return a copy of this collection sorted by a given array.
 
 \begin{DUlineblock}{0em}
@@ -2156,17 +2156,17 @@ Return a copy of this collection sorted by a given array.
 
 
 \subsubsection{soprano.hpc package}
-\label{soprano.hpc:module-soprano.hpc}\label{soprano.hpc:soprano-hpc-package}\label{soprano.hpc::doc}\index{soprano.hpc (module)}
+\label{doctree/soprano.hpc:module-soprano.hpc}\label{doctree/soprano.hpc:soprano-hpc-package}\label{doctree/soprano.hpc::doc}\index{soprano.hpc (module)}
 Classes and functions useful to run calculations on huge cluster systems
 (High Performance Computation). To be used with care - these are liable to
 fail if some specific architecture has quirks that are not accounted for!
 
 
 \paragraph{Subpackages}
-\label{soprano.hpc:subpackages}
+\label{doctree/soprano.hpc:subpackages}
 
 \subparagraph{soprano.hpc.submitter package}
-\label{soprano.hpc.submitter:soprano-hpc-submitter-package}\label{soprano.hpc.submitter::doc}\label{soprano.hpc.submitter:module-soprano.hpc.submitter}\index{soprano.hpc.submitter (module)}
+\label{doctree/soprano.hpc.submitter:soprano-hpc-submitter-package}\label{doctree/soprano.hpc.submitter::doc}\label{doctree/soprano.hpc.submitter:module-soprano.hpc.submitter}\index{soprano.hpc.submitter (module)}
 Classes and functions required for processes that automatically submit jobs
 to a queueing system working in the background.
 
@@ -2214,10 +2214,10 @@ output from their run can be stored.
 
 
 \subparagraph{Subpackages}
-\label{soprano.hpc.submitter:subpackages}
+\label{doctree/soprano.hpc.submitter:subpackages}
 
 \subparagraph{soprano.hpc.submitter.debug package}
-\label{soprano.hpc.submitter.debug:module-soprano.hpc.submitter.debug}\label{soprano.hpc.submitter.debug:soprano-hpc-submitter-debug-package}\label{soprano.hpc.submitter.debug::doc}\index{soprano.hpc.submitter.debug (module)}
+\label{doctree/soprano.hpc.submitter.debug:module-soprano.hpc.submitter.debug}\label{doctree/soprano.hpc.submitter.debug:soprano-hpc-submitter-debug-package}\label{doctree/soprano.hpc.submitter.debug::doc}\index{soprano.hpc.submitter.debug (module)}
 Functions useful for debugging QueueInterface and Submitters. These
 provide a `fake' queue that executes basic jobs with artificial delays
 in order to simulate an environment similar to what can be found on an HPC
@@ -2225,16 +2225,16 @@ machine.
 
 
 \subparagraph{Submodules}
-\label{soprano.hpc.submitter.debug:submodules}
+\label{doctree/soprano.hpc.submitter.debug:submodules}
 
 \subparagraph{soprano.hpc.submitter.debug.debugqueue module}
-\label{soprano.hpc.submitter.debug.debugqueue:soprano-hpc-submitter-debug-debugqueue-module}\label{soprano.hpc.submitter.debug.debugqueue::doc}\label{soprano.hpc.submitter.debug.debugqueue:module-soprano.hpc.submitter.debug.debugqueue}\index{soprano.hpc.submitter.debug.debugqueue (module)}
+\label{doctree/soprano.hpc.submitter.debug.debugqueue:soprano-hpc-submitter-debug-debugqueue-module}\label{doctree/soprano.hpc.submitter.debug.debugqueue::doc}\label{doctree/soprano.hpc.submitter.debug.debugqueue:module-soprano.hpc.submitter.debug.debugqueue}\index{soprano.hpc.submitter.debug.debugqueue (module)}
 Definition of a fake QueueInterface class, useful for debugging Submitters.
 \index{DebugQueueInterface (class in soprano.hpc.submitter.debug.debugqueue)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.debug.debugqueue.}\bfcode{DebugQueueInterface}}{\emph{dt=0.1}}{}
-Bases: {\hyperref[soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface]{\emph{\code{soprano.hpc.submitter.queues.QueueInterface}}}}
+\phantomsection\label{doctree/soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.debug.debugqueue.}\bfcode{DebugQueueInterface}}{\emph{dt=0.1}}{}
+Bases: {\hyperref[doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface]{\emph{\code{soprano.hpc.submitter.queues.QueueInterface}}}}
 
 DebugQueueInterface object
 
@@ -2269,7 +2269,7 @@ Initialize the DebugQueueInterface.
 \index{kill() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill}\pysiglinewithargsret{\bfcode{kill}}{\emph{job\_id}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill}\pysiglinewithargsret{\bfcode{kill}}{\emph{job\_id}}{}
 Kill the job with the given ID
 
 \begin{DUlineblock}{0em}
@@ -2286,7 +2286,7 @@ Kill the job with the given ID
 \index{list() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list}\pysiglinewithargsret{\bfcode{list}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list}\pysiglinewithargsret{\bfcode{list}}{}{}
 List all jobs found in the queue
 
 \begin{DUlineblock}{0em}
@@ -2307,7 +2307,7 @@ List all jobs found in the queue
 \index{submit() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit}\pysiglinewithargsret{\bfcode{submit}}{\emph{script}, \emph{cwd=None}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.debug.debugqueue:soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit}\pysiglinewithargsret{\bfcode{submit}}{\emph{script}, \emph{cwd=None}}{}
 Submit a job to the queue.
 
 \begin{DUlineblock}{0em}
@@ -2337,10 +2337,10 @@ Submit a job to the queue.
 
 
 \subparagraph{Submodules}
-\label{soprano.hpc.submitter:submodules}
+\label{doctree/soprano.hpc.submitter:submodules}
 
 \subparagraph{soprano.hpc.submitter.castep module}
-\label{soprano.hpc.submitter.castep:module-soprano.hpc.submitter.castep}\label{soprano.hpc.submitter.castep::doc}\label{soprano.hpc.submitter.castep:soprano-hpc-submitter-castep-module}\index{soprano.hpc.submitter.castep (module)}
+\label{doctree/soprano.hpc.submitter.castep:module-soprano.hpc.submitter.castep}\label{doctree/soprano.hpc.submitter.castep::doc}\label{doctree/soprano.hpc.submitter.castep:soprano-hpc-submitter-castep-module}\index{soprano.hpc.submitter.castep (module)}
 Definition of CastepSubmitter class.
 
 A basic ``rolling'' submitter for Castep calculations, grabbing from one folder
@@ -2348,8 +2348,8 @@ and depositing results in another.
 \index{CastepSubmitter (class in soprano.hpc.submitter.castep)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.castep.}\bfcode{CastepSubmitter}}{\emph{name}, \emph{queue}, \emph{submit\_script}, \emph{max\_jobs=4}, \emph{check\_time=10}, \emph{max\_time=3600}, \emph{temp\_folder=None}}{}
-Bases: {\hyperref[soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter]{\emph{\code{soprano.hpc.submitter.submit.Submitter}}}}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.castep.}\bfcode{CastepSubmitter}}{\emph{name}, \emph{queue}, \emph{submit\_script}, \emph{max\_jobs=4}, \emph{check\_time=10}, \emph{max\_time=3600}, \emph{temp\_folder=None}}{}
+Bases: {\hyperref[doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter]{\emph{\code{soprano.hpc.submitter.submit.Submitter}}}}
 
 Initialize the Submitter object
 
@@ -2409,7 +2409,7 @@ Initialize the Submitter object
 \index{finish\_job() (soprano.hpc.submitter.castep.CastepSubmitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.finish_job}\pysiglinewithargsret{\bfcode{finish\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.finish_job}\pysiglinewithargsret{\bfcode{finish\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
 Save required output files to the output folder
 
 \end{fulllineitems}
@@ -2417,7 +2417,7 @@ Save required output files to the output folder
 \index{finish\_run() (soprano.hpc.submitter.castep.CastepSubmitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.finish_run}\pysiglinewithargsret{\bfcode{finish\_run}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.finish_run}\pysiglinewithargsret{\bfcode{finish\_run}}{}{}
 Try removing the temporary keywords directory
 
 \end{fulllineitems}
@@ -2425,7 +2425,7 @@ Try removing the temporary keywords directory
 \index{next\_job() (soprano.hpc.submitter.castep.CastepSubmitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.next_job}\pysiglinewithargsret{\bfcode{next\_job}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.next_job}\pysiglinewithargsret{\bfcode{next\_job}}{}{}
 Grab the next job from folder\_in
 
 \end{fulllineitems}
@@ -2433,7 +2433,7 @@ Grab the next job from folder\_in
 \index{set\_parameters() (soprano.hpc.submitter.castep.CastepSubmitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.set_parameters}\pysiglinewithargsret{\bfcode{set\_parameters}}{\emph{folder\_in, folder\_out, castep\_command, castep\_path=None, copy\_extensions={[}u'.castep'{]}, pspot\_files={[}{]}, dryrun\_test=False}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.set_parameters}\pysiglinewithargsret{\bfcode{set\_parameters}}{\emph{folder\_in, folder\_out, castep\_command, castep\_path=None, copy\_extensions={[}u'.castep'{]}, pspot\_files={[}{]}, dryrun\_test=False}}{}
 Set the parameters of the CASTEP Submitter
 
 \begin{DUlineblock}{0em}
@@ -2484,7 +2484,7 @@ Set the parameters of the CASTEP Submitter
 \index{setup\_job() (soprano.hpc.submitter.castep.CastepSubmitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.setup_job}\pysiglinewithargsret{\bfcode{setup\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.setup_job}\pysiglinewithargsret{\bfcode{setup\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
 Copy files to temporary folder to prepare for execution
 
 \end{fulllineitems}
@@ -2492,7 +2492,7 @@ Copy files to temporary folder to prepare for execution
 \index{start\_run() (soprano.hpc.submitter.castep.CastepSubmitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.start_run}\pysiglinewithargsret{\bfcode{start\_run}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.castep:soprano.hpc.submitter.castep.CastepSubmitter.start_run}\pysiglinewithargsret{\bfcode{start\_run}}{}{}
 \end{fulllineitems}
 
 
@@ -2501,12 +2501,12 @@ Copy files to temporary folder to prepare for execution
 
 
 \subparagraph{soprano.hpc.submitter.queues module}
-\label{soprano.hpc.submitter.queues::doc}\label{soprano.hpc.submitter.queues:module-soprano.hpc.submitter.queues}\label{soprano.hpc.submitter.queues:soprano-hpc-submitter-queues-module}\index{soprano.hpc.submitter.queues (module)}
+\label{doctree/soprano.hpc.submitter.queues::doc}\label{doctree/soprano.hpc.submitter.queues:module-soprano.hpc.submitter.queues}\label{doctree/soprano.hpc.submitter.queues:soprano-hpc-submitter-queues-module}\index{soprano.hpc.submitter.queues (module)}
 Definition of QueueInterface class.
 \index{QueueInterface (class in soprano.hpc.submitter.queues)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.queues.}\bfcode{QueueInterface}}{\emph{sub\_cmd}, \emph{list\_cmd}, \emph{kill\_cmd}, \emph{sub\_outre}, \emph{list\_outre}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.queues.}\bfcode{QueueInterface}}{\emph{sub\_cmd}, \emph{list\_cmd}, \emph{kill\_cmd}, \emph{sub\_outre}, \emph{list\_outre}}{}
 Bases: \code{object}
 
 QueueInterface object
@@ -2559,19 +2559,19 @@ Initialize the QueueInterface.
 \index{GridEngine() (soprano.hpc.submitter.queues.QueueInterface class method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.GridEngine}\pysiglinewithargsret{\strong{classmethod }\bfcode{GridEngine}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.GridEngine}\pysiglinewithargsret{\strong{classmethod }\bfcode{GridEngine}}{}{}
 \end{fulllineitems}
 
 \index{LSF() (soprano.hpc.submitter.queues.QueueInterface class method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.LSF}\pysiglinewithargsret{\strong{classmethod }\bfcode{LSF}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.LSF}\pysiglinewithargsret{\strong{classmethod }\bfcode{LSF}}{}{}
 \end{fulllineitems}
 
 \index{kill() (soprano.hpc.submitter.queues.QueueInterface method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.kill}\pysiglinewithargsret{\bfcode{kill}}{\emph{job\_id}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.kill}\pysiglinewithargsret{\bfcode{kill}}{\emph{job\_id}}{}
 Kill the job with the given ID
 
 \begin{DUlineblock}{0em}
@@ -2588,7 +2588,7 @@ Kill the job with the given ID
 \index{list() (soprano.hpc.submitter.queues.QueueInterface method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.list}\pysiglinewithargsret{\bfcode{list}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.list}\pysiglinewithargsret{\bfcode{list}}{}{}
 List all jobs found in the queue
 
 \begin{DUlineblock}{0em}
@@ -2609,7 +2609,7 @@ List all jobs found in the queue
 \index{submit() (soprano.hpc.submitter.queues.QueueInterface method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.submit}\pysiglinewithargsret{\bfcode{submit}}{\emph{script}, \emph{cwd=None}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.queues:soprano.hpc.submitter.queues.QueueInterface.submit}\pysiglinewithargsret{\bfcode{submit}}{\emph{script}, \emph{cwd=None}}{}
 Submit a job to the queue.
 
 \begin{DUlineblock}{0em}
@@ -2639,14 +2639,14 @@ Submit a job to the queue.
 
 
 \subparagraph{soprano.hpc.submitter.submit module}
-\label{soprano.hpc.submitter.submit:soprano-hpc-submitter-submit-module}\label{soprano.hpc.submitter.submit::doc}\label{soprano.hpc.submitter.submit:module-soprano.hpc.submitter.submit}\index{soprano.hpc.submitter.submit (module)}
+\label{doctree/soprano.hpc.submitter.submit:soprano-hpc-submitter-submit-module}\label{doctree/soprano.hpc.submitter.submit::doc}\label{doctree/soprano.hpc.submitter.submit:module-soprano.hpc.submitter.submit}\index{soprano.hpc.submitter.submit (module)}
 Definition of Submitter class
 
 Base class for all Submitters to inherit from.
 \index{Submitter (class in soprano.hpc.submitter.submit)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.submit.}\bfcode{Submitter}}{\emph{name}, \emph{queue}, \emph{submit\_script}, \emph{max\_jobs=4}, \emph{check\_time=10}, \emph{max\_time=3600}, \emph{temp\_folder=None}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter}\pysiglinewithargsret{\strong{class }\code{soprano.hpc.submitter.submit.}\bfcode{Submitter}}{\emph{name}, \emph{queue}, \emph{submit\_script}, \emph{max\_jobs=4}, \emph{check\_time=10}, \emph{max\_time=3600}, \emph{temp\_folder=None}}{}
 Bases: \code{object}
 
 Submitter object
@@ -2753,7 +2753,7 @@ Initialize the Submitter object
 \index{check\_job() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.check_job}\pysiglinewithargsret{\bfcode{check\_job}}{\emph{job\_id}, \emph{name}, \emph{args}, \emph{folder}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.check_job}\pysiglinewithargsret{\bfcode{check\_job}}{\emph{job\_id}, \emph{name}, \emph{args}, \emph{folder}}{}
 Checks if given job is complete or not
 
 \end{fulllineitems}
@@ -2761,7 +2761,7 @@ Checks if given job is complete or not
 \index{finish\_job() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.finish_job}\pysiglinewithargsret{\bfcode{finish\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.finish_job}\pysiglinewithargsret{\bfcode{finish\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
 Performs completiion operations on the job. At this point any
 relevant output files should be copied from `folder' to their final
 destination as the temporary folder itself will be deleted immediately
@@ -2772,7 +2772,7 @@ after
 \index{finish\_run() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.finish_run}\pysiglinewithargsret{\bfcode{finish\_run}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.finish_run}\pysiglinewithargsret{\bfcode{finish\_run}}{}{}
 Operations to perform after the daemon thread stops running
 
 \end{fulllineitems}
@@ -2780,19 +2780,19 @@ Operations to perform after the daemon thread stops running
 \index{list() (soprano.hpc.submitter.submit.Submitter static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.list}\pysiglinewithargsret{\strong{static }\bfcode{list}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.list}\pysiglinewithargsret{\strong{static }\bfcode{list}}{}{}
 \end{fulllineitems}
 
 \index{log() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.log}\pysiglinewithargsret{\bfcode{log}}{\emph{logtxt}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.log}\pysiglinewithargsret{\bfcode{log}}{\emph{logtxt}}{}
 \end{fulllineitems}
 
 \index{next\_job() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.next_job}\pysiglinewithargsret{\bfcode{next\_job}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.next_job}\pysiglinewithargsret{\bfcode{next\_job}}{}{}
 Return a dictionary definition of the next job in line
 
 \end{fulllineitems}
@@ -2800,7 +2800,7 @@ Return a dictionary definition of the next job in line
 \index{set\_parameters() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.set_parameters}\pysiglinewithargsret{\bfcode{set\_parameters}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.set_parameters}\pysiglinewithargsret{\bfcode{set\_parameters}}{}{}
 Set additional parameters. In this generic example class it has
 no arguments, but in specific implementations it will be used to
 add more variables without overriding \_\_init\_\_.
@@ -2810,7 +2810,7 @@ add more variables without overriding \_\_init\_\_.
 \index{setup\_job() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.setup_job}\pysiglinewithargsret{\bfcode{setup\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.setup_job}\pysiglinewithargsret{\bfcode{setup\_job}}{\emph{name}, \emph{args}, \emph{folder}}{}
 Perform preparatory operations on the job
 
 \end{fulllineitems}
@@ -2818,13 +2818,13 @@ Perform preparatory operations on the job
 \index{start() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.start}\pysiglinewithargsret{\bfcode{start}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.start}\pysiglinewithargsret{\bfcode{start}}{}{}
 \end{fulllineitems}
 
 \index{start\_run() (soprano.hpc.submitter.submit.Submitter method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.start_run}\pysiglinewithargsret{\bfcode{start\_run}}{}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.start_run}\pysiglinewithargsret{\bfcode{start\_run}}{}{}
 Operations to perform when the daemon thread starts running
 
 \end{fulllineitems}
@@ -2832,7 +2832,7 @@ Operations to perform when the daemon thread starts running
 \index{stop() (soprano.hpc.submitter.submit.Submitter static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.stop}\pysiglinewithargsret{\strong{static }\bfcode{stop}}{\emph{fname}, \emph{subname}}{}
+\phantomsection\label{doctree/soprano.hpc.submitter.submit:soprano.hpc.submitter.submit.Submitter.stop}\pysiglinewithargsret{\strong{static }\bfcode{stop}}{\emph{fname}, \emph{subname}}{}
 Stop Submitter process from filename and name,
 return False if failed
 
@@ -2844,7 +2844,7 @@ return False if failed
 
 
 \subsubsection{soprano.properties package}
-\label{soprano.properties:module-soprano.properties}\label{soprano.properties:soprano-properties-package}\label{soprano.properties::doc}\index{soprano.properties (module)}
+\label{doctree/soprano.properties:module-soprano.properties}\label{doctree/soprano.properties:soprano-properties-package}\label{doctree/soprano.properties::doc}\index{soprano.properties (module)}
 Contains classes, modules and functions relevant to Properties,
 a catch-all term for things we might want to extract or calculate from
 Atoms and AtomsCollections. Some will require running an external ASE
@@ -2853,25 +2853,25 @@ some calculations and parameters.
 
 
 \paragraph{Subpackages}
-\label{soprano.properties:subpackages}
+\label{doctree/soprano.properties:subpackages}
 
 \subparagraph{soprano.properties.basic package}
-\label{soprano.properties.basic:soprano-properties-basic-package}\label{soprano.properties.basic::doc}\label{soprano.properties.basic:module-soprano.properties.basic}\index{soprano.properties.basic (module)}
+\label{doctree/soprano.properties.basic:soprano-properties-basic-package}\label{doctree/soprano.properties.basic::doc}\label{doctree/soprano.properties.basic:module-soprano.properties.basic}\index{soprano.properties.basic (module)}
 Module containing very basic AtomsProperties (the kind that only require
 a couple of lines of code but are still pretty convenient to have at hand)
 
 
 \subparagraph{Submodules}
-\label{soprano.properties.basic:submodules}
+\label{doctree/soprano.properties.basic:submodules}
 
 \subparagraph{soprano.properties.basic.basic module}
-\label{soprano.properties.basic.basic::doc}\label{soprano.properties.basic.basic:module-soprano.properties.basic.basic}\label{soprano.properties.basic.basic:soprano-properties-basic-basic-module}\index{soprano.properties.basic.basic (module)}
+\label{doctree/soprano.properties.basic.basic::doc}\label{doctree/soprano.properties.basic.basic:module-soprano.properties.basic.basic}\label{doctree/soprano.properties.basic.basic:soprano-properties-basic-basic-module}\index{soprano.properties.basic.basic (module)}
 Implementation of some basic AtomsProperty classes
 \index{CalcEnergy (class in soprano.properties.basic.basic)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{CalcEnergy}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{CalcEnergy}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Property representing the energy calculated by an ASE calulator
 
@@ -2895,19 +2895,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.basic.basic.CalcEnergy attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'calc\_energy'}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'calc\_energy'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.basic.basic.CalcEnergy attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{\}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.basic.basic.CalcEnergy static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}}{}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.CalcEnergy.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}}{}
 \end{fulllineitems}
 
 
@@ -2916,8 +2916,8 @@ only argument to get the property with the given parameters.
 \index{LatticeABC (class in soprano.properties.basic.basic)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{LatticeABC}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{LatticeABC}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Property representing the axis-angles form of a structure's lattice
 
@@ -2950,19 +2950,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.basic.basic.LatticeABC attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'lattice\_abc'}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'lattice\_abc'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.basic.basic.LatticeABC attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'shape': (2, 3), u'deg': False\}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'shape': (2, 3), u'deg': False\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.basic.basic.LatticeABC static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{shape}, \emph{deg}}{}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeABC.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{shape}, \emph{deg}}{}
 \end{fulllineitems}
 
 
@@ -2971,8 +2971,8 @@ only argument to get the property with the given parameters.
 \index{LatticeCart (class in soprano.properties.basic.basic)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{LatticeCart}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{LatticeCart}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Property representing the Cartesian form of a structure's lattice
 
@@ -3004,19 +3004,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.basic.basic.LatticeCart attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'lattice\_cart'}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'lattice\_cart'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.basic.basic.LatticeCart attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'shape': (3, 3)\}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'shape': (3, 3)\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.basic.basic.LatticeCart static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{shape}}{}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.LatticeCart.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{shape}}{}
 \end{fulllineitems}
 
 
@@ -3025,8 +3025,8 @@ only argument to get the property with the given parameters.
 \index{NumAtoms (class in soprano.properties.basic.basic)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{NumAtoms}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms}\pysiglinewithargsret{\strong{class }\code{soprano.properties.basic.basic.}\bfcode{NumAtoms}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Property representing the number of atoms in a structure
 
@@ -3050,19 +3050,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.basic.basic.NumAtoms attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'num\_atoms'}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'num\_atoms'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.basic.basic.NumAtoms attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{\}}}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.basic.basic.NumAtoms static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}}{}
+\phantomsection\label{doctree/soprano.properties.basic.basic:soprano.properties.basic.basic.NumAtoms.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}}{}
 \end{fulllineitems}
 
 
@@ -3071,7 +3071,7 @@ only argument to get the property with the given parameters.
 
 
 \subparagraph{soprano.properties.castep package}
-\label{soprano.properties.castep:module-soprano.properties.castep}\label{soprano.properties.castep::doc}\label{soprano.properties.castep:soprano-properties-castep-package}\index{soprano.properties.castep (module)}
+\label{doctree/soprano.properties.castep:module-soprano.properties.castep}\label{doctree/soprano.properties.castep::doc}\label{doctree/soprano.properties.castep:soprano-properties-castep-package}\index{soprano.properties.castep (module)}
 Module containing AtomsProperties related specifically to CASTEP calculations.
 Some of these can be looked up only in a CASTEP Calculator; others require
 passing the path of the .castep file as a parameter and actually parsing its
@@ -3079,16 +3079,16 @@ contents.
 
 
 \subparagraph{Submodules}
-\label{soprano.properties.castep:submodules}
+\label{doctree/soprano.properties.castep:submodules}
 
 \subparagraph{soprano.properties.castep.castep module}
-\label{soprano.properties.castep.castep:soprano-properties-castep-castep-module}\label{soprano.properties.castep.castep::doc}\label{soprano.properties.castep.castep:module-soprano.properties.castep.castep}\index{soprano.properties.castep.castep (module)}
+\label{doctree/soprano.properties.castep.castep:soprano-properties-castep-castep-module}\label{doctree/soprano.properties.castep.castep::doc}\label{doctree/soprano.properties.castep.castep:module-soprano.properties.castep.castep}\index{soprano.properties.castep.castep (module)}
 Implementation of some CASTEP related AtomsProperties
 \index{CastepEnthalpy (class in soprano.properties.castep.castep)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy}\pysiglinewithargsret{\strong{class }\code{soprano.properties.castep.castep.}\bfcode{CastepEnthalpy}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy}\pysiglinewithargsret{\strong{class }\code{soprano.properties.castep.castep.}\bfcode{CastepEnthalpy}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Enthalpy as found in the .castep file of a GeometryOptimization
 calculation. If not present, this will fall back on the final free energy.
@@ -3126,19 +3126,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.castep.castep.CastepEnthalpy attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'castep\_enthalpy'}}
+\phantomsection\label{doctree/soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'castep\_enthalpy'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.castep.castep.CastepEnthalpy attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'seedname\_info': u'name', u'castep\_path': u'.'\}}}
+\phantomsection\label{doctree/soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'seedname\_info': u'name', u'castep\_path': u'.'\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.castep.castep.CastepEnthalpy static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{castep\_path}, \emph{seedname\_info}}{}
+\phantomsection\label{doctree/soprano.properties.castep.castep:soprano.properties.castep.castep.CastepEnthalpy.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{castep\_path}, \emph{seedname\_info}}{}
 \end{fulllineitems}
 
 
@@ -3147,22 +3147,22 @@ only argument to get the property with the given parameters.
 
 
 \subparagraph{soprano.properties.labeling package}
-\label{soprano.properties.labeling:module-soprano.properties.labeling}\label{soprano.properties.labeling::doc}\label{soprano.properties.labeling:soprano-properties-labeling-package}\index{soprano.properties.labeling (module)}
+\label{doctree/soprano.properties.labeling:module-soprano.properties.labeling}\label{doctree/soprano.properties.labeling::doc}\label{doctree/soprano.properties.labeling:soprano-properties-labeling-package}\index{soprano.properties.labeling (module)}
 Module containing AtomsProperties that relate to labeling a system's atoms,
 molecules, hydrogen bonds and such based on their chemical properties.
 
 
 \subparagraph{Submodules}
-\label{soprano.properties.labeling:submodules}
+\label{doctree/soprano.properties.labeling:submodules}
 
 \subparagraph{soprano.properties.labeling.labeling module}
-\label{soprano.properties.labeling.labeling:soprano-properties-labeling-labeling-module}\label{soprano.properties.labeling.labeling:module-soprano.properties.labeling.labeling}\label{soprano.properties.labeling.labeling::doc}\index{soprano.properties.labeling.labeling (module)}
+\label{doctree/soprano.properties.labeling.labeling:soprano-properties-labeling-labeling-module}\label{doctree/soprano.properties.labeling.labeling:module-soprano.properties.labeling.labeling}\label{doctree/soprano.properties.labeling.labeling::doc}\index{soprano.properties.labeling.labeling (module)}
 Implementation of AtomsProperties that relate to labeling of systems
 \index{HydrogenBondTypes (class in soprano.properties.labeling.labeling)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes}\pysiglinewithargsret{\strong{class }\code{soprano.properties.labeling.labeling.}\bfcode{HydrogenBondTypes}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes}\pysiglinewithargsret{\strong{class }\code{soprano.properties.labeling.labeling.}\bfcode{HydrogenBondTypes}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Assign MoleculeSites labels to atoms, then characterise existing hydrogen
 bonds based on them, and return a list of such bonds detected in a system.
@@ -3221,19 +3221,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.labeling.labeling.HydrogenBondTypes attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'hydrogen\_bond\_types'}}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'hydrogen\_bond\_types'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.labeling.labeling.HydrogenBondTypes attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'save\_info': True\}}}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'save\_info': True\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.labeling.labeling.HydrogenBondTypes static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{save\_info}}{}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.HydrogenBondTypes.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{save\_info}}{}
 \end{fulllineitems}
 
 
@@ -3242,8 +3242,8 @@ only argument to get the property with the given parameters.
 \index{MoleculeSites (class in soprano.properties.labeling.labeling)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites}\pysiglinewithargsret{\strong{class }\code{soprano.properties.labeling.labeling.}\bfcode{MoleculeSites}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites}\pysiglinewithargsret{\strong{class }\code{soprano.properties.labeling.labeling.}\bfcode{MoleculeSites}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Assigns univoque labels to atoms belonging to molecules by exploiting
 network topology. Atoms can have the same label, but only if they're
@@ -3311,19 +3311,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.labeling.labeling.MoleculeSites attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_sites'}}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_sites'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.labeling.labeling.MoleculeSites attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'save\_info': True, u'save\_asarray': False\}}}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'save\_info': True, u'save\_asarray': False\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.labeling.labeling.MoleculeSites static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{save\_info}, \emph{save\_asarray}}{}
+\phantomsection\label{doctree/soprano.properties.labeling.labeling:soprano.properties.labeling.labeling.MoleculeSites.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{save\_info}, \emph{save\_asarray}}{}
 \end{fulllineitems}
 
 
@@ -3332,22 +3332,22 @@ only argument to get the property with the given parameters.
 
 
 \subparagraph{soprano.properties.linkage package}
-\label{soprano.properties.linkage::doc}\label{soprano.properties.linkage:soprano-properties-linkage-package}\label{soprano.properties.linkage:module-soprano.properties.linkage}\index{soprano.properties.linkage (module)}
+\label{doctree/soprano.properties.linkage::doc}\label{doctree/soprano.properties.linkage:soprano-properties-linkage-package}\label{doctree/soprano.properties.linkage:module-soprano.properties.linkage}\index{soprano.properties.linkage (module)}
 Module containing AtomsProperties that relate to linkage properties of a given
 system, self-correlation etc.
 
 
 \subparagraph{Submodules}
-\label{soprano.properties.linkage:submodules}
+\label{doctree/soprano.properties.linkage:submodules}
 
 \subparagraph{soprano.properties.linkage.linkage module}
-\label{soprano.properties.linkage.linkage::doc}\label{soprano.properties.linkage.linkage:module-soprano.properties.linkage.linkage}\label{soprano.properties.linkage.linkage:soprano-properties-linkage-linkage-module}\index{soprano.properties.linkage.linkage (module)}
+\label{doctree/soprano.properties.linkage.linkage::doc}\label{doctree/soprano.properties.linkage.linkage:module-soprano.properties.linkage.linkage}\label{doctree/soprano.properties.linkage.linkage:soprano-properties-linkage-linkage-module}\index{soprano.properties.linkage.linkage (module)}
 Implementation of AtomsProperties that relate to linkage of atoms
 \index{Bonds (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{Bonds}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{Bonds}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Produces an array of tuples identifying all bonds existing within the 
 system (calculated using Van der Waals radii). The tuples are structured
@@ -3417,19 +3417,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.Bonds attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'bonds'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'bonds'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.Bonds attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'default\_vdw': 2.0, u'vdw\_scale': 1.0, u'vdw\_set': u'jmol'\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'default\_vdw': 2.0, u'vdw\_scale': 1.0, u'vdw\_set': u'jmol'\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.Bonds static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Bonds.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}}{}
 \end{fulllineitems}
 
 
@@ -3438,8 +3438,8 @@ only argument to get the property with the given parameters.
 \index{CoordinationHistogram (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{CoordinationHistogram}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{CoordinationHistogram}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Produces an histogram representing, for each pair of species present in
 the system, how many atoms of species 1 have n bonds with species 2, n
@@ -3521,19 +3521,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.CoordinationHistogram attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'coord\_histogram'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'coord\_histogram'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.CoordinationHistogram attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'species\_2': None, u'species\_1': None, u'default\_vdw': 2.0, u'max\_coord': 6, u'vdw\_set': u'jmol', u'vdw\_scale': 1.0\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'species\_2': None, u'species\_1': None, u'default\_vdw': 2.0, u'max\_coord': 6, u'vdw\_set': u'jmol', u'vdw\_scale': 1.0\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.CoordinationHistogram static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}, \emph{species\_1}, \emph{species\_2}, \emph{max\_coord}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.CoordinationHistogram.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}, \emph{species\_1}, \emph{species\_2}, \emph{max\_coord}}{}
 \end{fulllineitems}
 
 
@@ -3542,8 +3542,8 @@ only argument to get the property with the given parameters.
 \index{HydrogenBonds (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{HydrogenBonds}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{HydrogenBonds}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Hydrogen Bonds
 
@@ -3633,19 +3633,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.HydrogenBonds attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'hydrogen\_bonds'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'hydrogen\_bonds'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.HydrogenBonds attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'save\_info': True, u'hbond\_elems': {[}u'O', u'N'{]}, u'default\_vdw': 2.0, u'max\_length': 3.5, u'vdw\_set': u'jmol', u'vdw\_scale': 1.0, u'max\_angle': 45.0\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'save\_info': True, u'hbond\_elems': {[}u'O', u'N'{]}, u'default\_vdw': 2.0, u'max\_length': 3.5, u'vdw\_set': u'jmol', u'vdw\_scale': 1.0, u'max\_angle': 45.0\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.HydrogenBonds static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}, \emph{hbond\_elems}, \emph{max\_length}, \emph{max\_angle}, \emph{save\_info}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBonds.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}, \emph{hbond\_elems}, \emph{max\_length}, \emph{max\_angle}, \emph{save\_info}}{}
 \end{fulllineitems}
 
 
@@ -3654,8 +3654,8 @@ only argument to get the property with the given parameters.
 \index{HydrogenBondsNumber (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{HydrogenBondsNumber}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{HydrogenBondsNumber}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Number of hydrogen bonds detected in this system, classified by type.
 By default will use already existing hydrogen bonds if they're present as
@@ -3701,19 +3701,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.HydrogenBondsNumber attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'hydrogen\_bonds\_n'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'hydrogen\_bonds\_n'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.HydrogenBondsNumber attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.HydrogenBondsNumber static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.HydrogenBondsNumber.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}}{}
 \end{fulllineitems}
 
 
@@ -3722,8 +3722,8 @@ only argument to get the property with the given parameters.
 \index{LinkageList (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{LinkageList}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{LinkageList}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Produces an array containing the atomic pair distances in a system,
 reduced to their shortest periodic version and sorted min to max.
@@ -3769,19 +3769,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.LinkageList attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'linkage\_list'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'linkage\_list'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.LinkageList attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'size': 0\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'size': 0\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.LinkageList static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{size}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.LinkageList.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{size}}{}
 \end{fulllineitems}
 
 
@@ -3790,8 +3790,8 @@ only argument to get the property with the given parameters.
 \index{MoleculeCOMLinkage (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeCOMLinkage}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeCOMLinkage}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Linkage list - following the same criteria as the atomic one - calculated
 for the centers of mass of the molecules present in the system. By default
@@ -3848,19 +3848,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.MoleculeCOMLinkage attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_com\_linkage'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_com\_linkage'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.MoleculeCOMLinkage attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'size': 0\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'size': 0\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.MoleculeCOMLinkage static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{size}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{size}}{}
 \end{fulllineitems}
 
 
@@ -3869,8 +3869,8 @@ only argument to get the property with the given parameters.
 \index{MoleculeMass (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeMass}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeMass}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Total mass of each of the molecules detected in this system. By default
 will use already existing molecules if they're present as a saved array in
@@ -3922,19 +3922,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.MoleculeMass attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_mass'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_mass'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.MoleculeMass attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'size': 0\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'size': 0\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.MoleculeMass static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{size}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeMass.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{size}}{}
 \end{fulllineitems}
 
 
@@ -3943,8 +3943,8 @@ only argument to get the property with the given parameters.
 \index{MoleculeNumber (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeNumber}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeNumber}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Number of molecules detected in this system. By default will use already
 existing molecules if they're present as a saved array in the system.
@@ -3989,19 +3989,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.MoleculeNumber attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_n'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_n'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.MoleculeNumber attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.MoleculeNumber static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeNumber.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}}{}
 \end{fulllineitems}
 
 
@@ -4010,8 +4010,8 @@ only argument to get the property with the given parameters.
 \index{MoleculeRelativeRotation (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeRelativeRotation}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{MoleculeRelativeRotation}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 A list of relative rotations between molecules. Uses the inertia tensor
 eigenvectors to establish a local frame for each molecule, then uses
@@ -4086,19 +4086,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.MoleculeRelativeRotation attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_rel\_rotation'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecule\_rel\_rotation'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.MoleculeRelativeRotation attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'twist\_axis': None, u'swing\_plane': None, u'size': 0\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'force\_recalc': False, u'twist\_axis': None, u'swing\_plane': None, u'size': 0\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.MoleculeRelativeRotation static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{size}, \emph{swing\_plane}, \emph{twist\_axis}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{force\_recalc}, \emph{size}, \emph{swing\_plane}, \emph{twist\_axis}}{}
 \end{fulllineitems}
 
 
@@ -4107,8 +4107,8 @@ only argument to get the property with the given parameters.
 \index{Molecules (class in soprano.properties.linkage.linkage)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{Molecules}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules}\pysiglinewithargsret{\strong{class }\code{soprano.properties.linkage.linkage.}\bfcode{Molecules}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Produces an array containing multiple AtomSelection objects representing
 molecules in the system as found by connecting atoms closer than the half
@@ -4175,19 +4175,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.linkage.linkage.Molecules attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecules'}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'molecules'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.linkage.linkage.Molecules attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'default\_vdw': 2.0, u'vdw\_scale': 1.0, u'save\_info': True, u'vdw\_set': u'jmol'\}}}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'default\_vdw': 2.0, u'vdw\_scale': 1.0, u'save\_info': True, u'vdw\_set': u'jmol'\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.linkage.linkage.Molecules static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}, \emph{save\_info}}{}
+\phantomsection\label{doctree/soprano.properties.linkage.linkage:soprano.properties.linkage.linkage.Molecules.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{vdw\_set}, \emph{vdw\_scale}, \emph{default\_vdw}, \emph{save\_info}}{}
 \end{fulllineitems}
 
 
@@ -4196,22 +4196,22 @@ only argument to get the property with the given parameters.
 
 
 \subparagraph{soprano.properties.symmetry package}
-\label{soprano.properties.symmetry::doc}\label{soprano.properties.symmetry:soprano-properties-symmetry-package}\label{soprano.properties.symmetry:module-soprano.properties.symmetry}\index{soprano.properties.symmetry (module)}
+\label{doctree/soprano.properties.symmetry::doc}\label{doctree/soprano.properties.symmetry:soprano-properties-symmetry-package}\label{doctree/soprano.properties.symmetry:module-soprano.properties.symmetry}\index{soprano.properties.symmetry (module)}
 Module containing AtomProperties that pertain to symmetry detection.
 Depends on having the Python bindings to SPGLIB installed on the system.
 
 
 \subparagraph{Submodules}
-\label{soprano.properties.symmetry:submodules}
+\label{doctree/soprano.properties.symmetry:submodules}
 
 \subparagraph{soprano.properties.symmetry.symmetry module}
-\label{soprano.properties.symmetry.symmetry:module-soprano.properties.symmetry.symmetry}\label{soprano.properties.symmetry.symmetry::doc}\label{soprano.properties.symmetry.symmetry:soprano-properties-symmetry-symmetry-module}\index{soprano.properties.symmetry.symmetry (module)}
+\label{doctree/soprano.properties.symmetry.symmetry:module-soprano.properties.symmetry.symmetry}\label{doctree/soprano.properties.symmetry.symmetry::doc}\label{doctree/soprano.properties.symmetry.symmetry:soprano-properties-symmetry-symmetry-module}\index{soprano.properties.symmetry.symmetry (module)}
 Implementation of AtomProperties that relate to symmetry
 \index{SymmetryDataset (class in soprano.properties.symmetry.symmetry)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset}\pysiglinewithargsret{\strong{class }\code{soprano.properties.symmetry.symmetry.}\bfcode{SymmetryDataset}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset}\pysiglinewithargsret{\strong{class }\code{soprano.properties.symmetry.symmetry.}\bfcode{SymmetryDataset}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Extracts SPGLIB's standard symmetry dataset from a given system, including
 spacegroup symbol, symmetry operations etc.
@@ -4256,19 +4256,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.symmetry.symmetry.SymmetryDataset attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'symmetry\_dataset'}}
+\phantomsection\label{doctree/soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'symmetry\_dataset'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.symmetry.symmetry.SymmetryDataset attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'symprec': 1e-05\}}}
+\phantomsection\label{doctree/soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'symprec': 1e-05\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.symmetry.symmetry.SymmetryDataset static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{symprec}}{}
+\phantomsection\label{doctree/soprano.properties.symmetry.symmetry:soprano.properties.symmetry.symmetry.SymmetryDataset.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{symprec}}{}
 \end{fulllineitems}
 
 
@@ -4277,7 +4277,7 @@ only argument to get the property with the given parameters.
 
 
 \subparagraph{soprano.properties.transform package}
-\label{soprano.properties.transform:soprano-properties-transform-package}\label{soprano.properties.transform::doc}\label{soprano.properties.transform:module-soprano.properties.transform}\index{soprano.properties.transform (module)}
+\label{doctree/soprano.properties.transform:soprano-properties-transform-package}\label{doctree/soprano.properties.transform::doc}\label{doctree/soprano.properties.transform:module-soprano.properties.transform}\index{soprano.properties.transform (module)}
 Module containing  a special set of AtomsProperties that transform an Atoms
 object into another (by translating, rotating or mirroring all or some ions,
 and so on). These all accept an Atoms object and some parameters and return
@@ -4286,17 +4286,17 @@ will be to do nothing at all, these properties are meant to be instantiated.
 
 
 \subparagraph{Submodules}
-\label{soprano.properties.transform:submodules}
+\label{doctree/soprano.properties.transform:submodules}
 
 \subparagraph{soprano.properties.transform.transform module}
-\label{soprano.properties.transform.transform:soprano-properties-transform-transform-module}\label{soprano.properties.transform.transform::doc}\label{soprano.properties.transform.transform:module-soprano.properties.transform.transform}\index{soprano.properties.transform.transform (module)}
+\label{doctree/soprano.properties.transform.transform:soprano-properties-transform-transform-module}\label{doctree/soprano.properties.transform.transform::doc}\label{doctree/soprano.properties.transform.transform:module-soprano.properties.transform.transform}\index{soprano.properties.transform.transform (module)}
 Implementation of AtomsProperties that transform the instance in some
 way
 \index{Mirror (class in soprano.properties.transform.transform)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Mirror}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Mirror}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Returns an Atoms object with some or all the atoms reflected with either a
 given center or a given plane. Absolute or scaled coordinates may be used.
@@ -4360,19 +4360,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.transform.transform.Mirror attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'reflected'}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'reflected'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.transform.transform.Mirror attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'scaled': False, u'selection': None, u'center': None, u'plane': None\}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'scaled': False, u'selection': None, u'center': None, u'plane': None\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.transform.transform.Mirror static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Mirror.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
 \end{fulllineitems}
 
 
@@ -4381,8 +4381,8 @@ only argument to get the property with the given parameters.
 \index{Regularise (class in soprano.properties.transform.transform)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Regularise}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Regularise}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Regularize
 
@@ -4440,19 +4440,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.transform.transform.Regularise attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'regularised'}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'regularised'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.transform.transform.Regularise attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'selection': None\}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'selection': None\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.transform.transform.Regularise static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Regularise.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
 \end{fulllineitems}
 
 
@@ -4461,8 +4461,8 @@ only argument to get the property with the given parameters.
 \index{Rotate (class in soprano.properties.transform.transform)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Rotate}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Rotate}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Returns an Atoms object with some or all the atoms rotated by a given
 quaternion and with a given center. Absolute or scaled coordinates may be
@@ -4524,19 +4524,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.transform.transform.Rotate attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'rotated'}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'rotated'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.transform.transform.Rotate attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'scaled': False, u'quaternion': None, u'selection': None, u'center': {[}0, 0, 0{]}\}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'scaled': False, u'quaternion': None, u'selection': None, u'center': {[}0, 0, 0{]}\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.transform.transform.Rotate static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Rotate.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
 \end{fulllineitems}
 
 
@@ -4545,8 +4545,8 @@ only argument to get the property with the given parameters.
 \index{Translate (class in soprano.properties.transform.transform)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Translate}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Translate}}{\emph{name=None}, \emph{**params}}{}
-Bases: {\hyperref[soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Translate}\pysiglinewithargsret{\strong{class }\code{soprano.properties.transform.transform.}\bfcode{Translate}}{\emph{name=None}, \emph{**params}}{}
+Bases: {\hyperref[doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty]{\emph{\code{soprano.properties.atomsproperty.AtomsProperty}}}}
 
 Returns an Atoms object with some or all the atoms translated by a given
 vector. Absolute or scaled coordinates may be used.
@@ -4597,19 +4597,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.transform.transform.Translate attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Translate.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'translated'}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Translate.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'translated'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.transform.transform.Translate attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Translate.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'vector': {[}0, 0, 0{]}, u'scaled': False, u'selection': None\}}}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Translate.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{u'vector': {[}0, 0, 0{]}, u'scaled': False, u'selection': None\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.transform.transform.Translate static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.transform.transform:soprano.properties.transform.transform.Translate.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
+\phantomsection\label{doctree/soprano.properties.transform.transform:soprano.properties.transform.transform.Translate.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{selection}, \emph{**kwargs}}{}
 \end{fulllineitems}
 
 
@@ -4618,17 +4618,17 @@ only argument to get the property with the given parameters.
 
 
 \paragraph{Submodules}
-\label{soprano.properties:submodules}
+\label{doctree/soprano.properties:submodules}
 
 \subparagraph{soprano.properties.atomsproperty module}
-\label{soprano.properties.atomsproperty:module-soprano.properties.atomsproperty}\label{soprano.properties.atomsproperty:soprano-properties-atomsproperty-module}\label{soprano.properties.atomsproperty::doc}\index{soprano.properties.atomsproperty (module)}
+\label{doctree/soprano.properties.atomsproperty:module-soprano.properties.atomsproperty}\label{doctree/soprano.properties.atomsproperty:soprano-properties-atomsproperty-module}\label{doctree/soprano.properties.atomsproperty::doc}\index{soprano.properties.atomsproperty (module)}
 Definition of AtomsProperty class.
 
 A generic template class that specific Properties will inherit from.
 \index{AtomsProperty (class in soprano.properties.atomsproperty)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty}\pysiglinewithargsret{\strong{class }\code{soprano.properties.atomsproperty.}\bfcode{AtomsProperty}}{\emph{name=None}, \emph{**params}}{}
+\phantomsection\label{doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty}\pysiglinewithargsret{\strong{class }\code{soprano.properties.atomsproperty.}\bfcode{AtomsProperty}}{\emph{name=None}, \emph{**params}}{}
 Bases: \code{object}
 
 Initialize an AtomsProperty and set its parameters.
@@ -4651,19 +4651,19 @@ only argument to get the property with the given parameters.
 \index{default\_name (soprano.properties.atomsproperty.AtomsProperty attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'generic\_property'}}
+\phantomsection\label{doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.default_name}\pysigline{\bfcode{default\_name}\strong{ = u'generic\_property'}}
 \end{fulllineitems}
 
 \index{default\_params (soprano.properties.atomsproperty.AtomsProperty attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{\}}}
+\phantomsection\label{doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.default_params}\pysigline{\bfcode{default\_params}\strong{ = \{\}}}
 \end{fulllineitems}
 
 \index{extract() (soprano.properties.atomsproperty.AtomsProperty static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{**params}}{}
+\phantomsection\label{doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.extract}\pysiglinewithargsret{\strong{static }\bfcode{extract}}{\emph{s}, \emph{**params}}{}
 Extract the given property with given parameters from an Atoms
 object.
 
@@ -4695,7 +4695,7 @@ object.
 \index{get() (soprano.properties.atomsproperty.AtomsProperty class method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.get}\pysiglinewithargsret{\strong{classmethod }\bfcode{get}}{\emph{s}, \emph{store\_array=False}}{}
+\phantomsection\label{doctree/soprano.properties.atomsproperty:soprano.properties.atomsproperty.AtomsProperty.get}\pysiglinewithargsret{\strong{classmethod }\bfcode{get}}{\emph{s}, \emph{store\_array=False}}{}
 Extract the given property using the default parameters
 on an Atoms object s
 
@@ -4740,10 +4740,10 @@ on an Atoms object s
 
 
 \subsection{Submodules}
-\label{soprano:submodules}
+\label{doctree/soprano:submodules}
 
 \subsubsection{soprano.selection module}
-\label{soprano.selection:module-soprano.selection}\label{soprano.selection::doc}\label{soprano.selection:soprano-selection-module}\index{soprano.selection (module)}
+\label{doctree/soprano.selection:module-soprano.selection}\label{doctree/soprano.selection::doc}\label{doctree/soprano.selection:soprano-selection-module}\index{soprano.selection (module)}
 selection.py
 
 Contains the definition of an AtomSelection class,
@@ -4752,7 +4752,7 @@ and methods to build it.
 \index{AtomSelection (class in soprano.selection)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection}\pysiglinewithargsret{\strong{class }\code{soprano.selection.}\bfcode{AtomSelection}}{\emph{atoms}, \emph{sel\_indices}, \emph{authenticate=True}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection}\pysiglinewithargsret{\strong{class }\code{soprano.selection.}\bfcode{AtomSelection}}{\emph{atoms}, \emph{sel\_indices}, \emph{authenticate=True}}{}
 Bases: \code{object}
 
 AtomSelection object.
@@ -4793,7 +4793,7 @@ Initialize the AtomSelection.
 \index{all() (soprano.selection.AtomSelection static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.all}\pysiglinewithargsret{\strong{static }\bfcode{all}}{\emph{atoms}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.all}\pysiglinewithargsret{\strong{static }\bfcode{all}}{\emph{atoms}}{}
 Generate a selection for the given Atoms object of all atoms.
 
 \begin{DUlineblock}{0em}
@@ -4817,7 +4817,7 @@ Generate a selection for the given Atoms object of all atoms.
 \index{from\_box() (soprano.selection.AtomSelection static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.from_box}\pysiglinewithargsret{\strong{static }\bfcode{from\_box}}{\emph{atoms}, \emph{abc0}, \emph{abc1}, \emph{periodic=False}, \emph{scaled=False}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.from_box}\pysiglinewithargsret{\strong{static }\bfcode{from\_box}}{\emph{atoms}, \emph{abc0}, \emph{abc1}, \emph{periodic=False}, \emph{scaled=False}}{}
 Generate a selection for the given Atoms object of all atoms within
 a given box volume.
 
@@ -4854,7 +4854,7 @@ a given box volume.
 \index{from\_element() (soprano.selection.AtomSelection static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.from_element}\pysiglinewithargsret{\strong{static }\bfcode{from\_element}}{\emph{atoms}, \emph{element}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.from_element}\pysiglinewithargsret{\strong{static }\bfcode{from\_element}}{\emph{atoms}, \emph{element}}{}
 Generate a selection for the given Atoms object of all atoms of a
 specific element.
 
@@ -4880,7 +4880,7 @@ specific element.
 \index{from\_sphere() (soprano.selection.AtomSelection static method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.from_sphere}\pysiglinewithargsret{\strong{static }\bfcode{from\_sphere}}{\emph{atoms}, \emph{center}, \emph{r}, \emph{periodic=False}, \emph{scaled=False}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.from_sphere}\pysiglinewithargsret{\strong{static }\bfcode{from\_sphere}}{\emph{atoms}, \emph{center}, \emph{r}, \emph{periodic=False}, \emph{scaled=False}}{}
 Generate a selection for the given Atoms object of all atoms within
 a given spherical volume.
 
@@ -4917,7 +4917,7 @@ a given spherical volume.
 \index{get\_array() (soprano.selection.AtomSelection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.get_array}\pysiglinewithargsret{\bfcode{get\_array}}{\emph{name}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.get_array}\pysiglinewithargsret{\bfcode{get\_array}}{\emph{name}}{}
 Retrieve a previously stored data array.
 
 \begin{DUlineblock}{0em}
@@ -4941,13 +4941,13 @@ Retrieve a previously stored data array.
 \index{indices (soprano.selection.AtomSelection attribute)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.indices}\pysigline{\bfcode{indices}}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.indices}\pysigline{\bfcode{indices}}
 \end{fulllineitems}
 
 \index{set\_array() (soprano.selection.AtomSelection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.set_array}\pysiglinewithargsret{\bfcode{set\_array}}{\emph{name}, \emph{array}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.set_array}\pysiglinewithargsret{\bfcode{set\_array}}{\emph{name}, \emph{array}}{}
 Save an array of given name containing arbitraty information
 tied to the selected atoms.
 This must match the length of the selection and will be passed on to
@@ -4967,7 +4967,7 @@ any Atoms objects created with .subset.
 \index{subset() (soprano.selection.AtomSelection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.subset}\pysiglinewithargsret{\bfcode{subset}}{\emph{atoms}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.subset}\pysiglinewithargsret{\bfcode{subset}}{\emph{atoms}}{}
 Generate an Atoms object containing only the selected atoms.
 
 \end{fulllineitems}
@@ -4975,7 +4975,7 @@ Generate an Atoms object containing only the selected atoms.
 \index{validate() (soprano.selection.AtomSelection method)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.selection:soprano.selection.AtomSelection.validate}\pysiglinewithargsret{\bfcode{validate}}{\emph{atoms}}{}
+\phantomsection\label{doctree/soprano.selection:soprano.selection.AtomSelection.validate}\pysiglinewithargsret{\bfcode{validate}}{\emph{atoms}}{}
 Check that the given Atoms object validates with this selection.
 
 \end{fulllineitems}
@@ -4986,7 +4986,7 @@ Check that the given Atoms object validates with this selection.
 
 
 \subsubsection{soprano.utils module}
-\label{soprano.utils:soprano-utils-module}\label{soprano.utils:module-soprano.utils}\label{soprano.utils::doc}\index{soprano.utils (module)}
+\label{doctree/soprano.utils:soprano-utils-module}\label{doctree/soprano.utils:module-soprano.utils}\label{doctree/soprano.utils::doc}\index{soprano.utils (module)}
 utils.py
 
 Contains package-wide useful routines that don't fall under any specific
@@ -4995,7 +4995,7 @@ conversions between different representations etc.
 \index{abc2cart() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.abc2cart}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{abc2cart}}{\emph{abc}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.abc2cart}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{abc2cart}}{\emph{abc}}{}
 Transforms an axes and angles representation of lattice parameters
 into a Cartesian one
 
@@ -5004,7 +5004,7 @@ into a Cartesian one
 \index{cart2abc() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.cart2abc}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{cart2abc}}{\emph{cart}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.cart2abc}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{cart2abc}}{\emph{cart}}{}
 Transforms a Cartesian representation of lattice parameters
 into an axes and angles one
 
@@ -5013,7 +5013,7 @@ into an axes and angles one
 \index{hkl2d2\_matgen() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.hkl2d2_matgen}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{hkl2d2\_matgen}}{\emph{abc}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.hkl2d2_matgen}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{hkl2d2\_matgen}}{\emph{abc}}{}
 Generate a matrix that turns hkl indices into inverse crystal
 plane distances for a given lattice in ABC form
 
@@ -5022,13 +5022,13 @@ plane distances for a given lattice in ABC form
 \index{inspect\_args() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.inspect_args}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{inspect\_args}}{\emph{f}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.inspect_args}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{inspect\_args}}{\emph{f}}{}
 \end{fulllineitems}
 
 \index{inv\_plane\_dist() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.inv_plane_dist}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{inv\_plane\_dist}}{\emph{hkl}, \emph{hkl2d2}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.inv_plane_dist}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{inv\_plane\_dist}}{\emph{hkl}, \emph{hkl2d2}}{}
 Calculate inverse planar distance for a given set of
 Miller indices h, k, l.
 
@@ -5037,7 +5037,7 @@ Miller indices h, k, l.
 \index{is\_string() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.is_string}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{is\_string}}{\emph{s}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.is_string}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{is\_string}}{\emph{s}}{}
 Checks whether s is a string, with Python 2 and 3 compatibility
 
 \end{fulllineitems}
@@ -5045,7 +5045,7 @@ Checks whether s is a string, with Python 2 and 3 compatibility
 \index{list\_distance() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.list_distance}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{list\_distance}}{\emph{l1}, \emph{l2}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.list_distance}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{list\_distance}}{\emph{l1}, \emph{l2}}{}
 Return an integer distance between two lists (number of differing
 elements)
 
@@ -5054,7 +5054,7 @@ elements)
 \index{minimum\_periodic() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.minimum_periodic}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{minimum\_periodic}}{\emph{v}, \emph{latt\_cart}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.minimum_periodic}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{minimum\_periodic}}{\emph{v}, \emph{latt\_cart}}{}
 Find the shortest periodic equivalent vector for a list of vectors and a
 given lattice.
 
@@ -5095,7 +5095,7 @@ given lattice.
 \index{minimum\_supcell() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.minimum_supcell}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{minimum\_supcell}}{\emph{max\_r, latt\_cart=None, r\_matrix=None, pbc={[}True, True, True{]}}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.minimum_supcell}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{minimum\_supcell}}{\emph{max\_r, latt\_cart=None, r\_matrix=None, pbc={[}True, True, True{]}}}{}
 Generate the bounds for a supercell containing a sphere
 of given radius, knowing the unit cell.
 
@@ -5144,7 +5144,7 @@ of given radius, knowing the unit cell.
 \index{periodic\_center() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.periodic_center}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{periodic\_center}}{\emph{v\_frac}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.periodic_center}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{periodic\_center}}{\emph{v\_frac}}{}
 Alright, how does this work?
 Basically, we're looking for the point, inside the unit cell, which
 minimizes the sum of the squared distance from all ions.
@@ -5173,7 +5173,7 @@ And there you go! Problem solved.
 \index{progbar() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.progbar}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{progbar}}{\emph{i}, \emph{i\_max}, \emph{bar\_len=20}, \emph{spinner=True}, \emph{spin\_rate=3.0}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.progbar}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{progbar}}{\emph{i}, \emph{i\_max}, \emph{bar\_len=20}, \emph{spinner=True}, \emph{spin\_rate=3.0}}{}
 A textual progress bar for the command line
 
 \begin{DUlineblock}{0em}
@@ -5205,7 +5205,7 @@ A textual progress bar for the command line
 \index{replace\_folder() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.replace_folder}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{replace\_folder}}{\emph{path}, \emph{new\_folder}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.replace_folder}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{replace\_folder}}{\emph{path}, \emph{new\_folder}}{}
 Replace the folder of the given path with a new one
 
 \end{fulllineitems}
@@ -5213,7 +5213,7 @@ Replace the folder of the given path with a new one
 \index{seedname() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.seedname}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{seedname}}{\emph{path}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.seedname}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{seedname}}{\emph{path}}{}
 Get the filename (with no extension) from a full path
 
 \end{fulllineitems}
@@ -5221,7 +5221,7 @@ Get the filename (with no extension) from a full path
 \index{supcell\_gridgen() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.supcell_gridgen}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{supcell\_gridgen}}{\emph{latt\_cart}, \emph{shape}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.supcell_gridgen}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{supcell\_gridgen}}{\emph{latt\_cart}, \emph{shape}}{}
 Generate a full linearized grid for a supercell with r\_bounds
 and a base unit cell in Cartesian form.
 
@@ -5260,7 +5260,7 @@ and a base unit cell in Cartesian form.
 \index{swing\_twist\_decomp() (in module soprano.utils)}
 
 \begin{fulllineitems}
-\phantomsection\label{soprano.utils:soprano.utils.swing_twist_decomp}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{swing\_twist\_decomp}}{\emph{quat}, \emph{axis}}{}
+\phantomsection\label{doctree/soprano.utils:soprano.utils.swing_twist_decomp}\pysiglinewithargsret{\code{soprano.utils.}\bfcode{swing\_twist\_decomp}}{\emph{quat}, \emph{axis}}{}
 Perform a Swing*Twist decomposition of a Quaternion. This splits the
 quaternion in two: one containing the rotation around axis (Twist), the
 other containing the rotation around a vector parallel to axis (Swing).
@@ -5270,7 +5270,7 @@ Returns two quaternions: Swing, Twist.
 \end{fulllineitems}
 
 \phantomsection\label{index:module-soprano}\index{soprano (module)}
-Soprano
+Soprano 0.5.0
 
 A Python library to crack crystals
 by Simone Sturniolo
@@ -5309,48 +5309,48 @@ along with this program.  If not, see \textless{}\href{http://www.gnu.org/licens
 \begin{theindex}
 \def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 \bigletter{s}
-\item {\texttt{soprano}}, \pageref{soprano:module-soprano}
-\item {\texttt{soprano.analyse}}, \pageref{soprano.analyse:module-soprano.analyse}
-\item {\texttt{soprano.analyse.phylogen}}, \pageref{soprano.analyse.phylogen:module-soprano.analyse.phylogen}
-\item {\texttt{soprano.analyse.phylogen.genes}}, \pageref{soprano.analyse.phylogen.genes:module-soprano.analyse.phylogen.genes}
-\item {\texttt{soprano.analyse.phylogen.mapping}}, \pageref{soprano.analyse.phylogen.mapping:module-soprano.analyse.phylogen.mapping}
-\item {\texttt{soprano.analyse.phylogen.phylogenclust}}, \pageref{soprano.analyse.phylogen.phylogenclust:module-soprano.analyse.phylogen.phylogenclust}
-\item {\texttt{soprano.calculate}}, \pageref{soprano.calculate:module-soprano.calculate}
-\item {\texttt{soprano.calculate.gulp}}, \pageref{soprano.calculate.gulp:module-soprano.calculate.gulp}
-\item {\texttt{soprano.calculate.gulp.charges}}, \pageref{soprano.calculate.gulp.charges:module-soprano.calculate.gulp.charges}
-\item {\texttt{soprano.calculate.gulp.w99}}, \pageref{soprano.calculate.gulp.w99:module-soprano.calculate.gulp.w99}
-\item {\texttt{soprano.calculate.xrd}}, \pageref{soprano.calculate.xrd:module-soprano.calculate.xrd}
-\item {\texttt{soprano.calculate.xrd.sel\_rules}}, \pageref{soprano.calculate.xrd.sel_rules:module-soprano.calculate.xrd.sel_rules}
-\item {\texttt{soprano.calculate.xrd.xrd}}, \pageref{soprano.calculate.xrd.xrd:module-soprano.calculate.xrd.xrd}
-\item {\texttt{soprano.collection}}, \pageref{soprano.collection:module-soprano.collection}
-\item {\texttt{soprano.collection.collection}}, \pageref{soprano.collection.collection:module-soprano.collection.collection}
-\item {\texttt{soprano.collection.generate}}, \pageref{soprano.collection.generate:module-soprano.collection.generate}
-\item {\texttt{soprano.collection.generate.airss}}, \pageref{soprano.collection.generate.airss:module-soprano.collection.generate.airss}
-\item {\texttt{soprano.collection.generate.linspace}}, \pageref{soprano.collection.generate.linspace:module-soprano.collection.generate.linspace}
-\item {\texttt{soprano.collection.generate.rattle}}, \pageref{soprano.collection.generate.rattle:module-soprano.collection.generate.rattle}
-\item {\texttt{soprano.hpc}}, \pageref{soprano.hpc:module-soprano.hpc}
-\item {\texttt{soprano.hpc.submitter}}, \pageref{soprano.hpc.submitter:module-soprano.hpc.submitter}
-\item {\texttt{soprano.hpc.submitter.castep}}, \pageref{soprano.hpc.submitter.castep:module-soprano.hpc.submitter.castep}
-\item {\texttt{soprano.hpc.submitter.debug}}, \pageref{soprano.hpc.submitter.debug:module-soprano.hpc.submitter.debug}
-\item {\texttt{soprano.hpc.submitter.debug.debugqueue}}, \pageref{soprano.hpc.submitter.debug.debugqueue:module-soprano.hpc.submitter.debug.debugqueue}
-\item {\texttt{soprano.hpc.submitter.queues}}, \pageref{soprano.hpc.submitter.queues:module-soprano.hpc.submitter.queues}
-\item {\texttt{soprano.hpc.submitter.submit}}, \pageref{soprano.hpc.submitter.submit:module-soprano.hpc.submitter.submit}
-\item {\texttt{soprano.properties}}, \pageref{soprano.properties:module-soprano.properties}
-\item {\texttt{soprano.properties.atomsproperty}}, \pageref{soprano.properties.atomsproperty:module-soprano.properties.atomsproperty}
-\item {\texttt{soprano.properties.basic}}, \pageref{soprano.properties.basic:module-soprano.properties.basic}
-\item {\texttt{soprano.properties.basic.basic}}, \pageref{soprano.properties.basic.basic:module-soprano.properties.basic.basic}
-\item {\texttt{soprano.properties.castep}}, \pageref{soprano.properties.castep:module-soprano.properties.castep}
-\item {\texttt{soprano.properties.castep.castep}}, \pageref{soprano.properties.castep.castep:module-soprano.properties.castep.castep}
-\item {\texttt{soprano.properties.labeling}}, \pageref{soprano.properties.labeling:module-soprano.properties.labeling}
-\item {\texttt{soprano.properties.labeling.labeling}}, \pageref{soprano.properties.labeling.labeling:module-soprano.properties.labeling.labeling}
-\item {\texttt{soprano.properties.linkage}}, \pageref{soprano.properties.linkage:module-soprano.properties.linkage}
-\item {\texttt{soprano.properties.linkage.linkage}}, \pageref{soprano.properties.linkage.linkage:module-soprano.properties.linkage.linkage}
-\item {\texttt{soprano.properties.symmetry}}, \pageref{soprano.properties.symmetry:module-soprano.properties.symmetry}
-\item {\texttt{soprano.properties.symmetry.symmetry}}, \pageref{soprano.properties.symmetry.symmetry:module-soprano.properties.symmetry.symmetry}
-\item {\texttt{soprano.properties.transform}}, \pageref{soprano.properties.transform:module-soprano.properties.transform}
-\item {\texttt{soprano.properties.transform.transform}}, \pageref{soprano.properties.transform.transform:module-soprano.properties.transform.transform}
-\item {\texttt{soprano.selection}}, \pageref{soprano.selection:module-soprano.selection}
-\item {\texttt{soprano.utils}}, \pageref{soprano.utils:module-soprano.utils}
+\item {\texttt{soprano}}, \pageref{index:module-soprano}
+\item {\texttt{soprano.analyse}}, \pageref{doctree/soprano.analyse:module-soprano.analyse}
+\item {\texttt{soprano.analyse.phylogen}}, \pageref{doctree/soprano.analyse.phylogen:module-soprano.analyse.phylogen}
+\item {\texttt{soprano.analyse.phylogen.genes}}, \pageref{doctree/soprano.analyse.phylogen.genes:module-soprano.analyse.phylogen.genes}
+\item {\texttt{soprano.analyse.phylogen.mapping}}, \pageref{doctree/soprano.analyse.phylogen.mapping:module-soprano.analyse.phylogen.mapping}
+\item {\texttt{soprano.analyse.phylogen.phylogenclust}}, \pageref{doctree/soprano.analyse.phylogen.phylogenclust:module-soprano.analyse.phylogen.phylogenclust}
+\item {\texttt{soprano.calculate}}, \pageref{doctree/soprano.calculate:module-soprano.calculate}
+\item {\texttt{soprano.calculate.gulp}}, \pageref{doctree/soprano.calculate.gulp:module-soprano.calculate.gulp}
+\item {\texttt{soprano.calculate.gulp.charges}}, \pageref{doctree/soprano.calculate.gulp.charges:module-soprano.calculate.gulp.charges}
+\item {\texttt{soprano.calculate.gulp.w99}}, \pageref{doctree/soprano.calculate.gulp.w99:module-soprano.calculate.gulp.w99}
+\item {\texttt{soprano.calculate.xrd}}, \pageref{doctree/soprano.calculate.xrd:module-soprano.calculate.xrd}
+\item {\texttt{soprano.calculate.xrd.sel\_rules}}, \pageref{doctree/soprano.calculate.xrd.sel_rules:module-soprano.calculate.xrd.sel_rules}
+\item {\texttt{soprano.calculate.xrd.xrd}}, \pageref{doctree/soprano.calculate.xrd.xrd:module-soprano.calculate.xrd.xrd}
+\item {\texttt{soprano.collection}}, \pageref{doctree/soprano.collection:module-soprano.collection}
+\item {\texttt{soprano.collection.collection}}, \pageref{doctree/soprano.collection.collection:module-soprano.collection.collection}
+\item {\texttt{soprano.collection.generate}}, \pageref{doctree/soprano.collection.generate:module-soprano.collection.generate}
+\item {\texttt{soprano.collection.generate.airss}}, \pageref{doctree/soprano.collection.generate.airss:module-soprano.collection.generate.airss}
+\item {\texttt{soprano.collection.generate.linspace}}, \pageref{doctree/soprano.collection.generate.linspace:module-soprano.collection.generate.linspace}
+\item {\texttt{soprano.collection.generate.rattle}}, \pageref{doctree/soprano.collection.generate.rattle:module-soprano.collection.generate.rattle}
+\item {\texttt{soprano.hpc}}, \pageref{doctree/soprano.hpc:module-soprano.hpc}
+\item {\texttt{soprano.hpc.submitter}}, \pageref{doctree/soprano.hpc.submitter:module-soprano.hpc.submitter}
+\item {\texttt{soprano.hpc.submitter.castep}}, \pageref{doctree/soprano.hpc.submitter.castep:module-soprano.hpc.submitter.castep}
+\item {\texttt{soprano.hpc.submitter.debug}}, \pageref{doctree/soprano.hpc.submitter.debug:module-soprano.hpc.submitter.debug}
+\item {\texttt{soprano.hpc.submitter.debug.debugqueue}}, \pageref{doctree/soprano.hpc.submitter.debug.debugqueue:module-soprano.hpc.submitter.debug.debugqueue}
+\item {\texttt{soprano.hpc.submitter.queues}}, \pageref{doctree/soprano.hpc.submitter.queues:module-soprano.hpc.submitter.queues}
+\item {\texttt{soprano.hpc.submitter.submit}}, \pageref{doctree/soprano.hpc.submitter.submit:module-soprano.hpc.submitter.submit}
+\item {\texttt{soprano.properties}}, \pageref{doctree/soprano.properties:module-soprano.properties}
+\item {\texttt{soprano.properties.atomsproperty}}, \pageref{doctree/soprano.properties.atomsproperty:module-soprano.properties.atomsproperty}
+\item {\texttt{soprano.properties.basic}}, \pageref{doctree/soprano.properties.basic:module-soprano.properties.basic}
+\item {\texttt{soprano.properties.basic.basic}}, \pageref{doctree/soprano.properties.basic.basic:module-soprano.properties.basic.basic}
+\item {\texttt{soprano.properties.castep}}, \pageref{doctree/soprano.properties.castep:module-soprano.properties.castep}
+\item {\texttt{soprano.properties.castep.castep}}, \pageref{doctree/soprano.properties.castep.castep:module-soprano.properties.castep.castep}
+\item {\texttt{soprano.properties.labeling}}, \pageref{doctree/soprano.properties.labeling:module-soprano.properties.labeling}
+\item {\texttt{soprano.properties.labeling.labeling}}, \pageref{doctree/soprano.properties.labeling.labeling:module-soprano.properties.labeling.labeling}
+\item {\texttt{soprano.properties.linkage}}, \pageref{doctree/soprano.properties.linkage:module-soprano.properties.linkage}
+\item {\texttt{soprano.properties.linkage.linkage}}, \pageref{doctree/soprano.properties.linkage.linkage:module-soprano.properties.linkage.linkage}
+\item {\texttt{soprano.properties.symmetry}}, \pageref{doctree/soprano.properties.symmetry:module-soprano.properties.symmetry}
+\item {\texttt{soprano.properties.symmetry.symmetry}}, \pageref{doctree/soprano.properties.symmetry.symmetry:module-soprano.properties.symmetry.symmetry}
+\item {\texttt{soprano.properties.transform}}, \pageref{doctree/soprano.properties.transform:module-soprano.properties.transform}
+\item {\texttt{soprano.properties.transform.transform}}, \pageref{doctree/soprano.properties.transform.transform:module-soprano.properties.transform.transform}
+\item {\texttt{soprano.selection}}, \pageref{doctree/soprano.selection:module-soprano.selection}
+\item {\texttt{soprano.utils}}, \pageref{doctree/soprano.utils:module-soprano.utils}
 \end{theindex}
 
 \renewcommand{\indexname}{Index}
