@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.collection.collection module &mdash; Soprano alpha (Andrews) documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'alpha (Andrews)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.collection.collection">
+<span id="soprano-collection-collection-module"></span><h1>soprano.collection.collection module<a class="headerlink" href="#module-soprano.collection.collection" title="Permalink to this headline">¶</a></h1>
+<p>Definition of the Collection class.</p>
+<p>It handles multiple Atoms ASE objects and mirrors in this sense the structure
+of the Atoms object itself.</p>
+<dl class="class">
+<dt id="soprano.collection.collection.AtomsCollection">
+<em class="property">class </em><code class="descclassname">soprano.collection.collection.</code><code class="descname">AtomsCollection</code><span class="sig-paren">(</span><em>structures=[]</em>, <em>info={}</em>, <em>cell_reduce=False</em>, <em>progress=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>AtomsCollection object.</p>
+<p>An AtomsCollection represents a group of ASE Atoms objects.
+It handles them together, can perform mass operations on them, and stores
+arrays of informations related to them.</p>
+<p>Initialize the AtomsCollection</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">structures (list[str] or list[ase.Atoms]): list of file names or</div>
+<div class="line-block">
+<div class="line">Atoms that will form</div>
+<div class="line">the collection</div>
+</div>
+<div class="line">info (dict): dictionary of general information to attach</div>
+<div class="line-block">
+<div class="line">to this collection</div>
+</div>
+<div class="line">cell_reduce (bool): if True, perform a Niggli cell reduction on</div>
+<div class="line-block">
+<div class="line">all loaded structures</div>
+</div>
+<div class="line">progress (bool): visualize a progress bar for the loading process</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.collection.collection.AtomsCollection.all">
+<code class="descname">all</code><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.chunkify">
+<code class="descname">chunkify</code><span class="sig-paren">(</span><em>chunk_size=None</em>, <em>chunk_n=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.chunkify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split this collection into multiple collections based on either
+size or number of chunks.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">chunk_size (Optional[int]): maximum size of a generated chunk</div>
+<div class="line">chunk_n (Optional[int]): number of chunks to generate</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">chunks (list[AtomsCollection]): a list of the generated chunks</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>filter_func</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a collection composed only of the elements for which a given
+filter function returns True.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">filter_func (function&lt;Atoms&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; bool): filter function. Should take an</div>
+<div class="line-block">
+<div class="line">Atoms object and return a boolean</div>
+</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">filtered (AtomsCollection): the filtered version of the collection</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.get_array">
+<code class="descname">get_array</code><span class="sig-paren">(</span><em>name</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.get_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of an array of given name (or a reference if copy=False)</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to retrieve.</div>
+<div class="line">copy (bool): if the array should be copied or a reference should</div>
+<div class="line-block">
+<div class="line">be returned instead.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">array (np.ndarray): the requested array</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.has">
+<code class="descname">has</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.has" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if array of given name exists</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.collection.collection.AtomsCollection.length">
+<code class="descname">length</code><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.collection.collection.AtomsCollection.load">
+<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a pickled copy from a given file path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.run_calculators">
+<code class="descname">run_calculators</code><span class="sig-paren">(</span><em>properties=None</em>, <em>system_changes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.run_calculators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all previously set ASE calculators.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">properties (list[str]): list of properties to calculate (depends</div>
+<div class="line-block">
+<div class="line">on type of Calculator used)</div>
+</div>
+<div class="line">system_changes (list[str]): list of changes to the structure</div>
+<div class="line-block">
+<div class="line">since the last calculation. Can be</div>
+<div class="line">any combination of these five:</div>
+<div class="line">&#8216;positions&#8217;, &#8216;numbers&#8217;, &#8216;cell&#8217;,</div>
+<div class="line">&#8216;pbc&#8217;, &#8216;initial_charges&#8217; and</div>
+<div class="line">&#8216;initial_magmoms&#8217;.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply save a pickled copy to a given file path</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.set_array">
+<code class="descname">set_array</code><span class="sig-paren">(</span><em>name</em>, <em>a</em>, <em>dtype=None</em>, <em>shape=None</em>, <em>args={}</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.set_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add or modify an array of data related to the Atoms objects
+in this collection.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to operate on.</div>
+<div class="line">a (np.ndarray or function&lt;Atoms, **kwargs&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; Any): the data to assign to the array (must</div>
+<div class="line-block">
+<div class="line">be same length as the collection) or</div>
+<div class="line">a function that takes an Atoms object</div>
+<div class="line">as the first argument and returns a</div>
+<div class="line">value. This will be mapped over the</div>
+<div class="line">structures to create the array.</div>
+</div>
+</div>
+<div class="line">dtype (type): type to cast the values of the array to.</div>
+<div class="line">shape (tuple [int]): shape of each entry of the array. Will be</div>
+<div class="line-block">
+<div class="line">checked if provided.</div>
+</div>
+<div class="line">args (dict): named arguments to pass to the function provided</div>
+<div class="line-block">
+<div class="line">as a. Will be ignored if an array is passed instead.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.set_calculators">
+<code class="descname">set_calculators</code><span class="sig-paren">(</span><em>calctype</em>, <em>labels=None</em>, <em>params={}</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.set_calculators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set an ASE calculator on each structure in the collection,
+and set said calculator&#8217;s parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">calctype (ASE Calculator type): the type of calculator</div>
+<div class="line-block">
+<div class="line">to instantiate.</div>
+</div>
+<div class="line">labels (Optional[list[str]]): names to use for the calculators&#8217;</div>
+<div class="line-block">
+<div class="line">files. If not present, random</div>
+<div class="line">generated names are used.</div>
+</div>
+<div class="line">params (Optional[dict]): parameters of the calculator to set.</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.collection.collection.AtomsCollection.sorted_byarray">
+<code class="descname">sorted_byarray</code><span class="sig-paren">(</span><em>name</em>, <em>reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.sorted_byarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of this collection sorted by a given array.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to use for the sorting</div>
+<div class="line">reverse (Optional[bool]): reverse order of sorting (max to min)</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">sorted (AtomsCollection): a sorted copy of the collection</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="simple">
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.collection.collection.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
