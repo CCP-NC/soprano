@@ -150,6 +150,20 @@ class Submitter(object):
 
         self._log = open(self.name + '.log', 'w')
         self.log('Starting run on {0}\n'.format(datetime.now()))
+
+        # Just a sanity check
+        has_name = False
+        for l in self.submit_script.split('\n'):
+            if '<name>' in l.split('#')[0]:
+                has_name = True
+                break
+
+        if not has_name:
+            self.log('WARNING: the submission script does not contain the '
+                     '<name> tag in any non-commented lines. '
+                     'This is most likely an error - check your '
+                     'input files\n')
+
         self.start_run()
         self._main_loop()
         self.finish_run()
