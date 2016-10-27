@@ -80,8 +80,11 @@ def submitter_handler():
     # contains what we need
     try:
         loaded_module = __import__(args.submitter_file)
-    except ImportError:
-        sys.exit('Invalid submitter_file argument: file not found')
+    except ImportError as e:
+        if ('No module named ' + args.submitter_file) in str(e):
+            raise IOError('Invalid submitter_file argument: file not found')
+        else:
+            raise e
 
     # Now load the actual Submitter!
     subms = {v: getattr(loaded_module, v) for v in dir(loaded_module)
