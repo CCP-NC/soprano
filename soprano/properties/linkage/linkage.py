@@ -219,7 +219,7 @@ class CoordinationHistogram(AtomsProperty):
         bonds = bond_calc(s)
         bond_inds = np.concatenate(list(zip(*bonds))[:2])
         bond_elems = elems[bond_inds]
-        bN = len(bonds)        
+        bN = len(bonds)
 
         if species_1 is None:
             species_1 = np.unique(elems)
@@ -255,7 +255,7 @@ class CoordinationHistogram(AtomsProperty):
                     if len(hist_maxc) == 0:
                         hist_i = np.concatenate([hist_i, [max_coord]])
                         hist_n = np.concatenate([hist_n, [0]])
-                        hist_maxc = [-1]                    
+                        hist_maxc = [-1]
                     hist_n[hist_maxc] += np.sum(hist_n[hist_big])
                     # Then slice away, keep only the admissible indices
                     hist_small = np.where(hist_i <= max_coord)[0]
