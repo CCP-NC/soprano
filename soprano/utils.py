@@ -318,6 +318,39 @@ def minimum_periodic(v, latt_cart):
     return v_period, neigh_i_grid[min_copies]
 
 
+def all_periodic(v, latt_cart, max_r):
+    """
+    Find all the periodic equivalent vectors for a list of vectors and a
+    given lattice falling within a given length.
+
+    | Args:
+    |   v (np.ndarray): list of 3-vectors representing points or vectors to
+    |                   produce periodic versions of
+    |   latt_cart (np.ndarray): unit cell in cartesian form
+    |   max_r (float): maximum length of periodic copies of vectors
+
+    | Returns:
+    |   v_period (np.ndarray): array with the same shape as v, containing the
+    |                          vectors in periodic reduced form
+    |   v_index (np.ndarray): indices (referring to the original array v) of
+    |                         the array of which the corresponding element of
+    |                         v_period is a copy
+    |   v_cells (np.ndarray): array of triples of ints, corresponding to the
+    |                         cells from which the various periodic copies of
+    |                         the vectors were taken. For an unchanged vector
+    |                         will be all [0,0,0]
+
+    """
+
+    scell_shape = minimum_supcell(max_r, latt_cart)
+    neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
+    v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
+    r_copies = np.where(np.linalg.norm(v_period, axis=-1) <= max_r)
+    v_period = v_period[r_copies[0], r_copies[1], :]
+
+    return v_period, r_copies[0], neigh_i_grid[r_copies[1]]
+
+
 def is_string(s):
     """Checks whether s is a string, with Python 2 and 3 compatibility"""
     try:
@@ -325,6 +358,7 @@ def is_string(s):
     except NameError:
         # It must be Python 3!
         return isinstance(s, str)
+
 
 def safe_communicate(subproc, stdin=''):
     """Executes a Popen.communicate and returns output in a way that is 
