@@ -26,10 +26,10 @@ import json
 import pkgutil
 import numpy as np
 from ase.quaternions import Quaternion
-from soprano.utils import minimum_periodic
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.utils import swing_twist_decomp, is_string
+from soprano.utils import (swing_twist_decomp, is_string,
+                           minimum_periodic, all_periodic)
 
 
 # Pre load VdW radii
@@ -145,16 +145,16 @@ class Bonds(AtomsProperty):
         v = s.get_positions()
         v = (v[:, None, :]-v[None, :, :])[triui]
         # Reduce them
-        v, v_cells = minimum_periodic(v, s.get_cell())
+        v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max)
         v = np.linalg.norm(v, axis=-1)
 
         # Now distance and VdW matrices
         vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
-        link_M = v <= vdw_M
+        link_M = v <= vdw_M[v_i]
 
         linked = np.where(link_M)  # Bonded atoms
 
-        bonds = zip(triui[0][linked], triui[1][linked],
+        bonds = zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
                     -v_cells[linked], v[linked])
 
         return list(bonds)  # For Python 3 compatibility
