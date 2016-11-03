@@ -326,6 +326,17 @@ def is_string(s):
         # It must be Python 3!
         return isinstance(s, str)
 
+def safe_communicate(subproc, stdin=''):
+    """Executes a Popen.communicate and returns output in a way that is 
+    compatible with Python 2 & 3 keeping input and output as strings (since
+    Python 3 requires bytes objects otherwise)"""
+    if not subproc.universal_newlines:
+        stdin = stdin.encode('utf-8') if hasattr(stdin, 'encode') else stdin
+    stdout, stderr = map(lambda x: x.decode() if hasattr(x, 'decode') else x,
+                         subproc.communicate(stdin))
+
+    return stdout, stderr
+
 # Inspecting arguments of a function, Python 2 and 3 way
 if hasattr(inspect, 'signature'):
     def inspect_args(f):

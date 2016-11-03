@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 import os
 import numpy as np
 import subprocess as sp
+from soprano.utils import safe_communicate
 from soprano.calculate.gulp._utils import (_gulp_cell_definition,
                                            _gulp_parse_charges)
 
@@ -74,11 +75,12 @@ def get_gulp_charges(s, charge_method="eem", save_charges=True,
 
     # Run the thing...
     try:
-        stdout, stderr = sp.Popen(gulp_cmd,
-                                  universal_newlines=True,
-                                  stdin=sp.PIPE,
-                                  stdout=sp.PIPE,
-                                  stderr=sp.PIPE).communicate(gin)
+        gulp_proc = sp.Popen(gulp_cmd,
+                             universal_newlines=True,
+                             stdin=sp.PIPE,
+                             stdout=sp.PIPE,
+                             stderr=sp.PIPE)
+        stdout, stderr = safe_communicate(gulp_proc, gin)
     except OSError:
         raise RuntimeError('GULP not found on this system with the given '
                            'command')

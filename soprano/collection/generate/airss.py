@@ -27,7 +27,7 @@ import hashlib
 import subprocess as sp
 from ase import io as ase_io
 # Internal imports
-import soprano.utils as utils
+from soprano.utils import seedname, safe_communicate
 
 # Python 2-to-3 compatibility
 try:
@@ -84,7 +84,7 @@ def airssGen(input_file,
         pass                            # If it's already a file
     template = input_file.read()
     # Now get the file name
-    basename = utils.seedname(input_file.name)
+    basename = seedname(input_file.name)
     input_file.close()
 
     # And keep track of the count!
@@ -98,17 +98,12 @@ def airssGen(input_file,
             i += 1
 
         # Generate a structure
-        stdout, stderr = sp.Popen(airss_cmd,
-                                  universal_newlines=True,
-                                  stdin=sp.PIPE,
-                                  stdout=sp.PIPE,
-                                  stderr=sp.PIPE).communicate(template)
-
-        # Necessary for compatibility in Python2
-        try:
-            stdout = unicode(stdout)
-        except NameError:
-            pass
+        subproc = sp.Popen(airss_cmd,
+                           universal_newlines=True,
+                           stdin=sp.PIPE,
+                           stdout=sp.PIPE,
+                           stderr=sp.PIPE)
+        stdout, stderr = safe_communicate(subproc, template)
 
         # Now turn it into a proper Atoms object
         # To do this we need to make it look like a file to ASE's io.read

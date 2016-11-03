@@ -39,6 +39,7 @@ import pkgutil
 import numpy as np
 import subprocess as sp
 from ase.calculators.singlepoint import SinglePointCalculator
+from soprano.utils import safe_communicate
 from soprano.properties.linkage import Molecules
 from soprano.calculate.gulp._utils import (_gulp_cell_definition,
                                            _gulp_parse_energy,
@@ -242,11 +243,12 @@ def get_w99_energy(s, charge_method='eem', Etol=1e-6,
     gulp_cmd = [os.path.join(gulp_path, gulp_command)]
 
     try:
-        stdout, stderr = sp.Popen(gulp_cmd,
-                                  universal_newlines=True,
-                                  stdin=sp.PIPE,
-                                  stdout=sp.PIPE,
-                                  stderr=sp.PIPE).communicate(gin)
+        gulp_proc = sp.Popen(gulp_cmd,
+                             universal_newlines=True,
+                             stdin=sp.PIPE,
+                             stdout=sp.PIPE,
+                             stderr=sp.PIPE)
+        stdout, stderr = safe_communicate(gulp_proc, gin)
     except OSError:
         raise RuntimeError('GULP not found on this system with the given '
                            'command')

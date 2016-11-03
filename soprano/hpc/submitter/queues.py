@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 import re
 import subprocess as sp
 
-from soprano.utils import is_string
+from soprano.utils import is_string, safe_communicate
 
 
 class QueueInterface(object):
@@ -94,8 +94,7 @@ class QueueInterface(object):
                            stderr=sp.PIPE,
                            cwd=cwd)
 
-        stdout, stderr = subproc.communicate(script.encode('utf-8'))
-        stdout, stderr = map(lambda s: s.decode(), (stdout, stderr))
+        stdout, stderr = safe_communicate(subproc, script)
 
         # Parse out the job id!
         match = self.sub_outre.search(stdout)
@@ -117,8 +116,7 @@ class QueueInterface(object):
         subproc = sp.Popen([self.list_cmd], stdout=sp.PIPE,
                            stderr=sp.PIPE)
 
-        stdout, stderr = subproc.communicate()
-        stdout, stderr = map(lambda s: s.decode(), (stdout, stderr))
+        stdout, stderr = safe_communicate(subproc)
 
         # Parse out everything!
         jobs = {}
@@ -142,7 +140,7 @@ class QueueInterface(object):
 
         subproc = sp.Popen([self.kill_cmd, job_id], stdout=sp.PIPE,
                            stderr=sp.PIPE)
-        stdout, stderr = subproc.communicate()
+        stdout, stderr = safe_communicate(subproc)
 
     @classmethod
     def LSF(cls):

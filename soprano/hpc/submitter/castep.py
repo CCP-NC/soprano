@@ -35,7 +35,7 @@ import tempfile
 import numpy as np
 import subprocess as sp
 
-from soprano import utils
+from soprano.utils import seedname, safe_communicate
 from soprano.hpc.submitter import Submitter
 from ase.calculators.castep import create_castep_keywords
 
@@ -117,7 +117,7 @@ class CastepSubmitter(Submitter):
             return None
 
         cfile = cfile_list[0]
-        name = utils.seedname(cfile)
+        name = seedname(cfile)
         self.log('Starting job {0}\n'.format(name))
         files = [cfile]
         # Check if .param file is available too
@@ -148,9 +148,10 @@ class CastepSubmitter(Submitter):
         # Perform dryrun test if required
         if self.drun:
             self.log('Performing DRYRUN\n')
-            stdout, stderr = sp.Popen([self.castep_command, name, '--dryrun'],
-                                      cwd=folder, stdout=sp.PIPE,
-                                      stderr=sp.PIPE).communicate()
+            dry_proc = sp.Popen([self.castep_command, name, '--dryrun'],
+                                 cwd=folder, stdout=sp.PIPE,
+                                 stderr=sp.PIPE)
+            stdout, stderr = safe_communicate(dry_proc)
             # When it's finished...
             try:
                 castfile = open(os.path.join(folder, name + '.castep'))

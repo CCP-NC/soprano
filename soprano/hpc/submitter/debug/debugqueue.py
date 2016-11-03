@@ -29,6 +29,7 @@ import numpy as np
 
 import subprocess as sp
 from threading import Thread
+from soprano.utils import safe_communicate
 from soprano.hpc.submitter.queues import QueueInterface
 
 
@@ -85,7 +86,7 @@ class DebugQueueInterface(QueueInterface):
                                     stdout=sp.PIPE,
                                     stderr=sp.PIPE,
                                     cwd=job['cwd'])
-                    stdout, stderr = proc.communicate(job['script'])
+                    stdout, stderr = safe_communicate(proc, job['script'])
                 elif job['status'] == 'r' \
                         and (t-job['t0']-job['WAIT']) > job['RUN']:
                     # Just eliminate it

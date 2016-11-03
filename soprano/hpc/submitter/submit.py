@@ -37,7 +37,7 @@ import threading as thr
 import subprocess as sp
 from datetime import datetime
 
-from soprano.utils import is_string
+from soprano.utils import is_string, safe_communicate
 from soprano.hpc.submitter import QueueInterface
 
 
@@ -278,10 +278,11 @@ class Submitter(object):
 
     @staticmethod
     def list():
-        stdout, stderr = sp.Popen(['ps', 'aux'],
-                                  stdin=sp.PIPE,
-                                  stdout=sp.PIPE,
-                                  stderr=sp.PIPE).communicate()
+        list_proc = sp.Popen(['ps', 'aux'],
+                             stdin=sp.PIPE,
+                             stdout=sp.PIPE,
+                             stderr=sp.PIPE)
+        stdout, stderr = safe_communicate(list_proc)
         # Parse stdout
         all_subms = []
         for l in stdout.split('\n'):
