@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Test code for the AtomsCollection class
+Test code for the PhylogenCluster and Gene classes
 """
 
 # Python 2-to-3 compatibility code

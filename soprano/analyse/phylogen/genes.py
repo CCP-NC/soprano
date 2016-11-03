@@ -30,7 +30,8 @@ from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,
                                         MoleculeRelativeRotation,
-                                        HydrogenBonds, HydrogenBondsNumber)
+                                        HydrogenBonds, HydrogenBondsNumber,
+                                        CoordinationHistogram)
 from soprano.properties.labeling import (MoleculeSites, HydrogenBondTypes)
 
 
@@ -289,6 +290,17 @@ def parsegene_hbonds_site_compare(c):
     return distM
 
 
+def parsegene_coord_histogram(c, s1='C', s2='H', max_coord=6):
+
+    chist = CoordinationHistogram(species_1=s1, species_2=s2,
+                                  max_coord=max_coord)
+
+    hists = np.zeros((c.length, max_coord+1))
+    for i, h in enumerate(chist(c)):
+        hists[i] = h[s1][s2]
+
+    return hists.astype(int)
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
@@ -391,6 +403,16 @@ class GeneDictionary(object):
             'default_params': {},
             'parser': parsegene_hbonds_site_compare,
             'pair': True
+        },
+
+        'coord_histogram': {
+            'default_params': {
+                's1': 'C',
+                's2': 'H',
+                'max_coord': 6
+            },
+            'parser': parsegene_coord_histogram,
+            'pair': False
         }
 
     }
@@ -545,6 +567,26 @@ class GeneDictionary(object):
 
         Parameters: None
         Length: 1
+        """,
+
+        'coord_histogram': """
+        Coordination histogram for two given species s1 and s2. Gives an array
+        whose element of index i contains the number of atoms of species s1
+        that are bonded to i atoms of species s2. The parameter max_coord
+        controls how many bins are created; any coordination number higher
+        than max_coord gets bunched up in the last element. By default this
+        means all coordination values of 6 or more.
+        As an example, the s1=C, s2=H histogram for a CH3CH2CH=CHCOOH molecule
+        would look like: [1,2,1,1,0,0,0].
+
+        Parameters:
+            s1 (string): chemical symbol of species whose coordination is to
+                         be evaluated. By default C
+            s2 (string): chemical symbol of ligand species with s1. By default
+                         H
+            max_coord (int): maximum coordination number to allow in
+                             histogram. By default 6
+        Length: max_coord+1 (by default 7)
         """
     }
 
