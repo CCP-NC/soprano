@@ -86,7 +86,7 @@ class LinkageList(AtomsProperty):
                                    mode=str('constant'),
                                    constant_values=np.inf)
 
-        return link_lis
+        return link_list
 
 
 class Bonds(AtomsProperty):
@@ -157,7 +157,7 @@ class Bonds(AtomsProperty):
         bonds = zip(triui[0][linked], triui[1][linked],
                     -v_cells[linked], v[linked])
 
-        return bonds
+        return list(bonds)  # For Python 3 compatibility
 
 
 class CoordinationHistogram(AtomsProperty):
@@ -217,7 +217,7 @@ class CoordinationHistogram(AtomsProperty):
                            'vdw_scale': vdw_scale,
                            'default_vdw': default_vdw})
         bonds = bond_calc(s)
-        bond_inds = np.concatenate(zip(*bonds)[:2])
+        bond_inds = np.concatenate(list(zip(*bonds))[:2])
         bond_elems = elems[bond_inds]
         bN = len(bonds)        
 

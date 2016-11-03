@@ -16,7 +16,7 @@ import pickle
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 try:
-	joblist = pickle.load(open(os.path.join(mydir, 'queue.pkl')))
+	joblist = pickle.load(open(os.path.join(mydir, 'queue.pkl'), 'rb'))
 	if len(joblist) == 0:
 		raise IOError()
 except IOError:
@@ -41,4 +41,4 @@ for job in joblist:
 	print(("{0}\tusername\tRUN\tqueuename\tnodeURL\t{1}"
 		   "\tMM DD HH:MM").format(job, joblist[job]['name']))
 
-pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'w'))
+pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'wb'))

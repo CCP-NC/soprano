@@ -17,13 +17,19 @@ import numpy as np
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 
+# For Python3 support
 try:
-	script_first_line = raw_input()
+    get_input = raw_input
+except NameError:
+    get_input = input
+
+try:
+	script_first_line = get_input()
 except EOFError:
 	script_first_line = ""
 
 try:
-	joblist = pickle.load(open(os.path.join(mydir, 'queue.pkl')))
+	joblist = pickle.load(open(os.path.join(mydir, 'queue.pkl'), 'rb'))
 except IOError:
 	joblist = {}
 
@@ -41,7 +47,6 @@ joblist[rnd_id] = {'name': jobname,
 if len(fline_spl) > 2:
     joblist[rnd_id]['path'] = fline_spl[2]
 
-print(joblist[rnd_id])
 print("Job <{0}> submitted".format(rnd_id))
 
-pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'w'))
+pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'wb'))

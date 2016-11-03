@@ -94,7 +94,8 @@ class QueueInterface(object):
                            stderr=sp.PIPE,
                            cwd=cwd)
 
-        stdout, stderr = subproc.communicate(script)
+        stdout, stderr = subproc.communicate(script.encode('utf-8'))
+        stdout, stderr = map(lambda s: s.decode(), (stdout, stderr))
 
         # Parse out the job id!
         match = self.sub_outre.search(stdout)
@@ -117,6 +118,7 @@ class QueueInterface(object):
                            stderr=sp.PIPE)
 
         stdout, stderr = subproc.communicate()
+        stdout, stderr = map(lambda s: s.decode(), (stdout, stderr))
 
         # Parse out everything!
         jobs = {}

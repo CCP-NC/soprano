@@ -52,7 +52,7 @@ class TestSubmit(unittest.TestCase):
         jobs = qInt.list()
 
         self.assertEqual(len(jobs), 1)
-        self.assertEqual(jobs.keys()[0], test_id)
+        self.assertEqual(list(jobs.keys())[0], test_id)
 
         # Now delete it
         qInt.kill(test_id)
