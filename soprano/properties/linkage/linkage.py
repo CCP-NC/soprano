@@ -29,7 +29,7 @@ from ase.quaternions import Quaternion
 from soprano.utils import minimum_periodic
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.utils import swing_twist_decomp
+from soprano.utils import swing_twist_decomp, is_string
 
 
 # Pre load VdW radii
@@ -219,13 +219,17 @@ class CoordinationHistogram(AtomsProperty):
         bonds = bond_calc(s)
         bond_inds = np.concatenate(zip(*bonds)[:2])
         bond_elems = elems[bond_inds]
-        bN = len(bonds)
+        bN = len(bonds)        
 
         if species_1 is None:
             species_1 = np.unique(elems)
+        elif is_string(species_1):
+            species_1 = np.array([species_1])
 
         if species_2 is None:
             species_2 = np.unique(elems)
+        elif is_string(species_2):
+            species_2 = np.array([species_2])
 
         # Initialise the histogram
         hist = {s1: {s2: np.zeros(max_coord+1)
