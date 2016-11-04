@@ -24,7 +24,9 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" /> 
+    <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" />
+    <link rel="up" title="soprano package" href="soprano.html" />
+    <link rel="prev" title="soprano.selection module" href="soprano.selection.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -36,7 +38,12 @@
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="soprano.selection.html" title="soprano.selection module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,6 +63,44 @@ conversions between different representations etc.</p>
 <code class="descclassname">soprano.utils.</code><code class="descname">abc2cart</code><span class="sig-paren">(</span><em>abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.abc2cart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms an axes and angles representation of lattice parameters
 into a Cartesian one</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.all_periodic">
+<code class="descclassname">soprano.utils.</code><code class="descname">all_periodic</code><span class="sig-paren">(</span><em>v</em>, <em>latt_cart</em>, <em>max_r</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.all_periodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all the periodic equivalent vectors for a list of vectors and a
+given lattice falling within a given length.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">v (np.ndarray): list of 3-vectors representing points or vectors to</div>
+<div class="line-block">
+<div class="line">produce periodic versions of</div>
+</div>
+<div class="line">latt_cart (np.ndarray): unit cell in cartesian form</div>
+<div class="line">max_r (float): maximum length of periodic copies of vectors</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">v_period (np.ndarray): array with the same shape as v, containing the</div>
+<div class="line-block">
+<div class="line">vectors in periodic reduced form</div>
+</div>
+<div class="line">v_index (np.ndarray): indices (referring to the original array v) of</div>
+<div class="line-block">
+<div class="line">the array of which the corresponding element of</div>
+<div class="line">v_period is a copy</div>
+</div>
+<div class="line">v_cells (np.ndarray): array of triples of ints, corresponding to the</div>
+<div class="line-block">
+<div class="line">cells from which the various periodic copies of</div>
+<div class="line">the vectors were taken. For an unchanged vector</div>
+<div class="line">will be all [0,0,0]</div>
+</div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="function">
@@ -227,6 +272,14 @@ And there you go! Problem solved.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.safe_communicate">
+<code class="descclassname">soprano.utils.</code><code class="descname">safe_communicate</code><span class="sig-paren">(</span><em>subproc</em>, <em>stdin=u''</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.safe_communicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a Popen.communicate and returns output in a way that is 
+compatible with Python 2 &amp; 3 keeping input and output as strings (since
+Python 3 requires bytes objects otherwise)</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.seedname">
 <code class="descclassname">soprano.utils.</code><code class="descname">seedname</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.seedname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the filename (with no extension) from a full path</p>
@@ -280,9 +333,16 @@ other containing the rotation around a vector parallel to axis (Swing).</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
 <h3><a href="../index.html">Table Of Contents</a></h3>
-<ul class="simple">
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
 </ul>
 
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.selection.html"
+                        title="previous chapter">soprano.selection module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -316,7 +376,12 @@ other containing the rotation around a vector parallel to axis (Swing).</p>
         <li class="right" >
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li> 
+        <li class="right" >
+          <a href="soprano.selection.html" title="soprano.selection module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
