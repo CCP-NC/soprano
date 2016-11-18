@@ -50,12 +50,13 @@ def submitter_handler():
                                "a Submitter object as a background process.")
     # Required arguments
     parser.add_argument('action', type=str, nargs=1,
-                        choices=['start', 'stop', 'list'],
                         help="Action to perform: "
                              "start -> start the given submitter, "
                              "stop -> stop the given submitter if running, "
                              "list -> list the currently running submitters"
-                             " from the given file")
+                             " from the given file,"
+                             " or any custom action defined for your"
+                             " submitter")
     parser.add_argument('submitter_file', type=str, action=IsValidModule,
                         help="Name of the Python module file containing the"
                              " declaration for the Submitter to use")
@@ -104,7 +105,7 @@ def submitter_handler():
     if args.n is not None:
         submitter_name = args.n
     else:
-        submitter_name = subms.keys()[0]
+        submitter_name = list(subms.keys())[0]
 
     if args.action[0] == 'start':
         # Ok, first let's check that nothing like that is running already
@@ -138,6 +139,14 @@ def submitter_handler():
             if s[0] != args.submitter_file:
                 continue
             print(tabf.format(*s))
-
+    elif args.action[0] in subms[submitter_name]._user_signals:
+        signum, _ = subms[submitter_name]._user_signals[args.action[0]]
+        subm_l = Submitter.list()
+        for s in subm_l:
+            if s[0] == args.submitter_file and s[1] == submitter_name:
+                os.kill(s[3], signum)
+                break
+    else:
+        print("Unknown action {0}".format(args.action[0]))
 
 submitter_handler()

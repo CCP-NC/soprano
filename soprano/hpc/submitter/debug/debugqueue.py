@@ -76,7 +76,7 @@ class DebugQueueInterface(QueueInterface):
         while(len(self._job_list) > 0):
             t = time.time()
             completed_jobs = []
-            for j_id in self._job_list.keys():
+            for j_id in list(self._job_list.keys()):
                 job = self._job_list[j_id]
                 if job['status'] == 'w' and (t-job['t0']) > job['WAIT']:
                     # Switch to run
@@ -93,7 +93,7 @@ class DebugQueueInterface(QueueInterface):
                     completed_jobs.append(j_id)
 
             for cj in completed_jobs:
-                del self._job_list[cj]
+                del(self._job_list[cj])
 
             time.sleep(self._dt)
 

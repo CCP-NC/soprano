@@ -128,6 +128,12 @@ class Submitter(object):
         self.tmp_dir = (os.path.abspath(temp_folder)
                         if temp_folder is not None else '')
 
+        # User defined signals
+        self._free_signals = [signal.__dict__[s] for s in ('SIGUSR1',
+                                                           'SIGUSR2')
+                              if s in signal.__dict__]
+        self._user_signals = {}
+
         self._log = None  # Will keep track of failed jobs etc.
 
     def set_parameters(self):
@@ -136,6 +142,52 @@ class Submitter(object):
         add more variables without overriding __init__."""
 
         pass
+
+    def add_signal(self, command, callback):
+        """Add a signal listener to this submitter. Unix systems only allow
+        for up to TWO user-defined signals to be specified.
+
+        | Args:
+        |   command (str): command that should be used to call this signal.
+        |                  This would be used as:
+        |                  python -m soprano.hpc.submitter <command> <file>
+        |                  and will trigger the callback's execution
+        |   callback (function<self> => None): method of the user defined
+        |                      Submitter class to use as a callback when the
+        |                      given signal is sent. Should accept and return
+        |                      nothing.
+
+        """
+
+        # Is the command a reserved word?
+        if command in ('start', 'stop', 'list'):
+            raise ValueError('The commands start, stop and list are reserved'
+                             ' and can not be used for custom signals.')
+
+        # Are there any free signals left?
+        try:
+            signum = self._free_signals.pop()
+        except IndexError:
+            raise RuntimeError('Impossible to assign more signals - maximum '
+                               'number supported by the OS has been reached.')
+
+        self._user_signals[command] = [signum, callback]
+
+    def remove_signal(self, command):
+        """Remove a previously defined custom signal by its assigned command.
+
+        | Args:
+        |   command (str): command assigned to the signal handler to remove.        
+
+        """
+
+        try:
+            signum, _ = self._user_signals[command]
+            del(self._user_signals[command])
+            self._free_signals.append(signum)
+        except KeyError:
+            raise ValueError('Command does not correspon to any assigned'
+                             ' signal.')
 
     def start(self):
 
@@ -147,6 +199,10 @@ class Submitter(object):
         # Initialise signal catching
         signal.signal(signal.SIGINT, self._catch_signal)
         signal.signal(signal.SIGTERM, self._catch_signal)
+        # Now assign the user-defined ones
+        for cmd in self._user_signals:
+            signum, cback = self._user_signals[cmd]
+            signal.signal(signum, self._catch_signal)
 
         self._log = open(self.name + '.log', 'w')
         self.log('Starting run on {0}\n'.format(datetime.now()))
@@ -171,15 +227,21 @@ class Submitter(object):
         self._log.close()
 
     def _catch_signal(self, signum, frame):
-        # This catches the signal when termination is asked
-        self.log('SIGTERM received - Starting termination of this run...\n')
-        self._running = False
-        # Also, kill all jobs still running
-        for job_id in self._jobs.keys():
-            self.queue.kill(job_id)
-            self.finish_job(**self._jobs[job_id])
-            shutil.rmtree(self._jobs[job_id]['folder'])
-        self._jobs = {}
+        if signum in (signal.SIGINT, signal.SIGTERM):
+            # This catches the signal when termination is asked
+            self.log('SIGTERM received - '
+                     'Starting termination of this run...\n')
+            self._running = False
+            # Also, kill all jobs still running
+            for job_id in self._jobs.keys():
+                self.queue.kill(job_id)
+                self.finish_job(**self._jobs[job_id])
+                shutil.rmtree(self._jobs[job_id]['folder'])
+            self._jobs = {}
+        else:
+            for cmd in self._user_signals:
+                if signum == self._user_signals[cmd][0]:
+                    self._user_signals[cmd][1]()
 
     def _main_loop(self):
         """Main loop run as separate thread. Should not be edited when
@@ -288,7 +350,8 @@ class Submitter(object):
         for l in stdout.split('\n'):
             if 'soprano.hpc.submitter._spawn' in l:
                 lspl = l.split()
-                subm = lspl[-3], lspl[-2], lspl[-7]  # File, time and name
+                # File, name, time, PID
+                subm = lspl[-3], lspl[-2], lspl[-7], int(lspl[1])
                 all_subms.append(subm)
 
         return all_subms
