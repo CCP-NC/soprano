@@ -63,7 +63,7 @@
 <p>Bindings for AIRSS Buildcell program for random structure generation</p>
 <dl class="function">
 <dt id="soprano.collection.generate.airss.airssGen">
-<code class="descclassname">soprano.collection.generate.airss.</code><code class="descname">airssGen</code><span class="sig-paren">(</span><em>input_file</em>, <em>n=100</em>, <em>buildcell_command=u'buildcell'</em>, <em>buildcell_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.airss.airssGen" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">soprano.collection.generate.airss.</code><code class="descname">airssGen</code><span class="sig-paren">(</span><em>input_file</em>, <em>n=100</em>, <em>buildcell_command=u'buildcell'</em>, <em>buildcell_path=None</em>, <em>clone_calc=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.airss.airssGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function binding to AIRSS&#8217; Buildcell.</p>
 <p>This function searches for a buildcell executable and uses it to
 generate multiple new Atoms structures for a collection.</p>
@@ -88,6 +88,13 @@ generate multiple new Atoms structures for a collection.</p>
 <div class="line">found. If not present, the buildcell command</div>
 <div class="line">will be invoked directly (assuming the</div>
 <div class="line">executable is in the system PATH).</div>
+</div>
+<div class="line">clone_calc (bool): if True, the CASTEP calculator in the input file</div>
+<div class="line-block">
+<div class="line">will be copied and attached to the new structures.</div>
+<div class="line">This means that for example any additional CASTEP</div>
+<div class="line">keywords/blocks in the input file will be carried</div>
+<div class="line">on to the new structures. Default is True.</div>
 </div>
 </div>
 </div>

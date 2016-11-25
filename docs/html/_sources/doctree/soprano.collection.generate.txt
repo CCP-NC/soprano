@@ -14,4 +14,5 @@ Submodules
    soprano.collection.generate.airss
    soprano.collection.generate.linspace
    soprano.collection.generate.rattle
+   soprano.collection.generate.transform
 

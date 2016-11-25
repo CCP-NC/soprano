@@ -144,6 +144,30 @@ values when the script is submitted.</p>
 </div>
 </div>
 <dl class="method">
+<dt id="soprano.hpc.submitter.submit.Submitter.add_signal">
+<code class="descname">add_signal</code><span class="sig-paren">(</span><em>command</em>, <em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.add_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a signal listener to this submitter. Unix systems only allow
+for up to TWO user-defined signals to be specified.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">command (str): command that should be used to call this signal.</div>
+<div class="line-block">
+<div class="line">This would be used as:</div>
+<div class="line">python -m soprano.hpc.submitter &lt;command&gt; &lt;file&gt;</div>
+<div class="line">and will trigger the callback&#8217;s execution</div>
+</div>
+<div class="line">callback (function&lt;self&gt; =&gt; None): method of the user defined</div>
+<div class="line-block">
+<div class="line">Submitter class to use as a callback when the</div>
+<div class="line">given signal is sent. Should accept and return</div>
+<div class="line">nothing.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
 <dt id="soprano.hpc.submitter.submit.Submitter.check_job">
 <code class="descname">check_job</code><span class="sig-paren">(</span><em>job_id</em>, <em>name</em>, <em>args</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.check_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if given job is complete or not</p>
@@ -178,6 +202,18 @@ after</p>
 <dt id="soprano.hpc.submitter.submit.Submitter.next_job">
 <code class="descname">next_job</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.next_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary definition of the next job in line</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.submit.Submitter.remove_signal">
+<code class="descname">remove_signal</code><span class="sig-paren">(</span><em>command</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.remove_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a previously defined custom signal by its assigned command.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">command (str): command assigned to the signal handler to remove.        </div>
+</div>
+</div>
 </dd></dl>
 
 <dl class="method">

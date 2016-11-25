@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.collection.generate.rattle module &mdash; Soprano alpha (Andrews) documentation</title>
+    <title>soprano.collection.generate.transform module &mdash; Soprano alpha (Andrews) documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" />
     <link rel="up" title="soprano.collection.generate package" href="soprano.collection.generate.html" />
-    <link rel="next" title="soprano.collection.generate.transform module" href="soprano.collection.generate.transform.html" />
-    <link rel="prev" title="soprano.collection.generate.linspace module" href="soprano.collection.generate.linspace.html" /> 
+    <link rel="next" title="soprano.collection.collection module" href="soprano.collection.collection.html" />
+    <link rel="prev" title="soprano.collection.generate.rattle module" href="soprano.collection.generate.rattle.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -40,10 +40,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.transform.html" title="soprano.collection.generate.transform module"
+          <a href="soprano.collection.collection.html" title="soprano.collection.collection module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
+          <a href="soprano.collection.generate.rattle.html" title="soprano.collection.generate.rattle module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
@@ -58,50 +58,38 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.collection.generate.rattle">
-<span id="soprano-collection-generate-rattle-module"></span><h1>soprano.collection.generate.rattle module<a class="headerlink" href="#module-soprano.collection.generate.rattle" title="Permalink to this headline">¶</a></h1>
-<p>Generator producing structures rattled of a given amount</p>
+  <div class="section" id="module-soprano.collection.generate.transform">
+<span id="soprano-collection-generate-transform-module"></span><h1>soprano.collection.generate.transform module<a class="headerlink" href="#module-soprano.collection.generate.transform" title="Permalink to this headline">¶</a></h1>
+<p>Generator producing structures by repeatedly applying a transform</p>
 <dl class="function">
-<dt id="soprano.collection.generate.rattle.rattleGen">
-<code class="descclassname">soprano.collection.generate.rattle.</code><code class="descname">rattleGen</code><span class="sig-paren">(</span><em>struct</em>, <em>amplitude=0.01</em>, <em>n=100</em>, <em>method=u'uniform'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.rattle.rattleGen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function to create multiple structures by randomly displacing
-atoms of a given amount.</p>
+<dt id="soprano.collection.generate.transform.transformGen">
+<code class="descclassname">soprano.collection.generate.transform.</code><code class="descname">transformGen</code><span class="sig-paren">(</span><em>struct_0</em>, <em>transform</em>, <em>steps=10</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.transform.transformGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with positions
+interpolated linearly between two extremes.</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">struct (ase.Atoms): the starting structure to randomize</div>
-<div class="line">amplitude (float or np.ndarray): the amplitude of the random</div>
+<div class="line">struct_0 (ase.Atoms): the starting structure</div>
+<div class="line">transform (function): the transform to apply on the given structure.</div>
 <div class="line-block">
-<div class="line">displacement. Can be a single float</div>
-<div class="line">for all atoms, a 1D numpy array of</div>
-<div class="line">length N (N being the number of</div>
-<div class="line">atoms, one value each) or a 2D numpy</div>
-<div class="line">array of shape (N,3) (one value for</div>
-<div class="line">each dimension).</div>
-<div class="line">These values are used as interval for</div>
-<div class="line">uniform random numbers and as stdev</div>
-<div class="line">for normal random numbers</div>
+<div class="line">Must accept and return a structure as only</div>
+<div class="line">arguments. Instances of all transforms from the</div>
+<div class="line">soprano.properties.transform module satisfy</div>
+<div class="line">these conditions.</div>
 </div>
-<div class="line">n (int): maximum number of structures to generate. If set to None will</div>
+<div class="line">steps (Optional[int]): number of times to apply the transform.</div>
 <div class="line-block">
-<div class="line">generate infinite structures</div>
-</div>
-<div class="line">method (str): must be either &#8216;uniform&#8217; or &#8216;normal&#8217;. In the first case</div>
-<div class="line-block">
-<div class="line">the rattling will be a uniform random number between</div>
-<div class="line">+amplitude and -amplitude. In the second case it will be</div>
-<div class="line">a gaussian random number with +amplitude standard</div>
-<div class="line">deviation.</div>
+<div class="line">Default is 10</div>
 </div>
 </div>
 </div>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">rattleGenerator (generator): an iterator that yields copies of the</div>
+<div class="line">linspaceGenerator (generator): an iterator object that yields</div>
 <div class="line-block">
-<div class="line">base structure with randomly displaced</div>
-<div class="line">atoms.</div>
+<div class="line">structures created by linear</div>
+<div class="line">interpolation.</div>
 </div>
 </div>
 </div>
@@ -124,15 +112,15 @@ atoms of a given amount.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="soprano.collection.generate.linspace.html"
-                        title="previous chapter">soprano.collection.generate.linspace module</a></p>
+  <p class="topless"><a href="soprano.collection.generate.rattle.html"
+                        title="previous chapter">soprano.collection.generate.rattle module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="soprano.collection.generate.transform.html"
-                        title="next chapter">soprano.collection.generate.transform module</a></p>
+  <p class="topless"><a href="soprano.collection.collection.html"
+                        title="next chapter">soprano.collection.collection module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.collection.generate.rattle.txt"
+      <li><a href="../_sources/doctree/soprano.collection.generate.transform.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -163,10 +151,10 @@ atoms of a given amount.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.transform.html" title="soprano.collection.generate.transform module"
+          <a href="soprano.collection.collection.html" title="soprano.collection.collection module"
              >next</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
+          <a href="soprano.collection.generate.rattle.html" title="soprano.collection.generate.rattle module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>

@@ -24,3 +24,4 @@ from __future__ import absolute_import
 from soprano.collection.generate.airss import airssGen
 from soprano.collection.generate.linspace import linspaceGen
 from soprano.collection.generate.rattle import rattleGen
+from soprano.collection.generate.transform import transformGen
