@@ -23,6 +23,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import copy
 import hashlib
 import subprocess as sp
 from ase import io as ase_io
@@ -39,7 +40,8 @@ except ImportError:
 def airssGen(input_file,
              n=100,
              buildcell_command='buildcell',
-             buildcell_path=None):
+             buildcell_path=None,
+             clone_calc=True):
     """Generator function binding to AIRSS' Buildcell.
 
     This function searches for a buildcell executable and uses it to
@@ -57,6 +59,11 @@ def airssGen(input_file,
     |                         found. If not present, the buildcell command
     |                         will be invoked directly (assuming the
     |                         executable is in the system PATH).
+    |   clone_calc (bool): if True, the CASTEP calculator in the input file
+    |                      will be copied and attached to the new structures.
+    |                      This means that for example any additional CASTEP
+    |                      keywords/blocks in the input file will be carried
+    |                      on to the new structures. Default is True.
 
     | Returns:
     |   airssGenerator (generator): an iterable object that yields structures
@@ -87,6 +94,11 @@ def airssGen(input_file,
     basename = seedname(input_file.name)
     input_file.close()
 
+    # Calculator (if needed)
+    calc = None
+    if clone_calc:
+        calc = ase_io.read(input_file.name).calc
+
     # And keep track of the count!
     # (at least if it's not infinite)
     i = 0
@@ -108,6 +120,8 @@ def airssGen(input_file,
         # Now turn it into a proper Atoms object
         # To do this we need to make it look like a file to ASE's io.read
         newcell = ase_io.read(StringIO(stdout), format='castep-cell')
+        if clone_calc:
+            newcell.set_calculator(copy.deepcopy(calc))
         # Generate it a name, function of its properties
         postfix = hashlib.md5(str(newcell.get_positions()
                                   ).encode()).hexdigest()
