@@ -89,7 +89,7 @@ class QueueInterface(object):
         |                 with sub_outre
         """
 
-        subproc = sp.Popen([self.sub_cmd], stdin=sp.PIPE,
+        subproc = sp.Popen(self.sub_cmd.split(), stdin=sp.PIPE,
                            stdout=sp.PIPE,
                            stderr=sp.PIPE,
                            cwd=cwd)
@@ -113,7 +113,7 @@ class QueueInterface(object):
         |                that can be matched through list_outre
         |
         """
-        subproc = sp.Popen([self.list_cmd], stdout=sp.PIPE,
+        subproc = sp.Popen(self.list_cmd.split(), stdout=sp.PIPE,
                            stderr=sp.PIPE)
 
         stdout, stderr = safe_communicate(subproc)
@@ -138,7 +138,7 @@ class QueueInterface(object):
         |
         """
 
-        subproc = sp.Popen([self.kill_cmd, job_id], stdout=sp.PIPE,
+        subproc = sp.Popen(self.kill_cmd.split() + [job_id], stdout=sp.PIPE,
                            stderr=sp.PIPE)
         stdout, stderr = safe_communicate(subproc)
 
@@ -159,3 +159,12 @@ class QueueInterface(object):
                    sub_outre='Your job (?P<job_id>[0-9]+)',
                    list_outre='(?P<job_id>[0-9]+)\s.*'
                               '\s(?P<job_status>r|qw)\s')
+
+    @classmethod
+    def PBS(cls):
+        return cls(sub_cmd='qsub',
+                   list_cmd='qstat -u $USER',
+                   kill_cmd='qdel',
+                   sub_outre='(?P<job_id>[^\s]+)',
+                   list_outre='(?P<job_id>[^\s]+)\s.*'
+                              '\s(?P<job_status>R|Q)\s')
