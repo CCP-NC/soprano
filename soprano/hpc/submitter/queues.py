@@ -163,7 +163,7 @@ class QueueInterface(object):
     @classmethod
     def PBS(cls):
         return cls(sub_cmd='qsub',
-                   list_cmd='qstat -u $USER',
+                   list_cmd='qstat',
                    kill_cmd='qdel',
                    sub_outre='(?P<job_id>[^\s]+)',
                    list_outre='(?P<job_id>[^\s]+)\s.*'
