@@ -22,5 +22,6 @@ Some of these are valid only for Atoms objects loaded from a .magres file.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.properties.nmr.nmr import (MSDiagonal, MSIsotropy, MSAnisotropy,
-                                        MSReducedAnisotropy, MSAsymmetry)
+from soprano.properties.nmr.ms import (MSDiagonal, MSIsotropy, MSAnisotropy,
+                                       MSReducedAnisotropy, MSAsymmetry,
+                                       MSSpan, MSSkew)

@@ -11,5 +11,6 @@ Submodules
 
 .. toctree::
 
-   soprano.properties.nmr.nmr
+   soprano.properties.nmr.ms
+   soprano.properties.nmr.utils
 

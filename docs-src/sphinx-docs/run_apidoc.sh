@@ -2,5 +2,5 @@
 
 SOPRANO_DIR=../../soprano
 
-find *.rst | grep -v "index.rst" | xargs rm
+rm doctree/*.rst
 sphinx-apidoc -e -f -o doctree $SOPRANO_DIR -M -d 5

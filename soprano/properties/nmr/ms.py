@@ -24,16 +24,18 @@ from __future__ import unicode_literals
 
 import numpy as np
 from soprano.properties import AtomsProperty
+from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
+                                          _span, _skew)
 
 
 class MSDiagonal(AtomsProperty):
 
     """
-    MSIsotropy
+    MSDiagonal
 
     Produces an array containing eigenvalues and eigenvectors for the
     symmetric part of each magnetic shielding tensor in the system. By default
-    saves them as two new arrays as well.
+    saves them as part of the Atoms' info as well.
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
@@ -65,12 +67,8 @@ class MSDiagonal(AtomsProperty):
         if save_info:
             s.info[MSDiagonal.default_name + '_evals'] = ms_evals
             # Store also the Haeberlen sorted version
-            ms_iso = np.average(ms_evals, axis=1)
-            sort_i = np.argsort(np.abs(ms_evals-ms_iso[:, None]),
-                                axis=1)[:, [1, 0, 2]]
-            ms_evals_haeb = ms_evals[np.arange(ms_evals.shape[0])[:, None],
-                                     sort_i]
-            s.info[MSDiagonal.default_name + '_evals_hsort'] = ms_evals_haeb
+            s.info[MSDiagonal.default_name +
+                   '_evals_hsort'] = _haeb_sort(ms_evals)
             s.info[MSDiagonal.default_name + '_evecs'] = ms_evecs
 
         return np.array([dict(zip(('evals', 'evecs'), ms)) for ms in ms_diag])
@@ -154,9 +152,8 @@ class MSAnisotropy(AtomsProperty):
             MSDiagonal.get(s)
 
         ms_evals = s.info[MSDiagonal.default_name + '_evals_hsort']
-        ms_aniso = ms_evals[:, 2]-(ms_evals[:, 0]+ms_evals[:, 1])/2.0
 
-        return ms_aniso
+        return _anisotropy(ms_evals)
 
 
 class MSReducedAnisotropy(AtomsProperty):
@@ -195,7 +192,9 @@ class MSReducedAnisotropy(AtomsProperty):
                 force_recalc):
             MSDiagonal.get(s)
 
-        return MSAnisotropy.get(s)*2.0/3.0
+        ms_evals = s.info[MSDiagonal.default_name + '_evals_hsort']
+
+        return _anisotropy(ms_evals, reduced=True)
 
 
 class MSAsymmetry(AtomsProperty):
@@ -235,6 +234,87 @@ class MSAsymmetry(AtomsProperty):
             MSDiagonal.get(s)
 
         ms_evals = s.info[MSDiagonal.default_name + '_evals_hsort']
-        ms_red_aniso = MSReducedAnisotropy.get(s)
 
-        return (ms_evals[:,1]-ms_evals[:,0])/ms_red_aniso
+        return _asymmetry(ms_evals)
+
+
+class MSSpan(AtomsProperty):
+
+    """
+    MSSpan
+
+    Produces an array containing the magnetic shielding tensor span
+    in a system (ppm).
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+
+    | Returns:
+    |   ms_list (np.ndarray): list of spans
+
+    """
+
+    default_name = 'ms_span'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        # Check if the array even exists
+        if not (s.has('ms')):
+            raise RuntimeError('No magnetic shielding data found for this'
+                               ' system')
+
+        if ((not MSDiagonal.default_name + '_evals' in s.info) or
+                force_recalc):
+            MSDiagonal.get(s)
+
+        ms_evals = s.info[MSDiagonal.default_name + '_evals']
+
+        return _span(ms_evals)
+
+
+class MSSkew(AtomsProperty):
+
+    """
+    MSSkew
+
+    Produces an array containing the magnetic shielding tensor skew
+    in a system (ppm).
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+
+    | Returns:
+    |   ms_list (np.ndarray): list of skews
+
+    """
+
+    default_name = 'ms_span'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        # Check if the array even exists
+        if not (s.has('ms')):
+            raise RuntimeError('No magnetic shielding data found for this'
+                               ' system')
+
+        if ((not MSDiagonal.default_name + '_evals' in s.info) or
+                force_recalc):
+            MSDiagonal.get(s)
+
+        ms_evals = s.info[MSDiagonal.default_name + '_evals']
+
+        return _skew(ms_evals)
