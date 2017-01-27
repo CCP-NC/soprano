@@ -283,10 +283,16 @@ class AtomSelection(object):
             else:
                 pos = (pos[:, None, :]+grid[None, :, :])
 
-        sel_i = np.where(np.logical_and(np.all(pos > abc0, axis=-1),
-                                        np.all(pos < abc1, axis=-1)))[0]
+        where_i = np.where(np.all(pos > abc0, axis=-1) &
+                           np.all(pos < abc1, axis=-1))[:2]
 
-        return AtomSelection(atoms, sel_i)
+        sel_i = where_i[0]
+
+        sel = AtomSelection(atoms, sel_i)
+        if periodic:
+            sel.set_array('cell_indices', grid_frac[where_i[1]])
+
+        return sel
 
     @staticmethod
     def from_sphere(atoms, center, r, periodic=False, scaled=False):
@@ -322,6 +328,12 @@ class AtomSelection(object):
             else:
                 pos = (pos[:, None, :]+grid[None, :, :])
 
-        sel_i = np.where(np.linalg.norm(pos-center, axis=-1) <= r)[0]
+        where_i = np.where(np.linalg.norm(pos-center, axis=-1) <= r)
 
-        return AtomSelection(atoms, sel_i)
+        sel_i = where_i[0]
+
+        sel = AtomSelection(atoms, sel_i)
+        if periodic:
+            sel.set_array('cell_indices', grid_frac[where_i[1]])
+
+        return sel
