@@ -15,7 +15,8 @@ import numpy as np
 from ase import io
 from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
                                     MSReducedAnisotropy, MSAsymmetry,
-                                    MSSpan, MSSkew)
+                                    MSSpan, MSSkew,
+                                    EFGVzz, EFGAnisotropy)
 from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -51,6 +52,23 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(span[i], max(vals[4:7])-min(vals[4:7]))
             self.assertAlmostEqual(skew[i],
                                    3*(sorted(vals[4:7])[1]-iso[i])/span[i])
+
+    def test_efg(self):
+
+        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+
+        # Load the data calculated with MagresView
+        data = open(os.path.join(_TESTDATA_DIR,
+                                 'ethanol_efg.dat')).readlines()[8:]
+
+        aniso = EFGAnisotropy.get(eth)
+
+        for i, d in enumerate(data):
+            vals = [float(x) for x in d.split()[1:]]
+            if len(vals) != 10:
+                continue
+            # And check...
+            self.assertAlmostEqual(aniso[i], vals[1])
 
 
 if __name__ == '__main__':

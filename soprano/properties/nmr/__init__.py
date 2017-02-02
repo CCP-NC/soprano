@@ -25,3 +25,6 @@ from __future__ import absolute_import
 from soprano.properties.nmr.ms import (MSDiagonal, MSIsotropy, MSAnisotropy,
                                        MSReducedAnisotropy, MSAsymmetry,
                                        MSSpan, MSSkew)
+from soprano.properties.nmr.efg import (EFGDiagonal, EFGVzz, EFGAnisotropy,
+                                        EFGReducedAnisotropy, EFGAsymmetry,
+                                        EFGSpan, EFGSkew)
