@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 import json
 import pkgutil
 import numpy as np
+from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
                                           _span, _skew)
@@ -313,3 +314,95 @@ class EFGSkew(AtomsProperty):
         efg_evals = s.info[EFGDiagonal.default_name + '_evals']
 
         return _skew(efg_evals)
+
+
+class EFGQuadrupolarConstant(AtomsProperty):
+
+    """
+    EFGQuadrupolarConstant
+
+    Produces an array containing the quadrupolar constant in Hz for every atom
+    in a system. The constant will be zero for non-quadrupole active nuclei.
+    Unless specified otherwise, the quadrupole moment of the most common
+    NMR-active isotope is used.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+    |   use_q_isotopes (bool): if True, always use the most common quadrupole
+    |                          active isotope for each element, if there is
+    |                          one.
+    |   isotopes (dict): dictionary of specific isotopes to use, by element
+    |                    symbol. If the isotope doesn't exist an error will
+    |                    be raised. Overrides use_q_isotopes.
+    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if 
+    |                        different atoms of the same element are supposed
+    |                        to be of different isotopes. Where a 'None' is 
+    |                        present will fall back on the previous
+    |                        definitions. Where an isotope is present it
+    |                        overrides everything else. 
+
+    | Returns:
+    |   q_list (np.ndarray): list of quadrupole constants in Hz
+
+    """
+
+    default_name = 'efg_qconst'
+    default_params = {
+        'force_recalc': False,
+        'use_q_isotopes': False,
+        'isotopes': {},
+        'isotope_list': None
+    }
+
+    @staticmethod
+    @_has_efg_check
+    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
+
+        if ((not EFGDiagonal.default_name + '_evals' in s.info) or
+                force_recalc):
+            EFGDiagonal.get(s)
+
+        if _nmr_data is None:
+            # Something has gone wrong...
+            raise RuntimeError('NMR data not available. Something may be '
+                               'wrong with this installation of Soprano')
+
+        # First thing, build the isotope dictionary
+        elems = s.get_chemical_symbols()
+
+        # Is isotope list valid?
+        if isotope_list is not None and len(isotope_list) != len(elems):
+            print('WARNING - invalid isotope_list, ignoring')
+            isotope_list = None
+
+        q_list = []
+
+        for i, e in enumerate(elems):
+
+            if e not in _nmr_data:
+                # Non-existing element
+                raise RuntimeError('No NMR data on element {0}'.format(e))
+
+            if isotope_list is not None and isotope_list[i] is not None:
+                iso = isotope_list[i]
+            if e in isotopes:
+                iso = isotopes[e]
+            elif use_q_isotopes and _nmr_data[e]['Q_iso'] is not None:
+                iso = _nmr_data[e]['Q_iso']
+            else:
+                iso = _nmr_data[e]['iso']
+
+            try:
+                q_list.append(_nmr_data[e][str(iso)]['Q'])
+            except KeyError:
+                raise RuntimeError('Isotope {0} does not exist for '
+                                   'element {1}'.format(iso, e))
+
+        q_list = np.array(q_list)
+
+        # Conversion constant
+        k = cnst.physical_constants['atomic unit of electric field '
+                                    'gradient'][0]*cnst.e*1e-28/cnst.h
+
+        return k*q_list*EFGVzz.get(s)

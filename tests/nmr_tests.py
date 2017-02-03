@@ -16,7 +16,8 @@ from ase import io
 from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
                                     MSReducedAnisotropy, MSAsymmetry,
                                     MSSpan, MSSkew,
-                                    EFGVzz, EFGAnisotropy)
+                                    EFGVzz, EFGAnisotropy,
+                                    EFGQuadrupolarConstant)
 from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -62,6 +63,9 @@ class TestNMR(unittest.TestCase):
                                  'ethanol_efg.dat')).readlines()[8:]
 
         aniso = EFGAnisotropy.get(eth)
+        
+        qprop = EFGQuadrupolarConstant(isotopes={'H': 2})
+        qcnst = qprop(eth)
 
         for i, d in enumerate(data):
             vals = [float(x) for x in d.split()[1:]]
@@ -69,6 +73,7 @@ class TestNMR(unittest.TestCase):
                 continue
             # And check...
             self.assertAlmostEqual(aniso[i], vals[1])
+            self.assertAlmostEqual(qcnst[i]*1e-3, vals[2])
 
 
 if __name__ == '__main__':

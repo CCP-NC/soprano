@@ -27,4 +27,5 @@ from soprano.properties.nmr.ms import (MSDiagonal, MSIsotropy, MSAnisotropy,
                                        MSSpan, MSSkew)
 from soprano.properties.nmr.efg import (EFGDiagonal, EFGVzz, EFGAnisotropy,
                                         EFGReducedAnisotropy, EFGAsymmetry,
-                                        EFGSpan, EFGSkew)
+                                        EFGSpan, EFGSkew,
+                                        EFGQuadrupolarConstant)
