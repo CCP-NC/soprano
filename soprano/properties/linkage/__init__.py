@@ -28,4 +28,5 @@ from soprano.properties.linkage.linkage import (LinkageList, Bonds, Molecules,
                                                 MoleculeRelativeRotation,
                                                 CoordinationHistogram,
                                                 HydrogenBonds,
-                                                HydrogenBondsNumber)
+                                                HydrogenBondsNumber,
+                                                DihedralAngleList)

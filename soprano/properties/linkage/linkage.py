@@ -864,3 +864,120 @@ class HydrogenBondsNumber(AtomsProperty):
             hbonds_n[hbt] = len(hbonds[hbt])
 
         return hbonds_n
+
+
+class DihedralAngleList(AtomsProperty):
+
+    """
+    DihedralAngleList
+
+    Produces a list of dihedral angles found in the system, identified by 
+    looking for a bonding pattern. The amount of said angles can vary from
+    zero (if the pattern is not present) to an arbitrary number. They will be
+    returned sorted from lowest to highest. Periodic boundary conditions are
+    taken into account. If no pattern is provided, HCCH groups are searched by
+    default.
+
+    | Parameters:
+    |   dihedral_pattern ([str]*4): a list of four chemical symbols
+    |                               identifying the dihedral pattern to look
+    |                               for
+    |   bonds_params (dict): parameters to pass to the Bonds property used to
+    |                        compute bonds. See the Bonds docstring for
+    |                        details. If not provided, defaults are used
+
+    | Returns:
+    |   dihedral_angles (np.ndarray): sorted list of dihedral angles found
+
+    """
+
+    default_name = 'dihedral_angle_list'
+    default_params = {
+        'dihedral_pattern': ['H', 'C', 'C', 'H'],
+        'bonds_params': {}
+    }
+
+    @staticmethod
+    def extract(s, dihedral_pattern, bonds_params):
+
+        # First, compute bonds
+        bonds = Bonds(**bonds_params)
+        bonds = bonds(s)
+        # Chemical symbols
+        elems = np.array(s.get_chemical_symbols())
+
+        # Build a network
+        dp = np.array(dihedral_pattern)
+        nodes = np.where(np.any(elems[:, None] == dp[None, :],
+                                axis=1))[0]
+
+        bond_table = {n: [] for n in nodes}
+        for b in bonds:
+            if np.all(np.any(nodes[:, None] == b[:2], axis=0)):
+                bond_table[b[0]].append((b[1], b[2], b[3]))
+                bond_table[b[1]].append((b[0], -b[2], b[3]))
+
+        # Now prepare a series of 'pointers' to traverse the network
+        pointers = np.where(elems == dihedral_pattern[0])[0]
+        pointer_memory = [[] for p in pointers]
+        pointer_traversal = np.zeros((len(pointers), 1, 3))
+        for el in dihedral_pattern[1:]:
+            new_pointers = []
+            new_pointer_memory = []
+            new_pointer_traversal = []
+            for p_i, p in enumerate(pointers):
+                # Is it bonded to anything with that element?
+                # Did we visit it already?
+                for b in bond_table[p]:
+                    if elems[b[0]] == el and b[0] not in pointer_memory[p_i]:
+                        # If so, spawn new pointers and save the corresponding
+                        # memory of the previous path
+                        new_pointers.append(b[0])
+                        new_pointer_memory.append(
+                            list(pointer_memory[p_i]) + [p])
+                        new_pointer_traversal.append(
+                            np.concatenate((pointer_traversal[p_i],
+                                            np.array(b[1])[None, :])))
+            pointers = new_pointers
+            pointer_memory = new_pointer_memory
+            pointer_traversal = np.array(new_pointer_traversal)
+
+        # Now build the dihedra array
+        dihedra = np.array([pointer_memory[i] + [p]
+                            for i, p in enumerate(pointers)])
+
+        # Symmetry check, epurate the repeated ones if needed
+        is_symm = np.all(dihedral_pattern == dihedral_pattern[::-1])
+
+        if is_symm:
+            duplicate = []
+            for i, d1 in enumerate(dihedra):
+                for j, d2 in enumerate(dihedra[i+1:]):
+                    if np.all(d2 == d1[::-1]):
+                        duplicate.append(j+i+1)
+            unique = list(set(range(len(dihedra))) - set(duplicate))
+            dihedra = dihedra[unique]
+            pointer_traversal = pointer_traversal[unique]
+
+        # If it's empty we may quit now
+        if len(dihedra) == 0:
+            return np.array([])
+        # Cumulate traversals
+        pointer_traversal = np.cumsum(pointer_traversal, axis=1)
+
+        # Now that we have them let's find the positions
+        posv = s.get_positions()[dihedra.reshape((-1,))]
+        posv += np.dot(pointer_traversal.reshape((-1, 3)), s.get_cell())
+
+        # And finally the dihedral angles
+        links = np.diff(posv.reshape((-1, 4, 3)), axis=1)
+        bxa = np.cross(links[:, 1, :], links[:, 0, :])
+        bxa /= np.linalg.norm(bxa, axis=-1)[:, None]
+        cxb = np.cross(links[:, 2, :], links[:, 1, :])
+        cxb /= np.linalg.norm(cxb, axis=-1)[:, None]
+        angles = np.arccos(np.clip(np.sum(bxa*cxb, axis=-1), -1, 1))
+        angles = np.where(np.sum(bxa*links[:, 2, :], axis=-1) > 0,
+                          2*np.pi-angles, angles)
+
+        # And return!
+        return angles

@@ -27,7 +27,7 @@
     <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" />
     <link rel="up" title="soprano.properties.nmr package" href="soprano.properties.nmr.html" />
     <link rel="next" title="soprano.properties.nmr.utils module" href="soprano.properties.nmr.utils.html" />
-    <link rel="prev" title="soprano.properties.nmr package" href="soprano.properties.nmr.html" /> 
+    <link rel="prev" title="soprano.properties.nmr.efg module" href="soprano.properties.nmr.efg.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -43,7 +43,7 @@
           <a href="soprano.properties.nmr.utils.html" title="soprano.properties.nmr.utils module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="soprano.properties.nmr.html" title="soprano.properties.nmr package"
+          <a href="soprano.properties.nmr.efg.html" title="soprano.properties.nmr.efg module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
@@ -60,7 +60,7 @@
             
   <div class="section" id="module-soprano.properties.nmr.ms">
 <span id="soprano-properties-nmr-ms-module"></span><h1>soprano.properties.nmr.ms module<a class="headerlink" href="#module-soprano.properties.nmr.ms" title="Permalink to this headline">¶</a></h1>
-<p>Implementation of AtomsProperties that relate to NMR parameters</p>
+<p>Implementation of AtomsProperties that relate to NMR shieldings/shifts</p>
 <dl class="class">
 <dt id="soprano.properties.nmr.ms.MSAnisotropy">
 <em class="property">class </em><code class="descclassname">soprano.properties.nmr.ms.</code><code class="descname">MSAnisotropy</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAnisotropy" title="Permalink to this definition">¶</a></dt>
@@ -110,7 +110,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSAnisotropy.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -164,7 +164,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSAsymmetry.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAsymmetry.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAsymmetry.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -219,7 +219,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSDiagonal.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSDiagonal.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSDiagonal.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -273,7 +273,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSIsotropy.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>ref</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSIsotropy.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSIsotropy.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -327,7 +327,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSReducedAnisotropy.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSReducedAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSReducedAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -337,7 +337,7 @@ only argument to get the property with the given parameters.</p>
 <em class="property">class </em><code class="descclassname">soprano.properties.nmr.ms.</code><code class="descname">MSSkew</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces an array containing the magnetic shielding tensor skew
-in a system (ppm).
+in a system.
 Requires the Atoms object to have been loaded from a .magres file
 containing the relevant information.</p>
 <div class="line-block">
@@ -371,7 +371,7 @@ only argument to get the property with the given parameters.</p>
 </div>
 <dl class="attribute">
 <dt id="soprano.properties.nmr.ms.MSSkew.default_name">
-<code class="descname">default_name</code><em class="property"> = u'ms_span'</em><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew.default_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">default_name</code><em class="property"> = u'ms_skew'</em><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -381,7 +381,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSSkew.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -435,7 +435,7 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.ms.MSSpan.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSpan.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSpan.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -457,8 +457,8 @@ only argument to get the property with the given parameters.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="soprano.properties.nmr.html"
-                        title="previous chapter">soprano.properties.nmr package</a></p>
+  <p class="topless"><a href="soprano.properties.nmr.efg.html"
+                        title="previous chapter">soprano.properties.nmr.efg module</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="soprano.properties.nmr.utils.html"
                         title="next chapter">soprano.properties.nmr.utils module</a></p>
@@ -499,7 +499,7 @@ only argument to get the property with the given parameters.</p>
           <a href="soprano.properties.nmr.utils.html" title="soprano.properties.nmr.utils module"
              >next</a> |</li>
         <li class="right" >
-          <a href="soprano.properties.nmr.html" title="soprano.properties.nmr package"
+          <a href="soprano.properties.nmr.efg.html" title="soprano.properties.nmr.efg module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
