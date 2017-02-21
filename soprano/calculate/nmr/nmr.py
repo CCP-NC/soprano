@@ -29,6 +29,7 @@ import re
 import json
 import pkgutil
 import numpy as np
+from ase import Atoms
 
 try:
     _nmr_data = pkgutil.get_data('soprano',
@@ -73,7 +74,7 @@ class NMRCalculator(object):
 
     An object providing an interface to produce basic simulated NMR spectra
     from .magres files. It should be kept in mind that this is *not* a proper
-    spin simulation tool, but merely provides a 'guide for the eye' kind of 
+    spin simulation tool, but merely provides a 'guide for the eye' kind of
     spectrum to compare to experimental results. What it can simulate:
 
     - chemical shift of NMR peaks
@@ -91,7 +92,10 @@ class NMRCalculator(object):
     | Args:
     |   sample (ase.Atoms): an Atoms object describing the system to simulate
     |                       on. Should be loaded with ASE from a .magres file
-    |                       if data on shieldings and EFGs is necessary.
+    |                       if data on shieldings and EFGs is necessary. It
+    |                       can also have an optional 'isotopes' array. If it
+    |                       does, it will be used in the set_isotopes method
+    |                       and interpreted as described in its documentation.
     |   larmor_frequency (float): larmor frequency of the virtual spectrometer
     |                             (referenced to Hydrogen). Default is 400.
     |   larmor_units (str): units in which the larmor frequency is expressed.
@@ -102,7 +106,18 @@ class NMRCalculator(object):
     def __init__(self, sample, larmor_frequency=400,
                  larmor_units='MHz'):
 
-        self.sample = sample
+        if not isinstance(sample, Atoms):
+            raise TypeError('sample must be an ase.Atoms object')
+
+        self._sample = sample
+
+        # Define isotope array
+        self._elems = np.array(self._sample.get_chemical_symbols())
+        if self._sample.has('isotopes'):
+            isos = self._sample.get_array('isotopes')
+        else:
+            isos = [None]*len(self._sample)
+        self.set_isotopes(isos)
 
         self.set_larmor_frequency(larmor_frequency, larmor_units)
 
@@ -135,7 +150,6 @@ class NMRCalculator(object):
         self._B = larmor_frequency*_larm_units[larmor_units](el, iso)
 
     def set_reference(self, ref, element):
-
         """
         Set the chemical shift reference (in ppm) for a given element. If not
         provided it will be assumed to be zero.
@@ -156,5 +170,73 @@ class NMRCalculator(object):
             self._references[el] = {}
         self._references[el][iso] = float(ref)
 
-    
+    def set_isotopes(self, isotopes):
+        """
+        Set the isotopes for each atom in sample.
 
+        | Args:
+        |   isotopes (list): list of isotopes for each atom in sample.
+        |                    Isotopes can be given as an array of integers or
+        |                    of symbols in the form <isotope><element>.
+        |                    Their order must match the one of the atoms in
+        |                    the original sample ase.Atoms object.
+        |                    If an element of the list is None, the most
+        |                    common NMR-active isotope is used. If an element
+        |                    is the string 'Q', the most common quadrupolar
+        |                    active isotope for that nucleus (if known) will
+        |                    be used.
+
+        """
+
+        # First: correct length?
+        if len(isotopes) != len(self._sample):
+            raise ValueError('isotopes array should be as long as the atoms'
+                             ' in sample')
+
+        # Clean up the list, make sure it's all right
+        iso_clean = []
+        for i, iso in enumerate(isotopes):
+            # Is it an integer?
+            iso_name = ''
+            if re.match('[0-9]+', str(iso)) is not None:    # numpy-proof test
+                iso_name = str(iso)
+                # Does it exist?
+                if iso_name not in _nmr_data[self._elems[i]]:
+                    raise ValueError('Invalid isotope '
+                                     '{0} for element {1}'.format(iso_name,
+                                                                  self.
+                                                                  _elems[i]))
+            elif iso is None:
+                iso_name = str(_nmr_data[self._elems[i]]['iso'])
+            elif iso == 'Q':
+                iso_name = str(_nmr_data[self._elems[i]]['Q_iso'])
+            else:
+                el, iso_name = _el_iso(iso)
+                # Additional test
+                if el != self._elems[i]:
+                    raise ValueError('Invalid element in isotope array - '
+                                     '{0} in place of {1}'.format(el,
+                                                                  self
+                                                                  ._elems[i]))
+
+            iso_clean.append(iso_name)
+
+        self._isos = np.array(iso_clean)
+
+    def set_element_isotope(self, element, isotope):
+        """
+        Set the isotope for all occurrences of a given element.
+
+        | Args:
+        |   element (str): chemical symbol of the element for which to set the
+        |                  isotope.
+        |   isotope (int or str): isotope to set for the given element. The
+        |                         same conventions as described for the array
+        |                         passed to set_isotopes apply.
+
+        """
+
+        new_isos = [int(x) for x in self._isos]
+        new_isos = np.where(self._elems == element, isotope, new_isos)
+
+        self.set_isotopes(new_isos)
