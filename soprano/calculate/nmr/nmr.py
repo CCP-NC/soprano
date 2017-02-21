@@ -30,6 +30,7 @@ import json
 import pkgutil
 import numpy as np
 from ase import Atoms
+from soprano.calculate.nmr.powder import gen_pwd_ang
 
 try:
     _nmr_data = pkgutil.get_data('soprano',
@@ -48,7 +49,7 @@ _larm_units = {
 
 def _el_iso(sym):
     """ Utility function: split isotope and element in conventional
-    representation
+    representation.
     """
 
     match = re.findall('([0-9]*)([A-Za-z]+)', sym)
