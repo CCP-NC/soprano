@@ -99,6 +99,6 @@ def gen_pwd_ang(N, mode='sphere'):
 
     # Remap triangles
     weights = weights[uniq_i]
-    tris = uniq_inv[tris]
+    tris = uniq_inv[tris.astype(int)]
 
     return points, weights, tris

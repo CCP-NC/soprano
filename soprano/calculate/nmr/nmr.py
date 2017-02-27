@@ -30,6 +30,7 @@ import json
 import pkgutil
 import numpy as np
 from ase import Atoms
+from collections import namedtuple
 from soprano.calculate.nmr.powder import gen_pwd_ang
 
 try:
@@ -60,13 +61,27 @@ def _el_iso(sym):
 
     el = match[0][1]
     # What about the isotope?
-    iso = _nmr_data[el]['iso'] if match[0][0] == '' else match[0][0]
+    iso = str(_nmr_data[el]['iso']) if match[0][0] == '' else match[0][0]
 
     if iso not in _nmr_data[el]:
         raise ValueError('No data on isotope {0} for element {1}'.format(iso,
                                                                          el))
 
     return el, iso
+
+# Flags for what to include in spectra
+NMRFlags = namedtuple('NMRFlags',
+                      """CS_ISO
+                      CS_ORIENT
+                      CS
+                      Q_1_ORIENT
+                      Q_2_SHIFT
+                      Q_2_ORIENT
+                      Q_2
+                      Q
+                      ALL"""
+                      )
+NMRFlags = NMRFlags(1, 2, 3, 4, 8, 16, 24, 28, 31)
 
 
 class NMRCalculator(object):
@@ -241,3 +256,77 @@ class NMRCalculator(object):
         new_isos = np.where(self._elems == element, isotope, new_isos)
 
         self.set_isotopes(new_isos)
+
+    def set_single_crystal(self, theta, phi):
+        """
+        Set the orientation of the sample as a single crystallite.
+
+        | Args:
+        |   theta (float): zenithal angle for the crystallite
+        |   phi (float): azimuthal angle for the crystallite
+
+        """
+
+        p = [np.sin(theta)*np.cos(phi),
+             np.sin(theta)*np.sin(phi),
+             np.cos(theta)]
+        w = [1.0]
+        t = []
+
+        self._orients = [p, w, t]
+
+    def set_powder(self, N=8, mode='hemisphere'):
+        """
+        Set the orientation of the sample as a powder average.
+
+        | Args:
+        |   N (int): the number of subdivisions used to generate orientations
+        |            within the POWDER algorithm. Higher values make for
+        |            better but more expensive averages.
+        |   mode (str): which part of the solid angle to cover with the 
+        |               orientations. Can be 'octant', 'hemisphere' or
+        |               'sphere'. The latter should not be necessary for any
+        |               NMR interaction. Default is 'hemisphere'.
+
+        """
+
+        self._orients = gen_pwd_ang(N, mode)
+
+    def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
+                    freq_broad=None, freq_units='ppm',
+                    effects=NMRFlags.MS_SHIFT):
+        """
+        Return a simulated spectrum for the given sample and element.
+
+        <to be expanded>
+        """
+
+        # First, define the frequency range
+        e, i = _el_iso(element)
+        larm = self._B*_nmr_data[e][i]['gamma']/(2.0*np.pi*1e6)
+        # Units? We want this to be in ppm
+        u = {
+            'ppm': 1,
+            'MHz': 1e6/larm,
+        }
+        try:
+            freq_axis = np.linspace(min_freq, max_freq, bins)*u[freq_units]
+        except KeyError:
+            raise ValueError('Invalid freq_units passed to spectrum_1d')
+
+        # Ok, so get the relevant atoms and their properties
+        a_inds = np.where((self._elems == e) & (self._isos == i))[0]
+
+        if effects & NMRFlags.CS != 0:
+            try:
+                ms_tens = self._sample.get_array('ms')
+            except KeyError:
+                raise RuntimeError('Impossible to compute chemical shift - '
+                                   'sample has no shielding data')
+
+        if effects & NMRFlags.Q != 0:
+            try:
+                efg_tens = self._sample.get_array('efg')
+            except KeyError:
+                raise RuntimeError('Impossible to compute quadrupolar effects'
+                                   ' - sample has no EFG data')

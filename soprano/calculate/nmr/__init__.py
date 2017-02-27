@@ -22,4 +22,4 @@ structures with simplified algorithms.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.calculate.nmr.nmr import NMRCalculator
+from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
