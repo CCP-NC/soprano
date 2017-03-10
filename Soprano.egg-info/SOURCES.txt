@@ -9,6 +9,7 @@ soprano/selection.py
 soprano/utils.py
 soprano/data/hall2no_spgroups.json
 soprano/data/hall_2_no.json
+soprano/data/nmrdata.json
 soprano/data/vdw_jmol.json
 soprano/data/w99_parameters.json
 soprano/data/xrd_sel_rules.json

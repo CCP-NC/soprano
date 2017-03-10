@@ -30,6 +30,7 @@ import json
 import pkgutil
 import numpy as np
 from ase import Atoms
+from scipy import constants as cnst
 from collections import namedtuple
 from soprano.calculate.nmr.powder import gen_pwd_ang
 
@@ -46,6 +47,10 @@ _larm_units = {
     'MHz': lambda e, i: 2*np.pi*1.0e6/_nmr_data[e][i]['gamma'],
     'T': lambda e, i: 1.0,
 }
+
+# Conversion factor: Vzz*Q to frequency(Hz)
+_VzzQ_Hz = 1.0e-31*(cnst.m_e**3*cnst.c**4*cnst.alpha**4)\
+    / (cnst.hbar**3*2*np.pi)
 
 
 def _el_iso(sym):
@@ -294,7 +299,7 @@ class NMRCalculator(object):
 
     def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
                     freq_broad=None, freq_units='ppm',
-                    effects=NMRFlags.MS_SHIFT):
+                    effects=NMRFlags.CS_ISO):
         """
         Return a simulated spectrum for the given sample and element.
 
@@ -302,8 +307,9 @@ class NMRCalculator(object):
         """
 
         # First, define the frequency range
-        e, i = _el_iso(element)
-        larm = self._B*_nmr_data[e][i]['gamma']/(2.0*np.pi*1e6)
+        el, iso = _el_iso(element)
+        larm = self._B*_nmr_data[el][iso]['gamma']/(2.0*np.pi*1e6)
+        I = _nmr_data[el][iso]['I']
         # Units? We want this to be in ppm
         u = {
             'ppm': 1,
@@ -315,18 +321,60 @@ class NMRCalculator(object):
             raise ValueError('Invalid freq_units passed to spectrum_1d')
 
         # Ok, so get the relevant atoms and their properties
-        a_inds = np.where((self._elems == e) & (self._isos == i))[0]
+        a_inds = np.where((self._elems == el) & (self._isos == iso))[0]
 
-        if effects & NMRFlags.CS != 0:
+        if effects & NMRFlags.CS:
             try:
-                ms_tens = self._sample.get_array('ms')
+                ms_tens = self._sample.get_array('ms')[a_inds]
             except KeyError:
                 raise RuntimeError('Impossible to compute chemical shift - '
                                    'sample has no shielding data')
+            ms_evals, ms_evecs = zip(*[np.linalg.eigh(t) for t in ms_tens])
 
-        if effects & NMRFlags.Q != 0:
+        if effects & NMRFlags.Q:
             try:
-                efg_tens = self._sample.get_array('efg')
+                efg_tens = self._sample.get_array('efg')[a_inds]
             except KeyError:
                 raise RuntimeError('Impossible to compute quadrupolar effects'
                                    ' - sample has no EFG data')
+            efg_evals, efg_evecs = zip(*[np.linalg.eigh(t) for t in efg_tens])
+            efg_i = (np.arange(len(efg_evals))[:, None],
+                     np.argsort(np.abs(efg_evals), axis=1))
+            efg_evals = np.array(efg_evals)[efg_i]
+            efg_evecs = np.array(efg_evecs)[efg_i[0], :, efg_i[1]]
+            Vzz = efg_evals[:, -1]
+            eta_q = (efg_evals[:, 0]-efg_evals[:, 1])/Vzz
+            Q = _nmr_data[el][iso]['Q']
+            chi = Vzz*Q*_VzzQ_Hz
+
+        # Reference (zero if not given)
+        try:
+            ref = self._references[el][iso]
+        except KeyError:
+            ref = 0.0
+
+        # Let's start with peak positions - quantities non dependent on
+        # orientation
+
+        # Shape: atoms*1Q transitions
+        peaks = np.zeros((len(a_inds), int(2*I)))
+        # Magnetic quantum number values
+        m = np.arange(-I, I+1).astype(float)[None, :]
+
+        if effects & NMRFlags.CS_ISO:
+            peaks += np.average(ms_evals, axis=1)[:, None]
+
+        # Quadrupole second order
+        if effects & NMRFlags.Q_2_SHIFT:
+            nu_l = larm*1e6
+            # NOTE: the last factor of two in this formula was inserted
+            # despite not being present in M. J. Duer (5.9) as apparently
+            # it's a mistake in the book. Other sources (like the quadrupolar
+            # NMR online book by D. Freude and J. Haase, Dec. 2016) report
+            # this formulation, with the factor of two, instead.
+            q_shifts = np.diff(-(chi[:, None]/(4*I*(2*I-1)))**2*m/nu_l *
+                                (-0.2*(I*(I+1)-3*m**2) *
+                                    (3+eta_q[:, None]**2))*2)
+            q_shifts /= larm
+
+            peaks += q_shifts
