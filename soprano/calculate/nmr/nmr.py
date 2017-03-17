@@ -32,7 +32,7 @@ import numpy as np
 from ase import Atoms
 from scipy import constants as cnst
 from collections import namedtuple
-from soprano.calculate.nmr.powder import gen_pwd_ang
+from soprano.calculate.nmr.powder import gen_pwd_ang, pwd_avg
 
 try:
     _nmr_data = pkgutil.get_data('soprano',
@@ -378,3 +378,37 @@ class NMRCalculator(object):
             q_shifts /= larm
 
             peaks += q_shifts
+
+        # Any orientational effects at all?
+        has_orient = effects & (NMRFlags.CS_ORIENT | NMRFlags.Q_1_ORIENT |
+                                NMRFlags.Q_2_ORIENT)
+
+        if has_orient:
+            # Further expand the peaks!
+            peaks = np.repeat(
+                peaks[:, :, None], len(self._orients[0]), axis=-1)
+
+        # Now compute the orientational quantities
+        if effects & NMRFlags.CS_ORIENT:
+
+            # Compute the traceless ms tensors
+            ms_traceless = ms_tens - [np.identity(3)*np.average(ev)
+                                      for ev in ms_evals]
+            # Now get the shift contributions for each orientation
+            dirs = self._orients[0]
+
+            peaks += np.sum(dirs.T[None, :, :]*np.tensordot(ms_traceless,
+                                                            dirs,
+                                                            axes=((2), (1))),
+                            axis=1)[:, None, :]
+
+        # Finally, the overall spectrum
+        spec = np.zeros(freq_axis.shape)
+
+        for p_nuc in peaks:
+            for p_trans in p_nuc:
+                if has_orient:
+                    spec += pwd_avg(freq_axis, p_trans, self._orients[1],
+                                    self._orients[2])
+
+        return spec, freq_axis

@@ -433,7 +433,7 @@ class EFGQuaternion(AtomsProperty):
     }
 
     @staticmethod
-    @_has_ms_check
+    @_has_efg_check
     def extract(s, force_recalc):
 
         if (not s.has(EFGDiagonal.default_name + '_evecs') or

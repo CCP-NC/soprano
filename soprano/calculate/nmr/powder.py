@@ -102,3 +102,48 @@ def gen_pwd_ang(N, mode='sphere'):
     tris = uniq_inv[tris.astype(int)]
 
     return points, weights, tris
+
+
+def pwd_avg(x, freqs, weights, tris):
+
+    trifreqs = np.sort(freqs[tris], axis=1)
+    triweights = np.average(weights[tris], axis=1)
+    y = np.zeros(x.shape)
+
+    dx = np.array([-x[1]+x[0], x[1]-x[0]])
+    rects = np.repeat(dx[None, :]/2.0, len(y), axis=0) + x[:, None]
+
+    # Make a matrix of 5-arrays (first 3 are tri, latter 2 are rect)
+    trirect_mat = np.concatenate([np.repeat(trifreqs[:, None, :], len(rects),
+                                            axis=1),
+                                  np.repeat(rects[None, :, :], len(trifreqs),
+                                            axis=0)],
+                                 axis=2)
+
+    # Now compute the contribution for each pair of triangle+rectangle
+
+    with np.errstate(divide='ignore'):
+        sl1 = 2.0/((trirect_mat[:, :, 2]-trirect_mat[:, :, 0])
+                   * (trirect_mat[:, :, 1]-trirect_mat[:, :, 0]))
+        sl2 = 2.0/((trirect_mat[:, :, 2]-trirect_mat[:, :, 0])
+                   * (trirect_mat[:, :, 2]-trirect_mat[:, :, 1]))
+
+    # Fix NaNs and Infs
+    sl1 = np.where(np.isnan(sl1) | np.isinf(sl1), 0, sl1)
+    sl2 = np.where(np.isnan(sl2) | np.isinf(sl2), 0, sl2)
+
+    f123 = np.clip(trirect_mat[:, :, :3], trirect_mat[:, :, 3, None],
+                   trirect_mat[:, :, 4, None])
+
+    ymat = np.where((trirect_mat[:, :, 0] > trirect_mat[:, :, 4]) |
+                    (trirect_mat[:, :, 2] < trirect_mat[:, :, 3]),
+                    0.0,
+                    ((f123[:, :, 1]-trirect_mat[:, :, 0])**2
+                     - (f123[:, :, 0]-trirect_mat[:, :, 0])**2)*0.5*sl1 +
+                    ((-f123[:, :, 1]+trirect_mat[:, :, 2])**2
+                     - (-f123[:, :, 2]+trirect_mat[:, :, 2])**2)*0.5*sl2)
+    ymat *= triweights[:, None]
+
+    y = np.sum(ymat, axis=0)
+
+    return y
