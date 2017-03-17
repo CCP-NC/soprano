@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 import numpy as np
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                                          _span, _skew)
+                                          _span, _skew, _evecs_2_quat)
 
 
 def _has_ms_check(f):
@@ -46,13 +46,13 @@ class MSDiagonal(AtomsProperty):
 
     Produces an array containing eigenvalues and eigenvectors for the
     symmetric part of each magnetic shielding tensor in the system. By default
-    saves them as part of the Atoms' info as well.
+    saves them as part of the Atoms' arrays as well.
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
     | Parameters:
-    |   save_info (bool): if True, save the diagonalised tensors in the
-    |                     Atoms object's info. By default True.
+    |   save_array (bool): if True, save the diagonalised tensors in the
+    |                      Atoms object as an array. By default True.
 
     | Returns:
     |   ms_diag (np.ndarray): list of eigenvalues and eigenvectors
@@ -61,22 +61,22 @@ class MSDiagonal(AtomsProperty):
 
     default_name = 'ms_diagonal'
     default_params = {
-        'save_info': True
+        'save_array': True
     }
 
     @staticmethod
     @_has_ms_check
-    def extract(s, save_info):
+    def extract(s, save_array):
 
         ms_diag = [np.linalg.eigh((ms+ms.T)/2.0) for ms in s.get_array('ms')]
         ms_evals, ms_evecs = [np.array(a) for a in zip(*ms_diag)]
 
-        if save_info:
-            s.info[MSDiagonal.default_name + '_evals'] = ms_evals
+        if save_array:
+            s.set_array(MSDiagonal.default_name + '_evals', ms_evals)
             # Store also the Haeberlen sorted version
-            s.info[MSDiagonal.default_name +
-                   '_evals_hsort'] = _haeb_sort(ms_evals)
-            s.info[MSDiagonal.default_name + '_evecs'] = ms_evecs
+            s.set_array(MSDiagonal.default_name +
+                        '_evals_hsort', _haeb_sort(ms_evals))
+            s.set_array(MSDiagonal.default_name + '_evecs', ms_evecs)
 
         return np.array([dict(zip(('evals', 'evecs'), ms)) for ms in ms_diag])
 
@@ -146,11 +146,11 @@ class MSAnisotropy(AtomsProperty):
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if ((not MSDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             MSDiagonal.get(s)
 
-        ms_evals = s.info[MSDiagonal.default_name + '_evals_hsort']
+        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
 
         return _anisotropy(ms_evals)
 
@@ -183,11 +183,11 @@ class MSReducedAnisotropy(AtomsProperty):
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if ((not MSDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             MSDiagonal.get(s)
 
-        ms_evals = s.info[MSDiagonal.default_name + '_evals_hsort']
+        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
 
         return _anisotropy(ms_evals, reduced=True)
 
@@ -220,11 +220,11 @@ class MSAsymmetry(AtomsProperty):
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if ((not MSDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             MSDiagonal.get(s)
 
-        ms_evals = s.info[MSDiagonal.default_name + '_evals_hsort']
+        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
 
         return _asymmetry(ms_evals)
 
@@ -257,11 +257,11 @@ class MSSpan(AtomsProperty):
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if ((not MSDiagonal.default_name + '_evals' in s.info) or
+        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             MSDiagonal.get(s)
 
-        ms_evals = s.info[MSDiagonal.default_name + '_evals']
+        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
 
         return _span(ms_evals)
 
@@ -294,10 +294,47 @@ class MSSkew(AtomsProperty):
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if ((not MSDiagonal.default_name + '_evals' in s.info) or
+        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             MSDiagonal.get(s)
 
-        ms_evals = s.info[MSDiagonal.default_name + '_evals']
+        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
 
         return _skew(ms_evals)
+
+
+class MSQuaternion(AtomsProperty):
+
+    """
+    MSQuaternion
+
+    Produces a list of ase.Quaternion objects expressing the orientation of
+    the MS tensors with respect to the cartesian axes.
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+
+    | Returns:
+    |   ms_quat (np.ndarray): list of quaternions
+
+    """
+
+    default_name = 'ms_quats'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, force_recalc):
+
+        if (not s.has(MSDiagonal.default_name + '_evecs') or
+                force_recalc):
+            MSDiagonal.get(s)
+
+        ms_evecs = s.get_array(MSDiagonal.default_name + '_evecs')
+
+        return _evecs_2_quat(ms_evecs)

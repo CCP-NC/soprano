@@ -29,7 +29,7 @@ import numpy as np
 from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                                          _span, _skew)
+                                          _span, _skew, _evecs_2_quat)
 
 
 try:
@@ -58,13 +58,13 @@ class EFGDiagonal(AtomsProperty):
 
     Produces an array containing eigenvalues and eigenvectors for the
     symmetric part of each EFG tensor in the system. By default
-    saves them as part of the Atoms' info as well.
+    saves them as part of the Atoms' arrays as well.
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
     | Parameters:
-    |   save_info (bool): if True, save the diagonalised tensors in the
-    |                     Atoms object's info. By default True.
+    |   save_array (bool): if True, save the diagonalised tensors in the
+    |                      Atoms object as an array. By default True.
 
     | Returns:
     |   efg_diag (np.ndarray): list of eigenvalues and eigenvectors
@@ -73,23 +73,23 @@ class EFGDiagonal(AtomsProperty):
 
     default_name = 'efg_diagonal'
     default_params = {
-        'save_info': True
+        'save_array': True
     }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, save_info):
+    def extract(s, save_array):
 
         efg_diag = [np.linalg.eigh((efg+efg.T)/2.0)
                     for efg in s.get_array('efg')]
         efg_evals, efg_evecs = [np.array(a) for a in zip(*efg_diag)]
 
-        if save_info:
-            s.info[EFGDiagonal.default_name + '_evals'] = efg_evals
+        if save_array:
+            s.set_array(EFGDiagonal.default_name + '_evals', efg_evals)
             # Store also the Haeberlen sorted version
-            s.info[EFGDiagonal.default_name +
-                   '_evals_hsort'] = _haeb_sort(efg_evals)
-            s.info[EFGDiagonal.default_name + '_evecs'] = efg_evecs
+            s.set_array(EFGDiagonal.default_name +
+                        '_evals_hsort', _haeb_sort(efg_evals))
+            s.set_array(EFGDiagonal.default_name + '_evecs', efg_evecs)
 
         return np.array([dict(zip(('evals', 'evecs'), efg))
                          for efg in efg_diag])
@@ -122,11 +122,11 @@ class EFGVzz(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if ((not EFGDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
-        efg_evals = s.info[EFGDiagonal.default_name + '_evals_hsort']
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return efg_evals[:, -1]
 
@@ -159,11 +159,11 @@ class EFGAnisotropy(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if ((not EFGDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
-        efg_evals = s.info[EFGDiagonal.default_name + '_evals_hsort']
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return _anisotropy(efg_evals)
 
@@ -196,11 +196,11 @@ class EFGReducedAnisotropy(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if ((not EFGDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
-        efg_evals = s.info[EFGDiagonal.default_name + '_evals_hsort']
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return _anisotropy(efg_evals, reduced=True)
 
@@ -233,11 +233,11 @@ class EFGAsymmetry(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if ((not EFGDiagonal.default_name + '_evals_hsort' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
-        efg_evals = s.info[EFGDiagonal.default_name + '_evals_hsort']
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return _asymmetry(efg_evals)
 
@@ -270,11 +270,11 @@ class EFGSpan(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if ((not EFGDiagonal.default_name + '_evals' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
-        efg_evals = s.info[EFGDiagonal.default_name + '_evals']
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return _span(efg_evals)
 
@@ -307,11 +307,11 @@ class EFGSkew(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if ((not EFGDiagonal.default_name + '_evals' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
-        efg_evals = s.info[EFGDiagonal.default_name + '_evals']
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return _skew(efg_evals)
 
@@ -359,7 +359,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
     @_has_efg_check
     def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
 
-        if ((not EFGDiagonal.default_name + '_evals' in s.info) or
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
                 force_recalc):
             EFGDiagonal.get(s)
 
@@ -406,3 +406,40 @@ class EFGQuadrupolarConstant(AtomsProperty):
                                     'gradient'][0]*cnst.e*1e-28/cnst.h
 
         return k*q_list*EFGVzz.get(s)
+
+
+class EFGQuaternion(AtomsProperty):
+
+    """
+    EFGQuaternion
+
+    Produces a list of ase.Quaternion objects expressing the orientation of
+    the EFG tensors with respect to the cartesian axes.
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+
+    | Returns:
+    |   ms_quat (np.ndarray): list of quaternions
+
+    """
+
+    default_name = 'efg_quats'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, force_recalc):
+
+        if (not s.has(EFGDiagonal.default_name + '_evecs') or
+                force_recalc):
+            EFGDiagonal.get(s)
+
+        efg_evecs = s.get_array(EFGDiagonal.default_name + '_evecs')
+
+        return _evecs_2_quat(efg_evecs)

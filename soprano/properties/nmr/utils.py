@@ -17,6 +17,7 @@
 """Utility functions for NMR-related properties"""
 
 import numpy as np
+from ase.quaternions import Quaternion
 
 
 def _haeb_sort(evals):
@@ -43,12 +44,25 @@ def _asymmetry(haeb_evals):
     return (haeb_evals[:, 1]-haeb_evals[:, 0])/_anisotropy(haeb_evals,
                                                            reduced=True)
 
+
 def _span(evals):
     """Calculate span"""
 
-    return evals[:,2]-evals[:,0]
+    return evals[:, 2]-evals[:, 0]
+
 
 def _skew(evals):
     """Calculate skew"""
 
-    return 3*(evals[:,1]-np.average(evals, axis=1))/_span(evals)
+    return 3*(evals[:, 1]-np.average(evals, axis=1))/_span(evals)
+
+
+def _evecs_2_quat(evecs):
+    """Convert a set of eigenvectors to a Quaternion expressing the
+    rotation of the tensor's PAS with respect to the Cartesian axes"""
+
+    # First, guarantee that the eigenvectors express *proper* rotations
+    evecs = np.array(evecs)*np.linalg.det(evecs)[:, None, None]
+
+    # Then get the quaternions
+    return [Quaternion.from_matrix(evs.T) for evs in evecs]
