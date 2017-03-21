@@ -48,6 +48,7 @@ class QueueInterface(object):
     - LSF (IBM's managing system, using the command bsub)
     - GridEngine (Sun's managing system, also available in an open version,
                   using the command qsub)
+    - PBS (another managing system using qsub)
     """
 
     def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre):
