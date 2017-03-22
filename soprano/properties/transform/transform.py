@@ -233,7 +233,8 @@ class Mirror(AtomsProperty):
 
             # Find the components of the position vectors normal to the plane
             nu = plane[:3]/np.linalg.norm(plane[:3])
-            norm_pos = (np.dot(pos[selection.indices], plane[:3])+plane[3])*nu
+            norm_pos = (np.dot(pos[selection.indices],
+                               plane[:3])+plane[3])[:, None]*nu
             pos[selection.indices] = pos[selection.indices] - 2*norm_pos
 
         if not scaled:
