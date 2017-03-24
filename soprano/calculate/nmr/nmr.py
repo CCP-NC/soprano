@@ -81,12 +81,29 @@ NMRFlags = namedtuple('NMRFlags',
                       CS
                       Q_1_ORIENT
                       Q_2_SHIFT
-                      Q_2_ORIENT
-                      Q_2
-                      Q
-                      ALL"""
+                      Q_2_ORIENT_STATIC
+                      Q_2_ORIENT_MAS
+                      Q_2_STATIC
+                      Q_2_MAS
+                      Q_STATIC
+                      Q_MAS
+                      STATIC
+                      MAS"""
                       )
-NMRFlags = NMRFlags(1, 2, 3, 4, 8, 16, 24, 28, 31)
+NMRFlags = NMRFlags(
+    CS_ISO=1,
+    CS_ORIENT=2,
+    CS=1+2,
+    Q_1_ORIENT=4,
+    Q_2_SHIFT=8,
+    Q_2_ORIENT_STATIC=16,
+    Q_2_ORIENT_MAS=32,
+    Q_2_STATIC=8+16,
+    Q_2_MAS=8+32,
+    Q_STATIC=4+8+16,
+    Q_MAS=8+32,
+    STATIC=1+2+4+8+16,
+    MAS=1+8+32)
 
 
 class NMRCalculator(object):
@@ -323,6 +340,11 @@ class NMRCalculator(object):
         # Ok, so get the relevant atoms and their properties
         a_inds = np.where((self._elems == el) & (self._isos == iso))[0]
 
+        # Are there even any such atoms?
+        if len(a_inds) == 0:
+            raise RuntimeError('No atoms of the desired isotopes found in the'
+                               ' system')
+
         if effects & NMRFlags.CS:
             try:
                 ms_tens = self._sample.get_array('ms')[a_inds]
@@ -331,7 +353,7 @@ class NMRCalculator(object):
                                    'sample has no shielding data')
             ms_evals, ms_evecs = zip(*[np.linalg.eigh(t) for t in ms_tens])
 
-        if effects & NMRFlags.Q:
+        if effects & (NMRFlags.Q_STATIC | NMRFlags.Q_MAS):
             try:
                 efg_tens = self._sample.get_array('efg')[a_inds]
             except KeyError:
@@ -381,7 +403,8 @@ class NMRCalculator(object):
 
         # Any orientational effects at all?
         has_orient = effects & (NMRFlags.CS_ORIENT | NMRFlags.Q_1_ORIENT |
-                                NMRFlags.Q_2_ORIENT)
+                                NMRFlags.Q_2_ORIENT_STATIC |
+                                NMRFlags.Q_2_ORIENT_MAS)
 
         if has_orient:
             # Further expand the peaks!
@@ -402,6 +425,24 @@ class NMRCalculator(object):
                                                             axes=((2), (1))),
                             axis=1)[:, None, :]
 
+        if effects & NMRFlags.Q_1_ORIENT:
+
+            # First order quadrupolar anisotropic effects
+            # We consider the field aligned along Z
+            cosb2 = self._orients[0][:, 1]**2
+            sinb2 = 1.0 - cosb2
+            cosa2 = self._orients[0][:, 0]**2
+
+            dir_fac = 0.5*((3*cosb2[None, :]-1) +
+                           eta_q[:, None]*sinb2[None, :]*(2*cosa2[None, :]
+                                                          - 1.0))
+            m_fac = m[:, :-1]+0.5
+            nu_q = chi*1.5/(I*(2*I-1.0))
+
+            qfreqs = nu_q[:, None, None]*m_fac[:, :, None]*dir_fac[:, None, :]
+
+            peaks += qfreqs/larm # Already ppm being Hz/MHz
+
         # Finally, the overall spectrum
         spec = np.zeros(freq_axis.shape)
 
@@ -410,5 +451,8 @@ class NMRCalculator(object):
                 if has_orient:
                     spec += pwd_avg(freq_axis, p_trans, self._orients[1],
                                     self._orients[2])
+
+        # Normalize the spectrum to the number of nuclei
+        spec *= len(a_inds)*len(spec)/np.sum(spec)
 
         return spec, freq_axis

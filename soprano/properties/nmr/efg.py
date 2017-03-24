@@ -325,6 +325,16 @@ class EFGQuadrupolarConstant(AtomsProperty):
     in a system. The constant will be zero for non-quadrupole active nuclei.
     Unless specified otherwise, the quadrupole moment of the most common
     NMR-active isotope is used.
+    For reference: the value returned by this property is defined as
+
+    e^2qQ
+    -----
+      h
+
+    in Hz. It is important to keep in mind that therefore this represents a 
+    *frequency*; the corresponding 'omega' (pulsation) would be the same value
+    multiplied by 2*pi. This is, for example, exactly the value required as
+    input in Simpson's SPINSYS section.
 
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
@@ -403,7 +413,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
 
         # Conversion constant
         k = cnst.physical_constants['atomic unit of electric field '
-                                    'gradient'][0]*cnst.e*1e-28/cnst.h
+                                    'gradient'][0]*cnst.e*1e-31/cnst.h
 
         return k*q_list*EFGVzz.get(s)
 
