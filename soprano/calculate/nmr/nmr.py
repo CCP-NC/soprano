@@ -52,6 +52,38 @@ _larm_units = {
 _VzzQ_Hz = 1.0e-31*(cnst.m_e**3*cnst.c**4*cnst.alpha**4)\
     / (cnst.hbar**3*2*np.pi)
 
+# Function used for second-order quadrupolar shift
+# Arguments: cos(2*alpha), eta
+
+
+def _st_A(c2a, eta):
+    return -27.0/8.0-9.0/4.0*eta*c2a-3.0/8.0*eta**2*c2a**2
+
+
+def _st_B(c2a, eta):
+    return 15.0/4.0-0.5*eta**2+2*eta*c2a+0.75*eta**2*c2a**2
+
+
+def _st_C(c2a, eta):
+    return -23.0/40.0+14.0/15.0*eta**2+0.25*eta*c2a-3.0/8.0*eta**2*c2a**2
+
+
+def _mas_A(c2a, eta):
+    return 21.0/16.0-7.0/7.0*eta*c2a+7.0/48.0*eta**2*c2a**2
+
+
+def _mas_B(c2a, eta):
+    return -9.0/8.0+1.0/12.0*eta**2+eta*c2a-7.0/24.0*eta**2*c2a**2
+
+
+def _mas_C(c2a, eta):
+    return 9.0/80.0-1.0/15.0*eta**2-0.125*eta*c2a+7.0/48.0*eta**2*c2a**2
+
+
+def _gfunc(ca, cb, eta, A, B, C):
+    c2a = 2*ca**2-1
+    return A(c2a, eta)*cb**4+B(c2a, eta)*cb**2+C(c2a, eta)
+
 
 def _el_iso(sym):
     """ Utility function: split isotope and element in conventional
@@ -345,6 +377,13 @@ class NMRCalculator(object):
             raise RuntimeError('No atoms of the desired isotopes found in the'
                                ' system')
 
+        # Sanity check
+        if (effects & NMRFlags.Q_2_ORIENT_STATIC and
+                effects & NMRFlags.Q_2_ORIENT_MAS):
+            # Makes no sense...
+            raise ValueError('The flags Q_2_ORIENT_STATIC and Q_2_ORIENT_MAS'
+                             ' can not be set at the same time')
+
         if effects & NMRFlags.CS:
             try:
                 ms_tens = self._sample.get_array('ms')[a_inds]
@@ -441,7 +480,29 @@ class NMRCalculator(object):
 
             qfreqs = nu_q[:, None, None]*m_fac[:, :, None]*dir_fac[:, None, :]
 
-            peaks += qfreqs/larm # Already ppm being Hz/MHz
+            peaks += qfreqs/larm  # Already ppm being Hz/MHz
+
+        if effects & (NMRFlags.Q_2_ORIENT_STATIC | NMRFlags.Q_2_ORIENT_MAS):
+            # Which one?
+            if effects & NMRFlags.Q_2_ORIENT_STATIC:
+                ABC = [_st_A, _st_B, _st_C]
+            else:
+                ABC = [_mas_A, _mas_B, _mas_C]
+
+            cosa = self._orients[0][:, 0]
+            cosb = self._orients[0][:, 1]
+
+            dir_fac = _gfunc(cosa[None, :], cosb[None, :], eta_q[:, None],
+                             *ABC)
+
+            m_fac = I*(I+1.0)-17.0/3.0*m[:, :-1]*(m[:, :-1]+1)-13.0/6.0
+            nu_q = chi*1.5/(I*(2*I-1.0))
+
+            qfreqs = -((nu_q**2/(6.0*larm*1e6))[:, None, None]
+                       * m_fac[:, :, None]
+                       * dir_fac[:, None, :])
+
+            peaks += qfreqs/larm
 
         # Finally, the overall spectrum
         spec = np.zeros(freq_axis.shape)
@@ -451,6 +512,21 @@ class NMRCalculator(object):
                 if has_orient:
                     spec += pwd_avg(freq_axis, p_trans, self._orients[1],
                                     self._orients[2])
+
+        if freq_broad is None and not has_orient:
+            print('WARNING: no artificial broadening detected in a calculation'
+                  ' without line-broadening contributions. The spectrum could '
+                  'appear distorted or empty')
+
+        if freq_broad is not None:
+            if has_orient:
+                fc = (max_freq+min_freq)/2.0
+                bk = np.exp(-((freq_axis-fc)/freq_broad)**2.0)
+                bk /= np.sum(bk)
+                spec = np.convolve(spec, bk, mode='same')
+            else:
+                spec = np.sum(np.exp(-((freq_axis-peaks[:, :, None])
+                                       / freq_broad)**2), axis=(0, 1))
 
         # Normalize the spectrum to the number of nuclei
         spec *= len(a_inds)*len(spec)/np.sum(spec)
