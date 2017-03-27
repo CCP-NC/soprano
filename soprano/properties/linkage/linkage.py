@@ -479,6 +479,14 @@ class MoleculeCOM(AtomsProperty):
     default will use already existing molecules if they're present as a saved
     array in the system.
 
+    | Parameters:    
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+
+    | Return:
+    |   mol_com (np.ndarray): list of centers of mass for the system's
+    |                         molecules
+
     """
 
     default_name = 'molecule_com'
@@ -573,6 +581,82 @@ class MoleculeCOMLinkage(AtomsProperty):
         return link_list
 
 
+class MoleculeQuaternion(AtomsProperty):
+
+    """
+    MoleculeQuaternion
+
+    A list of quaternions expressing the rotation of the molecule's intertia
+    tensor principal frame with respect to the cartesian axes.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+
+    | Returns:
+    |   mol_quat ([ase.Quaternion]): list of quaternions
+
+    """
+
+    default_name = 'molecule_quaternion'
+    default_params = {
+        'force_recalc': False,
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        if Molecules.default_name not in s.info or force_recalc:
+            Molecules.get(s)
+
+        mol_quat = []
+        all_m = s.get_masses()
+        all_pos = s.get_positions()
+
+        for mol in s.info[Molecules.default_name]:
+
+            mol_pos = all_pos[mol.indices]
+            mol_pos += np.tensordot(mol.get_array('cell_indices'),
+                                    s.get_cell(),
+                                    axes=(1, 1))
+            mol_ms = all_m[mol.indices]
+
+            # We still need to correct the positions with the COM
+            mol_com = np.sum(mol_pos*mol_ms[:, None],
+                             axis=0)/np.sum(mol_ms)
+            mol_pos -= mol_com
+
+            tens_i = np.identity(3)[None, :, :] * \
+                np.linalg.norm(mol_pos, axis=1)[:, None, None]**2
+
+            tens_i -= mol_pos[:, None, :]*mol_pos[:, :, None]
+            tens_i *= mol_ms[:, None, None]
+            tens_i = np.sum(tens_i, axis=0)
+
+            evals, evecs = np.linalg.eigh(tens_i)
+            # General ordering convention: we want the component of the
+            # longest position to be positive along evecs_0, and the component
+            # of the second longest (and non-parallel) position to be positive
+            # along evecs_1, and the triple to be right-handed of course.
+            mol_pos = sorted(mol_pos, key=lambda x: -np.linalg.norm(x))
+            if len(mol_pos) > 1:
+                evecs[0] *= np.sign(np.dot(evecs[0], mol_pos[0]))
+            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos,
+                                                      mol_pos[0])) > 0)[0]
+            if len(e1dirs) > 0:
+                evecs[1] *= np.sign(np.dot(evecs[1], mol_pos[e1dirs[0]]))
+            evecs[2] *= np.sign(np.dot(evecs[2],
+                                       np.cross(evecs[0], evecs[1])))
+            # Evecs must be proper
+            evecs /= np.linalg.det(evecs)
+
+            quat = Quaternion()
+            quat = quat.from_matrix(evecs.T)
+            mol_quat.append(quat)
+
+        return mol_quat
+
+
 class MoleculeRelativeRotation(AtomsProperty):
 
     """
@@ -628,54 +712,13 @@ class MoleculeRelativeRotation(AtomsProperty):
         if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
-        mol_quat = []
-        all_m = s.get_masses()
-        all_pos = s.get_positions()
+        mol_quat = [q.q for q in MoleculeQuaternion.get(s)]
 
-        for mol in s.info[Molecules.default_name]:
-
-            mol_pos = all_pos[mol.indices]
-            mol_pos += np.tensordot(mol.get_array('cell_indices'),
-                                    s.get_cell(),
-                                    axes=(1, 1))
-            mol_ms = all_m[mol.indices]
-
-            # We still need to correct the positions with the COM
-            mol_com = np.sum(mol_pos*mol_ms[:, None],
-                             axis=0)/np.sum(mol_ms)
-            mol_pos -= mol_com
-
-            tens_i = np.identity(3)[None, :, :] * \
-                np.linalg.norm(mol_pos, axis=1)[:, None, None]**2
-
-            tens_i -= mol_pos[:, None, :]*mol_pos[:, :, None]
-            tens_i *= mol_ms[:, None, None]
-            tens_i = np.sum(tens_i, axis=0)
-
-            evals, evecs = np.linalg.eigh(tens_i)
-            # General ordering convention: we want the component of the
-            # longest position to be positive along evecs_0, and the component
-            # of the second longest (and non-parallel) position to be positive
-            # along evecs_1, and the triple to be right-handed of course.
-            mol_pos = sorted(mol_pos, key=lambda x: -np.linalg.norm(x))
-            if len(mol_pos) > 1:
-                evecs[0] *= np.sign(np.dot(evecs[0], mol_pos[0]))
-            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos,
-                                                      mol_pos[0])) > 0)[0]
-            if len(e1dirs) > 0:
-                evecs[1] *= np.sign(np.dot(evecs[1], mol_pos[e1dirs[0]]))
-            evecs[2] *= np.sign(np.dot(evecs[2],
-                                       np.cross(evecs[0], evecs[1])))
-            # Evecs must be proper
-            evecs /= np.linalg.det(evecs)
-
-            quat = Quaternion()
-            quat = quat.from_matrix(evecs.T)
+        for i, quat in enumerate(mol_quat):
             if swing_plane is not None:
-                quat, dummy = swing_twist_decomp(quat, swing_plane)
+                mol_quat[i], dummy = swing_twist_decomp(quat, swing_plane)
             elif twist_axis is not None:
-                dummy, quat = swing_twist_decomp(quat, twist_axis)
-            mol_quat.append(quat.q)
+                dummy, mol_quat[i] = swing_twist_decomp(quat, twist_axis)
 
         # Safety check
         if len(mol_quat) < 2:
