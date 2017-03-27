@@ -470,6 +470,45 @@ class MoleculeMass(AtomsProperty):
         return mol_m
 
 
+class MoleculeCOM(AtomsProperty):
+
+    """
+    MoleculeCOM
+
+    List of centers of mass for the molecules present in the system. By
+    default will use already existing molecules if they're present as a saved
+    array in the system.
+
+    """
+
+    default_name = 'molecule_com'
+    default_params = {
+        'force_recalc': False,
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        if Molecules.default_name not in s.info or force_recalc:
+            Molecules.get(s)
+
+        mol_com = []
+        all_m = s.get_masses()
+        all_pos = s.get_positions()
+
+        for mol in s.info[Molecules.default_name]:
+
+            mol_pos = all_pos[mol.indices]
+            mol_pos += np.tensordot(mol.get_array('cell_indices'),
+                                    s.get_cell(),
+                                    axes=(1, 1))
+            mol_ms = all_m[mol.indices]
+            mol_com.append(np.sum(mol_pos*mol_ms[:, None],
+                                  axis=0)/np.sum(mol_ms))
+
+        return np.array(mol_com)
+
+
 class MoleculeCOMLinkage(AtomsProperty):
 
     """
@@ -506,19 +545,7 @@ class MoleculeCOMLinkage(AtomsProperty):
         if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
 
-        mol_com = []
-        all_m = s.get_masses()
-        all_pos = s.get_positions()
-
-        for mol in s.info[Molecules.default_name]:
-
-            mol_pos = all_pos[mol.indices]
-            mol_pos += np.tensordot(mol.get_array('cell_indices'),
-                                    s.get_cell(),
-                                    axes=(1, 1))
-            mol_ms = all_m[mol.indices]
-            mol_com.append(np.sum(mol_pos*mol_ms[:, None],
-                                  axis=0)/np.sum(mol_ms))
+        mol_com = MoleculeCOM.get(s)
 
         # Safety check
         if len(mol_com) < 2:
