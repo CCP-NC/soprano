@@ -40,7 +40,7 @@ from soprano.utils import minimum_supcell, supcell_gridgen
 def _operator_checks(opfunc):
 
     def decorated_opfunc(self, other):
-        if type(other) is not AtomSelection:
+        if not isinstance(other, AtomSelection):
             raise TypeError('AtomSelection does not support operations with'
                             ' different types')
 
@@ -188,6 +188,14 @@ class AtomSelection(object):
         # Join
         ans = copy.deepcopy(self)
         ans._indices = np.array(list(set(self.indices).union(other.indices)))
+        # For the arrays:
+        # only join the ones present in BOTH selections
+        common_k = set(self._arrays.keys()
+                       ).intersection(set(other._arrays.keys()))
+        ans._arrays = {}
+        for k in common_k:
+            ans._arrays[k] = np.concatenate((self._arrays[k],
+                                             other._arrays[k]))
 
         return ans
 
@@ -197,6 +205,11 @@ class AtomSelection(object):
         # Difference
         ans = copy.deepcopy(self)
         ans._indices = np.array(list(set(self.indices)-set(other.indices)))
+        # For the arrays:
+        # keep them but remove the removed indices
+        arr_i = [np.where(self.indices == i)[0][0] for i in ans._indices]
+        for k in ans._arrays:
+            ans._arrays[k] = ans._arrays[k][arr_i]
 
         return ans
 
@@ -207,6 +220,33 @@ class AtomSelection(object):
         ans = copy.deepcopy(self)
         ans._indices = np.array(list(set(self.indices)
                                      .intersection(other.indices)))
+        # For the arrays:
+        # keep the ones present in either selection,
+        # but only the relevant indices of course,
+        # and remove if conflicting!
+        all_k = set(self._arrays.keys() + other._arrays.keys())
+        arr1_i = [np.where(self.indices == i)[0][0] for i in ans._indices]
+        arr2_i = [np.where(other.indices == i)[0][0] for i in ans._indices]
+        ans._arrays = {}
+        for k in all_k:
+            try:
+                arr1 = self._arrays[k][arr1_i]
+            except KeyError:
+                arr1 = None
+            try:
+                arr2 = other._arrays[k][arr2_i]
+            except KeyError:
+                arr2 = None
+
+            if arr1 is not None and arr2 is not None:
+                # Do they conflict?
+                if not np.all(arr1 == arr2):
+                    print(('WARNING - conflicting arrays of name {0} found'
+                           ' will be removed during intersection'
+                           ' operation').format(k))
+                    continue
+
+            ans._arrays[k] = arr1 if arr1 is not None else arr2
 
         return ans
 
