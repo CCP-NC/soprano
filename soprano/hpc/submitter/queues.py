@@ -52,7 +52,8 @@ class QueueInterface(object):
     - PBS (another managing system using qsub)
     """
 
-    def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre):
+    def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre,
+                 list_user_opt=None):
         """Initialize the QueueInterface.
 
         | Args:
@@ -65,6 +66,12 @@ class QueueInterface(object):
         |   list_outre (str): regular expression used to parse the output of
         |                     list_cmd. Must contain at least a job_id named
         |                     group
+        |   list_user_opt (Optional[str]): name of the option for passing a
+        |                                  specific user name when listing
+        |                                  jobs. For example, on LSF this is
+        |                                  -u. By default it's None, and the 
+        |                                  default of the queueing system is
+        |                                  used.
 
         """
 
@@ -78,6 +85,8 @@ class QueueInterface(object):
         self.list_outre = re.compile(list_outre)
         if 'job_id' not in self.list_outre.groupindex:
             raise ValueError('list_outre does not contain job_id group')
+
+        self.list_user_opt = list_user_opt
 
         self._rTarg = None
 
@@ -138,22 +147,31 @@ class QueueInterface(object):
         else:
             return match.groupdict()['job_id']
 
-    def list(self):
+    def list(self, user='$USER'):
         """List all jobs found in the queue
 
         | Returns:
         |   jobs (dict): a dict of jobs classified by ID containing all info
         |                that can be matched through list_outre
+        |   user (Optional[str]): user for whom jobs should be listed. Will
+        |                         not have any effect if list_user_opt has not
+        |                         been specified. Default is $USER.
         |
+
         """
+
+        cmd = self.list_cmd
+        if self.list_user_opt is not None:
+            cmd += ' {0} {1}'.format(self.list_user_opt, user)
+
         if self._rTarg is None:
-            subproc = sp.Popen(self.list_cmd.split(), stdout=sp.PIPE,
+            subproc = sp.Popen(cmd.split(), stdout=sp.PIPE,
                                stderr=sp.PIPE)
 
             stdout, stderr = safe_communicate(subproc)
         else:
             with self._rTarg.context as rTarg:
-                stdout, stderr = rTarg.run_cmd(self.list_cmd)
+                stdout, stderr = rTarg.run_cmd(cmd)
 
         # Parse out everything!
         jobs = {}
@@ -192,7 +210,8 @@ class QueueInterface(object):
                    kill_cmd='bkill',
                    sub_outre='Job \<(?P<job_id>[0-9]+)\>',
                    list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
-                              '(?P<job_status>RUN|PEND)')
+                              '(?P<job_status>RUN|PEND)',
+                   list_user_opt='-u')
 
     @classmethod
     def GridEngine(cls):
@@ -201,7 +220,8 @@ class QueueInterface(object):
                    kill_cmd='qdel',
                    sub_outre='Your job (?P<job_id>[0-9]+)',
                    list_outre='(?P<job_id>[0-9]+)\s.*'
-                              '\s(?P<job_status>r|qw)\s')
+                              '\s(?P<job_status>r|qw)\s',
+                   list_user_opt='-u')
 
     @classmethod
     def PBS(cls):
@@ -210,4 +230,5 @@ class QueueInterface(object):
                    kill_cmd='qdel',
                    sub_outre='(?P<job_id>[^\s]+)',
                    list_outre='(?P<job_id>[^\s]+)\s.*'
-                              '\s(?P<job_status>R|Q)\s')
+                              '\s(?P<job_status>R|Q)\s',
+                   list_user_opt='-u')
