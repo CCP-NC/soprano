@@ -29,6 +29,8 @@ try:
 except ImportError:
     pmk = None
 import os
+import glob
+import fnmatch
 
 
 class RemoteTarget(object):
@@ -98,6 +100,17 @@ class RemoteTarget(object):
         return RemoteTargetContext(self)
 
 
+def _ensure_open_sftp(f):
+    """Decorator for SFTP related functions in RemoteTargetContext"""
+
+    def sftp_checked(self, *args, **kwargs):
+        if self._sftp is None:
+            self._sftp = self._client.open_sftp()
+        return f(self, *args, **kwargs)
+
+    return sftp_checked
+
+
 class RemoteTargetContext(object):
 
     """RemoteTargetContext object
@@ -110,6 +123,7 @@ class RemoteTargetContext(object):
     def __init__(self, rT):
         self._client = rT._client
         self._connect_args = rT._connect_args
+        self._sftp = None
 
     def __enter__(self):
         # Open the connection
@@ -118,6 +132,8 @@ class RemoteTargetContext(object):
 
     def __exit__(self, type, value, traceback):
         # Make sure the connection is closed
+        if self._sftp is not None:
+            self._sftp.close()
         self._client.close()
 
     def run_cmd(self, cmd, cwd=None, stdin=None):
@@ -150,3 +166,41 @@ class RemoteTargetContext(object):
             _stdin.channel.shutdown_write()
 
         return _stdout.read(), _stderr.read()
+
+    @_ensure_open_sftp
+    def put_files(self, localpath, remotedir):
+        """
+        Copy files to the remote machine via SFTP.
+
+        | Args:
+        |   localpath (str): path of file(s) to copy. Can include wildcards.
+        |   remotedir (str): remote directory to copy the file(s) into.        
+
+        """
+
+        files = glob.glob(localpath)
+
+        for f in files:
+            _, fname = os.path.split(f)
+            self._sftp.put(f, os.path.join(remotedir, fname), confirm=True)
+
+    @_ensure_open_sftp
+    def get_files(self, remotepath, localdir):
+        """
+        Download files from the remote machine via SFTP.
+
+        | Args:
+        |   remotepath (str): path of file(s) to copy. Can include wildcards.
+        |   localdir (str): local directory to copy the file(s) into.        
+
+        """
+
+        remotedir, remotefiles = os.path.split(remotepath)
+
+        all_files = self._sftp.listdir(remotedir)
+        files = fnmatch.filter(all_files, remotefiles)
+
+        for f in files:
+            _, fname = os.path.split(f)
+            self._sftp.get(os.path.join(remotedir, f),
+                           os.path.join(localdir, fname))

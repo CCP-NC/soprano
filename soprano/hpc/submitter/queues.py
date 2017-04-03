@@ -115,7 +115,7 @@ class QueueInterface(object):
             self._rTarg = None
 
     def submit(self, script, cwd=None):
-        """Submit a job to the queue.
+        """Submit a job to the queue.x
 
         | Args:
         |   script (str): content of the submission script

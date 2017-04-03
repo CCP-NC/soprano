@@ -78,7 +78,8 @@ class Submitter(object):
     """
 
     def __init__(self, name, queue, submit_script, max_jobs=4, check_time=10,
-                 max_time=3600, temp_folder=None):
+                 max_time=3600, temp_folder=None, remote_workdir=None,
+                 remote_getfiles=['*.*'], ssh_timeout=1.0):
         """Initialize the Submitter object
 
         | Args:
@@ -108,6 +109,35 @@ class Submitter(object):
         |                                the system's tmp/ folder, but might
         |                                be changed if there's a need because
         |                                of writing permissions.
+        |   remote_workdir (Optional[str]): if present, uses a directory on a
+        |                                   remote machine by logging in via
+        |                                   SSH. Must be in the format 
+        |                                   <host>:<path/to/directory>.
+        |                                   Host must be defined in the user's
+        |                                   ~/.ssh/config file - check the
+        |                                   docs for RemoteTarget for more
+        |                                   information. It is possible to
+        |                                   omit the colon and directory, that
+        |                                   will use the home directory of the
+        |                                   given folder; that is HEAVILY 
+        |                                   DISCOURAGED though. Best practice
+        |                                   would be to create an empty
+        |                                   directory on the remote machine
+        |                                   and use that, to avoid accidental
+        |                                   overwriting/deleting of important
+        |                                   files.
+        |   remote_getfiles (Optional[list(str)]): list of files to be
+        |                                          downloaded from the remote
+        |                                          copy of the job's temporary
+        |                                          directory. By default, all
+        |                                          of them. Can be a list
+        |                                          using specific names,
+        |                                          wildcards etc. Filenames
+        |                                          can also use the
+        |                                          placeholder {name} to
+        |                                          signify the job name.
+        |   ssh_timeout (Optional[float]): connection timeout in seconds
+        |                                  (default is 1 second)
 
         """
 
@@ -314,7 +344,7 @@ class Submitter(object):
         return job_id not in self.queue.list()
 
     def finish_job(self, name, args, folder):
-        """Performs completiion operations on the job. At this point any
+        """Performs completion operations on the job. At this point any
         relevant output files should be copied from 'folder' to their final
         destination as the temporary folder itself will be deleted immediately
         after"""
