@@ -59,7 +59,7 @@ class RemoteTarget(object):
         # Check that Paramiko is even present
         if pmk is None:
             raise RuntimeError('Paramiko not installed - RemoteTarget can not'
-                               ' be used')
+                               ' be initialised')
 
         # Ok, check that the hostname exists
         config = pmk.SSHConfig()

@@ -28,6 +28,7 @@ import re
 import subprocess as sp
 
 from soprano.utils import is_string, safe_communicate
+from soprano.hpc.submitter.utils import RemoteTarget
 
 
 class QueueInterface(object):
@@ -78,6 +79,32 @@ class QueueInterface(object):
         if 'job_id' not in self.list_outre.groupindex:
             raise ValueError('list_outre does not contain job_id group')
 
+        self._rTarg = None
+
+    def set_remote_host(self, host=None, timeout=1.0):
+        """Set a remote host for use by this QueueInterface
+
+        If a remote host is set, this Interface will try using the Paramiko
+        library to connect to it via SSH. Check the docstring of 
+        soprano.hpc.submitter.utils.RemoteTarget to see what the limitations
+        are for this usage. 
+
+        | Args:
+        |   host (Optional[str]): host name of the remote machine to connect
+        |                         to. Further information must be contained in
+        |                         the user's ~/.ssh/config file. If left empty
+        |                         the remote host is UNSET and therefore the
+        |                         interface goes back to local use.
+        |   timeout (Optional[float]): connection timeout in seconds (default
+        |                              is 1 second)
+
+        """
+
+        if host is not None:
+            self._rTarg = RemoteTarget(host, timeout)
+        else:
+            self._rTarg = None
+
     def submit(self, script, cwd=None):
         """Submit a job to the queue.
 
@@ -90,12 +117,17 @@ class QueueInterface(object):
         |                 with sub_outre
         """
 
-        subproc = sp.Popen(self.sub_cmd.split(), stdin=sp.PIPE,
-                           stdout=sp.PIPE,
-                           stderr=sp.PIPE,
-                           cwd=cwd)
+        if self._rTarg is None:
+            subproc = sp.Popen(self.sub_cmd.split(), stdin=sp.PIPE,
+                               stdout=sp.PIPE,
+                               stderr=sp.PIPE,
+                               cwd=cwd)
 
-        stdout, stderr = safe_communicate(subproc, script)
+            stdout, stderr = safe_communicate(subproc, script)
+        else:
+            with self._rTarg.context as rTarg:
+                stdout, stderr = rTarg.run_cmd(self.sub_cmd,
+                                               cwd=cwd, stdin=script)
 
         # Parse out the job id!
         match = self.sub_outre.search(stdout)
@@ -114,10 +146,14 @@ class QueueInterface(object):
         |                that can be matched through list_outre
         |
         """
-        subproc = sp.Popen(self.list_cmd.split(), stdout=sp.PIPE,
-                           stderr=sp.PIPE)
+        if self._rTarg is None:
+            subproc = sp.Popen(self.list_cmd.split(), stdout=sp.PIPE,
+                               stderr=sp.PIPE)
 
-        stdout, stderr = safe_communicate(subproc)
+            stdout, stderr = safe_communicate(subproc)
+        else:
+            with self._rTarg.context as rTarg:
+                stdout, stderr = rTarg.run_cmd(self.list_cmd)
 
         # Parse out everything!
         jobs = {}
@@ -139,9 +175,15 @@ class QueueInterface(object):
         |
         """
 
-        subproc = sp.Popen(self.kill_cmd.split() + [job_id], stdout=sp.PIPE,
-                           stderr=sp.PIPE)
-        stdout, stderr = safe_communicate(subproc)
+        if self._rTarg is None:
+            subproc = sp.Popen(self.kill_cmd.split() + [job_id],
+                               stdout=sp.PIPE,
+                               stderr=sp.PIPE)
+            stdout, stderr = safe_communicate(subproc)
+        else:
+            with self._rTarg.context as rTarg:
+                stdout, stderr = rTarg.run_cmd(self.kill_cmd
+                                               + ' {0}'.format(job_id))
 
     @classmethod
     def LSF(cls):
