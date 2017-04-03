@@ -42,7 +42,6 @@ class RemoteTarget(object):
     for access (passwords are NOT accepted as they can't be stored and passed
     safely) and must have already been added to known_hosts (in other words,
     you must already have connected to it from the shell).
-    This class is meant to be used as an environment with the 'with' keyword.
 
     """
 
@@ -88,6 +87,29 @@ class RemoteTarget(object):
         self._client.load_system_host_keys()
 
         # We're all ready now!
+
+    @property
+    def context(self):
+        """Returns a context using this RemoteTarget to connect.
+        This is done this way so that we only need to instantiate the Target
+        once to avoid pointless overhead but still can handle the connection
+        securely by making sure it's closed no matter what.
+        """
+        return RemoteTargetContext(self)
+
+
+class RemoteTargetContext(object):
+
+    """RemoteTargetContext object
+
+    Works as a context to be used with the 'with' statement. Should usually
+    just be created by a RemoteTarget through the appropriate property.
+
+    """
+
+    def __init__(self, rT):
+        self._client = rT._client
+        self._connect_args = rT._connect_args
 
     def __enter__(self):
         # Open the connection
