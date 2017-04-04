@@ -203,6 +203,11 @@ class QueueInterface(object):
                 stdout, stderr = rTarg.run_cmd(self.kill_cmd
                                                + ' {0}'.format(job_id))
 
+    @property
+    def remote_target(self):
+        """RemoteTarget if a remote Host is set"""
+        return self._rTarg
+
     @classmethod
     def LSF(cls):
         return cls(sub_cmd='bsub',

@@ -31,6 +31,7 @@ except ImportError:
 import os
 import glob
 import fnmatch
+from soprano.utils import is_string
 
 
 class RemoteTarget(object):
@@ -168,39 +169,50 @@ class RemoteTargetContext(object):
         return _stdout.read(), _stderr.read()
 
     @_ensure_open_sftp
-    def put_files(self, localpath, remotedir):
+    def put_files(self, localpaths, remotedir):
         """
         Copy files to the remote machine via SFTP.
 
         | Args:
-        |   localpath (str): path of file(s) to copy. Can include wildcards.
+        |   localpaths (str or [str]): path of file(s) to copy. Can include
+        |                              wildcards.
         |   remotedir (str): remote directory to copy the file(s) into.        
 
         """
 
-        files = glob.glob(localpath)
+        if is_string(localpaths):
+            localpaths = [localpaths]
 
-        for f in files:
-            _, fname = os.path.split(f)
-            self._sftp.put(f, os.path.join(remotedir, fname), confirm=True)
+        for lpath in localpaths:
+            files = glob.glob(lpath)
+
+            for f in files:
+                _, fname = os.path.split(f)
+                self._sftp.put(f, os.path.join(remotedir, fname),
+                               confirm=True)
 
     @_ensure_open_sftp
-    def get_files(self, remotepath, localdir):
+    def get_files(self, remotepaths, localdir):
         """
         Download files from the remote machine via SFTP.
 
         | Args:
-        |   remotepath (str): path of file(s) to copy. Can include wildcards.
+        |   remotepaths (str or [str]): path of file(s) to copy. Can include
+        |                               wildcards.
         |   localdir (str): local directory to copy the file(s) into.        
 
         """
 
-        remotedir, remotefiles = os.path.split(remotepath)
+        if is_string(remotepaths):
+            remotepaths = [remotepaths]
 
-        all_files = self._sftp.listdir(remotedir)
-        files = fnmatch.filter(all_files, remotefiles)
+        for rpath in remotepaths:
+            remotedir, remotefiles = os.path.split(rpath)
 
-        for f in files:
-            _, fname = os.path.split(f)
-            self._sftp.get(os.path.join(remotedir, f),
-                           os.path.join(localdir, fname))
+            all_files = self._sftp.listdir(remotedir)
+            files = fnmatch.filter(all_files, remotefiles)
+
+            for f in files:
+                _, fname = os.path.split(f)
+                self._sftp.get(os.path.join(remotedir, f),
+                               os.path.join(localdir, fname))

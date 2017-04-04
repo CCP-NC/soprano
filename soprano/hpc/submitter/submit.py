@@ -111,7 +111,7 @@ class Submitter(object):
         |                                of writing permissions.
         |   remote_workdir (Optional[str]): if present, uses a directory on a
         |                                   remote machine by logging in via
-        |                                   SSH. Must be in the format 
+        |                                   SSH. Must be in the format
         |                                   <host>:<path/to/directory>.
         |                                   Host must be defined in the user's
         |                                   ~/.ssh/config file - check the
@@ -119,7 +119,7 @@ class Submitter(object):
         |                                   information. It is possible to
         |                                   omit the colon and directory, that
         |                                   will use the home directory of the
-        |                                   given folder; that is HEAVILY 
+        |                                   given folder; that is HEAVILY
         |                                   DISCOURAGED though. Best practice
         |                                   would be to create an empty
         |                                   directory on the remote machine
@@ -135,7 +135,9 @@ class Submitter(object):
         |                                          wildcards etc. Filenames
         |                                          can also use the
         |                                          placeholder {name} to
-        |                                          signify the job name.
+        |                                          signify the job name, as
+        |                                          well as any other name from
+        |                                          the arguments.
         |   ssh_timeout (Optional[float]): connection timeout in seconds
         |                                  (default is 1 second)
 
@@ -165,6 +167,20 @@ class Submitter(object):
         self._user_signals = {}
 
         self._log = None  # Will keep track of failed jobs etc.
+
+        # Remote directory?
+        if remote_workdir is None:
+            self.host = None
+        else:
+            if ':' in remote_workdir:
+                self.host, self.hostdir = remote_workdir.split(':', 1)
+            else:
+                self.host = remote_workdir
+                self.hostdir = ''
+
+        self.remote_getfiles = remote_getfiles
+
+        self.queue.set_remote_host(self.host, ssh_timeout)
 
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
@@ -207,7 +223,7 @@ class Submitter(object):
         """Remove a previously defined custom signal by its assigned command.
 
         | Args:
-        |   command (str): command assigned to the signal handler to remove.        
+        |   command (str): command assigned to the signal handler to remove.
 
         """
 
@@ -265,6 +281,9 @@ class Submitter(object):
             # Also, kill all jobs still running
             for job_id in self._jobs.keys():
                 self.queue.kill(job_id)
+                # If needed, get the files from remote host
+                if self.host is not None:
+                    self._getjob_remote(cjob)
                 self.finish_job(**self._jobs[job_id])
                 shutil.rmtree(self._jobs[job_id]['folder'])
             self._jobs = {}
@@ -304,6 +323,11 @@ class Submitter(object):
                 job_script = job_script.replace('<folder>',
                                                 njob['folder'])
 
+                # If we're working with a remote host, we need to copy the
+                # input folder!
+                if self.host is not None:
+                    self._putjob_remote(njob)
+
                 # And submit! [Only if still running]
                 if not self._running:
                     break
@@ -319,6 +343,9 @@ class Submitter(object):
                          if self.check_job(job_id, **self._jobs[job_id])]
             for job_id in completed:
                 cjob = self._jobs[job_id]
+                # If needed, get the files from remote host
+                if self.host is not None:
+                    self._getjob_remote(cjob)
                 self.log('Job {0} completed\n'.format((cjob['name'])))
                 self.finish_job(**cjob)
                 # Remove the temporary directory
@@ -330,6 +357,24 @@ class Submitter(object):
             sleep_time = self.check_time - (time.time()-loop_t0)
             sleep_time = sleep_time if sleep_time > 0 else 0
             time.sleep(sleep_time)
+
+    def _putjob_remote(self, njob):
+        """Copy the files generated for a job to a remote work directory"""
+        with self.queue.remote_target.context as rtarg:
+            rtarg.run_cmd('mkdir {0}'.format(njob['name']),
+                          cwd=self.hostdir)
+            rtarg.put_files(os.path.join(njob['folder'], '*'),
+                            os.path.join(self.hostdir,
+                                         njob['name']))
+
+    def _getjob_remote(self, cjob):
+        with self.queue.remote_target.context as rtarg:
+            rpaths = [os.path.join(self.hostdir, cjob['name'],
+                                   f.format(name=cjob['name'],
+                                            **cjob['args']))
+                      for f in self.remote_getfiles]
+            rtarg.get_files(rpaths, cjob['folder'])
+            rtarg.run_cmd('rm -rf {0}'.format(cjob['name']), cwd=self.hostdir)
 
     def next_job(self):
         """Return a dictionary definition of the next job in line"""
