@@ -36,6 +36,7 @@ import numpy as np
 import threading as thr
 import subprocess as sp
 from datetime import datetime
+from socket import timeout as TimeoutError
 
 from soprano.utils import is_string, safe_communicate
 from soprano.hpc.submitter import QueueInterface
@@ -182,6 +183,9 @@ class Submitter(object):
 
         self.queue.set_remote_host(self.host, ssh_timeout)
 
+        self._waiting_jobs = []  # Jobs created but waiting to be submitted
+        self._completed_jobs = []  # Jobs completed but not yet finalised
+
     def set_parameters(self):
         """Set additional parameters. In this generic example class it has
         no arguments, but in specific implementations it will be used to
@@ -283,7 +287,7 @@ class Submitter(object):
                 self.queue.kill(job_id)
                 # If needed, get the files from remote host
                 if self.host is not None:
-                    self._getjob_remote(cjob)
+                    self._getjob_remote(self._jobs[job_id])
                 self.finish_job(**self._jobs[job_id])
                 shutil.rmtree(self._jobs[job_id]['folder'])
             self._jobs = {}
@@ -303,16 +307,32 @@ class Submitter(object):
             # Submit jobs
             while len(self._jobs) < self.max_jobs:
 
-                njob = self.next_job()
-                if njob is None:
-                    break
-                # Create the temporary folder
-                njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
-                # Perform setup
-                if not self.setup_job(**njob):
-                    self.log('Job {0} did not pass setup check,'
-                             'skipping\n').format(njob['name'])
-                    continue
+                if len(self._waiting_jobs) == 0:
+                    njob = self.next_job()
+                    if njob is None:
+                        break
+                    # Create the temporary folder
+                    njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
+                    # Perform setup
+                    if not self.setup_job(**njob):
+                        self.log('Job {0} did not pass setup check,'
+                                 'skipping\n').format(njob['name'])
+                        continue
+                else:
+                    njob = self._waiting_jobs.pop(0)
+
+                # If we're working with a remote host, we need to copy the
+                # input folder!
+                if self.host is not None:
+                    try:
+                        self._putjob_remote(njob)
+                    except TimeoutError:
+                        self.log('Timeout when trying to push input files to'
+                                 ' host. If it happens too frequently, try '
+                                 'increasing the ssh_timeout argument.\n')
+                        self._waiting_jobs.append(njob)
+                        break
+
                 # Create custom script
                 job_script = self.submit_script.replace('<name>',
                                                         njob['name'])
@@ -322,11 +342,6 @@ class Submitter(object):
                                                     str(njob['args'][tag]))
                 job_script = job_script.replace('<folder>',
                                                 njob['folder'])
-
-                # If we're working with a remote host, we need to copy the
-                # input folder!
-                if self.host is not None:
-                    self._putjob_remote(njob)
 
                 # And submit! [Only if still running]
                 if not self._running:
@@ -339,13 +354,21 @@ class Submitter(object):
                     self._jobs[job_id] = njob
 
             # Now check for finished jobs
-            completed = [job_id for job_id in self._jobs
-                         if self.check_job(job_id, **self._jobs[job_id])]
-            for job_id in completed:
+            self._completed_jobs += [job_id for job_id in self._jobs
+                                     if self.check_job(job_id,
+                                                       **self._jobs[job_id])]
+
+            for job_id in self._completed_jobs:
                 cjob = self._jobs[job_id]
                 # If needed, get the files from remote host
                 if self.host is not None:
-                    self._getjob_remote(cjob)
+                    try:
+                        self._getjob_remote(cjob)
+                    except TimeoutError:
+                        self.log('Timeout when trying to fetch results from'
+                                 ' host. If it happens too frequently, try '
+                                 'increasing the ssh_timeout argument.\n')
+                        continue
                 self.log('Job {0} completed\n'.format((cjob['name'])))
                 self.finish_job(**cjob)
                 # Remove the temporary directory
@@ -353,6 +376,10 @@ class Submitter(object):
                 self.log('Folder {0} deleted\n'.format(cjob['folder']))
                 # Finally delete it from our list
                 del(self._jobs[job_id])
+
+            # Only keep the ones that haven't been copied yet
+            self._completed_jobs = list(set(self._completed_jobs) &
+                                        set(self._jobs.keys()))
 
             sleep_time = self.check_time - (time.time()-loop_t0)
             sleep_time = sleep_time if sleep_time > 0 else 0
