@@ -21,4 +21,5 @@ Submodules
    soprano.hpc.submitter.castep
    soprano.hpc.submitter.queues
    soprano.hpc.submitter.submit
+   soprano.hpc.submitter.utils
 

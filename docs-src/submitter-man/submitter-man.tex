@@ -4,11 +4,16 @@
 \usetikzlibrary{shapes.geometric, arrows}
 
 %tikx styles
-\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=0.6cm,text centered, draw=black, fill=red!30, align=center]
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=0.6cm,text centered, text width=4cm, draw=black, fill=red!30, align=center]
 \tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=2.5cm, minimum height=0.6cm, text centered, draw=black, fill=blue!30, align=center]
-\tikzstyle{process} = [rectangle, minimum width=2.5cm, minimum height=0.6cm, text centered, draw=black, fill=orange!30, align=center]
+\tikzstyle{process} = [rectangle, minimum width=2.5cm, minimum height=0.6cm, text centered, draw=black, text width=6cm, fill=orange!30, align=center]
 \tikzstyle{decision} = [diamond, minimum width=2.5cm, minimum height=0.6cm, aspect=2, text centered, draw=black, fill=green!30, align=center]
+\tikzstyle{machine} = [trapezium, trapezium left angle=80, trapezium right angle=100, minimum width=0.5cm, minimum height=0.7cm, text centered, draw=black, fill=violet!30, align=center]
 \tikzstyle{arrow} = [thick,->,>=stealth]
+
+%Code listings style
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true}
+
 
 % Title Page
 \title{Using the Submitter class for high throughput HPC calculations with Soprano}
@@ -20,11 +25,11 @@
 \chapter{The Submitter class}
 
 In Soprano, the \lstinline|hpc.submitter| module provides classes and tools meant to help computational scientists to automate the process of generating, running and possibly post-processing huge batches of molecular calculations like molecular dynamics, DFT calculations and so on on high performance computing machines where access to the nodes is regulated by a queueing system. The target is to allow users to create their own pipelines for high throughput calculations, like running the same analysis tools through an entire database of chemical structures, with only a few lines of Python code. Since this is, however, still a complex task that will inevitably require to be customised and tailored to the needs of each specific case, using this functionality requires a somewhat higher level of programming confidence than the rest of the library and can look a little daunting at first. No worries - this manual will guide you through the steps necessary to deploy your own Submitter to your machine of interest to run potentially any computational task you can think of. Besides instructions on the creation of a new Submitter, this manual also will include advice on how to test it and debug it locally, in order to minimise the risk of running into bugs after deploying the system.\newline
-First, let us clarify what a Soprano Submitter instance \textit{is} and \textit{isn't}. A Submitter is a very general class designed to automate the process of queueing, running and postprocessing huge amounts of calculations on a computing cluster. It is \textit{not}:
+First, let us clarify what a Soprano Submitter instance \textit{is} and \textit{isn't}. A Submitter is a very general class designed to automate the process of queueing, running and postprocessing huge amounts of calculations on a computing cluster. It can be used to do this locally on the machine it is running on or to use a remote system to do the heavy lifting. It is \textit{not}:
 \begin{itemize}
-	\item a system designed to push calculations to a remote machine. A Soprano Submitter is meant to be run on the same machine where the calculations are going to be run;
-	\item a system handling parallel calculations. There is no parallelism included in a Submitter. As the name suggests, it simply submits jobs to a queueing system like GridEngine, which then itself provides them with the required number of cores. The Submitter is entirely agnostic of the underlying hardware architecture; 
-	\item a system ready for deployment as-is. As it comes shipped with Soprano, the Submitter class basically does nothing. It is meant to be used as a parent class to write your own sub-class which specifies the details of the task of interest through a number of designated methods. This is absolutely on purpose - the objective here is maximum flexibility for potentially very demanding tasks, sacrificing immediate usability.
+	\item a system handling parallel calculations. There is no parallelism included in a Submitter. As the name suggests, it simply submits jobs to a queueing system like GridEngine, which then itself provides them with the required number of cores. To achieve maximum compatibility, the Submitter is entirely agnostic of the underlying hardware architecture;
+	\item a system ready for deployment as-is. As it comes shipped with Soprano, the Submitter class basically does nothing. It is meant to be used as a parent class to write your own sub-class which specifies the details of the task of interest through a number of designated methods. This is absolutely on purpose - the objective here is maximum flexibility for potentially very demanding tasks, sacrificing immediate usability;
+	\item a system meant to work as a server running continuously and accepting a flow of user requests. While it is possible to have a Submitter run indefinitely it is not advised to rely on it that way, as it currently lacks the robustness to deal with all the errors that could happen during that kind of usage and to restart itself in case of a crash. Rather, it should be best employed with runs of definite size, with a clear end in sight.
 \end{itemize}
 
 Now let's see a quick overview of what the typical pipeline for deploying a Submitter system is, followed by a more detailed explanation of all the steps involved.
@@ -55,21 +60,23 @@ class MySubmitter(Submitter):
 
 However, such a class would be of no use since it does not implement any particular behaviour. The Submitter class originally has a number of methods. Some of them are preceded by an underscore and are meant to not be touched, as they handle the core behaviour of any Submitter. Others are meant to be overridden when inheriting from the base class and control custom behaviour - the specifics of the problem at hand. The core methods determine the Submitter workflow, which can be described as follows:
 
-\begin{tikzpicture}[node distance=1.5cm]
+\begin{tikzpicture}[node distance=2.5cm]
 
 \node (in1) [io] {set\_parameters()};
-\node (start) [startstop, below of=in1] {Submitter start};
+\node (start) [startstop, below of=in1, xshift=-3.5cm] {Submitter start};
 \node (startrun) [process, below of=start] {start\_run()};
 \node (nextjob) [process, below of=startrun] {next\_job()\\\textit{Create a definition for the job}};
 \node (makedir) [startstop, below of=nextjob] {Create temporary folder for new job};
-\node (setupjob) [process, below of=makedir] {setup\_job(name, arguments, folder)\\\textit{Copy or create relevant files here}};
+\node (setupjob) [process, below of=makedir] {setup\_job(name, args, folder)\\\textit{Copy or create relevant files here}};
 \node (tagscript) [startstop, below of=setupjob] {Replace tags in submission script with appropriate values};
-\node (runjob) [startstop, below of=tagscript] {Submit job to queue};
-\node (finjob) [process, below of=runjob] {finish\_job(name, arguments, folder)\\\textit{Finalise job and copy files of interest before deletion}};
-\node (deldir) [startstop, below of=finjob] {Delete temporary folder};
-\node (finished) [decision, below of=deldir] {Stop?};
-\node (continue) [startstop, right of=finished, xshift=4cm] {Wait until check\_time has passed};
-\node (finishrun) [process, below of=finished] {finish\_run()};
+\node (runjob) [startstop, right of=tagscript, xshift=6.5cm] {Submit job to queue (if necessary copying to and from a remote machine happens here)};
+\node (finjob) [process, above of=runjob] {finish\_job(name, args, folder)\\\textit{Finalise job and copy files of interest before deletion}};
+\node (deldir) [startstop, above of=finjob] {Delete temporary folder};
+\node (finished) [decision, above of=deldir] {Stop?};
+\node (continue) [startstop, left of=finished, xshift=-1cm, text width=2.5cm] {Wait until check\_time has passed};
+\node (finishrun) [process, above of=finished] {finish\_run()};
+\node (machine) [machine, below of=runjob] {Remote machine\\
+	(optional)};
 
 \draw [arrow] (start) -- (startrun);
 \draw [arrow] (startrun) -- (nextjob);
@@ -80,12 +87,25 @@ However, such a class would be of no use since it does not implement any particu
 \draw [arrow] (runjob) -- (finjob);
 \draw [arrow] (finjob) -- (deldir);
 \draw [arrow] (deldir) -- (finished);
-\draw [arrow] (finished) -- node[anchor=east] {No} (continue);
-\draw [arrow] (continue) |- (nextjob);
-\draw [arrow] (finished) -- node[anchor=south] {Yes} (finishrun);
+\draw [arrow] (finished) -- node [anchor=south] {No} (continue);
+\draw [arrow] (continue) -- (nextjob);
+\draw [arrow] (finished) -- node [anchor=west] {Yes} (finishrun);
+\draw [arrow, transform canvas={xshift=0.1cm}] (runjob) -- node [anchor=west] {SSH} (machine);
+\draw [arrow, transform canvas={xshift=-0.1cm}] (machine) -- (runjob);
 
 \end{tikzpicture}
 
+\begin{itemize}
+	\item \lstinline|set_parameters(**kwargs)| - Must be executed by hand by the user after creating the Submitter instance. Can be overridden and have any interface. Since the \lstinline|__init__| method should \textit{not} be altered, this method provides a way for the user to feed class-specific parameters to any derived Submitter types. 
+	\item \lstinline|start_run()| - Executed at the beginning of a run. Here any tasks that are preparatory to initialising the entire run should be accomplished. By default does nothing.
+	\item \lstinline|next_job()| - Executed whenever the Submitter has a free slot to start a new job. Should return a definition for said job in the form of a dictionary containing a \lstinline|name| (in the form of a string) and some \lstinline|args| in the form of a dictionary: by default returns \lstinline|{`name': `default_job', `args': {}}|.
+	\item \lstinline|setup_job(name, args, folder)| - Executed immediately after \lstinline|next_job()| and the creation of a temporary folder to contain its files. Must perform any operations required to set up the input for the upcoming calculations. For example, \lstinline|next_job| could return a Python object defining an atomic structure on which the calculation ought to be performed; \lstinline|setup_job| is where the input files to which said structure is written should be created and saved in the path defined by \lstinline|folder|.
+	\item \lstinline|finish_job(name, args, folder)| - Executed once the job has been run and the output files are in \lstinline|folder| (if the job has been run on a remote machine, at this point the files will have been downloaded back to the local file system). At this point any post-processing should be done and any output files of relevance should be \textit{copied to a persistent folder}. This is especially important as after this step the temporary folder will be deleted.
+	\item \lstinline|finish_run()| - Executed at the end of the run, takes care of clean up. If any files need to be closed or resources deallocated this is the place to do it. By default does nothing.
+	\item \lstinline|save_state()| - Only executed when the Submitter is initialised with the argument \lstinline|continuation=True|. This allows the Submitter to be stopped (or in case of accidents, crash) and store its current state in order for it to be restarted manually at a later time. By default the submitter only stores the list of the currently running jobs so that it can get back to monitoring them; however, here the user can define any additional data they want to be stored as well, as long as it can be `pickled' \footnote{For more information on the process of serialisation, or `pickling', in Python, see: https://docs.python.org/2.7/library/pickle.html}. This data must be returned as members inside a dictionary. This method \textit{must} return a dictionary, even if empty. The file is saved as \lstinline|<name>.pkl|, where \lstinline|<name>| is the `name' argument passed to the Submitter's constructor.
+	\item \lstinline|load_state(loaded_data)| - Only executed when the Submitter is initialised with the argument \lstinline|continuation=True| and a previously saved state file is found. Receives as argument a dictionary containing the saved data; this should be in the same format as the one returned by \lstinline|save_state|. In general it should perform the same operations in reverse, restoring the Submitter to its original state.
+\end{itemize}
 
+\section{Creating a Submitter instance}
 
 \end{document}          
