@@ -1,7 +1,23 @@
 \documentclass[]{report}
 \usepackage{listings}
+\usepackage{color}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+	backgroundcolor=\color{white},   % choose the background color
+	basicstyle=\footnotesize,        % size of fonts used for the code
+	breaklines=true,                 % automatic line breaking only at whitespace
+	captionpos=b,                    % sets the caption-position to bottom
+	commentstyle=\color{mygreen},    % comment style
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	keywordstyle=\color{blue},       % keyword style
+	stringstyle=\color{mymauve},     % string literal style
+}
 
 %tikx styles
 \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=2.5cm, minimum height=0.6cm,text centered, text width=4cm, draw=black, fill=red!30, align=center]
@@ -40,8 +56,8 @@ The process to create and launch a Submitter requires the following steps:
 
 \begin{itemize}
 	\item Write a class inheriting from \lstinline|soprano.hpc.submitter.Submitter| implementing the desired calculation through its core methods;
-	\item Write a Python source file creating an instance of this class (it can also be the same file) and setting up its parameters, and positioning this file in the working directory. In some cases this might require creating a \lstinline|soprano.hpc.submitter.QueueInterface| as well;
 	\item Create a submission script for your HPC system using tags which are going to be replaced by specific values in each job;
+	\item Write a Python source file creating an instance of this class (it can also be the same file) and setting up its parameters, and positioning this file in the working directory. In some cases this might require creating a \lstinline|soprano.hpc.submitter.QueueInterface| as well;
 	\item Launch the newly created submitter from the command line by calling the appropriate Soprano script.
 \end{itemize}
 
@@ -51,7 +67,7 @@ Let's see these steps in more detail.
 
 The basic template to inherit from the Submitter class can be as simple as this:
 
-\begin{lstlisting}
+\begin{lstlisting}[language=python]
 from soprano.hpc.submitter import Submitter
 
 class MySubmitter(Submitter):
@@ -106,6 +122,59 @@ However, such a class would be of no use since it does not implement any particu
 	\item \lstinline|load_state(loaded_data)| - Only executed when the Submitter is initialised with the argument \lstinline|continuation=True| and a previously saved state file is found. Receives as argument a dictionary containing the saved data; this should be in the same format as the one returned by \lstinline|save_state|. In general it should perform the same operations in reverse, restoring the Submitter to its original state.
 \end{itemize}
 
+\section{Writing a tagged submission script}
+
+When submitting a job to a queueing system, one needs to do so in the form of a script, which usually contains the desired commands as well as a number of comments functioning as parameters for the queueing system itself. In the simplest case, this script could be limited to an executable (the program we need to run) and the name of its input file. When creating jobs with a Submitter, this script will be ran from within the folder in which the input files have been created with \lstinline|setup_job|; however, it is reasonable to imagine that these might have different file names or parameters from job to job. To account for that, when one creates a submitter, a script is passed to in which any word that is supposed to change is replaced by a tag surrounded by angle brackets. The main purpose for this is to use the argument \lstinline|name|; the same can be done with any element appearing in the \lstinline|args| dictionary returned as part of the output of \lstinline|next_job|. So for example
+
+\begin{lstlisting}[language=bash]
+echo "<sentence>" > <name>.txt
+\end{lstlisting}
+
+for a job defined as 
+
+\begin{lstlisting}[language=python]
+{'name': 'hello', 
+ 'args': {'sentence': 
+          'Hello World!'}
+}
+\end{lstlisting}
+
+would produce a file named \lstinline|hello.txt| containing the sentence ``Hello World!".
+
 \section{Creating a Submitter instance}
+
+Given that one has created and specified a derived Submitter class and a properly tagged submission script, it is then necessary to create a file that defines an instance of the Submitter itself. Assuming that we already imported the definition of the new class, the basic template for such a file will be
+
+\begin{lstlisting}[language=python]
+from soprano.hpc.submitter import QueueInterface
+
+# Other interfaces supported are LSF and PBS,
+# plus you can define your own.
+myQ = QueueInterface.GridEngine() 
+# Here we load the script
+myScr = open('tagged_script.sh').read()
+
+mySub = MySubmitter('test_submitter', myQ, myScr)
+mySub.set_parameters(...) # Any parameters needed...
+\end{lstlisting}
+
+The constructor for a Submitter takes a number of optional parameters beyond the three obligatory ones (name, queue interface and script). They can all be found in the documentation but for convenience here's a rundown:
+
+\begin{itemize}
+	\item \lstinline|max_jobs (Optional[int])| - maximum number of jobs to submit at a given time. When this number of job has been submitted to the queue, the Submitter stops and waits until one of them is complete. Default is 4.
+	\item \lstinline|check_time (Optional[float])| - time in seconds between consecutive checks for the queue status and attempts to submit new jobs. Default is 10.
+	\item \lstinline|max_time (Optional[float])| - time in seconds the Submitter will run for before shutting down. If set to zero the thread won't stop until killed with Submitter.stop.
+	\item \lstinline|temp_folder (Optional[str])| - where to store the temporary folders for the calculations. By default it's the current folder.
+	\item \lstinline|remote_workdir (Optional[str])| - if present, uses a directory on a remote machine by logging in via SSH. Must be in the format \lstinline|<host>:<path/to/directory>| (without the angle brackets, replace host name and directory suitably; the directory must already exist). Host must be defined in the user's \lstinline|~/.ssh/config file| - check the docs for RemoteTarget for more information. It is possible to omit the colon and directory, that will use the home directory of the given folder; that is HEAVILY DISCOURAGED though. Best practice would be to create an empty directory on the remote machine and use that, to avoid accidental overwriting/deleting of important files.
+	\item \lstinline|remote_getfiles (Optional[list(str)])| - list of files to be downloaded from the remote copy of the job's temporary directory. By default, all of them. Can be a list using specific names or wildcards. Filenames can also use the placeholder {name} to signify the job name, as well as any other element from the arguments.
+	\item \lstinline|ssh_timeout (Optional[float])| - connection timeout in seconds. Default is 1.
+	\item \lstinline|continuation (Optional[bool])| - if True, when the Submitter is stopped it will not terminate the current jobs; rather, it will store the list of ongoing jobs in a pickle file. If the submitter is ran again from the same folder then it will "pick up from where it left" and try recovering those jobs, then restart. If one wishes for additional values to be saved and restored, the \lstinline|save_state| and \lstinline|load_state| methods need to be defined.
+\end{itemize}
+
+\section{Launching a Submitter}
+
+Finally, once everything in place, it is possible to launch the Submitter. This is done by running the following command
+
+
 
 \end{document}          

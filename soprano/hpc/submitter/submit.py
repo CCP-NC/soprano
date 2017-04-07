@@ -118,9 +118,7 @@ class Submitter(object):
         |                               killed with Submitter.stop.
         |   temp_folder (Optional[str]): where to store the temporary folders
         |                                for the calculations. By default it's
-        |                                the system's tmp/ folder, but might
-        |                                be changed if there's a need because
-        |                                of writing permissions.
+        |                                the current folder.
         |   remote_workdir (Optional[str]): if present, uses a directory on a
         |                                   remote machine by logging in via
         |                                   SSH. Must be in the format
@@ -148,8 +146,8 @@ class Submitter(object):
         |                                          can also use the
         |                                          placeholder {name} to
         |                                          signify the job name, as
-        |                                          well as any other name from
-        |                                          the arguments.
+        |                                          well as any other element
+        |                                          from the arguments.
         |   ssh_timeout (Optional[float]): connection timeout in seconds
         |                                  (default is 1 second)
         |   continuation (Optional[bool]): if True, when the Submitter is
