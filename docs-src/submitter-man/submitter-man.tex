@@ -141,7 +141,7 @@ for a job defined as
 
 would produce a file named \lstinline|hello.txt| containing the sentence ``Hello World!".
 
-\section{Creating a Submitter instance}
+\section{Creating a Submitter instance}\label{subm_instance}
 
 Given that one has created and specified a derived Submitter class and a properly tagged submission script, it is then necessary to create a file that defines an instance of the Submitter itself. Assuming that we already imported the definition of the new class, the basic template for such a file will be
 
@@ -173,7 +173,21 @@ The constructor for a Submitter takes a number of optional parameters beyond the
 
 \section{Launching a Submitter}
 
-Finally, once everything in place, it is possible to launch the Submitter. This is done by running the following command
+Finally, once everything in place, it is possible to launch the Submitter. This is done by running the command \lstinline|soprano_submitter.py|. The syntax is described as follows:
+
+\begin{lstlisting}
+soprano_submitter.py [-h] [-n N] [-nohup] action submitter_file
+\end{lstlisting}
+
+where \lstinline|submitter_file| is the name of the file in which the \textit{instance} of the Submitter was created (as described in \ref{subm_instance}) and \lstinline|action| can be one of \lstinline|start|, \lstinline|stop| or \lstinline|list|. The previous two are pretty self-explanatory; the third lists which Submitters, among the ones defined in the given file, are running, and how long they have been. The additional options work as follows:
+
+\begin{itemize}
+	\item \lstinline|-h| - display the help message
+	\item \lstinline|-n N| - launch the submitter of name N. This must be used when multiple Submitters are instanced in \lstinline|submitter_file|. The name must be the name of the variable (so for example in the example in \ref{subm_instance}, that would be \lstinline|mySub|)
+	\item \lstinline|-nohup| - put the Submitter thread in `no hangup' mode, meaning that it will keep running even if one closes the terminal session from which it was launched. This is mainly for the case in which a Submitter was launched on a machine to which we connect remotely via \lstinline|ssh|.
+\end{itemize}
+
+When a Submitter is started it runs in the background of a shell session until \lstinline|max_time| seconds have passed or it is explicitly stopped. When stopped, if \lstinline|continuation=True| wasn't set, it kills all still ongoing jobs and deletes all the temporary folders; otherwise it leaves everything running and stores a pickled file with the pattern \lstinline|<submitter_name>.pkl| in the current folder from which it can pick back up. Deleting the file in question is equivalent to resetting the run. During and at the end of a run, a log file called \lstinline|<submitter_name>.log| is available containing messages detailing the workings of the Submitter. When defining a new Submitter class, one can use the method \lstinline[language=python]|self.log('Message')| inside it to write to this log file additional lines.
 
 
 
