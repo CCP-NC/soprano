@@ -65,7 +65,7 @@
 and depositing results in another.</p>
 <dl class="class">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter">
-<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.castep.</code><code class="descname">CastepSubmitter</code><span class="sig-paren">(</span><em>name</em>, <em>queue</em>, <em>submit_script</em>, <em>max_jobs=4</em>, <em>check_time=10</em>, <em>max_time=3600</em>, <em>temp_folder=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.castep.</code><code class="descname">CastepSubmitter</code><span class="sig-paren">(</span><em>name, queue, submit_script, max_jobs=4, check_time=10, max_time=3600, temp_folder=None, remote_workdir=None, remote_getfiles=[u'*.*'], ssh_timeout=1.0, continuation=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter" title="soprano.hpc.submitter.submit.Submitter"><code class="xref py py-class docutils literal"><span class="pre">soprano.hpc.submitter.submit.Submitter</span></code></a></p>
 <p>Initialize the Submitter object</p>
 <div class="line-block">
@@ -110,6 +110,58 @@ and depositing results in another.</p>
 <div class="line">the system&#8217;s tmp/ folder, but might</div>
 <div class="line">be changed if there&#8217;s a need because</div>
 <div class="line">of writing permissions.</div>
+</div>
+<div class="line">remote_workdir (Optional[str]): if present, uses a directory on a</div>
+<div class="line-block">
+<div class="line">remote machine by logging in via</div>
+<div class="line">SSH. Must be in the format</div>
+<div class="line">&lt;host&gt;:&lt;path/to/directory&gt;.</div>
+<div class="line">Host must be defined in the user&#8217;s</div>
+<div class="line">~/.ssh/config file - check the</div>
+<div class="line">docs for RemoteTarget for more</div>
+<div class="line">information. It is possible to</div>
+<div class="line">omit the colon and directory, that</div>
+<div class="line">will use the home directory of the</div>
+<div class="line">given folder; that is HEAVILY</div>
+<div class="line">DISCOURAGED though. Best practice</div>
+<div class="line">would be to create an empty</div>
+<div class="line">directory on the remote machine</div>
+<div class="line">and use that, to avoid accidental</div>
+<div class="line">overwriting/deleting of important</div>
+<div class="line">files.</div>
+</div>
+<div class="line">remote_getfiles (Optional[list(str)]): list of files to be</div>
+<div class="line-block">
+<div class="line">downloaded from the remote</div>
+<div class="line">copy of the job&#8217;s temporary</div>
+<div class="line">directory. By default, all</div>
+<div class="line">of them. Can be a list</div>
+<div class="line">using specific names,</div>
+<div class="line">wildcards etc. Filenames</div>
+<div class="line">can also use the</div>
+<div class="line">placeholder {name} to</div>
+<div class="line">signify the job name, as</div>
+<div class="line">well as any other name from</div>
+<div class="line">the arguments.</div>
+</div>
+<div class="line">ssh_timeout (Optional[float]): connection timeout in seconds</div>
+<div class="line-block">
+<div class="line">(default is 1 second)</div>
+</div>
+<div class="line">continuation (Optional[bool]): if True, when the Submitter is</div>
+<div class="line-block">
+<div class="line">stopped it will not terminate the</div>
+<div class="line">current jobs; rather, it will store</div>
+<div class="line">the list in a pickle file.</div>
+<div class="line">If the submitter is ran from the</div>
+<div class="line">same folder then it will &#8220;pick up</div>
+<div class="line">from where it left&#8221; and try</div>
+<div class="line">recovering those jobs, then</div>
+<div class="line">restart. If one wishes for</div>
+<div class="line">additional values to be saved and</div>
+<div class="line">restored, the save_state and</div>
+<div class="line">load_state methods need to be</div>
+<div class="line">defined.</div>
 </div>
 </div>
 </div>

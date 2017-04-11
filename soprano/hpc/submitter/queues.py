@@ -28,6 +28,7 @@ import re
 import subprocess as sp
 
 from soprano.utils import is_string, safe_communicate
+from soprano.hpc.submitter.utils import RemoteTarget
 
 
 class QueueInterface(object):
@@ -51,7 +52,8 @@ class QueueInterface(object):
     - PBS (another managing system using qsub)
     """
 
-    def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre):
+    def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre,
+                 list_user_opt=None):
         """Initialize the QueueInterface.
 
         | Args:
@@ -64,6 +66,12 @@ class QueueInterface(object):
         |   list_outre (str): regular expression used to parse the output of
         |                     list_cmd. Must contain at least a job_id named
         |                     group
+        |   list_user_opt (Optional[str]): name of the option for passing a
+        |                                  specific user name when listing
+        |                                  jobs. For example, on LSF this is
+        |                                  -u. By default it's None, and the 
+        |                                  default of the queueing system is
+        |                                  used.
 
         """
 
@@ -78,8 +86,36 @@ class QueueInterface(object):
         if 'job_id' not in self.list_outre.groupindex:
             raise ValueError('list_outre does not contain job_id group')
 
+        self.list_user_opt = list_user_opt
+
+        self._rTarg = None
+
+    def set_remote_host(self, host=None, timeout=1.0):
+        """Set a remote host for use by this QueueInterface
+
+        If a remote host is set, this Interface will try using the Paramiko
+        library to connect to it via SSH. Check the docstring of 
+        soprano.hpc.submitter.utils.RemoteTarget to see what the limitations
+        are for this usage. 
+
+        | Args:
+        |   host (Optional[str]): host name of the remote machine to connect
+        |                         to. Further information must be contained in
+        |                         the user's ~/.ssh/config file. If left empty
+        |                         the remote host is UNSET and therefore the
+        |                         interface goes back to local use.
+        |   timeout (Optional[float]): connection timeout in seconds (default
+        |                              is 1 second)
+
+        """
+
+        if host is not None:
+            self._rTarg = RemoteTarget(host, timeout)
+        else:
+            self._rTarg = None
+
     def submit(self, script, cwd=None):
-        """Submit a job to the queue.
+        """Submit a job to the queue.x
 
         | Args:
         |   script (str): content of the submission script
@@ -90,12 +126,17 @@ class QueueInterface(object):
         |                 with sub_outre
         """
 
-        subproc = sp.Popen(self.sub_cmd.split(), stdin=sp.PIPE,
-                           stdout=sp.PIPE,
-                           stderr=sp.PIPE,
-                           cwd=cwd)
+        if self._rTarg is None:
+            subproc = sp.Popen(self.sub_cmd.split(), stdin=sp.PIPE,
+                               stdout=sp.PIPE,
+                               stderr=sp.PIPE,
+                               cwd=cwd)
 
-        stdout, stderr = safe_communicate(subproc, script)
+            stdout, stderr = safe_communicate(subproc, script)
+        else:
+            with self._rTarg.context as rTarg:
+                stdout, stderr = rTarg.run_cmd(self.sub_cmd,
+                                               cwd=cwd, stdin=script)
 
         # Parse out the job id!
         match = self.sub_outre.search(stdout)
@@ -106,18 +147,31 @@ class QueueInterface(object):
         else:
             return match.groupdict()['job_id']
 
-    def list(self):
+    def list(self, user='$USER'):
         """List all jobs found in the queue
 
         | Returns:
         |   jobs (dict): a dict of jobs classified by ID containing all info
         |                that can be matched through list_outre
+        |   user (Optional[str]): user for whom jobs should be listed. Will
+        |                         not have any effect if list_user_opt has not
+        |                         been specified. Default is $USER.
         |
-        """
-        subproc = sp.Popen(self.list_cmd.split(), stdout=sp.PIPE,
-                           stderr=sp.PIPE)
 
-        stdout, stderr = safe_communicate(subproc)
+        """
+
+        cmd = self.list_cmd
+        if self.list_user_opt is not None:
+            cmd += ' {0} {1}'.format(self.list_user_opt, user)
+
+        if self._rTarg is None:
+            subproc = sp.Popen(cmd.split(), stdout=sp.PIPE,
+                               stderr=sp.PIPE)
+
+            stdout, stderr = safe_communicate(subproc)
+        else:
+            with self._rTarg.context as rTarg:
+                stdout, stderr = rTarg.run_cmd(cmd)
 
         # Parse out everything!
         jobs = {}
@@ -139,9 +193,20 @@ class QueueInterface(object):
         |
         """
 
-        subproc = sp.Popen(self.kill_cmd.split() + [job_id], stdout=sp.PIPE,
-                           stderr=sp.PIPE)
-        stdout, stderr = safe_communicate(subproc)
+        if self._rTarg is None:
+            subproc = sp.Popen(self.kill_cmd.split() + [job_id],
+                               stdout=sp.PIPE,
+                               stderr=sp.PIPE)
+            stdout, stderr = safe_communicate(subproc)
+        else:
+            with self._rTarg.context as rTarg:
+                stdout, stderr = rTarg.run_cmd(self.kill_cmd
+                                               + ' {0}'.format(job_id))
+
+    @property
+    def remote_target(self):
+        """RemoteTarget if a remote Host is set"""
+        return self._rTarg
 
     @classmethod
     def LSF(cls):
@@ -150,7 +215,8 @@ class QueueInterface(object):
                    kill_cmd='bkill',
                    sub_outre='Job \<(?P<job_id>[0-9]+)\>',
                    list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
-                              '(?P<job_status>RUN|PEND)')
+                              '(?P<job_status>RUN|PEND)',
+                   list_user_opt='-u')
 
     @classmethod
     def GridEngine(cls):
@@ -159,7 +225,8 @@ class QueueInterface(object):
                    kill_cmd='qdel',
                    sub_outre='Your job (?P<job_id>[0-9]+)',
                    list_outre='(?P<job_id>[0-9]+)\s.*'
-                              '\s(?P<job_status>r|qw)\s')
+                              '\s(?P<job_status>r|qw)\s',
+                   list_user_opt='-u')
 
     @classmethod
     def PBS(cls):
@@ -168,4 +235,5 @@ class QueueInterface(object):
                    kill_cmd='qdel',
                    sub_outre='(?P<job_id>[^\s]+)',
                    list_outre='(?P<job_id>[^\s]+)\s.*'
-                              '\s(?P<job_status>R|Q)\s')
+                              '\s(?P<job_status>R|Q)\s',
+                   list_user_opt='-u')

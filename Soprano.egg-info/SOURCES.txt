@@ -3,6 +3,7 @@ Soprano.egg-info/SOURCES.txt
 Soprano.egg-info/dependency_links.txt
 Soprano.egg-info/top_level.txt
 scripts/phylogen.py
+scripts/soprano_submitter.py
 scripts/vasp2cell.py
 soprano/__init__.py
 soprano/selection.py

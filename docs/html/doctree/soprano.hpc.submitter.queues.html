@@ -63,7 +63,7 @@
 <p>Definition of QueueInterface class.</p>
 <dl class="class">
 <dt id="soprano.hpc.submitter.queues.QueueInterface">
-<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.queues.</code><code class="descname">QueueInterface</code><span class="sig-paren">(</span><em>sub_cmd</em>, <em>list_cmd</em>, <em>kill_cmd</em>, <em>sub_outre</em>, <em>list_outre</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.queues.</code><code class="descname">QueueInterface</code><span class="sig-paren">(</span><em>sub_cmd</em>, <em>list_cmd</em>, <em>kill_cmd</em>, <em>sub_outre</em>, <em>list_outre</em>, <em>list_user_opt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>QueueInterface object</p>
 <p>A class meant to simplify interfacing in a basic way
@@ -85,6 +85,8 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 </dd>
 </dl>
 </li>
+<li><p class="first">PBS (another managing system using qsub)</p>
+</li>
 </ul>
 <p>Initialize the QueueInterface.</p>
 <div class="line-block">
@@ -102,6 +104,14 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 <div class="line-block">
 <div class="line">list_cmd. Must contain at least a job_id named</div>
 <div class="line">group</div>
+</div>
+<div class="line">list_user_opt (Optional[str]): name of the option for passing a</div>
+<div class="line-block">
+<div class="line">specific user name when listing</div>
+<div class="line">jobs. For example, on LSF this is</div>
+<div class="line">-u. By default it&#8217;s None, and the </div>
+<div class="line">default of the queueing system is</div>
+<div class="line">used.</div>
 </div>
 </div>
 </div>
@@ -135,7 +145,7 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.list">
-<code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list</code><span class="sig-paren">(</span><em>user=u'$USER'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all jobs found in the queue</p>
 <div class="line-block">
 <div class="line">Returns:</div>
@@ -143,7 +153,44 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 <div class="line">jobs (dict): a dict of jobs classified by ID containing all info</div>
 <div class="line-block">
 <div class="line">that can be matched through list_outre</div>
+</div>
+<div class="line">user (Optional[str]): user for whom jobs should be listed. Will</div>
+<div class="line-block">
+<div class="line">not have any effect if list_user_opt has not</div>
+<div class="line">been specified. Default is $USER.</div>
 <div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.remote_target">
+<code class="descname">remote_target</code><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.remote_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>RemoteTarget if a remote Host is set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.set_remote_host">
+<code class="descname">set_remote_host</code><span class="sig-paren">(</span><em>host=None</em>, <em>timeout=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.set_remote_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a remote host for use by this QueueInterface</p>
+<p>If a remote host is set, this Interface will try using the Paramiko
+library to connect to it via SSH. Check the docstring of 
+soprano.hpc.submitter.utils.RemoteTarget to see what the limitations
+are for this usage.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">host (Optional[str]): host name of the remote machine to connect</div>
+<div class="line-block">
+<div class="line">to. Further information must be contained in</div>
+<div class="line">the user&#8217;s ~/.ssh/config file. If left empty</div>
+<div class="line">the remote host is UNSET and therefore the</div>
+<div class="line">interface goes back to local use.</div>
+</div>
+<div class="line">timeout (Optional[float]): connection timeout in seconds (default</div>
+<div class="line-block">
+<div class="line">is 1 second)</div>
 </div>
 </div>
 </div>
@@ -152,7 +199,7 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 <dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.submit">
 <code class="descname">submit</code><span class="sig-paren">(</span><em>script</em>, <em>cwd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.submit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Submit a job to the queue.</p>
+<dd><p>Submit a job to the queue.x</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">

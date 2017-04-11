@@ -217,6 +217,68 @@ only argument to get the property with the given parameters.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="soprano.properties.linkage.linkage.DihedralAngleList">
+<em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">DihedralAngleList</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a list of dihedral angles found in the system, identified by 
+looking for a bonding pattern. The amount of said angles can vary from
+zero (if the pattern is not present) to an arbitrary number. They will be
+returned sorted from lowest to highest. Periodic boundary conditions are
+taken into account. If no pattern is provided, HCCH groups are searched by
+default.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">dihedral_pattern ([str]*4): a list of four chemical symbols</div>
+<div class="line-block">
+<div class="line">identifying the dihedral pattern to look</div>
+<div class="line">for</div>
+</div>
+<div class="line">bonds_params (dict): parameters to pass to the Bonds property used to</div>
+<div class="line-block">
+<div class="line">compute bonds. See the Bonds docstring for</div>
+<div class="line">details. If not provided, defaults are used</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">dihedral_angles (np.ndarray): sorted list of dihedral angles found</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.DihedralAngleList.default_name">
+<code class="descname">default_name</code><em class="property"> = u'dihedral_angle_list'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.DihedralAngleList.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'dihedral_pattern': [u'H', u'C', u'C', u'H'], u'bonds_params': {}}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.linkage.linkage.DihedralAngleList.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>dihedral_pattern</em>, <em>bonds_params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="soprano.properties.linkage.linkage.HydrogenBonds">
 <em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">HydrogenBonds</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
@@ -412,6 +474,62 @@ only argument to get the property with the given parameters.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="soprano.properties.linkage.linkage.MoleculeCOM">
+<em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">MoleculeCOM</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>List of centers of mass for the molecules present in the system. By
+default will use already existing molecules if they&#8217;re present as a saved
+array in the system.</p>
+<div class="line-block">
+<div class="line">Parameters:    </div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Return:</div>
+<div class="line-block">
+<div class="line">mol_com (np.ndarray): list of centers of mass for the system&#8217;s</div>
+<div class="line-block">
+<div class="line">molecules</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.MoleculeCOM.default_name">
+<code class="descname">default_name</code><em class="property"> = u'molecule_com'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.MoleculeCOM.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'force_recalc': False}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.linkage.linkage.MoleculeCOM.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="soprano.properties.linkage.linkage.MoleculeCOMLinkage">
 <em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">MoleculeCOMLinkage</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
@@ -579,6 +697,58 @@ only argument to get the property with the given parameters.</p>
 <dl class="staticmethod">
 <dt id="soprano.properties.linkage.linkage.MoleculeNumber.extract">
 <em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion">
+<em class="property">class </em><code class="descclassname">soprano.properties.linkage.linkage.</code><code class="descname">MoleculeQuaternion</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>A list of quaternions expressing the rotation of the molecule&#8217;s intertia
+tensor principal frame with respect to the cartesian axes.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">mol_quat ([ase.Quaternion]): list of quaternions</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion.default_name">
+<code class="descname">default_name</code><em class="property"> = u'molecule_quaternion'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'force_recalc': False}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

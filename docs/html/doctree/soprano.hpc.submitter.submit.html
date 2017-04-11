@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" />
     <link rel="up" title="soprano.hpc.submitter package" href="soprano.hpc.submitter.html" />
-    <link rel="next" title="soprano.properties package" href="soprano.properties.html" />
+    <link rel="next" title="soprano.hpc.submitter.utils module" href="soprano.hpc.submitter.utils.html" />
     <link rel="prev" title="soprano.hpc.submitter.queues module" href="soprano.hpc.submitter.queues.html" /> 
   </head>
   <body role="document">
@@ -40,7 +40,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.properties.html" title="soprano.properties package"
+          <a href="soprano.hpc.submitter.utils.html" title="soprano.hpc.submitter.utils module"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="soprano.hpc.submitter.queues.html" title="soprano.hpc.submitter.queues module"
@@ -64,14 +64,14 @@
 <p>Base class for all Submitters to inherit from.</p>
 <dl class="class">
 <dt id="soprano.hpc.submitter.submit.Submitter">
-<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.submit.</code><code class="descname">Submitter</code><span class="sig-paren">(</span><em>name</em>, <em>queue</em>, <em>submit_script</em>, <em>max_jobs=4</em>, <em>check_time=10</em>, <em>max_time=3600</em>, <em>temp_folder=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.submit.</code><code class="descname">Submitter</code><span class="sig-paren">(</span><em>name, queue, submit_script, max_jobs=4, check_time=10, max_time=3600, temp_folder=None, remote_workdir=None, remote_getfiles=[u'*.*'], ssh_timeout=1.0, continuation=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Submitter object</p>
 <p>Template to derive all specialised Submitters. These are meant to generate,
 submit and post-process any number of jobs on a queueing system in the form
 of a background process running on a head node. It implements
 methods that should be mostly overridden by the child classes.
-Six methods define its core behaviour:</p>
+The following methods define its core behaviour:</p>
 <ol class="arabic simple">
 <li>next_job is the function that outputs the specification for each new job
 to submit. The specification should be a dict with two members, &#8216;name&#8217;
@@ -92,6 +92,16 @@ temporary folder will be deleted immediately afterwards. It returns
 nothing;</li>
 <li>start_run takes no arguments, executes at the beginning of a run;</li>
 <li>finish_run takes no arguments, executes at the end of a run.</li>
+<li>save_state takes no arguments, returns a dict. It is executed when
+continuation=True is used and a run terminates. It will allow the user
+to add class-specific data to the dictionary that is stored in the 
+pickle file (in addition to the default, namely the list and info on
+currently running jobs). This should be used for example to store state 
+information that is necessary for job generation. It should be composed
+of serialisable objects.</li>
+<li>load_state takes as arguments the loaded data in dictionary form. It
+should perform the reverse operation of save_state, grabbing the info
+and restoring the Submitter&#8217;s state to its previous condition.</li>
 </ol>
 <p>In addition, the Submitter takes a template launching script which can
 be tagged with keywords, mainly &lt;name&gt; for the job name or any other
@@ -141,6 +151,58 @@ values when the script is submitted.</p>
 <div class="line">be changed if there&#8217;s a need because</div>
 <div class="line">of writing permissions.</div>
 </div>
+<div class="line">remote_workdir (Optional[str]): if present, uses a directory on a</div>
+<div class="line-block">
+<div class="line">remote machine by logging in via</div>
+<div class="line">SSH. Must be in the format</div>
+<div class="line">&lt;host&gt;:&lt;path/to/directory&gt;.</div>
+<div class="line">Host must be defined in the user&#8217;s</div>
+<div class="line">~/.ssh/config file - check the</div>
+<div class="line">docs for RemoteTarget for more</div>
+<div class="line">information. It is possible to</div>
+<div class="line">omit the colon and directory, that</div>
+<div class="line">will use the home directory of the</div>
+<div class="line">given folder; that is HEAVILY</div>
+<div class="line">DISCOURAGED though. Best practice</div>
+<div class="line">would be to create an empty</div>
+<div class="line">directory on the remote machine</div>
+<div class="line">and use that, to avoid accidental</div>
+<div class="line">overwriting/deleting of important</div>
+<div class="line">files.</div>
+</div>
+<div class="line">remote_getfiles (Optional[list(str)]): list of files to be</div>
+<div class="line-block">
+<div class="line">downloaded from the remote</div>
+<div class="line">copy of the job&#8217;s temporary</div>
+<div class="line">directory. By default, all</div>
+<div class="line">of them. Can be a list</div>
+<div class="line">using specific names,</div>
+<div class="line">wildcards etc. Filenames</div>
+<div class="line">can also use the</div>
+<div class="line">placeholder {name} to</div>
+<div class="line">signify the job name, as</div>
+<div class="line">well as any other name from</div>
+<div class="line">the arguments.</div>
+</div>
+<div class="line">ssh_timeout (Optional[float]): connection timeout in seconds</div>
+<div class="line-block">
+<div class="line">(default is 1 second)</div>
+</div>
+<div class="line">continuation (Optional[bool]): if True, when the Submitter is</div>
+<div class="line-block">
+<div class="line">stopped it will not terminate the</div>
+<div class="line">current jobs; rather, it will store</div>
+<div class="line">the list in a pickle file.</div>
+<div class="line">If the submitter is ran from the</div>
+<div class="line">same folder then it will &#8220;pick up</div>
+<div class="line">from where it left&#8221; and try</div>
+<div class="line">recovering those jobs, then</div>
+<div class="line">restart. If one wishes for</div>
+<div class="line">additional values to be saved and</div>
+<div class="line">restored, the save_state and</div>
+<div class="line">load_state methods need to be</div>
+<div class="line">defined.</div>
+</div>
 </div>
 </div>
 <dl class="method">
@@ -176,7 +238,7 @@ for up to TWO user-defined signals to be specified.</p>
 <dl class="method">
 <dt id="soprano.hpc.submitter.submit.Submitter.finish_job">
 <code class="descname">finish_job</code><span class="sig-paren">(</span><em>name</em>, <em>args</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.finish_job" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs completiion operations on the job. At this point any
+<dd><p>Performs completion operations on the job. At this point any
 relevant output files should be copied from &#8216;folder&#8217; to their final
 destination as the temporary folder itself will be deleted immediately
 after</p>
@@ -192,6 +254,12 @@ after</p>
 <dt id="soprano.hpc.submitter.submit.Submitter.list">
 <em class="property">static </em><code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.submit.Submitter.load_state">
+<code class="descname">load_state</code><span class="sig-paren">(</span><em>loaded</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.load_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace attributes from loaded data in dictionary form</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.submit.Submitter.log">
@@ -211,9 +279,16 @@ after</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">command (str): command assigned to the signal handler to remove.        </div>
+<div class="line">command (str): command assigned to the signal handler to remove.</div>
 </div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.hpc.submitter.submit.Submitter.save_state">
+<code class="descname">save_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary containing serialisable data to be saved from
+one run to the next</p>
 </dd></dl>
 
 <dl class="method">
@@ -270,8 +345,8 @@ return False if failed</p>
   <p class="topless"><a href="soprano.hpc.submitter.queues.html"
                         title="previous chapter">soprano.hpc.submitter.queues module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="soprano.properties.html"
-                        title="next chapter">soprano.properties package</a></p>
+  <p class="topless"><a href="soprano.hpc.submitter.utils.html"
+                        title="next chapter">soprano.hpc.submitter.utils module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -306,7 +381,7 @@ return False if failed</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.properties.html" title="soprano.properties package"
+          <a href="soprano.hpc.submitter.utils.html" title="soprano.hpc.submitter.utils module"
              >next</a> |</li>
         <li class="right" >
           <a href="soprano.hpc.submitter.queues.html" title="soprano.hpc.submitter.queues module"
