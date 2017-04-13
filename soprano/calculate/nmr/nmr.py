@@ -219,6 +219,25 @@ class NMRCalculator(object):
 
         self._B = larmor_frequency*_larm_units[larmor_units](el, iso)
 
+    def get_larmor_frequency(self, element):
+        """
+        Get the Larmor frequency of the virtual spectrometer for the desired
+        element in MHz.
+
+        | Args:
+        |   element (str): element and isotope to reference the frequency to.
+        |                  Should be in the form <isotope><element>. Isotope
+        |                  is optional, if absent the most abundant NMR active
+        |                  one will be used. Default is 1H.
+
+        | Returns:
+        |   larmor (float): Larmor frequency in MHz
+
+        """
+
+        el, iso = _el_iso(element)
+        return self._B/_larm_units['MHz'](el, iso)
+
     def set_reference(self, ref, element):
         """
         Set the chemical shift reference (in ppm) for a given element. If not
@@ -368,6 +387,12 @@ class NMRCalculator(object):
             freq_axis = np.linspace(min_freq, max_freq, bins)*u[freq_units]
         except KeyError:
             raise ValueError('Invalid freq_units passed to spectrum_1d')
+
+        # If it's not a quadrupolar nucleus, no reason to keep those effects
+        # around...
+        if abs(I) < 1:
+            effects &= ~NMRFlags.Q_STATIC
+            effects &= ~NMRFlags.Q_MAS
 
         # Ok, so get the relevant atoms and their properties
         a_inds = np.where((self._elems == el) & (self._isos == iso))[0]
@@ -526,15 +551,19 @@ class NMRCalculator(object):
                 bk = np.exp(-((freq_axis-fc)/freq_broad)**2.0)
                 bk /= np.sum(bk)
                 spec = np.convolve(spec, bk, mode='same')
-            else:                    
+            else:
                 spec = np.sum(np.exp(-((freq_axis-peaks[:, :, None])
                                        / freq_broad)**2), axis=(0, 1))
                 if has_orient:
                     # Flatten the peaks
                     spec = np.sum(spec, axis=0)
 
-
         # Normalize the spectrum to the number of nuclei
         spec *= len(a_inds)*len(spec)/np.sum(spec)
 
         return spec, freq_axis
+
+    @property
+    def B(self):
+        """Static magnetic field, in Tesla"""
+        return self._B
