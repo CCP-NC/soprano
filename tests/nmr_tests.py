@@ -68,6 +68,7 @@ class TestNMR(unittest.TestCase):
         qcnst = qprop(eth)
 
         for i, d in enumerate(data):
+            print(d)
             vals = [float(x) for x in d.split()[1:]]
             if len(vals) != 10:
                 continue
