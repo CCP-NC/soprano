@@ -509,7 +509,7 @@ class MoleculeCOM(AtomsProperty):
             mol_pos = all_pos[mol.indices]
             mol_pos += np.tensordot(mol.get_array('cell_indices'),
                                     s.get_cell(),
-                                    axes=(1, 1))
+                                    axes=(1, 0))
             mol_ms = all_m[mol.indices]
             mol_com.append(np.sum(mol_pos*mol_ms[:, None],
                                   axis=0)/np.sum(mol_ms))
