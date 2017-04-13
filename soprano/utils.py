@@ -361,7 +361,7 @@ def is_string(s):
 
 
 def safe_communicate(subproc, stdin=''):
-    """Executes a Popen.communicate and returns output in a way that is 
+    """Executes a Popen.communicate and returns output in a way that is
     compatible with Python 2 & 3 keeping input and output as strings (since
     Python 3 requires bytes objects otherwise)"""
     if not subproc.universal_newlines:

@@ -149,8 +149,8 @@ class CastepSubmitter(Submitter):
         if self.drun:
             self.log('Performing DRYRUN\n')
             dry_proc = sp.Popen([self.castep_command, name, '--dryrun'],
-                                 cwd=folder, stdout=sp.PIPE,
-                                 stderr=sp.PIPE)
+                                cwd=folder, stdout=sp.PIPE,
+                                stderr=sp.PIPE)
             stdout, stderr = safe_communicate(dry_proc)
             # When it's finished...
             try:

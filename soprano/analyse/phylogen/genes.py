@@ -301,6 +301,7 @@ def parsegene_coord_histogram(c, s1='C', s2='H', max_coord=6):
 
     return hists.astype(int)
 
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
