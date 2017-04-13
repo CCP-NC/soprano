@@ -321,11 +321,11 @@ class NMRCalculator(object):
 
         """
 
-        p = [np.sin(theta)*np.cos(phi),
-             np.sin(theta)*np.sin(phi),
-             np.cos(theta)]
-        w = [1.0]
-        t = []
+        p = np.array([[np.sin(theta)*np.cos(phi),
+                       np.sin(theta)*np.sin(phi),
+                       np.cos(theta)]])
+        w = np.array([1.0])
+        t = np.array([])
 
         self._orients = [p, w, t]
 
@@ -444,6 +444,8 @@ class NMRCalculator(object):
         has_orient = effects & (NMRFlags.CS_ORIENT | NMRFlags.Q_1_ORIENT |
                                 NMRFlags.Q_2_ORIENT_STATIC |
                                 NMRFlags.Q_2_ORIENT_MAS)
+        # Are we using a POWDER average?
+        use_pwd = len(self._orients[2]) > 0
 
         if has_orient:
             # Further expand the peaks!
@@ -509,24 +511,28 @@ class NMRCalculator(object):
 
         for p_nuc in peaks:
             for p_trans in p_nuc:
-                if has_orient:
+                if has_orient and use_pwd:
                     spec += pwd_avg(freq_axis, p_trans, self._orients[1],
                                     self._orients[2])
 
-        if freq_broad is None and not has_orient:
+        if freq_broad is None and (not has_orient or not use_pwd):
             print('WARNING: no artificial broadening detected in a calculation'
                   ' without line-broadening contributions. The spectrum could '
                   'appear distorted or empty')
 
         if freq_broad is not None:
-            if has_orient:
+            if has_orient and use_pwd:
                 fc = (max_freq+min_freq)/2.0
                 bk = np.exp(-((freq_axis-fc)/freq_broad)**2.0)
                 bk /= np.sum(bk)
                 spec = np.convolve(spec, bk, mode='same')
-            else:
+            else:                    
                 spec = np.sum(np.exp(-((freq_axis-peaks[:, :, None])
                                        / freq_broad)**2), axis=(0, 1))
+                if has_orient:
+                    # Flatten the peaks
+                    spec = np.sum(spec, axis=0)
+
 
         # Normalize the spectrum to the number of nuclei
         spec *= len(a_inds)*len(spec)/np.sum(spec)
