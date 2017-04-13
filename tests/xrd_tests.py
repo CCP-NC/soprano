@@ -33,6 +33,7 @@ class TestXRDCalculator(unittest.TestCase):
 
         def bad_func(x):
             return x
+
         self.assertRaisesRegexp(ValueError,
                                 "Invalid peak_func passed to set_peak_func",
                                 xr.set_peak_func,

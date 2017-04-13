@@ -212,6 +212,11 @@ class CoordinationHistogram(AtomsProperty):
 
         elems = np.array(s.get_chemical_symbols())
 
+        if species_1 is None:
+            species_1 = elems
+        if species_2 is None:
+            species_2 = elems
+
         # Initialise the histogram
         hist = {s1: {s2: np.zeros(max_coord+1)
                      for s2 in species_2}

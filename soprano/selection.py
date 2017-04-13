@@ -224,7 +224,7 @@ class AtomSelection(object):
         # keep the ones present in either selection,
         # but only the relevant indices of course,
         # and remove if conflicting!
-        all_k = set(self._arrays.keys() + other._arrays.keys())
+        all_k = set(self._arrays.keys()).union(set(other._arrays.keys()))
         arr1_i = [np.where(self.indices == i)[0][0] for i in ans._indices]
         arr2_i = [np.where(other.indices == i)[0][0] for i in ans._indices]
         ans._arrays = {}

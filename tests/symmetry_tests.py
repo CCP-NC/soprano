@@ -18,19 +18,20 @@ from soprano.properties.symmetry import *
 import unittest
 import numpy as np
 
+
 class TestSymmetry(unittest.TestCase):
 
     def test_symdataset(self):
 
         # Create atoms objects according to a given symmetry group, check
         # that it works
-        pos = np.zeros((6,3))
+        pos = np.zeros((6, 3))
         pos[0] = [0, 0.1, 0.2]
         pos[1] = [0, 0.3, 0.8]
         pos[2] = [0.4, 0.2, 0.6]
         pos[3:] = -pos[:3]
 
-        symmA = Atoms(['C']*6, positions=pos)
+        symmA = Atoms(['C']*6, positions=pos, cell=[5]*3, pbc=[True]*3)
 
         symdata = SymmetryDataset.get(symmA)
 

@@ -41,7 +41,8 @@ class TestPhylogen(unittest.TestCase):
 
         c1 = AtomsCollection([Atoms('CCC', positions=[[0, 0, 0],
                                                       [0.2, 0, 0],
-                                                      [0.85, 0, 0]])])
+                                                      [0.85, 0, 0]],
+                                    cell=[1]*3)])
         g1 = Gene('linkage_list', 1.0, {'size': 3})
         p1 = PhylogenCluster(c1, [g1])
 
@@ -58,11 +59,10 @@ class TestPhylogen(unittest.TestCase):
 
         # Then actual success
         def first_x_parser(c):
-            return np.array(c.all.get_positions())[:,0,0]
+            return np.array(c.all.get_positions())[:, 0, 0]
 
         g1 = Gene('first_x_coord', parser=first_x_parser)
         self.assertTrue(np.all(g1.evaluate(c1) == [i/5.0 for i in range(5)]))
-
 
     def test_loadgene(self):
 
@@ -77,7 +77,8 @@ class TestPhylogen(unittest.TestCase):
 
         # Now test that it works also when instantiating a cluster
         c1 = AtomsCollection([Atoms('CCC',
-                                    positions=np.random.random((3, 3)))])
+                                    positions=np.random.random((3, 3)),
+                                    cell=[1]*3)])
         p1 = PhylogenCluster(c1, gfpath)
 
     def test_loadarray(self):
