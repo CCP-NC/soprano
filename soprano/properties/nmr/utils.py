@@ -48,13 +48,16 @@ def _asymmetry(haeb_evals):
 def _span(evals):
     """Calculate span"""
 
-    return evals[:, 2]-evals[:, 0]
+    return np.amax(evals, axis=-1)-np.amin(evals, axis=-1)
 
 
 def _skew(evals):
     """Calculate skew"""
 
-    return 3*(evals[:, 1]-np.average(evals, axis=1))/_span(evals)
+    return 3*(np.median(evals,
+                        axis=1) -
+              np.average(evals,
+                         axis=1))/_span(evals)
 
 
 def _evecs_2_quat(evecs):
