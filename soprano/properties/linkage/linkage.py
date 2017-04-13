@@ -212,16 +212,6 @@ class CoordinationHistogram(AtomsProperty):
 
         elems = np.array(s.get_chemical_symbols())
 
-        if species_1 is None:
-            species_1 = elems
-        if species_2 is None:
-            species_2 = elems
-
-        # Initialise the histogram
-        hist = {s1: {s2: np.zeros(max_coord+1)
-                     for s2 in species_2}
-                for s1 in species_1}
-
         # Get the bonds
         bond_calc = Bonds({'vdw_set': vdw_set,
                            'vdw_scale': vdw_scale,
@@ -245,6 +235,11 @@ class CoordinationHistogram(AtomsProperty):
             species_2 = np.unique(elems)
         elif is_string(species_2):
             species_2 = np.array([species_2])
+
+        # Initialise the histogram
+        hist = {s1: {s2: np.zeros(max_coord+1)
+                     for s2 in species_2}
+                for s1 in species_1}
 
         for s1 in species_1:
             # Which atoms are of species 1, and what are they bonded to?
