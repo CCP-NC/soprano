@@ -348,8 +348,12 @@ class Submitter(object):
                     njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
                     # Perform setup
                     if not self.setup_job(**njob):
-                        self.log('Job {0} did not pass setup check,'
-                                 'skipping\n').format(njob['name'])
+                        self.log('Job {0} did not pass setup check, '
+                                 'skipping\n'.format(njob['name']))
+                        # Remove the temporary directory
+                        shutil.rmtree(njob['folder'])
+                        self.log(('Folder {0} '
+                                  'deleted\n').format(njob['folder']))
                         continue
                 else:
                     njob = self._waiting_jobs.pop(0)
