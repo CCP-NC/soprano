@@ -386,8 +386,14 @@ class Submitter(object):
                 else:
                     self.log('Submitting job '
                              '{0} to queue\n'.format(njob['name']))
+
+                    if self.host is not None:
+                        cwd = os.path.join(self.hostdir, njob['name'])
+                    else:
+                        cwd = njob['folder']
+
                     job_id = self.queue.submit(job_script,
-                                               cwd=njob['folder'])
+                                               cwd=cwd)
                     self._jobs[job_id] = njob
 
             # Now check for finished jobs
