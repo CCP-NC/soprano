@@ -387,6 +387,44 @@ else:
                 (0 if argspec.defaults is None else len(argspec.defaults)))
 
 
+# Importing a module from filename with compatibility across Python versions
+
+def import_module(mpath):
+    
+    mname = seedname(mpath)
+
+    # Python 3.5+ version
+    try:
+        import importlib.util
+    except ImportError:
+        pass
+    else:
+        spec = importlib.util.spec_from_file_location(mname, mpath)
+        foo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(foo)
+        return foo
+
+    # Python 3.3-3.4 version
+    try:
+        from importlib.machinery import SourceFileLoader
+    except ImportError:
+        pass
+    else:
+        return SourceFileLoader(mname, mpath).load_module()
+
+    # Python 2 version
+    try:
+        import imp
+    except ImportError:
+        # Ok, what the hell?
+        raise ImportError('Could not import file ' + mpath)
+    else:
+        return imp.load_source(mname, mpath)
+
+    # We should never get here, but...
+    return None
+
+
 def list_distance(l1, l2):
     """Return an integer distance between two lists (number of differing
     elements)"""

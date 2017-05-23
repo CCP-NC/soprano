@@ -29,22 +29,13 @@ def submitter_handler():
     import sys
     import argparse as ap
     import subprocess as sp
+    from soprano.utils import import_module
     from soprano.hpc.submitter import Submitter
 
     # First of all, check that we are on Linux, this only works there
     if sys.platform not in ('linux', 'linux2'):
         sys.exit('Invalid OS: background Submitter launching works only on '
                  'Linux')
-
-    class IsValidModule(ap.Action):
-
-        def __call__(self, parser, namespace, values, option_string=''):
-            # Is this actually a valid Python module name?
-            splname = os.path.splitext(values)
-            if splname[1] != '.py':
-                raise ValueError('Argument {0} is not a valid Python file')
-            else:
-                setattr(namespace, self.dest, splname[0])
 
     parser = ap.ArgumentParser(description="Use this script to start or stop "
                                "a Submitter object as a background process.")
@@ -57,7 +48,7 @@ def submitter_handler():
                              " from the given file,"
                              " or any custom action defined for your"
                              " submitter")
-    parser.add_argument('submitter_file', type=str, action=IsValidModule,
+    parser.add_argument('submitter_file', type=str,
                         help="Name of the Python module file containing the"
                              " declaration for the Submitter to use")
     # Optional arguments
@@ -79,13 +70,8 @@ def submitter_handler():
 
     # First, check that the required submitter file exists and that it
     # contains what we need
-    try:
-        loaded_module = __import__(args.submitter_file)
-    except ImportError as e:
-        if ('No module named ' + args.submitter_file) in str(e):
-            raise IOError('Invalid submitter_file argument: file not found')
-        else:
-            raise e
+    abs_subm_file = os.path.abspath(args.submitter_file)
+    loaded_module = import_module(abs_subm_file)
 
     # Now load the actual Submitter!
     subms = {v: getattr(loaded_module, v) for v in dir(loaded_module)
@@ -111,11 +97,12 @@ def submitter_handler():
         # Ok, first let's check that nothing like that is running already
         subm_l = Submitter.list()
         for s in subm_l:
-            if args.submitter_file == s[0] and submitter_name == s[1]:
+            if (os.path.abspath(s[0]) == abs_subm_file 
+                and submitter_name == s[1]):
                 sys.exit('The requested submitter is already'
                          ' running')
         cmd = ['python', '-m', 'soprano.hpc.submitter._spawn',
-               args.submitter_file, submitter_name, '&']
+               abs_subm_file, submitter_name, '&']
         if args.nohup:
             cmd = ['nohup'] + cmd
         sp.Popen(cmd)
@@ -124,26 +111,28 @@ def submitter_handler():
                                                  args.submitter_file))
     elif args.action[0] == 'stop':
         # PKILL the process
-        succ = Submitter.stop(args.submitter_file, submitter_name)
+        succ = Submitter.stop(abs_subm_file,
+                              submitter_name)
         if succ:
             print("Submitter "
                   "{0} from file {1} stopped".format(submitter_name,
                                                      args.submitter_file))
         else:
-            print ("The requested submitter is not running")
+            print("The requested submitter is not running")
     elif args.action[0] == 'list':
         subm_l = Submitter.list()
-        tabf = "{1: >10}\t| {2: >10}"
-        print(tabf.format('', 'Name', 'Time'))
+        tabf = "{1: >10}\t| {2: >10}\t| {0: >10}"
+        print(tabf.format('File', 'Name', 'Time'))
         for s in subm_l:
-            if s[0] != args.submitter_file:
+            if os.path.abspath(s[0]) != abs_subm_file:
                 continue
             print(tabf.format(*s))
     elif args.action[0] in subms[submitter_name]._user_signals:
         signum, _ = subms[submitter_name]._user_signals[args.action[0]]
         subm_l = Submitter.list()
         for s in subm_l:
-            if s[0] == args.submitter_file and s[1] == submitter_name:
+            if (os.path.abspath(s[0]) == abs_subm_file
+                    and s[1] == submitter_name):
                 os.kill(s[3], signum)
                 break
     else:

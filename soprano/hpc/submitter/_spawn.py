@@ -26,10 +26,11 @@ from __future__ import unicode_literals
 
 import sys
 import shutil
+from soprano.utils import import_module
 
 # Spawn a Submitter instance from a given module
 subm_module, subm_name = sys.argv[1:3]
-loaded_module = __import__(subm_module, fromlist=[subm_name])
+loaded_module = import_module(subm_module)
 subm = getattr(loaded_module, subm_name)
 try:
     subm.start()
