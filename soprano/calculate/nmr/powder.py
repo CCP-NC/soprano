@@ -60,7 +60,9 @@ def gen_pwd_ang(N, mode='sphere'):
     points = np.concatenate([zip(p, N-z-p, [z]*(N-z+1))
                              for z, p in enumerate(points)])*1.0/N
 
-    z_i = lambda z: int(z*N+1.5*z-z**2/2.0)
+    def z_i(z):
+        return int(z*N+1.5*z-z**2/2.0)
+
     tris = np.array([[x, x+1, x+(N-z+1)]
                      for z in range(N) for x in range(z_i(z), z_i(z+1)-1)] +
                     [[x, x+(N-z), x+(N-z+1)]
@@ -123,10 +125,10 @@ def pwd_avg(x, freqs, weights, tris):
     # Now compute the contribution for each pair of triangle+rectangle
 
     with np.errstate(divide='ignore'):
-        sl1 = 2.0/((trirect_mat[:, :, 2]-trirect_mat[:, :, 0])
-                   * (trirect_mat[:, :, 1]-trirect_mat[:, :, 0]))
-        sl2 = 2.0/((trirect_mat[:, :, 2]-trirect_mat[:, :, 0])
-                   * (trirect_mat[:, :, 2]-trirect_mat[:, :, 1]))
+        sl1 = 2.0/((trirect_mat[:, :, 2]-trirect_mat[:, :, 0]) *
+                   (trirect_mat[:, :, 1]-trirect_mat[:, :, 0]))
+        sl2 = 2.0/((trirect_mat[:, :, 2]-trirect_mat[:, :, 0]) *
+                   (trirect_mat[:, :, 2]-trirect_mat[:, :, 1]))
 
     # Fix NaNs and Infs
     sl1 = np.where(np.isnan(sl1) | np.isinf(sl1), 0, sl1)
@@ -138,10 +140,10 @@ def pwd_avg(x, freqs, weights, tris):
     ymat = np.where((trirect_mat[:, :, 0] > trirect_mat[:, :, 4]) |
                     (trirect_mat[:, :, 2] < trirect_mat[:, :, 3]),
                     0.0,
-                    ((f123[:, :, 1]-trirect_mat[:, :, 0])**2
-                     - (f123[:, :, 0]-trirect_mat[:, :, 0])**2)*0.5*sl1 +
-                    ((-f123[:, :, 1]+trirect_mat[:, :, 2])**2
-                     - (-f123[:, :, 2]+trirect_mat[:, :, 2])**2)*0.5*sl2)
+                    ((f123[:, :, 1]-trirect_mat[:, :, 0])**2 -
+                     (f123[:, :, 0]-trirect_mat[:, :, 0])**2)*0.5*sl1 +
+                    ((-f123[:, :, 1]+trirect_mat[:, :, 2])**2 -
+                     (-f123[:, :, 2]+trirect_mat[:, :, 2])**2)*0.5*sl2)
     ymat *= triweights[:, None]
 
     y = np.sum(ymat, axis=0)

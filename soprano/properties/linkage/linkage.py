@@ -94,7 +94,7 @@ class Bonds(AtomsProperty):
     """
     Bonds
 
-    Produces an array of tuples identifying all bonds existing within the 
+    Produces an array of tuples identifying all bonds existing within the
     system (calculated using Van der Waals radii). The tuples are structured
     as:
 
@@ -183,7 +183,7 @@ class CoordinationHistogram(AtomsProperty):
     |                        whom no data is available.
     |   species_1 (str or [str]): list of species to compute the histogram
     |                             for. By default all of them.
-    |   species_2 (str or [str]): list of species whose coordination with 
+    |   species_2 (str or [str]): list of species whose coordination with
     |                             species_1 should be checked. By default all
     |                             of them.
     |   max_coord (int): what should be the largest coordination number
@@ -212,11 +212,6 @@ class CoordinationHistogram(AtomsProperty):
 
         elems = np.array(s.get_chemical_symbols())
 
-        # Initialise the histogram
-        hist = {s1: {s2: np.zeros(max_coord+1)
-                     for s2 in species_2}
-                for s1 in species_1}
-
         # Get the bonds
         bond_calc = Bonds({'vdw_set': vdw_set,
                            'vdw_scale': vdw_scale,
@@ -240,6 +235,11 @@ class CoordinationHistogram(AtomsProperty):
             species_2 = np.unique(elems)
         elif is_string(species_2):
             species_2 = np.array([species_2])
+
+        # Initialise the histogram
+        hist = {s1: {s2: np.zeros(max_coord+1)
+                     for s2 in species_2}
+                for s1 in species_1}
 
         for s1 in species_1:
             # Which atoms are of species 1, and what are they bonded to?
@@ -479,7 +479,7 @@ class MoleculeCOM(AtomsProperty):
     default will use already existing molecules if they're present as a saved
     array in the system.
 
-    | Parameters:    
+    | Parameters:
     |   force_recalc (bool): if True, always recalculate the molecules even if
     |                        already present.
 
@@ -946,7 +946,7 @@ class DihedralAngleList(AtomsProperty):
     """
     DihedralAngleList
 
-    Produces a list of dihedral angles found in the system, identified by 
+    Produces a list of dihedral angles found in the system, identified by
     looking for a bonding pattern. The amount of said angles can vary from
     zero (if the pattern is not present) to an arbitrary number. They will be
     returned sorted from lowest to highest. Periodic boundary conditions are

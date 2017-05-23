@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.hpc.submitter.submit module &mdash; Soprano alpha (Andrews) documentation</title>
+    <title>soprano.hpc.submitter.submit module &mdash; Soprano beta (Boggess) documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     'alpha (Andrews)',
+        VERSION:     'beta (Boggess)',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Soprano alpha (Andrews) documentation" href="../index.html" />
+    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
     <link rel="up" title="soprano.hpc.submitter package" href="soprano.hpc.submitter.html" />
     <link rel="next" title="soprano.hpc.submitter.utils module" href="soprano.hpc.submitter.utils.html" />
     <link rel="prev" title="soprano.hpc.submitter.queues module" href="soprano.hpc.submitter.queues.html" /> 
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="soprano.hpc.submitter.queues.html" title="soprano.hpc.submitter.queues module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
           <li class="nav-item nav-item-3"><a href="soprano.hpc.html" >soprano.hpc package</a> &raquo;</li>
@@ -94,9 +94,9 @@ nothing;</li>
 <li>finish_run takes no arguments, executes at the end of a run.</li>
 <li>save_state takes no arguments, returns a dict. It is executed when
 continuation=True is used and a run terminates. It will allow the user
-to add class-specific data to the dictionary that is stored in the 
+to add class-specific data to the dictionary that is stored in the
 pickle file (in addition to the default, namely the list and info on
-currently running jobs). This should be used for example to store state 
+currently running jobs). This should be used for example to store state
 information that is necessary for job generation. It should be composed
 of serialisable objects.</li>
 <li>load_state takes as arguments the loaded data in dictionary form. It
@@ -147,9 +147,7 @@ values when the script is submitted.</p>
 <div class="line">temp_folder (Optional[str]): where to store the temporary folders</div>
 <div class="line-block">
 <div class="line">for the calculations. By default it&#8217;s</div>
-<div class="line">the system&#8217;s tmp/ folder, but might</div>
-<div class="line">be changed if there&#8217;s a need because</div>
-<div class="line">of writing permissions.</div>
+<div class="line">the current folder.</div>
 </div>
 <div class="line">remote_workdir (Optional[str]): if present, uses a directory on a</div>
 <div class="line-block">
@@ -181,8 +179,8 @@ values when the script is submitted.</p>
 <div class="line">can also use the</div>
 <div class="line">placeholder {name} to</div>
 <div class="line">signify the job name, as</div>
-<div class="line">well as any other name from</div>
-<div class="line">the arguments.</div>
+<div class="line">well as any other element</div>
+<div class="line">from the arguments.</div>
 </div>
 <div class="line">ssh_timeout (Optional[float]): connection timeout in seconds</div>
 <div class="line-block">
@@ -386,7 +384,7 @@ return False if failed</p>
         <li class="right" >
           <a href="soprano.hpc.submitter.queues.html" title="soprano.hpc.submitter.queues module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano alpha (Andrews) documentation</a> &raquo;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
           <li class="nav-item nav-item-3"><a href="soprano.hpc.html" >soprano.hpc package</a> &raquo;</li>

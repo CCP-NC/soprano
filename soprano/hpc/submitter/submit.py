@@ -73,14 +73,14 @@ class Submitter(object):
     6) finish_run takes no arguments, executes at the end of a run.
     7) save_state takes no arguments, returns a dict. It is executed when
        continuation=True is used and a run terminates. It will allow the user
-       to add class-specific data to the dictionary that is stored in the 
+       to add class-specific data to the dictionary that is stored in the
        pickle file (in addition to the default, namely the list and info on
-       currently running jobs). This should be used for example to store state 
+       currently running jobs). This should be used for example to store state
        information that is necessary for job generation. It should be composed
        of serialisable objects.
     8) load_state takes as arguments the loaded data in dictionary form. It
        should perform the reverse operation of save_state, grabbing the info
-       and restoring the Submitter's state to its previous condition. 
+       and restoring the Submitter's state to its previous condition.
 
     In addition, the Submitter takes a template launching script which can
     be tagged with keywords, mainly <name> for the job name or any other
@@ -348,8 +348,12 @@ class Submitter(object):
                     njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
                     # Perform setup
                     if not self.setup_job(**njob):
-                        self.log('Job {0} did not pass setup check,'
-                                 'skipping\n').format(njob['name'])
+                        self.log('Job {0} did not pass setup check, '
+                                 'skipping\n'.format(njob['name']))
+                        # Remove the temporary directory
+                        shutil.rmtree(njob['folder'])
+                        self.log(('Folder {0} '
+                                  'deleted\n').format(njob['folder']))
                         continue
                 else:
                     njob = self._waiting_jobs.pop(0)

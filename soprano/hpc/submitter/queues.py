@@ -69,7 +69,7 @@ class QueueInterface(object):
         |   list_user_opt (Optional[str]): name of the option for passing a
         |                                  specific user name when listing
         |                                  jobs. For example, on LSF this is
-        |                                  -u. By default it's None, and the 
+        |                                  -u. By default it's None, and the
         |                                  default of the queueing system is
         |                                  used.
 
@@ -94,9 +94,9 @@ class QueueInterface(object):
         """Set a remote host for use by this QueueInterface
 
         If a remote host is set, this Interface will try using the Paramiko
-        library to connect to it via SSH. Check the docstring of 
+        library to connect to it via SSH. Check the docstring of
         soprano.hpc.submitter.utils.RemoteTarget to see what the limitations
-        are for this usage. 
+        are for this usage.
 
         | Args:
         |   host (Optional[str]): host name of the remote machine to connect
@@ -200,8 +200,8 @@ class QueueInterface(object):
             stdout, stderr = safe_communicate(subproc)
         else:
             with self._rTarg.context as rTarg:
-                stdout, stderr = rTarg.run_cmd(self.kill_cmd
-                                               + ' {0}'.format(job_id))
+                stdout, stderr = rTarg.run_cmd(self.kill_cmd +
+                                               ' {0}'.format(job_id))
 
     @property
     def remote_target(self):

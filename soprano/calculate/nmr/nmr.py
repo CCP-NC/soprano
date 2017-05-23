@@ -151,13 +151,37 @@ class NMRCalculator(object):
     - quadrupolar shifts of NMR peaks up to second order corrections
     - effects of crystal orientation (single crystal)
     - powder average (policrystalline/powder)
+    - ultrafast MAS limit spectra
 
     What it can NOT simulate:
 
-    - MAS effects
+    - finite speed MAS spectra
     - J couplings
-    - complex multi-spin interactions
+    - dipolar interactions
     - complex NMR experiments
+
+    A list of the currently available NMRFlags to be used in conjunction with
+    methods that require a list of effects of interest: ::
+
+        NMRFlags.CS_ISO     => chemical shielding, isotropic effect
+                .CS_ORIENT  => chemical shielding, orientation dependent
+                               effects
+                .CS         => chemical shielding, everything
+                .Q_1_ORIENT => quadrupolar, 1st order, orientation dependent
+                               effects
+                .Q_2_SHIFT  => quadrupolar, 2nd order, isotropic shift
+                .Q_2_ORIENT_STATIC => quadrupolar, 2nd order, orientation
+                                      dependent effects; static limit
+                .Q_2_ORIENT_MAS => quadrupolar, 2nd order, orientation
+                                      dependent effects; ultrafast MAS limit
+                .Q_2_STATIC => quadrupolar, 2nd order, all static effects
+                .Q_2_MAS    => quadrupolar, 2nd order, all ultrafast MAS
+                               effects
+                .Q_STATIC   => quadrupolar, all static effects
+                .Q_MAS      => quadrupolar, all ultrafast MAS effects
+                .STATIC     => all static effects
+                .MAS        => all ultrafast MAS effects
+
 
     | Args:
     |   sample (ase.Atoms): an Atoms object describing the system to simulate
@@ -218,6 +242,25 @@ class NMRCalculator(object):
         el, iso = _el_iso(element)
 
         self._B = larmor_frequency*_larm_units[larmor_units](el, iso)
+
+    def get_larmor_frequency(self, element):
+        """
+        Get the Larmor frequency of the virtual spectrometer for the desired
+        element in MHz.
+
+        | Args:
+        |   element (str): element and isotope whose frequency we require.
+        |                  Should be in the form <isotope><element>. Isotope
+        |                  is optional, if absent the most abundant NMR active
+        |                  one will be used. Default is 1H.
+
+        | Returns:
+        |   larmor (float): Larmor frequency in MHz
+
+        """
+
+        el, iso = _el_iso(element)
+        return self._B/_larm_units['MHz'](el, iso)
 
     def set_reference(self, ref, element):
         """
@@ -321,11 +364,11 @@ class NMRCalculator(object):
 
         """
 
-        p = [np.sin(theta)*np.cos(phi),
-             np.sin(theta)*np.sin(phi),
-             np.cos(theta)]
-        w = [1.0]
-        t = []
+        p = np.array([[np.sin(theta)*np.cos(phi),
+                       np.sin(theta)*np.sin(phi),
+                       np.cos(theta)]])
+        w = np.array([1.0])
+        t = np.array([])
 
         self._orients = [p, w, t]
 
@@ -337,7 +380,7 @@ class NMRCalculator(object):
         |   N (int): the number of subdivisions used to generate orientations
         |            within the POWDER algorithm. Higher values make for
         |            better but more expensive averages.
-        |   mode (str): which part of the solid angle to cover with the 
+        |   mode (str): which part of the solid angle to cover with the
         |               orientations. Can be 'octant', 'hemisphere' or
         |               'sphere'. The latter should not be necessary for any
         |               NMR interaction. Default is 'hemisphere'.
@@ -352,7 +395,33 @@ class NMRCalculator(object):
         """
         Return a simulated spectrum for the given sample and element.
 
-        <to be expanded>
+        | Args:
+        |   element (str): element and isotope to get the spectrum of.
+        |                  Should be in the form <isotope><element>. Isotope
+        |                  is optional, if absent the most abundant NMR active
+        |                  one will be used.
+        |   min_freq (float): lower bound of the frequency range
+        |                    (default is -50)
+        |   min_freq (float): upper bound of the frequency range
+        |                    (default is 50)
+        |   bins (int): number of bins in which to separate the frequency range
+        |              (default is 500)
+        |   freq_broad (float): Gaussian broadening width to apply to the
+        |                       final spectrum (default is None)
+        |   freq_units (str): units used for frequency, can be ppm or MHz
+        |                     (default is ppm).
+        |   effects (NMRFlags): a flag, or bitwise-joined set of flags, from
+        |                       this module's NMRFlags tuple, describing which
+        |                       effects should be included and accounted for
+        |                       in the calculation. For a list of available
+        |                       flags check the docstring for NMRCalculator.
+
+        | Returns:
+        |   spec (np.ndarray): array of length 'bins' containing the spectral
+        |                      intensities
+        |   freq (np.ndarray): array of length 'bins' containing the frequency
+        |                      axis
+
         """
 
         # First, define the frequency range
@@ -368,6 +437,12 @@ class NMRCalculator(object):
             freq_axis = np.linspace(min_freq, max_freq, bins)*u[freq_units]
         except KeyError:
             raise ValueError('Invalid freq_units passed to spectrum_1d')
+
+        # If it's not a quadrupolar nucleus, no reason to keep those effects
+        # around...
+        if abs(I) < 1:
+            effects &= ~NMRFlags.Q_STATIC
+            effects &= ~NMRFlags.Q_MAS
 
         # Ok, so get the relevant atoms and their properties
         a_inds = np.where((self._elems == el) & (self._isos == iso))[0]
@@ -444,6 +519,8 @@ class NMRCalculator(object):
         has_orient = effects & (NMRFlags.CS_ORIENT | NMRFlags.Q_1_ORIENT |
                                 NMRFlags.Q_2_ORIENT_STATIC |
                                 NMRFlags.Q_2_ORIENT_MAS)
+        # Are we using a POWDER average?
+        use_pwd = len(self._orients[2]) > 0
 
         if has_orient:
             # Further expand the peaks!
@@ -473,8 +550,8 @@ class NMRCalculator(object):
             cosa2 = self._orients[0][:, 0]**2
 
             dir_fac = 0.5*((3*cosb2[None, :]-1) +
-                           eta_q[:, None]*sinb2[None, :]*(2*cosa2[None, :]
-                                                          - 1.0))
+                           eta_q[:, None]*sinb2[None, :]*(2*cosa2[None, :] -
+                                                          1.0))
             m_fac = m[:, :-1]+0.5
             nu_q = chi*1.5/(I*(2*I-1.0))
 
@@ -498,9 +575,9 @@ class NMRCalculator(object):
             m_fac = I*(I+1.0)-17.0/3.0*m[:, :-1]*(m[:, :-1]+1)-13.0/6.0
             nu_q = chi*1.5/(I*(2*I-1.0))
 
-            qfreqs = -((nu_q**2/(6.0*larm*1e6))[:, None, None]
-                       * m_fac[:, :, None]
-                       * dir_fac[:, None, :])
+            qfreqs = -((nu_q**2/(6.0*larm*1e6))[:, None, None] *
+                       m_fac[:, :, None] *
+                       dir_fac[:, None, :])
 
             peaks += qfreqs/larm
 
@@ -509,26 +586,34 @@ class NMRCalculator(object):
 
         for p_nuc in peaks:
             for p_trans in p_nuc:
-                if has_orient:
+                if has_orient and use_pwd:
                     spec += pwd_avg(freq_axis, p_trans, self._orients[1],
                                     self._orients[2])
 
-        if freq_broad is None and not has_orient:
+        if freq_broad is None and (not has_orient or not use_pwd):
             print('WARNING: no artificial broadening detected in a calculation'
                   ' without line-broadening contributions. The spectrum could '
                   'appear distorted or empty')
 
         if freq_broad is not None:
-            if has_orient:
+            if has_orient and use_pwd:
                 fc = (max_freq+min_freq)/2.0
                 bk = np.exp(-((freq_axis-fc)/freq_broad)**2.0)
                 bk /= np.sum(bk)
                 spec = np.convolve(spec, bk, mode='same')
             else:
-                spec = np.sum(np.exp(-((freq_axis-peaks[:, :, None])
-                                       / freq_broad)**2), axis=(0, 1))
+                spec = np.sum(np.exp(-((freq_axis-peaks[:, :, None]) /
+                                       freq_broad)**2), axis=(0, 1))
+                if has_orient:
+                    # Flatten the peaks
+                    spec = np.sum(spec, axis=0)
 
         # Normalize the spectrum to the number of nuclei
         spec *= len(a_inds)*len(spec)/np.sum(spec)
 
         return spec, freq_axis
+
+    @property
+    def B(self):
+        """Static magnetic field, in Tesla"""
+        return self._B

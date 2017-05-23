@@ -173,7 +173,7 @@ class EFGReducedAnisotropy(AtomsProperty):
     """
     EFGReducedAnisotropy
 
-    Produces an array containing the electric field gradient reduced 
+    Produces an array containing the electric field gradient reduced
     anisotropies in a system (au).
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
@@ -331,7 +331,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
     -----
       h
 
-    in Hz. It is important to keep in mind that therefore this represents a 
+    in Hz. It is important to keep in mind that therefore this represents a
     *frequency*; the corresponding 'omega' (pulsation) would be the same value
     multiplied by 2*pi. This is, for example, exactly the value required as
     input in Simpson's SPINSYS section.
@@ -345,12 +345,12 @@ class EFGQuadrupolarConstant(AtomsProperty):
     |   isotopes (dict): dictionary of specific isotopes to use, by element
     |                    symbol. If the isotope doesn't exist an error will
     |                    be raised. Overrides use_q_isotopes.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if 
+    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
     |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is 
+    |                        to be of different isotopes. Where a 'None' is
     |                        present will fall back on the previous
     |                        definitions. Where an isotope is present it
-    |                        overrides everything else. 
+    |                        overrides everything else.
 
     | Returns:
     |   q_list (np.ndarray): list of quadrupole constants in Hz

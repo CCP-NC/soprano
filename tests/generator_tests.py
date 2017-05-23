@@ -59,8 +59,8 @@ class TestGenerate(unittest.TestCase):
 
     def test_linspace(self):
 
-        a1 = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.2, 0.0]])
-        a2 = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.8, 0.0]])
+        a1 = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.2, 0.0]], cell=[1]*3)
+        a2 = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.8, 0.0]], cell=[1]*3)
 
         lgen = linspaceGen(a1, a2, steps=5, periodic=False)
         lcoll = AtomsCollection(lgen)

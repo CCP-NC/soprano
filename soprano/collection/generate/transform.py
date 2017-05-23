@@ -29,6 +29,7 @@ from ase import Atoms
 import soprano.utils as utils
 from soprano.properties import AtomsProperty
 
+
 def transformGen(struct_0, transform, steps=10):
     """Generator function to create multiple structures with positions
     interpolated linearly between two extremes.

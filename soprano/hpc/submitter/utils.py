@@ -176,7 +176,7 @@ class RemoteTargetContext(object):
         | Args:
         |   localpaths (str or [str]): path of file(s) to copy. Can include
         |                              wildcards.
-        |   remotedir (str): remote directory to copy the file(s) into.        
+        |   remotedir (str): remote directory to copy the file(s) into.
 
         """
 
@@ -199,7 +199,7 @@ class RemoteTargetContext(object):
         | Args:
         |   remotepaths (str or [str]): path of file(s) to copy. Can include
         |                               wildcards.
-        |   localdir (str): local directory to copy the file(s) into.        
+        |   localdir (str): local directory to copy the file(s) into.
 
         """
 

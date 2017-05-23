@@ -38,7 +38,7 @@ try:
         from pyspglib import spglib
 except ImportError:
     raise ImportError('pySPGLIB not installed on this system, XRD'
-                       ' functionality cannot be used.')
+                      ' functionality cannot be used.')
 
 
 XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
