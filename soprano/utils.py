@@ -29,6 +29,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import sys
+from contextlib import contextmanager
 import inspect
 import numpy as np
 from itertools import product as iter_product
@@ -68,6 +70,23 @@ def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
         bar += ' {0}'.format(spin[int(perc*spin_rate) % len(spin)])
 
     return bar
+
+
+@contextmanager
+def silence_stdio(silence_stdout=True, silence_stderr=True):
+    """Useful stdout/err silencer"""
+    dummy_out = open(os.devnull, "w")
+    if silence_stdout:
+        old_stdout, sys.stdout = sys.stdout, dummy_out
+    if silence_stderr:
+        old_stderr, sys.stderr = sys.stderr, dummy_out
+    try:
+        yield dummy_out
+    finally:
+        if silence_stdout:
+            sys.stdout = old_stdout
+        if silence_stderr:
+            sys.stderr = old_stderr
 
 
 def abc2cart(abc):
@@ -390,7 +409,7 @@ else:
 # Importing a module from filename with compatibility across Python versions
 
 def import_module(mpath):
-    
+
     mname = seedname(mpath)
 
     # Python 3.5+ version

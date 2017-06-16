@@ -118,7 +118,7 @@ class AtomsCollection(object):
     def __init__(self, structures=[],
                  info={},
                  cell_reduce=False,
-                 progress=False):
+                 progress=False, suppress_ase_warnings=True):
         """
         Initialize the AtomsCollection
 
@@ -131,6 +131,8 @@ class AtomsCollection(object):
         |    cell_reduce (bool): if True, perform a Niggli cell reduction on
         |                        all loaded structures
         |    progress (bool): visualize a progress bar for the loading process
+        |    suppress_ase_warnings (bool): suppress annoying ASE warnings when
+        |                                  loading files (default is True)
         """
 
         # Start by parsing out the structures
@@ -156,7 +158,9 @@ class AtomsCollection(object):
                 self.structures.append(ase.Atoms(struct))
             # Or is it a string?
             elif utils.is_string(struct):
-                self.structures.append(ase_io.read(str(struct)))
+                with utils.silence_stdio(suppress_ase_warnings,
+                                         suppress_ase_warnings):
+                    self.structures.append(ase_io.read(str(struct)))
                 # If there's no name, give it the filename
                 if 'name' not in self.structures[-1].info:
                     self.structures[-1].info['name'] = utils.seedname(struct)
