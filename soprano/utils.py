@@ -33,6 +33,7 @@ import sys
 from contextlib import contextmanager
 import inspect
 import numpy as np
+from scipy.misc import factorial
 from itertools import product as iter_product
 from ase.quaternions import Quaternion
 
@@ -476,6 +477,90 @@ def swing_twist_decomp(quat, axis):
     swing = quat*twist.conjugate()
 
     return swing, twist
+
+### Clebsch-Gordan and Wigner-3j symbols ###
+
+
+def clebsch_gordan(j, m, j1, m1, j2, m2):
+    """ Clebsch-Gordan cohefficients for given quantum numbers:
+    j, m, j1, m1, j2, m2
+
+    The numbers passed can be arrays (just make sure they're the
+    same size).
+    """
+
+    # Is it a single value?
+    try:
+        n = len(j)
+    except TypeError:
+        n = 1
+
+    # Safety checks
+    jm_all = np.array([j, m, j1, m1, j2, m2]).T
+    if n == 1:
+        jm_all = jm_all[None, :]
+    elif len(jm_all.shape) == 1:
+        # Inconsistent lenghts!
+        raise ValueError('Not all arrays passed have the same size')
+    if (((jm_all*2) % 1 != 0).any() or
+            (np.abs(jm_all[:, 1::2]) > jm_all[:, ::2]).any()):
+        raise ValueError('Invalid momentum values')
+
+    j, m, j1, m1, j2, m2 = jm_all.T
+
+    # Gotta do this the hard way...
+    # Find all valid k
+
+    kmax = np.min([j1+j2-j,          # j1+j2-j-k >= 0
+                   j1-m1,            # j1-m1-k >= 0
+                   j2+m2],           # j2+m2-k >= 0
+                  axis=0)
+    kmin = np.max([j*0,              # k >= 0
+                   -j+j2-m1,         # j-j2+m1+k >= 0
+                   -j+j1+m2],        # j-j1+m2+k >= 0
+                  axis=0)
+
+    ks = [np.arange(np.ceil(k0), np.floor(k1)+1)
+          for k0, k1 in zip(kmin, kmax)]
+
+    # Calculate k sum
+    ksum = [np.sum((-1)**k/(factorial(k)*factorial(j1[i]+j2[i]-j[i]-k) *
+                            factorial(j1[i]-m1[i]-k)*factorial(j2[i]+m2[i]-k) *
+                            factorial(j[i]-j2[i]+m1[i]+k) *
+                            factorial(j[i]-j1[i]-m2[i]+k)))
+            for i, k in enumerate(ks)]
+
+    cg = np.where(m == m1+m2,
+                  np.sqrt((2*j+1)*factorial(j+j1-j2)*factorial(j-j1+j2) *
+                          factorial(j1+j2-j)/factorial(j1+j2+j+1)) *
+                  np.sqrt(factorial(j+m)*factorial(j-m)*factorial(j1-m1) *
+                          factorial(j1+m1)*factorial(j2-m2)*factorial(j2+m2)) *
+                  ksum,
+                  0)
+    if n == 1:
+        cg = cg[0]
+
+    return cg
+
+
+def wigner_3j(j1, m1, j2, m2, j3, m3):
+    """ Wigner 3j symbols for given quantum numbers:
+
+    /                 \
+    | j1    j2     j3 |
+    | m1    m2     m3 |
+    \                 /
+
+    The numbers passed can be arrays (just make sure they're the
+    same size).
+    """
+
+    # Expressed as a function of Clebsch-Gordan cohefficients
+    j1, m1, j2, m2, j3, m3 = np.array([j1, m1, j2, m2, j3, m3])
+    return (clebsch_gordan(j3, -m3, j1, m1, j2, m2) *
+            (-1)**((j1-j2-m3) % 2)/np.sqrt(2*j3+1))
+
+######
 
 
 def periodic_center(v_frac):
