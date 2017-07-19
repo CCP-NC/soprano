@@ -26,6 +26,7 @@ import re
 import itertools
 import numpy as np
 from soprano.utils import list_distance
+from soprano.selection import AtomSelection
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,
@@ -33,6 +34,7 @@ from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         HydrogenBonds, HydrogenBondsNumber,
                                         CoordinationHistogram)
 from soprano.properties.labeling import (MoleculeSites, HydrogenBondTypes)
+from soprano.properties.order import BondOrder
 
 
 # Useful functions for parsing of complex genes
@@ -302,6 +304,36 @@ def parsegene_coord_histogram(c, s1='C', s2='H', max_coord=6):
     return hists.astype(int)
 
 
+def parsegene_bond_order(c, s1=None, s2=None, channels=10, cutoff_radius=2.0,
+                         cutoff_width=0.05, mode='Q'):
+
+    if mode not in ('Q', 'W', 'QW'):
+        raise ValueError('Invalid mode argument for parsegene_bond_order')
+
+    l_channels = range(1, channels+1)
+
+    b_ord = []
+    for s in c.structures:
+        if s1 is not None:
+            i1 = AtomSelection.from_element(s, s1)
+        else:
+            i1 = AtomSelection.all(s)
+        if s2 is not None:
+            i2 = AtomSelection.from_element(s, s2)
+        else:
+            i2 = AtomSelection.all(s)
+
+        bo = BondOrder(l_channels=l_channels, center_atoms=i1,
+                       environment_atoms=i2, cutoff_radius=cutoff_radius,
+                       cutoff_width=cutoff_width, compute_W=('W' in mode))
+        bo = bo(s)
+        bo = np.concatenate([bo[i] for i in mode])
+
+        b_ord.append(bo)
+
+    return np.array(b_ord)
+
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
@@ -413,6 +445,19 @@ class GeneDictionary(object):
                 'max_coord': 6
             },
             'parser': parsegene_coord_histogram,
+            'pair': False
+        },
+
+        'bond_order_pars': {
+            'default_params': {
+                's1': None,
+                's2': None,
+                'channels': 10,
+                'cutoff_radius': 2.0,
+                'cutoff_width': 0.05,
+                'mode': 'Q'
+            },
+            'parser': parsegene_bond_order,
             'pair': False
         }
 
@@ -588,6 +633,37 @@ class GeneDictionary(object):
             max_coord (int): maximum coordination number to allow in
                              histogram. By default 6
         Length: max_coord+1 (by default 7)
+        """,
+
+        'bond_order_pars': """
+        Steinhardt bond order parameters (based on spherical harmonics) for a
+        pair of species in the given system. These parameters reflect the
+        symmetry of the local environment for each atom by making use of 
+        spherical harmonics. Spherical harmonic functions are computed up to 
+        the requested angular momentum channel; higher angular momenta
+        correspond to more rapidly varying angular functions (and therefore
+        will match finer details). There are two types of parameter: 
+        Q (second order) and W (third order). Both are invariant to rotation,
+        but the W are more expensive to compute and are off by default. A 
+        sigmoidal cutoff is applied to weight atoms in the neighbourhood;
+        parameters for the sigmoidal function can be passed.
+
+        Parameters:
+            s1 (string): chemical symbol of species whose environment is to be
+                         evaluated. Default is None, meaning a sum over all.   
+            s2 (string): chemical symbol of species that contributes to the
+                         environment. Default is None, meaning a sum over all.
+            channels (int): number of angular momentum channels. More channels
+                            mean finer detail but higher computational cost.
+                            Default is 10.
+            cutoff_radius (float): cutoff distance for sigmoidal function.
+                                   Default is 2 Angstroms.
+            cutoff_width (float): scale over which the sigmoidal function
+                                  should vanish. Default is 0.05 Angstroms.
+            mode (str): mode to compute. Can be Q (only second order), W (only
+                        third order) and QW (both orders, concatenated).
+                        Default is Q.
+
         """
     }
 
