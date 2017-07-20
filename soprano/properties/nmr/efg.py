@@ -23,21 +23,12 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
-import pkgutil
 import numpy as np
 from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                                          _span, _skew, _evecs_2_quat)
-
-
-try:
-    _nmr_data = pkgutil.get_data('soprano',
-                                 'data/nmrdata.json').decode('utf-8')
-    _nmr_data = json.loads(_nmr_data)
-except IOError:
-    _nmr_data = None
+                                          _span, _skew, _evecs_2_quat,
+                                          _get_nmr_data)
 
 
 def _has_efg_check(f):
@@ -373,10 +364,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
                 force_recalc):
             EFGDiagonal.get(s)
 
-        if _nmr_data is None:
-            # Something has gone wrong...
-            raise RuntimeError('NMR data not available. Something may be '
-                               'wrong with this installation of Soprano')
+        _nmr_data = _get_nmr_data()
 
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()

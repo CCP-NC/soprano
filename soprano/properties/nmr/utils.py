@@ -16,6 +16,8 @@
 
 """Utility functions for NMR-related properties"""
 
+import json
+import pkgutil
 import numpy as np
 from ase.quaternions import Quaternion
 
@@ -69,3 +71,19 @@ def _evecs_2_quat(evecs):
 
     # Then get the quaternions
     return [Quaternion.from_matrix(evs.T) for evs in evecs]
+
+try:
+    _nmr_data = pkgutil.get_data('soprano',
+                                 'data/nmrdata.json').decode('utf-8')
+    _nmr_data = json.loads(_nmr_data)
+except IOError:
+    _nmr_data = None
+
+
+def _get_nmr_data():
+
+    if _nmr_data is not None:
+        return _nmr_data
+    else:
+        raise RuntimeError('NMR data not available. Something may be '
+                           'wrong with this installation of Soprano')
