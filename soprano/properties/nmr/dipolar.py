@@ -77,7 +77,7 @@ class DipolarCoupling(AtomsProperty):
 
     | Returns: 
     |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
-    |                    by atomic index pair.
+    |                    pointing from i to j, by atomic index pair.
 
 
     """

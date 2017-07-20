@@ -19,7 +19,7 @@ from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
                                     MSSpan, MSSkew,
                                     EFGVzz, EFGAsymmetry,
                                     EFGQuadrupolarConstant,
-                                    EFGQuaternion)
+                                    EFGQuaternion, DipolarCoupling)
 from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -90,6 +90,40 @@ class TestNMR(unittest.TestCase):
             self.assertTrue(np.isclose((phi*2) % np.pi, 0) or
                             np.isclose((phi*2) % np.pi, np.pi))
 
+    def test_dipolar(self):
+
+        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+
+        # Load the data calculated with MagresView
+        data = open(os.path.join(_TESTDATA_DIR,
+                                 'ethanol_dip.dat')).readlines()[8:]
+
+        dip = DipolarCoupling.get(eth)
+
+        # Magres labels
+        symbs = np.array(eth.get_chemical_symbols())
+        elems = set(symbs)
+        mlabs = ['']*len(eth)
+        for e in elems:
+            e_i = np.where(symbs == e)[0]
+            for i, j in enumerate(e_i):
+                mlabs[j] = '{0}_{1}'.format(e, i+1)
+
+        data_dip = {}
+        for l in data:
+            lab1, lab2, d, a, b = l.split()
+            i1 = mlabs.index(lab1)
+            i2 = mlabs.index(lab2)
+            i1, i2 = (i1, i2) if i1 < i2 else (i2, i1)
+            data_dip[(i1, i2)] = [float(x) for x in (d, a, b)]
+
+        for ij, (d, v) in dip.iteritems():
+            # The precision is rather low, probably due to the gammas
+            self.assertAlmostEqual(d*2*np.pi, data_dip[ij][0], places=-3)
+            a, b = np.array([np.arccos(-v[2]),
+                             np.arctan2(-v[1], -v[0])]) % (2*np.pi)
+            ba_dat = (np.array(data_dip[ij][1:])*np.pi/180.0) % (2*np.pi)
+            self.assertTrue(np.isclose([b, a], ba_dat, atol=0.1).all())
 
 if __name__ == '__main__':
     unittest.main()

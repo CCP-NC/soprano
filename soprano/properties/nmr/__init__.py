@@ -30,3 +30,4 @@ from soprano.properties.nmr.efg import (EFGDiagonal, EFGVzz, EFGAnisotropy,
                                         EFGSpan, EFGSkew,
                                         EFGQuadrupolarConstant,
                                         EFGQuaternion)
+from soprano.properties.nmr.dipolar import (DipolarCoupling,)
