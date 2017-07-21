@@ -19,6 +19,7 @@
 import json
 import pkgutil
 import numpy as np
+import scipy.constants as cnst
 from ase.quaternions import Quaternion
 
 
@@ -72,6 +73,13 @@ def _evecs_2_quat(evecs):
     # Then get the quaternions
     return [Quaternion.from_matrix(evs.T) for evs in evecs]
 
+
+def _dip_constant(Rij, gi, gj):
+    """Dipolar constants for pairs ij, with distances Rij and gyromagnetic
+    ratios gi and gj"""
+
+    return - (cnst.mu_0*cnst.hbar*gi*gj / (8*np.pi**2*Rij**3))
+
 try:
     _nmr_data = pkgutil.get_data('soprano',
                                  'data/nmrdata.json').decode('utf-8')
@@ -87,3 +95,32 @@ def _get_nmr_data():
     else:
         raise RuntimeError('NMR data not available. Something may be '
                            'wrong with this installation of Soprano')
+
+
+def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
+                      use_q_isotopes=False):
+
+    data = np.zeros(len(elems))
+    nmr_data = _get_nmr_data()
+
+    for i, e in enumerate(elems):
+
+        if e not in nmr_data:
+            # Non-existing element
+            raise RuntimeError('No NMR data on element {0}'.format(e))
+
+        iso = nmr_data[e]['iso']
+        if use_q_isotopes and nmr_data[e]['Q_iso'] is not None:
+            iso = nmr_data[e]['Q_iso']
+        if e in isotopes:
+            iso = isotopes[e]
+        if isotope_list is not None and isotope_list[i] is not None:
+            iso = isotope_list[e]
+
+        try:
+            data[i] = nmr_data[e][str(iso)][key]
+        except KeyError:
+            raise RuntimeError('Data {0} does not exist for isotope {1} of '
+                               'element {2}'.format(key, iso, e))
+
+    return data

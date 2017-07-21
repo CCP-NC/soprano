@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.calculate.nmr.nmr module &mdash; Soprano beta (Boggess) documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta (Boggess)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
+    <link rel="up" title="soprano.calculate.nmr package" href="soprano.calculate.nmr.html" />
+    <link rel="next" title="soprano.calculate.nmr.powder module" href="soprano.calculate.nmr.powder.html" />
+    <link rel="prev" title="soprano.calculate.nmr package" href="soprano.calculate.nmr.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.calculate.nmr.powder.html" title="soprano.calculate.nmr.powder module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.calculate.nmr.html" title="soprano.calculate.nmr package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &raquo;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.nmr.html" accesskey="U">soprano.calculate.nmr package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.calculate.nmr.nmr">
+<span id="soprano-calculate-nmr-nmr-module"></span><h1>soprano.calculate.nmr.nmr module<a class="headerlink" href="#module-soprano.calculate.nmr.nmr" title="Permalink to this headline">¶</a></h1>
+<p>Classes and functions for simulating approximated NMR spectroscopic results
+from structures.</p>
+<dl class="class">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator">
+<em class="property">class </em><code class="descclassname">soprano.calculate.nmr.nmr.</code><code class="descname">NMRCalculator</code><span class="sig-paren">(</span><em>sample</em>, <em>larmor_frequency=400</em>, <em>larmor_units=u'MHz'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>An object providing an interface to produce basic simulated NMR spectra
+from .magres files. It should be kept in mind that this is <em>not</em> a proper
+spin simulation tool, but merely provides a &#8216;guide for the eye&#8217; kind of
+spectrum to compare to experimental results. What it can simulate:</p>
+<ul class="simple">
+<li>chemical shift of NMR peaks</li>
+<li>quadrupolar shifts of NMR peaks up to second order corrections</li>
+<li>effects of crystal orientation (single crystal)</li>
+<li>powder average (policrystalline/powder)</li>
+<li>ultrafast MAS limit spectra</li>
+</ul>
+<p>What it can NOT simulate:</p>
+<ul class="simple">
+<li>finite speed MAS spectra</li>
+<li>J couplings</li>
+<li>dipolar interactions</li>
+<li>complex NMR experiments</li>
+</ul>
+<p>A list of the currently available NMRFlags to be used in conjunction with
+methods that require a list of effects of interest:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>NMRFlags.CS_ISO     =&gt; chemical shielding, isotropic effect
+        .CS_ORIENT  =&gt; chemical shielding, orientation dependent
+                       effects
+        .CS         =&gt; chemical shielding, everything
+        .Q_1_ORIENT =&gt; quadrupolar, 1st order, orientation dependent
+                       effects
+        .Q_2_SHIFT  =&gt; quadrupolar, 2nd order, isotropic shift
+        .Q_2_ORIENT_STATIC =&gt; quadrupolar, 2nd order, orientation
+                              dependent effects; static limit
+        .Q_2_ORIENT_MAS =&gt; quadrupolar, 2nd order, orientation
+                              dependent effects; ultrafast MAS limit
+        .Q_2_STATIC =&gt; quadrupolar, 2nd order, all static effects
+        .Q_2_MAS    =&gt; quadrupolar, 2nd order, all ultrafast MAS
+                       effects
+        .Q_STATIC   =&gt; quadrupolar, all static effects
+        .Q_MAS      =&gt; quadrupolar, all ultrafast MAS effects
+        .STATIC     =&gt; all static effects
+        .MAS        =&gt; all ultrafast MAS effects
+</pre></div>
+</div>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">sample (ase.Atoms): an Atoms object describing the system to simulate</div>
+<div class="line-block">
+<div class="line">on. Should be loaded with ASE from a .magres file</div>
+<div class="line">if data on shieldings and EFGs is necessary. It</div>
+<div class="line">can also have an optional &#8216;isotopes&#8217; array. If it</div>
+<div class="line">does, it will be used in the set_isotopes method</div>
+<div class="line">and interpreted as described in its documentation.</div>
+</div>
+<div class="line">larmor_frequency (float): larmor frequency of the virtual spectrometer</div>
+<div class="line-block">
+<div class="line">(referenced to Hydrogen). Default is 400.</div>
+</div>
+<div class="line">larmor_units (str): units in which the larmor frequency is expressed.</div>
+<div class="line-block">
+<div class="line">Default are MHz.</div>
+</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.B">
+<code class="descname">B</code><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.B" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static magnetic field, in Tesla</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.get_larmor_frequency">
+<code class="descname">get_larmor_frequency</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.get_larmor_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Larmor frequency of the virtual spectrometer for the desired
+element in MHz.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">element (str): element and isotope whose frequency we require.</div>
+<div class="line-block">
+<div class="line">Should be in the form &lt;isotope&gt;&lt;element&gt;. Isotope</div>
+<div class="line">is optional, if absent the most abundant NMR active</div>
+<div class="line">one will be used. Default is 1H.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">larmor (float): Larmor frequency in MHz</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_element_isotope">
+<code class="descname">set_element_isotope</code><span class="sig-paren">(</span><em>element</em>, <em>isotope</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_element_isotope" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the isotope for all occurrences of a given element.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">element (str): chemical symbol of the element for which to set the</div>
+<div class="line-block">
+<div class="line">isotope.</div>
+</div>
+<div class="line">isotope (int or str): isotope to set for the given element. The</div>
+<div class="line-block">
+<div class="line">same conventions as described for the array</div>
+<div class="line">passed to set_isotopes apply.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_isotopes">
+<code class="descname">set_isotopes</code><span class="sig-paren">(</span><em>isotopes</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_isotopes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the isotopes for each atom in sample.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">isotopes (list): list of isotopes for each atom in sample.</div>
+<div class="line-block">
+<div class="line">Isotopes can be given as an array of integers or</div>
+<div class="line">of symbols in the form &lt;isotope&gt;&lt;element&gt;.</div>
+<div class="line">Their order must match the one of the atoms in</div>
+<div class="line">the original sample ase.Atoms object.</div>
+<div class="line">If an element of the list is None, the most</div>
+<div class="line">common NMR-active isotope is used. If an element</div>
+<div class="line">is the string &#8216;Q&#8217;, the most common quadrupolar</div>
+<div class="line">active isotope for that nucleus (if known) will</div>
+<div class="line">be used.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_larmor_frequency">
+<code class="descname">set_larmor_frequency</code><span class="sig-paren">(</span><em>larmor_frequency=400</em>, <em>larmor_units=u'MHz'</em>, <em>element=u'1H'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_larmor_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the Larmor frequency of the virtual spectrometer with the desired
+units and reference element.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">larmor_frequency (float): larmor frequency of the virtual</div>
+<div class="line-block">
+<div class="line">spectrometer. Default is 400.</div>
+</div>
+<div class="line">larmor_units (str): units in which the larmor frequency is</div>
+<div class="line-block">
+<div class="line">expressed. Can be MHz or T. Default are MHz.</div>
+</div>
+<div class="line">element (str): element and isotope to reference the frequency to.</div>
+<div class="line-block">
+<div class="line">Should be in the form &lt;isotope&gt;&lt;element&gt;. Isotope</div>
+<div class="line">is optional, if absent the most abundant NMR active</div>
+<div class="line">one will be used. Default is 1H.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_powder">
+<code class="descname">set_powder</code><span class="sig-paren">(</span><em>N=8</em>, <em>mode=u'hemisphere'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_powder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the orientation of the sample as a powder average.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">N (int): the number of subdivisions used to generate orientations</div>
+<div class="line-block">
+<div class="line">within the POWDER algorithm. Higher values make for</div>
+<div class="line">better but more expensive averages.</div>
+</div>
+<div class="line">mode (str): which part of the solid angle to cover with the</div>
+<div class="line-block">
+<div class="line">orientations. Can be &#8216;octant&#8217;, &#8216;hemisphere&#8217; or</div>
+<div class="line">&#8216;sphere&#8217;. The latter should not be necessary for any</div>
+<div class="line">NMR interaction. Default is &#8216;hemisphere&#8217;.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_reference">
+<code class="descname">set_reference</code><span class="sig-paren">(</span><em>ref</em>, <em>element</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_reference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the chemical shift reference (in ppm) for a given element. If not
+provided it will be assumed to be zero.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">ref (float): reference shielding value in ppm. Chemical shift will</div>
+<div class="line-block">
+<div class="line">be calculated as this minus the atom&#8217;s ms.</div>
+</div>
+<div class="line">element (str): element and isotope whose reference is set.</div>
+<div class="line-block">
+<div class="line">Should be in the form &lt;isotope&gt;&lt;element&gt;. Isotope</div>
+<div class="line">is optional, if absent the most abundant NMR active</div>
+<div class="line">one will be used.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_single_crystal">
+<code class="descname">set_single_crystal</code><span class="sig-paren">(</span><em>theta</em>, <em>phi</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_single_crystal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the orientation of the sample as a single crystallite.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">theta (float): zenithal angle for the crystallite</div>
+<div class="line">phi (float): azimuthal angle for the crystallite</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="soprano.calculate.nmr.nmr.NMRCalculator.spectrum_1d">
+<code class="descname">spectrum_1d</code><span class="sig-paren">(</span><em>element</em>, <em>min_freq=-50</em>, <em>max_freq=50</em>, <em>bins=100</em>, <em>freq_broad=None</em>, <em>freq_units=u'ppm'</em>, <em>effects=1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.spectrum_1d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a simulated spectrum for the given sample and element.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">element (str): element and isotope to get the spectrum of.</div>
+<div class="line-block">
+<div class="line">Should be in the form &lt;isotope&gt;&lt;element&gt;. Isotope</div>
+<div class="line">is optional, if absent the most abundant NMR active</div>
+<div class="line">one will be used.</div>
+</div>
+<div class="line">min_freq (float): lower bound of the frequency range</div>
+<div class="line-block">
+<div class="line">(default is -50)</div>
+</div>
+<div class="line">min_freq (float): upper bound of the frequency range</div>
+<div class="line-block">
+<div class="line">(default is 50)</div>
+</div>
+<div class="line">bins (int): number of bins in which to separate the frequency range</div>
+<div class="line-block">
+<div class="line">(default is 500)</div>
+</div>
+<div class="line">freq_broad (float): Gaussian broadening width to apply to the</div>
+<div class="line-block">
+<div class="line">final spectrum (default is None)</div>
+</div>
+<div class="line">freq_units (str): units used for frequency, can be ppm or MHz</div>
+<div class="line-block">
+<div class="line">(default is ppm).</div>
+</div>
+<div class="line">effects (NMRFlags): a flag, or bitwise-joined set of flags, from</div>
+<div class="line-block">
+<div class="line">this module&#8217;s NMRFlags tuple, describing which</div>
+<div class="line">effects should be included and accounted for</div>
+<div class="line">in the calculation. For a list of available</div>
+<div class="line">flags check the docstring for NMRCalculator.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">spec (np.ndarray): array of length &#8216;bins&#8217; containing the spectral</div>
+<div class="line-block">
+<div class="line">intensities</div>
+</div>
+<div class="line">freq (np.ndarray): array of length &#8216;bins&#8217; containing the frequency</div>
+<div class="line-block">
+<div class="line">axis</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.calculate.nmr.html"
+                        title="previous chapter">soprano.calculate.nmr package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.calculate.nmr.powder.html"
+                        title="next chapter">soprano.calculate.nmr.powder module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.calculate.nmr.nmr.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.calculate.nmr.powder.html" title="soprano.calculate.nmr.powder module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.calculate.nmr.html" title="soprano.calculate.nmr package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &raquo;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.nmr.html" >soprano.calculate.nmr package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

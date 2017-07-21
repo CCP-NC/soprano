@@ -111,11 +111,25 @@ into an axes and angles one</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.clebsch_gordan">
+<code class="descclassname">soprano.utils.</code><code class="descname">clebsch_gordan</code><span class="sig-paren">(</span><em>j</em>, <em>m</em>, <em>j1</em>, <em>m1</em>, <em>j2</em>, <em>m2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.clebsch_gordan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clebsch-Gordan cohefficients for given quantum numbers:
+j, m, j1, m1, j2, m2</p>
+<p>The numbers passed can be arrays (just make sure they&#8217;re the
+same size).</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.hkl2d2_matgen">
 <code class="descclassname">soprano.utils.</code><code class="descname">hkl2d2_matgen</code><span class="sig-paren">(</span><em>abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.hkl2d2_matgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a matrix that turns hkl indices into inverse crystal
 plane distances for a given lattice in ABC form</p>
 </dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.import_module">
+<code class="descclassname">soprano.utils.</code><code class="descname">import_module</code><span class="sig-paren">(</span><em>mpath</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.import_module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.inspect_args">
@@ -286,6 +300,12 @@ Python 3 requires bytes objects otherwise)</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.silence_stdio">
+<code class="descclassname">soprano.utils.</code><code class="descname">silence_stdio</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.silence_stdio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Useful stdout/err silencer</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.supcell_gridgen">
 <code class="descclassname">soprano.utils.</code><code class="descname">supcell_gridgen</code><span class="sig-paren">(</span><em>latt_cart</em>, <em>shape</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.supcell_gridgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a full linearized grid for a supercell with r_bounds
@@ -322,6 +342,17 @@ and a base unit cell in Cartesian form.</p>
 quaternion in two: one containing the rotation around axis (Twist), the
 other containing the rotation around a vector parallel to axis (Swing).</p>
 <p>Returns two quaternions: Swing, Twist.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.wigner_3j">
+<code class="descclassname">soprano.utils.</code><code class="descname">wigner_3j</code><span class="sig-paren">(</span><em>j1</em>, <em>m1</em>, <em>j2</em>, <em>m2</em>, <em>j3</em>, <em>m3</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.wigner_3j" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wigner 3j symbols for given quantum numbers:</p>
+<p>/                     | j1    j2     j3 |
+| m1    m2     m3 |
+                /</p>
+<p>The numbers passed can be arrays (just make sure they&#8217;re the
+same size).</p>
 </dd></dl>
 
 </div>

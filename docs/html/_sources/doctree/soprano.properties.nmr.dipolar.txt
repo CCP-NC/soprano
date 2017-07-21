@@ -1,0 +1,7 @@
+soprano.properties.nmr.dipolar module
+=====================================
+
+.. automodule:: soprano.properties.nmr.dipolar
+    :members:
+    :undoc-members:
+    :show-inheritance:

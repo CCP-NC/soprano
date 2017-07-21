@@ -28,7 +28,7 @@ from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
                                           _span, _skew, _evecs_2_quat,
-                                          _get_nmr_data)
+                                          _get_nmr_data, _get_isotope_data)
 
 
 def _has_efg_check(f):
@@ -318,9 +318,9 @@ class EFGQuadrupolarConstant(AtomsProperty):
     NMR-active isotope is used.
     For reference: the value returned by this property is defined as
 
-    e^2qQ
-    -----
-      h
+    .. math::
+
+        \\frac{e^2qQ}{h}
 
     in Hz. It is important to keep in mind that therefore this represents a
     *frequency*; the corresponding 'omega' (pulsation) would be the same value
@@ -364,8 +364,6 @@ class EFGQuadrupolarConstant(AtomsProperty):
                 force_recalc):
             EFGDiagonal.get(s)
 
-        _nmr_data = _get_nmr_data()
-
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
 
@@ -374,30 +372,8 @@ class EFGQuadrupolarConstant(AtomsProperty):
             print('WARNING - invalid isotope_list, ignoring')
             isotope_list = None
 
-        q_list = []
-
-        for i, e in enumerate(elems):
-
-            if e not in _nmr_data:
-                # Non-existing element
-                raise RuntimeError('No NMR data on element {0}'.format(e))
-
-            if isotope_list is not None and isotope_list[i] is not None:
-                iso = isotope_list[i]
-            if e in isotopes:
-                iso = isotopes[e]
-            elif use_q_isotopes and _nmr_data[e]['Q_iso'] is not None:
-                iso = _nmr_data[e]['Q_iso']
-            else:
-                iso = _nmr_data[e]['iso']
-
-            try:
-                q_list.append(_nmr_data[e][str(iso)]['Q'])
-            except KeyError:
-                raise RuntimeError('Isotope {0} does not exist for '
-                                   'element {1}'.format(iso, e))
-
-        q_list = np.array(q_list)
+        q_list = _get_isotope_data(elems, 'Q', isotopes, isotope_list,
+                                   use_q_isotopes)
 
         # Conversion constant
         k = cnst.physical_constants['atomic unit of electric field '

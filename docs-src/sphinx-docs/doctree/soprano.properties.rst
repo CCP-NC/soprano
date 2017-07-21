@@ -16,6 +16,7 @@ Subpackages
     soprano.properties.labeling
     soprano.properties.linkage
     soprano.properties.nmr
+    soprano.properties.order
     soprano.properties.symmetry
     soprano.properties.transform
 

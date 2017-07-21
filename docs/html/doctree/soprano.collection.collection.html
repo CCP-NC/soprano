@@ -64,7 +64,7 @@
 of the Atoms object itself.</p>
 <dl class="class">
 <dt id="soprano.collection.collection.AtomsCollection">
-<em class="property">class </em><code class="descclassname">soprano.collection.collection.</code><code class="descname">AtomsCollection</code><span class="sig-paren">(</span><em>structures=[]</em>, <em>info={}</em>, <em>cell_reduce=False</em>, <em>progress=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">soprano.collection.collection.</code><code class="descname">AtomsCollection</code><span class="sig-paren">(</span><em>structures=[]</em>, <em>info={}</em>, <em>cell_reduce=False</em>, <em>progress=False</em>, <em>suppress_ase_warnings=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>AtomsCollection object.</p>
 <p>An AtomsCollection represents a group of ASE Atoms objects.
@@ -88,6 +88,10 @@ arrays of informations related to them.</p>
 <div class="line">all loaded structures</div>
 </div>
 <div class="line">progress (bool): visualize a progress bar for the loading process</div>
+<div class="line">suppress_ase_warnings (bool): suppress annoying ASE warnings when</div>
+<div class="line-block">
+<div class="line">loading files (default is True)</div>
+</div>
 </div>
 </div>
 <dl class="attribute">
