@@ -35,8 +35,7 @@ from soprano.properties.nmr import (MSIsotropy, MSReducedAnisotropy,
 from soprano.selection import AtomSelection
 from soprano.properties.nmr.utils import _get_nmr_data, _el_iso
 
-_spinsys_template = """
-spinsys {{
+_spinsys_template = """spinsys {{
 {header}
 {ms}
 {efg}
@@ -51,7 +50,7 @@ nuclei {nuclei}
 
 
 def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
-                  q_order=0, dip_sel=None):
+                  q_order=0, dip_sel=None, path=None):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
     system. This is meant to be a low-level function, used by other higher
@@ -73,6 +72,12 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
     |                   Electric Field Gradients at the given order (1 or 2).
     |   dip_sel (AtomSelection): if not None, include dipolar couplings
     |                            between atoms belonging to this set.
+    |   path (str): path to save the newly created file to. If not provided,
+    |               the contents will be simply returned as a string.
+
+    | Returns:
+    |   file_contents (str): spinsys file in string format. Only returned if
+    |                        no save path is provided.
 
     """
 
@@ -144,4 +149,8 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
     out_file = _spinsys_template.format(header=header, ms=ms_block,
                                         efg=efg_block, dipolar=dip_block)
 
-    return out_file
+    if path is None:
+        return out_file
+    else:
+        with open(path, 'w') as of:
+            of.write(out_file)
