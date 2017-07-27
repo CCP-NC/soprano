@@ -24,8 +24,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import re
 import numpy as np
-
+from collections import namedtuple
 from soprano.properties.nmr import (MSIsotropy, MSReducedAnisotropy,
                                     MSAsymmetry,
                                     MSQuaternion,
@@ -154,3 +155,175 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
     else:
         with open(path, 'w') as of:
             of.write(out_file)
+
+
+SimpsonTemplates = namedtuple('SimpsonTemplates',
+                              """BASIC_SPECTRUM,
+                              BROADENED_SPECTRUM
+                              """)
+
+SimpsonTemplates = SimpsonTemplates(
+    BASIC_SPECTRUM={
+        'pars': {},
+        'pulseq': """
+global par
+delay [expr 1e6/$par(sw)]
+store 1
+acq $par(np) 1
+""",
+        'main': """
+global par
+
+set f [fsimpson]
+fsave $f $par(name)_fid.dat -xreim
+fft $f
+fsave $f $par(name)_spe.dat -xreim
+puts "Simulation complete"
+"""
+    },
+
+    BROADENED_SPECTRUM={
+        'pars': {
+            'broad': '1',
+        },
+        'pulseq': """
+global par
+delay [expr 1e6/$par(sw)]
+store 1
+acq $par(np) 1
+""",
+        'main': """
+global par
+
+set f [fsimpson]
+fsave $f $par(name)_fid.dat -xreim
+faddlb $f $par(broad) 0
+fft $f
+fsave $f $par(name)_spe.dat -xreim
+puts "Simulation complete"
+"""
+    })
+
+
+def _check_template_pars(f):
+    def decorated_f(self, *args, **kwargs):
+        f(self, *args, **kwargs)
+
+        # Scan for missing parameters
+        par_re = re.compile('\$par\(([0-9a-zA-Z_]+)\)')
+
+        req_pars = set(par_re.findall(self.main) +
+                       par_re.findall(self.pulseq))
+        # Remove 'name' since that's defined by default
+        req_pars = req_pars.difference(['name'])
+
+        if not req_pars.issubset(set(self.pars.keys())):
+            print('WARNING: some parameters required for this sequence seem'
+                  ' to be not defined')
+
+    return decorated_f
+
+
+class SimpsonSequence:
+
+    """SimpsonSequence
+
+    A class storing parameters and scripts for the production of a SIMPSON
+    input file. The parameters of the simulation are stored in a dictionary
+    member accessible as .pars and can be set at will.
+
+    | Args:
+    |   spinsys_source (str): path of the .spinsys file to use in the
+    |                         simulation
+
+    """
+
+    def __init__(self, spinsys_source):
+
+        self.spinsys_source = spinsys_source
+
+        self.pars = {
+            'proton_frequency': '4e7',
+            'start_operator': 'Inx',
+            'detect_operator': 'Inx',
+            'np': '8192',
+            'sw': '8000',
+            'num_cores': '1',
+            'crystal_file': 'alpha0beta0'
+        }
+
+        self.apply_template(SimpsonTemplates.BASIC_SPECTRUM)
+
+    @_check_template_pars
+    def apply_template(self, template):
+        """Apply an existing sequence template from SimpsonTemplates, 
+        including default parameters.
+
+        | Args:
+        |   template (dict): the template to apply
+
+        """
+
+        self.pars.update(template['pars'])
+        self.pulseq = template['pulseq']
+        self.main = template['main']
+
+    @_check_template_pars
+    def apply_custom_template(self, pars, pulseq, main):
+        """Apply a custom sequence template, defined by pars, pulse sequence
+        and main script.
+
+        | Args:
+        |   pars (dict): default parameters for this sequence. Use an empty
+        |                dict if none of relevance.
+        |   pulseq (str): the script for the pulse sequence block.
+        |   main (str): the script for the main block.
+
+        """
+
+        self.pars.update(pars)
+        self.pulseq = pulseq
+        self.main = main
+
+    @_check_template_pars
+    def set_parameters(self, **new_pars):
+        """Set one or more parameters of the calculation. Compared to editing
+        .pars directly it applies some more checks and is safer. Pass the new
+        parameters as named arguments to this function.
+
+        """
+
+        self.pars.update(new_pars)
+
+    def write_input(self, path=None):
+        """Print out the .in file.
+
+        | Args:
+        |   path (str): path to save the newly created file to. If not provided,
+        |               the contents will be simply returned as a string.
+
+        """
+
+        outf = 'source {0}\n\n'.format(self.spinsys_source)
+
+        # Write out par block
+        outf += 'par {\n'
+        for p, val in self.pars.iteritems():
+            outf += '\t{0} {1}\n'.format(p, val)
+        outf += '}\n\n'
+
+        # Write out pulseq
+        outf += 'proc pulseq {} {\n'
+        outf += self.pulseq
+        outf += '\n}\n\n'
+
+        # Write out main
+        outf += 'proc main {} {\n'
+        outf += self.main
+        outf += '\n}\n\n'
+
+        if path is None:
+            return outf
+        else:
+            with open(path, 'w') as of:
+                of.write(outf)
