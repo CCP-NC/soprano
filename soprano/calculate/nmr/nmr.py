@@ -32,14 +32,10 @@ import numpy as np
 from ase import Atoms
 from scipy import constants as cnst
 from collections import namedtuple
+from soprano.properties.nmr.utils import _get_nmr_data, _el_iso
 from soprano.calculate.nmr.powder import gen_pwd_ang, pwd_avg
 
-try:
-    _nmr_data = pkgutil.get_data('soprano',
-                                 'data/nmrdata.json').decode('utf-8')
-    _nmr_data = json.loads(_nmr_data)
-except IOError:
-    _nmr_data = None
+_nmr_data = _get_nmr_data()
 
 # Conversion functions to Tesla
 # (they take element and isotope as arguments)
@@ -83,28 +79,6 @@ def _mas_C(c2a, eta):
 def _gfunc(ca, cb, eta, A, B, C):
     c2a = 2*ca**2-1
     return A(c2a, eta)*cb**4+B(c2a, eta)*cb**2+C(c2a, eta)
-
-
-def _el_iso(sym):
-    """ Utility function: split isotope and element in conventional
-    representation.
-    """
-
-    match = re.findall('([0-9]*)([A-Za-z]+)', sym)
-    if len(match) != 1:
-        raise ValueError('Invalid isotope symbol')
-    elif match[0][1] not in _nmr_data:
-        raise ValueError('Invalid element symbol')
-
-    el = match[0][1]
-    # What about the isotope?
-    iso = str(_nmr_data[el]['iso']) if match[0][0] == '' else match[0][0]
-
-    if iso not in _nmr_data[el]:
-        raise ValueError('No data on isotope {0} for element {1}'.format(iso,
-                                                                         el))
-
-    return el, iso
 
 # Flags for what to include in spectra
 NMRFlags = namedtuple('NMRFlags',

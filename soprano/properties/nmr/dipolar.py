@@ -67,7 +67,7 @@ class DipolarCoupling(AtomsProperty):
     |                                   (= all of them).
 |   |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
     |                                   for which to compute the dipolar
-    |                                   coupling with the ones i sel_i. By
+    |                                   coupling with the ones in sel_i. By
     |                                   default is None (= same as sel_i).
     |   isotopes (dict): dictionary of specific isotopes to use, by element
     |                    symbol. If the isotope doesn't exist an error will

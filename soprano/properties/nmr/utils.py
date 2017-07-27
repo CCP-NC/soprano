@@ -16,6 +16,7 @@
 
 """Utility functions for NMR-related properties"""
 
+import re
 import json
 import pkgutil
 import numpy as np
@@ -115,7 +116,7 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
         if e in isotopes:
             iso = isotopes[e]
         if isotope_list is not None and isotope_list[i] is not None:
-            iso = isotope_list[e]
+            iso = isotope_list[i]
 
         try:
             data[i] = nmr_data[e][str(iso)][key]
@@ -124,3 +125,27 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
                                'element {2}'.format(key, iso, e))
 
     return data
+
+
+def _el_iso(sym):
+    """ Utility function: split isotope and element in conventional
+    representation.
+    """
+
+    nmr_data = _get_nmr_data()
+
+    match = re.findall('([0-9]*)([A-Za-z]+)', sym)
+    if len(match) != 1:
+        raise ValueError('Invalid isotope symbol')
+    elif match[0][1] not in nmr_data:
+        raise ValueError('Invalid element symbol')
+
+    el = match[0][1]
+    # What about the isotope?
+    iso = str(nmr_data[el]['iso']) if match[0][0] == '' else match[0][0]
+
+    if iso not in nmr_data[el]:
+        raise ValueError('No data on isotope {0} for element {1}'.format(iso,
+                                                                         el))
+
+    return el, iso
