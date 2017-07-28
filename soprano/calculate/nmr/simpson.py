@@ -157,6 +157,14 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
             of.write(out_file)
 
 
+def load_simpson_dat(filename):
+    """Load a SIMPSON output .dat file and return it as a numpy array."""
+
+    dat = np.loadtxt(filename)
+    return np.concatenate([dat[:, 0, None],
+                           (dat[:, 1] + 1.0j*dat[:, 2])[:, None]], axis=1)
+
+
 SimpsonTemplates = namedtuple('SimpsonTemplates',
                               """BASIC_SPECTRUM,
                               BROADENED_SPECTRUM
