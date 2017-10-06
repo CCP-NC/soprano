@@ -12,13 +12,13 @@ from __future__ import print_function
 # the package_data line, unfortunately
 # from __future__ import unicode_literals
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from soprano import __version__
 
 if __name__ == '__main__':
     setup(name='Soprano',
           version=__version__,
-          packages=['soprano'],
+          packages=find_packages(),
           # For data files. Example: 'soprano': ['data/*.json']
           package_data={'soprano': ['data/*.json']},
           # For scripts - just put the paths
