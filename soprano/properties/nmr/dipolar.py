@@ -49,7 +49,7 @@ class DipolarCoupling(AtomsProperty):
     r is their distance. The full tensor of the interaction is then defined as
 
     .. math::
-        
+
          D_{ij} = 
          \\begin{bmatrix}
           -\\frac{d_{ij}}{2} & 0 & 0 \\\\
@@ -116,7 +116,12 @@ class DipolarCoupling(AtomsProperty):
 
         # Viable pairs
         pairs = np.array([(i, j) for i in sel_i.indices
-                          for j in sel_j.indices if i < j]).T
+                          for j in sel_j.indices]).T
+        # Need to sort them and remove any duplicates, also take i < j as
+        # convention
+        pairs = np.array(zip(*set([tuple(x)
+                                   for x in np.sort(pairs, axis=0).T])))
+        
         pos = s.get_positions()
 
         r_ij = pos[pairs[1]] - pos[pairs[0]]
