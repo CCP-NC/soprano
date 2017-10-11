@@ -180,6 +180,27 @@ class AtomSelection(object):
 
         return subset
 
+    def __getitem__(self, indices):
+        """Slicing: take only part of a selection"""
+
+        if type(indices) is int:
+            # Special case, a single element!
+            indices = slice(indices, indices+1)
+
+        try:
+            newsel = self._indices[indices]
+        except TypeError:
+            newsel = [self._indices[i] for i in indices]
+
+        sliced = copy.deepcopy(self)
+        sliced._indices = newsel
+        sliced._arrays = {k: a[indices] for k, a in self._arrays.iteritems()}
+
+        return sliced
+
+    def __iter__(self):
+        return [self[i:i+1] for i in range(len(self))].__iter__()
+
     # Overloading operators to allow sum, subtraction and product of selections
     @_operator_checks
     def __add__(self, other):
