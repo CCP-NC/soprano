@@ -585,7 +585,7 @@ class NMRCalculator(object):
         # Normalize the spectrum to the number of nuclei
         spec *= len(a_inds)*len(spec)/np.sum(spec)
 
-        return spec, freq_axis
+        return spec, freq_axis/u[freq_units]
 
     @property
     def B(self):
