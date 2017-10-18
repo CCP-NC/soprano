@@ -267,6 +267,9 @@ class AtomsCollection(object):
 
         return sliced
 
+    def __iter__(self):
+        return self.structures.__iter__()
+
     def __deepcopy__(self, memodict={}):
         """Protects against problems with infinite recursion in AllCaller"""
 

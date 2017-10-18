@@ -576,16 +576,24 @@ class NMRCalculator(object):
                 bk /= np.sum(bk)
                 spec = np.convolve(spec, bk, mode='same')
             else:
-                spec = np.sum(np.exp(-((freq_axis-peaks[:, :, None]) /
-                                       freq_broad)**2), axis=(0, 1))
-                if has_orient:
-                    # Flatten the peaks
-                    spec = np.sum(spec, axis=0)
+                bpeaks = np.exp(-((freq_axis-peaks[:, :, None]) /
+                                  freq_broad)**2)  # Broadened peaks
+                # Normalise them BY PEAK MAXIMUM
+                norm_max = np.amax(bpeaks, axis=-1, keepdims=True)
+                norm_max = np.where(np.isclose(norm_max, 0), np.inf, norm_max)
+                bpeaks /= norm_max
+                spec = np.sum(bpeaks, axis=(0, 1) if not has_orient
+                              else (0, 1, 2))
 
         # Normalize the spectrum to the number of nuclei
-        spec *= len(a_inds)*len(spec)/np.sum(spec)
+        normsum = np.sum(spec)
+        if (np.isclose(normsum, 0)):
+            print('WARNING: no peaks found in the given frequency range. '
+                  'The spectrum will be empty')
+        else:
+            spec *= len(a_inds)*len(spec)/normsum
 
-        return spec, freq_axis
+        return spec, freq_axis/u[freq_units]
 
     @property
     def B(self):
