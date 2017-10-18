@@ -560,6 +560,122 @@ def wigner_3j(j1, m1, j2, m2, j3, m3):
     return (clebsch_gordan(j3, -m3, j1, m1, j2, m2) *
             (-1)**((j1-j2-m3) % 2)/np.sqrt(2*j3+1))
 
+
+def max_distance_in_cell(cell):
+    """Maximum distance between two points achievable inside a single unit 
+    cell.
+    Relies on the fact that the isosurface for equal distance in cartesian
+    space is an ellipsoid, meaning that the extreme has to be one of the 8
+    corners of the cube of side 1 in fractional space.
+    """
+
+    corners = np.array(np.meshgrid(*[(-1, 1)]*3)).reshape((3, -1))
+    # Upper distance bound in cell
+    return np.amax(np.linalg.norm(np.dot(cell.T, corners), axis=0))
+
+
+def periodic_bridson(cell, rmin, max_attempts=30,
+                     prepoints=None, prepoints_cuts=None):
+    """ Periodic version of the Bridson algorithm for generation of Poisson
+    sphere distributions of points. This returns a generator.
+
+    | Args:
+    |   cell (np.ndarray): periodic cell in which to create the points.
+    |   rmin (float): minimum distance between each generated point.
+    |   max_attempts (int): maximum number of candidate neighbours generated
+    |                       for each point.
+    |   prepoints (np.ndarray or list): pre-existing points to avoid during
+    |                                   generation.
+    |   prepoints_cuts (np.ndarray or list): custom cutoffs for each prepoint.
+    |                                        If not included defaults to rmin.
+
+    | Returns:
+    |   bridsonGen (generator): an iterator producing Poisson-sphere like
+    |                           distributed points in cell until space runs
+    |                           out or enough attempts fail.
+    """
+
+    # 1. Compute the necessary number of divisions for the cell's grid
+    ubound = max_distance_in_cell(cell)
+    N = int(np.ceil(ubound/rmin))
+
+    # 2. Mask for finding existing points that are too close
+    grid_cell = cell/N
+    shape = minimum_supcell(rmin, grid_cell)
+    # Is it valid?
+    if (np.array(shape) > N).any():
+        raise ValueError('Value of rmin is too big for this unit cell')
+    checkMask = np.array(np.meshgrid(*[range(int((1-i)/2), int((i-1)/2+1))
+                                       for i in shape],
+                                     indexing='ij')).reshape((3, -1))
+    checkMask = np.array([m for m in checkMask.T if not (m == 0).all()]).T
+    # 2.5 Mask for searching neighbours
+    shape = minimum_supcell(2*rmin, grid_cell)
+    newMask = np.array(np.meshgrid(*[range(int((1-i)/2), int((i-1)/2+1))
+                                     for i in shape],
+                                   indexing='ij')).reshape((3, -1))
+    newMask = np.array([m for m in newMask.T if not (m == 0).all()]).T
+
+    # 3. Now generate the grid
+    grid = np.zeros((N, N, N)).astype(int)
+    grid_points = np.zeros((N, N, N, 3))
+    # 3.5 if there are prepoints, fill in the grid cells that are too close to
+    # begin with
+    if prepoints is not None:
+        prepoints = np.array(prepoints)
+        if prepoints_cuts is None:
+            prepoints_cuts = np.ones(prepoints.shape[0])*rmin
+        pass
+
+    # 4. And the queue with a random, non-occupied grid point
+    if prepoints is None:
+        queue = [np.array([0, 0, 0])]
+    else:
+        free_ijk = np.array(np.where(grid == 0))
+        queue = [free_ijk[:, np.random.randint(free_ijk.shape[1])]]
+
+    # Start iterations
+    while np.sum(grid) < N**3 and len(queue) > 0:
+        # While there is still free space and queued points...
+        iter_ijk0 = queue.pop()
+        iter_mask = (newMask+iter_ijk0[:, None]) % N
+        attempts = max_attempts
+
+        # Try to generate points around the dequeued cell
+        while attempts > 0:
+            attempts -= 1
+            candidates = np.array(iter_mask[:,
+                                            np.where(grid[tuple(iter_mask)] ==
+                                                     0)][:, 0])
+            good = False
+            if candidates.shape[1] == 0:
+                continue
+            i = np.random.randint(candidates.shape[1])
+            ijk = candidates[:, i]
+            # Pick the point
+            fp = (ijk+np.random.random(3))/N
+            # Check it
+            near_mask = (checkMask+ijk[:, None]) % N
+            near_points = tuple(near_mask[:, np.where(grid[tuple(near_mask)]
+                                                      == 1)])
+            near_points = grid_points[near_points][0]
+            # Distances?
+            if near_points.shape[0] > 0:
+                dfx = (near_points - fp[None, :]+0.5) % 1-0.5
+                r = np.linalg.norm(np.dot(dfx, cell), axis=1)
+                good = not (r < rmin).any()
+            else:
+                good = True
+            if good:
+                grid[tuple(ijk)] = 1
+                grid_points[tuple(ijk)] = fp
+                queue.insert(0, ijk)
+                yield np.dot(fp, cell)
+
+    # So once we're here we ran out of options...
+    raise StopIteration('No more points can be generated')
+
+
 ######
 
 
