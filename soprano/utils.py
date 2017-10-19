@@ -585,7 +585,8 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     |   max_attempts (int): maximum number of candidate neighbours generated
     |                       for each point.
     |   prepoints (np.ndarray or list): pre-existing points to avoid during
-    |                                   generation.
+    |                                   generation. These must be in
+    |                                   absolute coordinates.
     |   prepoints_cuts (np.ndarray or list): custom cutoffs for each prepoint.
     |                                        If not included defaults to rmin.
 
@@ -622,10 +623,26 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     # 3.5 if there are prepoints, fill in the grid cells that are too close to
     # begin with
     if prepoints is not None:
-        prepoints = np.array(prepoints)
+        # Convert to fractional
+        prepoints = np.dot(prepoints, np.linalg.inv(cell))
         if prepoints_cuts is None:
             prepoints_cuts = np.ones(prepoints.shape[0])*rmin
-        pass
+        else:
+            prepoints_cuts = np.array(prepoints_cuts)
+        # Create corner points for cells
+        grid_origins = np.array(np.meshgrid(*[range(N)]*3,
+                                            indexing='ij')).reshape((3, -1))
+        cell_corners = np.array(np.meshgrid(*[[0, 1]]*3, indexing='ij')
+                                ).reshape((3, -1))
+        grid_corners = (grid_origins[:, :, None]+cell_corners[:, None, :])/N
+        dfx = (prepoints[:, :, None, None] - grid_corners[None, :, :, :]
+               + 0.5) % 1-0.5
+        r = np.linalg.norm(np.tensordot(dfx, cell, axes=(1, 0)), axis=-1)
+        # Which ones are actually fully taken?
+        full = np.sum(np.prod(r < prepoints_cuts[:, None, None], axis=-1),
+                      axis=0) > 0
+        # And occupy the grid (2 means taken by an external point)
+        grid[tuple(grid_origins[:, np.where(full)[0]])] = 2
 
     # 4. And the queue with a random, non-occupied grid point
     if prepoints is None:
@@ -666,6 +683,11 @@ def periodic_bridson(cell, rmin, max_attempts=30,
                 good = not (r < rmin).any()
             else:
                 good = True
+            # Additional check: verify against prepoints
+            if good and prepoints is not None:
+                dfx = (prepoints - fp[None, :]+0.5) % 1-0.5
+                r = np.linalg.norm(np.dot(dfx, cell), axis=1)
+                good = not (r < prepoints_cuts).any()
             if good:
                 grid[tuple(ijk)] = 1
                 grid_points[tuple(ijk)] = fp
