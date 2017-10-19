@@ -96,7 +96,8 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
         avoid_fpos = struct.get_scaled_positions()
         avoid_vdw = _vdw_radii[vdw_set][struct.get_atomic_numbers()]
         avoid_cut = (avoid_vdw +
-                     _vdw_radii[vdw_set][atomic_numbers[defect]])/2.0
+                     _vdw_radii[vdw_set][atomic_numbers[defect]]
+                     )*vdw_scale/2.0
 
     if poisson_r is None:
         # Random generation
@@ -124,4 +125,16 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
                                    'attempts.')
     else:
         # Use Bridson's algorithm
-        pass
+        if avoid_atoms:
+            gen = utils.periodic_bridson(cell, poisson_r,
+                                         max_attempts=max_attempts,
+                                         prepoints=avoid_fpos,
+                                         prepoints_cuts=avoid_cut)
+        else:
+            gen = utils.periodic_bridson(cell, poisson_r,
+                                         max_attempts=max_attempts)
+
+        while True:
+            # StopIteration will just bubble up when generated
+            p = next(gen)
+            yield Atoms(defect, positions=[p], cell=cell) + struct

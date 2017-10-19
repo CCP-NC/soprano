@@ -586,7 +586,7 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     |                       for each point.
     |   prepoints (np.ndarray or list): pre-existing points to avoid during
     |                                   generation. These must be in
-    |                                   absolute coordinates.
+    |                                   fractional coordinates.
     |   prepoints_cuts (np.ndarray or list): custom cutoffs for each prepoint.
     |                                        If not included defaults to rmin.
 
@@ -623,8 +623,6 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     # 3.5 if there are prepoints, fill in the grid cells that are too close to
     # begin with
     if prepoints is not None:
-        # Convert to fractional
-        prepoints = np.dot(prepoints, np.linalg.inv(cell))
         if prepoints_cuts is None:
             prepoints_cuts = np.ones(prepoints.shape[0])*rmin
         else:
@@ -652,7 +650,7 @@ def periodic_bridson(cell, rmin, max_attempts=30,
         queue = [free_ijk[:, np.random.randint(free_ijk.shape[1])]]
 
     # Start iterations
-    while np.sum(grid) < N**3 and len(queue) > 0:
+    while np.sum(grid != 0) < N**3 and len(queue) > 0:
         # While there is still free space and queued points...
         iter_ijk0 = queue.pop()
         iter_mask = (newMask+iter_ijk0[:, None]) % N
