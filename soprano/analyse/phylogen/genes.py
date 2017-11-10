@@ -673,9 +673,13 @@ class GeneDictionary(object):
         return dict(self._gene_dictionary[g])
 
     @classmethod
-    def help(self, g):
+    def help(self, g=None):
         """Get an help string for a given gene"""
-        return self._gene_help[g]
+        if g is not None:
+            return self._gene_help[g]
+        else:
+            return ('List of available genes:\n' +
+                    '\n'.join(self._gene_help.keys()))
 
 
 def load_genefile(gfile):
