@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.properties.labeling.labeling module &mdash; Soprano beta (Boggess) documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta (Boggess)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
+    <link rel="up" title="soprano.properties.labeling package" href="soprano.properties.labeling.html" />
+    <link rel="next" title="soprano.properties.linkage package" href="soprano.properties.linkage.html" />
+    <link rel="prev" title="soprano.properties.labeling package" href="soprano.properties.labeling.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.linkage.html" title="soprano.properties.linkage package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.labeling.html" title="soprano.properties.labeling package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &raquo;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.properties.labeling.html" accesskey="U">soprano.properties.labeling package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.properties.labeling.labeling">
+<span id="soprano-properties-labeling-labeling-module"></span><h1>soprano.properties.labeling.labeling module<a class="headerlink" href="#module-soprano.properties.labeling.labeling" title="Permalink to this headline">¶</a></h1>
+<p>Implementation of AtomsProperties that relate to labeling of systems</p>
+<dl class="class">
+<dt id="soprano.properties.labeling.labeling.HydrogenBondTypes">
+<em class="property">class </em><code class="descclassname">soprano.properties.labeling.labeling.</code><code class="descname">HydrogenBondTypes</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Assign MoleculeSites labels to atoms, then characterise existing hydrogen
+bonds based on them, and return a list of such bonds detected in a system.
+The bonds come in the form &#8216;{0}&lt;{1},{2}&gt;..{3}&lt;{4}&gt;&#8217;, where {0} is the name
+of the molecule containing the hydrogen, {2} is the hydrogen, {1} the atom
+to which the hydrogen is bonded, {3} the name of the other molecule and
+{4} the atom to which the hydrogen is hydrogen bonded.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+<div class="line">save_info (bool): if True, save the found hydrogen bond types as part</div>
+<div class="line-block">
+<div class="line">of the Atoms object info. By default True.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">hydrogen_bond_types (list): A list containing info characterising the</div>
+<div class="line-block">
+<div class="line">hydrogen bonds present in the system in a</div>
+<div class="line">detailed way.</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.labeling.labeling.HydrogenBondTypes.default_name">
+<code class="descname">default_name</code><em class="property"> = u'hydrogen_bond_types'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.labeling.labeling.HydrogenBondTypes.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'force_recalc': False, u'save_info': True}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.labeling.labeling.HydrogenBondTypes.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em>, <em>save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.labeling.labeling.MoleculeSites">
+<em class="property">class </em><code class="descclassname">soprano.properties.labeling.labeling.</code><code class="descname">MoleculeSites</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Assigns univoque labels to atoms belonging to molecules by exploiting
+network topology. Atoms can have the same label, but only if they&#8217;re
+fundamentally indistinguishable in the molecule&#8217;s chemical context
+(for example, three hydrogen atoms on a CH3 group). The molecule will be
+described by a characteristic string and by a series of labels in the
+format [element]_[number]. These sites will be saved by default and can
+be used for better insight when carrying out other analysis.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+<div class="line">save_info (bool): if True, save the found molecular sites as part of</div>
+<div class="line-block">
+<div class="line">the Atoms object info. By default True.</div>
+</div>
+<div class="line">save_asarray (bool): if True the molecular site names are also saved</div>
+<div class="line-block">
+<div class="line">as an array of the molecule selection.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">molecular_sites (dict): A dictionary containing info characterising</div>
+<div class="line-block">
+<div class="line">the molecule&#8217;s chemical sites unequivocally.</div>
+<div class="line">These are a string representation of the</div>
+<div class="line">molecule itself and a dictionary linking</div>
+<div class="line">atomic indices (as found in the molecule in</div>
+<div class="line">AtomSelection form) to site labels.</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.labeling.labeling.MoleculeSites.default_name">
+<code class="descname">default_name</code><em class="property"> = u'molecule_sites'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.labeling.labeling.MoleculeSites.default_params">
+<code class="descname">default_params</code><em class="property"> = {u'force_recalc': False, u'save_info': True, u'save_asarray': False}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="soprano.properties.labeling.labeling.MoleculeSites.extract">
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em>, <em>save_info</em>, <em>save_asarray</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.properties.labeling.html"
+                        title="previous chapter">soprano.properties.labeling package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.properties.linkage.html"
+                        title="next chapter">soprano.properties.linkage package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.properties.labeling.labeling.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.linkage.html" title="soprano.properties.linkage package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.labeling.html" title="soprano.properties.labeling package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &raquo;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.properties.labeling.html" >soprano.properties.labeling package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

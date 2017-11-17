@@ -1,0 +1,7 @@
+soprano.hpc.submitter.castep module
+===================================
+
+.. automodule:: soprano.hpc.submitter.castep
+    :members:
+    :undoc-members:
+    :show-inheritance:

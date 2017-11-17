@@ -1,0 +1,7 @@
+soprano.properties.atomsproperty module
+=======================================
+
+.. automodule:: soprano.properties.atomsproperty
+    :members:
+    :undoc-members:
+    :show-inheritance:

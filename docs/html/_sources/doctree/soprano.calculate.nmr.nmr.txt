@@ -1,0 +1,7 @@
+soprano.calculate.nmr.nmr module
+================================
+
+.. automodule:: soprano.calculate.nmr.nmr
+    :members:
+    :undoc-members:
+    :show-inheritance:

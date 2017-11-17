@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.properties package &mdash; Soprano beta (Boggess) documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta (Boggess)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
+    <link rel="up" title="soprano package" href="soprano.html" />
+    <link rel="next" title="soprano.properties.basic package" href="soprano.properties.basic.html" />
+    <link rel="prev" title="soprano.hpc.submitter.utils module" href="soprano.hpc.submitter.utils.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.basic.html" title="soprano.properties.basic package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.hpc.submitter.utils.html" title="soprano.hpc.submitter.utils module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.properties">
+<span id="soprano-properties-package"></span><h1>soprano.properties package<a class="headerlink" href="#module-soprano.properties" title="Permalink to this headline">¶</a></h1>
+<p>Contains classes, modules and functions relevant to Properties,
+a catch-all term for things we might want to extract or calculate from
+Atoms and AtomsCollections. Some will require running an external ASE
+calculator first, some will just work on their own, some will require
+some calculations and parameters.</p>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.basic.html">soprano.properties.basic package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.basic.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.basic.basic.html">soprano.properties.basic.basic module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.castep.html">soprano.properties.castep package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.castep.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.castep.castep.html">soprano.properties.castep.castep module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.labeling.html">soprano.properties.labeling package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.labeling.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.labeling.labeling.html">soprano.properties.labeling.labeling module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.linkage.html">soprano.properties.linkage package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.linkage.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.linkage.linkage.html">soprano.properties.linkage.linkage module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.nmr.html">soprano.properties.nmr package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.nmr.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.nmr.dipolar.html">soprano.properties.nmr.dipolar module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.nmr.efg.html">soprano.properties.nmr.efg module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.nmr.ms.html">soprano.properties.nmr.ms module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.nmr.utils.html">soprano.properties.nmr.utils module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.order.html">soprano.properties.order package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.order.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.order.order.html">soprano.properties.order.order module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.symmetry.html">soprano.properties.symmetry package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.symmetry.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.symmetry.symmetry.html">soprano.properties.symmetry.symmetry module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.transform.html">soprano.properties.transform package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="soprano.properties.transform.html#submodules">Submodules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="soprano.properties.transform.transform.html">soprano.properties.transform.transform module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="soprano.properties.atomsproperty.html">soprano.properties.atomsproperty module</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.hpc.submitter.utils.html"
+                        title="previous chapter">soprano.hpc.submitter.utils module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.properties.basic.html"
+                        title="next chapter">soprano.properties.basic package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.properties.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.basic.html" title="soprano.properties.basic package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.hpc.submitter.utils.html" title="soprano.hpc.submitter.utils module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
