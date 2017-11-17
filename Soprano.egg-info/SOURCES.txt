@@ -1,6 +1,7 @@
 Soprano.egg-info/PKG-INFO
 Soprano.egg-info/SOURCES.txt
 Soprano.egg-info/dependency_links.txt
+Soprano.egg-info/requires.txt
 Soprano.egg-info/top_level.txt
 scripts/phylogen.py
 scripts/soprano_submitter.py
@@ -29,6 +30,7 @@ soprano/collection/__init__.py
 soprano/collection/collection.py
 soprano/collection/generate/__init__.py
 soprano/collection/generate/airss.py
+soprano/collection/generate/defect.py
 soprano/collection/generate/linspace.py
 soprano/collection/generate/rattle.py
 soprano/collection/generate/transform.py

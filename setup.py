@@ -8,7 +8,7 @@ by Simone Sturniolo
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-# The next line is removed because it causes issues in interpreting 
+# The next line is removed because it causes issues in interpreting
 # the package_data line, unfortunately
 # from __future__ import unicode_literals
 
@@ -24,4 +24,10 @@ if __name__ == '__main__':
           # For scripts - just put the paths
           scripts=['scripts/phylogen.py', 'scripts/vasp2cell.py',
                    'scripts/soprano_submitter.py'],
+          # Requirements
+          install_requires=[
+              'numpy',
+              'scipy',
+              'ase'
+          ]
           )
