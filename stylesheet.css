@@ -1,0 +1,9 @@
+.is-orange {
+    background-color: #ff9900;
+    border-color: #ee8000;
+}
+
+.is-orange:hover {
+    background-color: #f09000;
+    border-color: #e07000;    
+}
