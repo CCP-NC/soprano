@@ -65,7 +65,7 @@ class DipolarCoupling(AtomsProperty):
     |                                   for which to compute the dipolar
     |                                   coupling. By default is None
     |                                   (= all of them).
-|   |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
     |                                   for which to compute the dipolar
     |                                   coupling with the ones in sel_i. By
     |                                   default is None (= same as sel_i).
@@ -78,6 +78,9 @@ class DipolarCoupling(AtomsProperty):
     |                        present will fall back on the previous
     |                        definitions. Where an isotope is present it
     |                        overrides everything else.
+    |   self_coupling (bool): if True, include coupling of a nucleus with its
+    |                         own closest periodic copy. Otherwise excluded.
+    |                         Default is False.
 
     | Returns: 
     |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
@@ -91,11 +94,12 @@ class DipolarCoupling(AtomsProperty):
         'sel_i': None,
         'sel_j': None,
         'isotopes': {},
-        'isotope_list': None
+        'isotope_list': None,
+        'self_coupling': False,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list):
+    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling):
 
         # Selections
         if sel_i is None:
@@ -115,18 +119,22 @@ class DipolarCoupling(AtomsProperty):
         gammas = _get_isotope_data(elems, 'gamma', isotopes, isotope_list)
 
         # Viable pairs
-        pairs = np.array([(i, j) for i in sel_i.indices
-                          for j in sel_j.indices]).T
+        pairs = [(i, j) for i in sel_i.indices
+                 for j in sel_j.indices]
+        if not self_coupling:
+            pairs = [p for p in pairs if p[0] != p[1]]
+
+        pairs = np.array(pairs).T
         # Need to sort them and remove any duplicates, also take i < j as
         # convention
         pairs = np.array(zip(*set([tuple(x)
                                    for x in np.sort(pairs, axis=0).T])))
-        
+
         pos = s.get_positions()
 
         r_ij = pos[pairs[1]] - pos[pairs[0]]
         # Reduce to NN
-        r_ij, _ = minimum_periodic(r_ij, s.get_cell())
+        r_ij, _ = minimum_periodic(r_ij, s.get_cell(), exclude_self=True)
         # Distance
         R_ij = np.linalg.norm(r_ij, axis=1)
         # Versors

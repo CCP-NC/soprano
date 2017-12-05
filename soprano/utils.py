@@ -308,7 +308,7 @@ def supcell_gridgen(latt_cart, shape):
     return neigh_i_grid, neigh_grid
 
 
-def minimum_periodic(v, latt_cart):
+def minimum_periodic(v, latt_cart, exclude_self=False):
     """
     Find the shortest periodic equivalent vector for a list of vectors and a
     given lattice.
@@ -317,6 +317,10 @@ def minimum_periodic(v, latt_cart):
     |   v (np.ndarray): list of 3-vectors representing points or vectors to
     |                   reduce to their closest periodic version
     |   latt_cart (np.ndarray): unit cell in cartesian form
+    |   exclude_self (bool): if True, any vector that is equal to zero will be
+    |                        excluded, and its closest non-zero periodic
+    |                        version will be considered instead. Default is
+    |                        False
 
     | Returns:
     |   v_period (np.ndarray): array with the same shape as v, containing the
@@ -332,7 +336,10 @@ def minimum_periodic(v, latt_cart):
     scell_shape = minimum_supcell(max_r, latt_cart)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
     v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
-    min_copies = np.argmin(np.linalg.norm(v_period, axis=-1), axis=1)
+    v_norm = np.linalg.norm(v_period, axis=-1)
+    if exclude_self:
+        v_norm = np.where(v_norm > 0, v_norm, np.inf)
+    min_copies = np.argmin(v_norm, axis=1)
     v_period = v_period[range(len(v)), min_copies, :]
 
     return v_period, neigh_i_grid[min_copies]
