@@ -156,6 +156,9 @@ class AtomsCollection(object):
             # Is it an Atoms object?
             if type(struct) is ase.Atoms:
                 self.structures.append(ase.Atoms(struct))
+                if struct.calc is not None:
+                    # Prevents pointless attempts at re-calculating
+                    self.structures[-1].calc._old_atoms = self.structures[-1]
             # Or is it a string?
             elif utils.is_string(struct):
                 with utils.silence_stdio(suppress_ase_warnings,
