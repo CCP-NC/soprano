@@ -156,6 +156,10 @@ class AtomsCollection(object):
             # Is it an Atoms object?
             if type(struct) is ase.Atoms:
                 self.structures.append(ase.Atoms(struct))
+                # Copy all arrays
+                for k in struct.arrays.keys():
+                    if not self.structures[-1].has(k):
+                        self.structures[-1].new_array(k, struct.get_array(k))
                 if struct.calc is not None:
                     # Prevents pointless attempts at re-calculating
                     self.structures[-1].calc._old_atoms = self.structures[-1]
@@ -548,6 +552,7 @@ class AtomsCollection(object):
         # Restore the _AllCaller
         f._all = _AllCaller(f.structures, ase.Atoms)
         return f
+
 
 if __name__ == '__main__':
 
