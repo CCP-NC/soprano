@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.utils module &mdash; Soprano beta (Boggess) documentation</title>
+    <title>soprano.utils module &#8212; Soprano beta (Boggess) documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,6 +24,8 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
     <link rel="up" title="soprano package" href="soprano.html" />
     <link rel="prev" title="soprano.selection module" href="soprano.selection.html" /> 
@@ -41,9 +43,9 @@
         <li class="right" >
           <a href="soprano.selection.html" title="soprano.selection module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -157,8 +159,18 @@ elements)</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.max_distance_in_cell">
+<code class="descclassname">soprano.utils.</code><code class="descname">max_distance_in_cell</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.max_distance_in_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum distance between two points achievable inside a single unit 
+cell.
+Relies on the fact that the isosurface for equal distance in cartesian
+space is an ellipsoid, meaning that the extreme has to be one of the 8
+corners of the cube of side 1 in fractional space.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.minimum_periodic">
-<code class="descclassname">soprano.utils.</code><code class="descname">minimum_periodic</code><span class="sig-paren">(</span><em>v</em>, <em>latt_cart</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_periodic" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">soprano.utils.</code><code class="descname">minimum_periodic</code><span class="sig-paren">(</span><em>v</em>, <em>latt_cart</em>, <em>exclude_self=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_periodic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the shortest periodic equivalent vector for a list of vectors and a
 given lattice.</p>
 <div class="line-block">
@@ -169,6 +181,12 @@ given lattice.</p>
 <div class="line">reduce to their closest periodic version</div>
 </div>
 <div class="line">latt_cart (np.ndarray): unit cell in cartesian form</div>
+<div class="line">exclude_self (bool): if True, any vector that is equal to zero will be</div>
+<div class="line-block">
+<div class="line">excluded, and its closest non-zero periodic</div>
+<div class="line">version will be considered instead. Default is</div>
+<div class="line">False</div>
+</div>
 </div>
 </div>
 <div class="line-block">
@@ -223,6 +241,43 @@ of given radius, knowing the unit cell.</p>
 <div class="line">Raises:</div>
 <div class="line-block">
 <div class="line">ValueError: if some of the arguments are invalid</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.periodic_bridson">
+<code class="descclassname">soprano.utils.</code><code class="descname">periodic_bridson</code><span class="sig-paren">(</span><em>cell</em>, <em>rmin</em>, <em>max_attempts=30</em>, <em>prepoints=None</em>, <em>prepoints_cuts=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.periodic_bridson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Periodic version of the Bridson algorithm for generation of Poisson
+sphere distributions of points. This returns a generator.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">cell (np.ndarray): periodic cell in which to create the points.</div>
+<div class="line">rmin (float): minimum distance between each generated point.</div>
+<div class="line">max_attempts (int): maximum number of candidate neighbours generated</div>
+<div class="line-block">
+<div class="line">for each point.</div>
+</div>
+<div class="line">prepoints (np.ndarray or list): pre-existing points to avoid during</div>
+<div class="line-block">
+<div class="line">generation. These must be in</div>
+<div class="line">fractional coordinates.</div>
+</div>
+<div class="line">prepoints_cuts (np.ndarray or list): custom cutoffs for each prepoint.</div>
+<div class="line-block">
+<div class="line">If not included defaults to rmin.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">bridsonGen (generator): an iterator producing Poisson-sphere like</div>
+<div class="line-block">
+<div class="line">distributed points in cell until space runs</div>
+<div class="line">out or enough attempts fail.</div>
+</div>
 </div>
 </div>
 </dd></dl>
@@ -384,14 +439,11 @@ same size).</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -410,14 +462,14 @@ same size).</p>
         <li class="right" >
           <a href="soprano.selection.html" title="soprano.selection module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>

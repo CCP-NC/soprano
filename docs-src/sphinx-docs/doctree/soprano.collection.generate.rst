@@ -12,6 +12,7 @@ Submodules
 .. toctree::
 
    soprano.collection.generate.airss
+   soprano.collection.generate.defect
    soprano.collection.generate.linspace
    soprano.collection.generate.rattle
    soprano.collection.generate.transform

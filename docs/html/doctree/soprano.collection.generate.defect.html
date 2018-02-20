@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.collection.generate.rattle module &#8212; Soprano beta (Boggess) documentation</title>
+    <title>soprano.collection.generate.defect module &#8212; Soprano beta (Boggess) documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -28,8 +28,8 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
     <link rel="up" title="soprano.collection.generate package" href="soprano.collection.generate.html" />
-    <link rel="next" title="soprano.collection.generate.transform module" href="soprano.collection.generate.transform.html" />
-    <link rel="prev" title="soprano.collection.generate.linspace module" href="soprano.collection.generate.linspace.html" /> 
+    <link rel="next" title="soprano.collection.generate.linspace module" href="soprano.collection.generate.linspace.html" />
+    <link rel="prev" title="soprano.collection.generate.airss module" href="soprano.collection.generate.airss.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -42,10 +42,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.transform.html" title="soprano.collection.generate.transform module"
+          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
+          <a href="soprano.collection.generate.airss.html" title="soprano.collection.generate.airss module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
@@ -60,50 +60,71 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.collection.generate.rattle">
-<span id="soprano-collection-generate-rattle-module"></span><h1>soprano.collection.generate.rattle module<a class="headerlink" href="#module-soprano.collection.generate.rattle" title="Permalink to this headline">¶</a></h1>
-<p>Generator producing structures rattled of a given amount</p>
+  <div class="section" id="module-soprano.collection.generate.defect">
+<span id="soprano-collection-generate-defect-module"></span><h1>soprano.collection.generate.defect module<a class="headerlink" href="#module-soprano.collection.generate.defect" title="Permalink to this headline">¶</a></h1>
+<p>Generator producing structures with a randomly positioned point defect</p>
 <dl class="function">
-<dt id="soprano.collection.generate.rattle.rattleGen">
-<code class="descclassname">soprano.collection.generate.rattle.</code><code class="descname">rattleGen</code><span class="sig-paren">(</span><em>struct</em>, <em>amplitude=0.01</em>, <em>n=100</em>, <em>method=u'uniform'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.rattle.rattleGen" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generator function to create multiple structures by randomly displacing
-atoms of a given amount.</p>
+<dt id="soprano.collection.generate.defect.defectGen">
+<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">defectGen</code><span class="sig-paren">(</span><em>struct</em>, <em>defect</em>, <em>poisson_r=None</em>, <em>avoid_atoms=True</em>, <em>vdw_set=u'jmol'</em>, <em>vdw_scale=1</em>, <em>max_attempts=30</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.defectGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with a defect of a
+given element randomly added to the existing cell. The defects can be
+distributed following a random uniform distribution or a Poisson-sphere
+distribution which guarantees that no two defects are created closer than
+a certain distance. These are created using a variation on Bridson&#8217;s
+algorithm. For that reason the defects will be created contiguously and
+added in succession. A full cover of all the empty space will be provided
+only by extracting structures until StopIteration is raised.</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">struct (ase.Atoms): the starting structure to randomize</div>
-<div class="line">amplitude (float or np.ndarray): the amplitude of the random</div>
+<div class="line">struct (ase.Atoms): the starting structure. All defects will be added</div>
 <div class="line-block">
-<div class="line">displacement. Can be a single float</div>
-<div class="line">for all atoms, a 1D numpy array of</div>
-<div class="line">length N (N being the number of</div>
-<div class="line">atoms, one value each) or a 2D numpy</div>
-<div class="line">array of shape (N,3) (one value for</div>
-<div class="line">each dimension).</div>
-<div class="line">These values are used as interval for</div>
-<div class="line">uniform random numbers and as stdev</div>
-<div class="line">for normal random numbers</div>
+<div class="line">to it.</div>
 </div>
-<div class="line">n (int): maximum number of structures to generate. If set to None will</div>
+<div class="line">defect (str): element symbol of the defect to add.</div>
+<div class="line">poisson_r (float): if this argument is present, the Poisson sphere</div>
 <div class="line-block">
-<div class="line">generate infinite structures</div>
+<div class="line">distribution rather than random uniform will be</div>
+<div class="line">used, and this will be the minimum distance in</div>
+<div class="line">Angstroms between the generated defects.</div>
 </div>
-<div class="line">method (str): must be either &#8216;uniform&#8217; or &#8216;normal&#8217;. In the first case</div>
+<div class="line">avoid_atoms (bool): if True, defects too close to the existing atoms</div>
 <div class="line-block">
-<div class="line">the rattling will be a uniform random number between</div>
-<div class="line">+amplitude and -amplitude. In the second case it will be</div>
-<div class="line">a gaussian random number with +amplitude standard</div>
-<div class="line">deviation.</div>
+<div class="line">in the cell will be rejected. The cutoff distance</div>
+<div class="line">will be estimated based on the Van der Waals radii</div>
+<div class="line">set of choice. Default is True.</div>
+</div>
+<div class="line">vdw_set({ase, jmol}): set of Van der Waals radii to use. Only relevant</div>
+<div class="line-block">
+<div class="line">if avoid_atoms is True. Default is the one</div>
+<div class="line">extracted from JMol.</div>
+</div>
+<div class="line">vdw_scale (float): scaling factor to apply to the base Van der Waals</div>
+<div class="line-block">
+<div class="line">radii values. Only relevant if avoid_atoms is True.</div>
+<div class="line">Values bigger than one make for larger empty</div>
+<div class="line">volumes around existing atoms.</div>
+</div>
+<div class="line">max_attempts(int): maximum number of attempts used to generate a</div>
+<div class="line-block">
+<div class="line">random point. When using a uniform distribution,</div>
+<div class="line">this is the maximum number of attempts that will be</div>
+<div class="line">done to avoid existing atoms (if avoid_atoms is </div>
+<div class="line">False, no attempts are needed). When using a Poisson</div>
+<div class="line">sphere distribution, this is a parameter of the</div>
+<div class="line">Bridson-like algorithm and will include also</div>
+<div class="line">avoiding previously generated defects. Default</div>
+<div class="line">is 30.</div>
 </div>
 </div>
 </div>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">rattleGenerator (generator): an iterator that yields copies of the</div>
+<div class="line">defectGenerator (generator): an iterator object that yields</div>
 <div class="line-block">
-<div class="line">base structure with randomly displaced</div>
-<div class="line">atoms.</div>
+<div class="line">structures with randomly distributed</div>
+<div class="line">defects.</div>
 </div>
 </div>
 </div>
@@ -126,15 +147,15 @@ atoms of a given amount.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="soprano.collection.generate.linspace.html"
-                        title="previous chapter">soprano.collection.generate.linspace module</a></p>
+  <p class="topless"><a href="soprano.collection.generate.airss.html"
+                        title="previous chapter">soprano.collection.generate.airss module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="soprano.collection.generate.transform.html"
-                        title="next chapter">soprano.collection.generate.transform module</a></p>
+  <p class="topless"><a href="soprano.collection.generate.linspace.html"
+                        title="next chapter">soprano.collection.generate.linspace module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.collection.generate.rattle.txt"
+      <li><a href="../_sources/doctree/soprano.collection.generate.defect.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -162,10 +183,10 @@ atoms of a given amount.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.transform.html" title="soprano.collection.generate.transform module"
+          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
              >next</a> |</li>
         <li class="right" >
-          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
+          <a href="soprano.collection.generate.airss.html" title="soprano.collection.generate.airss module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>

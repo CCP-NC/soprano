@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>soprano.properties.nmr.dipolar module &mdash; Soprano beta (Boggess) documentation</title>
+    <title>soprano.properties.nmr.dipolar module &#8212; Soprano beta (Boggess) documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -24,6 +24,8 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
     <link rel="up" title="soprano.properties.nmr package" href="soprano.properties.nmr.html" />
     <link rel="next" title="soprano.properties.nmr.efg module" href="soprano.properties.nmr.efg.html" />
@@ -45,11 +47,11 @@
         <li class="right" >
           <a href="soprano.properties.nmr.html" title="soprano.properties.nmr package"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &raquo;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" accesskey="U">soprano.properties.nmr package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" accesskey="U">soprano.properties.nmr package</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,8 +68,6 @@ couplings</p>
 <dt id="soprano.properties.nmr.dipolar.DipolarCoupling">
 <em class="property">class </em><code class="descclassname">soprano.properties.nmr.dipolar.</code><code class="descname">DipolarCoupling</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.dipolar.DipolarCoupling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
-<blockquote>
-<div><p>DipolarCoupling</p>
 <p>Produces a dictionary of dipole-dipole coupling constants for atom pairs
 in the system. For each pair, the closest periodic copy will be considered.
 The constant for a pair of nuclei i and j is defined as:</p>
@@ -93,26 +93,33 @@ directions in the orthogonal plane.</p>
 <div class="line">coupling. By default is None</div>
 <div class="line">(= all of them).</div>
 </div>
-</div>
-</div>
-</div></blockquote>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
 <div class="line-block">
-<div class="line">|   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-|                                   for which to compute the dipolar
-|                                   coupling with the ones i sel_i. By
-|                                   default is None (= same as sel_i).
-|   isotopes (dict): dictionary of specific isotopes to use, by element
-|                    symbol. If the isotope doesn&#8217;t exist an error will
-|                    be raised.
-|   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-|                        different atoms of the same element are supposed
-|                        to be of different isotopes. Where a &#8216;None&#8217; is
-|                        present will fall back on the previous
-|                        definitions. Where an isotope is present it
-|                        overrides everything else.</div>
+<div class="line">for which to compute the dipolar</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
 </div>
-<blockquote>
-<div><div class="line-block">
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn&#8217;t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a &#8216;None&#8217; is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with its</div>
+<div class="line-block">
+<div class="line">own closest periodic copy. Otherwise excluded.</div>
+<div class="line">Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
 <div class="line">Returns: </div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,</div>
@@ -121,7 +128,6 @@ directions in the orthogonal plane.</p>
 </div>
 </div>
 </div>
-</div></blockquote>
 <p>Initialize an AtomsProperty and set its parameters.
 The AtomsProperty instance can then be called with a structure as its
 only argument to get the property with the given parameters.</p>
@@ -143,12 +149,12 @@ only argument to get the property with the given parameters.</p>
 
 <dl class="attribute">
 <dt id="soprano.properties.nmr.dipolar.DipolarCoupling.default_params">
-<code class="descname">default_params</code><em class="property"> = {u'isotopes': {}, u'sel_i': None, u'sel_j': None, u'isotope_list': None}</em><a class="headerlink" href="#soprano.properties.nmr.dipolar.DipolarCoupling.default_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">default_params</code><em class="property"> = {u'isotopes': {}, u'sel_i': None, u'sel_j': None, u'self_coupling': False, u'isotope_list': None}</em><a class="headerlink" href="#soprano.properties.nmr.dipolar.DipolarCoupling.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="soprano.properties.nmr.dipolar.DipolarCoupling.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>sel_i</em>, <em>sel_j</em>, <em>isotopes</em>, <em>isotope_list</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.dipolar.DipolarCoupling.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>sel_i</em>, <em>sel_j</em>, <em>isotopes</em>, <em>isotope_list</em>, <em>self_coupling</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.dipolar.DipolarCoupling.extract" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -332,14 +338,11 @@ only argument to get the property with the given parameters.</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -361,16 +364,16 @@ only argument to get the property with the given parameters.</p>
         <li class="right" >
           <a href="soprano.properties.nmr.html" title="soprano.properties.nmr package"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &raquo;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &raquo;</li>
-          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &raquo;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" >soprano.properties.nmr package</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" >soprano.properties.nmr package</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+        &#169; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>
