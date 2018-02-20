@@ -54,29 +54,37 @@ class LinkageList(AtomsProperty):
     | Parameters:
     |   size (int): maximum number of distances to include. If not present,
     |               all of them will be included. If present, arrays will be
-    |               cut or padded to reach this sizeber.
+    |               cut or padded to reach this size.
+    |   return_pairs (bool): if True, return the pairs of atoms to which the
+    |                        distances correspond, as a list of tuples of
+    |                        indices.
 
     | Returns:
     |   link_list ([float]): sorted list of interatomic linkage distances
+    |   pair_list ([(int, int)]): only if return_pairs is True, list of pairs
+    |                             corresponding to the distances
 
     """
 
     default_name = 'linkage_list'
     default_params = {
-        'size': 0
+        'size': 0,
+        'return_pairs': False
     }
 
     @staticmethod
-    def extract(s, size):
+    def extract(s, size, return_pairs):
         # Get the interatomic pair distances
         v = s.get_positions()
         v = v[:, None, :]-v[None, :, :]
-        v = v[np.triu_indices(v.shape[0], k=1)]
+        pair_inds = np.triu_indices(v.shape[0], k=1)
+        v = v[pair_inds]
         # Reduce them
         v, _ = minimum_periodic(v, s.get_cell())
         # And now compile the list
         link_list = np.linalg.norm(v, axis=-1)
-        link_list.sort()
+        sort_i = np.argsort(link_list)
+        link_list = link_list[sort_i]
         if size > 0:
             if link_list.shape[0] >= size:
                 link_list = link_list[:size]
@@ -86,7 +94,11 @@ class LinkageList(AtomsProperty):
                                    mode=str('constant'),
                                    constant_values=np.inf)
 
-        return link_list
+        if not return_pairs:
+            return link_list
+        else:
+            pairs = zip(pair_inds[0][sort_i], pair_inds[1][sort_i])
+            return link_list, pairs
 
 
 class Bonds(AtomsProperty):
