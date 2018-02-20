@@ -2,7 +2,7 @@
 
 BUILD_DIR=../../docs
 
-submitter-man.pdf:	submitter-man.tex
+$(BUILD_DIR)/submitter-man.pdf:	submitter-man.tex
 	pdflatex submitter-man.tex
 	cp submitter-man.pdf $(BUILD_DIR)/submitter-man.pdf
 
