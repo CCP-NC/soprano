@@ -25,8 +25,8 @@ from __future__ import unicode_literals
 import re
 import itertools
 import numpy as np
-from soprano.utils import list_distance
 from soprano.selection import AtomSelection
+from soprano.utils import list_distance, is_string
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,
@@ -313,15 +313,18 @@ def parsegene_bond_order(c, s1=None, s2=None, channels=10, cutoff_radius=2.0,
     l_channels = range(1, channels+1)
 
     b_ord = []
+
+    def interpret_sel(s, sel):
+        if sel is None:
+            return AtomSelection.all(s)
+        elif is_string(sel):
+            return AtomSelection.from_element(s, sel)
+        elif hasattr(sel, '__call__'):
+            return sel(s)
+
     for s in c.structures:
-        if s1 is not None:
-            i1 = AtomSelection.from_element(s, s1)
-        else:
-            i1 = AtomSelection.all(s)
-        if s2 is not None:
-            i2 = AtomSelection.from_element(s, s2)
-        else:
-            i2 = AtomSelection.all(s)
+        i1 = interpret_sel(s, s1)
+        i2 = interpret_sel(s, s2)
 
         bo = BondOrder(l_channels=l_channels, center_atoms=i1,
                        environment_atoms=i2, cutoff_radius=cutoff_radius,
@@ -649,10 +652,23 @@ class GeneDictionary(object):
         parameters for the sigmoidal function can be passed.
 
         Parameters:
-            s1 (string): chemical symbol of species whose environment is to be
-                         evaluated. Default is None, meaning a sum over all.   
-            s2 (string): chemical symbol of species that contributes to the
-                         environment. Default is None, meaning a sum over all.
+            s1 (multiple types): selector for the atoms whose environment is
+                                 to be evaluated.
+                                 If an AtomSelection is used, it will define
+                                 the atoms.
+                                 If a string is used, it will be
+                                 interpreted as a symbol of a chemical
+                                 species.
+                                 If a callable is used, it must take an 
+                                 ase.Atoms object as the only argument, and
+                                 return an AtomSelection. 
+                                 Default is None, meaning a sum over all
+                                 atoms.
+            s2 (multiple types): selector for the atoms that contribute to the
+                                 environment.
+                                 Follows the same rules as s1.
+                                 Default is None, meaning a sum over all 
+                                 atoms.
             channels (int): number of angular momentum channels. More channels
                             mean finer detail but higher computational cost.
                             Default is 10.
