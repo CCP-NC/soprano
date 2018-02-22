@@ -168,7 +168,7 @@ def parsegene_linkage_list(c, size=0):
 
 
 def parsegene_mol_num(c):
-    return np.array([MoleculeNumber.get(c)])
+    return np.array(MoleculeNumber.get(c))[:,None]
 
 
 def parsegene_mol_m(c, Z=0):
