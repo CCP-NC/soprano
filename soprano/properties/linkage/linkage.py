@@ -329,9 +329,9 @@ class Molecules(AtomsProperty):
             return None
 
         # Get the bonds
-        bond_calc = Bonds({'vdw_set': vdw_set,
-                           'vdw_scale': vdw_scale,
-                           'default_vdw': default_vdw})
+        bond_calc = Bonds(vdw_set=vdw_set,
+                          vdw_scale=vdw_scale,
+                          default_vdw=default_vdw)
         bonds = bond_calc(s)
 
         # First, we need the biggest Van der Waals radius
