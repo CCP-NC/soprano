@@ -25,11 +25,14 @@ from __future__ import unicode_literals
 import os
 import json
 import pkgutil
+import itertools
 import numpy as np
 from ase import Atoms
 from ase.data import atomic_numbers
 # Internal imports
 import soprano.utils as utils
+from soprano.selection import AtomSelection
+from soprano.properties.linkage import Bonds
 
 # Pre load VdW radii
 from ase.data.vdw import vdw_radii as _vdw_radii_ase
@@ -75,7 +78,7 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
     |   max_attempts(int): maximum number of attempts used to generate a
     |                      random point. When using a uniform distribution,
     |                      this is the maximum number of attempts that will be
-    |                      done to avoid existing atoms (if avoid_atoms is 
+    |                      done to avoid existing atoms (if avoid_atoms is
     |                      False, no attempts are needed). When using a Poisson
     |                      sphere distribution, this is a parameter of the
     |                      Bridson-like algorithm and will include also
@@ -138,3 +141,77 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
             # StopIteration will just bubble up when generated
             p = next(gen)
             yield Atoms(defect, positions=[p], cell=cell) + struct
+
+
+def substitutionGen(struct, subst, to_replace=None, n=1,
+                    min_bond_dist=None, max_bond_dist=None):
+    """Generator function to create multiple structures with a defect of a
+    given element randomly substituted in the existing cell. The defects will
+    be put in place of the atoms passed in the to_replace selection. If none
+    is passed, all atoms will be replaced in turn. Multiple defects can be
+    included, in which case all permutations will be generated. It is also
+    possible to reject some configurations based on minimum or maximum bond
+    distances.
+
+    | Args:
+    |   struct (ase.Atoms): the starting structure. All defects will be added
+    |                       to it.
+    |   subst (str): element symbol of the defect to add.
+    |   to_replace (AtomSelection): if present, only atoms belonging to this
+    |                               selection will be substituted.
+    |   n (int): number of defects to include in each structure. Default is 1.
+    |   min_bond_dist (int): if present, all structures in which the defects
+    |                        would be these many bonds apart or less will be
+    |                        discarded (for example, if 1, all directly
+    |                        bonded defect configurations will be discarded)
+    |   max_bond_dist (int): if present, all structures in which the defects
+    |                        would be these many bonds apart or more will be
+    |                        discarded (for example, if 2, all non-directly
+    |                        bonded defect configurations will be discarded)
+    | Returns:
+    |   defectGenerator (generator): an iterator object that yields
+    |                                structures with randomly distributed
+    |                                defects.
+    """
+
+    if to_replace is None:
+        to_replace = AtomSelection.all(struct)
+
+    bdm = min_bond_dist
+    bdM = max_bond_dist
+
+    if (bdm is not None or bdM is not None) and n > 1:
+        bprop = Bonds(return_matrix=True)
+        _, bmat = bprop(struct)
+        bgraph = utils.get_bonding_graph(bmat)
+
+    defconfs = itertools.combinations(to_replace.indices, n)
+    elems = np.array(struct.get_chemical_symbols())
+
+    for dc in defconfs:
+        dstruct = struct.copy()
+        delems = elems.copy()
+        delems[list(dc)] = subst
+        dstruct.set_chemical_symbols(delems)
+
+        if bdm is not None and n > 1:
+            discard = False
+            for pair in itertools.combinations(dc, 2):
+                bd = utils.get_bonding_distance(bgraph, dc[0], dc[1])
+                if bd <= bdm:
+                    discard = True
+                    break
+            if discard:
+                continue
+
+        if bdM is not None and n > 1:
+            discard = False
+            for pair in itertools.combinations(dc, 2):
+                bd = utils.get_bonding_distance(bgraph, dc[0], dc[1])
+                if bd >= bdM:
+                    discard = True
+                    break
+            if discard:
+                continue
+
+        yield dstruct

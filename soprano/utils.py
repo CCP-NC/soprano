@@ -704,6 +704,18 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     # So once we're here we ran out of options...
     raise StopIteration('No more points can be generated')
 
+# Utilities for bonding graphs
+
+
+@requireNetworkX('nx')
+def get_bonding_graph(bond_mat, nx=None):
+    return nx.Graph(bond_mat)
+
+
+@requireNetworkX('nx')
+def get_bonding_distance(bond_graph, i, j, nx=None):
+    return nx.shortest_path_length(bond_graph, i, j)
+
 ######
 
 
