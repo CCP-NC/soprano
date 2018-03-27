@@ -32,6 +32,13 @@ try:
 except ImportError:
     _networkx = None
 
+try:
+    import spglib as _spglib
+except ImportError:
+    try:
+        from pyspglib import spglib as _spglib
+    except ImportError:
+        _spglib = None
 
 """
 These decorators check if the required module is available, if not print
@@ -49,11 +56,30 @@ def requireNetworkX(import_name='networkx'):
         def wrapper(*args, **kwargs):
 
             if _networkx is None:
-                print('This function requires an installation of NetworkX'
-                      ' to work - please install it with\n\tpip install'
-                      ' networkx')
+                raise RuntimeError('This function requires an installation of'
+                                   ' NetworkX to work - please install it '
+                                   'with:\n\tpip install networkx')
             else:
                 kwargs[import_name] = _networkx
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def requireSpglib(import_name='spglib'):
+
+    def decorator(func):
+
+        def wrapper(*args, **kwargs):
+
+            if _spglib is None:
+                raise RuntimeError('This function requires an installation of'
+                                   ' spglib to work - please install it '
+                                   'with:\n\tpip install spglib')
+            else:
+                kwargs[import_name] = _spglib
                 return func(*args, **kwargs)
 
         return wrapper
