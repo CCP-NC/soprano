@@ -36,6 +36,7 @@ import numpy as np
 from scipy.misc import factorial
 from itertools import product as iter_product
 from ase.quaternions import Quaternion
+from soprano.optional import requireNetworkX
 
 
 def seedname(path):
@@ -398,6 +399,7 @@ def safe_communicate(subproc, stdin=''):
 
     return stdout, stderr
 
+
 # Inspecting arguments of a function, Python 2 and 3 way
 if hasattr(inspect, 'signature'):
     def inspect_args(f):
@@ -701,7 +703,6 @@ def periodic_bridson(cell, rmin, max_attempts=30,
 
     # So once we're here we ran out of options...
     raise StopIteration('No more points can be generated')
-
 
 ######
 

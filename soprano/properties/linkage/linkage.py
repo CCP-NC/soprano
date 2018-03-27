@@ -43,6 +43,33 @@ _vdw_radii = {
 }
 
 
+def _compute_bonds(s, vdw_set, vdw_scale, default_vdw):
+    """Convenience function that covers the core of bond computation"""
+
+    # First, we need the biggest Van der Waals radius
+    # So that we know how big the supercell needs to be
+    vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
+    vdw_vals = np.where(np.isnan(vdw_vals), default_vdw, vdw_vals)
+    vdw_vals *= vdw_scale
+    vdw_max = max(vdw_vals)
+
+    # Get the interatomic pair distances
+    atomn = s.get_number_of_atoms()
+    triui = np.triu_indices(atomn, k=1)
+    v = s.get_positions()
+    v = (v[:, None, :]-v[None, :, :])[triui]
+    # Reduce them
+    v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max)
+    v = np.linalg.norm(v, axis=-1)
+
+    # Now distance and VdW matrices
+    vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
+    link_M = v <= vdw_M[v_i]
+    linked = np.where(link_M)
+
+    return linked, triui, v, v_i, v_cells
+
+
 class LinkageList(AtomsProperty):
 
     """
@@ -127,6 +154,8 @@ class Bonds(AtomsProperty):
     |                      tolerant bonds.
     |   default_vdw (float): default Van der Waals radius for species for
     |                        whom no data is available.
+    |   return_matrix (bool): if True, also return an NxN bonding matrix for
+    |                         all N atoms in the system
 
     | Returns:
     |   bonds([tuple]): list of bonds in the form of 3-tuples structured as
@@ -138,38 +167,28 @@ class Bonds(AtomsProperty):
     default_params = {
         'vdw_set': 'jmol',
         'vdw_scale': 1.0,
-        'default_vdw': 2.0
+        'default_vdw': 2.0,
+        'return_matrix': False
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw):
+    def extract(s, vdw_set, vdw_scale, default_vdw, return_matrix):
 
-        # First, we need the biggest Van der Waals radius
-        # So that we know how big the supercell needs to be
-        vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
-        vdw_vals = np.where(np.isnan(vdw_vals), default_vdw, vdw_vals)
-        vdw_vals *= vdw_scale
-        vdw_max = max(vdw_vals)
-
-        # Get the interatomic pair distances
-        atomn = s.get_number_of_atoms()
-        triui = np.triu_indices(atomn, k=1)
-        v = s.get_positions()
-        v = (v[:, None, :]-v[None, :, :])[triui]
-        # Reduce them
-        v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max)
-        v = np.linalg.norm(v, axis=-1)
-
-        # Now distance and VdW matrices
-        vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
-        link_M = v <= vdw_M[v_i]
-
-        linked = np.where(link_M)  # Bonded atoms
+        linked, triui, v, v_i, v_cells = _compute_bonds(s,
+                                                        vdw_set,
+                                                        vdw_scale,
+                                                        default_vdw)
 
         bonds = zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
                     -v_cells[linked], v[linked])
 
-        return list(bonds)  # For Python 3 compatibility
+        if not return_matrix:
+            return list(bonds)  # For Python 3 compatibility
+        else:
+            bmat = np.zeros((len(s), len(s))).astype(int)
+            bmat[triui[0][v_i[linked]], triui[1][v_i[linked]]] = 1
+            bmat[triui[1][v_i[linked]], triui[0][v_i[linked]]] = 1
+            return list(bonds), bmat
 
 
 class CoordinationHistogram(AtomsProperty):
