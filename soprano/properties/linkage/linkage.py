@@ -156,6 +156,8 @@ class Bonds(AtomsProperty):
     |                        whom no data is available.
     |   return_matrix (bool): if True, also return an NxN bonding matrix for
     |                         all N atoms in the system
+    |   save_info (bool): if True, save the found bonds (and in case matrix)
+    |                     as part of the Atoms object info. By default True.
 
     | Returns:
     |   bonds([tuple]): list of bonds in the form of 3-tuples structured as
@@ -168,7 +170,8 @@ class Bonds(AtomsProperty):
         'vdw_set': 'jmol',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
-        'return_matrix': False
+        'return_matrix': False,
+        'save_info': True,
     }
 
     @staticmethod
@@ -182,12 +185,19 @@ class Bonds(AtomsProperty):
         bonds = zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
                     -v_cells[linked], v[linked])
 
+        if save_info:
+            s.info[Bonds.default_name] = list(bonds)
+
         if not return_matrix:
             return list(bonds)  # For Python 3 compatibility
         else:
             bmat = np.zeros((len(s), len(s))).astype(int)
             bmat[triui[0][v_i[linked]], triui[1][v_i[linked]]] = 1
             bmat[triui[1][v_i[linked]], triui[0][v_i[linked]]] = 1
+
+            if save_info:
+                s.info[Bonds.default_name + '_matrix'] = bmat
+
             return list(bonds), bmat
 
 
