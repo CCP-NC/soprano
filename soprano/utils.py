@@ -751,7 +751,7 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
     """
 
     # First, normalise the v vectors
-    v /= np.linalg.norm(v, axis=1)[:, None]
+    v = v/np.linalg.norm(v, axis=1)[:, None]
 
     out_v = np.zeros((0, 3))
 

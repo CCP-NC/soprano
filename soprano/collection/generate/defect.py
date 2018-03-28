@@ -143,14 +143,14 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
             yield Atoms(defect, positions=[p], cell=cell) + struct
 
 
-def substitutionGen(struct, subst, to_replace=None, n=1,
-                    accept=None):
+def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
     """Generator function to create multiple structures with a defect of a
-    given element randomly substituted in the existing cell. The defects will
-    be put in place of the atoms passed in the to_replace selection. If none
-    is passed, all atoms will be replaced in turn. Multiple defects can be
-    included, in which case all permutations will be generated. It is also
-    possible to reject some configurations based on the output of a function.
+    given element substituted in the existing cell. The defects will be put in
+    place of the atoms passed in the to_replace selection. If none is passed,
+    all atoms will be replaced in turn. Multiple defects can be included, in
+    which case all permutations will be generated.
+    It is also possible to reject some configurations based on the output of a
+    filter function.
 
     | Args:
     |   struct (ase.Atoms): the starting structure. All defects will be added
@@ -166,8 +166,8 @@ def substitutionGen(struct, subst, to_replace=None, n=1,
     |                      bool. If False, the structure will be rejected.
     | Returns:
     |   defectGenerator (generator): an iterator object that yields
-    |                                structures with randomly distributed
-    |                                defects.
+    |                                structures with all possible
+    |                                substitutions.
     """
 
     if to_replace is None:
@@ -189,5 +189,88 @@ def substitutionGen(struct, subst, to_replace=None, n=1,
         yield dstruct
 
 
-def additionGen(struct, add, to_addition=None):
-    pass
+def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
+                accept=None):
+    """Generator function to create multiple structures with an atom of a
+    given element added in the existing cell. The atoms will be attached to 
+    the atoms passed in the to_addition selection. If none is passed,
+    all atoms will be additioned in turn. Multiple defects can be included, in
+    which case all permutations will be generated. The algorithm will try
+    adding the atom in the direction that seems most compatible with all the
+    already existing bonds. If multiple directions satisfy the condition, they
+    will all be tested.
+    It is also possible to reject some configurations based on the output of a
+    filter function.
+
+    | Args:
+    |   struct (ase.Atoms): the starting structure. All atoms will be added
+    |                       to it.
+    |   add (str): element symbol of the atom to add.
+    |   to_replace (AtomSelection): if present, only atoms belonging to this
+    |                               selection will be substituted.
+    |   n (int): number of new atoms to include in each structure. Default
+    |            is 1.
+    |   add_r (float): distance, in Angstroms, at which to add the atoms.
+    |                  Default is 1.2 Ang
+    |   accept (function): a function that determines whether a generated
+    |                      structure should be accepted or rejected. Takes as
+    |                      input the generated structure and a tuple of
+    |                      the indices of the atoms to which the new atoms
+    |                      were added, and must return a bool. The newly added
+    |                      atoms will always be the last n of the structure.
+    |                      If False, the structure will be rejected.
+    | Returns:
+    |   defectGenerator (generator): an iterator object that yields
+    |                                structures with all possible additions.
+    """
+
+    if to_addition is None:
+        to_addition = AtomSelection.all(struct)
+
+    # Compute bonds
+    bonds = Bonds.get(struct)
+
+    cell = struct.get_cell()
+    pos = struct.get_positions()
+
+    # Separate bonds by atoms
+    atom_bonds = [[] if i in to_addition.indices else None
+                  for i in range(len(struct))]
+    for b in bonds:
+        v = pos[b[1]]-pos[b[0]]+np.dot(b[2], cell)
+        try:
+            atom_bonds[b[0]].append(v.copy())
+        except AttributeError:
+            pass
+        try:
+            atom_bonds[b[1]].append(-v.copy())
+        except AttributeError:
+            pass
+
+    # Compute possible attachment points for each atom
+    attach_v = [None]*len(struct)
+    for i, bset in enumerate(atom_bonds):
+        if bset is None:
+            continue
+        if len(bset) == 0:
+            rndv = np.random.random((1, 3))-0.5
+            rndv /= np.linalg.norm(rndv, axis=1)[:, None]
+            attach_v[i] = rndv
+        else:
+            attach_v[i] = utils.rep_alg(bset)
+    attach_v = np.array(attach_v)
+
+    addconfs = itertools.combinations(to_addition.indices, n)
+
+    for ac in addconfs:
+        addpos = itertools.product(*attach_v[list(ac)])
+        for ap in addpos:
+            astruct = struct.copy()
+            astruct += Atoms(add*n, positions=pos[list(ac)]
+                             + np.array(ap)*add_r)
+
+            if accept is not None:
+                if not accept(astruct, ac):
+                    continue
+
+            yield astruct
