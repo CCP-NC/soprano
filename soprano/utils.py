@@ -714,7 +714,13 @@ def get_bonding_graph(bond_mat, nx=None):
 
 @requireNetworkX('nx')
 def get_bonding_distance(bond_graph, i, j, nx=None):
-    return nx.shortest_path_length(bond_graph, i, j)
+    """Distance in bonds, returns -1 if the two are not connected"""
+    try:
+        d = nx.shortest_path_length(bond_graph, i, j)
+    except nx.NetworkXNoPath:
+        d = -1
+
+    return d
 
 
 # Repulsion algorithm to find the best place to add an atom
@@ -767,10 +773,9 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
         # Check for similarities
         sim = np.dot(out_v, o_v)
         if not np.any(abs(1.0-sim) < simtol):
-            out_v = np.concatenate((out_v, o_v[None,:]), axis=0)
+            out_v = np.concatenate((out_v, o_v[None, :]), axis=0)
 
     return out_v
-
 
 
 ######
