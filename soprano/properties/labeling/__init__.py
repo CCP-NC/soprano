@@ -23,4 +23,5 @@ molecules, hydrogen bonds and such based on their chemical properties.
 from __future__ import absolute_import
 
 from soprano.properties.labeling.labeling import (MoleculeSites,
-                                                  HydrogenBondTypes)
+                                                  HydrogenBondTypes,
+                                                  CarbonHybridationState)

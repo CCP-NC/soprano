@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 from soprano.properties import AtomsProperty
-from soprano.properties.linkage import Molecules, HydrogenBonds
+from soprano.properties.linkage import Molecules, HydrogenBonds, Bonds
 
 
 class MoleculeSites(AtomsProperty):
@@ -209,3 +209,58 @@ class HydrogenBondTypes(AtomsProperty):
                 hblabels.append(hblabel)
 
         return sorted(hblabels)
+
+
+class CarbonHybridationState(AtomsProperty):
+
+    """
+    CarbonHybridationState
+
+    Returns an integer indicating the hybridation state of any given carbon
+    atom in a system, 1, 2, or 3 for sp1, sp2 or sp3, obtained by counting its
+    bonds. For non-carbon atoms or carbon atoms that can't be identified
+    returns 0.
+
+    | Parameters:
+    |   bonds ([tuple]): if present, use this list of bonds instead of
+    |                    recalculating them (must be formatted like the output
+    |                    of the linkage.Bonds property).
+    |   save_info (bool): if True, save the found hybridation states as an
+    |                     array in the Atoms object. By default True.
+    """
+
+    default_name = 'carbon_hybridation_state'
+    default_params = {
+        'bonds': None,
+        'save_info': True
+    }
+
+    @staticmethod
+    def extract(s, bonds, save_info):
+
+        elems = np.array(s.get_chemical_symbols())
+        hybrid = np.zeros(len(elems)).astype(int)
+
+        if (elems == 'C').any():
+            # Only do this if there is any carbon...
+
+            if bonds is None:
+                # Recalculate bonds
+                bonds = Bonds.get(s)
+
+            C_i = set(list(np.where(elems == 'C')[0]))
+
+            for b in bonds:
+                C_b = C_i.intersection(b[:2])
+                hybrid[list(C_b)] += 1
+
+            # Now go from number of bonds to hybridation state
+            hybrid[list(C_i)] = np.where((hybrid[list(C_i)] > 1) *
+                                         (hybrid[list(C_i)] <= 4),
+                                         hybrid[list(C_i)]-1,
+                                         0)
+
+        if save_info:
+            s.new_array(CarbonHybridationState.default_name, hybrid)
+
+        return hybrid
