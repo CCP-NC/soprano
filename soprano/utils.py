@@ -716,6 +716,63 @@ def get_bonding_graph(bond_mat, nx=None):
 def get_bonding_distance(bond_graph, i, j, nx=None):
     return nx.shortest_path_length(bond_graph, i, j)
 
+
+# Repulsion algorithm to find the best place to add an atom
+def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
+    """
+    Repulsion algorithm, begins with a series of vectors v, finds a new one
+    that is as far as possible, angle-wise, from all of them.
+    The process is that of treating the tips of the vectors as particles on a
+    sphere which repel each other. Of course, it's possible that multiple
+    equilibrium positions exist, which is why multiple attempts can be made,
+    and are judged identical or not base on a tolerance parameter
+
+    | Parameters:
+    |   v (np.ndarray): list of fixed vectors to avoid
+    |   iters (int): number of iterations, default is 1000
+    |   attempts (int): number of independent attempts with randomised starts,
+    |                   default is 10
+    |   step (float): step by which the 'particle' describing the vector will
+    |                 be displaced at each iteration during the search.
+    |                 Default is 1e-1.
+    |   simtol (float): tolerance based on which two attempts are considered to
+    |                   be effectively the same, checking if 1-v1.v2 < simtol.
+    |                   Default is 1e-5.
+
+    | Returns:
+    |   out_v ([np.ndarray]): list of unit vectors of maximal distance from
+    |                         the ones in v
+    """
+
+    # First, normalise the v vectors
+    v /= np.linalg.norm(v, axis=1)[:, None]
+
+    out_v = np.zeros((0, 3))
+
+    for a in range(attempts):
+
+        # Random initialisation
+        o_v = np.random.random(3)-0.5
+        o_v /= np.linalg.norm(o_v)
+
+        # Iterate
+        for i in range(iters):
+            F = o_v-v
+            F /= np.linalg.norm(F, axis=1)[:, None]
+            do_v = np.sum(F, axis=0)
+            do_v *= step/np.linalg.norm(do_v)
+            o_v += do_v
+            o_v /= np.linalg.norm(o_v)
+
+        # Check for similarities
+        sim = np.dot(out_v, o_v)
+        if not np.any(abs(1.0-sim) < simtol):
+            out_v = np.concatenate((out_v, o_v[None,:]), axis=0)
+
+    return out_v
+
+
+
 ######
 
 

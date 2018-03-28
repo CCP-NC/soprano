@@ -227,6 +227,10 @@ class CarbonHybridationState(AtomsProperty):
     |                    of the linkage.Bonds property).
     |   save_info (bool): if True, save the found hybridation states as an
     |                     array in the Atoms object. By default True.
+
+    | Returns:
+    |   hybrid ([int]): list of integers encoding the hybridation states
+
     """
 
     default_name = 'carbon_hybridation_state'
