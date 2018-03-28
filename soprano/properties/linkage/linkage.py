@@ -175,7 +175,8 @@ class Bonds(AtomsProperty):
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, return_matrix):
+    def extract(s, vdw_set, vdw_scale, default_vdw, return_matrix,
+                save_info):
 
         linked, triui, v, v_i, v_cells = _compute_bonds(s,
                                                         vdw_set,
