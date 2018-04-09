@@ -32,6 +32,7 @@ try:
 except ImportError:
     import pickle
 # Internal imports
+from soprano.utils import get_sklearn_clusters
 from soprano.collection import AtomsCollection
 from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
                                             GeneError, load_genefile)
@@ -477,6 +478,50 @@ class PhylogenCluster(object):
 
         centroids, dist = vq.kmeans(self._gene_vectors_norm, n)
         clusts, cdists = vq.vq(self._gene_vectors_norm, centroids)
+        clust_n = np.amax(clusts)+1
+        clust_slices = [np.where(clusts == i)[0] for i in range(clust_n)]
+        clusts += 1
+
+        return clusts, clust_slices
+
+    def get_sklearn_clusters(self, method, params={}):
+        """Get clusters applying any of the methods provided by the library
+        scikit-learn (requires a separate installation).
+        Warning: this method only works if there are no genes that work only
+        with pairs of structures - as use of pairwise clustering methods is
+        not implemented yet.
+
+        Uses the sklearn.cluster.<method> class
+
+        | Args:
+        |   method (str): name of the clustering class from sklearn.clusters
+        |                 to use. For reference check the documentation at
+        |                 http://scikit-learn.org/stable/modules/clustering.html
+        |   params (dict): parameters to be passed to the class when
+        |                  initialising it. Change depending on the desired
+        |                  method. Check the documentation for the specific
+        |                  class.
+
+        | Returns:
+        |   clusters (tuple(list[int],
+        |                   list[slices])): list of cluster index for each
+        |                                   structure (counting from 1) and
+        |                                   list of slices defining the
+        |                                   clusters as formed by the
+        |                                   requested algorithm.
+
+        """
+
+        # Sanity check
+        if self._has_pairgenes:
+            # Then this method can't work!
+            raise RuntimeError('k-means clustering can not be used with'
+                               'presence of pair distance genes')
+
+        if self._needs_recalc:
+            self._recalc()
+
+        clusts = get_sklearn_clusters(self._gene_vectors_norm, method, params)
         clust_n = np.amax(clusts)+1
         clust_slices = [np.where(clusts == i)[0] for i in range(clust_n)]
         clusts += 1

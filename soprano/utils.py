@@ -731,7 +731,8 @@ def get_sklearn_clusters(points, method, params, sk=None):
     Use params as a dictionary of parameters passed to the method."""
 
     try:
-        clustObj = sk.cluster.__dict__[method](**params)
+        __import__('sklearn.cluster') # Avoids some weird ImportErrors. WTF.
+        clustObj = getattr(sk, 'cluster').__dict__[method](**params)
     except KeyError:
         raise ValueError('Requested method is not present in scikit-learn')
     except TypeError:
