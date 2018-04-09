@@ -40,6 +40,12 @@ except ImportError:
     except ImportError:
         _spglib = None
 
+try:
+    import sklearn as _sklearn
+except ImportError:
+    _sklearn = None
+
+
 """
 These decorators check if the required module is available, if not print
 an error message, if yes pass it as a variable to the function itself. 
@@ -80,6 +86,25 @@ def requireSpglib(import_name='spglib'):
                                    'with:\n\tpip install spglib')
             else:
                 kwargs[import_name] = _spglib
+                return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def requireScikitLearn(import_name='sklearn'):
+
+    def decorator(func):
+
+        def wrapper(*args, **kwargs):
+
+            if _sklearn is None:
+                raise RuntimeError('This function requires an installation of'
+                                   ' scikit-learn to work - please install '
+                                   'it with:\n\tpip install scikit-learn')
+            else:
+                kwargs[import_name] = _sklearn
                 return func(*args, **kwargs)
 
         return wrapper
