@@ -36,7 +36,7 @@ import numpy as np
 from scipy.misc import factorial
 from itertools import product as iter_product
 from ase.quaternions import Quaternion
-from soprano.optional import requireNetworkX
+from soprano.optional import requireNetworkX, requireScikitLearn
 
 
 def seedname(path):
@@ -723,7 +723,25 @@ def get_bonding_distance(bond_graph, i, j, nx=None):
     return d
 
 
+# Utilities for clustering with scikit-learn
+
+@requireScikitLearn('sk')
+def get_sklearn_clusters(points, method, params, sk=None):
+    """Cluster points using given method if found in sklearn.clusters module.
+    Use params as a dictionary of parameters passed to the method."""
+
+    try:
+        clustObj = sk.cluster.__dict__[method](**params)
+    except KeyError:
+        raise ValueError('Requested method is not present in scikit-learn')
+    except TypeError:
+        raise ValueError('Invalid parameters for method {0}'.format(method))
+
+    return clustObj.fit_predict(points)
+
 # Repulsion algorithm to find the best place to add an atom
+
+
 def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
     """
     Repulsion algorithm, begins with a series of vectors v, finds a new one
