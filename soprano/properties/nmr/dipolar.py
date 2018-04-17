@@ -86,7 +86,6 @@ class DipolarCoupling(AtomsProperty):
     |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
     |                    pointing from i to j, by atomic index pair.
 
-
     """
 
     default_name = 'dip_coupling'
@@ -159,7 +158,7 @@ class DipolarDiagonal(AtomsProperty):
     |                                   for which to compute the dipolar
     |                                   coupling. By default is None
     |                                   (= all of them).
-|   |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
     |                                   for which to compute the dipolar
     |                                   coupling with the ones i sel_i. By
     |                                   default is None (= same as sel_i).

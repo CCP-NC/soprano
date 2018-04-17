@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Soprano</title>
+    <link rel="stylesheet" href="fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="bulma/bulma.css">
+    <link rel="stylesheet" href="stylesheet.css">
+
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <!-- Hero banner -->
+    <section class="hero hero-soprano is-warning is-bold is-medium">
+      <div class="hero-head">
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+          <div class="navbar-brand">
+            <!-- navbar items, navbar burger... -->
+          </div>
+          <div class="navbar-menu">
+            <div class="navbar-end">
+              <a href="sphinx/html/index.html" class="navbar-item">
+                Read the docs
+              </a>
+              <a href="https://github.com/CCP-NC/soprano" target="_blank" class="navbar-item">
+                <span class="icon is-size-5">
+                  <i class="fa fa-github" aria-hidden="true"></i>
+                </span>
+                &nbsp;
+                Find on Github
+              </a>
+            </div>
+          </div>
+        </nav> 
+     </div>
+      <div class="hero-body">
+        <div class="container has-text-centered">
+            <figure class="container image is-128x128">
+              <img src="soprano_logo.png">
+            </figure>
+          <h1 class="title is-1">
+            Soprano
+          </h1>
+          <h2 class="subtitle is-3">
+            A Python library to crack crystals
+          </h2>
+          <h3>
+            <code>pip install soprano</code>
+          </h3>
+          <h3>or</h3>
+          <a class="button is-orange" href="https://github.com/CCP-NC/soprano" target="_blank">
+          <span class="icon is-size-5">
+            <i class="fa fa-github" aria-hidden="true"></i>
+          </span>
+          &nbsp;
+          Fork on Github
+          </a>
+        </div>
+      </div>
+      <div class="hero-foot">
+        <div class="tabs container">
+          <ul>
+            <li class="is-active"><a href="#sec-about">About</a></li>
+            <li><a href="#sec-install">Installation</a></li>
+            <li><a href="#sec-start">Getting started</a></li>
+            <li><a href="#sec-citing">Citing Soprano</a></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-about">
+      <div class="container">
+        <h1 class="title">About</h1>
+        <hr>
+          Soprano is a Python library developed and maintained by the CCP for NMR Crystallography as a tool to help scientists working with crystallography and simulations to generate, manipulate, run calculations on and analyse large data sets of crystal structures, with a particular attention to the output of ab-initio random structure searching, or 
+          <a href="https://www.mtg.msm.cam.ac.uk/Codes/AIRSS">AIRSS</a>. It provides a number of functionalities to help automate many common tasks in computational crystallography.
+      </div>
+    </section>
+
+    <section class="section" id="sec-install">
+      <div class="container">
+        <h1 class="title">Installation</h1>
+        <hr>
+        You can install Soprano using pip:
+        <div class="sp-1-5"></div>
+        <div class="level">
+          <div class="level-left">
+            <code class="level-item">pip install soprano</code>          
+          </div>
+        </div>
+        or you can download the library from <a href="https://github.com/CCP-NC/soprano">Github</a> and install it from your local computer.
+        <p>
+          Soprano requires Python 2.7 or higher and the libraries Numpy, Scipy and ASE (<a href="https://wiki.fysik.dtu.dk/ase/">Atomic Simulation Environment</a>). If you have no experience with the latter, you might want to familiarise yourself before using Soprano - it's an excellent library with support for loading and manipulating lots of chemical structure formats, like .cif, as well as interfacing with many of the most used classical molecular dynamics, tight binding and ab initio simulation software packages.
+        </p>
+      </div>
+
+    </section>
+
+    <section class="section" id="sec-start">
+      <div class="container">
+        <h1 class="title">Getting started</h1>
+        <hr>
+        Soprano comes with a number of tutorials in the form of <a href="http://jupyter.org/">Jupyter Notebooks</a>. If you don't have Jupyter installed on your computer, all you need to do is use pip:
+        <div class="sp-1-5"></div>
+        <div class="level">
+          <div class="level-left">
+            <code class="level-item">pip install jupyter</code>          
+          </div>
+        </div>
+        Once you have Jupyter, download Soprano's tutorials. You can either download the entire repository from Github and find the folder in the parent directory or use
+        <div class="sp-1-5"></div>
+        <div class="level">
+          <div class="level-left">
+            <code class="level-item">svn export https://github.com/CCP-NC/soprano/trunk/tutorials</code>          
+          </div>
+        </div>
+        After navigating to the tutorials folder, launch the notebook:
+
+        <div class="sp-1-5"></div>
+        <div class="level">
+          <div class="level-left">
+            <code class="level-item">jupyter notebook</code>          
+          </div>
+        </div>
+        and you're good to go!
+
+        <div class="sp-3"></div>
+        <h2 class="title is-4">So what is it about?</h2>
+
+        Soprano has a lot of functionality meant to make working with crystallographic sets simple. Here, following the tutorials, we will outline some of it.
+
+        <ul class="bullet-list">
+          <li><strong>Tutorial 1</strong> covers the very basics; how to load multiple structures into a single collection, how to access them individually or in groups, assign data arrays to them, and sort them;</li>
+          <li><strong>Tutorial 2</strong> covers Generators, Properties and Calculators. In Soprano, Generators are iterators that help you to construct many structures quickly - for example, by interpolating linearly between two extreme configurations in a number of steps, or by generating structures in which a random defect has been injected. If you use AIRSS, there are also bindings to its random structure generator, buildcell. Properties are classes that help extracting information from collections of structures, ranging from the simple (their lattice parameters) to the very complex (NMR dipolar couplings, Steinhardt bond order parameters, and so on). Finally, Calculators are the same as the ones from ASE and provide interfaces to commonly used software packages. Here we see how they can be used within Soprano;</li>
+          <li><strong>Tutorial 3</strong> covers the subject of Selections and Transforms. Selections are instances of a special class that allows one to pick a subset of atoms within a structure, based for example on their species, or distance from a given point. They can also be operated with using Boolean logic to create complex choices (did you ever want to be able to pick all carbon atoms within 2 Angstroms of an oxygen atom in your sample in a couple of lines of code? Now you can!). Transforms are special properties that use Selections to modify a structure. The chosen selection can be rotated, translated, reflected and so on, creating new structures;</li>
+          <li><strong>Tutorial 4</strong> is about one of the core functionalities of Soprano - the "phylogenetic" clustering approach. This is an analysis method meant to help one to find similar structures among a large number of candidates - for example, grouping the output structures of an AIRSS run based on which polymorph or phase they ended up converging to. The PhylogenCluster class allows to do this by providing a vast number of "genes" that embody various properties. These properties can be calculated on a set of structures and used to classify them based on similarity thanks to Scipy's implementation of hierarchical and k-means clustering. In addition, the user can create custom "genes" depending on the need. The reason why this analysis is called "phylogenetic" is that it draws inspiration from biology - chemical structures are grouped in trees of similarity using a string of information that describes them just like animals can be grouped in species, families and so on based on the resemblance of their DNA.
+          <li><strong>Tutorial 5</strong> focuses on NMR. ASE can read the .magres file format, the output format of choice for CASTEP and Quantum Espresso, and here we explore the ways in which Soprano can make use of this data. These include processing the tensors into more commonly used parameters following the Haeberlen or Herzfeld Berger conventions, computing quantities that require isotope-specific data like quadrupolar couplings, and finally produce powder spectra in the dilute (=non-interacting nuclear spins) limit.</li>
+        </ul>
+
+        The tutorials only cover the essentials of how to use Soprano - for detailed information about the various functions and classes and how they work, refer to the <a href="docs/html/index.html">documentation</a>.
+
+      </div>
+    </section>
+
+    <section class="section" id="sec-citing">
+      <div class="container">
+        <h1 class="title">Citing Soprano</h1>
+        <hr>
+        There is still no paper to cite for Soprano. If you use our library in your work, please refer to this site and cite it as "Soprano - A library developed by the CCP for NMR Crystallography".
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="content has-text-centered">
+          <p>
+            <strong>Soprano</strong>, a Python library developed by <strong>Simone Sturniolo</strong> for <a href="https://www.ccpnc.ac.uk/">CCP-NC</a>, with funding from <a href="https://www.epsrc.ac.uk/">EPSRC</a>.
+          </p>
+          <p>
+            The source code is licensed
+            <a href="https://www.gnu.org/licenses/lgpl-3.0.en.html">LGPL</a>. The website content
+            is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+          </p>
+        </div>
+      </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.collection.generate.defect module &#8212; Soprano beta (Boggess) documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta (Boggess)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
+    <link rel="up" title="soprano.collection.generate package" href="soprano.collection.generate.html" />
+    <link rel="next" title="soprano.collection.generate.linspace module" href="soprano.collection.generate.linspace.html" />
+    <link rel="prev" title="soprano.collection.generate.airss module" href="soprano.collection.generate.airss.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.collection.generate.airss.html" title="soprano.collection.generate.airss module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.collection.html" >soprano.collection package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.collection.generate.html" accesskey="U">soprano.collection.generate package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.collection.generate.defect">
+<span id="soprano-collection-generate-defect-module"></span><h1>soprano.collection.generate.defect module<a class="headerlink" href="#module-soprano.collection.generate.defect" title="Permalink to this headline">¶</a></h1>
+<p>Generator producing structures with a randomly positioned point defect</p>
+<dl class="function">
+<dt id="soprano.collection.generate.defect.additionGen">
+<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">additionGen</code><span class="sig-paren">(</span><em>struct</em>, <em>add</em>, <em>to_addition=None</em>, <em>n=1</em>, <em>add_r=1.2</em>, <em>accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.additionGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with an atom of a
+given element added in the existing cell. The atoms will be attached to 
+the atoms passed in the to_addition selection. If none is passed,
+all atoms will be additioned in turn. Multiple defects can be included, in
+which case all permutations will be generated. The algorithm will try
+adding the atom in the direction that seems most compatible with all the
+already existing bonds. If multiple directions satisfy the condition, they
+will all be tested.
+It is also possible to reject some configurations based on the output of a
+filter function.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct (ase.Atoms): the starting structure. All atoms will be added</div>
+<div class="line-block">
+<div class="line">to it.</div>
+</div>
+<div class="line">add (str): element symbol of the atom to add.</div>
+<div class="line">to_replace (AtomSelection): if present, only atoms belonging to this</div>
+<div class="line-block">
+<div class="line">selection will be substituted.</div>
+</div>
+<div class="line">n (int): number of new atoms to include in each structure. Default</div>
+<div class="line-block">
+<div class="line">is 1.</div>
+</div>
+<div class="line">add_r (float): distance, in Angstroms, at which to add the atoms.</div>
+<div class="line-block">
+<div class="line">Default is 1.2 Ang</div>
+</div>
+<div class="line">accept (function): a function that determines whether a generated</div>
+<div class="line-block">
+<div class="line">structure should be accepted or rejected. Takes as</div>
+<div class="line">input the generated structure and a tuple of</div>
+<div class="line">the indices of the atoms to which the new atoms</div>
+<div class="line">were added, and must return a bool. The newly added</div>
+<div class="line">atoms will always be the last n of the structure.</div>
+<div class="line">If False, the structure will be rejected.</div>
+</div>
+</div>
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">defectGenerator (generator): an iterator object that yields</div>
+<div class="line-block">
+<div class="line">structures with all possible additions.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.collection.generate.defect.defectGen">
+<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">defectGen</code><span class="sig-paren">(</span><em>struct</em>, <em>defect</em>, <em>poisson_r=None</em>, <em>avoid_atoms=True</em>, <em>vdw_set=u'jmol'</em>, <em>vdw_scale=1</em>, <em>max_attempts=30</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.defectGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with a defect of a
+given element randomly added to the existing cell. The defects can be
+distributed following a random uniform distribution or a Poisson-sphere
+distribution which guarantees that no two defects are created closer than
+a certain distance. These are created using a variation on Bridson&#8217;s
+algorithm. For that reason the defects will be created contiguously and
+added in succession. A full cover of all the empty space will be provided
+only by extracting structures until StopIteration is raised.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct (ase.Atoms): the starting structure. All defects will be added</div>
+<div class="line-block">
+<div class="line">to it.</div>
+</div>
+<div class="line">defect (str): element symbol of the defect to add.</div>
+<div class="line">poisson_r (float): if this argument is present, the Poisson sphere</div>
+<div class="line-block">
+<div class="line">distribution rather than random uniform will be</div>
+<div class="line">used, and this will be the minimum distance in</div>
+<div class="line">Angstroms between the generated defects.</div>
+</div>
+<div class="line">avoid_atoms (bool): if True, defects too close to the existing atoms</div>
+<div class="line-block">
+<div class="line">in the cell will be rejected. The cutoff distance</div>
+<div class="line">will be estimated based on the Van der Waals radii</div>
+<div class="line">set of choice. Default is True.</div>
+</div>
+<div class="line">vdw_set({ase, jmol}): set of Van der Waals radii to use. Only relevant</div>
+<div class="line-block">
+<div class="line">if avoid_atoms is True. Default is the one</div>
+<div class="line">extracted from JMol.</div>
+</div>
+<div class="line">vdw_scale (float): scaling factor to apply to the base Van der Waals</div>
+<div class="line-block">
+<div class="line">radii values. Only relevant if avoid_atoms is True.</div>
+<div class="line">Values bigger than one make for larger empty</div>
+<div class="line">volumes around existing atoms.</div>
+</div>
+<div class="line">max_attempts(int): maximum number of attempts used to generate a</div>
+<div class="line-block">
+<div class="line">random point. When using a uniform distribution,</div>
+<div class="line">this is the maximum number of attempts that will be</div>
+<div class="line">done to avoid existing atoms (if avoid_atoms is</div>
+<div class="line">False, no attempts are needed). When using a Poisson</div>
+<div class="line">sphere distribution, this is a parameter of the</div>
+<div class="line">Bridson-like algorithm and will include also</div>
+<div class="line">avoiding previously generated defects. Default</div>
+<div class="line">is 30.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">defectGenerator (generator): an iterator object that yields</div>
+<div class="line-block">
+<div class="line">structures with randomly distributed</div>
+<div class="line">defects.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.collection.generate.defect.substitutionGen">
+<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">substitutionGen</code><span class="sig-paren">(</span><em>struct</em>, <em>subst</em>, <em>to_replace=None</em>, <em>n=1</em>, <em>accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.substitutionGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with a defect of a
+given element substituted in the existing cell. The defects will be put in
+place of the atoms passed in the to_replace selection. If none is passed,
+all atoms will be replaced in turn. Multiple defects can be included, in
+which case all permutations will be generated.
+It is also possible to reject some configurations based on the output of a
+filter function.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct (ase.Atoms): the starting structure. All defects will be added</div>
+<div class="line-block">
+<div class="line">to it.</div>
+</div>
+<div class="line">subst (str): element symbol of the defect to add.</div>
+<div class="line">to_replace (AtomSelection): if present, only atoms belonging to this</div>
+<div class="line-block">
+<div class="line">selection will be substituted.</div>
+</div>
+<div class="line">n (int): number of defects to include in each structure. Default is 1.</div>
+<div class="line">accept (function): a function that determines whether a generated</div>
+<div class="line-block">
+<div class="line">structure should be accepted or rejected. Takes as</div>
+<div class="line">input the generated structure and a tuple of the</div>
+<div class="line">indices of the substituted atoms, and must return a</div>
+<div class="line">bool. If False, the structure will be rejected.</div>
+</div>
+</div>
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">defectGenerator (generator): an iterator object that yields</div>
+<div class="line-block">
+<div class="line">structures with all possible</div>
+<div class="line">substitutions.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.collection.generate.airss.html"
+                        title="previous chapter">soprano.collection.generate.airss module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.collection.generate.linspace.html"
+                        title="next chapter">soprano.collection.generate.linspace module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.collection.generate.defect.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.collection.generate.linspace.html" title="soprano.collection.generate.linspace module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.collection.generate.airss.html" title="soprano.collection.generate.airss module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.collection.html" >soprano.collection package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.collection.generate.html" >soprano.collection.generate package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,568 @@
+\begin{theindex}
+\def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
+
+  \bigletter A
+  \item abc2cart() (in module soprano.utils), \hyperpage{82}
+  \item add\_signal() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item additionGen() (in module soprano.collection.generate.defect), \hyperpage{25}
+  \item airssGen() (in module soprano.collection.generate.airss), \hyperpage{24}
+  \item all (soprano.collection.collection.AtomsCollection attribute), \hyperpage{29}
+  \item all() (soprano.selection.AtomSelection static method), \hyperpage{80}
+  \item all\_periodic() (in module soprano.utils), \hyperpage{82}
+  \item apply\_custom\_template() (soprano.calculate.nmr.simpson.SimpsonSequence method), 
+		\hyperpage{18}
+  \item apply\_template() (soprano.calculate.nmr.simpson.SimpsonSequence method), \hyperpage{18}
+  \item AtomsCollection (class in soprano.collection.collection), \hyperpage{29}
+  \item AtomSelection (class in soprano.selection), \hyperpage{80}
+  \item AtomsProperty (class in soprano.properties.atomsproperty), \hyperpage{78}
+
+  \indexspace
+  \bigletter B
+  \item B (soprano.calculate.nmr.nmr.NMRCalculator attribute), \hyperpage{14}
+  \item bondDistance() (in module soprano.measure), \hyperpage{79}
+  \item BondOrder (class in soprano.properties.order.order), \hyperpage{72}
+  \item Bonds (class in soprano.properties.linkage.linkage), \hyperpage{48}
+
+  \indexspace
+  \bigletter C
+  \item CalcEnergy (class in soprano.properties.basic.basic), \hyperpage{43}
+  \item CarbonHybridationState (class in soprano.properties.labeling.labeling), \hyperpage{46}
+  \item cart2abc() (in module soprano.utils), \hyperpage{82}
+  \item CastepEnthalpy (class in soprano.properties.castep.castep), \hyperpage{45}
+  \item CastepSubmitter (class in soprano.hpc.submitter.castep), \hyperpage{34}
+  \item check\_job() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item chunkify() (soprano.collection.collection.AtomsCollection method), \hyperpage{29}
+  \item classcond\_principal\_component() (in module soprano.analyse.phylogen.mapping), 
+		\hyperpage{5}
+  \item clebsch\_gordan() (in module soprano.utils), \hyperpage{82}
+  \item context (soprano.hpc.submitter.utils.RemoteTarget attribute), \hyperpage{42}
+  \item CoordinationHistogram (class in soprano.properties.linkage.linkage), \hyperpage{49}
+  \item create\_mapping() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{6}
+
+  \indexspace
+  \bigletter D
+  \item dataset\_range() (soprano.calculate.xrd.xrd.XRDCalculator method), \hyperpage{20}
+  \item DebugQueueInterface (class in soprano.hpc.submitter.debug.debugqueue), \hyperpage{33}
+  \item default\_name (soprano.properties.atomsproperty.AtomsProperty attribute), \hyperpage{78}
+  \item default\_name (soprano.properties.basic.basic.CalcEnergy attribute), \hyperpage{43}
+  \item default\_name (soprano.properties.basic.basic.LatticeABC attribute), \hyperpage{44}
+  \item default\_name (soprano.properties.basic.basic.LatticeCart attribute), \hyperpage{44}
+  \item default\_name (soprano.properties.basic.basic.NumAtoms attribute), \hyperpage{45}
+  \item default\_name (soprano.properties.castep.castep.CastepEnthalpy attribute), \hyperpage{46}
+  \item default\_name (soprano.properties.labeling.labeling.CarbonHybridationState attribute), 
+		\hyperpage{47}
+  \item default\_name (soprano.properties.labeling.labeling.HydrogenBondTypes attribute), 
+		\hyperpage{47}
+  \item default\_name (soprano.properties.labeling.labeling.MoleculeSites attribute), 
+		\hyperpage{48}
+  \item default\_name (soprano.properties.linkage.linkage.Bonds attribute), \hyperpage{49}
+  \item default\_name (soprano.properties.linkage.linkage.CoordinationHistogram attribute), 
+		\hyperpage{50}
+  \item default\_name (soprano.properties.linkage.linkage.DihedralAngleList attribute), 
+		\hyperpage{51}
+  \item default\_name (soprano.properties.linkage.linkage.HydrogenBonds attribute), \hyperpage{52}
+  \item default\_name (soprano.properties.linkage.linkage.HydrogenBondsNumber attribute), 
+		\hyperpage{53}
+  \item default\_name (soprano.properties.linkage.linkage.LinkageList attribute), \hyperpage{53}
+  \item default\_name (soprano.properties.linkage.linkage.MoleculeCOM attribute), \hyperpage{54}
+  \item default\_name (soprano.properties.linkage.linkage.MoleculeCOMLinkage attribute), 
+		\hyperpage{55}
+  \item default\_name (soprano.properties.linkage.linkage.MoleculeMass attribute), \hyperpage{55}
+  \item default\_name (soprano.properties.linkage.linkage.MoleculeNumber attribute), \hyperpage{56}
+  \item default\_name (soprano.properties.linkage.linkage.MoleculeQuaternion attribute), 
+		\hyperpage{56}
+  \item default\_name (soprano.properties.linkage.linkage.MoleculeRelativeRotation attribute), 
+		\hyperpage{57}
+  \item default\_name (soprano.properties.linkage.linkage.Molecules attribute), \hyperpage{58}
+  \item default\_name (soprano.properties.nmr.dipolar.DipolarCoupling attribute), \hyperpage{60}
+  \item default\_name (soprano.properties.nmr.dipolar.DipolarDiagonal attribute), \hyperpage{60}
+  \item default\_name (soprano.properties.nmr.dipolar.DipolarRSS attribute), \hyperpage{61}
+  \item default\_name (soprano.properties.nmr.efg.EFGAnisotropy attribute), \hyperpage{62}
+  \item default\_name (soprano.properties.nmr.efg.EFGAsymmetry attribute), \hyperpage{63}
+  \item default\_name (soprano.properties.nmr.efg.EFGDiagonal attribute), \hyperpage{63}
+  \item default\_name (soprano.properties.nmr.efg.EFGQuadrupolarConstant attribute), \hyperpage{64}
+  \item default\_name (soprano.properties.nmr.efg.EFGQuaternion attribute), \hyperpage{65}
+  \item default\_name (soprano.properties.nmr.efg.EFGReducedAnisotropy attribute), \hyperpage{65}
+  \item default\_name (soprano.properties.nmr.efg.EFGSkew attribute), \hyperpage{66}
+  \item default\_name (soprano.properties.nmr.efg.EFGSpan attribute), \hyperpage{66}
+  \item default\_name (soprano.properties.nmr.efg.EFGVzz attribute), \hyperpage{67}
+  \item default\_name (soprano.properties.nmr.ms.MSAnisotropy attribute), \hyperpage{68}
+  \item default\_name (soprano.properties.nmr.ms.MSAsymmetry attribute), \hyperpage{68}
+  \item default\_name (soprano.properties.nmr.ms.MSDiagonal attribute), \hyperpage{69}
+  \item default\_name (soprano.properties.nmr.ms.MSIsotropy attribute), \hyperpage{69}
+  \item default\_name (soprano.properties.nmr.ms.MSQuaternion attribute), \hyperpage{70}
+  \item default\_name (soprano.properties.nmr.ms.MSReducedAnisotropy attribute), \hyperpage{71}
+  \item default\_name (soprano.properties.nmr.ms.MSSkew attribute), \hyperpage{71}
+  \item default\_name (soprano.properties.nmr.ms.MSSpan attribute), \hyperpage{72}
+  \item default\_name (soprano.properties.order.order.BondOrder attribute), \hyperpage{73}
+  \item default\_name (soprano.properties.symmetry.symmetry.SymmetryDataset attribute), 
+		\hyperpage{74}
+  \item default\_name (soprano.properties.transform.transform.Mirror attribute), \hyperpage{75}
+  \item default\_name (soprano.properties.transform.transform.Regularise attribute), \hyperpage{76}
+  \item default\_name (soprano.properties.transform.transform.Rotate attribute), \hyperpage{77}
+  \item default\_name (soprano.properties.transform.transform.Translate attribute), \hyperpage{77}
+  \item default\_params (soprano.properties.atomsproperty.AtomsProperty attribute), \hyperpage{78}
+  \item default\_params (soprano.properties.basic.basic.CalcEnergy attribute), \hyperpage{43}
+  \item default\_params (soprano.properties.basic.basic.LatticeABC attribute), \hyperpage{44}
+  \item default\_params (soprano.properties.basic.basic.LatticeCart attribute), \hyperpage{44}
+  \item default\_params (soprano.properties.basic.basic.NumAtoms attribute), \hyperpage{45}
+  \item default\_params (soprano.properties.castep.castep.CastepEnthalpy attribute), \hyperpage{46}
+  \item default\_params (soprano.properties.labeling.labeling.CarbonHybridationState attribute), 
+		\hyperpage{47}
+  \item default\_params (soprano.properties.labeling.labeling.HydrogenBondTypes attribute), 
+		\hyperpage{47}
+  \item default\_params (soprano.properties.labeling.labeling.MoleculeSites attribute), 
+		\hyperpage{48}
+  \item default\_params (soprano.properties.linkage.linkage.Bonds attribute), \hyperpage{49}
+  \item default\_params (soprano.properties.linkage.linkage.CoordinationHistogram attribute), 
+		\hyperpage{50}
+  \item default\_params (soprano.properties.linkage.linkage.DihedralAngleList attribute), 
+		\hyperpage{51}
+  \item default\_params (soprano.properties.linkage.linkage.HydrogenBonds attribute), 
+		\hyperpage{52}
+  \item default\_params (soprano.properties.linkage.linkage.HydrogenBondsNumber attribute), 
+		\hyperpage{53}
+  \item default\_params (soprano.properties.linkage.linkage.LinkageList attribute), \hyperpage{53}
+  \item default\_params (soprano.properties.linkage.linkage.MoleculeCOM attribute), \hyperpage{54}
+  \item default\_params (soprano.properties.linkage.linkage.MoleculeCOMLinkage attribute), 
+		\hyperpage{55}
+  \item default\_params (soprano.properties.linkage.linkage.MoleculeMass attribute), \hyperpage{55}
+  \item default\_params (soprano.properties.linkage.linkage.MoleculeNumber attribute), 
+		\hyperpage{56}
+  \item default\_params (soprano.properties.linkage.linkage.MoleculeQuaternion attribute), 
+		\hyperpage{56}
+  \item default\_params (soprano.properties.linkage.linkage.MoleculeRelativeRotation attribute), 
+		\hyperpage{57}
+  \item default\_params (soprano.properties.linkage.linkage.Molecules attribute), \hyperpage{58}
+  \item default\_params (soprano.properties.nmr.dipolar.DipolarCoupling attribute), \hyperpage{60}
+  \item default\_params (soprano.properties.nmr.dipolar.DipolarDiagonal attribute), \hyperpage{61}
+  \item default\_params (soprano.properties.nmr.dipolar.DipolarRSS attribute), \hyperpage{61}
+  \item default\_params (soprano.properties.nmr.efg.EFGAnisotropy attribute), \hyperpage{62}
+  \item default\_params (soprano.properties.nmr.efg.EFGAsymmetry attribute), \hyperpage{63}
+  \item default\_params (soprano.properties.nmr.efg.EFGDiagonal attribute), \hyperpage{63}
+  \item default\_params (soprano.properties.nmr.efg.EFGQuadrupolarConstant attribute), 
+		\hyperpage{64}
+  \item default\_params (soprano.properties.nmr.efg.EFGQuaternion attribute), \hyperpage{65}
+  \item default\_params (soprano.properties.nmr.efg.EFGReducedAnisotropy attribute), \hyperpage{65}
+  \item default\_params (soprano.properties.nmr.efg.EFGSkew attribute), \hyperpage{66}
+  \item default\_params (soprano.properties.nmr.efg.EFGSpan attribute), \hyperpage{66}
+  \item default\_params (soprano.properties.nmr.efg.EFGVzz attribute), \hyperpage{67}
+  \item default\_params (soprano.properties.nmr.ms.MSAnisotropy attribute), \hyperpage{68}
+  \item default\_params (soprano.properties.nmr.ms.MSAsymmetry attribute), \hyperpage{68}
+  \item default\_params (soprano.properties.nmr.ms.MSDiagonal attribute), \hyperpage{69}
+  \item default\_params (soprano.properties.nmr.ms.MSIsotropy attribute), \hyperpage{69}
+  \item default\_params (soprano.properties.nmr.ms.MSQuaternion attribute), \hyperpage{70}
+  \item default\_params (soprano.properties.nmr.ms.MSReducedAnisotropy attribute), \hyperpage{71}
+  \item default\_params (soprano.properties.nmr.ms.MSSkew attribute), \hyperpage{71}
+  \item default\_params (soprano.properties.nmr.ms.MSSpan attribute), \hyperpage{72}
+  \item default\_params (soprano.properties.order.order.BondOrder attribute), \hyperpage{73}
+  \item default\_params (soprano.properties.symmetry.symmetry.SymmetryDataset attribute), 
+		\hyperpage{74}
+  \item default\_params (soprano.properties.transform.transform.Mirror attribute), \hyperpage{75}
+  \item default\_params (soprano.properties.transform.transform.Regularise attribute), 
+		\hyperpage{76}
+  \item default\_params (soprano.properties.transform.transform.Rotate attribute), \hyperpage{77}
+  \item default\_params (soprano.properties.transform.transform.Translate attribute), 
+		\hyperpage{77}
+  \item defectGen() (in module soprano.collection.generate.defect), \hyperpage{26}
+  \item DihedralAngleList (class in soprano.properties.linkage.linkage), \hyperpage{50}
+  \item DipolarCoupling (class in soprano.properties.nmr.dipolar), \hyperpage{58}
+  \item DipolarDiagonal (class in soprano.properties.nmr.dipolar), \hyperpage{60}
+  \item DipolarRSS (class in soprano.properties.nmr.dipolar), \hyperpage{61}
+
+  \indexspace
+  \bigletter E
+  \item EFGAnisotropy (class in soprano.properties.nmr.efg), \hyperpage{61}
+  \item EFGAsymmetry (class in soprano.properties.nmr.efg), \hyperpage{62}
+  \item EFGDiagonal (class in soprano.properties.nmr.efg), \hyperpage{63}
+  \item EFGQuadrupolarConstant (class in soprano.properties.nmr.efg), \hyperpage{63}
+  \item EFGQuaternion (class in soprano.properties.nmr.efg), \hyperpage{64}
+  \item EFGReducedAnisotropy (class in soprano.properties.nmr.efg), \hyperpage{65}
+  \item EFGSkew (class in soprano.properties.nmr.efg), \hyperpage{65}
+  \item EFGSpan (class in soprano.properties.nmr.efg), \hyperpage{66}
+  \item EFGVzz (class in soprano.properties.nmr.efg), \hyperpage{67}
+  \item euclideanDistance() (in module soprano.measure), \hyperpage{79}
+  \item evaluate() (soprano.analyse.phylogen.genes.Gene method), \hyperpage{4}
+  \item exp\_dataset() (soprano.calculate.xrd.xrd.XRDCalculator method), \hyperpage{21}
+  \item extract() (soprano.properties.atomsproperty.AtomsProperty static method), \hyperpage{78}
+  \item extract() (soprano.properties.basic.basic.CalcEnergy static method), \hyperpage{43}
+  \item extract() (soprano.properties.basic.basic.LatticeABC static method), \hyperpage{44}
+  \item extract() (soprano.properties.basic.basic.LatticeCart static method), \hyperpage{44}
+  \item extract() (soprano.properties.basic.basic.NumAtoms static method), \hyperpage{45}
+  \item extract() (soprano.properties.castep.castep.CastepEnthalpy static method), \hyperpage{46}
+  \item extract() (soprano.properties.labeling.labeling.CarbonHybridationState static method), 
+		\hyperpage{47}
+  \item extract() (soprano.properties.labeling.labeling.HydrogenBondTypes static method), 
+		\hyperpage{47}
+  \item extract() (soprano.properties.labeling.labeling.MoleculeSites static method), 
+		\hyperpage{48}
+  \item extract() (soprano.properties.linkage.linkage.Bonds static method), \hyperpage{49}
+  \item extract() (soprano.properties.linkage.linkage.CoordinationHistogram static method), 
+		\hyperpage{50}
+  \item extract() (soprano.properties.linkage.linkage.DihedralAngleList static method), 
+		\hyperpage{51}
+  \item extract() (soprano.properties.linkage.linkage.HydrogenBonds static method), \hyperpage{52}
+  \item extract() (soprano.properties.linkage.linkage.HydrogenBondsNumber static method), 
+		\hyperpage{53}
+  \item extract() (soprano.properties.linkage.linkage.LinkageList static method), \hyperpage{53}
+  \item extract() (soprano.properties.linkage.linkage.MoleculeCOM static method), \hyperpage{54}
+  \item extract() (soprano.properties.linkage.linkage.MoleculeCOMLinkage static method), 
+		\hyperpage{55}
+  \item extract() (soprano.properties.linkage.linkage.MoleculeMass static method), \hyperpage{55}
+  \item extract() (soprano.properties.linkage.linkage.MoleculeNumber static method), \hyperpage{56}
+  \item extract() (soprano.properties.linkage.linkage.MoleculeQuaternion static method), 
+		\hyperpage{56}
+  \item extract() (soprano.properties.linkage.linkage.MoleculeRelativeRotation static method), 
+		\hyperpage{57}
+  \item extract() (soprano.properties.linkage.linkage.Molecules static method), \hyperpage{58}
+  \item extract() (soprano.properties.nmr.dipolar.DipolarCoupling static method), \hyperpage{60}
+  \item extract() (soprano.properties.nmr.dipolar.DipolarDiagonal static method), \hyperpage{61}
+  \item extract() (soprano.properties.nmr.dipolar.DipolarRSS static method), \hyperpage{61}
+  \item extract() (soprano.properties.nmr.efg.EFGAnisotropy static method), \hyperpage{62}
+  \item extract() (soprano.properties.nmr.efg.EFGAsymmetry static method), \hyperpage{63}
+  \item extract() (soprano.properties.nmr.efg.EFGDiagonal static method), \hyperpage{63}
+  \item extract() (soprano.properties.nmr.efg.EFGQuadrupolarConstant static method), \hyperpage{64}
+  \item extract() (soprano.properties.nmr.efg.EFGQuaternion static method), \hyperpage{65}
+  \item extract() (soprano.properties.nmr.efg.EFGReducedAnisotropy static method), \hyperpage{65}
+  \item extract() (soprano.properties.nmr.efg.EFGSkew static method), \hyperpage{66}
+  \item extract() (soprano.properties.nmr.efg.EFGSpan static method), \hyperpage{67}
+  \item extract() (soprano.properties.nmr.efg.EFGVzz static method), \hyperpage{67}
+  \item extract() (soprano.properties.nmr.ms.MSAnisotropy static method), \hyperpage{68}
+  \item extract() (soprano.properties.nmr.ms.MSAsymmetry static method), \hyperpage{68}
+  \item extract() (soprano.properties.nmr.ms.MSDiagonal static method), \hyperpage{69}
+  \item extract() (soprano.properties.nmr.ms.MSIsotropy static method), \hyperpage{70}
+  \item extract() (soprano.properties.nmr.ms.MSQuaternion static method), \hyperpage{70}
+  \item extract() (soprano.properties.nmr.ms.MSReducedAnisotropy static method), \hyperpage{71}
+  \item extract() (soprano.properties.nmr.ms.MSSkew static method), \hyperpage{71}
+  \item extract() (soprano.properties.nmr.ms.MSSpan static method), \hyperpage{72}
+  \item extract() (soprano.properties.order.order.BondOrder static method), \hyperpage{73}
+  \item extract() (soprano.properties.symmetry.symmetry.SymmetryDataset static method), 
+		\hyperpage{74}
+  \item extract() (soprano.properties.transform.transform.Mirror static method), \hyperpage{75}
+  \item extract() (soprano.properties.transform.transform.Regularise static method), \hyperpage{76}
+  \item extract() (soprano.properties.transform.transform.Rotate static method), \hyperpage{77}
+  \item extract() (soprano.properties.transform.transform.Translate static method), \hyperpage{77}
+
+  \indexspace
+  \bigletter F
+  \item filter() (soprano.collection.collection.AtomsCollection method), \hyperpage{30}
+  \item find\_w99\_atomtypes() (in module soprano.calculate.gulp.w99), \hyperpage{12}
+  \item finish\_job() (soprano.hpc.submitter.castep.CastepSubmitter method), \hyperpage{36}
+  \item finish\_job() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item finish\_run() (soprano.hpc.submitter.castep.CastepSubmitter method), \hyperpage{36}
+  \item finish\_run() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item from\_box() (soprano.selection.AtomSelection static method), \hyperpage{80}
+  \item from\_element() (soprano.selection.AtomSelection static method), \hyperpage{81}
+  \item from\_sphere() (soprano.selection.AtomSelection static method), \hyperpage{81}
+
+  \indexspace
+  \bigletter G
+  \item gen\_pwd\_ang() (in module soprano.calculate.nmr.powder), \hyperpage{17}
+  \item Gene (class in soprano.analyse.phylogen.genes), \hyperpage{3}
+  \item GeneDictionary (class in soprano.analyse.phylogen.genes), \hyperpage{4}
+  \item GeneError, \hyperpage{4}
+  \item get() (soprano.properties.atomsproperty.AtomsProperty class method), \hyperpage{78}
+  \item get\_array() (soprano.collection.collection.AtomsCollection method), \hyperpage{30}
+  \item get\_array() (soprano.selection.AtomSelection method), \hyperpage{81}
+  \item get\_distmat() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{6}
+  \item get\_files() (soprano.hpc.submitter.utils.RemoteTargetContext method), \hyperpage{42}
+  \item get\_gene() (soprano.analyse.phylogen.genes.GeneDictionary class method), \hyperpage{4}
+  \item get\_genome\_matrices() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{7}
+  \item get\_genome\_matrices\_norm() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{7}
+  \item get\_genome\_vectors() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{7}
+  \item get\_genome\_vectors\_norm() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{8}
+  \item get\_gulp\_charges() (in module soprano.calculate.gulp.charges), \hyperpage{11}
+  \item get\_hier\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{8}
+  \item get\_hier\_tree() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{9}
+  \item get\_kmeans\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{9}
+  \item get\_larmor\_frequency() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{14}
+  \item get\_linkage() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{9}
+  \item get\_max\_cluster\_dist() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{10}
+  \item get\_sel\_rule\_from\_hall() (in module soprano.calculate.xrd.sel\_rules), \hyperpage{19}
+  \item get\_sel\_rule\_from\_international() (in module soprano.calculate.xrd.sel\_rules), 
+		\hyperpage{19}
+  \item get\_sklearn\_clusters() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{10}
+  \item get\_w99\_energy() (in module soprano.calculate.gulp.w99), \hyperpage{12}
+  \item GridEngine() (soprano.hpc.submitter.queues.QueueInterface class method), \hyperpage{37}
+
+  \indexspace
+  \bigletter H
+  \item has() (soprano.collection.collection.AtomsCollection method), \hyperpage{30}
+  \item help() (soprano.analyse.phylogen.genes.GeneDictionary class method), \hyperpage{4}
+  \item hkl (soprano.calculate.xrd.xrd.XraySpectrum attribute), \hyperpage{23}
+  \item hkl2d2\_matgen() (in module soprano.utils), \hyperpage{83}
+  \item hkl\_unique (soprano.calculate.xrd.xrd.XraySpectrum attribute), \hyperpage{23}
+  \item HydrogenBonds (class in soprano.properties.linkage.linkage), \hyperpage{51}
+  \item HydrogenBondsNumber (class in soprano.properties.linkage.linkage), \hyperpage{52}
+  \item HydrogenBondTypes (class in soprano.properties.labeling.labeling), \hyperpage{47}
+
+  \indexspace
+  \bigletter I
+  \item import\_module() (in module soprano.utils), \hyperpage{83}
+  \item indices (soprano.selection.AtomSelection attribute), \hyperpage{81}
+  \item inspect\_args() (in module soprano.utils), \hyperpage{83}
+  \item intensity (soprano.calculate.xrd.xrd.XraySpectrum attribute), \hyperpage{24}
+  \item intensity (soprano.calculate.xrd.xrd.XraySpectrumData attribute), \hyperpage{24}
+  \item inv\_plane\_dist() (in module soprano.utils), \hyperpage{83}
+  \item invd (soprano.calculate.xrd.xrd.XraySpectrum attribute), \hyperpage{24}
+  \item is\_pair (soprano.analyse.phylogen.genes.Gene attribute), \hyperpage{4}
+  \item is\_string() (in module soprano.utils), \hyperpage{83}
+
+  \indexspace
+  \bigletter K
+  \item kill() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method), \hyperpage{33}
+  \item kill() (soprano.hpc.submitter.queues.QueueInterface method), \hyperpage{37}
+
+  \indexspace
+  \bigletter L
+  \item lambdax (soprano.calculate.xrd.xrd.XraySpectrum attribute), \hyperpage{24}
+  \item LatticeABC (class in soprano.properties.basic.basic), \hyperpage{43}
+  \item LatticeCart (class in soprano.properties.basic.basic), \hyperpage{44}
+  \item lebail\_fit() (soprano.calculate.xrd.xrd.XRDCalculator method), \hyperpage{21}
+  \item length (soprano.collection.collection.AtomsCollection attribute), \hyperpage{30}
+  \item LinkageList (class in soprano.properties.linkage.linkage), \hyperpage{53}
+  \item linspaceGen() (in module soprano.collection.generate.linspace), \hyperpage{27}
+  \item list() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method), \hyperpage{33}
+  \item list() (soprano.hpc.submitter.queues.QueueInterface method), \hyperpage{37}
+  \item list() (soprano.hpc.submitter.submit.Submitter static method), \hyperpage{41}
+  \item list\_distance() (in module soprano.utils), \hyperpage{83}
+  \item load() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster static method), 
+		\hyperpage{10}
+  \item load() (soprano.collection.collection.AtomsCollection static method), \hyperpage{30}
+  \item load\_genefile() (in module soprano.analyse.phylogen.genes), \hyperpage{4}
+  \item load\_simpson\_dat() (in module soprano.calculate.nmr.simpson), \hyperpage{18}
+  \item load\_state() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item log() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item LSF() (soprano.hpc.submitter.queues.QueueInterface class method), \hyperpage{37}
+
+  \indexspace
+  \bigletter M
+  \item max\_distance\_in\_cell() (in module soprano.utils), \hyperpage{83}
+  \item minimum\_periodic() (in module soprano.utils), \hyperpage{83}
+  \item minimum\_supcell() (in module soprano.utils), \hyperpage{83}
+  \item Mirror (class in soprano.properties.transform.transform), \hyperpage{74}
+  \item MoleculeCOM (class in soprano.properties.linkage.linkage), \hyperpage{53}
+  \item MoleculeCOMLinkage (class in soprano.properties.linkage.linkage), \hyperpage{54}
+  \item MoleculeMass (class in soprano.properties.linkage.linkage), \hyperpage{55}
+  \item MoleculeNumber (class in soprano.properties.linkage.linkage), \hyperpage{55}
+  \item MoleculeQuaternion (class in soprano.properties.linkage.linkage), \hyperpage{56}
+  \item MoleculeRelativeRotation (class in soprano.properties.linkage.linkage), \hyperpage{56}
+  \item Molecules (class in soprano.properties.linkage.linkage), \hyperpage{57}
+  \item MoleculeSites (class in soprano.properties.labeling.labeling), \hyperpage{47}
+  \item MSAnisotropy (class in soprano.properties.nmr.ms), \hyperpage{67}
+  \item MSAsymmetry (class in soprano.properties.nmr.ms), \hyperpage{68}
+  \item MSDiagonal (class in soprano.properties.nmr.ms), \hyperpage{68}
+  \item MSIsotropy (class in soprano.properties.nmr.ms), \hyperpage{69}
+  \item MSQuaternion (class in soprano.properties.nmr.ms), \hyperpage{70}
+  \item MSReducedAnisotropy (class in soprano.properties.nmr.ms), \hyperpage{70}
+  \item MSSkew (class in soprano.properties.nmr.ms), \hyperpage{71}
+  \item MSSpan (class in soprano.properties.nmr.ms), \hyperpage{71}
+
+  \indexspace
+  \bigletter N
+  \item next\_job() (soprano.hpc.submitter.castep.CastepSubmitter method), \hyperpage{36}
+  \item next\_job() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item NMRCalculator (class in soprano.calculate.nmr.nmr), \hyperpage{13}
+  \item NumAtoms (class in soprano.properties.basic.basic), \hyperpage{44}
+
+  \indexspace
+  \bigletter O
+  \item optimal\_discriminant\_plane() (in module soprano.analyse.phylogen.mapping), \hyperpage{5}
+
+  \indexspace
+  \bigletter P
+  \item parsegene\_bond\_order() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_coord\_histogram() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_energy() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_hbonds\_angle() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_hbonds\_fprint() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_hbonds\_length() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_hbonds\_site\_compare() (in module soprano.analyse.phylogen.genes), 
+		\hyperpage{5}
+  \item parsegene\_hbonds\_site\_reference() (in module soprano.analyse.phylogen.genes), 
+		\hyperpage{5}
+  \item parsegene\_hbonds\_totn() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_latt\_abc() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_latt\_ang() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_latt\_cart() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_linkage\_list() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_mol\_com() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_mol\_m() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_mol\_num() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item parsegene\_mol\_rot() (in module soprano.analyse.phylogen.genes), \hyperpage{5}
+  \item PBS() (soprano.hpc.submitter.queues.QueueInterface class method), \hyperpage{37}
+  \item peak\_f\_args (soprano.calculate.xrd.xrd.XRDCalculator attribute), \hyperpage{22}
+  \item peak\_func (soprano.calculate.xrd.xrd.XRDCalculator attribute), \hyperpage{22}
+  \item periodic\_bridson() (in module soprano.utils), \hyperpage{84}
+  \item periodic\_center() (in module soprano.utils), \hyperpage{84}
+  \item PhylogenCluster (class in soprano.analyse.phylogen.phylogenclust), \hyperpage{5}
+  \item powder\_peaks() (soprano.calculate.xrd.xrd.XRDCalculator method), \hyperpage{22}
+  \item progbar() (in module soprano.utils), \hyperpage{85}
+  \item put\_files() (soprano.hpc.submitter.utils.RemoteTargetContext method), \hyperpage{42}
+  \item pwd\_avg() (in module soprano.calculate.nmr.powder), \hyperpage{17}
+
+  \indexspace
+  \bigletter Q
+  \item QueueInterface (class in soprano.hpc.submitter.queues), \hyperpage{36}
+
+  \indexspace
+  \bigletter R
+  \item rattleGen() (in module soprano.collection.generate.rattle), \hyperpage{28}
+  \item Regularise (class in soprano.properties.transform.transform), \hyperpage{75}
+  \item remote\_target (soprano.hpc.submitter.queues.QueueInterface attribute), \hyperpage{38}
+  \item RemoteTarget (class in soprano.hpc.submitter.utils), \hyperpage{42}
+  \item RemoteTargetContext (class in soprano.hpc.submitter.utils), \hyperpage{42}
+  \item remove\_signal() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item rep\_alg() (in module soprano.utils), \hyperpage{85}
+  \item replace\_folder() (in module soprano.utils), \hyperpage{85}
+  \item requireNetworkX() (in module soprano.optional), \hyperpage{79}
+  \item requireScikitLearn() (in module soprano.optional), \hyperpage{79}
+  \item requireSpglib() (in module soprano.optional), \hyperpage{79}
+  \item Rotate (class in soprano.properties.transform.transform), \hyperpage{76}
+  \item run\_calculators() (soprano.collection.collection.AtomsCollection method), \hyperpage{30}
+  \item run\_cmd() (soprano.hpc.submitter.utils.RemoteTargetContext method), \hyperpage{42}
+
+  \indexspace
+  \bigletter S
+  \item safe\_communicate() (in module soprano.utils), \hyperpage{85}
+  \item save() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), \hyperpage{10}
+  \item save() (soprano.collection.collection.AtomsCollection method), \hyperpage{31}
+  \item save\_collection() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{11}
+  \item save\_state() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item seedname() (in module soprano.utils), \hyperpage{86}
+  \item set\_array() (soprano.collection.collection.AtomsCollection method), \hyperpage{31}
+  \item set\_array() (soprano.selection.AtomSelection method), \hyperpage{82}
+  \item set\_calculators() (soprano.collection.collection.AtomsCollection method), \hyperpage{31}
+  \item set\_element\_isotope() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{15}
+  \item set\_genes() (soprano.analyse.phylogen.phylogenclust.PhylogenCluster method), 
+		\hyperpage{11}
+  \item set\_isotopes() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{15}
+  \item set\_larmor\_frequency() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{15}
+  \item set\_parameters() (soprano.calculate.nmr.simpson.SimpsonSequence method), \hyperpage{18}
+  \item set\_parameters() (soprano.hpc.submitter.castep.CastepSubmitter method), \hyperpage{36}
+  \item set\_parameters() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{41}
+  \item set\_peak\_func() (soprano.calculate.xrd.xrd.XRDCalculator method), \hyperpage{22}
+  \item set\_powder() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{15}
+  \item set\_reference() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{16}
+  \item set\_remote\_host() (soprano.hpc.submitter.queues.QueueInterface method), \hyperpage{38}
+  \item set\_single\_crystal() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{16}
+  \item setup\_job() (soprano.hpc.submitter.castep.CastepSubmitter method), \hyperpage{36}
+  \item setup\_job() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{42}
+  \item silence\_stdio() (in module soprano.utils), \hyperpage{86}
+  \item SimpsonSequence (class in soprano.calculate.nmr.simpson), \hyperpage{17}
+  \item soprano (module), \hyperpage{3}, \hyperpage{86}
+  \item soprano.analyse (module), \hyperpage{3}
+  \item soprano.analyse.phylogen (module), \hyperpage{3}
+  \item soprano.analyse.phylogen.genes (module), \hyperpage{3}
+  \item soprano.analyse.phylogen.mapping (module), \hyperpage{5}
+  \item soprano.analyse.phylogen.phylogenclust (module), \hyperpage{5}
+  \item soprano.calculate (module), \hyperpage{11}
+  \item soprano.calculate.gulp (module), \hyperpage{11}
+  \item soprano.calculate.gulp.charges (module), \hyperpage{11}
+  \item soprano.calculate.gulp.w99 (module), \hyperpage{12}
+  \item soprano.calculate.nmr (module), \hyperpage{13}
+  \item soprano.calculate.nmr.nmr (module), \hyperpage{13}
+  \item soprano.calculate.nmr.powder (module), \hyperpage{17}
+  \item soprano.calculate.nmr.simpson (module), \hyperpage{17}
+  \item soprano.calculate.xrd (module), \hyperpage{19}
+  \item soprano.calculate.xrd.sel\_rules (module), \hyperpage{19}
+  \item soprano.calculate.xrd.xrd (module), \hyperpage{20}
+  \item soprano.collection (module), \hyperpage{24}
+  \item soprano.collection.collection (module), \hyperpage{29}
+  \item soprano.collection.generate (module), \hyperpage{24}
+  \item soprano.collection.generate.airss (module), \hyperpage{24}
+  \item soprano.collection.generate.defect (module), \hyperpage{25}
+  \item soprano.collection.generate.linspace (module), \hyperpage{27}
+  \item soprano.collection.generate.rattle (module), \hyperpage{28}
+  \item soprano.collection.generate.transform (module), \hyperpage{28}
+  \item soprano.hpc (module), \hyperpage{32}
+  \item soprano.hpc.submitter (module), \hyperpage{32}
+  \item soprano.hpc.submitter.castep (module), \hyperpage{34}
+  \item soprano.hpc.submitter.debug (module), \hyperpage{32}
+  \item soprano.hpc.submitter.debug.debugqueue (module), \hyperpage{33}
+  \item soprano.hpc.submitter.queues (module), \hyperpage{36}
+  \item soprano.hpc.submitter.submit (module), \hyperpage{38}
+  \item soprano.hpc.submitter.utils (module), \hyperpage{42}
+  \item soprano.measure (module), \hyperpage{79}
+  \item soprano.optional (module), \hyperpage{79}
+  \item soprano.properties (module), \hyperpage{43}
+  \item soprano.properties.atomsproperty (module), \hyperpage{77}
+  \item soprano.properties.basic (module), \hyperpage{43}
+  \item soprano.properties.basic.basic (module), \hyperpage{43}
+  \item soprano.properties.castep (module), \hyperpage{45}
+  \item soprano.properties.castep.castep (module), \hyperpage{45}
+  \item soprano.properties.labeling (module), \hyperpage{46}
+  \item soprano.properties.labeling.labeling (module), \hyperpage{46}
+  \item soprano.properties.linkage (module), \hyperpage{48}
+  \item soprano.properties.linkage.linkage (module), \hyperpage{48}
+  \item soprano.properties.nmr (module), \hyperpage{58}
+  \item soprano.properties.nmr.dipolar (module), \hyperpage{58}
+  \item soprano.properties.nmr.efg (module), \hyperpage{61}
+  \item soprano.properties.nmr.ms (module), \hyperpage{67}
+  \item soprano.properties.nmr.utils (module), \hyperpage{72}
+  \item soprano.properties.order (module), \hyperpage{72}
+  \item soprano.properties.order.order (module), \hyperpage{72}
+  \item soprano.properties.symmetry (module), \hyperpage{73}
+  \item soprano.properties.symmetry.symmetry (module), \hyperpage{74}
+  \item soprano.properties.transform (module), \hyperpage{74}
+  \item soprano.properties.transform.transform (module), \hyperpage{74}
+  \item soprano.selection (module), \hyperpage{80}
+  \item soprano.utils (module), \hyperpage{82}
+  \item sorted\_byarray() (soprano.collection.collection.AtomsCollection method), \hyperpage{31}
+  \item spec\_simul() (soprano.calculate.xrd.xrd.XRDCalculator method), \hyperpage{23}
+  \item spectrum\_1d() (soprano.calculate.nmr.nmr.NMRCalculator method), \hyperpage{16}
+  \item standard\_classcond\_component() (in module soprano.analyse.phylogen.mapping), 
+		\hyperpage{5}
+  \item start() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{42}
+  \item start\_run() (soprano.hpc.submitter.castep.CastepSubmitter method), \hyperpage{36}
+  \item start\_run() (soprano.hpc.submitter.submit.Submitter method), \hyperpage{42}
+  \item stop() (soprano.hpc.submitter.submit.Submitter static method), \hyperpage{42}
+  \item submit() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface method), 
+		\hyperpage{33}
+  \item submit() (soprano.hpc.submitter.queues.QueueInterface method), \hyperpage{38}
+  \item Submitter (class in soprano.hpc.submitter.submit), \hyperpage{38}
+  \item subset() (soprano.selection.AtomSelection method), \hyperpage{82}
+  \item substitutionGen() (in module soprano.collection.generate.defect), \hyperpage{27}
+  \item supcell\_gridgen() (in module soprano.utils), \hyperpage{86}
+  \item swing\_twist\_decomp() (in module soprano.utils), \hyperpage{86}
+  \item SymmetryDataset (class in soprano.properties.symmetry.symmetry), \hyperpage{74}
+
+  \indexspace
+  \bigletter T
+  \item theta2 (soprano.calculate.xrd.xrd.XraySpectrum attribute), \hyperpage{24}
+  \item theta2 (soprano.calculate.xrd.xrd.XraySpectrumData attribute), \hyperpage{24}
+  \item total\_principal\_component() (in module soprano.analyse.phylogen.mapping), \hyperpage{5}
+  \item transformGen() (in module soprano.collection.generate.transform), \hyperpage{28}
+  \item Translate (class in soprano.properties.transform.transform), \hyperpage{77}
+
+  \indexspace
+  \bigletter V
+  \item validate() (soprano.selection.AtomSelection method), \hyperpage{82}
+
+  \indexspace
+  \bigletter W
+  \item W99Error, \hyperpage{12}
+  \item wigner\_3j() (in module soprano.utils), \hyperpage{86}
+  \item write\_input() (soprano.calculate.nmr.simpson.SimpsonSequence method), \hyperpage{18}
+  \item write\_spinsys() (in module soprano.calculate.nmr.simpson), \hyperpage{18}
+
+  \indexspace
+  \bigletter X
+  \item XraySpectrum (class in soprano.calculate.xrd.xrd), \hyperpage{23}
+  \item XraySpectrumData (class in soprano.calculate.xrd.xrd), \hyperpage{24}
+  \item XRDCalculator (class in soprano.calculate.xrd.xrd), \hyperpage{20}
+
+\end{theindex}

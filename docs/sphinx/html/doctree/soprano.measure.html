@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>soprano.measure module &#8212; Soprano beta (Boggess) documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'beta (Boggess)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
+    <link rel="up" title="soprano package" href="soprano.html" />
+    <link rel="next" title="soprano.optional module" href="soprano.optional.html" />
+    <link rel="prev" title="soprano.properties.atomsproperty module" href="soprano.properties.atomsproperty.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.optional.html" title="soprano.optional module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.atomsproperty.html" title="soprano.properties.atomsproperty module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.measure">
+<span id="soprano-measure-module"></span><h1>soprano.measure module<a class="headerlink" href="#module-soprano.measure" title="Permalink to this headline">¶</a></h1>
+<p>measure.py</p>
+<p>Contains utility functions for measuring distances and other quantities at
+the level of a single ase.Atoms object.</p>
+<dl class="function">
+<dt id="soprano.measure.bondDistance">
+<code class="descclassname">soprano.measure.</code><code class="descname">bondDistance</code><span class="sig-paren">(</span><em>s</em>, <em>i</em>, <em>j</em>, <em>bond_matrix=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.measure.bondDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the distance in number of bonds between two atoms. Returns -1 if
+the two atoms are not connected. Requires NetworkX to be installed to
+work.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure on which to compute the distance</div>
+<div class="line">i (int): index of the first atom</div>
+<div class="line">j (int): index of the second atom</div>
+<div class="line">bond_matrix (np.ndarray): pre-computed bond matrix to use. If not</div>
+<div class="line-block">
+<div class="line">provided, will be calculated with default</div>
+<div class="line">parameters</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">r (int): computed bond distance</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.measure.euclideanDistance">
+<code class="descclassname">soprano.measure.</code><code class="descname">euclideanDistance</code><span class="sig-paren">(</span><em>s</em>, <em>i</em>, <em>j</em>, <em>periodic=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.measure.euclideanDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the distance between two atoms, in Angstroms.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure on which to compute the distance</div>
+<div class="line">i (int): index of the first atom</div>
+<div class="line">j (int): index of the second atom</div>
+<div class="line">periodic (bool): whether to account for periodic boundaries when </div>
+<div class="line-block">
+<div class="line">computing the distance; default is True</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">r (float): computed distance</div>
+</div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.properties.atomsproperty.html"
+                        title="previous chapter">soprano.properties.atomsproperty module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.optional.html"
+                        title="next chapter">soprano.optional module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.measure.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.optional.html" title="soprano.optional module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.atomsproperty.html" title="soprano.properties.atomsproperty module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>

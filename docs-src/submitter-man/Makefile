@@ -1,6 +1,6 @@
 # Makefile for Submitter manual
 
-BUILD_DIR=../../docs
+BUILD_DIR=../../docs/
 
 $(BUILD_DIR)/submitter-man.pdf:	submitter-man.tex
 	pdflatex submitter-man.tex
