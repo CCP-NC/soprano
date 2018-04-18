@@ -29,7 +29,7 @@ from ase.quaternions import Quaternion
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 from soprano.utils import (swing_twist_decomp, is_string,
-                           minimum_periodic, all_periodic)
+                           minimum_periodic, all_periodic, get_bonding_graph)
 
 
 # Pre load VdW radii
@@ -1098,3 +1098,42 @@ class DihedralAngleList(AtomsProperty):
 
         # And return!
         return angles
+
+
+class BondGraph(AtomsProperty):
+    """
+    BondGraph
+
+    Bond graph returns a networkx graph of the moelcules in the structure. To
+    use this property you must have the networkx library installed.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the bond graph
+    |                        even if already present.
+    |   save_info (bool): if True, save the bond graph as part of the Atoms
+    |                     object info. By default True.
+
+    | Returns:
+    |   graph (nx.Graph): the bond graph for the structure
+
+    """
+
+    default_name = 'bond_graph'
+    default_params = {
+        'force_recalc': False,
+        'save_info': True,
+    }
+
+    @staticmethod
+    def extract(s, force_recalc, save_info):
+        if BondGraph.default_name not in s.info or force_recalc:
+            bprop = Bonds(return_matrix=True)
+            _, bond_matrix = bprop(s)
+            graph = get_bonding_graph(bond_matrix)
+        else:
+            graph = s.info[BondGraph.default_name]
+
+        if save_info:
+            s.info[BondGraph.default_name] = graph
+
+        return graph
