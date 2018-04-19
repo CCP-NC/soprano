@@ -26,8 +26,8 @@ import json
 import pkgutil
 import numpy as np
 from ase.quaternions import Quaternion
-from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
+from soprano.properties import AtomsProperty
 from soprano.utils import (swing_twist_decomp, is_string,
                            minimum_periodic, all_periodic, get_bonding_graph)
 

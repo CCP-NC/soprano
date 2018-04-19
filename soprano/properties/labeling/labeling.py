@@ -24,6 +24,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 from soprano.properties import AtomsProperty
+from soprano.utils import recursive_mol_label
 from soprano.properties.linkage import Molecules, HydrogenBonds, Bonds
 
 
@@ -73,23 +74,6 @@ class MoleculeSites(AtomsProperty):
 
         elems = s.get_chemical_symbols()
 
-        def recursive_label(i, bonds, to_visit):
-            # Remove from to_visit
-            if i in to_visit:
-                to_visit.remove(i)
-            else:
-                return None
-            my_bonds = sorted([b for b in bonds[i] if b in to_visit])
-            if len(my_bonds) > 0:
-                bonded_label = sorted([recursive_label(j,
-                                                       bonds,
-                                                       to_visit)
-                                       for j in my_bonds])
-                bonded_label = [bl for bl in bonded_label if bl is not None]
-                return '{0}[{1}]'.format(elems[i], ','.join(bonded_label))
-            else:
-                return '{0}'.format(elems[i])
-
         mol_sites = []
 
         for mol_i, mol in enumerate(s.info[Molecules.default_name]):
@@ -101,8 +85,7 @@ class MoleculeSites(AtomsProperty):
             # by original structure index yet
             bonds = {a: bonds[i] for i, a in enumerate(mol.indices)}
             for a in mol.indices:
-                to_visit = list(mol.indices)
-                sites[a] = recursive_label(a, bonds, to_visit)
+                sites[a] = recursive_mol_label(a, mol.indices, bonds, elems)
 
             # Now grab the unique sites and pick the name of the molecule
             site_names = sorted(list(set(sites.values())))

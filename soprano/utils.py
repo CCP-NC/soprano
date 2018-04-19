@@ -34,8 +34,9 @@ from contextlib import contextmanager
 import inspect
 import numpy as np
 from scipy.misc import factorial
-from itertools import product as iter_product
 from ase.quaternions import Quaternion
+from itertools import product as iter_product
+
 from soprano.optional import requireNetworkX, requireScikitLearn
 
 
@@ -704,6 +705,54 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     # So once we're here we ran out of options...
     raise StopIteration('No more points can be generated')
 
+# Function for creating labels for molecule sites
+
+
+def recursive_mol_label(site_i, mol_indices, bonds, elems):
+    """Creates a string for a given atom by traversing the molecular network
+    starting with it. 
+
+    | Parameters:
+    |   site_i (int): index of the atom for which the string must be
+    |                 calculated
+    |   mol_indices ([int]): indices of all atoms belonging to the molecule
+    |   bonds (dict): dictionary of bonds within the molecule, containing
+    |                 the indices of atoms as keys and lists of all the
+    |                 indices of atoms they're bonded to as values.
+    |   elems ([str]): list of element symbols for the entire system (must
+    |                  be returned by ase.Atoms' get_chemical_symbols, NOT
+    |                  follow the order the atoms appear in mol_indices)
+
+    | Returns:
+    |   recursive_label (str): a string representing the molecular network
+    |                          traversed starting from site i
+    """
+
+    if site_i not in mol_indices:
+        raise ValueError('Molecule does not contain given atom')
+
+    def recursive_label(i, bonds, to_visit):
+        # Remove from to_visit
+        if i in to_visit:
+            to_visit.remove(i)
+        else:
+            return None
+        my_bonds = sorted([b for b in bonds[i] if b in to_visit])
+        if len(my_bonds) > 0:
+            bonded_label = sorted([recursive_label(j,
+                                                   bonds,
+                                                   to_visit)
+                                   for j in my_bonds])
+            bonded_label = [bl for bl in bonded_label if bl is not None]
+            return '{0}[{1}]'.format(elems[i], ','.join(bonded_label))
+        else:
+            return '{0}'.format(elems[i])
+
+    to_visit = list(mol_indices)
+
+    return recursive_label(site_i, bonds, to_visit)
+
+
 # Utilities for bonding graphs
 
 
@@ -731,7 +780,7 @@ def get_sklearn_clusters(points, method, params, sk=None):
     Use params as a dictionary of parameters passed to the method."""
 
     try:
-        __import__('sklearn.cluster') # Avoids some weird ImportErrors. WTF.
+        __import__('sklearn.cluster')  # Avoids some weird ImportErrors. WTF.
         clustObj = getattr(sk, 'cluster').__dict__[method](**params)
     except KeyError:
         raise ValueError('Requested method is not present in scikit-learn')
