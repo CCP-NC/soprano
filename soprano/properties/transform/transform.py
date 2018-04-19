@@ -245,45 +245,46 @@ class Mirror(AtomsProperty):
         return sT
 
 
-class Regularise(AtomsProperty):
+# Commented out until it can be actually brought to working
+# class Regularise(AtomsProperty):
 
-    """
-    Regularize
+#     """
+#     Regularize
 
-    Perform a translation by a vector calculated to cancel out the effect of
-    global translational symmetry. In theory, given two copies of the same
-    system that only differ by a translation of all atoms in the unit cell,
-    this should produce two systems that overlap perfectly. Can be used to
-    compare slightly different systems if they're similar enough. If a
-    selection is given, only those atoms will be used to calculate the center,
-    but the translation will still be applied to all atoms. The same atoms
-    have to be used in all systems for comparisons to make sense (for example
-    one might use all the heavy atoms and not include hydrogens).
+#     Perform a translation by a vector calculated to cancel out the effect of
+#     global translational symmetry. In theory, given two copies of the same
+#     system that only differ by a translation of all atoms in the unit cell,
+#     this should produce two systems that overlap perfectly. Can be used to
+#     compare slightly different systems if they're similar enough. If a
+#     selection is given, only those atoms will be used to calculate the center,
+#     but the translation will still be applied to all atoms. The same atoms
+#     have to be used in all systems for comparisons to make sense (for example
+#     one might use all the heavy atoms and not include hydrogens).
 
-    | Parameters:
-    |   selection (AtomSelection): selection object defining which atoms to
-    |                              act on. By default, all of them.
+#     | Parameters:
+#     |   selection (AtomSelection): selection object defining which atoms to
+#     |                              act on. By default, all of them.
 
-    | Returns:
-    |   regularised (ase.Atoms): Atoms object translated by the regularizing
-    |                            vector.
+#     | Returns:
+#     |   regularised (ase.Atoms): Atoms object translated by the regularizing
+#     |                            vector.
 
-    """
+#     """
 
-    default_name = "regularised"
-    default_params = {
-        'selection': None,
-    }
+#     default_name = "regularised"
+#     default_params = {
+#         'selection': None,
+#     }
 
-    @staticmethod
-    @_transform_sel_check
-    def extract(s, selection):
+#     @staticmethod
+#     @_transform_sel_check
+#     def extract(s, selection):
 
-        # Calculate the vector to shift by
-        v_frac = s.get_scaled_positions()
-        reg_v = 0.5-periodic_center(v_frac[selection._indices])
+#         # Calculate the vector to shift by
+#         v_frac = s.get_scaled_positions()
+#         reg_v = 0.5-periodic_center(v_frac[selection._indices])
 
-        sT = s.copy()
-        sT.set_scaled_positions((v_frac+reg_v) % 1)
+#         sT = s.copy()
+#         sT.set_scaled_positions((v_frac+reg_v) % 1)
 
-        return sT
+#         return sT
