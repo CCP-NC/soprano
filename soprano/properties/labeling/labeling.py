@@ -96,7 +96,7 @@ class MoleculeSites(AtomsProperty):
 
             # For each atom we do a depth-first traversal of the network
             sites = {}
-            bonds = mol.get_array('bonds')
+            bonds = mol.get_array(Bonds.default_name)
             # This is a necessary step since the bonds are not classified
             # by original structure index yet
             bonds = {a: bonds[i] for i, a in enumerate(mol.indices)}
