@@ -25,5 +25,4 @@ will be to do nothing at all, these properties are meant to be instantiated.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.properties.transform.transform import (Translate, Rotate, Mirror,
-                                                    Regularise)
+from soprano.properties.transform.transform import (Translate, Rotate, Mirror)

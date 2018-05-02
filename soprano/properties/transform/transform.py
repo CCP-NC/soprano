@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 import numpy as np
 from ase import Atoms
 from ase.quaternions import Quaternion
-from soprano.utils import periodic_center
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 
