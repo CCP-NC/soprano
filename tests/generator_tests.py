@@ -115,7 +115,7 @@ class TestGenerate(unittest.TestCase):
         holds = True
         for i, p1 in enumerate(dPos[:-1]):
             vecs, _ = minimum_periodic(dPos[i+1:]-p1, si2.get_cell())
-            p_holds = (np.linalg.norm(vecs, axis=1) <= poisson_r).all()
+            p_holds = (np.linalg.norm(vecs, axis=1) >= poisson_r).all()
             holds = holds and p_holds
 
         self.assertTrue(holds)
