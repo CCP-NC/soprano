@@ -25,4 +25,5 @@ from soprano.collection.generate.airss import airssGen
 from soprano.collection.generate.linspace import linspaceGen
 from soprano.collection.generate.rattle import rattleGen
 from soprano.collection.generate.transform import transformGen
-from soprano.collection.generate.defect import defectGen
+from soprano.collection.generate.defect import (defectGen, substitutionGen,
+                                                additionGen)
