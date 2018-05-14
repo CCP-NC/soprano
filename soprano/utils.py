@@ -33,6 +33,7 @@ import sys
 from contextlib import contextmanager
 import inspect
 import numpy as np
+from ase import Atoms
 from scipy.misc import factorial
 from ase.quaternions import Quaternion
 from itertools import product as iter_product
@@ -573,7 +574,7 @@ def wigner_3j(j1, m1, j2, m2, j3, m3):
 
 
 def max_distance_in_cell(cell):
-    """Maximum distance between two points achievable inside a single unit 
+    """Maximum distance between two points achievable inside a single unit
     cell.
     Relies on the fact that the isosurface for equal distance in cartesian
     space is an ellipsoid, meaning that the extreme has to be one of the 8
@@ -711,7 +712,7 @@ def periodic_bridson(cell, rmin, max_attempts=30,
 
 def recursive_mol_label(site_i, mol_indices, bonds, elems):
     """Creates a string for a given atom by traversing the molecular network
-    starting with it. 
+    starting with it.
 
     | Parameters:
     |   site_i (int): index of the atom for which the string must be
@@ -789,6 +790,47 @@ def get_sklearn_clusters(points, method, params, sk=None):
         raise ValueError('Invalid parameters for method {0}'.format(method))
 
     return clustObj.fit_predict(points)
+
+# Symmetric analysis utilities
+
+
+@requireSpglib('spg')
+def compute_asymmetric_distmat(struct, points, spg=None):
+    """Given a symmetric structure, compute a distance matrix for the given
+    points which contains only the distances between their closest symmetry
+    equivalent sites in the asymmetric unit cell."""
+
+    points = np.array(points)
+    N = points.shape[0]
+
+    # Get symmetry operations
+    symm = spg.get_symmetry_dataset(struct)
+    rots = symm['rotations']
+    transls = symm['translations']
+
+    # Transform into scaled coordinates
+    cell = struct.get_cell()
+    fp = np.tensordot(np.linalg.inv(cell), points, axes=(1, 1)).T
+    r_matrix = np.dot(cell, cell.T)
+
+    distmat = np.zeros((N, N))
+    all_images = (np.tensordot(rots, fp,
+                              axes=(2, 1))+transls[:, :, None])%1
+
+    # Here we avoid vectorisation to be safe against memory clutter.
+    # Though it also means it's slower...
+    for i in range(N):
+        for j in range(i+1, N):
+            df = (all_images[:, None, :, j]-all_images[None, :, :, i]
+                  + 0.5) % 1-0.5
+            rf = np.sum(df*np.moveaxis(np.tensordot(r_matrix, df,
+                                                    axes=(1, 2)), 0, 2),
+                        axis=2)
+            distmat[i, j] = np.amin(rf)**0.5
+            distmat[j, i] = distmat[i, j]
+
+    return distmat
+
 
 # Repulsion algorithm to find the best place to add an atom
 
