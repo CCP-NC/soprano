@@ -815,7 +815,7 @@ def compute_asymmetric_distmat(struct, points, spg=None):
 
     distmat = np.zeros((N, N))
     all_images = (np.tensordot(rots, fp,
-                              axes=(2, 1))+transls[:, :, None])%1
+                               axes=(2, 1))+transls[:, :, None]) % 1
 
     # Here we avoid vectorisation to be safe against memory clutter.
     # Though it also means it's slower...
