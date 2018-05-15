@@ -264,6 +264,9 @@ class AtomsCollection(object):
         try:
             struct_slice = self.structures[indices]
         except TypeError:
+            indices = np.array(indices)
+            if indices.dtype == bool:
+                indices = np.where(indices)[0]  # Support for bool arrays
             struct_slice = [self.structures[i] for i in indices]
 
         sliced = AtomsCollection(struct_slice, info=self.info)

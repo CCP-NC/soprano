@@ -159,11 +159,14 @@ class TestCollection(unittest.TestCase):
 
         coll_h = testcoll[2]
         coll_c = testcoll[(0, 1, 3)]
+        coll_b = testcoll[[False, False, True, False]]
 
         self.assertTrue(all([f == 'H'
                              for f in coll_h.all.get_chemical_formula()]))
         self.assertTrue(all([f == 'C'
                              for f in coll_c.all.get_chemical_formula()]))
+        self.assertTrue(all([f == 'H'
+                             for f in coll_b.all.get_chemical_formula()]))
 
 
 if __name__ == '__main__':
