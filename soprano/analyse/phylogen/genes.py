@@ -26,7 +26,7 @@ import re
 import itertools
 import numpy as np
 from soprano.selection import AtomSelection
-from soprano.utils import list_distance, is_string
+from soprano.utils import list_distance, is_string, compute_asymmetric_distmat
 from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
 from soprano.properties.linkage import (LinkageList, MoleculeNumber,
                                         MoleculeMass, MoleculeCOMLinkage,
@@ -168,7 +168,7 @@ def parsegene_linkage_list(c, size=0):
 
 
 def parsegene_mol_num(c):
-    return np.array(MoleculeNumber.get(c))[:,None]
+    return np.array(MoleculeNumber.get(c))[:, None]
 
 
 def parsegene_mol_m(c, Z=0):
@@ -337,6 +337,16 @@ def parsegene_bond_order(c, s1=None, s2=None, channels=10, cutoff_radius=2.0,
     return np.array(b_ord)
 
 
+def parsegene_defect_asymmetric_fdist(c, index=0, struct=None):
+
+    if struct is None:
+        raise ValueError('defect_asymmetric_fdist gene requires a struct '
+                         'argument')
+
+    fp = c.all.get_scaled_positions()[:, index, :]
+    return compute_asymmetric_distmat(struct, fp, linearized=False)
+
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
@@ -462,6 +472,15 @@ class GeneDictionary(object):
             },
             'parser': parsegene_bond_order,
             'pair': False
+        },
+
+        'defect_asymmetric_fdist': {
+            'default_params': {
+                'index': 0,
+                'struct': None,
+            },
+            'parser': parsegene_defect_asymmetric_fdist,
+            'pair': True
         }
 
     }
@@ -680,6 +699,25 @@ class GeneDictionary(object):
                         third order) and QW (both orders, concatenated).
                         Default is Q.
 
+        """,
+
+        'defect_asymmetric_fdist': """
+        Compute a fractional coordinated distance between single atoms in the
+        structures accounting for all effects of symmetry operations. This
+        should group together atoms occupying sites that are
+        crystallographically equivalent. This is especially useful for defect
+        analysis. A pure structure must be passed as an argument to compute
+        the symmetry operations in the first place. An installation of spglib
+        is required for this computation.
+
+        Parameters:
+            index (int): index of the defect for which the distance matrix is
+                         to be computed. It must be the same for all
+                         structures. Default is 0
+            struct (ase.Atoms): pure structure from which the space group and
+                                symmetry operations must be computed. Default
+                                is None, must be provided for the calculation
+                                to work
         """
     }
 
