@@ -795,10 +795,30 @@ def get_sklearn_clusters(points, method, params, sk=None):
 
 
 @requireSpglib('spg')
-def compute_asymmetric_distmat(struct, points, spg=None):
+def compute_asymmetric_distmat(struct, points, linearized=True, spg=None):
     """Given a symmetric structure, compute a distance matrix for the given
-    points which contains only the distances between their closest symmetry
-    equivalent sites in the asymmetric unit cell."""
+    fractional coordinate points which contains only the distances between 
+    their closest symmetry equivalent sites in the asymmetric unit cell.
+
+    Distances are computed in *fractional coordinates* space and are not 
+    real distances. They do not necessarily map to real space distances
+    either. Their purpose is merely to group points together by removing the
+    effects of symmetry operations.
+
+    | Parameters: 
+    |   struct (ase.Atoms): the structure from which to extract the symmetry
+    |                       operations
+    |   points (np.ndarray): list of points, in fractional coordinates, to
+    |                        compute the distance matrix for
+    |   linearized (bool):  if True, returns only the linearised upper
+    |                       triangle of the distance matrix, in the format
+    |                       accepted by scipy.cluster.hierarchy.linkage.
+    |                       Default is True
+
+    | Returns:
+    |   distmat (np.ndarray): distance matrix for points
+
+    """
 
     points = np.array(points)
     N = points.shape[0]
@@ -808,26 +828,25 @@ def compute_asymmetric_distmat(struct, points, spg=None):
     rots = symm['rotations']
     transls = symm['translations']
 
-    # Transform into scaled coordinates
-    cell = struct.get_cell()
-    fp = np.tensordot(np.linalg.inv(cell), points, axes=(1, 1)).T
-    r_matrix = np.dot(cell, cell.T)
-
-    distmat = np.zeros((N, N))
-    all_images = (np.tensordot(rots, fp,
+    if linearized:
+        distmat = np.zeros((N*(N-1))//2)
+    else:
+        distmat = np.zeros((N, N))
+    all_images = (np.tensordot(rots, points,
                                axes=(2, 1))+transls[:, :, None]) % 1
 
-    # Here we avoid vectorisation to be safe against memory clutter.
+    # Here we avoid full vectorisation to be safe against memory clutter.
     # Though it also means it's slower...
     for i in range(N):
-        for j in range(i+1, N):
-            df = (all_images[:, None, :, j]-all_images[None, :, :, i]
-                  + 0.5) % 1-0.5
-            rf = np.sum(df*np.moveaxis(np.tensordot(r_matrix, df,
-                                                    axes=(1, 2)), 0, 2),
-                        axis=2)
-            distmat[i, j] = np.amin(rf)**0.5
-            distmat[j, i] = distmat[i, j]
+        df = (all_images[:, None, :, i+1:]-all_images[None, :, :, i, None]
+              + 0.5) % 1-0.5
+        rf = np.linalg.norm(df, axis=2)
+        if linearized:
+            distmat[i*(N-1)-(i*(i-1))//2:
+                    (i+1)*(N-1)-(i*(i+1))//2] = np.amin(rf, axis=(0, 1))
+        else:
+            distmat[i, i+1:] = np.amin(rf, axis=(0, 1))
+            distmat[i+1:, i] = distmat[i, i+1:]
 
     return distmat
 
