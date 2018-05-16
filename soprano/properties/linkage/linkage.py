@@ -1104,7 +1104,7 @@ class BondGraph(AtomsProperty):
     """
     BondGraph
 
-    Bond graph returns a networkx graph of the moelcules in the structure. To
+    Bond graph returns a networkx graph of the molecules in the structure. To
     use this property you must have the networkx library installed.
 
     | Parameters:
