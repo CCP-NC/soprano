@@ -838,14 +838,14 @@ def compute_asymmetric_distmat(struct, points, linearized=True, spg=None):
     # Here we avoid full vectorisation to be safe against memory clutter.
     # Though it also means it's slower...
     for i in range(N):
-        df = (all_images[:, None, :, i+1:]-all_images[None, :, :, i, None]
+        df = (all_images[:, :, i+1:]-all_images[None, 0, :, i, None]
               + 0.5) % 1-0.5
-        rf = np.linalg.norm(df, axis=2)
+        rf = np.linalg.norm(df, axis=1)
         if linearized:
             distmat[i*(N-1)-(i*(i-1))//2:
-                    (i+1)*(N-1)-(i*(i+1))//2] = np.amin(rf, axis=(0, 1))
+                    (i+1)*(N-1)-(i*(i+1))//2] = np.amin(rf, axis=0)
         else:
-            distmat[i, i+1:] = np.amin(rf, axis=(0, 1))
+            distmat[i, i+1:] = np.amin(rf, axis=0)
             distmat[i+1:, i] = distmat[i, i+1:]
 
     return distmat
