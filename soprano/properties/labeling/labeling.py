@@ -28,12 +28,78 @@ from soprano.utils import recursive_mol_label
 from soprano.properties.linkage import Molecules, HydrogenBonds, Bonds
 
 
+class SiteLabels(AtomsProperty):
+
+    """
+    SiteLabels
+
+    Compute a unique label for an for an atom belonging to a molecule by 
+    exploiting network topology. Atoms can have the same label, but only if
+    they're fundamentally indistinguishable in the molecule's chemical context
+    (for example, three hydrogen atoms on a CH3 group). The label describes 
+    the molecular network as traversed starting from the given site, with each
+    pair of square brackets indicating the traversal of a further bond, and 
+    all paths kept to the shortest possible.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+    |   sites (list[int]): the sites for which the label have to be calculated.
+    |                      If not given, all of them are calculated.
+    |   custom_symbol (str): if present, replace the usual chemical symbol
+    |                        with a custom name for the site on which the
+    |                        label is being calculated, to make it
+    |                        distinguishable from equivalent elements.
+
+    | Returns:
+    |   site_labels (list[str]): A list of the computed site labels
+    """
+
+    default_name = 'site_labels'
+    default_params = {
+        'force_recalc': False,
+        'sites': None,
+        'custom_symbol': None
+    }
+
+    @staticmethod
+    def extract(s, force_recalc, sites, custom_symbol):
+
+        # First, we need the molecules
+        if Molecules.default_name not in s.info or force_recalc:
+            Molecules.get(s)
+        mols = s.info[Molecules.default_name]
+
+        elems = s.get_chemical_symbols()
+
+        if sites is None:
+            sites = range(len(s))
+
+        labels = []
+
+        for s_i in sites:
+            # Find the molecule that it belongs to
+            s_mol = [m for m in mols if s_i in m.indices][0]
+            s_elems = np.array(elems, dtype='S2')
+            if custom_symbol is not None:
+                s_elems[s_i] = custom_symbol
+            # Grab the bonds
+            bonds = s_mol.get_array(Bonds.default_name)
+            # This is a necessary step since the bonds are not classified
+            # by original structure index yet
+            bonds = {a: bonds[i] for i, a in enumerate(s_mol.indices)}
+            labels.append(recursive_mol_label(s_i, s_mol.indices, 
+                                              bonds, s_elems))
+
+        return labels
+
+
 class MoleculeSites(AtomsProperty):
 
     """
     MoleculeSites
 
-    Assigns univoque labels to atoms belonging to molecules by exploiting
+    Assigns unique labels to atoms belonging to molecules by exploiting
     network topology. Atoms can have the same label, but only if they're
     fundamentally indistinguishable in the molecule's chemical context
     (for example, three hydrogen atoms on a CH3 group). The molecule will be
