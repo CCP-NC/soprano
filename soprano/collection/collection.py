@@ -534,6 +534,29 @@ class AtomsCollection(object):
 
         return self[filter_slice]
 
+    def classify(self, classes):
+        """Return a dictionary of collections based on the names of assigned
+        classes.
+
+        | Args:
+        |   classes (np.ndarray): array of the class to which each structure
+        |                         belongs. For example [1, 2, 1] will put the
+        |                         first and third structures in class 1 and
+        |                         the other in class 2. The classes can be any
+        |                         hashable types, like int or str.
+
+        | Returns:
+        |   classified (dict): a dictionary using class names as keys and 
+        |                      sliced collections as values
+
+        """
+
+        classes = np.array(classes)
+        classified = {k: self[np.where(classes == k)[0]] 
+                      for k in set(classes)}
+
+        return classified
+
     def save(self, filename):
         """Simply save a pickled copy to a given file path"""
 
