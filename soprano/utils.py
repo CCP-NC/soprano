@@ -795,7 +795,8 @@ def get_sklearn_clusters(points, method, params, sk=None):
 
 
 @requireSpglib('spg')
-def compute_asymmetric_distmat(struct, points, linearized=True, spg=None):
+def compute_asymmetric_distmat(struct, points, linearized=True,
+                               return_images=False, spg=None):
     """Given a symmetric structure, compute a distance matrix for the given
     fractional coordinate points which contains only the distances between 
     their closest symmetry equivalent sites in the asymmetric unit cell.
@@ -814,9 +815,15 @@ def compute_asymmetric_distmat(struct, points, linearized=True, spg=None):
     |                       triangle of the distance matrix, in the format
     |                       accepted by scipy.cluster.hierarchy.linkage.
     |                       Default is True
+    |   return_images (int): if True, return also a list of the closest
+    |                         images for each point. points[0] is kept fixed
+    |                         by default, and for everything else the closest
+    |                         symmetric image to it is chosen.
 
     | Returns:
     |   distmat (np.ndarray): distance matrix for points
+    |   images (np.ndarray): closest point images (only if return_images is
+    |                        True)
 
     """
 
@@ -837,18 +844,28 @@ def compute_asymmetric_distmat(struct, points, linearized=True, spg=None):
 
     # Here we avoid full vectorisation to be safe against memory clutter.
     # Though it also means it's slower...
-    for i in range(N):
+    closest_images = np.zeros((N, 3))
+    closest_images[0] = points[0]
+
+    for i in range(N-1):
         df = (all_images[:, :, i+1:]-all_images[None, 0, :, i, None]
               + 0.5) % 1-0.5
         rf = np.linalg.norm(df, axis=1)
+        minrf_i = np.argmin(rf, axis=0)
+        minrf = rf[minrf_i, range(rf.shape[1])]
+        if return_images and i == 0:
+            closest_images[1:] = all_images[minrf_i, :, range(i+1, N)]
         if linearized:
             distmat[i*(N-1)-(i*(i-1))//2:
-                    (i+1)*(N-1)-(i*(i+1))//2] = np.amin(rf, axis=0)
+                    (i+1)*(N-1)-(i*(i+1))//2] = minrf
         else:
-            distmat[i, i+1:] = np.amin(rf, axis=0)
+            distmat[i, i+1:] = minrf
             distmat[i+1:, i] = distmat[i, i+1:]
 
-    return distmat
+    if return_images:
+        return distmat, closest_images
+    else:
+        return distmat
 
 
 # Repulsion algorithm to find the best place to add an atom
