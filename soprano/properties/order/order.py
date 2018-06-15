@@ -55,7 +55,8 @@ def _steinhardt_pars(vecs, l_channels, compute_W=False, weights=None):
 
     # What about weights?
     if weights is None:
-        weights = np.ones(vecs.shape)/len(vecs)
+        weights = np.ones(vecs.shape[0])/len(vecs)
+        print(weights.shape)
 
     for i, l in enumerate(l_channels):
         mvals = np.arange(-l, l+1)

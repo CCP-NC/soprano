@@ -26,6 +26,7 @@ from ase.quaternions import Quaternion
 
 def _haeb_sort(evals):
     """Sort a list of eigenvalue triplets by Haeberlen convention"""
+    evals = np.array(evals)
     iso = np.average(evals, axis=1)
     sort_i = np.argsort(np.abs(evals-iso[:, None]),
                         axis=1)[:, [1, 0, 2]]
@@ -80,6 +81,14 @@ def _dip_constant(Rij, gi, gj):
     ratios gi and gj"""
 
     return - (cnst.mu_0*cnst.hbar*gi*gj / (8*np.pi**2*Rij**3))
+
+
+def _J_constant(Kij, gi, gj):
+    """J coupling constants for pairs ij, with reduced constant Kij and
+    gyromagnetic ratios gi and gj"""
+
+    return cnst.h*gi*gj*Kij/(4*np.pi**2)*1e19
+
 
 try:
     _nmr_data = pkgutil.get_data('soprano',

@@ -36,7 +36,7 @@ import numpy as np
 from soprano.utils import minimum_supcell, supcell_gridgen
 
 
-# This decorator applies to all operators providing some basic checks
+# This decorator applies to all operators providing some basic checksP
 def _operator_checks(opfunc):
 
     def decorated_opfunc(self, other):
