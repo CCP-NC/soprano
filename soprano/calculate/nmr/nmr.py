@@ -65,7 +65,7 @@ def _st_C(c2a, eta):
 
 
 def _mas_A(c2a, eta):
-    return 21.0/16.0-7.0/7.0*eta*c2a+7.0/48.0*eta**2*c2a**2
+    return 21.0/16.0-7.0/8.0*eta*c2a+7.0/48.0*eta**2*c2a**2
 
 
 def _mas_B(c2a, eta):
@@ -482,7 +482,7 @@ class NMRCalculator(object):
             # it's a mistake in the book. Other sources (like the quadrupolar
             # NMR online book by D. Freude and J. Haase, Dec. 2016) report
             # this formulation, with the factor of two, instead.
-            q_shifts = np.diff(-(chi[:, None]/(4*I*(2*I-1)))**2*m/nu_l *
+            q_shifts = np.diff((chi[:, None]/(4*I*(2*I-1)))**2*m/nu_l *
                                 (-0.2*(I*(I+1)-3*m**2) *
                                     (3+eta_q[:, None]**2))*2)
             q_shifts /= larm
