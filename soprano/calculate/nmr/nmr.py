@@ -365,7 +365,8 @@ class NMRCalculator(object):
 
     def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
                     freq_broad=None, freq_units='ppm',
-                    effects=NMRFlags.CS_ISO, use_central=False):
+                    effects=NMRFlags.CS_ISO, use_central=False, 
+                    use_reference=False):
         """
         Return a simulated spectrum for the given sample and element.
 
@@ -388,10 +389,17 @@ class NMRCalculator(object):
         |                       this module's NMRFlags tuple, describing which
         |                       effects should be included and accounted for
         |                       in the calculation. For a list of available
-        |                       flags check the docstring for NMRCalculator.
+        |                       flags check the docstring for NMRCalculator
+        |                       (default is NMRFlags.CS_ISO).
         |   use_central (bool): if True, for half-integer spin nuclei, only
         |                       show the central transition. Ignored for
-        |                       integer spin nuclei.
+        |                       integer spin nuclei (default is False).
+        |   use_reference (bool): if True, return frequencies as referenced to
+        |                         the appropriate nucleus, in chemical shift
+        |                         form. If no reference has been provided for
+        |                         this nucleus, a value of 0 ppm is used and
+        |                         the frequencies are simply flipped in sign
+        |                         (default is False).
 
         | Returns:
         |   spec (np.ndarray): array of length 'bins' containing the spectral
@@ -464,7 +472,7 @@ class NMRCalculator(object):
         try:
             ref = self._references[el][iso]
         except KeyError:
-            ref = 0.0
+            ref = 0.0            
 
         # Let's start with peak positions - quantities non dependent on
         # orientation
@@ -600,7 +608,11 @@ class NMRCalculator(object):
         else:
             spec *= len(a_inds)*len(spec)/normsum
 
-        return spec, freq_axis/u[freq_units]
+        if use_reference:
+            freq_axis = ref - freq_axis
+            
+        freqs = freq_axis/u[freq_units]
+        return spec, freqs
 
     @property
     def B(self):
