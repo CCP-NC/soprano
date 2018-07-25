@@ -365,7 +365,7 @@ class NMRCalculator(object):
 
     def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
                     freq_broad=None, freq_units='ppm',
-                    effects=NMRFlags.CS_ISO):
+                    effects=NMRFlags.CS_ISO, use_central=False):
         """
         Return a simulated spectrum for the given sample and element.
 
@@ -389,6 +389,9 @@ class NMRCalculator(object):
         |                       effects should be included and accounted for
         |                       in the calculation. For a list of available
         |                       flags check the docstring for NMRCalculator.
+        |   use_central (bool): if True, for half-integer spin nuclei, only
+        |                       show the central transition. Ignored for
+        |                       integer spin nuclei.
 
         | Returns:
         |   spec (np.ndarray): array of length 'bins' containing the spectral
@@ -468,8 +471,12 @@ class NMRCalculator(object):
 
         # Shape: atoms*1Q transitions
         peaks = np.zeros((len(a_inds), int(2*I)))
+
         # Magnetic quantum number values
-        m = np.arange(-I, I+1).astype(float)[None, :]
+        if I%1 == 0.5 and use_central:
+            m = np.array([-0.5,0.5])[None,:]
+        else:
+            m = np.arange(-I, I+1).astype(float)[None, :]
 
         if effects & NMRFlags.CS_ISO:
             peaks += np.average(ms_evals, axis=1)[:, None]
