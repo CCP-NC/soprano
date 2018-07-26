@@ -31,6 +31,7 @@ import os
 import sys
 import ase
 import uuid
+import shutil
 import inspect
 import numpy as np
 # 2-to-3 compatibility
@@ -552,7 +553,7 @@ class AtomsCollection(object):
         """
 
         classes = np.array(classes)
-        classified = {k: self[np.where(classes == k)[0]] 
+        classified = {k: self[np.where(classes == k)[0]]
                       for k in set(classes)}
 
         return classified
@@ -578,6 +579,95 @@ class AtomsCollection(object):
         # Restore the _AllCaller
         f._all = _AllCaller(f.structures, ase.Atoms)
         return f
+
+    def save_tree(self, path, save_format, force_overwrite=False,
+                  clear_path=False):
+        """Save the collection's structures as a series of folders, named like
+        the structures, inside a given parent folder (that will be created if
+        not present). The files can be saved in a format of choice, or a
+        function can be passed that will save them in a custom way. Only one
+        collection can be saved per folder.
+
+        | Args:
+        |   path (str): folder path in which the collection should be saved.
+        |   save_format (str or function): format in which the structures
+        |                                  should be saved.
+        |                                  If a string, it will be used as a
+        |                                  file extension. If a function, it
+        |                                  must take as arguments the
+        |                                  structure (an ase.Atoms object)
+        |                                  the save path (a string) and take
+        |                                  care of saving the required files.
+        |   clear_path (bool): if True, forcefully delete 'path' before
+        |                      recreating and writing it without giving any
+        |                      warning message. Default is false.
+
+        """
+
+        collfile = os.path.join(path, '.collection')
+        owrite = False
+
+        # Try to create the path
+        if clear_path:
+            try:
+                shutil.rmtree(path)
+            except OSError:
+                pass
+        try:
+            os.mkdir(path)
+        except OSError:
+            # Path exists. Is it empty?
+            is_empty = os.listdir(path) == []
+            if not is_empty:
+                owrite = raw_input(('Path {0} exists and is not empty,'
+                                    'overwrite any existing collection data?')
+                                   .format(path)
+                                   ).lower()
+
+        # Format type?
+        is_ext = utils.is_string(save_format)
+        is_func = hasattr(save_format, '__call__')
+        if not is_ext or is_func:
+            raise ValueError('Invalid save_format passed to save_tree')
+
+        for i, s in enumerate(self.structures):
+            sname = s.info.get('name', 'structure_{0}'.format(i+1))
+            fold = os.path.join(path, sname)
+            try:
+                os.mkdir(fold)
+            except OSError:
+                if owrite:
+                    shutil.rmtree(fold)
+                    os.mkdir(fold)
+                else:
+                    raise RuntimeError('Folder {0} already '
+                                       'exists'.format(fold))
+            if is_ext:
+                ase_io.write(os.path.join(fold, sname + '.' + save_format), s)
+            elif is_func:
+                save_format(s, fold)
+
+    @staticmethod
+    def load_tree(path, load_format):
+        """Load a collection's structures from a series of folders, named like
+        the structures, inside a given parent folder, as created by save_tree.
+        The files can be loaded from a format of choice, or a
+        function can be passed that will load them in a custom way.
+
+        | Args:
+        |   path (str): folder path in which the collection should be saved.
+        |   load_format (str or function): format from which the structures
+        |                                  should be loaded.
+        |                                  If a string, it will be used as a
+        |                                  file extension. If a function, it
+        |                                  must take as arguments the load
+        |                                  path (a string) and return the
+        |                                  loaded structure as an ase.Atoms
+        |                                  object.
+
+        """
+
+        collfile = os.path.join(path, '.collection')
 
 
 if __name__ == '__main__':
