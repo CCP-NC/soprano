@@ -30,7 +30,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import ase
-import uuid
+import glob
 import shutil
 import inspect
 import numpy as np
@@ -579,6 +579,44 @@ class AtomsCollection(object):
         # Restore the _AllCaller
         f._all = _AllCaller(f.structures, ase.Atoms)
         return f
+
+    @staticmethod
+    def check_tree(path):
+        """Checks if a path is a valid 'tree' format for a collection. This is
+        any folder that satisfies the following conditions:
+
+        - contains a .collection file storing metadata
+        - contains a series of folders matching the list stored in the
+          .collection file, and nothing else
+
+        This function will return 0 if both conditions are satisfied, 1 if 
+        only the first is, and 2 if no .collection file is found.
+
+        | Args: 
+        |   path (str): path to check for whether it matches or not the 
+        |               collection pattern
+
+        | Returns:
+        |   result (int): 0, 1 or 2 depending on the outcome of the checks
+        """
+
+        # Begin by checking whether there is a .collection file
+        try:
+            coll = pickle.load(open(os.path.join(path, '.collection')))
+        except IOError:
+            return 2  # No .collection file found
+
+        # Check if the directories match
+        dirlist = coll['dirlist']
+        dirs = glob.glob(os.path.join(path, '*'))
+        all_dirs = all([os.path.isdir(d) for d in dirs])
+        dirs = [os.path.relpath(d, path) for d in dirs]
+
+        # Are they even all directories?
+        if (not all_dirs or set(dirlist) != set(dirs)):
+            return 1
+
+        return 0
 
     def save_tree(self, path, save_format, force_overwrite=False,
                   clear_path=False):
