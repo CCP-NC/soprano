@@ -590,7 +590,8 @@ class AtomsCollection(object):
           .collection file, and nothing else
 
         This function will return 0 if both conditions are satisfied, 1 if 
-        only the first is, and 2 if no .collection file is found.
+        only the first is, 2 if no .collection file is found, and -1 if the
+        folder itself doesn't exist.
 
         | Args: 
         |   path (str): path to check for whether it matches or not the 
@@ -599,6 +600,9 @@ class AtomsCollection(object):
         | Returns:
         |   result (int): 0, 1 or 2 depending on the outcome of the checks
         """
+
+        if not os.path.exists(path):
+            return -1
 
         # Begin by checking whether there is a .collection file
         try:
@@ -618,13 +622,14 @@ class AtomsCollection(object):
 
         return 0
 
-    def save_tree(self, path, save_format, force_overwrite=False,
-                  clear_path=False):
+    def save_tree(self, path, save_format, safety_check=3):
         """Save the collection's structures as a series of folders, named like
         the structures, inside a given parent folder (that will be created if
-        not present). The files can be saved in a format of choice, or a
-        function can be passed that will save them in a custom way. Only one
-        collection can be saved per folder.
+        not present). Arrays and info are stored in a pickled .collection file
+        which works as metadata for the whole directory tree.
+        The files can be saved in a format of choice, or a function can be
+        passed that will save them in a custom way. Only one collection can be
+        saved per folder.
 
         | Args:
         |   path (str): folder path in which the collection should be saved.
@@ -636,31 +641,59 @@ class AtomsCollection(object):
         |                                  structure (an ase.Atoms object)
         |                                  the save path (a string) and take
         |                                  care of saving the required files.
-        |   clear_path (bool): if True, forcefully delete 'path' before
-        |                      recreating and writing it without giving any
-        |                      warning message. Default is false.
+        |   safety_check (int): how much care should be taken not to overwrite
+        |                       potentially important data in path. Can be a
+        |                       number from 0 to 3.
+        |                       Here's the meaning of the codes:
+        |
+        |                       3 (default): always ask before overwriting an
+        |                         existing folder that passes the check_tree
+        |                         control, raise an exception otherwise;
+        |                       2: overwite any folder that passes fully the
+        |                          check_tree control, raise an exception
+        |                          otherwise;
+        |                       1: overwrite any folder that passes fully the
+        |                          check_tree control, ask for user input
+        |                          otherwise;
+        |                       0 (DANGER - use at your own risk!): no checks,
+        |                         always overwrite path.
 
         """
 
-        collfile = os.path.join(path, '.collection')
-        owrite = False
+        check = AtomsCollection.check_tree(path)
 
-        # Try to create the path
-        if clear_path:
-            try:
-                shutil.rmtree(path)
-            except OSError:
-                pass
-        try:
-            os.mkdir(path)
-        except OSError:
-            # Path exists. Is it empty?
-            is_empty = os.listdir(path) == []
-            if not is_empty:
-                owrite = raw_input(('Path {0} exists and is not empty,'
-                                    'overwrite any existing collection data?')
-                                   .format(path)
-                                   ).lower()
+        def ow_ask(path):
+            return raw_input(('Folder {0} exists, '
+                              'overwrite (y/n)?').format(path)).lower() == 'y'
+
+        if check > -1:
+            # The folder exists
+            if check == 0:
+                if safety_check >= 3:
+                    # Ask for permission
+                    perm = ow_ask(path)
+                else:
+                    perm = True
+            else:
+                if safety_check >= 2:
+                    raise IOError(('Trying to overwrite folder {0} which did'
+                                   ' not pass check_tree control (result {1})'
+                                   ' with safety_check level '
+                                   '{2}').format(path,
+                                                 check,
+                                                 safety_check))
+                elif safety_check == 1:
+                    perm = ow_ask(path)
+                else:
+                    perm = True
+
+            if not perm:
+                print('Can not overwrite folder {0}, skipping...'.format(path))
+
+            shutil.rmtree(path)
+
+        # Re-create folder
+        os.mkdir(path)
 
         # Format type?
         is_ext = utils.is_string(save_format)
@@ -668,6 +701,7 @@ class AtomsCollection(object):
         if not is_ext or is_func:
             raise ValueError('Invalid save_format passed to save_tree')
 
+        dirlist = []
         for i, s in enumerate(self.structures):
             sname = s.info.get('name', 'structure_{0}'.format(i+1))
             fold = os.path.join(path, sname)
@@ -685,8 +719,15 @@ class AtomsCollection(object):
             elif is_func:
                 save_format(s, fold)
 
+            dirlist.append(sname)
+
+        pickle.dump({'dirlist': dirlist,
+                     'arrays': self._arrays,
+                     'info': self.info},
+                    open(os.path.join(path, '.collection'), 'w'))
+
     @staticmethod
-    def load_tree(path, load_format):
+    def load_tree(path, load_format, safety_check=3):
         """Load a collection's structures from a series of folders, named like
         the structures, inside a given parent folder, as created by save_tree.
         The files can be loaded from a format of choice, or a
@@ -702,10 +743,79 @@ class AtomsCollection(object):
         |                                  path (a string) and return the
         |                                  loaded structure as an ase.Atoms
         |                                  object.
+        |   safety_check (int): how much care should be taken to verify the
+        |                       folder that is being loaded. Can be a number
+        |                       from 0 to 3.
+        |                       Here's the meaning of the codes:
+        |
+        |                       3 (default): only load a folder if it passes
+        |                         fully the check_tree control;
+        |                       2: load any folder that has a valid
+        |                          .collection file, but only the listed
+        |                          subfolders;
+        |                       1: load any folder that has a valid
+        |                          .collection file, all subfolders. Array
+        |                          data will be discarded;
+        |                       0: no checks, try to load from all subfolders.
+
+        | Returns:
+        |   coll (AtomsCollection): loaded collection
 
         """
 
-        collfile = os.path.join(path, '.collection')
+        check = AtomsCollection.check_tree(path)
+
+        if check == -1:
+            raise IOError('Folder {0} does not exist'.format(path))
+
+        dirlist = []
+        if check < 2:
+            coll = pickle.load(open(os.path.join(path, '.collection')))
+            if check == 1 and safety_check == 3:
+                raise IOError(('Folder {0} is not a valid collection '
+                               'tree').format(path))
+            if safety_check >= 2:
+                dirlist = coll['dirlist']
+            else:
+                dirlist = [os.path.relpath(d, path)
+                           for d in glob.glob(os.path.join(path, '*')) if
+                           os.path.isdir(d)]
+        else:
+            if safety_check > 0:
+                raise IOError(('Folder {0} is not a valid collection '
+                               'tree').format(path))
+            dirlist = [os.path.relpath(d, path)
+                       for d in glob.glob(os.path.join(path, '*')) if
+                       os.path.isdir(d)]
+
+        # Format type?
+        is_ext = utils.is_string(load_format)
+        is_func = hasattr(load_format, '__call__')
+        if not is_ext or is_func:
+            raise ValueError('Invalid load_format passed to load_tree')
+
+        structures = []
+        for d in dirlist:
+            if is_ext:
+                s = ase_io.read(os.path.join(path, d, d + '.' + load_format))
+            elif is_func:
+                s = load_format(d)
+
+            structures.append(s)
+
+        if check < 2:
+            info = coll['info']
+        else:
+            info = {}
+
+        loaded_coll = AtomsCollection(structures, info=info)
+
+        if safety_check >= 2:
+            arrays = coll['arrays']
+            for k, a in arrays.items():
+                loaded_coll.set_array(k, a)
+
+        return loaded_coll
 
 
 if __name__ == '__main__':
