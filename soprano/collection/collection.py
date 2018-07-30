@@ -30,7 +30,8 @@ from __future__ import unicode_literals
 import os
 import sys
 import ase
-import uuid
+import glob
+import shutil
 import inspect
 import numpy as np
 # 2-to-3 compatibility
@@ -552,7 +553,7 @@ class AtomsCollection(object):
         """
 
         classes = np.array(classes)
-        classified = {k: self[np.where(classes == k)[0]] 
+        classified = {k: self[np.where(classes == k)[0]]
                       for k in set(classes)}
 
         return classified
@@ -578,6 +579,243 @@ class AtomsCollection(object):
         # Restore the _AllCaller
         f._all = _AllCaller(f.structures, ase.Atoms)
         return f
+
+    @staticmethod
+    def check_tree(path):
+        """Checks if a path is a valid 'tree' format for a collection. This is
+        any folder that satisfies the following conditions:
+
+        - contains a .collection file storing metadata
+        - contains a series of folders matching the list stored in the
+          .collection file, and nothing else
+
+        This function will return 0 if both conditions are satisfied, 1 if 
+        only the first is, 2 if no .collection file is found, and -1 if the
+        folder itself doesn't exist.
+
+        | Args: 
+        |   path (str): path to check for whether it matches or not the 
+        |               collection pattern
+
+        | Returns:
+        |   result (int): 0, 1 or 2 depending on the outcome of the checks
+        """
+
+        if not os.path.exists(path):
+            return -1
+
+        # Begin by checking whether there is a .collection file
+        try:
+            coll = pickle.load(open(os.path.join(path, '.collection')))
+        except IOError:
+            return 2  # No .collection file found
+
+        # Check if the directories match
+        dirlist = coll['dirlist']
+        dirs = glob.glob(os.path.join(path, '*'))
+        all_dirs = all([os.path.isdir(d) for d in dirs])
+        dirs = [os.path.relpath(d, path) for d in dirs]
+
+        # Are they even all directories?
+        if (not all_dirs or set(dirlist) != set(dirs)):
+            return 1
+
+        return 0
+
+    def save_tree(self, path, save_format, safety_check=3):
+        """Save the collection's structures as a series of folders, named like
+        the structures, inside a given parent folder (that will be created if
+        not present). Arrays and info are stored in a pickled .collection file
+        which works as metadata for the whole directory tree.
+        The files can be saved in a format of choice, or a function can be
+        passed that will save them in a custom way. Only one collection can be
+        saved per folder.
+
+        | Args:
+        |   path (str): folder path in which the collection should be saved.
+        |   save_format (str or function): format in which the structures
+        |                                  should be saved.
+        |                                  If a string, it will be used as a
+        |                                  file extension. If a function, it
+        |                                  must take as arguments the
+        |                                  structure (an ase.Atoms object)
+        |                                  the save path (a string) and take
+        |                                  care of saving the required files.
+        |   safety_check (int): how much care should be taken not to overwrite
+        |                       potentially important data in path. Can be a
+        |                       number from 0 to 3.
+        |                       Here's the meaning of the codes:
+        |
+        |                       3 (default): always ask before overwriting an
+        |                         existing folder that passes the check_tree
+        |                         control, raise an exception otherwise;
+        |                       2: overwite any folder that passes fully the
+        |                          check_tree control, raise an exception
+        |                          otherwise;
+        |                       1: overwrite any folder that passes fully the
+        |                          check_tree control, ask for user input
+        |                          otherwise;
+        |                       0 (DANGER - use at your own risk!): no checks,
+        |                         always overwrite path.
+
+        """
+
+        check = AtomsCollection.check_tree(path)
+
+        def ow_ask(path):
+            return raw_input(('Folder {0} exists, '
+                              'overwrite (y/n)?').format(path)).lower() == 'y'
+
+        if check > -1:
+            # The folder exists
+            if check == 0:
+                if safety_check >= 3:
+                    # Ask for permission
+                    perm = ow_ask(path)
+                else:
+                    perm = True
+            else:
+                if safety_check >= 2:
+                    raise IOError(('Trying to overwrite folder {0} which did'
+                                   ' not pass check_tree control (result {1})'
+                                   ' with safety_check level '
+                                   '{2}').format(path,
+                                                 check,
+                                                 safety_check))
+                elif safety_check == 1:
+                    perm = ow_ask(path)
+                else:
+                    perm = True
+
+            if not perm:
+                print('Can not overwrite folder {0}, skipping...'.format(path))
+
+            shutil.rmtree(path)
+
+        # Re-create folder
+        os.mkdir(path)
+
+        # Format type?
+        is_ext = utils.is_string(save_format)
+        is_func = hasattr(save_format, '__call__')
+        if not is_ext or is_func:
+            raise ValueError('Invalid save_format passed to save_tree')
+
+        dirlist = []
+        for i, s in enumerate(self.structures):
+            sname = s.info.get('name', 'structure_{0}'.format(i+1))
+            fold = os.path.join(path, sname)
+            try:
+                os.mkdir(fold)
+            except OSError:
+                if owrite:
+                    shutil.rmtree(fold)
+                    os.mkdir(fold)
+                else:
+                    raise RuntimeError('Folder {0} already '
+                                       'exists'.format(fold))
+            if is_ext:
+                ase_io.write(os.path.join(fold, sname + '.' + save_format), s)
+            elif is_func:
+                save_format(s, fold)
+
+            dirlist.append(sname)
+
+        pickle.dump({'dirlist': dirlist,
+                     'arrays': self._arrays,
+                     'info': self.info},
+                    open(os.path.join(path, '.collection'), 'w'))
+
+    @staticmethod
+    def load_tree(path, load_format, safety_check=3):
+        """Load a collection's structures from a series of folders, named like
+        the structures, inside a given parent folder, as created by save_tree.
+        The files can be loaded from a format of choice, or a
+        function can be passed that will load them in a custom way.
+
+        | Args:
+        |   path (str): folder path in which the collection should be saved.
+        |   load_format (str or function): format from which the structures
+        |                                  should be loaded.
+        |                                  If a string, it will be used as a
+        |                                  file extension. If a function, it
+        |                                  must take as arguments the load
+        |                                  path (a string) and return the
+        |                                  loaded structure as an ase.Atoms
+        |                                  object.
+        |   safety_check (int): how much care should be taken to verify the
+        |                       folder that is being loaded. Can be a number
+        |                       from 0 to 3.
+        |                       Here's the meaning of the codes:
+        |
+        |                       3 (default): only load a folder if it passes
+        |                         fully the check_tree control;
+        |                       2: load any folder that has a valid
+        |                          .collection file, but only the listed
+        |                          subfolders;
+        |                       1: load any folder that has a valid
+        |                          .collection file, all subfolders. Array
+        |                          data will be discarded;
+        |                       0: no checks, try to load from all subfolders.
+
+        | Returns:
+        |   coll (AtomsCollection): loaded collection
+
+        """
+
+        check = AtomsCollection.check_tree(path)
+
+        if check == -1:
+            raise IOError('Folder {0} does not exist'.format(path))
+
+        dirlist = []
+        if check < 2:
+            coll = pickle.load(open(os.path.join(path, '.collection')))
+            if check == 1 and safety_check == 3:
+                raise IOError(('Folder {0} is not a valid collection '
+                               'tree').format(path))
+            if safety_check >= 2:
+                dirlist = coll['dirlist']
+            else:
+                dirlist = [os.path.relpath(d, path)
+                           for d in glob.glob(os.path.join(path, '*')) if
+                           os.path.isdir(d)]
+        else:
+            if safety_check > 0:
+                raise IOError(('Folder {0} is not a valid collection '
+                               'tree').format(path))
+            dirlist = [os.path.relpath(d, path)
+                       for d in glob.glob(os.path.join(path, '*')) if
+                       os.path.isdir(d)]
+
+        # Format type?
+        is_ext = utils.is_string(load_format)
+        is_func = hasattr(load_format, '__call__')
+        if not is_ext or is_func:
+            raise ValueError('Invalid load_format passed to load_tree')
+
+        structures = []
+        for d in dirlist:
+            if is_ext:
+                s = ase_io.read(os.path.join(path, d, d + '.' + load_format))
+            elif is_func:
+                s = load_format(d)
+
+            structures.append(s)
+
+        if check < 2:
+            info = coll['info']
+        else:
+            info = {}
+
+        loaded_coll = AtomsCollection(structures, info=info)
+
+        if safety_check >= 2:
+            arrays = coll['arrays']
+            for k, a in arrays.items():
+                loaded_coll.set_array(k, a)
+
+        return loaded_coll
 
 
 if __name__ == '__main__':
