@@ -445,6 +445,7 @@ class NMRCalculator(object):
         if effects & NMRFlags.CS:
             try:
                 ms_tens = self._sample.get_array('ms')[a_inds]
+                ms_tens = (ms_tens+np.swapaxes(ms_tens, 1, 2))/2.0
             except KeyError:
                 raise RuntimeError('Impossible to compute chemical shift - '
                                    'sample has no shielding data')
@@ -543,7 +544,6 @@ class NMRCalculator(object):
             nu_q = chi*1.5/(I*(2*I-1.0))
 
             qfreqs = nu_q[:, None, None]*m_fac[:, :, None]*dir_fac[:, None, :]
-            print(qfreqs/larm)
 
             peaks += qfreqs/larm  # Already ppm being Hz/MHz
 
