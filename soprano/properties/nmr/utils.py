@@ -23,6 +23,11 @@ import numpy as np
 import scipy.constants as cnst
 from ase.quaternions import Quaternion
 
+# EFG conversion constant.
+# Units chosen so that EFG_TO_CHI*Quadrupolar moment*Vzz = Hz
+EFG_TO_CHI = cnst.physical_constants['atomic unit of electric field '
+                                     'gradient'][0]*cnst.e*1e-31/cnst.h
+
 
 def _haeb_sort(evals):
     """Sort a list of eigenvalue triplets by Haeberlen convention"""
