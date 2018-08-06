@@ -528,6 +528,45 @@ class PhylogenCluster(object):
 
         return clusts, clust_slices
 
+    def get_clusters(self, method, params={}):
+        """Wrapper method to get clusters by any available method. Depending
+        on the value passed as 'method' it calls either ger_hier_clusters,
+        get_kmeans_clusters, or get_sklearn_clusters. Check their respective
+        docstrings for more detailed info.
+
+        | Args:
+        |   method (str): name of the clustering method to use. Can be 'hier',
+        |                 'kmeans', or one of the methods in sklearn.clusters.
+        |   params (dict): parameters to be passed to the class when
+        |                  initialising it. Change depending on the desired
+        |                  method. Check the documentation for the specific
+        |                  class.
+
+        | Returns:
+        |   clusters (tuple(list[int],
+        |                   list[slices])): list of cluster index for each
+        |                                   structure (counting from 1) and
+        |                                   list of slices defining the
+        |                                   clusters as formed by the
+        |                                   requested algorithm.
+
+        """
+
+        if method == 'hier':
+            try:
+                return self.get_hier_clusters(params['t'])
+            except KeyError:
+                raise ValueError('Parameter t required for hierarchical'
+                                 ' clustering')
+        elif method == 'kmeans':
+            try:
+                return self.get_kmeans_clusters(params['n'])
+            except KeyError:
+                raise ValueError('Parameter n required for k-means'
+                                 ' clustering')
+        else:
+            return self.get_sklearn_clusters(method, params)
+
     def create_mapping(self, method="total-principal"):
         """Return an array of 2-dimensional points representing a reduced
         dimensionality mapping of the given genes using the algorithm of
