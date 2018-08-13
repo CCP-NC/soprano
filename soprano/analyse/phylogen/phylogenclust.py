@@ -598,7 +598,6 @@ class PhylogenCluster(object):
             'optimal-discriminant': mapping.optimal_discriminant_plane
         }
 
-        # Make covalence matrix
         try:
             return algos[method](self._gene_vectors_norm)
         except KeyError:

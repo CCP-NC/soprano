@@ -703,7 +703,7 @@ class AtomsCollection(object):
         # Format type?
         is_ext = utils.is_string(save_format)
         is_func = hasattr(save_format, '__call__')
-        if not is_ext or is_func:
+        if not (is_ext or is_func):
             raise ValueError('Invalid save_format passed to save_tree')
 
         dirlist = []
@@ -801,7 +801,7 @@ class AtomsCollection(object):
         # Format type?
         is_ext = utils.is_string(load_format)
         is_func = hasattr(load_format, '__call__')
-        if not is_ext or is_func:
+        if not (is_ext or is_func):
             raise ValueError('Invalid load_format passed to load_tree')
 
         structures = []
@@ -810,7 +810,7 @@ class AtomsCollection(object):
                 s = ase_io.read(os.path.join(path, d, d + '.' + load_format),
                                 **opt_args)
             elif is_func:
-                s = load_format(d, **opt_args)
+                s = load_format(os.path.join(path, d), **opt_args)
 
             structures.append(s)
 

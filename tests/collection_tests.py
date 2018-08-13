@@ -22,12 +22,14 @@ import numpy as np
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "test_data")
 
+
 class TestCollection(unittest.TestCase):
 
     def test_loadres(self):
 
         # Load some test files and check if regular loading works
-        reslist = glob.glob(os.path.join(_TESTDATA_DIR, 'rescollection', '*.res'))
+        reslist = glob.glob(os.path.join(
+            _TESTDATA_DIR, 'rescollection', '*.res'))
         testcoll = AtomsCollection(reslist)
         self.assertEqual(testcoll.length, len(reslist))
 
@@ -39,7 +41,7 @@ class TestCollection(unittest.TestCase):
     def test_arrays(self):
 
         # Generate a few random structures
-        elrnd = ['H','C','O','N']
+        elrnd = ['H', 'C', 'O', 'N']
         asernd = []
         for n in range(4):
             aselen = np.random.randint(1, 10)
@@ -63,7 +65,7 @@ class TestCollection(unittest.TestCase):
         from ase.calculators.lj import LennardJones
 
         # Generate a few random structures
-        elrnd = ['H','C','O','N']
+        elrnd = ['H', 'C', 'O', 'N']
         asernd = []
         for n in range(4):
             aselen = np.random.randint(2, 10)
@@ -76,15 +78,16 @@ class TestCollection(unittest.TestCase):
                                  labels=['a', 'b', 'c', 'd'],
                                  params={'epsilon': 1.2})
         testcoll.run_calculators()
-        extract_nrg = lambda s: s.calc.results['energy']
+
+        def extract_nrg(s): return s.calc.results['energy']
         energies = np.array(testcoll.all.map(extract_nrg))
 
-        self.assertTrue(np.all(energies > 0.0))
+        self.assertTrue(not np.isnan(energies).any())
 
     def test_sum(self):
 
         # Generate a few random structures
-        elrnd = ['H','C','O','N']
+        elrnd = ['H', 'C', 'O', 'N']
         asernd = []
         for n in range(4):
             aselen = np.random.randint(1, 10)
@@ -109,7 +112,7 @@ class TestCollection(unittest.TestCase):
         chunk_n = 2
 
         # Generate a few random structures
-        elrnd = ['H','C','O','N']
+        elrnd = ['H', 'C', 'O', 'N']
         asernd = []
         for n in range(full_len):
             aselen = np.random.randint(1, 10)
@@ -121,7 +124,7 @@ class TestCollection(unittest.TestCase):
         # Test with size
         chunks = testcoll.chunkify(chunk_size=chunk_len)
         self.assertEqual(len(chunks), np.ceil(full_len/(1.0*chunk_len)))
-        self.assertEqual(chunks[-1].length, full_len%chunk_len)
+        self.assertEqual(chunks[-1].length, full_len % chunk_len)
 
         # Test with number
         chunks = testcoll.chunkify(chunk_n=chunk_n)
@@ -167,6 +170,43 @@ class TestCollection(unittest.TestCase):
                              for f in coll_c.all.get_chemical_formula()]))
         self.assertTrue(all([f == 'H'
                              for f in coll_b.all.get_chemical_formula()]))
+
+    def test_tree(self):
+
+        aselist = [
+            Atoms('C'),
+            Atoms('H'),
+            Atoms('N'),
+            Atoms('O')
+        ]
+
+        testcoll = AtomsCollection(aselist)
+
+        testcoll.save_tree('test_save', 'xyz', safety_check=2)
+        loadcoll = AtomsCollection.load_tree('test_save', 'xyz')
+
+        self.assertTrue(''.join(loadcoll.all.get_chemical_formula()) ==
+                        'CHNO')
+
+        # Try a custom save format
+        def custom_save(a, path, format_string):
+            with open(os.path.join(path, 'struct.custom'), 'w') as f:
+                f.write(format_string.format(''.join(a.get_chemical_formula()
+                                                     )))
+
+        def custom_load(path, marker):
+            with open(os.path.join(path, 'struct.custom')) as f:
+                l = f.read().strip()
+                return Atoms(l.split(marker)[1].strip())
+
+        testcoll.save_tree('test_save', custom_save,
+                           opt_args={'format_string': 'Formula:{0}'},
+                           safety_check=2)
+        loadcoll = AtomsCollection.load_tree('test_save', custom_load,
+                                             opt_args={'marker': ':'})
+
+        self.assertTrue(''.join(loadcoll.all.get_chemical_formula()) ==
+                        'CHNO')        
 
 
 if __name__ == '__main__':
