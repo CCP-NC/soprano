@@ -622,7 +622,7 @@ class AtomsCollection(object):
 
         return 0
 
-    def save_tree(self, path, save_format, safety_check=3):
+    def save_tree(self, path, save_format, opt_args={}, safety_check=3):
         """Save the collection's structures as a series of folders, named like
         the structures, inside a given parent folder (that will be created if
         not present). Arrays and info are stored in a pickled .collection file
@@ -639,8 +639,13 @@ class AtomsCollection(object):
         |                                  file extension. If a function, it
         |                                  must take as arguments the
         |                                  structure (an ase.Atoms object)
-        |                                  the save path (a string) and take
-        |                                  care of saving the required files.
+        |                                  the save path (a string), and any
+        |                                  additional arguments passed as
+        |                                  opt_args, and take care of saving
+        |                                  the required files.
+        |   opt_args(dict): dictionary of additional arguments to pass to
+        |                   either ase.io.write (if save_format is a string)
+        |                   or to the save_format function.
         |   safety_check (int): how much care should be taken not to overwrite
         |                       potentially important data in path. Can be a
         |                       number from 0 to 3.
@@ -715,9 +720,10 @@ class AtomsCollection(object):
                     raise RuntimeError('Folder {0} already '
                                        'exists'.format(fold))
             if is_ext:
-                ase_io.write(os.path.join(fold, sname + '.' + save_format), s)
+                ase_io.write(os.path.join(fold, sname + '.' + save_format), s,
+                             **opt_args)
             elif is_func:
-                save_format(s, fold)
+                save_format(s, fold, **opt_args)
 
             dirlist.append(sname)
 
@@ -727,7 +733,7 @@ class AtomsCollection(object):
                     open(os.path.join(path, '.collection'), 'w'))
 
     @staticmethod
-    def load_tree(path, load_format, safety_check=3):
+    def load_tree(path, load_format, opt_args={}, safety_check=3):
         """Load a collection's structures from a series of folders, named like
         the structures, inside a given parent folder, as created by save_tree.
         The files can be loaded from a format of choice, or a
@@ -740,9 +746,13 @@ class AtomsCollection(object):
         |                                  If a string, it will be used as a
         |                                  file extension. If a function, it
         |                                  must take as arguments the load
-        |                                  path (a string) and return the
-        |                                  loaded structure as an ase.Atoms
-        |                                  object.
+        |                                  path (a string) and any additional
+        |                                  arguments passed as opt_args, and
+        |                                  return the loaded structure as an
+        |                                  ase.Atoms object.
+        |   opt_args(dict): dictionary of additional arguments to pass to
+        |                   either ase.io.read (if load_format is a string)
+        |                   or to the load_format function.
         |   safety_check (int): how much care should be taken to verify the
         |                       folder that is being loaded. Can be a number
         |                       from 0 to 3.
@@ -797,9 +807,10 @@ class AtomsCollection(object):
         structures = []
         for d in dirlist:
             if is_ext:
-                s = ase_io.read(os.path.join(path, d, d + '.' + load_format))
+                s = ase_io.read(os.path.join(path, d, d + '.' + load_format),
+                                **opt_args)
             elif is_func:
-                s = load_format(d)
+                s = load_format(d, **opt_args)
 
             structures.append(s)
 
