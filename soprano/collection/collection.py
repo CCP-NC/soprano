@@ -622,7 +622,8 @@ class AtomsCollection(object):
 
         return 0
 
-    def save_tree(self, path, save_format, opt_args={}, safety_check=3):
+    def save_tree(self, path, save_format, name_root='structure',
+                  opt_args={}, safety_check=3):
         """Save the collection's structures as a series of folders, named like
         the structures, inside a given parent folder (that will be created if
         not present). Arrays and info are stored in a pickled .collection file
@@ -643,9 +644,11 @@ class AtomsCollection(object):
         |                                  additional arguments passed as
         |                                  opt_args, and take care of saving
         |                                  the required files.
-        |   opt_args(dict): dictionary of additional arguments to pass to
-        |                   either ase.io.write (if save_format is a string)
-        |                   or to the save_format function.
+        |   name_root (str): name prefix to be used for structures when a name
+        |                    is not available in their info dictionary
+        |   opt_args (dict): dictionary of additional arguments to pass to
+        |                    either ase.io.write (if save_format is a string)
+        |                    or to the save_format function.
         |   safety_check (int): how much care should be taken not to overwrite
         |                       potentially important data in path. Can be a
         |                       number from 0 to 3.
@@ -708,7 +711,7 @@ class AtomsCollection(object):
 
         dirlist = []
         for i, s in enumerate(self.structures):
-            sname = s.info.get('name', 'structure_{0}'.format(i+1))
+            sname = s.info.get('name', '{0}_{1}'.format(name_root, i+1))
             fold = os.path.join(path, sname)
             try:
                 os.mkdir(fold)
