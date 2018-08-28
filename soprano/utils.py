@@ -312,7 +312,8 @@ def supcell_gridgen(latt_cart, shape):
     return neigh_i_grid, neigh_grid
 
 
-def minimum_periodic(v, latt_cart, exclude_self=False):
+def minimum_periodic(v, latt_cart, exclude_self=False,
+                     pbc=[True, True, True]):
     """
     Find the shortest periodic equivalent vector for a list of vectors and a
     given lattice.
@@ -325,6 +326,10 @@ def minimum_periodic(v, latt_cart, exclude_self=False):
     |                        excluded, and its closest non-zero periodic
     |                        version will be considered instead. Default is
     |                        False
+    |   pbc ([bool, bool, bool]): periodic boundary conditions - if
+    |                             a boundary is not periodic the
+    |                             range returned will always be zero
+    |                             in that dimension
 
     | Returns:
     |   v_period (np.ndarray): array with the same shape as v, containing the
@@ -337,7 +342,7 @@ def minimum_periodic(v, latt_cart, exclude_self=False):
     """
 
     max_r = np.amax(np.linalg.norm(v, axis=-1))
-    scell_shape = minimum_supcell(max_r, latt_cart)
+    scell_shape = minimum_supcell(max_r, latt_cart, pbc=pbc)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
     v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
     v_norm = np.linalg.norm(v_period, axis=-1)
@@ -349,7 +354,7 @@ def minimum_periodic(v, latt_cart, exclude_self=False):
     return v_period, neigh_i_grid[min_copies]
 
 
-def all_periodic(v, latt_cart, max_r):
+def all_periodic(v, latt_cart, max_r, pbc=[True, True, True]):
     """
     Find all the periodic equivalent vectors for a list of vectors and a
     given lattice falling within a given length.
@@ -359,6 +364,10 @@ def all_periodic(v, latt_cart, max_r):
     |                   produce periodic versions of
     |   latt_cart (np.ndarray): unit cell in cartesian form
     |   max_r (float): maximum length of periodic copies of vectors
+    |   pbc ([bool, bool, bool]): periodic boundary conditions - if
+    |                             a boundary is not periodic the
+    |                             range returned will always be zero
+    |                             in that dimension
 
     | Returns:
     |   v_period (np.ndarray): array with the same shape as v, containing the
@@ -373,7 +382,7 @@ def all_periodic(v, latt_cart, max_r):
 
     """
 
-    scell_shape = minimum_supcell(max_r, latt_cart)
+    scell_shape = minimum_supcell(max_r, latt_cart, pbc=pbc)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
     v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
     r_copies = np.where(np.linalg.norm(v_period, axis=-1) <= max_r)

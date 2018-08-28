@@ -59,7 +59,7 @@ def _compute_bonds(s, vdw_set, vdw_scale, default_vdw):
     v = s.get_positions()
     v = (v[:, None, :]-v[None, :, :])[triui]
     # Reduce them
-    v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max)
+    v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max, pbc=s.get_pbc())
     v = np.linalg.norm(v, axis=-1)
 
     # Now distance and VdW matrices
