@@ -27,6 +27,7 @@ It provides a number of functionalities to help automate many common tasks
 in computational crystallography."""
 
 if __name__ == '__main__':
+
     setup(name='Soprano',
           version=__version__,
           description='A Python library to crack crystals',
@@ -49,11 +50,12 @@ if __name__ == '__main__':
               'Topic :: Scientific/Engineering :: Information Analysis',
 
               # Pick your license as you wish (should match "license" above)
-              'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
+              'License :: OSI Approved :: GNU Library or Lesser General Public'
+              ' License (LGPL)',
 
-              # Specify the Python versions you support here. In particular, ensure
-              # that you indicate whether you support Python 2, Python 3 or
-              # both.
+              # Specify the Python versions you support here. In particular, 
+              # ensure that you indicate whether you support Python 2, Python 3
+              # or both.
               'Programming Language :: Python :: 2',
               'Programming Language :: Python :: 2.7',
               'Programming Language :: Python :: 3',
