@@ -119,6 +119,18 @@ class AtomSelection(object):
 
         return h.hexdigest()
 
+    def has(self, name):
+        """Check if the selection has a given array
+
+        | Args:
+        |   name (str): name of the array to be checked for
+
+        | Returns:
+        |   has (bool): if the array is present or not
+        """
+
+        return name in self._arrays
+
     def set_array(self, name, array):
         """Save an array of given name containing arbitraty information
         tied to the selected atoms.
