@@ -455,3 +455,34 @@ class AtomSelection(object):
                 sel_i.append(i)
 
         return AtomSelection(atoms, sel_i)
+
+    @staticmethod
+    def from_array(atoms, name, value, op='eq'):
+        """Generate a selection for the given Atoms object of other atoms
+        based on a comparison with some array value. Default is selection of
+        all atoms that have the same exact value. However different operators
+        can be specified for different selection criteria.
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   name (str): name of the array to select with
+        |   value (any type): value to compare the contents of the array with
+        |   op (Optional[str]): operator to use for comparison with the given
+        |                       value. By default it's eq, meaning
+        |                       "equal" to value, which means all atoms
+        |                       will be selected for whose the array of given
+        |                       name has the given value.
+        |                       Other options are the functions present in the
+        |                       `operator` module and are:
+        |                             - lt : less than
+        |                             - le : less or equal
+        |                             - eq : exactly equal
+        |                             - ge : greater or equal
+        |                             - gt : greater than
+        """
+
+        arr = atoms.get_array(name)
+        op = getattr(operator, op)
+        sel_i = np.where(op(arr, value))[0]
+
+        return AtomSelection(atoms, sel_i)
