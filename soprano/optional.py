@@ -27,6 +27,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from functools import wraps
+
 try:
     import networkx as _networkx
 except ImportError:
@@ -59,6 +61,7 @@ def requireNetworkX(import_name='networkx'):
 
     def decorator(func):
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
 
             if _networkx is None:
@@ -78,6 +81,7 @@ def requireSpglib(import_name='spglib'):
 
     def decorator(func):
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
 
             if _spglib is None:
@@ -97,6 +101,7 @@ def requireScikitLearn(import_name='sklearn'):
 
     def decorator(func):
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
 
             if _sklearn is None:
