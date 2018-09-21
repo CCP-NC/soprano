@@ -34,6 +34,7 @@ from scipy import constants as cnst
 from collections import namedtuple
 from soprano.properties.nmr.utils import _get_nmr_data, _el_iso
 from soprano.calculate.nmr.powder import gen_pwd_ang, pwd_avg
+from soprano.properties.nmr.utils import EFG_TO_CHI
 
 _nmr_data = _get_nmr_data()
 
@@ -43,10 +44,6 @@ _larm_units = {
     'MHz': lambda e, i: 2*np.pi*1.0e6/_nmr_data[e][i]['gamma'],
     'T': lambda e, i: 1.0,
 }
-
-# Conversion factor: Vzz*Q to frequency(Hz)
-_VzzQ_Hz = 1.0e-31*(cnst.m_e**3*cnst.c**4*cnst.alpha**4)\
-    / (cnst.hbar**3*2*np.pi)
 
 # Function used for second-order quadrupolar shift
 # Arguments: cos(2*alpha), eta
@@ -65,7 +62,7 @@ def _st_C(c2a, eta):
 
 
 def _mas_A(c2a, eta):
-    return 21.0/16.0-7.0/7.0*eta*c2a+7.0/48.0*eta**2*c2a**2
+    return 21.0/16.0-7.0/8.0*eta*c2a+7.0/48.0*eta**2*c2a**2
 
 
 def _mas_B(c2a, eta):
@@ -79,6 +76,7 @@ def _mas_C(c2a, eta):
 def _gfunc(ca, cb, eta, A, B, C):
     c2a = 2*ca**2-1
     return A(c2a, eta)*cb**4+B(c2a, eta)*cb**2+C(c2a, eta)
+
 
 # Flags for what to include in spectra
 NMRFlags = namedtuple('NMRFlags',
@@ -365,7 +363,8 @@ class NMRCalculator(object):
 
     def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
                     freq_broad=None, freq_units='ppm',
-                    effects=NMRFlags.CS_ISO):
+                    effects=NMRFlags.CS_ISO, use_central=False,
+                    use_reference=False):
         """
         Return a simulated spectrum for the given sample and element.
 
@@ -388,7 +387,17 @@ class NMRCalculator(object):
         |                       this module's NMRFlags tuple, describing which
         |                       effects should be included and accounted for
         |                       in the calculation. For a list of available
-        |                       flags check the docstring for NMRCalculator.
+        |                       flags check the docstring for NMRCalculator
+        |                       (default is NMRFlags.CS_ISO).
+        |   use_central (bool): if True, for half-integer spin nuclei, only
+        |                       show the central transition. Ignored for
+        |                       integer spin nuclei (default is False).
+        |   use_reference (bool): if True, return frequencies as referenced to
+        |                         the appropriate nucleus, in chemical shift
+        |                         form. If no reference has been provided for
+        |                         this nucleus, a value of 0 ppm is used and
+        |                         the frequencies are simply flipped in sign
+        |                         (default is False).
 
         | Returns:
         |   spec (np.ndarray): array of length 'bins' containing the spectral
@@ -436,6 +445,7 @@ class NMRCalculator(object):
         if effects & NMRFlags.CS:
             try:
                 ms_tens = self._sample.get_array('ms')[a_inds]
+                ms_tens = (ms_tens+np.swapaxes(ms_tens, 1, 2))/2.0
             except KeyError:
                 raise RuntimeError('Impossible to compute chemical shift - '
                                    'sample has no shielding data')
@@ -455,7 +465,7 @@ class NMRCalculator(object):
             Vzz = efg_evals[:, -1]
             eta_q = (efg_evals[:, 0]-efg_evals[:, 1])/Vzz
             Q = _nmr_data[el][iso]['Q']
-            chi = Vzz*Q*_VzzQ_Hz
+            chi = Vzz*Q*EFG_TO_CHI
 
         # Reference (zero if not given)
         try:
@@ -468,8 +478,12 @@ class NMRCalculator(object):
 
         # Shape: atoms*1Q transitions
         peaks = np.zeros((len(a_inds), int(2*I)))
+
         # Magnetic quantum number values
-        m = np.arange(-I, I+1).astype(float)[None, :]
+        if I % 1 == 0.5 and use_central:
+            m = np.array([-0.5, 0.5])[None, :]
+        else:
+            m = np.arange(-I, I+1).astype(float)[None, :]
 
         if effects & NMRFlags.CS_ISO:
             peaks += np.average(ms_evals, axis=1)[:, None]
@@ -482,9 +496,9 @@ class NMRCalculator(object):
             # it's a mistake in the book. Other sources (like the quadrupolar
             # NMR online book by D. Freude and J. Haase, Dec. 2016) report
             # this formulation, with the factor of two, instead.
-            q_shifts = np.diff(-(chi[:, None]/(4*I*(2*I-1)))**2*m/nu_l *
-                                (-0.2*(I*(I+1)-3*m**2) *
-                                    (3+eta_q[:, None]**2))*2)
+            q_shifts = np.diff((chi[:, None]/(4*I*(2*I-1)))**2*m/nu_l *
+                               (-0.2*(I*(I+1)-3*m**2) *
+                                (3+eta_q[:, None]**2))*2)
             q_shifts /= larm
 
             peaks += q_shifts
@@ -593,7 +607,11 @@ class NMRCalculator(object):
         else:
             spec *= len(a_inds)*len(spec)/normsum
 
-        return spec, freq_axis/u[freq_units]
+        if use_reference:
+            freq_axis = ref - freq_axis
+
+        freqs = freq_axis/u[freq_units]
+        return spec, freqs
 
     @property
     def B(self):

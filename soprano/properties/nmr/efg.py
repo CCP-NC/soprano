@@ -28,7 +28,8 @@ from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
                                           _span, _skew, _evecs_2_quat,
-                                          _get_nmr_data, _get_isotope_data)
+                                          _get_nmr_data, _get_isotope_data,
+                                          EFG_TO_CHI)
 
 
 def _has_efg_check(f):
@@ -375,11 +376,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
         q_list = _get_isotope_data(elems, 'Q', isotopes, isotope_list,
                                    use_q_isotopes)
 
-        # Conversion constant
-        k = cnst.physical_constants['atomic unit of electric field '
-                                    'gradient'][0]*cnst.e*1e-31/cnst.h
-
-        return k*q_list*EFGVzz.get(s)
+        return EFG_TO_CHI*q_list*EFGVzz.get(s)
 
 
 class EFGQuaternion(AtomsProperty):

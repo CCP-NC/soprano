@@ -59,7 +59,7 @@ def _compute_bonds(s, vdw_set, vdw_scale, default_vdw):
     v = s.get_positions()
     v = (v[:, None, :]-v[None, :, :])[triui]
     # Reduce them
-    v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max)
+    v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max, pbc=s.get_pbc())
     v = np.linalg.norm(v, axis=-1)
 
     # Now distance and VdW matrices
@@ -418,7 +418,11 @@ class Molecules(AtomsProperty):
         for m_i, m_cells, m_bonds in mol_sets:
             mols.append(AtomSelection(s, m_i))
             mols[-1].set_array('cell_indices', m_cells)
-            mols[-1].set_array('bonds', m_bonds)
+            # This is necessary to guarantee shape consistency
+            m_barr = np.empty((len(m_bonds),), dtype=list)
+            for i, m_b in enumerate(m_bonds):
+                m_barr[i] = m_b
+            mols[-1].set_array('bonds', m_barr)
 
         if save_info:
             s.info[Molecules.default_name] = mols

@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 import numpy as np
 from ase import Atoms
 from ase.quaternions import Quaternion
+from soprano.utils import minimum_periodic
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 
@@ -117,6 +118,8 @@ class Rotate(AtomsProperty):
     |                                            applied.
     |   scaled (bool): if True, treat the input vector as expressed in scaled,
     |                  not absolute, coordinates.
+    |   periodic (bool): if True, always rotate each atom around the minimum
+    |                    periodic image of the rotation center.
 
     | Returns:
     |   rotated (ase.Atoms): Atoms object with the rotation performed.
@@ -128,12 +131,13 @@ class Rotate(AtomsProperty):
         'selection': None,
         'center': [0, 0, 0],
         'quaternion': None,
-        'scaled': False
+        'scaled': False,
+        'periodic': False,
     }
 
     @staticmethod
     @_transform_sel_check
-    def extract(s, selection, center, quaternion, scaled):
+    def extract(s, selection, center, quaternion, scaled, periodic):
 
         center = np.array(center)
         if center.shape != (3,):
@@ -150,6 +154,9 @@ class Rotate(AtomsProperty):
             pos = sT.get_scaled_positions()
 
         pos -= center
+        if periodic:
+            ppos, _ = minimum_periodic(pos[selection.indices], s.get_cell())
+            pos[selection.indices] = ppos
         pos[selection.indices] = quaternion \
             .rotate(pos[selection.indices].T).T
         pos += center
@@ -242,48 +249,3 @@ class Mirror(AtomsProperty):
             sT.set_scaled_positions(pos)
 
         return sT
-
-
-# Commented out until it can be actually brought to working
-# class Regularise(AtomsProperty):
-
-#     """
-#     Regularize
-
-#     Perform a translation by a vector calculated to cancel out the effect of
-#     global translational symmetry. In theory, given two copies of the same
-#     system that only differ by a translation of all atoms in the unit cell,
-#     this should produce two systems that overlap perfectly. Can be used to
-#     compare slightly different systems if they're similar enough. If a
-#     selection is given, only those atoms will be used to calculate the center,
-#     but the translation will still be applied to all atoms. The same atoms
-#     have to be used in all systems for comparisons to make sense (for example
-#     one might use all the heavy atoms and not include hydrogens).
-
-#     | Parameters:
-#     |   selection (AtomSelection): selection object defining which atoms to
-#     |                              act on. By default, all of them.
-
-#     | Returns:
-#     |   regularised (ase.Atoms): Atoms object translated by the regularizing
-#     |                            vector.
-
-#     """
-
-#     default_name = "regularised"
-#     default_params = {
-#         'selection': None,
-#     }
-
-#     @staticmethod
-#     @_transform_sel_check
-#     def extract(s, selection):
-
-#         # Calculate the vector to shift by
-#         v_frac = s.get_scaled_positions()
-#         reg_v = 0.5-periodic_center(v_frac[selection._indices])
-
-#         sT = s.copy()
-#         sT.set_scaled_positions((v_frac+reg_v) % 1)
-
-#         return sT

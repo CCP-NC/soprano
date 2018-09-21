@@ -31,12 +31,14 @@ from __future__ import unicode_literals
 import copy
 import hashlib
 import warnings
+import operator
 import numpy as np
 
 from soprano.utils import minimum_supcell, supcell_gridgen
 
-
 # This decorator applies to all operators providing some basic checksP
+
+
 def _operator_checks(opfunc):
 
     def decorated_opfunc(self, other):
@@ -116,6 +118,18 @@ class AtomSelection(object):
         h.update(''.join(atoms.get_chemical_symbols()).encode())
 
         return h.hexdigest()
+
+    def has(self, name):
+        """Check if the selection has a given array
+
+        | Args:
+        |   name (str): name of the array to be checked for
+
+        | Returns:
+        |   has (bool): if the array is present or not
+        """
+
+        return name in self._arrays
 
     def set_array(self, name, array):
         """Save an array of given name containing arbitraty information
@@ -398,3 +412,77 @@ class AtomSelection(object):
             sel.set_array('cell_indices', grid_frac[where_i[1]])
 
         return sel
+
+    @staticmethod
+    def from_bonds(atoms, center, n, op='le'):
+        """Generate a selection for the given Atoms object of other atoms
+        based on their reciprocal bonding distance. Default is selection of
+        all atoms that are within a certain bonding distance (less-or-equal
+        than n). However different operators can be specified for different
+        selection criteria. Atoms that do not belong to the same tree of the
+        bonding graph are never selected.
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   center (int): index of the atom to compute the bonding distance
+        |                 from
+        |   n (int): bonding distance to compare
+        |   op (Optional[str]): operator to use for comparison with the given
+        |                       bonding distance. By default it's le, meaning
+        |                       "less or equal" than n, which means all atoms
+        |                       will be selected that are at most n bonds away
+        |                       from the center.
+        |                       Other options are the functions present in the
+        |                       `operator` module and are:
+        |                             - lt : less than
+        |                             - le : less or equal
+        |                             - eq : exactly equal
+        |                             - ge : greater or equal
+        |                             - gt : greater than
+        """
+
+        # Start by computing the bonding graph
+        from soprano.properties.linkage import BondGraph, Bonds
+        from soprano.utils import get_bonding_distance
+
+        bgraph = BondGraph.get(atoms)
+        op = getattr(operator, op)
+        sel_i = []
+
+        for i in np.arange(len(atoms)):
+            d = get_bonding_distance(bgraph, center, i)
+            if d > -1 and op(d, n):
+                sel_i.append(i)
+
+        return AtomSelection(atoms, sel_i)
+
+    @staticmethod
+    def from_array(atoms, name, value, op='eq'):
+        """Generate a selection for the given Atoms object of other atoms
+        based on a comparison with some array value. Default is selection of
+        all atoms that have the same exact value. However different operators
+        can be specified for different selection criteria.
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   name (str): name of the array to select with
+        |   value (any type): value to compare the contents of the array with
+        |   op (Optional[str]): operator to use for comparison with the given
+        |                       value. By default it's eq, meaning
+        |                       "equal" to value, which means all atoms
+        |                       will be selected for whose the array of given
+        |                       name has the given value.
+        |                       Other options are the functions present in the
+        |                       `operator` module and are:
+        |                             - lt : less than
+        |                             - le : less or equal
+        |                             - eq : exactly equal
+        |                             - ge : greater or equal
+        |                             - gt : greater than
+        """
+
+        arr = atoms.get_array(name)
+        op = getattr(operator, op)
+        sel_i = np.where(op(arr, value))[0]
+
+        return AtomSelection(atoms, sel_i)
