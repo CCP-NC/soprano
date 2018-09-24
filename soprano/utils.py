@@ -805,7 +805,7 @@ def get_sklearn_clusters(points, method, params, sk=None):
 
 @requireSpglib('spg')
 def compute_asymmetric_distmat(struct, points, linearized=True,
-                               return_images=False, spg=None):
+                               return_images=False, symprec=1e-5, spg=None):
     """Given a symmetric structure, compute a distance matrix for the given
     fractional coordinate points which contains only the distances between 
     their closest symmetry equivalent sites in the asymmetric unit cell.
@@ -840,7 +840,7 @@ def compute_asymmetric_distmat(struct, points, linearized=True,
     N = points.shape[0]
 
     # Get symmetry operations
-    symm = spg.get_symmetry_dataset(struct)
+    symm = spg.get_symmetry_dataset(struct, symprec=symprec)
     rots = symm['rotations']
     transls = symm['translations']
 
