@@ -208,8 +208,8 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
     |   struct (ase.Atoms): the starting structure. All atoms will be added
     |                       to it.
     |   add (str): element symbol of the atom to add.
-    |   to_replace (AtomSelection): if present, only atoms belonging to this
-    |                               selection will be substituted.
+    |   to_addition (AtomSelection): if present, only atoms belonging to this
+    |                                selection will get an addition.
     |   n (int): number of new atoms to include in each structure. Default
     |            is 1.
     |   add_r (float): distance, in Angstroms, at which to add the atoms.
