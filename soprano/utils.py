@@ -863,7 +863,7 @@ def compute_asymmetric_distmat(struct, points, linearized=True,
         minrf_i = np.argmin(rf, axis=0)
         minrf = rf[minrf_i, range(rf.shape[1])]
         if return_images and i == 0:
-            closest_images[1:] = all_images[minrf_i, :, range(i+1, N)]
+            closest_images[1:] = df[minrf_i, :, range(0,N-1)]+points[0]
         if linearized:
             distmat[i*(N-1)-(i*(i-1))//2:
                     (i+1)*(N-1)-(i*(i+1))//2] = minrf

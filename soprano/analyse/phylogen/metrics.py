@@ -34,16 +34,17 @@ def confmat(clust1, clust2):
     M[i,j] = len(set(c[i]).intersection(c[j]))
 
     | Args:
-    |   clust1 (list): a clustering description as returned by one of the
-    |                  clustering methods in PhylogenCluster.
+    |   clust1 (list): a series of clusters in the form of a list of slices,
+    |                  like the second value returned by one of the clustering
+    |                  methods in PhylogenCluster.
     |   clust2 (list): same as above.
 
     | Returns:
     |   confmat (np.ndarray): confusion matrix for the two clusterings.
     """
 
-    cmat = [[len(set(c1).intersection(c2)) for c2 in clust2[1]]
-            for c1 in clust1[1]]
+    cmat = [[len(set(c1).intersection(c2)) for c2 in clust2]
+            for c1 in clust1]
 
     return np.array(cmat)
 
@@ -58,9 +59,11 @@ def norm_confmat(clust1, clust2):
     NM[i,j] = M[i,j]/(len(c[i])*len(c[j]))**0.5
 
     | Args:
-    |   clust1 (list): a clustering description as returned by one of the
-    |                  clustering methods in PhylogenCluster.
+    |   clust1 (list): a series of clusters in the form of a list of slices,
+    |                  like the second value returned by one of the clustering
+    |                  methods in PhylogenCluster.
     |   clust2 (list): same as above.
+
 
     | Returns:
     |   nconfmat (np.ndarray): normalised confusion matrix for the two
@@ -68,7 +71,7 @@ def norm_confmat(clust1, clust2):
     """
 
     cmat = confmat(clust1, clust2)
-    norm = [[(len(c1)*len(c2))**0.5 for c2 in clust2[1]] for c1 in clust1[1]]
+    norm = [[(len(c1)*len(c2))**0.5 for c2 in clust2] for c1 in clust1]
 
     return cmat/np.array(norm)
 
@@ -95,9 +98,11 @@ def fowles_mallows_index(clust1, clust2):
     doi:10.2307/2288117
 
     | Args:
-    |   clust1 (list): a clustering description as returned by one of the
-    |                  clustering methods in PhylogenCluster.
+    |   clust1 (list): a series of clusters in the form of a list of slices,
+    |                  like the second value returned by one of the clustering
+    |                  methods in PhylogenCluster.
     |   clust2 (list): same as above.
+
 
     | Returns:
     |   fm_ind (float): the Fowles-Mallows index 
@@ -106,8 +111,8 @@ def fowles_mallows_index(clust1, clust2):
     cmat = confmat(clust1, clust2)
 
     N11 = (np.sum(cmat**2.0)-np.sum(cmat))/2.0
-    n1 = np.array([len(c) for c in clust1[1]])
-    n2 = np.array([len(c) for c in clust2[1]])
+    n1 = np.array([len(c) for c in clust1])
+    n2 = np.array([len(c) for c in clust2])
     WI = N11/np.sum(0.5*n1*(n1-1))
     WII = N11/np.sum(0.5*n2*(n2-1))
 

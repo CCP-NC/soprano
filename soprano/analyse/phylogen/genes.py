@@ -347,6 +347,19 @@ def parsegene_defect_asymmetric_fdist(c, index=0, struct=None):
     return compute_asymmetric_distmat(struct, fp, linearized=False)
 
 
+def parsegene_defect_asymmetric_fpos(c, index=0, struct=None):
+
+    if struct is None:
+        raise ValueError('defect_asymmetric_fdist gene requires a struct '
+                         'argument')
+
+    fp = c.all.get_scaled_positions()[:, index, :]
+    _, imgs = compute_asymmetric_distmat(struct, fp,
+                                         return_images=True)
+
+    return imgs
+
+
 class GeneDictionary(object):
 
     """Container class holding gene definitions"""
@@ -481,6 +494,15 @@ class GeneDictionary(object):
             },
             'parser': parsegene_defect_asymmetric_fdist,
             'pair': True
+        },
+
+        'defect_asymmetric_fpos': {
+            'default_params': {
+                'index': 0,
+                'struct': None,
+            },
+            'parser': parsegene_defect_asymmetric_fpos,
+            'pair': False
         }
 
     }
@@ -702,7 +724,7 @@ class GeneDictionary(object):
         """,
 
         'defect_asymmetric_fdist': """
-        Compute a fractional coordinated distance between single atoms in the
+        Compute a fractional coordinates distance between single atoms in the
         structures accounting for all effects of symmetry operations. This
         should group together atoms occupying sites that are
         crystallographically equivalent. This is especially useful for defect
@@ -718,6 +740,26 @@ class GeneDictionary(object):
                                 symmetry operations must be computed. Default
                                 is None, must be provided for the calculation
                                 to work
+        """,
+
+        'defect_asymmetric_fpos': """
+        Compute an asymmetric fractional coordinates position for a single atom
+        in the structures accounting for all effects of symmetry operations.
+        This should group together atoms occupying sites that are
+        crystallographically equivalent. This is especially useful for defect
+        analysis. A pure structure must be passed as an argument to compute
+        the symmetry operations in the first place. An installation of spglib
+        is required for this computation.
+
+        Parameters:
+            index (int): index of the defect for which the distance matrix is
+                         to be computed. It must be the same for all
+                         structures. Default is 0
+            struct (ase.Atoms): pure structure from which the space group and
+                                symmetry operations must be computed. Default
+                                is None, must be provided for the calculation
+                                to work
+
         """
     }
 
