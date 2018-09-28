@@ -106,15 +106,16 @@ class TestPropertyLoad(unittest.TestCase):
 
         # Test bonds
         testAtoms = Atoms(['C', 'C', 'C', 'C'],
-                      cell=[5,5,5],
-                      positions=np.array([[0,0,0],
-                                          [4,0,0],
-                                          [3,3,3],
-                                          [3,3.5,3]]))
+                          cell=[5, 5, 5],
+                          positions=np.array([[0, 0, 0],
+                                              [4, 0, 0],
+                                              [3, 3, 3],
+                                              [3, 3.5, 3]]),
+                          pbc=True)
         testBonds = Bonds.get(testAtoms)
-        self.assertTrue(testBonds[0][:2] == (0,1))
-        self.assertTrue(testBonds[1][:2] == (2,3))
-        self.assertTrue(np.all(testBonds[0][2] == (-1,0,0)))
+        self.assertTrue(testBonds[0][:2] == (0, 1))
+        self.assertTrue(testBonds[1][:2] == (2, 3))
+        self.assertTrue(np.all(testBonds[0][2] == (-1, 0, 0)))
         self.assertAlmostEqual(testBonds[0][3], 2*testBonds[1][3])
 
         # Also test coordination histogram
@@ -189,6 +190,7 @@ class TestPropertyLoad(unittest.TestCase):
                                np.linalg.norm(aR.get_positions()[1]))
         self.assertAlmostEqual(np.linalg.norm(aM.get_positions()[0]),
                                np.linalg.norm(aM.get_positions()[1]))
+
 
 if __name__ == '__main__':
     unittest.main()

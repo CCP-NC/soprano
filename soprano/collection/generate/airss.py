@@ -119,7 +119,13 @@ def airssGen(input_file,
 
         # Now turn it into a proper Atoms object
         # To do this we need to make it look like a file to ASE's io.read
-        newcell = ase_io.read(StringIO(stdout), format='castep-cell')
+        try:
+            newcell = ase_io.read(StringIO(stdout), format='castep-cell')
+        except:
+            # If ANYTHING happens, let's consider that stdout might be wrong
+            raise RuntimeError(('Invalid output from buildcell:\nstdout:\n{0}'
+                                '\nstderr:\n{1}')
+                               .format(stdout, stderr))
         if clone_calc:
             newcell.set_calculator(copy.deepcopy(calc))
         # Generate it a name, function of its properties
