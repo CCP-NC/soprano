@@ -671,8 +671,9 @@ class AtomsCollection(object):
         check = AtomsCollection.check_tree(path)
 
         def ow_ask(path):
-            return raw_input(('Folder {0} exists, '
-                              'overwrite (y/n)?').format(path)).lower() == 'y'
+            return utils.safe_input(('Folder {0} exists, '
+                                     'overwrite (y/n)?').format(path)
+                                    ).lower() == 'y'
 
         if check > -1:
             # The folder exists

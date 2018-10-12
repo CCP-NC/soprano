@@ -401,6 +401,15 @@ def is_string(s):
         return isinstance(s, str)
 
 
+def safe_input(question):
+    """Ask for user input with Python 2 and 3 compatibility"""
+    try:
+        return raw_input(question)
+    except NameError:
+        # Python 3
+        return input(question)
+
+
 def safe_communicate(subproc, stdin=''):
     """Executes a Popen.communicate and returns output in a way that is
     compatible with Python 2 & 3 keeping input and output as strings (since
@@ -871,7 +880,7 @@ def compute_asymmetric_distmat(struct, points, linearized=True,
             warnings.warn('Images centre is a high symmetry point, results may'
                           ' be incorrect', RuntimeWarning)
 
-        df = (all_images-im0[None,:,None] + 0.5) % 1-0.5        
+        df = (all_images-im0[None, :, None] + 0.5) % 1-0.5
         rf = np.linalg.norm(df, axis=1)
         minrf_i = np.argmin(rf, axis=0)
         closest_images = df[minrf_i, :, range(0, N)]+im0

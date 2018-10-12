@@ -314,6 +314,6 @@ class CarbonHybridationState(AtomsProperty):
                                          0)
 
         if save_info:
-            s.new_array(CarbonHybridationState.default_name, hybrid)
+            s.set_array(CarbonHybridationState.default_name, hybrid)
 
         return hybrid
