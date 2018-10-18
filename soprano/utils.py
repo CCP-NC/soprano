@@ -401,6 +401,15 @@ def is_string(s):
         return isinstance(s, str)
 
 
+def safe_input(question):
+    """Ask for user input with Python 2 and 3 compatibility"""
+    try:
+        return raw_input(question)
+    except NameError:
+        # Python 3
+        return input(question)
+
+
 def safe_communicate(subproc, stdin=''):
     """Executes a Popen.communicate and returns output in a way that is
     compatible with Python 2 & 3 keeping input and output as strings (since
