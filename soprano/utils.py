@@ -871,7 +871,7 @@ def compute_asymmetric_distmat(struct, points, linearized=True,
             warnings.warn('Images centre is a high symmetry point, results may'
                           ' be incorrect', RuntimeWarning)
 
-        df = (all_images-im0[None,:,None] + 0.5) % 1-0.5        
+        df = (all_images-im0[None, :, None] + 0.5) % 1-0.5
         rf = np.linalg.norm(df, axis=1)
         minrf_i = np.argmin(rf, axis=0)
         closest_images = df[minrf_i, :, range(0, N)]+im0
