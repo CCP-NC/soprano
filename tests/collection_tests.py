@@ -182,7 +182,7 @@ class TestCollection(unittest.TestCase):
 
         testcoll = AtomsCollection(aselist)
 
-        testcoll.save_tree('test_save', 'xyz', safety_check=2)
+        testcoll.save_tree('test_save', 'xyz', safety_check=0)
         loadcoll = AtomsCollection.load_tree('test_save', 'xyz')
 
         self.assertTrue(''.join(loadcoll.all.get_chemical_formula()) ==

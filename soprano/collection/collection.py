@@ -606,7 +606,8 @@ class AtomsCollection(object):
 
         # Begin by checking whether there is a .collection file
         try:
-            coll = pickle.load(open(os.path.join(path, '.collection')))
+            with open(os.path.join(path, '.collection'), 'rb') as f:
+                coll = pickle.load(f)
         except IOError:
             return 2  # No .collection file found
 
@@ -731,10 +732,11 @@ class AtomsCollection(object):
 
             dirlist.append(sname)
 
-        pickle.dump({'dirlist': dirlist,
-                     'arrays': self._arrays,
-                     'info': self.info},
-                    open(os.path.join(path, '.collection'), 'w'))
+        with open(os.path.join(path, '.collection'), 'wb') as f:
+            pickle.dump({'dirlist': dirlist,
+                         'arrays': self._arrays,
+                         'info': self.info}, f,
+                        protocol=2)
 
     @staticmethod
     def load_tree(path, load_format, opt_args={}, safety_check=3):
@@ -784,7 +786,8 @@ class AtomsCollection(object):
 
         dirlist = []
         if check < 2:
-            coll = pickle.load(open(os.path.join(path, '.collection')))
+            with open(os.path.join(path, '.collection'), 'rb') as f:
+                coll = pickle.load(f)
             if check == 1 and safety_check == 3:
                 raise IOError(('Folder {0} is not a valid collection '
                                'tree').format(path))
