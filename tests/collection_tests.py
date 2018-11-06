@@ -19,11 +19,25 @@ from soprano.collection import AtomsCollection
 import unittest
 import numpy as np
 
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "test_data")
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_TESTDATA_DIR = os.path.join(_TEST_DIR, "test_data")
+_TESTSAVE_DIR = os.path.join(_TEST_DIR, "test_save")
 
 
 class TestCollection(unittest.TestCase):
+
+    def test_save(self):
+
+        # Test saving and loading collection
+        testcoll = AtomsCollection([Atoms('H')])
+        testcoll.set_array('test', np.array([2]))
+
+        outf = os.path.join(_TEST_DIR, 'collection.pkl')
+        testcoll.save(outf)
+
+        # Reload
+        testcoll = AtomsCollection.load(outf)
+        self.assertEqual(testcoll.get_array('test')[0], 2)
 
     def test_loadres(self):
 
@@ -182,8 +196,8 @@ class TestCollection(unittest.TestCase):
 
         testcoll = AtomsCollection(aselist)
 
-        testcoll.save_tree('test_save', 'xyz', safety_check=0)
-        loadcoll = AtomsCollection.load_tree('test_save', 'xyz')
+        testcoll.save_tree(_TESTSAVE_DIR, 'xyz', safety_check=0)
+        loadcoll = AtomsCollection.load_tree(_TESTSAVE_DIR, 'xyz')
 
         self.assertTrue(''.join(loadcoll.all.get_chemical_formula()) ==
                         'CHNO')
@@ -199,14 +213,14 @@ class TestCollection(unittest.TestCase):
                 l = f.read().strip()
                 return Atoms(l.split(marker)[1].strip())
 
-        testcoll.save_tree('test_save', custom_save,
+        testcoll.save_tree(_TESTSAVE_DIR, custom_save,
                            opt_args={'format_string': 'Formula:{0}'},
                            safety_check=2)
-        loadcoll = AtomsCollection.load_tree('test_save', custom_load,
+        loadcoll = AtomsCollection.load_tree(_TESTSAVE_DIR, custom_load,
                                              opt_args={'marker': ':'})
 
         self.assertTrue(''.join(loadcoll.all.get_chemical_formula()) ==
-                        'CHNO')        
+                        'CHNO')
 
 
 if __name__ == '__main__':

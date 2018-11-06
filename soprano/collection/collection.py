@@ -561,24 +561,26 @@ class AtomsCollection(object):
     def save(self, filename):
         """Simply save a pickled copy to a given file path"""
 
-        f = open(filename, 'w')
         # Pickling doesn't deal well with the _AllCaller, so we get rid of it
         selfcopy = self[:]
         selfcopy._all = None
-        pickle.dump(selfcopy, f)
+
+        with open(filename, 'wb') as f:
+            pickle.dump(selfcopy, f, protocol=2)
 
     @staticmethod
     def load(filename):
         """Load a pickled copy from a given file path"""
 
-        f = open(filename)
-        f = pickle.load(f)
-        if not isinstance(f, AtomsCollection):
+        with open(filename, 'rb') as f:
+            coll = pickle.load(f)
+
+        if not isinstance(coll, AtomsCollection):
             raise ValueError('File does not contain an AtomsCollection'
                              ' object')
         # Restore the _AllCaller
-        f._all = _AllCaller(f.structures, ase.Atoms)
-        return f
+        coll._all = _AllCaller(coll.structures, ase.Atoms)
+        return coll
 
     @staticmethod
     def check_tree(path):
