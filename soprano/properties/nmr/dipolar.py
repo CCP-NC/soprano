@@ -28,8 +28,7 @@ from scipy import constants as cnst
 from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.properties.nmr.utils import (_get_nmr_data, _dip_constant,
-                                          _get_isotope_data)
+from soprano.properties.nmr.utils import (_dip_constant, _get_isotope_data)
 
 
 class DipolarCoupling(AtomsProperty):
@@ -113,7 +112,6 @@ class DipolarCoupling(AtomsProperty):
 
         # Find gammas
         elems = s.get_chemical_symbols()
-        _nmr_data = _get_nmr_data()
 
         gammas = _get_isotope_data(elems, 'gamma', isotopes, isotope_list)
 

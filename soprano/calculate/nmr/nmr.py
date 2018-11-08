@@ -30,11 +30,16 @@ import json
 import pkgutil
 import numpy as np
 from ase import Atoms
+from scipy.special import fresnel
 from scipy import constants as cnst
 from collections import namedtuple
-from soprano.properties.nmr.utils import _get_nmr_data, _el_iso
+from soprano.utils import minimum_supcell, supcell_gridgen
+from soprano.properties.nmr.utils import (_get_nmr_data, _el_iso,
+                                          _dip_constant, _get_isotope_data)
 from soprano.calculate.nmr.powder import gen_pwd_ang, pwd_avg
 from soprano.properties.nmr.utils import EFG_TO_CHI
+from soprano.properties.nmr import DipolarCoupling
+from soprano.selection import AtomSelection
 
 _nmr_data = _get_nmr_data()
 
@@ -612,6 +617,100 @@ class NMRCalculator(object):
 
         freqs = freq_axis/u[freq_units]
         return spec, freqs
+
+    def dq_buildup(self, sel_i, sel_j=None, t_max=1e-3, t_steps=1000,
+                   R_cut=3, kdq=0.155, A=1, tau=np.inf):
+        """
+        Return a dictionary of double quantum buildup curves for given pairs
+        of atoms, built according to the theory given in:
+
+        G. Pileio et al., "Analytical theory of gamma-encoded double-quantum
+        recoupling sequences in solid-state nuclear magnetic resonance"
+        Journal of Magnetic Resonance 186 (2007) 65-74
+
+        | Args:
+        |   sel_i (AtomSelection or [int]): Selection or list of indices of 
+        |                                   atoms for which to compute the
+        |                                   curves. By default is None
+        |                                   (= all of them).
+        |   sel_i (AtomSelection or [int]): Selection or list of indices of 
+        |                                   atoms for which to compute the
+        |                                   curves with sel_i. By default is 
+        |                                   None (= same as sel_i).
+        |   t_max (float): maximum DQ buildup time, in seconds. Default 
+        |                  is 1e-3.
+        |   t_steps (int): number of DQ buildup time steps. Default is 1000.
+        |   R_cut (float): cutoff radius for which periodic copies to consider
+        |                  in each pair, in Angstrom. Default is 3.
+        |   kdq (float): same as the k constant in eq. 35 of the reference. A
+        |                parameter depending on the specific sequence used.
+        |                Default is 0.155. 
+        |   A (float): overall scaling factor for the curve. Default is 1.
+        |   tau (float): exponential decay factor for the curve. Default
+        |                is np.inf.
+
+        | Returns:
+        |   curves (dict): a dictionary of all buildup curves indexed by pair,
+        |                  plus the time axis in seconds as member 't'.
+        """
+
+        tdq = np.linspace(0, t_max, t_steps)
+
+       # Selections
+        if sel_i is None:
+            sel_i = AtomSelection.all(s)
+        elif not isinstance(sel_i, AtomSelection):
+            sel_i = AtomSelection(self._sample, sel_i)
+
+        if sel_j is None:
+            sel_j = sel_i
+        elif not isinstance(sel_j, AtomSelection):
+            sel_j = AtomSelection(self._sample, sel_j)
+
+        # Find gammas
+        elems = self._sample.get_chemical_symbols()
+        gammas = _get_isotope_data(elems, 'gamma', {}, self._isos)
+
+        # Need to sort them and remove any duplicates, also take i < j as
+        # convention
+        pairs = [tuple(sorted((i, j))) for i in sorted(sel_i.indices)
+                 for j in sorted(sel_j.indices)]
+
+        scell_shape = minimum_supcell(R_cut, latt_cart=self._sample.get_cell())
+        nfg, ng = supcell_gridgen(self._sample.get_cell(), scell_shape)
+
+        pos = self._sample.get_positions()
+
+        curves = {'t': tdq}
+
+        for ij in pairs:
+
+            r = pos[ij[1]]-pos[ij[0]]
+
+            all_r = r[None, :]+ng
+
+            all_R = np.linalg.norm(all_r, axis=1)
+
+            # Apply cutoff
+            all_R = all_R[np.where((all_R <= R_cut)*(all_R > 0))]
+            n = all_R.shape[0]
+
+            bij = _dip_constant(all_R*1e-10, gammas[ij[0]], gammas[ij[1]])
+
+            th = 1.5*kdq*abs(bij[:, None])*tdq[None, :]*2*np.pi
+            x = (2*th/np.pi)**0.5
+
+            Fs, Fc = fresnel(x*2**0.5)
+
+            x[:, 0] = np.inf
+
+            bdup = 0.5-(1.0/(x*8**0.5)) * \
+                (Fc*np.cos(2*th) + Fs*np.sin(2*th))
+            bdup[:, 0] = 0
+
+            curves[ij] = A*np.sum(bdup, axis=0)*np.exp(-tdq/tau)
+
+        return curves
 
     @property
     def B(self):
