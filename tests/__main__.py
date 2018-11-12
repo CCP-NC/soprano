@@ -1,7 +1,8 @@
 """Run all tests in this folder"""
 
 import time
-import os, sys
+import os
+import sys
 import glob
 import subprocess as sp
 
@@ -17,3 +18,5 @@ print("Time spent: {0: .3f} s".format(time.time()-t0))
 if len(failed) > 0:
     sys.stdout.write("The following tests failed:\n\t")
     print("\n\t".join(failed))
+
+    sys.exit(1) # Remark that an error has happened

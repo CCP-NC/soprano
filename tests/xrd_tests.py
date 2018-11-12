@@ -34,22 +34,28 @@ class TestXRDCalculator(unittest.TestCase):
         def bad_func(x):
             return x
 
-        self.assertRaisesRegex(ValueError,
-                               "Invalid peak_func passed to set_peak_func",
-                               xr.set_peak_func,
-                               bad_func)
+        try:
+            assertRegex = self.assertRaisesRegex
+        except AttributeError:
+            # Python 3, how I loathe your arbitrary changes...
+            assertRegex = self.assertRaisesRegexp
+
+        assertRegex(ValueError,
+                    "Invalid peak_func passed to set_peak_func",
+                    xr.set_peak_func,
+                    bad_func)
         # Case 2:
         # Right function, wrong arguments
 
         def good_func(x, w, a, b, c=0.2):
             return x*w*a*b*c
         bad_args = [0]
-        self.assertRaisesRegex(ValueError,
-                               """Invalid number of peak_f_args passed to
+        assertRegex(ValueError,
+                    """Invalid number of peak_f_args passed to
                                     set_peak_func""",
-                               xr.set_peak_func,
-                               good_func,
-                               bad_args)
+                    xr.set_peak_func,
+                    good_func,
+                    bad_args)
         # Case 3:
         # All good
         good_args = [0, 0]
