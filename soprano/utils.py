@@ -724,7 +724,7 @@ def periodic_bridson(cell, rmin, max_attempts=30,
                 yield np.dot(fp, cell)
 
     # So once we're here we ran out of options...
-    raise StopIteration('No more points can be generated')
+    return
 
 # Function for creating labels for molecule sites
 

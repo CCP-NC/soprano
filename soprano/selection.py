@@ -208,7 +208,7 @@ class AtomSelection(object):
 
         sliced = copy.deepcopy(self)
         sliced._indices = newsel
-        sliced._arrays = {k: a[indices] for k, a in self._arrays.iteritems()}
+        sliced._arrays = {k: a[indices] for k, a in self._arrays.items()}
 
         return sliced
 

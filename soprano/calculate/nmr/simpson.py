@@ -140,7 +140,7 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
 
     if dip_sel is not None and len(dip_sel) > 1:
         dip = DipolarCoupling(sel_i=dip_sel, isotope_list=isotope_list)(s)
-        for (i, j), (d, v) in dip.iteritems():
+        for (i, j), (d, v) in dip.items():
             a, b = (np.array([np.arccos(-v[2]),
                               np.arctan2(-v[1],
                                          -v[0])]) % (2*np.pi)) * 180/np.pi
@@ -316,7 +316,7 @@ class SimpsonSequence:
 
         # Write out par block
         outf += 'par {\n'
-        for p, val in self.pars.iteritems():
+        for p, val in self.pars.items():
             outf += '\t{0} {1}\n'.format(p, val)
         outf += '}\n\n'
 

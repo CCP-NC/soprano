@@ -124,8 +124,8 @@ class DipolarCoupling(AtomsProperty):
         pairs = np.array(pairs).T
         # Need to sort them and remove any duplicates, also take i < j as
         # convention
-        pairs = np.array(zip(*set([tuple(x)
-                                   for x in np.sort(pairs, axis=0).T])))
+        pairs = np.array(list(zip(*set([tuple(x)
+                                   for x in np.sort(pairs, axis=0).T]))))
 
         pos = s.get_positions()
 
@@ -194,7 +194,7 @@ class DipolarDiagonal(AtomsProperty):
         # Now build the tensors
         dip_tens_dict = {}
 
-        for ij, (d, v) in dip_dict.iteritems():
+        for ij, (d, v) in dip_dict.items():
 
             evals = np.array([-d/2, -d/2, d])
             # Eigenvectors

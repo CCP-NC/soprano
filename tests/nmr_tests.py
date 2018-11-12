@@ -117,7 +117,7 @@ class TestNMR(unittest.TestCase):
             i1, i2 = (i1, i2) if i1 < i2 else (i2, i1)
             data_dip[(i1, i2)] = [float(x) for x in (d, a, b)]
 
-        for ij, (d, v) in dip.iteritems():
+        for ij, (d, v) in dip.items():
             # The precision is rather low, probably due to the gammas
             self.assertAlmostEqual(d*2*np.pi, data_dip[ij][0], places=-3)
             a, b = np.array([np.arccos(-v[2]),
