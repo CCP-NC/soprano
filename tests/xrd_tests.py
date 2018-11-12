@@ -34,22 +34,22 @@ class TestXRDCalculator(unittest.TestCase):
         def bad_func(x):
             return x
 
-        self.assertRaisesRegexp(ValueError,
-                                "Invalid peak_func passed to set_peak_func",
-                                xr.set_peak_func,
-                                bad_func)
+        self.assertRaisesRegex(ValueError,
+                               "Invalid peak_func passed to set_peak_func",
+                               xr.set_peak_func,
+                               bad_func)
         # Case 2:
         # Right function, wrong arguments
 
         def good_func(x, w, a, b, c=0.2):
             return x*w*a*b*c
         bad_args = [0]
-        self.assertRaisesRegexp(ValueError,
-                                """Invalid number of peak_f_args passed to
+        self.assertRaisesRegex(ValueError,
+                               """Invalid number of peak_f_args passed to
                                     set_peak_func""",
-                                xr.set_peak_func,
-                                good_func,
-                                bad_args)
+                               xr.set_peak_func,
+                               good_func,
+                               bad_args)
         # Case 3:
         # All good
         good_args = [0, 0]
@@ -90,7 +90,7 @@ class TestXRDCalculator(unittest.TestCase):
         xpeaks, simul_spec, simul_peaks, rwp = xr.lebail_fit(xpeaks,
                                                              xpeaks_exp_mock)
 
-        self.assertAlmostEqual(rwp, 0.0)
+        self.assertAlmostEqual(rwp, 0.0, places=5)
 
 
 class TestXRDRules(unittest.TestCase):
@@ -116,6 +116,7 @@ class TestXRDRules(unittest.TestCase):
                     sel_rule = xrd.get_sel_rule_from_international(n, o)
                     n_o_pair = (n, o)
                 self.assertEqual(sel_rule((h, k, l)), val)
+
 
 if __name__ == '__main__':
     unittest.main()
