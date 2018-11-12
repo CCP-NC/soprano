@@ -6,4 +6,4 @@ branches:
   only:
   - master
 script:
-  - python ./test
+  - python tests/
