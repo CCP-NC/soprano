@@ -124,7 +124,7 @@ class LinkageList(AtomsProperty):
         if not return_pairs:
             return link_list
         else:
-            pairs = zip(pair_inds[0][sort_i], pair_inds[1][sort_i])
+            pairs = list(zip(pair_inds[0][sort_i], pair_inds[1][sort_i]))
             return link_list, pairs
 
 
@@ -183,8 +183,8 @@ class Bonds(AtomsProperty):
                                                         vdw_scale,
                                                         default_vdw)
 
-        bonds = zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
-                    -v_cells[linked], v[linked])
+        bonds = list(zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
+                         -v_cells[linked], v[linked]))
 
         if save_info:
             s.info[Bonds.default_name] = list(bonds)
@@ -263,7 +263,7 @@ class CoordinationHistogram(AtomsProperty):
         if len(bonds) == 0:
             # Just return
             print('WARNING: no bonds detected for CoordinationHistogram')
-            return hist
+            return {}
         bond_inds = np.concatenate(list(zip(*bonds))[:2])
         bond_elems = elems[bond_inds]
         bN = len(bonds)
