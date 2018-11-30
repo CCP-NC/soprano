@@ -39,6 +39,8 @@ class TestCollection(unittest.TestCase):
         testcoll = AtomsCollection.load(outf)
         self.assertEqual(testcoll.get_array('test')[0], 2)
 
+        os.remove(outf)
+
     def test_loadres(self):
 
         # Load some test files and check if regular loading works
