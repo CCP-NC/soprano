@@ -70,7 +70,9 @@ if __name__ == '__main__':
                                   'soprano_submitter = '
                                   'soprano.hpc.submitter.__main__',
                                   'phylogen = '
-                                  'soprano.scripts.phylogen:__main__']
+                                  'soprano.scripts.phylogen:__main__',
+                                  'magresaverage = '
+                                  'soprano.scripts.msaverage:__main__']
           },
           # Requirements
           install_requires=[

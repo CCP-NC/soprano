@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Soprano - a library to crack crystals! by Simone Sturniolo
 # Copyright (C) 2016 - Science and Technology Facility Council
 
