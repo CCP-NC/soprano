@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Soprano - a library to crack crystals! by Simone Sturniolo
 # Copyright (C) 2016 - Science and Technology Facility Council
 
@@ -15,11 +14,9 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""A script to query the availability of computation time on multiple queueing
-systems"""
-
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+

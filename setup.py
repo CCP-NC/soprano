@@ -53,7 +53,7 @@ if __name__ == '__main__':
               'License :: OSI Approved :: GNU Library or Lesser General Public'
               ' License (LGPL)',
 
-              # Specify the Python versions you support here. In particular, 
+              # Specify the Python versions you support here. In particular,
               # ensure that you indicate whether you support Python 2, Python 3
               # or both.
               'Programming Language :: Python :: 2',
@@ -64,9 +64,16 @@ if __name__ == '__main__':
           packages=find_packages(),
           # For data files. Example: 'soprano': ['data/*.json']
           package_data={'soprano': ['data/*.json']},
-          # For scripts - just put the paths
-          scripts=['scripts/phylogen.py', 'scripts/vasp2cell.py',
-                   'scripts/soprano_submitter.py'],
+          entry_points={
+              'console_scripts': ['vasp2cell = '
+                                  'soprano.scripts.vasp2cell:__main__',
+                                  'soprano_submitter = '
+                                  'soprano.hpc.submitter.__main__',
+                                  'phylogen = '
+                                  'soprano.scripts.phylogen:__main__',
+                                  'magresaverage = '
+                                  'soprano.scripts.msaverage:__main__']
+          },
           # Requirements
           install_requires=[
               'numpy',
