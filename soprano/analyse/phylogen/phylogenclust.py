@@ -23,6 +23,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import copy
+import warnings
 import numpy as np
 from scipy.cluster import hierarchy, vq
 from scipy.spatial import distance as spdist
@@ -566,6 +567,46 @@ class PhylogenCluster(object):
                                  ' clustering')
         else:
             return self.get_sklearn_clusters(method, params)
+
+    def get_cluster_stats(self, clusters, raw=False):
+        """Compute average values and standard deviation for each gene within
+        a given clustering.
+
+        | Args:
+        |   clusters (tuple): the clustering in tuple form, as returned by one
+        |                     of the get_clusters methods.
+        |   raw (bool): if True, return average and standard deviation of raw
+        |               instead of normalised gene values. Default is False.
+
+        | Returns:
+        |   avgs (np.ndarray): 2D array of average values of each gene for 
+        |                      each cluster.
+        |   stds (np.ndarray): 2D array of standard deviations of each gene 
+        |                      for each cluster.
+        |   genome_legend (list[tuple]): a list of tuples containing (name,
+        |                                length) of the gene fragments in the
+        |                                arrays
+        """
+
+        # Sanity check
+        if self._has_pairgenes:
+            warnings.warn('Pair distance gene stats can not be calculated')
+
+        if raw:
+            gv = self._gene_vectors_raw.copy()
+        else:
+            gv = self._gene_vectors_norm.copy()
+
+        inds, slices = clusters
+
+        avgs = np.zeros((len(slices), gv.shape[1]))
+        stds = np.zeros((len(slices), gv.shape[1]))
+
+        for i, sl in enumerate(slices):
+            avgs[i] = np.average(gv[sl], axis=0)
+            stds[i] = np.std(gv[sl], axis=0)
+
+        return avgs, stds, self._gene_legend[0][:]
 
     def create_mapping(self, method="total-principal"):
         """Return an array of 2-dimensional points representing a reduced
