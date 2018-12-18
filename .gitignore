@@ -105,4 +105,4 @@ venv.bak/
 
 # Test stuff
 tests/test_save/*
-tests/collection.pkl
+tests/*.pkl
