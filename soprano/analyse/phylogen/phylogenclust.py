@@ -608,6 +608,39 @@ class PhylogenCluster(object):
 
         return avgs, stds, self._gene_legend[0][:]
 
+    def get_elbow_plot(self, method='kmeans', param_name='n',
+                       param_range=range(1, 11)):
+        """Returns data for an elbow plot by scanning the outcome of a given
+        clustering method within a range of values for a chosen parameter.
+        Used to determine optimal parameter values.
+
+        | Args:
+        |   method (str): name of the clustering method to use. Can be 'hier',
+        |                 'kmeans', or one of the methods in sklearn.clusters.
+        |                 Default is kmeans.
+        |   param_name (str): parameter to be scanned over. Change depending
+        |                     on the desired method. Check the documentation
+        |                     for the specific class. Default is n, number of
+        |                     clusters for k-means method.
+        |   param_range (list): values of param_name to scan over. Default is
+        |                       the integers from 1 to 10.
+
+        | Returns:
+        |   wss (np.ndarray): values of the "Within cluster Sum of Squares"
+        |                     (WSS) to be used on the elbow plot y axis.
+        |   param_range (list): range used for parameter scan, to be used on
+        |                       the x axis (same as passed by the user).
+        """
+
+        wss = []
+
+        for pval in param_range:
+            clusts = self.get_clusters(method, params={param_name: pval})
+            stats = self.get_cluster_stats(clusts)
+            wss.append(np.sum(stats[1]**2))
+
+        return np.array(wss), param_range
+
     def create_mapping(self, method="total-principal"):
         """Return an array of 2-dimensional points representing a reduced
         dimensionality mapping of the given genes using the algorithm of
