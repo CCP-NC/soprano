@@ -23,6 +23,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import copy
+import warnings
 import numpy as np
 from scipy.cluster import hierarchy, vq
 from scipy.spatial import distance as spdist
@@ -566,6 +567,79 @@ class PhylogenCluster(object):
                                  ' clustering')
         else:
             return self.get_sklearn_clusters(method, params)
+
+    def get_cluster_stats(self, clusters, raw=False):
+        """Compute average values and standard deviation for each gene within
+        a given clustering.
+
+        | Args:
+        |   clusters (tuple): the clustering in tuple form, as returned by one
+        |                     of the get_clusters methods.
+        |   raw (bool): if True, return average and standard deviation of raw
+        |               instead of normalised gene values. Default is False.
+
+        | Returns:
+        |   avgs (np.ndarray): 2D array of average values of each gene for 
+        |                      each cluster.
+        |   stds (np.ndarray): 2D array of standard deviations of each gene 
+        |                      for each cluster.
+        |   genome_legend (list[tuple]): a list of tuples containing (name,
+        |                                length) of the gene fragments in the
+        |                                arrays
+        """
+
+        # Sanity check
+        if self._has_pairgenes:
+            warnings.warn('Pair distance gene stats can not be calculated')
+
+        if raw:
+            gv = self._gene_vectors_raw.copy()
+        else:
+            gv = self._gene_vectors_norm.copy()
+
+        inds, slices = clusters
+
+        avgs = np.zeros((len(slices), gv.shape[1]))
+        stds = np.zeros((len(slices), gv.shape[1]))
+
+        for i, sl in enumerate(slices):
+            avgs[i] = np.average(gv[sl], axis=0)
+            stds[i] = np.std(gv[sl], axis=0)
+
+        return avgs, stds, self._gene_legend[0][:]
+
+    def get_elbow_plot(self, method='kmeans', param_name='n',
+                       param_range=range(1, 11)):
+        """Returns data for an elbow plot by scanning the outcome of a given
+        clustering method within a range of values for a chosen parameter.
+        Used to determine optimal parameter values.
+
+        | Args:
+        |   method (str): name of the clustering method to use. Can be 'hier',
+        |                 'kmeans', or one of the methods in sklearn.clusters.
+        |                 Default is kmeans.
+        |   param_name (str): parameter to be scanned over. Change depending
+        |                     on the desired method. Check the documentation
+        |                     for the specific class. Default is n, number of
+        |                     clusters for k-means method.
+        |   param_range (list): values of param_name to scan over. Default is
+        |                       the integers from 1 to 10.
+
+        | Returns:
+        |   wss (np.ndarray): values of the "Within cluster Sum of Squares"
+        |                     (WSS) to be used on the elbow plot y axis.
+        |   param_range (list): range used for parameter scan, to be used on
+        |                       the x axis (same as passed by the user).
+        """
+
+        wss = []
+
+        for pval in param_range:
+            clusts = self.get_clusters(method, params={param_name: pval})
+            stats = self.get_cluster_stats(clusts)
+            wss.append(np.sum(stats[1]**2))
+
+        return np.array(wss), param_range
 
     def create_mapping(self, method="total-principal"):
         """Return an array of 2-dimensional points representing a reduced
