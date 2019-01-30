@@ -174,9 +174,7 @@ def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
         to_replace = AtomSelection.all(struct)
 
     defconfs = itertools.combinations(to_replace.indices, n)
-    elems = np.array(struct.get_chemical_symbols()).astype('S2')
-
-    print(subst)
+    elems = np.array(struct.get_chemical_symbols()).astype('<U2')
 
     for dc in defconfs:
         dstruct = struct.copy()
