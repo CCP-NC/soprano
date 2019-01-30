@@ -916,7 +916,7 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
     The process is that of treating the tips of the vectors as particles on a
     sphere which repel each other. Of course, it's possible that multiple
     equilibrium positions exist, which is why multiple attempts can be made,
-    and are judged identical or not base on a tolerance parameter
+    and are judged identical or not based on a tolerance parameter
 
     | Parameters:
     |   v (np.ndarray): list of fixed vectors to avoid
