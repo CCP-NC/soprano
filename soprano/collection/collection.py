@@ -720,12 +720,8 @@ class AtomsCollection(object):
             try:
                 os.mkdir(fold)
             except OSError:
-                if owrite:
-                    shutil.rmtree(fold)
-                    os.mkdir(fold)
-                else:
-                    raise RuntimeError('Folder {0} already '
-                                       'exists'.format(fold))
+                shutil.rmtree(fold)
+                os.mkdir(fold)
             if is_ext:
                 ase_io.write(os.path.join(fold, sname + '.' + save_format), s,
                              **opt_args)
