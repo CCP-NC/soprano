@@ -610,8 +610,8 @@ class AtomsCollection(object):
         try:
             with open(os.path.join(path, '.collection'), 'rb') as f:
                 coll = pickle.load(f)
-        except IOError:
-            return 2  # No .collection file found
+        except (IOError, UnicodeDecodeError):
+            return 2  # No or invalid .collection file found
 
         # Check if the directories match
         dirlist = coll['dirlist']
