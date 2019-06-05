@@ -172,8 +172,22 @@ class AtomSelection(object):
         else:
             return self._hash(atoms) == self._auth
 
-    def subset(self, atoms):
-        """Generate an Atoms object containing only the selected atoms."""
+    def subset(self, atoms, use_cell_indices=False):
+        """Generate an Atoms object containing only the selected atoms.
+
+        | Args:
+        |   atoms (ase.Atoms):       Atoms object from which to take the
+        |                            selection
+        |   use_cell_indices (bool): If True, use the cell_indices array to
+        |                            pick the specified periodic copies of
+        |                            the corresponding atoms (useful e.g. to
+        |                            take the correct periodic copies for a
+        |                            molecule)
+
+        | Returns:
+        |   subset (ase.Atoms):      Atoms object containing only the
+        |                            specified selection
+        """
 
         if not self.validate(atoms):
             raise ValueError(
@@ -190,7 +204,12 @@ class AtomSelection(object):
             # in order to match the order of the atoms in the Atoms object
             _, arr = zip(*sorted(zip(self._indices, self._arrays[k]),
                                  key=lambda t: t[0]))
-            subset.new_array(k, np.array(arr))
+            if use_cell_indices and k == 'cell_indices':
+                subset.set_scaled_positions(subset.get_scaled_positions() +
+                                            arr)
+                continue
+            else:
+                subset.new_array(k, np.array(arr))
 
         return subset
 
