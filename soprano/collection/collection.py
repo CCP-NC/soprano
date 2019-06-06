@@ -144,7 +144,10 @@ class AtomsCollection(object):
             structures = [structures]
         elif inspect.isgenerator(structures):
             # Let's unravel it
-            structures = [s for s in structures]
+            iter_structs = structures
+            structures = []
+            for s in iter_structs:
+                structures.append(s)
 
         if progress:
             sys.stdout.write("Loading collection...\n")

@@ -138,8 +138,9 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
                                          max_attempts=max_attempts)
 
         while True:
-            # StopIteration will just bubble up when generated
-            p = next(gen)
+            p = next(gen, None)
+            if p is None:
+                return
             yield Atoms(defect, positions=[p], cell=cell) + struct
 
 
