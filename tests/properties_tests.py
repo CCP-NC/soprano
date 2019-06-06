@@ -72,7 +72,7 @@ class TestPropertyLoad(unittest.TestCase):
         linLatt = LatticeCart(shape=(9,))
         degLatt = LatticeABC(deg=True)
 
-        ans = cell.reshape((9,))
+        ans = np.array(cell).reshape((9,))
         self.assertTrue(np.all(linLatt(a) == ans))
         ans = cart2abc(cell)
         ans[1, :] *= 180.0/np.pi
@@ -82,7 +82,7 @@ class TestPropertyLoad(unittest.TestCase):
 
         from soprano.properties.basic import NumAtoms
 
-        num_atoms = np.random.random_integers(1, 10, 10)
+        num_atoms = np.random.randint(1, 11, size=10)
         coll = AtomsCollection([Atoms('H'*n) for n in num_atoms])
 
         num_atoms_prop = coll.all.map(NumAtoms.get)
@@ -158,7 +158,7 @@ class TestPropertyLoad(unittest.TestCase):
         # Now we test hydrogen bond types with alanine
         a = read(os.path.join(_TESTDATA_DIR, 'mol_crystal.cif'))
         # We expect 12 identical ones
-        hbtypes = ['C[C[C[H,H,H],H,N[H,H,H]],O,O]<N_1,H_3>'
+        hbtypes = ['C[C[C[H,H,H],H,N[H,H,H]],O,O]<N_1,H_2>'
                    '..C[C[C[H,H,H],H,N[H,H,H]],O,O]<O_1>']*12
 
         self.assertEqual(HydrogenBondTypes.get(a), hbtypes)

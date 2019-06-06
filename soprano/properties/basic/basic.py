@@ -46,7 +46,7 @@ class LatticeCart(AtomsProperty):
 
     @staticmethod
     def extract(s, shape):
-        return s.get_cell().reshape(shape)
+        return np.array(s.get_cell()).reshape(shape)
 
 
 class LatticeABC(AtomsProperty):
