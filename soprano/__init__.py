@@ -39,5 +39,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
 # Version definition
-__version__ = '0.8.1'
+__version__ = '0.8.2'
 __release__ = 'beta (Boggess)'
