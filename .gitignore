@@ -103,6 +103,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# VSCode
+.vscode/
+
 # Test stuff
 tests/test_save/*
 tests/*.pkl
