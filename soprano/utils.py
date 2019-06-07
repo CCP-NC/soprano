@@ -35,7 +35,7 @@ import inspect
 import warnings
 import numpy as np
 from ase import Atoms
-from scipy.misc import factorial
+from scipy.special import factorial
 from ase.quaternions import Quaternion
 from itertools import product as iter_product
 
