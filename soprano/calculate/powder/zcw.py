@@ -64,7 +64,9 @@ class ZCW(PowderScheme):
         phi = 2.0*np.pi/zcw_c[2]*np.mod(n*zcw_g/zcw_Nf, 1.0)
         ct = zcw_c[0]*(zcw_c[1]*np.mod(n/zcw_Nf, 1.0)-1.0)
 
-        return phi, ct
+        weights = np.ones(len(phi))/len(phi)
+
+        return phi, ct, weights
 
     def get_orient_angles(self, N):
         """
@@ -80,8 +82,7 @@ class ZCW(PowderScheme):
         |                                 orientations [theta, phi] and the weights.
         """
 
-        phi, ct = self._calc_engine(N)
-        weights = phi*0+1.0/len(phi)
+        phi, ct, weights = self._calc_engine(N)
 
         return np.array([np.arccos(ct), phi]).T, weights
 
@@ -100,8 +101,7 @@ class ZCW(PowderScheme):
         |                                 cos(phi), sin(phi)] and the weights.
         """
 
-        phi, ct = self._calc_engine(N)
-        weights = phi*0+1.0/len(phi)
+        phi, ct, weights = self._calc_engine(N)
 
         cp = np.cos(phi)
         sp = np.sin(phi)
