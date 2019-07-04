@@ -36,7 +36,7 @@ from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.properties.nmr.utils import (_get_nmr_data, _el_iso,
                                           _dip_constant, _get_isotope_data)
-from soprano.calculate.nmr.powder import gen_pwd_ang, pwd_avg
+from soprano.calculate.powder.triavg import TriAvg
 from soprano.properties.nmr.utils import EFG_TO_CHI
 from soprano.properties.nmr import DipolarCoupling
 from soprano.selection import AtomSelection
@@ -364,7 +364,8 @@ class NMRCalculator(object):
 
         """
 
-        self._orients = gen_pwd_ang(N, mode)
+        self._pwdscheme = TriAvg(mode)
+        self._orients = self._pwdscheme.gen_orient_points(N)
 
     def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
                     freq_broad=None, freq_units='ppm',
@@ -580,8 +581,10 @@ class NMRCalculator(object):
         for p_nuc in peaks:
             for p_trans in p_nuc:
                 if has_orient and use_pwd:
-                    spec += pwd_avg(freq_axis, p_trans, self._orients[1],
-                                    self._orients[2])
+                    spec += self._pwdscheme.average(freq_axis,
+                                                    p_trans,
+                                                    self._orients[1],
+                                                    self._orients[2])
 
         if freq_broad is None and (not has_orient or not use_pwd):
             print('WARNING: no artificial broadening detected in a calculation'

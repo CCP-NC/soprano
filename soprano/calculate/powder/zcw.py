@@ -67,13 +67,38 @@ class ZCW(PowderScheme):
         return phi, ct
 
     def get_orient_angles(self, N):
+        """
+        Generate and return the ZCW angles (in the form of angles in radians)
+        and weights.
+
+        | Args:
+        |   N (int): lower bound for the number of orientations generated. The
+        |            algorithm will generate at least N orientations.
+
+        | Returns:
+        |   angles, weights (np.ndarray): arrays containing respectively the 
+        |                                 orientations [theta, phi] and the weights.
+        """
 
         phi, ct = self._calc_engine(N)
         weights = phi*0+1.0/len(phi)
 
-        return np.array([phi, np.arccos(ct)]).T, weights
+        return np.array([np.arccos(ct), phi]).T, weights
 
     def get_orient_trig(self, N):
+        """
+        Generate and return the ZCW angles (in the form of trigonometric fuctions)
+        and weights.
+
+        | Args:
+        |   N (int): lower bound for the number of orientations generated. The
+        |            algorithm will generate at least N orientations.
+
+        | Returns:
+        |   angles, weights (np.ndarray): arrays containing respectively the 
+        |                                 orientations [cos(theta), sin(theta),
+        |                                 cos(phi), sin(phi)] and the weights.
+        """
 
         phi, ct = self._calc_engine(N)
         weights = phi*0+1.0/len(phi)
@@ -85,7 +110,18 @@ class ZCW(PowderScheme):
         return np.array([ct, st, cp, sp]).T, weights
 
     def get_orient_points(self, N):
+        """
+        Generate and return the ZCW angles (in the form of points on the surface of
+        a sphere) and weights.
 
+        | Args:
+        |   N (int): lower bound for the number of orientations generated. The
+        |            algorithm will generate at least N orientations.
+
+        | Returns:
+        |   angles, weights (np.ndarray): arrays containing respectively the 
+        |                                 orientations [x, y, z] and the weights.
+        """
         orients, weights = self.get_orient_trig(N)
         ct, st, cp, sp = orients.T
         points = np.array([st*cp, st*sp, ct]).T
