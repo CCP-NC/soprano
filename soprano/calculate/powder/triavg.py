@@ -37,7 +37,7 @@ from soprano.calculate.powder.powder import PowderScheme
 
 class TriAvg(PowderScheme):
 
-    def gen_orient_points(self, N):
+    def get_orient_points(self, N):
         """
         Generate and return the TriAvg angles (in the form of direction cosines),
         weights, and triangles.
@@ -124,7 +124,7 @@ class TriAvg(PowderScheme):
 
         """
 
-        points, weights, tris = self.gen_orient_points()
+        points, weights, tris = self.get_orient_points()
 
         theta = np.arccos(points[:, 2])
         phi = np.arctan2(points[:, 1], points[:, 0])
@@ -149,7 +149,7 @@ class TriAvg(PowderScheme):
 
         """
 
-        points, weights, tris = self.gen_orient_points()
+        points, weights, tris = self.get_orient_points()
 
         ct = points[:, 2]
         st = (1-ct**2)**0.5
