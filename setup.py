@@ -68,7 +68,7 @@ if __name__ == '__main__':
               'console_scripts': ['vasp2cell = '
                                   'soprano.scripts.vasp2cell:__main__',
                                   'soprano_submitter = '
-                                  'soprano.hpc.submitter.__main__',
+                                  'soprano.hpc.submitter:__main__',
                                   'phylogen = '
                                   'soprano.scripts.phylogen:__main__',
                                   'magresaverage = '
