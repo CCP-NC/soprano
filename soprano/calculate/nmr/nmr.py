@@ -365,7 +365,7 @@ class NMRCalculator(object):
         """
 
         self._pwdscheme = TriAvg(mode)
-        self._orients = self._pwdscheme.gen_orient_points(N)
+        self._orients = self._pwdscheme.get_orient_points(N)
 
     def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
                     freq_broad=None, freq_units='ppm',
