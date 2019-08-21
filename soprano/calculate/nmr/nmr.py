@@ -539,9 +539,9 @@ class NMRCalculator(object):
 
             # First order quadrupolar anisotropic effects
             # We consider the field aligned along Z
-            cosb2 = self._orients[0][:, 1]**2
+            cosb2 = self._orients[0][:, 2]**2
             sinb2 = 1.0 - cosb2
-            cosa2 = self._orients[0][:, 0]**2
+            cosa2 = (self._orients[0][:, 0]**2)/np.where(sinb2 > 0, sinb2, np.inf)
 
             dir_fac = 0.5*((3*cosb2[None, :]-1) +
                            eta_q[:, None]*sinb2[None, :]*(2*cosa2[None, :] -
