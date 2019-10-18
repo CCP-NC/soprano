@@ -127,7 +127,19 @@ class Gene(object):
 
     def evaluate(self, c):
         """Evaluate the gene on a given AtomsCollection"""
-        return self._parser(c, **self.params)
+        val = self._parser(c, **self.params)
+
+        # Check for various possible modes of failure
+        if val is None or None in val:
+            raise GeneError('Gene {0} has some or all None values'.format(self.name))
+
+        try:
+            if np.any(np.isnan(val)):
+                raise GeneError('Gene {0} has some or all nan values'.format(self.name))
+        except TypeError:
+            raise GeneError('Gene {0} has values of a non-numeric type'.format(self.name))
+
+        return val
 
 
 class GeneError(Exception):

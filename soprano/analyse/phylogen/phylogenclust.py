@@ -39,7 +39,6 @@ from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
                                             GeneError, load_genefile)
 from soprano.analyse.phylogen import mapping
 
-
 class PhylogenCluster(object):
 
     """PhylogenCluster
@@ -157,6 +156,7 @@ class PhylogenCluster(object):
             # And confirm that there are no NaNs inside
             if gene_val is None or np.any(np.isnan(gene_val)):
                 gene_val = g.evaluate(self._collection)
+
             self._gene_storage[g.name] = {
                 'def': g,
                 'val': gene_val
