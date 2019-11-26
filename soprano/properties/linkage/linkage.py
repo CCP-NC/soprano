@@ -25,6 +25,7 @@ from __future__ import unicode_literals
 import json
 import pkgutil
 import numpy as np
+from ase.data import atomic_numbers
 from ase.quaternions import Quaternion
 from soprano.selection import AtomSelection
 from soprano.properties import AtomsProperty
@@ -43,18 +44,23 @@ _vdw_radii = {
 }
 
 
-def _compute_bonds(s, vdw_set, vdw_scale, default_vdw):
+def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     """Convenience function that covers the core of bond computation"""
 
     # First, we need the biggest Van der Waals radius
     # So that we know how big the supercell needs to be
-    vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
-    vdw_vals = np.where(np.isnan(vdw_vals), default_vdw, vdw_vals)
-    vdw_vals *= vdw_scale
+
+    # Build a custom VdW set
+    vdw_r = np.array(_vdw_radii[vdw_set])*vdw_scale
+    vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
+    for el, r in vdw_custom.items():
+        vdw_r[atomic_numbers[el]] = r
+
+    vdw_vals = vdw_r[s.get_atomic_numbers()]
     vdw_max = max(vdw_vals)
 
     # Get the interatomic pair distances
-    atomn = s.get_number_of_atoms()
+    atomn = len(s)
     triui = np.triu_indices(atomn, k=1)
     v = s.get_positions()
     v = (v[:, None, :]-v[None, :, :])[triui]
@@ -154,6 +160,9 @@ class Bonds(AtomsProperty):
     |                      tolerant bonds.
     |   default_vdw (float): default Van der Waals radius for species for
     |                        whom no data is available.
+    |   vdw_custom (dict): a dictionary of custom Van der Waals radii to use,
+    |                      overriding the existing ones, expressed as
+    |                      {symbol: radius}.
     |   return_matrix (bool): if True, also return an NxN bonding matrix for
     |                         all N atoms in the system
     |   save_info (bool): if True, save the found bonds (and in case matrix)
@@ -170,18 +179,20 @@ class Bonds(AtomsProperty):
         'vdw_set': 'jmol',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
+        'vdw_custom': {},
         'return_matrix': False,
         'save_info': True,
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, return_matrix,
+    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom, return_matrix,
                 save_info):
 
         linked, triui, v, v_i, v_cells = _compute_bonds(s,
                                                         vdw_set,
                                                         vdw_scale,
-                                                        default_vdw)
+                                                        default_vdw, 
+                                                        vdw_custom)
 
         bonds = list(zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
                          -v_cells[linked], v[linked]))
@@ -223,6 +234,9 @@ class CoordinationHistogram(AtomsProperty):
     |                      tolerant bonds.
     |   default_vdw (float): default Van der Waals radius for species for
     |                        whom no data is available.
+    |   vdw_custom (dict): a dictionary of custom Van der Waals radii to use,
+    |                      overriding the existing ones, expressed as
+    |                      {symbol: radius}.
     |   species_1 (str or [str]): list of species to compute the histogram
     |                             for. By default all of them.
     |   species_2 (str or [str]): list of species whose coordination with
@@ -243,21 +257,23 @@ class CoordinationHistogram(AtomsProperty):
         'vdw_set': 'jmol',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
+        'vdw_custom': {},
         'species_1': None,
         'species_2': None,
         'max_coord': 6
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw,
+    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom,
                 species_1, species_2, max_coord):
 
         elems = np.array(s.get_chemical_symbols())
 
         # Get the bonds
-        bond_calc = Bonds({'vdw_set': vdw_set,
-                           'vdw_scale': vdw_scale,
-                           'default_vdw': default_vdw})
+        bond_calc = Bonds(vdw_set=vdw_set,
+                          vdw_scale=vdw_scale,
+                          default_vdw=default_vdw,
+                          vdw_custom=vdw_custom)
         bonds = bond_calc(s)
         # What if there are none?
         if len(bonds) == 0:
@@ -331,6 +347,9 @@ class Molecules(AtomsProperty):
     |                      tolerant molecules.
     |   default_vdw (float): default Van der Waals radius for species for
     |                        whom no data is available.
+    |   vdw_custom (dict): a dictionary of custom Van der Waals radii to use,
+    |                      overriding the existing ones, expressed as
+    |                      {symbol: radius}.
     |   save_info (bool): if True, save the found molecules as part of the
     |                     Atoms object info. By default True.
 
@@ -345,14 +364,16 @@ class Molecules(AtomsProperty):
         'vdw_set': 'jmol',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
+        'vdw_custom': {},
         'save_info': True,
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, save_info):
+    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom, save_info):
 
+        N = len(s)
         # Sanity check
-        if len(s) < 2:
+        if N < 2:
             # WTF?
             print('WARNING: impossible to calculate molecules on single-atom '
                   'system')
@@ -361,31 +382,12 @@ class Molecules(AtomsProperty):
         # Get the bonds
         bond_calc = Bonds(vdw_set=vdw_set,
                           vdw_scale=vdw_scale,
-                          default_vdw=default_vdw)
+                          default_vdw=default_vdw,
+                          vdw_custom=vdw_custom)
         bonds = bond_calc(s)
 
-        # First, we need the biggest Van der Waals radius
-        # So that we know how big the supercell needs to be
-        vdw_vals = _vdw_radii[vdw_set][s.get_atomic_numbers()]
-        vdw_vals = np.where(np.isnan(vdw_vals), default_vdw, vdw_vals)
-        vdw_vals *= vdw_scale
-        vdw_max = max(vdw_vals)
-
-        # Get the interatomic pair distances
-        atomn = s.get_number_of_atoms()
-        triui = np.triu_indices(atomn, k=1)
-        v = s.get_positions()
-        v = (v[:, None, :]-v[None, :, :])[triui]
-        # Reduce them
-        v, v_cells = minimum_periodic(v, s.get_cell())
-        v = np.linalg.norm(v, axis=-1)
-
-        # Now distance and VdW matrices
-        vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
-        link_M = v <= vdw_M
-
         mol_sets = []
-        unsorted_atoms = list(range(atomn))
+        unsorted_atoms = list(range(N))
 
         def get_linked(i):
             i_bonds = filter(lambda b: i in b[:2], bonds)
@@ -833,6 +835,7 @@ class HydrogenBonds(AtomsProperty):
         'vdw_set': 'jmol',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
+        'vdw_custom': {},
         'hbond_elems': ['O', 'N'],
         'max_length': 3.5,
         'max_angle': 45.0,
@@ -840,7 +843,7 @@ class HydrogenBonds(AtomsProperty):
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, hbond_elems,
+    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom, hbond_elems,
                 max_length, max_angle, save_info):
 
         def elem_inds(s, el):
@@ -877,10 +880,14 @@ class HydrogenBonds(AtomsProperty):
         h_atoms_pos = s.get_positions()[h_atoms]
         bond_atoms_pos = s.get_positions()[bond_atoms]
         # Van der Waals radii length of H-atom bonds
-        bonds_vdw = _vdw_radii[vdw_set][s.get_atomic_numbers()[bond_atoms]]
-        bonds_vdw = np.where(np.isnan(bonds_vdw), default_vdw, bonds_vdw)
-        bonds_vdw = (bonds_vdw+_vdw_radii[vdw_set][1])/2.0
-        bonds_vdw *= vdw_scale
+
+        vdw_r = np.array(_vdw_radii[vdw_set])*vdw_scale
+        vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
+        for el, r in vdw_custom.items():
+            vdw_r[atomic_numbers[el]] = r
+
+        bonds_vdw = vdw_r[s.get_atomic_numbers()[bond_atoms]]
+        bonds_vdw = (bonds_vdw+vdw_r[1])/2.0
 
         # Now find the shortest and second shortest bonds for each H
         h_links = (h_atoms_pos[:, None, :]-bond_atoms_pos[None, :, :])
