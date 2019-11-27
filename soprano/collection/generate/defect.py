@@ -33,16 +33,7 @@ from ase.data import atomic_numbers
 import soprano.utils as utils
 from soprano.selection import AtomSelection
 from soprano.properties.linkage import Bonds
-
-# Pre load VdW radii
-from ase.data.vdw import vdw_radii as _vdw_radii_ase
-_vdw_data = pkgutil.get_data('soprano', 'data/vdw_jmol.json').decode('utf-8')
-_vdw_radii_jmol = np.array(json.loads(_vdw_data))
-
-_vdw_radii = {
-    'ase': _vdw_radii_ase,
-    'jmol': _vdw_radii_jmol
-}
+from soprano.data import vdw_radii
 
 
 def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
@@ -97,9 +88,9 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
     # Van der Waals radii (if needed)
     if avoid_atoms:
         avoid_fpos = struct.get_scaled_positions()
-        avoid_vdw = _vdw_radii[vdw_set][struct.get_atomic_numbers()]
+        avoid_vdw = vdw_radii[vdw_set][struct.get_atomic_numbers()]
         avoid_cut = (avoid_vdw +
-                     _vdw_radii[vdw_set][atomic_numbers[defect]]
+                     vdw_radii[vdw_set][atomic_numbers[defect]]
                      )*vdw_scale/2.0
 
     if poisson_r is None:

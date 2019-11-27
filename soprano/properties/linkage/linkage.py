@@ -31,17 +31,17 @@ from soprano.selection import AtomSelection
 from soprano.properties import AtomsProperty
 from soprano.utils import (swing_twist_decomp, is_string,
                            minimum_periodic, all_periodic, get_bonding_graph)
+from soprano.data import vdw_radii
 
+# # Pre load VdW radii
+# from ase.data.vdw import vdw_radii as _vdw_radii_ase
+# _vdw_data = pkgutil.get_data('soprano', 'data/vdw_jmol.json').decode('utf-8')
+# _vdw_radii_jmol = np.array(json.loads(_vdw_data))
 
-# Pre load VdW radii
-from ase.data.vdw import vdw_radii as _vdw_radii_ase
-_vdw_data = pkgutil.get_data('soprano', 'data/vdw_jmol.json').decode('utf-8')
-_vdw_radii_jmol = np.array(json.loads(_vdw_data))
-
-_vdw_radii = {
-    'ase': _vdw_radii_ase,
-    'jmol': _vdw_radii_jmol
-}
+# _vdw_radii = {
+#     'ase': _vdw_radii_ase,
+#     'jmol': _vdw_radii_jmol
+# }
 
 
 def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
@@ -51,7 +51,7 @@ def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     # So that we know how big the supercell needs to be
 
     # Build a custom VdW set
-    vdw_r = np.array(_vdw_radii[vdw_set])*vdw_scale
+    vdw_r = np.array(vdw_radii[vdw_set])*vdw_scale
     vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
     for el, r in vdw_custom.items():
         vdw_r[atomic_numbers[el]] = r
@@ -881,7 +881,7 @@ class HydrogenBonds(AtomsProperty):
         bond_atoms_pos = s.get_positions()[bond_atoms]
         # Van der Waals radii length of H-atom bonds
 
-        vdw_r = np.array(_vdw_radii[vdw_set])*vdw_scale
+        vdw_r = np.array(vdw_radii[vdw_set])*vdw_scale
         vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
         for el, r in vdw_custom.items():
             vdw_r[atomic_numbers[el]] = r
