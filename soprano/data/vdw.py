@@ -16,6 +16,14 @@
 
 """
 Van der Waals radii
+
+Available sets:
+
+    - csd:  extrapolated from the Cambridge Structural Database by Santiago
+    Alvarez, as seen in S. Alvarez, "A cartography of the van der Waals
+    territories", Dalton Trans. 42, 8617 (2013)
+    - jmol: extracted from the source code of JMol
+    - ase:  default set for the Atomic Simulation Environment
 """
 
 import json
@@ -32,8 +40,8 @@ def _load_vdw(name):
 
     return _vdw_radii
 
-
 vdw_radii = {
     'ase': _vdw_radii_ase,
-    'jmol': _load_vdw('jmol')
+    'jmol': _load_vdw('jmol'),
+    'csd': _load_vdw('csd')
 }

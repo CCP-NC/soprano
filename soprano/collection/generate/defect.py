@@ -37,7 +37,7 @@ from soprano.data import vdw_radii
 
 
 def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
-              vdw_set='jmol', vdw_scale=1, max_attempts=30):
+              vdw_set='csd', vdw_scale=1, max_attempts=30):
     """Generator function to create multiple structures with a defect of a
     given element randomly added to the existing cell. The defects can be
     distributed following a random uniform distribution or a Poisson-sphere
@@ -59,9 +59,9 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
     |                       in the cell will be rejected. The cutoff distance
     |                       will be estimated based on the Van der Waals radii
     |                       set of choice. Default is True.
-    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Only relevant
-    |                         if avoid_atoms is True. Default is the one
-    |                         extracted from JMol.
+    |   vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only 
+    |                              relevant if avoid_atoms is True. 
+    |                              Default is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Only relevant if avoid_atoms is True.
     |                      Values bigger than one make for larger empty

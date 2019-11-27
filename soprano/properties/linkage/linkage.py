@@ -33,16 +33,6 @@ from soprano.utils import (swing_twist_decomp, is_string,
                            minimum_periodic, all_periodic, get_bonding_graph)
 from soprano.data import vdw_radii
 
-# # Pre load VdW radii
-# from ase.data.vdw import vdw_radii as _vdw_radii_ase
-# _vdw_data = pkgutil.get_data('soprano', 'data/vdw_jmol.json').decode('utf-8')
-# _vdw_radii_jmol = np.array(json.loads(_vdw_data))
-
-# _vdw_radii = {
-#     'ase': _vdw_radii_ase,
-#     'jmol': _vdw_radii_jmol
-# }
-
 
 def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     """Convenience function that covers the core of bond computation"""
@@ -153,8 +143,8 @@ class Bonds(AtomsProperty):
     another throughout two different periodic boundaries is not accounted for.
 
     | Parameters:
-    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is
-    |                         the one extracted from JMol.
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
     |                      tolerant bonds.
@@ -176,7 +166,7 @@ class Bonds(AtomsProperty):
 
     default_name = 'bonds'
     default_params = {
-        'vdw_set': 'jmol',
+        'vdw_set': 'csd',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
         'vdw_custom': {},
@@ -227,8 +217,8 @@ class CoordinationHistogram(AtomsProperty):
     search; otherwise a full histogram for all pairs of species is returned.
 
     | Parameters:
-    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is
-    |                         the one extracted from JMol.
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
     |                      tolerant bonds.
@@ -254,7 +244,7 @@ class CoordinationHistogram(AtomsProperty):
 
     default_name = 'coord_histogram'
     default_params = {
-        'vdw_set': 'jmol',
+        'vdw_set': 'csd',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
         'vdw_custom': {},
@@ -340,8 +330,8 @@ class Molecules(AtomsProperty):
     the system can not be split in molecules at all.
 
     | Parameters:
-    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is
-    |                         the one extracted from JMol.
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
     |                      tolerant molecules.
@@ -361,7 +351,7 @@ class Molecules(AtomsProperty):
 
     default_name = 'molecules'
     default_params = {
-        'vdw_set': 'jmol',
+        'vdw_set': 'csd',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
         'vdw_custom': {},
@@ -802,8 +792,8 @@ class HydrogenBonds(AtomsProperty):
     bonded to the proton and B the one of the hydrogen bonded one.
 
     | Parameters:
-    |   vdw_set({ase, jmol}): set of Van der Waals radii to use. Default is
-    |                         the one extracted from JMol.
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
     |                      tolerant molecules.
@@ -832,7 +822,7 @@ class HydrogenBonds(AtomsProperty):
 
     default_name = 'hydrogen_bonds'
     default_params = {
-        'vdw_set': 'jmol',
+        'vdw_set': 'csd',
         'vdw_scale': 1.0,
         'default_vdw': 2.0,
         'vdw_custom': {},
