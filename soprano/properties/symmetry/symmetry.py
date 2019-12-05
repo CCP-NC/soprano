@@ -22,15 +22,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-
 from soprano.properties import AtomsProperty
-from soprano.optional import requireSpglib
-
-
-@requireSpglib('spglib')
-def _get_symmetry_dataset(s, symprec, spglib=None):
-    symdata = spglib.get_symmetry_dataset(s, symprec=symprec)
-    return symdata
+from soprano.properties.symmetry.utils import _get_symmetry_dataset
 
 
 class SymmetryDataset(AtomsProperty):
