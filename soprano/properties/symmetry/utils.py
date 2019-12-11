@@ -142,3 +142,50 @@ def _find_wyckoff_points(a, symprec=1e-5):
     wp_ops = np.array(wp_ops)[uinds]
 
     return wp_fxyz, wp_ops
+
+def _wyckoff_isohess(ops):
+    """For each set of operations in wp_ops, representing a Wyckoff
+    point that is symmetric under them, find whether the symmetry is
+    such that any symmetric 3x3 tensor valued function ought to be 
+    isotropic in that point"""
+
+    """
+    How it works:
+     - For any operation, tensors must respect the following:
+
+                    T = O'TO
+
+        with O' meaning the transpose. This can be rewritten as
+
+                    kron(O', O')t = t
+
+       where t is a reshaped vector version of T. In other words,
+       t has to belong to the nullspace of kron(O', O')-I.
+     - While kron(O', O') is a 9x9 matrix, if we assume that T is
+       symmetric, then it has 6 independent components. We want to
+       prove that T is isotropic (T = xI, with x a scalar), which
+       means we only worry about 5 independent components.
+     - We can split T as such:
+
+                    T = xI + S = xO'O + O'SO
+
+       where S is a traceless symmetric tensor. Now, in what 
+       conditions can we say that S has to be zero?
+     - The first is that O'O = I. This is true of rotations
+       and reflections, but not of all symmetry operations.
+       If it's not true for any operation in wp_ops, then S
+       can not be zero.
+     - The second is that the intersection of the null
+       spaces of kron(O',O')P is empty. Here P is a 9x5 
+       matrix such that Ps = t-xi, where s is the vectorised
+       form of S and i the same for I.
+    """
+
+    # Rotation/transformation matrices
+    R = list(zip(*ops))[0]
+
+    # First: check that all matrices are orthogonal
+    ortho = all([np.isclose(np.dot(r.T, r), np.eye(3)).all() for r in R])
+
+    if not ortho:
+        return False
