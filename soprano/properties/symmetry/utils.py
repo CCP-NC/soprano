@@ -24,6 +24,7 @@ from __future__ import unicode_literals
 
 
 import numpy as np
+from scipy.linalg import null_space
 from soprano.optional import requireSpglib
 
 
@@ -68,7 +69,7 @@ def _loci_intersect(l1, l2):
 def _find_wyckoff_points(a, symprec=1e-5):
     """Find and return all Wyckoff points for a given atomic system,
     as well as the operations that each Wyckoff point is stable
-    under"""
+    under, and whether the hessian has local radial symmetry in them."""
 
     dset = _get_symmetry_dataset(a, symprec)
     hno = dset['hall_number']
@@ -81,7 +82,7 @@ def _find_wyckoff_points(a, symprec=1e-5):
 
     # Operations in the transformed frame
     rR = np.einsum('ij,ajk,kl', iP, R, P)
-    rT = np.dot(T, iP.T)
+    rT = np.dot(T, iP.T) % 1
 
     # Invariant loci for the operations
     invLoci = []
@@ -122,9 +123,10 @@ def _find_wyckoff_points(a, symprec=1e-5):
 
     # Now for each find how many degrees of freedom there are
     wp_ops = []
+    wp0_ops = []
     wp_indices = []
     for i in w_indices:
-        ops_inds = np.where(matching_ops[:,i])[0]
+        ops_inds = np.where(matching_ops[:, i])[0]
         loci = sorted(invLoci[ops_inds], key=lambda x: x[0])
         ltot = loci[0]
         for l in loci[1:]:
@@ -133,15 +135,23 @@ def _find_wyckoff_points(a, symprec=1e-5):
             ltot = _loci_intersect(ltot, l)
         if ltot[0] == 0:
             wp_indices.append(i)
+            wp0_ops.append(list(zip(R[ops_inds], T[ops_inds])))
             wp_ops.append(list(zip(rR[ops_inds], rT[ops_inds])))
 
     # Find their positions in fractional coordinates
     wp_fxyz = (np.dot(wgrid[wp_indices]/24.0, iP.T)-np.dot(iP, o)) % 1
-    # Remove any identical rows    
+    # Remove any identical rows
     wp_fxyz, uinds = np.unique(wp_fxyz, axis=0, return_index=True)
+    wp0_ops = np.array(wp0_ops)[uinds]
     wp_ops = np.array(wp_ops)[uinds]
 
-    return wp_fxyz, wp_ops
+    isohess = []
+    for ops in wp0_ops:
+        isohess.append(_wyckoff_isohess(ops))
+    isohess = np.array(isohess)
+
+    return wp_fxyz, wp_ops, isohess
+
 
 def _wyckoff_isohess(ops):
     """For each set of operations in wp_ops, representing a Wyckoff
@@ -176,9 +186,13 @@ def _wyckoff_isohess(ops):
        If it's not true for any operation in wp_ops, then S
        can not be zero.
      - The second is that the intersection of the null
-       spaces of kron(O',O')P is empty. Here P is a 9x5 
-       matrix such that Ps = t-xi, where s is the vectorised
-       form of S and i the same for I.
+       spaces of P2kron(O',O')P1 is empty. Here P1 is a 9x5 
+       matrix such that P1s = t-xi, where s is the vectorised
+       form of S and i the same for I, and P2 is the inverse.
+
+    Note that this has to hold for the operations expressed in an *orthogonal*
+    basis. Otherwise it can fail. However, if it works in one basis, it's 
+    valid in all of them. 
     """
 
     # Rotation/transformation matrices
@@ -189,3 +203,36 @@ def _wyckoff_isohess(ops):
 
     if not ortho:
         return False
+
+    # These matrices go back and fro to the 'reduced' form of the
+    # unfolded symmetric traceless tensor (9 to only 5 components)
+
+    P1 = np.array([[1, 0, 0, 0, 0],
+                   [0, 1, 0, 0, 0],
+                   [0, 0, 1, 0, 0],
+                   [0, 1, 0, 0, 0],
+                   [0, 0, 0, 1, 0],
+                   [0, 0, 0, 0, 1],
+                   [0, 0, 1, 0, 0],
+                   [0, 0, 0, 0, 1],
+                   [-1, 0, 0, -1, 0]])
+
+    P2 = np.array([
+        [1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 1, 0, 0, 0],
+    ])
+
+    ns = np.eye(5)
+    for r in R:
+        r5 = np.linalg.multi_dot([P2, np.kron(r, r).T, P1])
+        ns1 = null_space(r5-np.eye(5))
+        ns = np.dot(ns, null_space(np.concatenate([ns, -ns1],
+                                                 axis=1))[:ns.shape[1]])
+        if ns.shape[1] == 0:
+            return True
+        ns /= np.linalg.norm(ns, axis=0)[None,:]
+
+    return False
