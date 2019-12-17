@@ -606,7 +606,8 @@ def max_distance_in_cell(cell):
 
 
 def periodic_bridson(cell, rmin, max_attempts=30,
-                     prepoints=None, prepoints_cuts=None):
+                     prepoints=None, prepoints_cuts=None, 
+                     maxblock=1000):
     """ Periodic version of the Bridson algorithm for generation of Poisson
     sphere distributions of points. This returns a generator.
 
@@ -620,6 +621,8 @@ def periodic_bridson(cell, rmin, max_attempts=30,
     |                                   fractional coordinates.
     |   prepoints_cuts (np.ndarray or list): custom cutoffs for each prepoint.
     |                                        If not included defaults to rmin.
+    |   maxblock (int):     maximum size of a grid block to be processed in a
+    |                       single function (used to avoid excess memory use)
 
     | Returns:
     |   bridsonGen (generator): an iterator producing Poisson-sphere like
@@ -663,15 +666,15 @@ def periodic_bridson(cell, rmin, max_attempts=30,
                                             indexing='ij')).reshape((3, -1))
         cell_corners = np.array(np.meshgrid(*[[0, 1]]*3, indexing='ij')
                                 ).reshape((3, -1))
-        grid_corners = (grid_origins[:, :, None]+cell_corners[:, None, :])/N
-        dfx = (prepoints[:, :, None, None] - grid_corners[None, :, :, :]
-               + 0.5) % 1-0.5
-        r = np.linalg.norm(np.tensordot(dfx, cell, axes=(1, 0)), axis=-1)
-        # Which ones are actually fully taken?
-        full = np.sum(np.prod(r < prepoints_cuts[:, None, None], axis=-1),
-                      axis=0) > 0
-        # And occupy the grid (2 means taken by an external point)
-        grid[tuple(grid_origins[:, np.where(full)[0]])] = 2
+        for i0 in range(0, N**3, maxblock):
+            go = grid_origins[:,i0:i0+maxblock]
+            grid_corners = (go[:, :, None]+cell_corners[:, None, :])/N
+            dfx = (prepoints[:, :, None, None] - grid_corners[None, :, :, :]
+                   + 0.5) % 1-0.5
+            r = np.linalg.norm(np.tensordot(dfx, cell, axes=(1, 0)), axis=-1)
+            full = np.any(np.all(r < prepoints_cuts[:, None, None], axis=-1),
+                          axis=0)
+            grid[tuple(grid_origins[:, i0+np.where(full)[0]])] = 2
 
     # 4. And the queue with a random, non-occupied grid point
     if prepoints is None:
