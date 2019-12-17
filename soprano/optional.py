@@ -90,7 +90,7 @@ def requireSpglib(import_name='spglib'):
                 raise RuntimeError('This function requires an installation of'
                                    ' spglib to work - please install it '
                                    'with:\n\tpip install spglib')
-            elif v[0] < 1 or (v[0] == 1 and v[1] < 8):
+            elif v[0] < 1 or (v[0] == 1 and v[1] <= 8):
                 raise RuntimeError('This function requires a version of'
                                    ' spglib superior to 1.8 to work - '
                                    'please install it '
