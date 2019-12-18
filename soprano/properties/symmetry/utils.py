@@ -30,7 +30,11 @@ from soprano.optional import requireSpglib
 
 @requireSpglib('spglib')
 def _get_symmetry_dataset(s, symprec, spglib=None):
-    symdata = spglib.get_symmetry_dataset(s, symprec=symprec)
+    lattice = s.get_cell()
+    positions = s.get_scaled_positions()
+    numbers = s.get_atomic_numbers()
+    symdata = spglib.get_symmetry_dataset((lattice, positions, numbers),
+                                          symprec=symprec)
     return symdata
 
 
@@ -69,10 +73,21 @@ def _loci_intersect(l1, l2):
 def _find_wyckoff_points(a, symprec=1e-5):
     """Find and return all Wyckoff points for a given atomic system,
     as well as the operations that each Wyckoff point is stable
-    under, and whether the hessian has local radial symmetry in them."""
+    under, and whether the Hessian has local radial symmetry or is
+    definite in them."""
 
     dset = _get_symmetry_dataset(a, symprec)
     hno = dset['hall_number']
+
+    # First, check the standard cell
+    stdcell = dset['std_lattice']
+    # And the transformation properties
+    icell = np.linalg.inv(stdcell)
+    ic2 = np.dot(icell.T, icell)
+    evals, _ = np.linalg.eig(ic2)
+    e0 = evals[0]
+    is_iso = np.isclose(evals, e0).all()
+    is_def = (np.sign(evals) == np.sign(e0)).all()
 
     # Operations in the non-transformed frame
     R, T = _get_symmetry_ops(hno)
@@ -145,9 +160,13 @@ def _find_wyckoff_points(a, symprec=1e-5):
     wp0_ops = np.array(wp0_ops)[uinds]
     wp_ops = np.array(wp_ops)[uinds]
 
-    isohess = []
+    isohess = [] # Here the meanings are:
+    # 0 - no constraints
+    # 1 - is positive/negative definite
+    # 2 - is isotropic
     for ops in wp0_ops:
-        isohess.append(_wyckoff_isohess(ops))
+        wh = _wyckoff_isohess(ops)
+        isohess.append(wh*(1*is_def+is_iso))
     isohess = np.array(isohess)
 
     return wp_fxyz, wp_ops, isohess
@@ -230,9 +249,9 @@ def _wyckoff_isohess(ops):
         r5 = np.linalg.multi_dot([P2, np.kron(r, r).T, P1])
         ns1 = null_space(r5-np.eye(5))
         ns = np.dot(ns, null_space(np.concatenate([ns, -ns1],
-                                                 axis=1))[:ns.shape[1]])
+                                                  axis=1))[:ns.shape[1]])
         if ns.shape[1] == 0:
             return True
-        ns /= np.linalg.norm(ns, axis=0)[None,:]
+        ns /= np.linalg.norm(ns, axis=0)[None, :]
 
     return False

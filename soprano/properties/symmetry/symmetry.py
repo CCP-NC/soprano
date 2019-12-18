@@ -22,8 +22,14 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import numpy as np
+from collections import namedtuple
 from soprano.properties import AtomsProperty
-from soprano.properties.symmetry.utils import _get_symmetry_dataset
+from soprano.properties.symmetry.utils import (_get_symmetry_dataset,
+                                               _find_wyckoff_points)
+
+WyckoffPoint = namedtuple('WyckoffPoint', ['fpos', 'pos', 'operations',
+                                           'hessian'])
 
 
 class SymmetryDataset(AtomsProperty):
@@ -51,3 +57,48 @@ class SymmetryDataset(AtomsProperty):
     @staticmethod
     def extract(s, symprec):
         return _get_symmetry_dataset(s, symprec=symprec)
+
+
+class WyckoffPoints(AtomsProperty):
+
+    """
+    WyckoffPoints
+
+    Returns a list of the found high symmetry points for a given system,
+    including information about their point group operations, and the 
+    properties of Hessian-like quantities at that point, namely, if they are
+    constrained to be isotropic, definite (positive/negative), or
+    can be anything.
+
+
+    | Parameters:
+    |   symprec (float): distance tolerance, in Angstroms, applied when
+    |                    searching symmetry.
+
+    | Returns:
+    |   wyckoff_points (list): a list of WyckoffPoint named tuples, containing
+    |                          the members 'fpos' (fractional coordinates),
+    |                          'pos' (Cartesian coordinates), 'operations'
+    |                          (point group operations) and 'isotropic'
+    |                          (whether Hessian-like tensors are isotropic at
+    |                          the point).
+
+    """
+
+    default_name = 'wyckoff_points'
+    default_params = {
+        'symprec': 1e-5,
+    }
+
+    @staticmethod
+    def extract(s, symprec):
+
+        hprops = ['none', 'definite', 'isotropic']
+
+        fpos, ops, hess = _find_wyckoff_points(s, symprec)
+        pos = np.dot(fpos, s.get_cell())
+
+        wpoints = [WyckoffPoint(fp, p, o, hprops[h])
+                   for (fp, p, o, h) in zip(fpos, pos, ops, hess)]
+
+        return wpoints
