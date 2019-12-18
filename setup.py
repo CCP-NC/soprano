@@ -72,11 +72,13 @@ if __name__ == '__main__':
                                   'magresaverage = '
                                   'soprano.scripts.msaverage:__main__']
           },
+          use_2to3=False,
+          convert_2to3_doctests=[],
           # Requirements
           install_requires=[
               'numpy',
               'scipy',
               'ase'
           ],
-          python_requires='>=3'
+          python_requires='>=3.1.*'
           )
