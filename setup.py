@@ -56,8 +56,6 @@ if __name__ == '__main__':
               # Specify the Python versions you support here. In particular,
               # ensure that you indicate whether you support Python 2, Python 3
               # or both.
-              'Programming Language :: Python :: 2',
-              'Programming Language :: Python :: 2.7',
               'Programming Language :: Python :: 3',
           ],
           keywords='crystallography ccpnc computational chemistry',
@@ -80,5 +78,5 @@ if __name__ == '__main__':
               'scipy',
               'ase'
           ],
-          python_requires='>=2.7'
+          python_requires='>=3'
           )
