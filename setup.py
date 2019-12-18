@@ -58,7 +58,7 @@ if __name__ == '__main__':
               # or both.
               'Programming Language :: Python :: 3',
           ],
-          keywords='crystallography ccpnc computational chemistry',
+          keywords=['crystallography', 'ccpnc', 'computational chemistry'],
           packages=find_packages(),
           # For data files. Example: 'soprano': ['data/*.json']
           package_data={'soprano': ['data/*.json']},
