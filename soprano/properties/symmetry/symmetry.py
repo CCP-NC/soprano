@@ -93,12 +93,12 @@ class WyckoffPoints(AtomsProperty):
     @staticmethod
     def extract(s, symprec):
 
-        hprops = ['none', 'definite', 'isotropic']
+        hprops = ['saddle', 'none', 'definite', 'isotropic']
 
         fpos, ops, hess = _find_wyckoff_points(s, symprec)
         pos = np.dot(fpos, s.get_cell())
 
-        wpoints = [WyckoffPoint(fp, p, o, hprops[h])
+        wpoints = [WyckoffPoint(fp, p, o, hprops[h+1])
                    for (fp, p, o, h) in zip(fpos, pos, ops, hess)]
 
         return wpoints

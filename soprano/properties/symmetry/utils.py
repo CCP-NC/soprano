@@ -166,7 +166,7 @@ def _find_wyckoff_points(a, symprec=1e-5):
     # 2 - is isotropic
     for ops in wp0_ops:
         wh = _wyckoff_isohess(ops)
-        isohess.append(wh*(1*is_def+is_iso))
+        isohess.append(wh*(2*is_def+is_iso-1))
     isohess = np.array(isohess)
 
     return wp_fxyz, wp_ops, isohess
