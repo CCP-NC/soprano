@@ -150,13 +150,16 @@ def _find_wyckoff_points(a, symprec=1e-5):
             ltot = _loci_intersect(ltot, l)
         if ltot[0] == 0:
             wp_indices.append(i)
-            wp0_ops.append(list(zip(R[ops_inds], T[ops_inds])))
-            wp_ops.append(list(zip(rR[ops_inds], rT[ops_inds])))
+            wp0_ops.append(zip(R[ops_inds], T[ops_inds]))
+            wp_ops.append(zip(rR[ops_inds], rT[ops_inds]))
 
     # Find their positions in fractional coordinates
     wp_fxyz = (np.dot(wgrid[wp_indices]/24.0, iP.T)-np.dot(iP, o)) % 1
     # Remove any identical rows
-    wp_fxyz, uinds = np.unique(wp_fxyz, axis=0, return_index=True)
+    if wp_fxyz.shape[0] > 0:
+        wp_fxyz, uinds = np.unique(wp_fxyz, axis=0, return_index=True)
+    else:
+        uinds = []
     wp0_ops = np.array(wp0_ops)[uinds]
     wp_ops = np.array(wp_ops)[uinds]
 
