@@ -157,7 +157,8 @@ def _find_wyckoff_points(a, symprec=1e-5):
     wp_fxyz = (np.dot(wgrid[wp_indices]/24.0, iP.T)-np.dot(iP, o)) % 1
     # Remove any identical rows
     if wp_fxyz.shape[0] > 0:
-        wp_fxyz, uinds = np.unique(wp_fxyz, axis=0, return_index=True)
+        wp_fxyz, uinds = np.unique(np.round(wp_fxyz*24).astype(int), axis=0, return_index=True)
+        wp_fxyz = wp_fxyz/24.0
     else:
         uinds = []
     wp0_ops = np.array(wp0_ops)[uinds]
