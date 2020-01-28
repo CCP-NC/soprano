@@ -19,7 +19,8 @@ from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
                                     MSSpan, MSSkew,
                                     EFGVzz, EFGAsymmetry,
                                     EFGQuadrupolarConstant,
-                                    EFGQuaternion, DipolarCoupling)
+                                    EFGQuaternion, DipolarCoupling,
+                                    DipolarDiagonal)
 from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -99,6 +100,7 @@ class TestNMR(unittest.TestCase):
             data = f.readlines()[8:]
 
         dip = DipolarCoupling.get(eth)
+        dipdiag = DipolarDiagonal.get(eth)
 
         # Magres labels
         symbs = np.array(eth.get_chemical_symbols())
@@ -124,6 +126,14 @@ class TestNMR(unittest.TestCase):
                              np.arctan2(-v[1], -v[0])]) % (2*np.pi)
             ba_dat = (np.array(data_dip[ij][1:])*np.pi/180.0) % (2*np.pi)
             self.assertTrue(np.isclose([b, a], ba_dat, atol=0.1).all())
+
+            evals = dipdiag[ij]['evals']
+            evecs = dipdiag[ij]['evecs']
+            self.assertAlmostEqual(evals[2], d)
+            self.assertAlmostEqual(np.dot(evecs[:, 2], v), 1)
+            self.assertTrue(np.isclose(np.dot(evecs.T, evecs),
+                                       np.eye(3)).all())
+
 
 if __name__ == '__main__':
     unittest.main()
