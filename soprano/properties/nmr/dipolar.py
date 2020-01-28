@@ -125,19 +125,33 @@ class DipolarCoupling(AtomsProperty):
         # Need to sort them and remove any duplicates, also take i < j as
         # convention
         pairs = np.array(list(zip(*set([tuple(x)
-                                   for x in np.sort(pairs, axis=0).T]))))
+                                        for x in np.sort(pairs, axis=0).T]))))
 
         pos = s.get_positions()
 
-        r_ij = pos[pairs[1]] - pos[pairs[0]]
-        # Reduce to NN
-        r_ij, _ = minimum_periodic(r_ij, s.get_cell(), exclude_self=True)
-        # Distance
-        R_ij = np.linalg.norm(r_ij, axis=1)
-        # Versors
-        v_ij = r_ij/R_ij[:, None]
-        # Couplings
-        d_ij = _dip_constant(R_ij*1e-10, gammas[pairs[0]], gammas[pairs[1]])
+        # Split this in blocks to make sure we don't clog the memory
+
+        d_ij = np.zeros((0,))
+        v_ij = np.zeros((0, 3))
+
+        bsize = 1000
+        npairs = pairs.shape[1]
+
+        for b_i in range(0, npairs, bsize):
+            block = pairs.T[b_i:b_i+bsize]
+            r_ij = pos[block[:, 1]] - pos[block[:, 0]]
+            # Reduce to NN
+            r_ij, _ = minimum_periodic(r_ij, s.get_cell(), exclude_self=True)
+            # Distance
+            R_ij = np.linalg.norm(r_ij, axis=1)
+            # Versors
+            v_ij = np.concatenate([v_ij, r_ij/R_ij[:, None]], axis=0)
+            # Couplings
+            d_ij = np.concatenate([d_ij,
+                                   _dip_constant(R_ij*1e-10,
+                                                 gammas[block[:, 0]],
+                                                 gammas[block[:, 1]])
+                                   ])
 
         return {tuple(ij): [d_ij[l], v_ij[l]] for l, ij in enumerate(pairs.T)}
 

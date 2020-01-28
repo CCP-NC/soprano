@@ -33,8 +33,8 @@ class TestNMR(unittest.TestCase):
         eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
 
         # Load the data calculated with MagresView
-        data = open(os.path.join(_TESTDATA_DIR,
-                                 'ethanol_ms.dat')).readlines()[8:]
+        with open(os.path.join(_TESTDATA_DIR, 'ethanol_ms.dat')) as f:
+            data = f.readlines()[8:]
 
         iso = MSIsotropy.get(eth)
         aniso = MSAnisotropy.get(eth)
@@ -61,8 +61,8 @@ class TestNMR(unittest.TestCase):
         eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
 
         # Load the data calculated with MagresView
-        data = open(os.path.join(_TESTDATA_DIR,
-                                 'ethanol_efg.dat')).readlines()[8:]
+        with open(os.path.join(_TESTDATA_DIR, 'ethanol_efg.dat')) as f:
+            data = f.readlines()[8:]
 
         asymm = EFGAsymmetry.get(eth)
 
@@ -95,8 +95,8 @@ class TestNMR(unittest.TestCase):
         eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
 
         # Load the data calculated with MagresView
-        data = open(os.path.join(_TESTDATA_DIR,
-                                 'ethanol_dip.dat')).readlines()[8:]
+        with open(os.path.join(_TESTDATA_DIR, 'ethanol_dip.dat')) as f:
+            data = f.readlines()[8:]
 
         dip = DipolarCoupling.get(eth)
 
