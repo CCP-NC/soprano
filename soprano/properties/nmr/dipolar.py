@@ -80,6 +80,9 @@ class DipolarCoupling(AtomsProperty):
     |   self_coupling (bool): if True, include coupling of a nucleus with its
     |                         own closest periodic copy. Otherwise excluded.
     |                         Default is False.
+    |   block_size (int): maximum size of blocks used when processing large
+    |                     chunks of pairs. Necessary to avoid memory problems
+    |                     for very large systems. Default is 1000.
 
     | Returns: 
     |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
@@ -94,10 +97,12 @@ class DipolarCoupling(AtomsProperty):
         'isotopes': {},
         'isotope_list': None,
         'self_coupling': False,
+        'block_size': 1000,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling):
+    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
+                block_size):
 
         # Selections
         if sel_i is None:
@@ -134,11 +139,10 @@ class DipolarCoupling(AtomsProperty):
         d_ij = np.zeros((0,))
         v_ij = np.zeros((0, 3))
 
-        bsize = 1000
         npairs = pairs.shape[1]
 
-        for b_i in range(0, npairs, bsize):
-            block = pairs.T[b_i:b_i+bsize]
+        for b_i in range(0, npairs, block_size):
+            block = pairs.T[b_i:b_i+block_size]
             r_ij = pos[block[:, 1]] - pos[block[:, 0]]
             # Reduce to NN
             r_ij, _ = minimum_periodic(r_ij, s.get_cell(), exclude_self=True)
