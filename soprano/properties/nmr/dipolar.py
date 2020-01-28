@@ -187,6 +187,12 @@ class DipolarDiagonal(AtomsProperty):
     |                        present will fall back on the previous
     |                        definitions. Where an isotope is present it
     |                        overrides everything else.
+    |   self_coupling (bool): if True, include coupling of a nucleus with its
+    |                         own closest periodic copy. Otherwise excluded.
+    |                         Default is False.
+    |   block_size (int): maximum size of blocks used when processing large
+    |                     chunks of pairs. Necessary to avoid memory problems
+    |                     for very large systems. Default is 1000.
 
     | Returns: 
     |   dip_tens_dict (dict): Dictionary of dipolar eigenvalues (in Hz) and
@@ -199,15 +205,19 @@ class DipolarDiagonal(AtomsProperty):
         'sel_i': None,
         'sel_j': None,
         'isotopes': {},
-        'isotope_list': None
+        'isotope_list': None,
+        'self_coupling': False,
+        'block_size': 1000
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list):
+    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
+                block_size):
 
         # First, just get the values
         dip_dict = DipolarCoupling.extract(s, sel_i, sel_j,
-                                           isotopes, isotope_list)
+                                           isotopes, isotope_list,
+                                           self_coupling, block_size)
 
         # Now build the tensors
         dip_tens_dict = {}
@@ -264,7 +274,7 @@ class DipolarRSS(AtomsProperty):
         'cutoff': 5.0,
         'isonuclear': False,
         'isotopes': {},
-        'isotope_list': None
+        'isotope_list': None,
     }
 
     @staticmethod
