@@ -88,7 +88,7 @@ class AtomSelection(object):
         # A quick check: are the indices actually contained in the Atoms?
         if len(sel_indices) > 0:
             if (min(sel_indices) < 0 or
-                    max(sel_indices) >= atoms.get_number_of_atoms()):
+                    max(sel_indices) >= len(atoms)):
                 raise ValueError('Invalid indices for given Atoms object')
 
         self._indices = np.array(sel_indices)
@@ -194,7 +194,7 @@ class AtomSelection(object):
                 'Given Atoms object does not match this selection')
 
         subset = atoms.copy()
-        not_sel = list(set(range(atoms.get_number_of_atoms())) -
+        not_sel = list(set(range(len(atoms))) -
                        set(self._indices))
         del subset[not_sel]
 
