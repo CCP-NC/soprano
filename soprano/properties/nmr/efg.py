@@ -29,7 +29,7 @@ from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
                                           _span, _skew, _evecs_2_quat,
                                           _get_nmr_data, _get_isotope_data,
-                                          EFG_TO_CHI)
+                                          EFG_TO_CHI, _eta)
 
 
 def _has_efg_check(f):
@@ -92,8 +92,7 @@ class EFGVzz(AtomsProperty):
     """
     EFGVzz
 
-    Produces an array containing the major component of the electric field
-    gradient in a system (au).
+    Produces an array containing eta values for a given system (au).
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
@@ -122,6 +121,43 @@ class EFGVzz(AtomsProperty):
 
         return efg_evals[:, -1]
 
+class EFGEta(AtomsProperty):
+
+    """
+    EFGEta
+
+    Produces an array containing the magnetic shielding tensor eta values
+    in a system.
+    Eta is defined as:
+        eta = 
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+
+    | Returns:
+    |   efg_list (np.ndarray): list of eta values
+
+    """
+
+    default_name = 'efg_eta'
+    default_params = {
+        'force_recalc': False
+    }
+
+    @staticmethod
+    @_has_efg_check
+    def extract(s, force_recalc):
+
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
+                force_recalc):
+            EFGDiagonal.get(s)
+
+        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+
+        return _eta(efg_evals)
 
 class EFGAnisotropy(AtomsProperty):
 
