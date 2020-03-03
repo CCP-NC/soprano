@@ -54,10 +54,6 @@ def _asymmetry(haeb_evals):
     return (haeb_evals[:, 1]-haeb_evals[:, 0])/_anisotropy(haeb_evals,
                                                            reduced=True)
 
-def _eta(evals):
-    """Calculate eta"""
-    
-    return (evals[:,0]-evals[:,1])/evals[:,2]
 
 def _span(evals):
     """Calculate span"""
