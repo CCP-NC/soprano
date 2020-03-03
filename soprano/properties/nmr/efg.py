@@ -92,7 +92,8 @@ class EFGVzz(AtomsProperty):
     """
     EFGVzz
 
-    Produces an array containing Vzz values for a given system (au).
+    Produces an array containing the major component of the electric field
+    gradient in a system (au).
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
