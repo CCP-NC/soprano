@@ -122,7 +122,6 @@ class EFGVzz(AtomsProperty):
 
         return efg_evals[:, -1]
 
-
 class EFGAnisotropy(AtomsProperty):
 
     """
@@ -276,7 +275,7 @@ class EFGSkew(AtomsProperty):
     """
     EFGSkew
 
-    Produces an array containing the magnetic shielding tensor skew
+    Produces an array containing the electric field gradient tensor skew
     in a system.
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
@@ -377,6 +376,70 @@ class EFGQuadrupolarConstant(AtomsProperty):
                                    use_q_isotopes)
 
         return EFG_TO_CHI*q_list*EFGVzz.get(s)
+
+class EFGQuadrupolarProduct(AtomsProperty):
+
+    """
+    EFGQuadrupolarProduct
+
+    Produces an array containing the quadrupolar product values
+    in a system.
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    .. math::
+
+        \\P_Q = C_Q (1+frac{\eta_Q^2}{3})
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+    |   use_q_isotopes (bool): if True, always use the most common quadrupole
+    |                          active isotope for each element, if there is
+    |                          one.
+    |   isotopes (dict): dictionary of specific isotopes to use, by element
+    |                    symbol. If the isotope doesn't exist an error will
+    |                    be raised. Overrides use_q_isotopes.
+    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
+    |                        different atoms of the same element are supposed
+    |                        to be of different isotopes. Where a 'None' is
+    |                        present will fall back on the previous
+    |                        definitions. Where an isotope is present it
+    |                        overrides everything else.
+
+    | Returns:
+    |   Pq_list (np.ndarray): list of quadrupole products in Hz (units of Cq)
+
+    """
+
+    default_name = 'efg_qprod'
+    default_params = {
+        'force_recalc': False,
+        'use_q_isotopes': False,
+        'isotopes': {},
+        'isotope_list': None
+    }
+
+    @staticmethod
+    @_has_efg_check
+    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
+
+        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
+                force_recalc):
+            EFGDiagonal.get(s)
+
+        # First thing, build the isotope dictionary
+        elems = s.get_chemical_symbols()
+
+        # Is isotope list valid?
+        if isotope_list is not None and len(isotope_list) != len(elems):
+            print('WARNING - invalid isotope_list, ignoring')
+            isotope_list = None
+
+        q_list = _get_isotope_data(elems, 'Q', isotopes, isotope_list,
+                                   use_q_isotopes)
+
+        return EFG_TO_CHI*q_list*EFGVzz.get(s) * (1+(EFGAsymmetry.get(s)**2)/3)**0.5
 
 
 class EFGQuaternion(AtomsProperty):
