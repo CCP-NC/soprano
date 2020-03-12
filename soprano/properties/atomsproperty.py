@@ -61,7 +61,7 @@ class AtomsProperty(object):
                 self.params[p] = params[p]
 
     @classmethod
-    def get(self, s, store_array=False):
+    def get(self, s, store_array=False, **kwargs):
         """Extract the given property using the default parameters
         on an Atoms object s
 
@@ -87,7 +87,9 @@ class AtomsProperty(object):
                 s.set_array(self.default_name, arr)
             return arr
         else:
-            return self.extract(s, **self.default_params)
+            params = dict(self.default_params)
+            params.update(kwargs)
+            return self.extract(s, **params)
 
     @staticmethod
     def extract(s, **params):

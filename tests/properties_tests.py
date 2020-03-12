@@ -48,6 +48,7 @@ class TestPropertyLoad(unittest.TestCase):
 
         self.assertEqual(DummyProperty.get(a1), 2.0)
         self.assertEqual(dummyDoubled(a2), 8.0)
+        self.assertEqual(DummyProperty.get(a1, mul=3), 3.0)
 
         # Also check that improper parameters are rejected
         self.assertRaises(ValueError, DummyProperty, wrong='this is wrong')
@@ -60,6 +61,7 @@ class TestPropertyLoad(unittest.TestCase):
         dummyDoubled(c2, store_array=True)
         self.assertTrue(np.all(c1.get_array('dummy') == [2, 4]))
         self.assertTrue(np.all(c2.get_array('doubledummy') == [8, 4]))
+
 
     def test_basicprop(self):
 
