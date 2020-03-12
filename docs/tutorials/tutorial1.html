@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Soprano</title>
+    <link rel="stylesheet" href="../fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../bulma/bulma.css">
+    <link rel="stylesheet" href="../stylesheet.css">
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Tutorial 1 - Basic concepts</h1>
+            <p>
+                Soprano draws inspiration from the structure of the <a href="https://wiki.fysik.dtu.dk/ase/">Atomic Simulation Environment</a>, a very useful Python library to read and manipulated individual atomic structures. Soprano, however, takes things a level further. Just like ASE's main class is <code>Atoms</code>, an object storing the properties of an atomic structure like atomic positions, elements, crystallographic unit cell, and so on, Soprano's main class is <code>AtomsCollection</code>, which contains multiple 
+                <code>Atoms</code> objects. These could be, for example, the output of a random structure search calculations, or all the steps of a transition state trajectory. Soprano then is designed to allow the user to extract information and perform operations on these structures all at once, or analyse and cluster them based on their properties.
+            </p>
+            <div class="sp-1-5"></div>
+            <p>
+                In this first tutorial we focus on the simplest tasks: reading input files and manipulating <code>AtomsCollection</code> objects in a basic way. To begin with, <a href="data/structs.zip">download this zip file containing ten structure files</a>. These are ten structures representing crystalline iron in either FCC or BCC form, with some random rattling on the atoms to make them more interesting. We don't much care about that for this tutorial, though. Unzip them, then in the same folder create a python script and write:
+            </p>
+            <pre>
+                <code class="language-python">
+                    import glob
+                    from soprano.collection import AtomsCollection
+
+                    cifs = glob.glob('struct*.cif')
+                    aColl = AtomsCollection(cifs, progress=True)
+                </code>
+            </pre>
+
+            <p>
+                This will load all the files in the folder into a single collection, with a progress bar for the loading (this may be useful for cases in which the loading is slower because many more structures are used; here it should be instantaneous).
+                
+            </p>
+        </div>
+    </section>
+</body>
+</html>
