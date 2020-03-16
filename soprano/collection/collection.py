@@ -263,6 +263,7 @@ class AtomsCollection(object):
 
         if type(indices) is int:
             # Special case, a single element!
+            indices = indices%len(self)
             indices = slice(indices, indices+1)
 
         try:
