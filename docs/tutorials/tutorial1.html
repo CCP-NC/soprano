@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Soprano</title>
-    <link rel="stylesheet" href="../fontawesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../fontawesome/css/all.min.css">
     <link rel="stylesheet" href="../bulma/bulma.css">
     <link rel="stylesheet" href="../stylesheet.css">
     <link rel="stylesheet"
@@ -12,7 +12,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
 
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="../favicon.png">
 </head>
 <body>
     <section class="section">
@@ -37,9 +37,81 @@
             </pre>
 
             <p>
-                This will load all the files in the folder into a single collection, with a progress bar for the loading (this may be useful for cases in which the loading is slower because many more structures are used; here it should be instantaneous).
-                
+                This will load all the files in the folder into a single collection, with a progress bar for the loading (this may be useful for cases in which the loading is slower because many more structures are used; here it should be instantaneous). Collections are designed to help you manipulate these structures in way that are intuitive. For example, you can do all of the following:             
             </p>
+            <pre>
+                <code class="language-python">
+                    print(len(aColl))                       # Print the number of structures that have been loaded
+                    aCollFirst5 = aColl[:5]                 # A new collection, containing only the first five structures
+                    aCollLast = aColl[-1]                   # A new collection, containing the last structure
+
+                    aCollSum = aCollFirst5 + aCollLast      # Chain two collections
+                </code>
+            </pre>      
+            <p>
+                This is not all. For example, collections are iterable. Each element is an ASE <code>Atoms</code> object. Here's an example in which we use ASE's <code>.get_volume()</code> method to print the volume of all these structures:
+            </p>
+            <pre>
+                <code class="language-python">
+                    for a in aColl:
+                        print(a.get_volume())
+                </code>
+            </pre>     
+            <p>
+                Since wanting to access information of all structures however is pretty common, collections also have a special member: the object <code>.all</code>. Using <code>.all</code>,
+                you can access the entire collection using the same methods available for an ASE <code>Atoms</code> object - except it returns an array with all the values inside. For example we could do what we've done above with:
+            </p> 
+            <pre>
+                <code class="language-python">
+                    print(aColl.all.get_volume())
+                </code>
+            </pre>
+            <p>
+                Two other advanced ways to use collections are filtering and classifying. <code>.filter</code> is a method that takes a function, evaluates it for each <code>Atoms</code> object in the collection, and returns a collection of only those <code>Atoms</code> objects for which the function returned True. For example, here's how you would filter only cells that have a volume bigger than a certain value:
+            </p>    
+            <pre>
+                <code class="language-python">
+                    def isBig(a):
+                        return a.get_volume() >= 47
+
+                    aCollBig = aColl.filter(isBig)
+
+                    print('{0} structures have V >= 47'.format(len(aCollBig)))
+                </code>
+            </pre>
+            <p>
+                <code>.classify</code> instead splits the collection into a dictionary of collections, following an array of integers that indicates which class each <code>Atoms</code> belongs to. For example, here we split the collection based on the volume of each structure, rounded down:
+            </p>
+            <pre>
+                <code class="language-python">
+                    volumes = aColl.all.get_volume()
+                    classes = [int(np.floor(v)) for v in volumes]
+
+                    aCollHist = aColl.classify(classes)
+
+                    for v, c in aCollHist.items():
+                        print('{0} structures with volume within {1} and {2}'.format(len(c), v, v+1))
+                </code>
+            </pre>            
+            <p>
+                This covers the basics of how to use the <code>AtomsCollection</code> object. Next tutorial will deal with ways to create collections as well as extracting complex information from them: <code>Generator</code> and <code>AtomsProperty</code>.
+            </p>
+            <hr>
+
+            <footer class="footer is-orange">
+              <div class="content has-text-centered">
+                <div class="navbar is-warning">
+                    <div class="navbar-menu">
+                        <div class="navbar-start">
+                            <a class="button" href="../index.html"><i class="fas fa-caret-left"></i> &nbsp; Index</a>
+                        </div>
+                        <div class="navbar-end">
+                            <a class="button">Tutorial 2 &nbsp; <i class="fas fa-caret-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </footer>
         </div>
     </section>
 </body>
