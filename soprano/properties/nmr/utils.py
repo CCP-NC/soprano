@@ -93,3 +93,6 @@ def _J_constant(Kij, gi, gj):
     gyromagnetic ratios gi and gj"""
 
     return cnst.h*gi*gj*Kij/(4*np.pi**2)*1e19
+
+# Left here for backwards compatibility
+from soprano.data.nmr import (_get_isotope_data, _get_nmr_data, _el_iso)
