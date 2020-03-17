@@ -34,7 +34,7 @@ from soprano.properties.nmr import (MSIsotropy, MSReducedAnisotropy,
                                     EFGQuaternion,
                                     DipolarCoupling)
 from soprano.selection import AtomSelection
-from soprano.properties.nmr.utils import _get_nmr_data, _el_iso
+from soprano.data.nmr import _get_nmr_data, _el_iso
 
 _spinsys_template = """spinsys {{
 {header}

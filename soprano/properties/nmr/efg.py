@@ -28,8 +28,8 @@ from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
                                           _span, _skew, _evecs_2_quat,
-                                          _get_nmr_data, _get_isotope_data,
                                           EFG_TO_CHI)
+from soprano.data.nmr import _get_nmr_data, _get_isotope_data
 
 
 def _has_efg_check(f):
@@ -121,6 +121,7 @@ class EFGVzz(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
 
         return efg_evals[:, -1]
+
 
 class EFGAnisotropy(AtomsProperty):
 
@@ -376,6 +377,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
                                    use_q_isotopes)
 
         return EFG_TO_CHI*q_list*EFGVzz.get(s)
+
 
 class EFGQuadrupolarProduct(AtomsProperty):
 

@@ -34,10 +34,9 @@ from scipy.special import fresnel
 from scipy import constants as cnst
 from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
-from soprano.properties.nmr.utils import (_get_nmr_data, _el_iso,
-                                          _dip_constant, _get_isotope_data)
+from soprano.properties.nmr.utils import _dip_constant, EFG_TO_CHI
+from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
 from soprano.calculate.powder.triavg import TriAvg
-from soprano.properties.nmr.utils import EFG_TO_CHI
 from soprano.properties.nmr import DipolarCoupling
 from soprano.selection import AtomSelection
 

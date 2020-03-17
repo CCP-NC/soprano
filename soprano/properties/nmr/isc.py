@@ -28,8 +28,8 @@ from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 from soprano.properties.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
                                           _span, _skew, _evecs_2_quat,
-                                          _get_nmr_data, _get_isotope_data,
                                           _J_constant)
+from soprano.data.nmr import _get_nmr_data, _get_isotope_data
 
 
 def _has_isc_check(f):

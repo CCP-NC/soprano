@@ -28,7 +28,8 @@ from scipy import constants as cnst
 from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.properties.nmr.utils import (_dip_constant, _get_isotope_data)
+from soprano.properties.nmr.utils import _dip_constant
+from soprano.data.nmr import _get_isotope_data
 
 
 class DipolarCoupling(AtomsProperty):
