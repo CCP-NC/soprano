@@ -93,3 +93,64 @@ def _el_iso(sym):
                                                                          el))
 
     return el, iso
+
+
+def nmr_gamma(el, iso=None):
+    """Gyromagnetic ratio for an element
+
+    Return the gyromagnetic ratio for the given element and isotope, in
+    rad/(s*T)
+
+    | Args:
+    |   el (str):   element symbol
+    |   iso (int):  isotope. Default is the most abundant one.
+
+    | Returns:
+    |   gamma (float):  gyromagnetic ratio in rad/(s*T)    
+    """
+
+    isotopes = {}
+    if iso is not None:
+        isotopes[el] = iso
+
+    return _get_isotope_data([el], 'gamma', isotopes=isotopes)
+
+def nmr_spin(el, iso=None):
+    """Nuclear spin for an element
+
+    Return the nuclear spin for the given element and isotope, in
+    Bohr magnetons
+
+    | Args:
+    |   el (str):   element symbol
+    |   iso (int):  isotope. Default is the most abundant one.
+
+    | Returns:
+    |   I (float):  nuclear spin in Bohr magnetons
+    """
+
+    isotopes = {}
+    if iso is not None:
+        isotopes[el] = iso
+
+    return _get_isotope_data([el], 'I', isotopes=isotopes)
+
+def nmr_quadrupole(el, iso=None):
+    """Quadrupole moment for an element
+
+    Return the quadrupole moment for the given element and isotope, in
+    barns
+
+    | Args:
+    |   el (str):   element symbol
+    |   iso (int):  isotope. Default is the most abundant one.
+
+    | Returns:
+    |   Q (float):  quadrupole moment in barns
+    """
+
+    isotopes = {}
+    if iso is not None:
+        isotopes[el] = iso
+
+    return _get_isotope_data([el], 'Q', isotopes=isotopes)
