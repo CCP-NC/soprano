@@ -34,8 +34,9 @@ from scipy.special import fresnel
 from scipy import constants as cnst
 from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
-from soprano.properties.nmr.utils import _dip_constant, EFG_TO_CHI
-from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
+from soprano.properties.nmr.utils import _dip_constant
+from soprano.data.nmr import (_get_isotope_data, _get_nmr_data, _el_iso,
+                              EFG_TO_CHI)
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.properties.nmr import DipolarCoupling
 from soprano.selection import AtomSelection
@@ -540,7 +541,8 @@ class NMRCalculator(object):
             # We consider the field aligned along Z
             cosb2 = self._orients[0][:, 2]**2
             sinb2 = 1.0 - cosb2
-            cosa2 = (self._orients[0][:, 0]**2)/np.where(sinb2 > 0, sinb2, np.inf)
+            cosa2 = (self._orients[0][:, 0]**2) / \
+                np.where(sinb2 > 0, sinb2, np.inf)
 
             dir_fac = 0.5*((3*cosb2[None, :]-1) +
                            eta_q[:, None]*sinb2[None, :]*(2*cosa2[None, :] -

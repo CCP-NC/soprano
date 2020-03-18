@@ -13,8 +13,7 @@ import os
 import unittest
 import numpy as np
 from ase.data import vdw_radii as vdw_radii_ase
-from soprano.data.vdw import vdw_radius
-from soprano.data.nmr import (nmr_gamma, nmr_spin, nmr_quadrupole)
+from soprano.data import (vdw_radius, nmr_gamma, nmr_spin, nmr_quadrupole)
 
 
 class TestData(unittest.TestCase):

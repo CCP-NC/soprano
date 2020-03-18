@@ -24,6 +24,12 @@ ratio and quadrupole moment.
 import json
 import pkgutil
 import numpy as np
+import scipy.constants as cnst
+
+# EFG conversion constant.
+# Units chosen so that EFG_TO_CHI*Quadrupolar moment*Vzz = Hz
+EFG_TO_CHI = cnst.physical_constants['atomic unit of electric field '
+                                     'gradient'][0]*cnst.e*1e-31/cnst.h
 
 try:
     _nmr_data = pkgutil.get_data('soprano',
@@ -115,6 +121,7 @@ def nmr_gamma(el, iso=None):
 
     return _get_isotope_data([el], 'gamma', isotopes=isotopes)
 
+
 def nmr_spin(el, iso=None):
     """Nuclear spin for an element
 
@@ -134,6 +141,7 @@ def nmr_spin(el, iso=None):
         isotopes[el] = iso
 
     return _get_isotope_data([el], 'I', isotopes=isotopes)
+
 
 def nmr_quadrupole(el, iso=None):
     """Quadrupole moment for an element

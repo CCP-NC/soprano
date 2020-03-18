@@ -14,6 +14,7 @@ import unittest
 import numpy as np
 from ase import io
 from ase.quaternions import Quaternion
+from soprano.nmr.tensor import NMRTensor
 from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
                                     MSReducedAnisotropy, MSAsymmetry,
                                     MSSpan, MSSkew,
@@ -133,6 +134,28 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(np.dot(evecs[:, 2], v), 1)
             self.assertTrue(np.isclose(np.dot(evecs.T, evecs),
                                        np.eye(3)).all())
+
+    def test_tensor(self):
+
+        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+        ms = eth.get_array('ms')
+
+        iso = MSIsotropy.get(eth)
+        aniso = MSAnisotropy.get(eth)
+        r_aniso = MSReducedAnisotropy.get(eth)
+        asymm = MSAsymmetry.get(eth)
+        span = MSSpan.get(eth)
+        skew = MSSkew.get(eth)
+
+        for i in range(len(eth)):
+
+            ms_tens = NMRTensor(ms[i])
+            self.assertAlmostEqual(iso[i], ms_tens.isotropy)
+            self.assertAlmostEqual(aniso[i], ms_tens.anisotropy)
+            self.assertAlmostEqual(r_aniso[i], ms_tens.reduced_anisotropy)
+            self.assertAlmostEqual(asymm[i], ms_tens.asymmetry)
+            self.assertAlmostEqual(span[i], ms_tens.span)
+            self.assertAlmostEqual(skew[i], ms_tens.skew)
 
 
 if __name__ == '__main__':

@@ -15,11 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Module containing tabulated data
-"""
+Contains classes, modules and functions useful for basic NMR analysis. More 
+useful and specialised classes are found in soprano.properties.nmr and
+in soprano.calculate.nmr
+""" 
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-
-from soprano.data.vdw import vdw_radii, vdw_radius
-from soprano.data.nmr import (nmr_spin, nmr_quadrupole, nmr_gamma)

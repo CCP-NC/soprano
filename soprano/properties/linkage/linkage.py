@@ -181,7 +181,7 @@ class Bonds(AtomsProperty):
         linked, triui, v, v_i, v_cells = _compute_bonds(s,
                                                         vdw_set,
                                                         vdw_scale,
-                                                        default_vdw, 
+                                                        default_vdw,
                                                         vdw_custom)
 
         bonds = list(zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
