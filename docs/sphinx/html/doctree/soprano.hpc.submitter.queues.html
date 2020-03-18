@@ -1,37 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.hpc.submitter.queues module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano.hpc.submitter package" href="soprano.hpc.submitter.html" />
     <link rel="next" title="soprano.hpc.submitter.submit module" href="soprano.hpc.submitter.submit.html" />
     <link rel="prev" title="soprano.hpc.submitter.castep module" href="soprano.hpc.submitter.castep.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -65,8 +53,8 @@
 <p>Definition of QueueInterface class.</p>
 <dl class="class">
 <dt id="soprano.hpc.submitter.queues.QueueInterface">
-<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.queues.</code><code class="descname">QueueInterface</code><span class="sig-paren">(</span><em>sub_cmd</em>, <em>list_cmd</em>, <em>kill_cmd</em>, <em>sub_outre</em>, <em>list_outre</em>, <em>list_user_opt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">soprano.hpc.submitter.queues.</code><code class="sig-name descname">QueueInterface</code><span class="sig-paren">(</span><em class="sig-param">sub_cmd</em>, <em class="sig-param">list_cmd</em>, <em class="sig-param">kill_cmd</em>, <em class="sig-param">sub_outre</em>, <em class="sig-param">list_outre</em>, <em class="sig-param">list_user_opt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>QueueInterface object</p>
 <p>A class meant to simplify interfacing in a basic way
 with a Queue system. Contains commands to submit to the queue, list the
@@ -78,17 +66,14 @@ present.
 The class also provides some static variables implementing standard
 interfaces for common queueing systems. These can be retrieved by using
 QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:</p>
-<ul>
-<li><p class="first">LSF (IBM&#8217;s managing system, using the command bsub)</p>
-</li>
-<li><dl class="first docutils">
-<dt>GridEngine (Sun&#8217;s managing system, also available in an open version,</dt>
-<dd><p class="first last">using the command qsub)</p>
+<ul class="simple">
+<li><p>LSF (IBM’s managing system, using the command bsub)</p></li>
+<li><dl class="simple">
+<dt>GridEngine (Sun’s managing system, also available in an open version,</dt><dd><p>using the command qsub)</p>
 </dd>
 </dl>
 </li>
-<li><p class="first">PBS (another managing system using qsub)</p>
-</li>
+<li><p>PBS (another managing system using qsub)</p></li>
 </ul>
 <p>Initialize the QueueInterface.</p>
 <div class="line-block">
@@ -111,30 +96,30 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 <div class="line-block">
 <div class="line">specific user name when listing</div>
 <div class="line">jobs. For example, on LSF this is</div>
-<div class="line">-u. By default it&#8217;s None, and the</div>
+<div class="line">-u. By default it’s None, and the</div>
 <div class="line">default of the queueing system is</div>
 <div class="line">used.</div>
 </div>
 </div>
 </div>
-<dl class="classmethod">
+<dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.GridEngine">
-<em class="property">classmethod </em><code class="descname">GridEngine</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.GridEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">GridEngine</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.GridEngine" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.LSF">
-<em class="property">classmethod </em><code class="descname">LSF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.LSF" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">LSF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.LSF" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="classmethod">
+<dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.PBS">
-<em class="property">classmethod </em><code class="descname">PBS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.PBS" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">PBS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.PBS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.kill">
-<code class="descname">kill</code><span class="sig-paren">(</span><em>job_id</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.kill" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><em class="sig-param">job_id</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.kill" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kill the job with the given ID</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -147,7 +132,7 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.list">
-<code class="descname">list</code><span class="sig-paren">(</span><em>user=u'$USER'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><em class="sig-param">user='$USER'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all jobs found in the queue</p>
 <div class="line-block">
 <div class="line">Returns:</div>
@@ -166,15 +151,15 @@ QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:<
 </div>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.remote_target">
-<code class="descname">remote_target</code><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.remote_target" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">remote_target</code><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.remote_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>RemoteTarget if a remote Host is set</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.set_remote_host">
-<code class="descname">set_remote_host</code><span class="sig-paren">(</span><em>host=None</em>, <em>timeout=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.set_remote_host" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_remote_host</code><span class="sig-paren">(</span><em class="sig-param">host=None</em>, <em class="sig-param">timeout=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.set_remote_host" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set a remote host for use by this QueueInterface</p>
 <p>If a remote host is set, this Interface will try using the Paramiko
 library to connect to it via SSH. Check the docstring of
@@ -186,7 +171,7 @@ are for this usage.</p>
 <div class="line">host (Optional[str]): host name of the remote machine to connect</div>
 <div class="line-block">
 <div class="line">to. Further information must be contained in</div>
-<div class="line">the user&#8217;s ~/.ssh/config file. If left empty</div>
+<div class="line">the user’s ~/.ssh/config file. If left empty</div>
 <div class="line">the remote host is UNSET and therefore the</div>
 <div class="line">interface goes back to local use.</div>
 </div>
@@ -200,7 +185,7 @@ are for this usage.</p>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.queues.QueueInterface.submit">
-<code class="descname">submit</code><span class="sig-paren">(</span><em>script</em>, <em>cwd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.submit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">submit</code><span class="sig-paren">(</span><em class="sig-param">script</em>, <em class="sig-param">cwd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.submit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Submit a job to the queue.x</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -229,7 +214,7 @@ are for this usage.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -246,20 +231,20 @@ are for this usage.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.hpc.submitter.queues.txt"
+      <li><a href="../_sources/doctree/soprano.hpc.submitter.queues.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -288,7 +273,7 @@ are for this usage.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>

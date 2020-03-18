@@ -1,37 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.properties.order.order module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano.properties.order package" href="soprano.properties.order.html" />
     <link rel="next" title="soprano.properties.symmetry package" href="soprano.properties.symmetry.html" />
     <link rel="prev" title="soprano.properties.order package" href="soprano.properties.order.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -65,8 +53,8 @@
 <p>Implementation of AtomsProperties that relate to bond order parameters</p>
 <dl class="class">
 <dt id="soprano.properties.order.order.BondOrder">
-<em class="property">class </em><code class="descclassname">soprano.properties.order.order.</code><code class="descname">BondOrder</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.order.order.BondOrder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.order.order.</code><code class="sig-name descname">BondOrder</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.order.order.BondOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Computes the order parameters defined by Steinhardt et al. [PRB 28, 784
 (1983)] for an atom or group of atoms in the system. Here for each atom
 all closest periodic copies of the others are used; a sigmoidal cutoff is
@@ -92,8 +80,8 @@ the behaviour smooth upon small fluctuations.</p>
 <div class="line">list of indices of all atoms that</div>
 <div class="line">used as environment to compute the</div>
 <div class="line">bond order parameters. For each</div>
-<div class="line">&#8216;center&#8217; atom, all its links to</div>
-<div class="line">&#8216;environment&#8217; atoms other than</div>
+<div class="line">‘center’ atom, all its links to</div>
+<div class="line">‘environment’ atoms other than</div>
 <div class="line">itself will be considered. Default</div>
 <div class="line">is None, which means all atoms of</div>
 <div class="line">the system.</div>
@@ -138,18 +126,38 @@ only argument to get the property with the given parameters.</p>
 </div>
 <dl class="attribute">
 <dt id="soprano.properties.order.order.BondOrder.default_name">
-<code class="descname">default_name</code><em class="property"> = u'bond_order'</em><a class="headerlink" href="#soprano.properties.order.order.BondOrder.default_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_name</code><em class="property"> = 'bond_order'</em><a class="headerlink" href="#soprano.properties.order.order.BondOrder.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="soprano.properties.order.order.BondOrder.default_params">
-<code class="descname">default_params</code><em class="property"> = {u'cutoff_width': 0.05, u'center_atoms': None, u'l_channels': array([ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10]), u'environment_atoms': None, u'cutoff_radius': 2.0, u'compute_W': False}</em><a class="headerlink" href="#soprano.properties.order.order.BondOrder.default_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_params</code><em class="property"> = {'center_atoms': None, 'compute_W': False, 'cutoff_radius': 2.0, 'cutoff_width': 0.05, 'environment_atoms': None, 'l_channels': array([ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10])}</em><a class="headerlink" href="#soprano.properties.order.order.BondOrder.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="soprano.properties.order.order.BondOrder.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>l_channels</em>, <em>center_atoms</em>, <em>environment_atoms</em>, <em>cutoff_radius</em>, <em>cutoff_width</em>, <em>compute_W</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.order.order.BondOrder.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">l_channels</em>, <em class="sig-param">center_atoms</em>, <em class="sig-param">environment_atoms</em>, <em class="sig-param">cutoff_radius</em>, <em class="sig-param">cutoff_width</em>, <em class="sig-param">compute_W</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.order.order.BondOrder.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
@@ -161,7 +169,7 @@ only argument to get the property with the given parameters.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -178,20 +186,20 @@ only argument to get the property with the given parameters.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.properties.order.order.txt"
+      <li><a href="../_sources/doctree/soprano.properties.order.order.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -220,7 +228,7 @@ only argument to get the property with the given parameters.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>

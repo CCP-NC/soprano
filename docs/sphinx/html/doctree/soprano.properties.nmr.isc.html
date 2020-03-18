@@ -1,0 +1,889 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>soprano.properties.nmr.isc module &#8212; Soprano beta (Boggess) documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="soprano.properties.nmr.ms module" href="soprano.properties.nmr.ms.html" />
+    <link rel="prev" title="soprano.properties.nmr.efg module" href="soprano.properties.nmr.efg.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.nmr.ms.html" title="soprano.properties.nmr.ms module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.nmr.efg.html" title="soprano.properties.nmr.efg module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" accesskey="U">soprano.properties.nmr package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.properties.nmr.isc">
+<span id="soprano-properties-nmr-isc-module"></span><h1>soprano.properties.nmr.isc module<a class="headerlink" href="#module-soprano.properties.nmr.isc" title="Permalink to this headline">¶</a></h1>
+<p>Implementation of AtomsProperties that relate to NMR J
+couplings</p>
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.ISCDiagonal">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">ISCDiagonal</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces an array containing eigenvalues and eigenvectors for the
+symmetric part of each J coupling tensor in the system. By default
+saves them as part of the Atoms’ arrays as well.
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">save_info (bool): if True, save the diagonalised tensors in the</div>
+<div class="line-block">
+<div class="line">Atoms object as info. By default True.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">isc_diag (dict): dictionary of eigenvalues and eigenvectors by atom</div>
+<div class="line-block">
+<div class="line">index pairs (lower index first)</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.ISCDiagonal.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'isc_diagonal'</em><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.ISCDiagonal.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'save_info': True, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.ISCDiagonal.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCAnisotropy">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCAnisotropy</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J coupling anisotropies for atom pairs
+in the system. See JCDiagonal for how reduced couplings are transformed
+into couplings.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCAnisotropy.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_anisotropy'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCAnisotropy.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCAnisotropy.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCAsymmetry">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCAsymmetry</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J coupling asymmetries for atom pairs
+in the system. See JCDiagonal for how reduced couplings are transformed
+into couplings.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCAsymmetry.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_asymmetry'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCAsymmetry.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCAsymmetry.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCDiagonal">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCDiagonal</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of diagonalised J coupling tensors for atom pairs
+in the system. The J coupling for a pair of nuclei i and j is defined as:</p>
+<div class="math notranslate nohighlight">
+\[J_{ij} = 10^19\frac{h\gamma_i\gamma_j}{4\pi^2}K\]</div>
+<p>where the gammas represent the gyromagnetic ratios of the nuclei and K is
+the J coupling reduced tensor found in a .magres file, in 10^19.T^2.J^-1.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCDiagonal.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_diagonal'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCDiagonal.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCDiagonal.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCIsotropy">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCIsotropy</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J coupling isotropies for atom pairs
+in the system. See JCDiagonal for how reduced couplings are transformed
+into couplings.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCIsotropy.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_isotropy'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCIsotropy.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCIsotropy.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCQuaternion">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCQuaternion</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J ase.Quaternion objects expressing the
+orientation of the J coupling tensors with respect to the cartesian axes
+for atom pairs in the system.
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCQuaternion.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_skew'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCQuaternion.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCQuaternion.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCReducedAnisotropy</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J coupling reduced anisotropies for atom pairs
+in the system. See JCDiagonal for how reduced couplings are transformed
+into couplings.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_red_anisotropy'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCSkew">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCSkew</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J coupling skews for atom pairs
+in the system. See JCDiagonal for how reduced couplings are transformed
+into couplings.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCSkew.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_skew'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCSkew.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCSkew.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.nmr.isc.JCSpan">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCSpan</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Produces a dictionary of J coupling spans for atom pairs
+in the system. See JCDiagonal for how reduced couplings are transformed
+into couplings.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling. By default is None</div>
+<div class="line">(= all of them).</div>
+</div>
+<div class="line">sel_j (AtomSelection or [int]): Selection or list of indices of atoms</div>
+<div class="line-block">
+<div class="line">for which to return the J</div>
+<div class="line">coupling with the ones in sel_i. By</div>
+<div class="line">default is None (= same as sel_i).</div>
+</div>
+<div class="line">tag (str): name of the J coupling component to return. Magres files</div>
+<div class="line-block">
+<div class="line">usually contain isc, isc_spin, isc_fc, isc_orbital_p and</div>
+<div class="line">isc_orbital_d. Default is isc.</div>
+</div>
+<div class="line">isotopes (dict): dictionary of specific isotopes to use, by element</div>
+<div class="line-block">
+<div class="line">symbol. If the isotope doesn’t exist an error will</div>
+<div class="line">be raised.</div>
+</div>
+<div class="line">isotope_list (list): list of isotopes, atom-by-atom. To be used if</div>
+<div class="line-block">
+<div class="line">different atoms of the same element are supposed</div>
+<div class="line">to be of different isotopes. Where a ‘None’ is</div>
+<div class="line">present will fall back on the previous</div>
+<div class="line">definitions. Where an isotope is present it</div>
+<div class="line">overrides everything else.</div>
+</div>
+<div class="line">self_coupling (bool): if True, include coupling of a nucleus with</div>
+<div class="line-block">
+<div class="line">itself. Otherwise excluded. Default is False.</div>
+</div>
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns: </div>
+<div class="line-block">
+<div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCSpan.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'jc_span'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.nmr.isc.JCSpan.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.nmr.isc.JCSpan.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.extract" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.properties.nmr.efg.html"
+                        title="previous chapter">soprano.properties.nmr.efg module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.properties.nmr.ms.html"
+                        title="next chapter">soprano.properties.nmr.ms module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.properties.nmr.isc.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.nmr.ms.html" title="soprano.properties.nmr.ms module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.properties.nmr.efg.html" title="soprano.properties.nmr.efg module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" >soprano.properties.nmr package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+    </div>
+  </body>
+</html>

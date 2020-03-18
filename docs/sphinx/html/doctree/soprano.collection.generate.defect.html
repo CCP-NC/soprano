@@ -1,37 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.collection.generate.defect module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano.collection.generate package" href="soprano.collection.generate.html" />
     <link rel="next" title="soprano.collection.generate.linspace module" href="soprano.collection.generate.linspace.html" />
     <link rel="prev" title="soprano.collection.generate.airss module" href="soprano.collection.generate.airss.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -65,7 +53,7 @@
 <p>Generator producing structures with a randomly positioned point defect</p>
 <dl class="function">
 <dt id="soprano.collection.generate.defect.additionGen">
-<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">additionGen</code><span class="sig-paren">(</span><em>struct</em>, <em>add</em>, <em>to_addition=None</em>, <em>n=1</em>, <em>add_r=1.2</em>, <em>accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.additionGen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.collection.generate.defect.</code><code class="sig-name descname">additionGen</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">add</em>, <em class="sig-param">to_addition=None</em>, <em class="sig-param">n=1</em>, <em class="sig-param">add_r=1.2</em>, <em class="sig-param">accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.additionGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function to create multiple structures with an atom of a
 given element added in the existing cell. The atoms will be attached to 
 the atoms passed in the to_addition selection. If none is passed,
@@ -84,9 +72,9 @@ filter function.</p>
 <div class="line">to it.</div>
 </div>
 <div class="line">add (str): element symbol of the atom to add.</div>
-<div class="line">to_replace (AtomSelection): if present, only atoms belonging to this</div>
+<div class="line">to_addition (AtomSelection): if present, only atoms belonging to this</div>
 <div class="line-block">
-<div class="line">selection will be substituted.</div>
+<div class="line">selection will get an addition.</div>
 </div>
 <div class="line">n (int): number of new atoms to include in each structure. Default</div>
 <div class="line-block">
@@ -118,12 +106,12 @@ filter function.</p>
 
 <dl class="function">
 <dt id="soprano.collection.generate.defect.defectGen">
-<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">defectGen</code><span class="sig-paren">(</span><em>struct</em>, <em>defect</em>, <em>poisson_r=None</em>, <em>avoid_atoms=True</em>, <em>vdw_set=u'jmol'</em>, <em>vdw_scale=1</em>, <em>max_attempts=30</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.defectGen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.collection.generate.defect.</code><code class="sig-name descname">defectGen</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">defect</em>, <em class="sig-param">poisson_r=None</em>, <em class="sig-param">avoid_atoms=True</em>, <em class="sig-param">vdw_set='csd'</em>, <em class="sig-param">vdw_scale=1</em>, <em class="sig-param">max_attempts=30</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.defectGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function to create multiple structures with a defect of a
 given element randomly added to the existing cell. The defects can be
 distributed following a random uniform distribution or a Poisson-sphere
 distribution which guarantees that no two defects are created closer than
-a certain distance. These are created using a variation on Bridson&#8217;s
+a certain distance. These are created using a variation on Bridson’s
 algorithm. For that reason the defects will be created contiguously and
 added in succession. A full cover of all the empty space will be provided
 only by extracting structures until StopIteration is raised.</p>
@@ -147,10 +135,10 @@ only by extracting structures until StopIteration is raised.</p>
 <div class="line">will be estimated based on the Van der Waals radii</div>
 <div class="line">set of choice. Default is True.</div>
 </div>
-<div class="line">vdw_set({ase, jmol}): set of Van der Waals radii to use. Only relevant</div>
+<div class="line">vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only </div>
 <div class="line-block">
-<div class="line">if avoid_atoms is True. Default is the one</div>
-<div class="line">extracted from JMol.</div>
+<div class="line">relevant if avoid_atoms is True. </div>
+<div class="line">Default is csd [S. Alvarez, 2013].</div>
 </div>
 <div class="line">vdw_scale (float): scaling factor to apply to the base Van der Waals</div>
 <div class="line-block">
@@ -185,7 +173,7 @@ only by extracting structures until StopIteration is raised.</p>
 
 <dl class="function">
 <dt id="soprano.collection.generate.defect.substitutionGen">
-<code class="descclassname">soprano.collection.generate.defect.</code><code class="descname">substitutionGen</code><span class="sig-paren">(</span><em>struct</em>, <em>subst</em>, <em>to_replace=None</em>, <em>n=1</em>, <em>accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.substitutionGen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.collection.generate.defect.</code><code class="sig-name descname">substitutionGen</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">subst</em>, <em class="sig-param">to_replace=None</em>, <em class="sig-param">n=1</em>, <em class="sig-param">accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.substitutionGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function to create multiple structures with a defect of a
 given element substituted in the existing cell. The defects will be put in
 place of the atoms passed in the to_replace selection. If none is passed,
@@ -233,7 +221,7 @@ filter function.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -250,20 +238,20 @@ filter function.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.collection.generate.defect.txt"
+      <li><a href="../_sources/doctree/soprano.collection.generate.defect.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -292,7 +280,7 @@ filter function.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>

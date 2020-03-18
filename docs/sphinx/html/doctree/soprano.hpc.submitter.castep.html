@@ -1,37 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.hpc.submitter.castep module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano.hpc.submitter package" href="soprano.hpc.submitter.html" />
     <link rel="next" title="soprano.hpc.submitter.queues module" href="soprano.hpc.submitter.queues.html" />
     <link rel="prev" title="soprano.hpc.submitter.debug.debugqueue module" href="soprano.hpc.submitter.debug.debugqueue.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -63,19 +51,19 @@
   <div class="section" id="module-soprano.hpc.submitter.castep">
 <span id="soprano-hpc-submitter-castep-module"></span><h1>soprano.hpc.submitter.castep module<a class="headerlink" href="#module-soprano.hpc.submitter.castep" title="Permalink to this headline">¶</a></h1>
 <p>Definition of CastepSubmitter class.</p>
-<p>A basic &#8220;rolling&#8221; submitter for Castep calculations, grabbing from one folder
+<p>A basic “rolling” submitter for Castep calculations, grabbing from one folder
 and depositing results in another.</p>
 <dl class="class">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter">
-<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.castep.</code><code class="descname">CastepSubmitter</code><span class="sig-paren">(</span><em>name, queue, submit_script, max_jobs=4, check_time=10, max_time=3600, temp_folder=None, remote_workdir=None, remote_getfiles=[u'*.*'], ssh_timeout=1.0, continuation=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter" title="soprano.hpc.submitter.submit.Submitter"><code class="xref py py-class docutils literal"><span class="pre">soprano.hpc.submitter.submit.Submitter</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">soprano.hpc.submitter.castep.</code><code class="sig-name descname">CastepSubmitter</code><span class="sig-paren">(</span><em class="sig-param">name, queue, submit_script, max_jobs=4, check_time=10, max_time=3600, temp_folder=None, remote_workdir=None, remote_getfiles=['*.*'], ssh_timeout=1.0, continuation=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter" title="soprano.hpc.submitter.submit.Submitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.hpc.submitter.submit.Submitter</span></code></a></p>
 <p>Initialize the Submitter object</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
 <div class="line">name (str): name to be used for this Submitter (two Submitters</div>
 <div class="line-block">
-<div class="line">with the same name can&#8217;t be launched in the same</div>
+<div class="line">with the same name can’t be launched in the same</div>
 <div class="line">working directory)</div>
 </div>
 <div class="line">queue (QueueInterface): object describing the properties of the</div>
@@ -85,10 +73,10 @@ and depositing results in another.</p>
 <div class="line">submit_script (str): text of the script to use when submitting a</div>
 <div class="line-block">
 <div class="line">job to the queue. All tags of the form &lt;name&gt;</div>
-<div class="line">will be replaced with the job&#8217;s name, and all</div>
+<div class="line">will be replaced with the job’s name, and all</div>
 <div class="line">similar tags of the form &lt;[arg]&gt; will be</div>
 <div class="line">replaced if the argument name is present in</div>
-<div class="line">the job&#8217;s args dictionary</div>
+<div class="line">the job’s args dictionary</div>
 </div>
 <div class="line">max_jobs (Optional[int]): maximum number of jobs to submit at a</div>
 <div class="line-block">
@@ -103,12 +91,12 @@ and depositing results in another.</p>
 <div class="line">max_time (Optional[float]): time in seconds the Submitter will run</div>
 <div class="line-block">
 <div class="line">for before shutting down. If set to</div>
-<div class="line">zero the thread won&#8217;t stop until</div>
+<div class="line">zero the thread won’t stop until</div>
 <div class="line">killed with Submitter.stop.</div>
 </div>
 <div class="line">temp_folder (Optional[str]): where to store the temporary folders</div>
 <div class="line-block">
-<div class="line">for the calculations. By default it&#8217;s</div>
+<div class="line">for the calculations. By default it’s</div>
 <div class="line">the current folder.</div>
 </div>
 <div class="line">remote_workdir (Optional[str]): if present, uses a directory on a</div>
@@ -116,7 +104,7 @@ and depositing results in another.</p>
 <div class="line">remote machine by logging in via</div>
 <div class="line">SSH. Must be in the format</div>
 <div class="line">&lt;host&gt;:&lt;path/to/directory&gt;.</div>
-<div class="line">Host must be defined in the user&#8217;s</div>
+<div class="line">Host must be defined in the user’s</div>
 <div class="line">~/.ssh/config file - check the</div>
 <div class="line">docs for RemoteTarget for more</div>
 <div class="line">information. It is possible to</div>
@@ -133,7 +121,7 @@ and depositing results in another.</p>
 <div class="line">remote_getfiles (Optional[list(str)]): list of files to be</div>
 <div class="line-block">
 <div class="line">downloaded from the remote</div>
-<div class="line">copy of the job&#8217;s temporary</div>
+<div class="line">copy of the job’s temporary</div>
 <div class="line">directory. By default, all</div>
 <div class="line">of them. Can be a list</div>
 <div class="line">using specific names,</div>
@@ -154,8 +142,8 @@ and depositing results in another.</p>
 <div class="line">current jobs; rather, it will store</div>
 <div class="line">the list in a pickle file.</div>
 <div class="line">If the submitter is ran from the</div>
-<div class="line">same folder then it will &#8220;pick up</div>
-<div class="line">from where it left&#8221; and try</div>
+<div class="line">same folder then it will “pick up</div>
+<div class="line">from where it left” and try</div>
 <div class="line">recovering those jobs, then</div>
 <div class="line">restart. If one wishes for</div>
 <div class="line">additional values to be saved and</div>
@@ -167,25 +155,25 @@ and depositing results in another.</p>
 </div>
 <dl class="method">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter.finish_job">
-<code class="descname">finish_job</code><span class="sig-paren">(</span><em>name</em>, <em>args</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_job" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">finish_job</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">args</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save required output files to the output folder</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter.finish_run">
-<code class="descname">finish_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">finish_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try removing the temporary keywords directory</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter.next_job">
-<code class="descname">next_job</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.next_job" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">next_job</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.next_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grab the next job from folder_in</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter.set_parameters">
-<code class="descname">set_parameters</code><span class="sig-paren">(</span><em>folder_in, folder_out, castep_command, castep_path=None, copy_extensions=[u'.castep'], pspot_files=[], dryrun_test=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.set_parameters" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_parameters</code><span class="sig-paren">(</span><em class="sig-param">folder_in, folder_out, castep_command, castep_path=None, copy_extensions=['.castep'], pspot_files=[], dryrun_test=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.set_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of the CASTEP Submitter</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -226,14 +214,15 @@ and depositing results in another.</p>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter.setup_job">
-<code class="descname">setup_job</code><span class="sig-paren">(</span><em>name</em>, <em>args</em>, <em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.setup_job" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">setup_job</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">args</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.setup_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy files to temporary folder to prepare for execution</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.castep.CastepSubmitter.start_run">
-<code class="descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.start_run" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.start_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Operations to perform when the daemon thread starts running</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -245,7 +234,7 @@ and depositing results in another.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -262,20 +251,20 @@ and depositing results in another.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.hpc.submitter.castep.txt"
+      <li><a href="../_sources/doctree/soprano.hpc.submitter.castep.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -304,7 +293,7 @@ and depositing results in another.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>

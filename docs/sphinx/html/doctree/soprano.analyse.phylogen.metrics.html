@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>soprano.analyse.phylogen.metrics module &#8212; Soprano beta (Boggess) documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="soprano.analyse.phylogen.phylogenclust module" href="soprano.analyse.phylogen.phylogenclust.html" />
+    <link rel="prev" title="soprano.analyse.phylogen.mapping module" href="soprano.analyse.phylogen.mapping.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.analyse.phylogen.phylogenclust.html" title="soprano.analyse.phylogen.phylogenclust module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="soprano.analyse.phylogen.mapping.html" title="soprano.analyse.phylogen.mapping module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.analyse.html" >soprano.analyse package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.analyse.phylogen.html" accesskey="U">soprano.analyse.phylogen package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-soprano.analyse.phylogen.metrics">
+<span id="soprano-analyse-phylogen-metrics-module"></span><h1>soprano.analyse.phylogen.metrics module<a class="headerlink" href="#module-soprano.analyse.phylogen.metrics" title="Permalink to this headline">¶</a></h1>
+<p>Utility functions to compare clusterings and evaluate similarity</p>
+<dl class="function">
+<dt id="soprano.analyse.phylogen.metrics.confmat">
+<code class="sig-prename descclassname">soprano.analyse.phylogen.metrics.</code><code class="sig-name descname">confmat</code><span class="sig-paren">(</span><em class="sig-param">clust1</em>, <em class="sig-param">clust2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.metrics.confmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the confusion matrix for two clusterings of the same
+collection. The confusion matrix is defined so that element i,j contains
+the number of elements that are in common between cluster i of the first
+clustering and cluster j of the second:</p>
+<p>M[i,j] = len(set(c[i]).intersection(c[j]))</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">clust1 (list): a series of clusters in the form of a list of slices,</div>
+<div class="line-block">
+<div class="line">like the second value returned by one of the clustering</div>
+<div class="line">methods in PhylogenCluster.</div>
+</div>
+<div class="line">clust2 (list): same as above.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">confmat (np.ndarray): confusion matrix for the two clusterings.</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.metrics.fowles_mallows_index">
+<code class="sig-prename descclassname">soprano.analyse.phylogen.metrics.</code><code class="sig-name descname">fowles_mallows_index</code><span class="sig-paren">(</span><em class="sig-param">clust1</em>, <em class="sig-param">clust2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.metrics.fowles_mallows_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Fowles-Mallows index, a measure of similarity between two
+clusterings defined as:</p>
+<p>F = (WI*WII)**0.5</p>
+<p>with</p>
+<p>WI = N11/sum_k(n_k*(n_k-1)/2)
+WII = N11/sum_k(n’_k*(n’_k-1)/2)</p>
+<p>with N11 being the number of pairs of points that are in the same cluster
+in both clusterings, and n_k (n’_k) the number of elements in cluster k
+of the first (second) clustering.</p>
+<p>Ref: 
+Fowlkes, E. B.; Mallows, C. L. (1 September 1983). 
+“A Method for Comparing Two Hierarchical Clusterings”. 
+Journal of the American Statistical Association. 78 (383): 553. 
+doi:10.2307/2288117</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">clust1 (list): a series of clusters in the form of a list of slices,</div>
+<div class="line-block">
+<div class="line">like the second value returned by one of the clustering</div>
+<div class="line">methods in PhylogenCluster.</div>
+</div>
+<div class="line">clust2 (list): same as above.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">fm_ind (float): the Fowles-Mallows index </div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.analyse.phylogen.metrics.norm_confmat">
+<code class="sig-prename descclassname">soprano.analyse.phylogen.metrics.</code><code class="sig-name descname">norm_confmat</code><span class="sig-paren">(</span><em class="sig-param">clust1</em>, <em class="sig-param">clust2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.metrics.norm_confmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the normalised confusion matrix for two clusterings of the
+same collection. The confusion matrix is defined as in the docstring of
+confmat. For the normalisation, each element i,j is divided by the
+geometric mean of the sizes of cluster i of the first clustering and
+cluster j of the second:</p>
+<p>NM[i,j] = M[i,j]/(len(c[i])*len(c[j]))**0.5</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">clust1 (list): a series of clusters in the form of a list of slices,</div>
+<div class="line-block">
+<div class="line">like the second value returned by one of the clustering</div>
+<div class="line">methods in PhylogenCluster.</div>
+</div>
+<div class="line">clust2 (list): same as above.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">nconfmat (np.ndarray): normalised confusion matrix for the two</div>
+<div class="line-block">
+<div class="line">clusterings.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="soprano.analyse.phylogen.mapping.html"
+                        title="previous chapter">soprano.analyse.phylogen.mapping module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="soprano.analyse.phylogen.phylogenclust.html"
+                        title="next chapter">soprano.analyse.phylogen.phylogenclust module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/doctree/soprano.analyse.phylogen.metrics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="soprano.analyse.phylogen.phylogenclust.html" title="soprano.analyse.phylogen.phylogenclust module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="soprano.analyse.phylogen.mapping.html" title="soprano.analyse.phylogen.mapping module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="soprano.analyse.html" >soprano.analyse package</a> &#187;</li>
+          <li class="nav-item nav-item-4"><a href="soprano.analyse.phylogen.html" >soprano.analyse.phylogen package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Simone Sturniolo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+    </div>
+  </body>
+</html>

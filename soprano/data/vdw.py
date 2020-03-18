@@ -24,6 +24,8 @@ Available sets:
     territories", Dalton Trans. 42, 8617 (2013)
     - jmol: extracted from the source code of JMol
     - ase:  default set for the Atomic Simulation Environment
+    
+    
 """
 
 import json
@@ -57,7 +59,8 @@ def vdw_radius(el, vdwset='csd'):
     Alvarez, as seen in S. Alvarez, "A cartography of the van der Waals
     territories", Dalton Trans. 42, 8617 (2013) [default]
     - jmol: extracted from the source code of JMol
-    - ase:  default set for the Atomic Simulation Environment    
+    - ase:  default set for the Atomic Simulation Environment
+    
 
     | Args:
     |   el (str):       element symbol

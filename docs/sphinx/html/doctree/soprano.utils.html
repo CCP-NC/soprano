@@ -1,36 +1,24 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.utils module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano package" href="soprano.html" />
     <link rel="prev" title="soprano.selection module" href="soprano.selection.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -57,19 +45,19 @@
   <div class="section" id="module-soprano.utils">
 <span id="soprano-utils-module"></span><h1>soprano.utils module<a class="headerlink" href="#module-soprano.utils" title="Permalink to this headline">¶</a></h1>
 <p>utils.py</p>
-<p>Contains package-wide useful routines that don&#8217;t fall under any specific
+<p>Contains package-wide useful routines that don’t fall under any specific
 category. Many of these handle common operations involving periodicity,
 conversions between different representations etc.</p>
 <dl class="function">
 <dt id="soprano.utils.abc2cart">
-<code class="descclassname">soprano.utils.</code><code class="descname">abc2cart</code><span class="sig-paren">(</span><em>abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.abc2cart" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">abc2cart</code><span class="sig-paren">(</span><em class="sig-param">abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.abc2cart" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms an axes and angles representation of lattice parameters
 into a Cartesian one</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.all_periodic">
-<code class="descclassname">soprano.utils.</code><code class="descname">all_periodic</code><span class="sig-paren">(</span><em>v</em>, <em>latt_cart</em>, <em>max_r</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.all_periodic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">all_periodic</code><span class="sig-paren">(</span><em class="sig-param">v, latt_cart, max_r, pbc=[True, True, True]</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.all_periodic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all the periodic equivalent vectors for a list of vectors and a
 given lattice falling within a given length.</p>
 <div class="line-block">
@@ -81,6 +69,12 @@ given lattice falling within a given length.</p>
 </div>
 <div class="line">latt_cart (np.ndarray): unit cell in cartesian form</div>
 <div class="line">max_r (float): maximum length of periodic copies of vectors</div>
+<div class="line">pbc ([bool, bool, bool]): periodic boundary conditions - if</div>
+<div class="line-block">
+<div class="line">a boundary is not periodic the</div>
+<div class="line">range returned will always be zero</div>
+<div class="line">in that dimension</div>
+</div>
 </div>
 </div>
 <div class="line-block">
@@ -107,61 +101,132 @@ given lattice falling within a given length.</p>
 
 <dl class="function">
 <dt id="soprano.utils.cart2abc">
-<code class="descclassname">soprano.utils.</code><code class="descname">cart2abc</code><span class="sig-paren">(</span><em>cart</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.cart2abc" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">cart2abc</code><span class="sig-paren">(</span><em class="sig-param">cart</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.cart2abc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms a Cartesian representation of lattice parameters
 into an axes and angles one</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.clebsch_gordan">
-<code class="descclassname">soprano.utils.</code><code class="descname">clebsch_gordan</code><span class="sig-paren">(</span><em>j</em>, <em>m</em>, <em>j1</em>, <em>m1</em>, <em>j2</em>, <em>m2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.clebsch_gordan" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">clebsch_gordan</code><span class="sig-paren">(</span><em class="sig-param">j</em>, <em class="sig-param">m</em>, <em class="sig-param">j1</em>, <em class="sig-param">m1</em>, <em class="sig-param">j2</em>, <em class="sig-param">m2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.clebsch_gordan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clebsch-Gordan cohefficients for given quantum numbers:
 j, m, j1, m1, j2, m2</p>
-<p>The numbers passed can be arrays (just make sure they&#8217;re the
+<p>The numbers passed can be arrays (just make sure they’re the
 same size).</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.compute_asymmetric_distmat">
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">compute_asymmetric_distmat</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">points</em>, <em class="sig-param">linearized=True</em>, <em class="sig-param">return_images=False</em>, <em class="sig-param">images_centre=0</em>, <em class="sig-param">symprec=1e-05</em>, <em class="sig-param">spg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.compute_asymmetric_distmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a symmetric structure, compute a distance matrix for the given
+fractional coordinate points which contains only the distances between 
+their closest symmetry equivalent sites in the asymmetric unit cell.</p>
+<p>Distances are computed in <em>fractional coordinates</em> space and are not 
+real distances. They do not necessarily map to real space distances
+either. Their purpose is merely to group points together by removing the
+effects of symmetry operations.</p>
+<div class="line-block">
+<div class="line">Parameters: </div>
+<div class="line-block">
+<div class="line">struct (ase.Atoms): the structure from which to extract the symmetry</div>
+<div class="line-block">
+<div class="line">operations</div>
+</div>
+<div class="line">points (np.ndarray): list of points, in fractional coordinates, to</div>
+<div class="line-block">
+<div class="line">compute the distance matrix for</div>
+</div>
+<div class="line">linearized (bool):  if True, returns only the linearised upper</div>
+<div class="line-block">
+<div class="line">triangle of the distance matrix, in the format</div>
+<div class="line">accepted by scipy.cluster.hierarchy.linkage.</div>
+<div class="line">Default is True</div>
+</div>
+<div class="line">return_images (bool): if True, return also a list of the closest</div>
+<div class="line-block">
+<div class="line">images for each point. The closest</div>
+<div class="line">symmetric image to images_centre is chosen.</div>
+</div>
+<div class="line">images_centre (int or np.ndarray): centre to use to compute closest</div>
+<div class="line-block">
+<div class="line">images. If an integer, uses the</div>
+<div class="line">given point of that index. If a </div>
+<div class="line">vector, uses the given coordinates.</div>
+<div class="line">Should not be a high symmetry point.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">distmat (np.ndarray): distance matrix for points</div>
+<div class="line">images (np.ndarray): closest point images (only if return_images is</div>
+<div class="line-block">
+<div class="line">True)</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.get_bonding_distance">
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">get_bonding_distance</code><span class="sig-paren">(</span><em class="sig-param">bond_graph</em>, <em class="sig-param">i</em>, <em class="sig-param">j</em>, <em class="sig-param">nx=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.get_bonding_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Distance in bonds, returns -1 if the two are not connected</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.get_bonding_graph">
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">get_bonding_graph</code><span class="sig-paren">(</span><em class="sig-param">bond_mat</em>, <em class="sig-param">nx=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.get_bonding_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="soprano.utils.get_sklearn_clusters">
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">get_sklearn_clusters</code><span class="sig-paren">(</span><em class="sig-param">points</em>, <em class="sig-param">method</em>, <em class="sig-param">params</em>, <em class="sig-param">sk=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.get_sklearn_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cluster points using given method if found in sklearn.clusters module.
+Use params as a dictionary of parameters passed to the method.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.hkl2d2_matgen">
-<code class="descclassname">soprano.utils.</code><code class="descname">hkl2d2_matgen</code><span class="sig-paren">(</span><em>abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.hkl2d2_matgen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">hkl2d2_matgen</code><span class="sig-paren">(</span><em class="sig-param">abc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.hkl2d2_matgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a matrix that turns hkl indices into inverse crystal
 plane distances for a given lattice in ABC form</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.import_module">
-<code class="descclassname">soprano.utils.</code><code class="descname">import_module</code><span class="sig-paren">(</span><em>mpath</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.import_module" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">import_module</code><span class="sig-paren">(</span><em class="sig-param">mpath</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.import_module" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.inspect_args">
-<code class="descclassname">soprano.utils.</code><code class="descname">inspect_args</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.inspect_args" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">inspect_args</code><span class="sig-paren">(</span><em class="sig-param">f</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.inspect_args" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.inv_plane_dist">
-<code class="descclassname">soprano.utils.</code><code class="descname">inv_plane_dist</code><span class="sig-paren">(</span><em>hkl</em>, <em>hkl2d2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.inv_plane_dist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">inv_plane_dist</code><span class="sig-paren">(</span><em class="sig-param">hkl</em>, <em class="sig-param">hkl2d2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.inv_plane_dist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate inverse planar distance for a given set of
 Miller indices h, k, l.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.is_string">
-<code class="descclassname">soprano.utils.</code><code class="descname">is_string</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.is_string" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">is_string</code><span class="sig-paren">(</span><em class="sig-param">s</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.is_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks whether s is a string, with Python 2 and 3 compatibility</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.list_distance">
-<code class="descclassname">soprano.utils.</code><code class="descname">list_distance</code><span class="sig-paren">(</span><em>l1</em>, <em>l2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.list_distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">list_distance</code><span class="sig-paren">(</span><em class="sig-param">l1</em>, <em class="sig-param">l2</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.list_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an integer distance between two lists (number of differing
 elements)</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.max_distance_in_cell">
-<code class="descclassname">soprano.utils.</code><code class="descname">max_distance_in_cell</code><span class="sig-paren">(</span><em>cell</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.max_distance_in_cell" title="Permalink to this definition">¶</a></dt>
-<dd><p>Maximum distance between two points achievable inside a single unit 
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">max_distance_in_cell</code><span class="sig-paren">(</span><em class="sig-param">cell</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.max_distance_in_cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maximum distance between two points achievable inside a single unit
 cell.
 Relies on the fact that the isosurface for equal distance in cartesian
 space is an ellipsoid, meaning that the extreme has to be one of the 8
@@ -170,7 +235,7 @@ corners of the cube of side 1 in fractional space.</p>
 
 <dl class="function">
 <dt id="soprano.utils.minimum_periodic">
-<code class="descclassname">soprano.utils.</code><code class="descname">minimum_periodic</code><span class="sig-paren">(</span><em>v</em>, <em>latt_cart</em>, <em>exclude_self=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_periodic" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">minimum_periodic</code><span class="sig-paren">(</span><em class="sig-param">v, latt_cart, exclude_self=False, pbc=[True, True, True]</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_periodic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the shortest periodic equivalent vector for a list of vectors and a
 given lattice.</p>
 <div class="line-block">
@@ -186,6 +251,12 @@ given lattice.</p>
 <div class="line">excluded, and its closest non-zero periodic</div>
 <div class="line">version will be considered instead. Default is</div>
 <div class="line">False</div>
+</div>
+<div class="line">pbc ([bool, bool, bool]): periodic boundary conditions - if</div>
+<div class="line-block">
+<div class="line">a boundary is not periodic the</div>
+<div class="line">range returned will always be zero</div>
+<div class="line">in that dimension</div>
 </div>
 </div>
 </div>
@@ -208,7 +279,7 @@ given lattice.</p>
 
 <dl class="function">
 <dt id="soprano.utils.minimum_supcell">
-<code class="descclassname">soprano.utils.</code><code class="descname">minimum_supcell</code><span class="sig-paren">(</span><em>max_r, latt_cart=None, r_matrix=None, pbc=[True, True, True]</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_supcell" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">minimum_supcell</code><span class="sig-paren">(</span><em class="sig-param">max_r, latt_cart=None, r_matrix=None, pbc=[True, True, True]</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.minimum_supcell" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the bounds for a supercell containing a sphere
 of given radius, knowing the unit cell.</p>
 <div class="line-block">
@@ -247,7 +318,7 @@ of given radius, knowing the unit cell.</p>
 
 <dl class="function">
 <dt id="soprano.utils.periodic_bridson">
-<code class="descclassname">soprano.utils.</code><code class="descname">periodic_bridson</code><span class="sig-paren">(</span><em>cell</em>, <em>rmin</em>, <em>max_attempts=30</em>, <em>prepoints=None</em>, <em>prepoints_cuts=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.periodic_bridson" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">periodic_bridson</code><span class="sig-paren">(</span><em class="sig-param">cell</em>, <em class="sig-param">rmin</em>, <em class="sig-param">max_attempts=30</em>, <em class="sig-param">prepoints=None</em>, <em class="sig-param">prepoints_cuts=None</em>, <em class="sig-param">maxblock=1000</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.periodic_bridson" title="Permalink to this definition">¶</a></dt>
 <dd><p>Periodic version of the Bridson algorithm for generation of Poisson
 sphere distributions of points. This returns a generator.</p>
 <div class="line-block">
@@ -268,6 +339,10 @@ sphere distributions of points. This returns a generator.</p>
 <div class="line-block">
 <div class="line">If not included defaults to rmin.</div>
 </div>
+<div class="line">maxblock (int):     maximum size of a grid block to be processed in a</div>
+<div class="line-block">
+<div class="line">single function (used to avoid excess memory use)</div>
+</div>
 </div>
 </div>
 <div class="line-block">
@@ -283,35 +358,8 @@ sphere distributions of points. This returns a generator.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="soprano.utils.periodic_center">
-<code class="descclassname">soprano.utils.</code><code class="descname">periodic_center</code><span class="sig-paren">(</span><em>v_frac</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.periodic_center" title="Permalink to this definition">¶</a></dt>
-<dd><p>Alright, how does this work?
-Basically, we&#8217;re looking for the point, inside the unit cell, which
-minimizes the sum of the squared distance from all ions.
-Of course we need to consider the periodic boundaries. So the distance
-on a single axis isn&#8217;t simply abs(x), but a triangular wave.
-Fun times! A triangular wave can be represented as a Fourier series. And
-we can truncate that series to the first term because the minimum
-basically stays the same and get:
-sum((x-x_i)**2) ~ sum((4/pi**2*sin(2*pi*(x-x_i-1/4))+0.5)**2)
-All the factors depend on the fact that we need to move the triangular
-wave to the interval [0,1] and center it so that it&#8217;s 0 for x-x_i == 0.
-It gets better! We take the derivative of this thing and look for a spot
-where it becomes zero. The derivative is kind of a trigonometric
-monstrosity but we can solve the equation by setting t = e^(2*pi*1.0j*x)
-and then replacing cosines and sines with it. As a result, we get an
-equation of 4th degree in t. And then we solve that with numpy.roots, take
-the phase, turn that into a coordinate, find the one corresponding to the
-absolute minimum.
-All of which we can perform independently on each of the three axes
-because the function is just the sum of the three components:
-sum((r-r_i)**2) = sum((x-x_i)**2) + sum((y-y_i)**2) + sum((z-z_i)**2).
-And there you go! Problem solved.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="soprano.utils.progbar">
-<code class="descclassname">soprano.utils.</code><code class="descname">progbar</code><span class="sig-paren">(</span><em>i</em>, <em>i_max</em>, <em>bar_len=20</em>, <em>spinner=True</em>, <em>spin_rate=3.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.progbar" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">progbar</code><span class="sig-paren">(</span><em class="sig-param">i</em>, <em class="sig-param">i_max</em>, <em class="sig-param">bar_len=20</em>, <em class="sig-param">spinner=True</em>, <em class="sig-param">spin_rate=3.0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.progbar" title="Permalink to this definition">¶</a></dt>
 <dd><p>A textual progress bar for the command line</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -335,14 +383,50 @@ And there you go! Problem solved.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.recursive_mol_label">
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">recursive_mol_label</code><span class="sig-paren">(</span><em class="sig-param">site_i</em>, <em class="sig-param">mol_indices</em>, <em class="sig-param">bonds</em>, <em class="sig-param">elems</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.recursive_mol_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a string for a given atom by traversing the molecular network
+starting with it.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">site_i (int): index of the atom for which the string must be</div>
+<div class="line-block">
+<div class="line">calculated</div>
+</div>
+<div class="line">mol_indices ([int]): indices of all atoms belonging to the molecule</div>
+<div class="line">bonds (dict): dictionary of bonds within the molecule, containing</div>
+<div class="line-block">
+<div class="line">the indices of atoms as keys and lists of all the</div>
+<div class="line">indices of atoms they’re bonded to as values.</div>
+</div>
+<div class="line">elems ([str]): list of element symbols for the entire system (must</div>
+<div class="line-block">
+<div class="line">be returned by ase.Atoms’ get_chemical_symbols, NOT</div>
+<div class="line">follow the order the atoms appear in mol_indices)</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">recursive_label (str): a string representing the molecular network</div>
+<div class="line-block">
+<div class="line">traversed starting from site i</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.rep_alg">
-<code class="descclassname">soprano.utils.</code><code class="descname">rep_alg</code><span class="sig-paren">(</span><em>v</em>, <em>iters=1000</em>, <em>attempts=10</em>, <em>step=0.1</em>, <em>simtol=1e-05</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.rep_alg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">rep_alg</code><span class="sig-paren">(</span><em class="sig-param">v</em>, <em class="sig-param">iters=1000</em>, <em class="sig-param">attempts=10</em>, <em class="sig-param">step=0.1</em>, <em class="sig-param">simtol=1e-05</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.rep_alg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Repulsion algorithm, begins with a series of vectors v, finds a new one
 that is as far as possible, angle-wise, from all of them.
 The process is that of treating the tips of the vectors as particles on a
-sphere which repel each other. Of course, it&#8217;s possible that multiple
+sphere which repel each other. Of course, it’s possible that multiple
 equilibrium positions exist, which is why multiple attempts can be made,
-and are judged identical or not base on a tolerance parameter</p>
+and are judged identical or not based on a tolerance parameter</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
 <div class="line-block">
@@ -352,7 +436,7 @@ and are judged identical or not base on a tolerance parameter</p>
 <div class="line-block">
 <div class="line">default is 10</div>
 </div>
-<div class="line">step (float): step by which the &#8216;particle&#8217; describing the vector will</div>
+<div class="line">step (float): step by which the ‘particle’ describing the vector will</div>
 <div class="line-block">
 <div class="line">be displaced at each iteration during the search.</div>
 <div class="line">Default is 1e-1.</div>
@@ -377,33 +461,39 @@ and are judged identical or not base on a tolerance parameter</p>
 
 <dl class="function">
 <dt id="soprano.utils.replace_folder">
-<code class="descclassname">soprano.utils.</code><code class="descname">replace_folder</code><span class="sig-paren">(</span><em>path</em>, <em>new_folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.replace_folder" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">replace_folder</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">new_folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.replace_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace the folder of the given path with a new one</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.safe_communicate">
-<code class="descclassname">soprano.utils.</code><code class="descname">safe_communicate</code><span class="sig-paren">(</span><em>subproc</em>, <em>stdin=u''</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.safe_communicate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">safe_communicate</code><span class="sig-paren">(</span><em class="sig-param">subproc</em>, <em class="sig-param">stdin=''</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.safe_communicate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes a Popen.communicate and returns output in a way that is
 compatible with Python 2 &amp; 3 keeping input and output as strings (since
 Python 3 requires bytes objects otherwise)</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="soprano.utils.safe_input">
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">safe_input</code><span class="sig-paren">(</span><em class="sig-param">question</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.safe_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ask for user input with Python 2 and 3 compatibility</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="soprano.utils.seedname">
-<code class="descclassname">soprano.utils.</code><code class="descname">seedname</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.seedname" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">seedname</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.seedname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the filename (with no extension) from a full path</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.silence_stdio">
-<code class="descclassname">soprano.utils.</code><code class="descname">silence_stdio</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.silence_stdio" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">silence_stdio</code><span class="sig-paren">(</span><em class="sig-param">silence_stdout=True</em>, <em class="sig-param">silence_stderr=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.silence_stdio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Useful stdout/err silencer</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="soprano.utils.supcell_gridgen">
-<code class="descclassname">soprano.utils.</code><code class="descname">supcell_gridgen</code><span class="sig-paren">(</span><em>latt_cart</em>, <em>shape</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.supcell_gridgen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">supcell_gridgen</code><span class="sig-paren">(</span><em class="sig-param">latt_cart</em>, <em class="sig-param">shape</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.supcell_gridgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a full linearized grid for a supercell with r_bounds
 and a base unit cell in Cartesian form.</p>
 <div class="line-block">
@@ -433,7 +523,7 @@ and a base unit cell in Cartesian form.</p>
 
 <dl class="function">
 <dt id="soprano.utils.swing_twist_decomp">
-<code class="descclassname">soprano.utils.</code><code class="descname">swing_twist_decomp</code><span class="sig-paren">(</span><em>quat</em>, <em>axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.swing_twist_decomp" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">swing_twist_decomp</code><span class="sig-paren">(</span><em class="sig-param">quat</em>, <em class="sig-param">axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.swing_twist_decomp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a Swing*Twist decomposition of a Quaternion. This splits the
 quaternion in two: one containing the rotation around axis (Twist), the
 other containing the rotation around a vector parallel to axis (Swing).</p>
@@ -442,12 +532,12 @@ other containing the rotation around a vector parallel to axis (Swing).</p>
 
 <dl class="function">
 <dt id="soprano.utils.wigner_3j">
-<code class="descclassname">soprano.utils.</code><code class="descname">wigner_3j</code><span class="sig-paren">(</span><em>j1</em>, <em>m1</em>, <em>j2</em>, <em>m2</em>, <em>j3</em>, <em>m3</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.wigner_3j" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">soprano.utils.</code><code class="sig-name descname">wigner_3j</code><span class="sig-paren">(</span><em class="sig-param">j1</em>, <em class="sig-param">m1</em>, <em class="sig-param">j2</em>, <em class="sig-param">m2</em>, <em class="sig-param">j3</em>, <em class="sig-param">m3</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.utils.wigner_3j" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wigner 3j symbols for given quantum numbers:</p>
 <p>/                     | j1    j2     j3 |
 | m1    m2     m3 |
                 /</p>
-<p>The numbers passed can be arrays (just make sure they&#8217;re the
+<p>The numbers passed can be arrays (just make sure they’re the
 same size).</p>
 </dd></dl>
 
@@ -459,7 +549,7 @@ same size).</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -473,20 +563,20 @@ same size).</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.utils.txt"
+      <li><a href="../_sources/doctree/soprano.utils.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -510,7 +600,7 @@ same size).</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>

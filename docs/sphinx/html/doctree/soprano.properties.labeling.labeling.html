@@ -1,37 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.properties.labeling.labeling module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano.properties.labeling package" href="soprano.properties.labeling.html" />
     <link rel="next" title="soprano.properties.linkage package" href="soprano.properties.linkage.html" />
     <link rel="prev" title="soprano.properties.labeling package" href="soprano.properties.labeling.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -65,11 +53,11 @@
 <p>Implementation of AtomsProperties that relate to labeling of systems</p>
 <dl class="class">
 <dt id="soprano.properties.labeling.labeling.CarbonHybridationState">
-<em class="property">class </em><code class="descclassname">soprano.properties.labeling.labeling.</code><code class="descname">CarbonHybridationState</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.labeling.labeling.</code><code class="sig-name descname">CarbonHybridationState</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Returns an integer indicating the hybridation state of any given carbon
 atom in a system, 1, 2, or 3 for sp1, sp2 or sp3, obtained by counting its
-bonds. For non-carbon atoms or carbon atoms that can&#8217;t be identified
+bonds. For non-carbon atoms or carbon atoms that can’t be identified
 returns 0.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
@@ -107,28 +95,48 @@ only argument to get the property with the given parameters.</p>
 </div>
 <dl class="attribute">
 <dt id="soprano.properties.labeling.labeling.CarbonHybridationState.default_name">
-<code class="descname">default_name</code><em class="property"> = u'carbon_hybridation_state'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState.default_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_name</code><em class="property"> = 'carbon_hybridation_state'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="soprano.properties.labeling.labeling.CarbonHybridationState.default_params">
-<code class="descname">default_params</code><em class="property"> = {u'save_info': True, u'bonds': None}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState.default_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_params</code><em class="property"> = {'bonds': None, 'save_info': True}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="soprano.properties.labeling.labeling.CarbonHybridationState.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>bonds</em>, <em>save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">bonds</em>, <em class="sig-param">save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.CarbonHybridationState.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="soprano.properties.labeling.labeling.HydrogenBondTypes">
-<em class="property">class </em><code class="descclassname">soprano.properties.labeling.labeling.</code><code class="descname">HydrogenBondTypes</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.labeling.labeling.</code><code class="sig-name descname">HydrogenBondTypes</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Assign MoleculeSites labels to atoms, then characterise existing hydrogen
 bonds based on them, and return a list of such bonds detected in a system.
-The bonds come in the form &#8216;{0}&lt;{1},{2}&gt;..{3}&lt;{4}&gt;&#8217;, where {0} is the name
+The bonds come in the form ‘{0}&lt;{1},{2}&gt;..{3}&lt;{4}&gt;’, where {0} is the name
 of the molecule containing the hydrogen, {2} is the hydrogen, {1} the atom
 to which the hydrogen is bonded, {3} the name of the other molecule and
 {4} the atom to which the hydrogen is hydrogen bonded.</p>
@@ -171,28 +179,48 @@ only argument to get the property with the given parameters.</p>
 </div>
 <dl class="attribute">
 <dt id="soprano.properties.labeling.labeling.HydrogenBondTypes.default_name">
-<code class="descname">default_name</code><em class="property"> = u'hydrogen_bond_types'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.default_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_name</code><em class="property"> = 'hydrogen_bond_types'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="soprano.properties.labeling.labeling.HydrogenBondTypes.default_params">
-<code class="descname">default_params</code><em class="property"> = {u'force_recalc': False, u'save_info': True}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.default_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'save_info': True}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="soprano.properties.labeling.labeling.HydrogenBondTypes.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em>, <em>save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.HydrogenBondTypes.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="soprano.properties.labeling.labeling.MoleculeSites">
-<em class="property">class </em><code class="descclassname">soprano.properties.labeling.labeling.</code><code class="descname">MoleculeSites</code><span class="sig-paren">(</span><em>name=None</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
-<p>Assigns univoque labels to atoms belonging to molecules by exploiting
-network topology. Atoms can have the same label, but only if they&#8217;re
-fundamentally indistinguishable in the molecule&#8217;s chemical context
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.labeling.labeling.</code><code class="sig-name descname">MoleculeSites</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Assigns unique labels to atoms belonging to molecules by exploiting
+network topology. Atoms can have the same label, but only if they’re
+fundamentally indistinguishable in the molecule’s chemical context
 (for example, three hydrogen atoms on a CH3 group). The molecule will be
 described by a characteristic string and by a series of labels in the
 format [element]_[number]. These sites will be saved by default and can
@@ -219,7 +247,7 @@ be used for better insight when carrying out other analysis.</p>
 <div class="line-block">
 <div class="line">molecular_sites (dict): A dictionary containing info characterising</div>
 <div class="line-block">
-<div class="line">the molecule&#8217;s chemical sites unequivocally.</div>
+<div class="line">the molecule’s chemical sites unequivocally.</div>
 <div class="line">These are a string representation of the</div>
 <div class="line">molecule itself and a dictionary linking</div>
 <div class="line">atomic indices (as found in the molecule in</div>
@@ -243,18 +271,125 @@ only argument to get the property with the given parameters.</p>
 </div>
 <dl class="attribute">
 <dt id="soprano.properties.labeling.labeling.MoleculeSites.default_name">
-<code class="descname">default_name</code><em class="property"> = u'molecule_sites'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.default_name" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_sites'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
 <dt id="soprano.properties.labeling.labeling.MoleculeSites.default_params">
-<code class="descname">default_params</code><em class="property"> = {u'force_recalc': False, u'save_info': True, u'save_asarray': False}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.default_params" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'save_asarray': False, 'save_info': True}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="soprano.properties.labeling.labeling.MoleculeSites.extract">
-<em class="property">static </em><code class="descname">extract</code><span class="sig-paren">(</span><em>s</em>, <em>force_recalc</em>, <em>save_info</em>, <em>save_asarray</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.extract" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">save_info</em>, <em class="sig-param">save_asarray</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.MoleculeSites.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="soprano.properties.labeling.labeling.SiteLabels">
+<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.labeling.labeling.</code><code class="sig-name descname">SiteLabels</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.SiteLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Compute a unique label for an for an atom belonging to a molecule by 
+exploiting network topology. Atoms can have the same label, but only if
+they’re fundamentally indistinguishable in the molecule’s chemical context
+(for example, three hydrogen atoms on a CH3 group). The label describes 
+the molecular network as traversed starting from the given site, with each
+pair of square brackets indicating the traversal of a further bond, and 
+all paths kept to the shortest possible.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+<div class="line">sites (list[int]): the sites for which the label have to be calculated.</div>
+<div class="line-block">
+<div class="line">If not given, all of them are calculated.</div>
+</div>
+<div class="line">custom_symbol (str): if present, replace the usual chemical symbol</div>
+<div class="line-block">
+<div class="line">with a custom name for the site on which the</div>
+<div class="line">label is being calculated, to make it</div>
+<div class="line">distinguishable from equivalent elements.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">site_labels (list[str]): A list of the computed site labels</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="attribute">
+<dt id="soprano.properties.labeling.labeling.SiteLabels.default_name">
+<code class="sig-name descname">default_name</code><em class="property"> = 'site_labels'</em><a class="headerlink" href="#soprano.properties.labeling.labeling.SiteLabels.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="soprano.properties.labeling.labeling.SiteLabels.default_params">
+<code class="sig-name descname">default_params</code><em class="property"> = {'custom_symbol': None, 'force_recalc': False, 'sites': None}</em><a class="headerlink" href="#soprano.properties.labeling.labeling.SiteLabels.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="soprano.properties.labeling.labeling.SiteLabels.extract">
+<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">sites</em>, <em class="sig-param">custom_symbol</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.labeling.labeling.SiteLabels.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
@@ -266,7 +401,7 @@ only argument to get the property with the given parameters.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -283,20 +418,20 @@ only argument to get the property with the given parameters.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.properties.labeling.labeling.txt"
+      <li><a href="../_sources/doctree/soprano.properties.labeling.labeling.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -325,7 +460,7 @@ only argument to get the property with the given parameters.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>

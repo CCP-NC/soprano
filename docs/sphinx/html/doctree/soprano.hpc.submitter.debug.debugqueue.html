@@ -1,37 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
+    <meta charset="utf-8" />
     <title>soprano.hpc.submitter.debug.debugqueue module &#8212; Soprano beta (Boggess) documentation</title>
-    
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     'beta (Boggess)',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Soprano beta (Boggess) documentation" href="../index.html" />
-    <link rel="up" title="soprano.hpc.submitter.debug package" href="soprano.hpc.submitter.debug.html" />
     <link rel="next" title="soprano.hpc.submitter.castep module" href="soprano.hpc.submitter.castep.html" />
     <link rel="prev" title="soprano.hpc.submitter.debug package" href="soprano.hpc.submitter.debug.html" /> 
-  </head>
-  <body role="document">
+  </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -66,23 +54,23 @@
 <p>Definition of a fake QueueInterface class, useful for debugging Submitters.</p>
 <dl class="class">
 <dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface">
-<em class="property">class </em><code class="descclassname">soprano.hpc.submitter.debug.debugqueue.</code><code class="descname">DebugQueueInterface</code><span class="sig-paren">(</span><em>dt=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.queues.html#soprano.hpc.submitter.queues.QueueInterface" title="soprano.hpc.submitter.queues.QueueInterface"><code class="xref py py-class docutils literal"><span class="pre">soprano.hpc.submitter.queues.QueueInterface</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">soprano.hpc.submitter.debug.debugqueue.</code><code class="sig-name descname">DebugQueueInterface</code><span class="sig-paren">(</span><em class="sig-param">dt=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.queues.html#soprano.hpc.submitter.queues.QueueInterface" title="soprano.hpc.submitter.queues.QueueInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.hpc.submitter.queues.QueueInterface</span></code></a></p>
 <p>DebugQueueInterface object</p>
 <p>A class meant to emulate a QueueInterface while doing absolutely nothing
-of what it does. Jobs are simply stored locally, there&#8217;s a fixed waiting
+of what it does. Jobs are simply stored locally, there’s a fixed waiting
 time, and are then executed. Ideally they should be simple, quick stuff
 (like an echo command). No guarantees for actually long jobs.</p>
 <p>In the submitted script a syntax for additional variables is allowed,
 similar to real queue systems. These follow the convention of many engines
 of having to start with #$. For example</p>
 <p>#$ WAIT 10</p>
-<p>means the job will be put in a &#8220;wait&#8221; state for 10 seconds. The currently
+<p>means the job will be put in a “wait” state for 10 seconds. The currently
 available variables are:</p>
-<p>WAIT - specify how long the job has to stay in a &#8220;wait&#8221; state. If two
+<p>WAIT - specify how long the job has to stay in a “wait” state. If two
 values are provided, these are considered bounds for a random number
 RUN - same as above, but for the running state. This has no bearing on the
-<em>actual</em> running time (it&#8217;s suggested that it&#8217;s something very quick)</p>
+<em>actual</em> running time (it’s suggested that it’s something very quick)</p>
 <p>Initialize the DebugQueueInterface.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -92,7 +80,7 @@ RUN - same as above, but for the running state. This has no bearing on the
 </div>
 <dl class="method">
 <dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill">
-<code class="descname">kill</code><span class="sig-paren">(</span><em>job_id</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">kill</code><span class="sig-paren">(</span><em class="sig-param">job_id</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kill the job with the given ID</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -105,7 +93,7 @@ RUN - same as above, but for the running state. This has no bearing on the
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list">
-<code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List all jobs found in the queue</p>
 <div class="line-block">
 <div class="line">Returns:</div>
@@ -121,7 +109,7 @@ RUN - same as above, but for the running state. This has no bearing on the
 
 <dl class="method">
 <dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit">
-<code class="descname">submit</code><span class="sig-paren">(</span><em>script</em>, <em>cwd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">submit</code><span class="sig-paren">(</span><em class="sig-param">script</em>, <em class="sig-param">cwd=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Submit a job to the queue.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -150,7 +138,7 @@ RUN - same as above, but for the running state. This has no bearing on the
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+<h3><a href="../index.html">Table of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">soprano</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="soprano.html">soprano package</a></li>
@@ -167,20 +155,20 @@ RUN - same as above, but for the running state. This has no bearing on the
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/doctree/soprano.hpc.submitter.debug.debugqueue.txt"
+      <li><a href="../_sources/doctree/soprano.hpc.submitter.debug.debugqueue.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -210,7 +198,7 @@ RUN - same as above, but for the running state. This has no bearing on the
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
     </div>
   </body>
 </html>
