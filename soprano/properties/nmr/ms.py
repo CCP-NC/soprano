@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 import numpy as np
 from soprano.properties import AtomsProperty
 from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                                          _span, _skew, _evecs_2_quat)
+                               _span, _skew, _evecs_2_quat)
 
 
 def _has_ms_check(f):

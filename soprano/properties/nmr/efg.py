@@ -27,7 +27,7 @@ import numpy as np
 from scipy import constants as cnst
 from soprano.properties import AtomsProperty
 from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                                          _span, _skew, _evecs_2_quat)
+                               _span, _skew, _evecs_2_quat)
 from soprano.data.nmr import _get_nmr_data, _get_isotope_data, EFG_TO_CHI
 
 

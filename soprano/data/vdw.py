@@ -43,15 +43,17 @@ def _load_vdw(name):
 
     return _vdw_radii
 
+
 vdw_radii = {
     'ase': _vdw_radii_ase,
     'jmol': _load_vdw('jmol'),
     'csd': _load_vdw('csd')
 }
 
+
 def vdw_radius(el, vdwset='csd'):
     """Return Van der Waals radius for a certain element
-        
+
     Return a Van der Waals radius for a given element, as taken from one
     of three available databases:
 
@@ -60,7 +62,7 @@ def vdw_radius(el, vdwset='csd'):
     territories", Dalton Trans. 42, 8617 (2013) [default]
     - jmol: extracted from the source code of JMol
     - ase:  default set for the Atomic Simulation Environment
-    
+
 
     | Args:
     |   el (str):       element symbol
@@ -76,4 +78,3 @@ def vdw_radius(el, vdwset='csd'):
         raise ValueError('Invalid element symbol')
 
     return vdw_radii[vdwset][Z]
-
