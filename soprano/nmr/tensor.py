@@ -42,8 +42,8 @@ class NMRTensor(object):
             data (np.ndarray):  3x3 matrix containing the tensor
         """
 
-        self._data = data
-        self._symm = (data+data.T)/2.0
+        self._data = np.array(data)
+        self._symm = (self._data+self._data.T)/2.0
 
         # Diagonalise tensor
         evals, evecs = np.linalg.eigh(self._symm)
@@ -59,7 +59,7 @@ class NMRTensor(object):
 
         # Spherical tensor components
         self._sph0 = np.eye(3)*self.trace/3
-        self._sph1 = (data-data.T)/2.0
+        self._sph1 = (self._data-self._data.T)/2.0
         self._sph2 = self._symm - self._sph0
 
         self._evals = evals
