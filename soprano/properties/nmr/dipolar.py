@@ -161,6 +161,88 @@ class DipolarCoupling(AtomsProperty):
         return {tuple(ij): [d_ij[l], v_ij[l]] for l, ij in enumerate(pairs.T)}
 
 
+class DipolarTensor(AtomsProperty):
+
+    """
+    DipolarTensor
+
+    Produces a dictionary of dipole-dipole coupling tensors for atom pairs
+    in the system. For each pair, the closest periodic copy will be considered.
+    The coupling constant for a pair of nuclei i and j is defined as:
+
+    .. math::
+
+        d_{ij} = -\\frac{\\mu_0\\hbar\\gamma_i\\gamma_j}{8\\pi^2r_{ij}^3}
+
+    where the gammas represent the gyromagnetic ratios of the nuclei and the
+    r is their distance. The full tensor of the interaction is then defined as
+
+    .. math::
+
+         D_{ij} = d_{ij}\\frac{3\\hat{r}_{ij}\\otimes \\hat{r}_{ij}-\\mathbb{I}}{2}
+
+    where :math:`\\hat{r}_{ij} = r_{ij}/|r_{ij}|` and the Kronecker product is
+    used.
+
+    | Parameters:
+    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+    |                                   for which to compute the dipolar
+    |                                   coupling. By default is None
+    |                                   (= all of them).
+    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+    |                                   for which to compute the dipolar
+    |                                   coupling with the ones in sel_i. By
+    |                                   default is None (= same as sel_i).
+    |   isotopes (dict): dictionary of specific isotopes to use, by element
+    |                    symbol. If the isotope doesn't exist an error will
+    |                    be raised.
+    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
+    |                        different atoms of the same element are supposed
+    |                        to be of different isotopes. Where a 'None' is
+    |                        present will fall back on the previous
+    |                        definitions. Where an isotope is present it
+    |                        overrides everything else.
+    |   self_coupling (bool): if True, include coupling of a nucleus with its
+    |                         own closest periodic copy. Otherwise excluded.
+    |                         Default is False.
+    |   block_size (int): maximum size of blocks used when processing large
+    |                     chunks of pairs. Necessary to avoid memory problems
+    |                     for very large systems. Default is 1000.
+
+    | Returns: 
+    |   dip_dict (dict): Dictionary of tensors in Hz by atomic index pair.
+
+    """
+
+    default_name = 'dip_coupling'
+    default_params = {
+        'sel_i': None,
+        'sel_j': None,
+        'isotopes': {},
+        'isotope_list': None,
+        'self_coupling': False,
+        'block_size': 1000,
+    }
+
+    @staticmethod
+    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
+                block_size):
+
+        dip_dict = DipolarCoupling.extract(s,
+                                           sel_i=sel_i, sel_j=sel_j,
+                                           isotopes=isotopes,
+                                           isotope_list=isotope_list,
+                                           self_coupling=self_coupling,
+                                           block_size=block_size)
+
+        # Now build the tensors
+        tdict = {}
+        for ij, (d, r) in dip_dict.items():
+            tdict[ij] = d*(3*r[:, None]*r[None, :]-np.eye(3))/2
+
+        return tdict
+
+
 class DipolarDiagonal(AtomsProperty):
 
     """

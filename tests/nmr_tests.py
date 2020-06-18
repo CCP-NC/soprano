@@ -21,7 +21,7 @@ from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
                                     EFGVzz, EFGAsymmetry,
                                     EFGQuadrupolarConstant,
                                     EFGQuaternion, DipolarCoupling,
-                                    DipolarDiagonal)
+                                    DipolarDiagonal, DipolarTensor)
 from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -101,6 +101,7 @@ class TestNMR(unittest.TestCase):
             data = f.readlines()[8:]
 
         dip = DipolarCoupling.get(eth)
+        diptens = DipolarTensor.get(eth)
         dipdiag = DipolarDiagonal.get(eth)
 
         # Magres labels
@@ -134,6 +135,13 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(np.dot(evecs[:, 2], v), 1)
             self.assertTrue(np.isclose(np.dot(evecs.T, evecs),
                                        np.eye(3)).all())
+
+            # Further test the full tensors
+            evalstt = np.linalg.eigh(diptens[ij])[0]
+            self.assertTrue(np.isclose(np.sort(evals),
+                                       np.sort(evalstt)).all())
+            self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij], v]),
+                                   d)
 
     def test_tensor(self):
 
