@@ -62,6 +62,8 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(np.all(c1.get_array('dummy') == [2, 4]))
         self.assertTrue(np.all(c2.get_array('doubledummy') == [8, 4]))
 
+        # And with additional arguments...
+        self.assertTrue(np.all(DummyProperty.get(c1, mul=3) == [3, 6]))
 
     def test_basicprop(self):
 

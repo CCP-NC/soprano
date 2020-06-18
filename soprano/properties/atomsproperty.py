@@ -82,7 +82,7 @@ class AtomsProperty(object):
         """
 
         if isinstance(s, AtomsCollection):
-            arr = s.all.map(self.get)
+            arr = s.all.map(self.get, **kwargs)
             if store_array:
                 s.set_array(self.default_name, arr)
             return arr
