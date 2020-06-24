@@ -47,8 +47,11 @@ def _anisotropy(haeb_evals, reduced=False):
 def _asymmetry(haeb_evals):
     """Calculate asymmetry"""
 
-    return (haeb_evals[:, 1]-haeb_evals[:, 0])/_anisotropy(haeb_evals,
-                                                           reduced=True)
+    aniso = _anisotropy(haeb_evals, reduced=True)
+    if (aniso != 0):
+        return (haeb_evals[:, 1]-haeb_evals[:, 0])/aniso
+    else:
+        return haeb_evals[:, 0]*0
 
 
 def _span(evals):
@@ -60,10 +63,15 @@ def _span(evals):
 def _skew(evals):
     """Calculate skew"""
 
-    return 3*(np.median(evals,
-                        axis=1) -
-              np.average(evals,
-                         axis=1))/_span(evals)
+    span = _span(evals)
+
+    if (span != 0):
+        return 3*(np.median(evals,
+                            axis=1) -
+                  np.average(evals,
+                             axis=1))/span
+    else:
+        return evals[:, 0]*0
 
 
 def _evecs_2_quat(evecs):
