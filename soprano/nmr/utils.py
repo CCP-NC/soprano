@@ -25,14 +25,18 @@ from ase.quaternions import Quaternion
 from soprano.data.nmr import (_get_isotope_data, _get_nmr_data, _el_iso)
 
 
-def _haeb_sort(evals):
+def _haeb_sort(evals, return_indices=False):
     """Sort a list of eigenvalue triplets by Haeberlen convention"""
     evals = np.array(evals)
     iso = np.average(evals, axis=1)
     sort_i = np.argsort(np.abs(evals-iso[:, None]),
                         axis=1)[:, [1, 0, 2]]
-    return evals[np.arange(evals.shape[0])[:, None],
-                 sort_i]
+    haeb_evals = evals[np.arange(evals.shape[0])[:, None],
+                       sort_i]
+    if not return_indices:
+        return haeb_evals
+    else:
+        return haeb_evals, sort_i
 
 
 def _anisotropy(haeb_evals, reduced=False):
@@ -48,10 +52,10 @@ def _asymmetry(haeb_evals):
     """Calculate asymmetry"""
 
     aniso = _anisotropy(haeb_evals, reduced=True)
-    if (aniso != 0):
-        return (haeb_evals[:, 1]-haeb_evals[:, 0])/aniso
-    else:
-        return haeb_evals[:, 0]*0
+    # Fix the anisotropy zero values
+    aniso = np.where(aniso == 0, np.inf, aniso)
+
+    return (haeb_evals[:, 1]-haeb_evals[:, 0])/aniso
 
 
 def _span(evals):
@@ -64,14 +68,11 @@ def _skew(evals):
     """Calculate skew"""
 
     span = _span(evals)
-
-    if (span != 0):
-        return 3*(np.median(evals,
-                            axis=1) -
-                  np.average(evals,
-                             axis=1))/span
-    else:
-        return evals[:, 0]*0
+    span = np.where(span == 0, np.inf, span)
+    return 3*(np.median(evals,
+                        axis=1) -
+              np.average(evals,
+                         axis=1))/span
 
 
 def _evecs_2_quat(evecs):
