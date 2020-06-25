@@ -23,6 +23,7 @@ import numpy as np
 from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry, _span,
                                _skew, _evecs_2_quat, _dip_constant)
 from soprano.data.nmr import _get_isotope_data
+from ase.quaternions import Quaternion
 
 
 class NMRTensor(object):
@@ -48,12 +49,12 @@ class NMRTensor(object):
         # Diagonalise tensor
         evals, evecs = np.linalg.eigh(self._symm)
 
-        self._haeb_evals = _haeb_sort([evals])
+        self._haeb_evals, self._haeb_inds = _haeb_sort([evals], True)
         self._anisotropy = _anisotropy(self._haeb_evals)[0]
         self._redaniso = _anisotropy(self._haeb_evals, True)[0]
         self._asymmetry = _asymmetry(self._haeb_evals)[0]
-        self._span = _span(evals[None,:])[0]
-        self._skew = _skew(evals[None,:])[0]
+        self._span = _span(evals[None, :])[0]
+        self._skew = _skew(evals[None, :])[0]
 
         self._trace = np.trace(data)
 
@@ -61,6 +62,8 @@ class NMRTensor(object):
         self._sph0 = np.eye(3)*self.trace/3
         self._sph1 = (self._data-self._data.T)/2.0
         self._sph2 = self._symm - self._sph0
+
+        evecs[:, 2] = np.cross(evecs[:, 0], evecs[:, 1])
 
         self._evals = evals
         self._evecs = evecs
@@ -82,6 +85,12 @@ class NMRTensor(object):
     @property
     def eigenvectors(self):
         return self._evecs
+
+    @property
+    def haeb_eigenvectors(self):
+        h_evecs = self._evecs[:, self._haeb_inds[0]]
+        h_evecs[:, 2] = np.cross(h_evecs[:, 0], h_evecs[:, 1])
+        return h_evecs
 
     @property
     def trace(self):
@@ -118,6 +127,23 @@ class NMRTensor(object):
     @property
     def spherical_repr(self):
         return [self._sph0, self._sph1, self._sph2]
+
+    def euler_angles(self, convention='zyz'):
+        """Return Euler angles of the Principal Axis System
+
+        Return Euler angles of the PAS for this tensor in the
+        required convention (currently supported: zyz, zxz).
+
+        Keyword Arguments:
+            convention {str} -- Euler angles convention to use
+            (default: {'zyz'})
+        """
+
+        convention = convention.lower()
+
+        return Quaternion.from_matrix(self._evecs.T).euler_angles(convention)
+
+        pass
 
     @staticmethod
     def make_dipolar(a, i, j, cell=[0, 0, 0], isotopes={}, isotope_i=None,

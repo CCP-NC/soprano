@@ -155,15 +155,25 @@ class TestNMR(unittest.TestCase):
         span = MSSpan.get(eth)
         skew = MSSkew.get(eth)
 
+        # Get the eigenvalues
+        diag = [np.linalg.eigh((m+m.T)/2.0) for m in ms]
+
         for i in range(len(eth)):
 
             ms_tens = NMRTensor(ms[i])
+            evals, evecs = diag[i]
+
             self.assertAlmostEqual(iso[i], ms_tens.isotropy)
             self.assertAlmostEqual(aniso[i], ms_tens.anisotropy)
             self.assertAlmostEqual(r_aniso[i], ms_tens.reduced_anisotropy)
             self.assertAlmostEqual(asymm[i], ms_tens.asymmetry)
             self.assertAlmostEqual(span[i], ms_tens.span)
             self.assertAlmostEqual(skew[i], ms_tens.skew)
+
+            self.assertTrue(np.isclose(evals, ms_tens.eigenvalues).all())
+            self.assertAlmostEqual(np.dot(np.cross(ms_tens.eigenvectors[:, 0],
+                                                   ms_tens.eigenvectors[:, 1]),
+                                          ms_tens.eigenvectors[:, 2]), 1)
 
 
 if __name__ == '__main__':
