@@ -159,7 +159,7 @@ def hkl2d2_matgen(abc):
     b2c2 = (abc[0, 1]*abc[0, 2])**2.0
     abc_prod = np.prod(abc[0, :])
 
-    hkl2d2 = np.matrix([[b2c2*sin[0]**2.0,
+    hkl2d2 = np.array([[b2c2*sin[0]**2.0,
                          abc_prod*abc[0, 2]*(cos[0]*cos[1]-cos[2]),
                          abc_prod*abc[0, 1]*(cos[0]*cos[2]-cos[1])],
                         [abc_prod*abc[0, 2]*(cos[0]*cos[1]-cos[2]),

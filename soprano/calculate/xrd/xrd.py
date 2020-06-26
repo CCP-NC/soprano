@@ -268,7 +268,7 @@ class XRDCalculator(object):
         hkl_unique = hkl_grid[:, unique_sorting[1]].T
         invd = inv_d_grid[unique_sorting[1]]
         xpeaks = XraySpectrum(unique_sorting[0],
-                              np.array(hkl_sorted),
+                              np.array(hkl_sorted, dtype=object),
                               hkl_unique,
                               invd,
                               np.ones(peak_n),

@@ -120,7 +120,7 @@ def _find_wyckoff_points(a, symprec=1e-5):
             raise RuntimeError('Invalid symmetry operation')
         invLoci.append((dof, v))
 
-    invLoci = np.array(invLoci)
+    invLoci = np.array(invLoci, dtype=object)
 
     # A grid of candidate Wyckoff points: they always come in
     # fractions n/24
