@@ -25,18 +25,33 @@ from ase.quaternions import Quaternion
 from soprano.data.nmr import (_get_isotope_data, _get_nmr_data, _el_iso)
 
 
-def _haeb_sort(evals, return_indices=False):
-    """Sort a list of eigenvalue triplets by Haeberlen convention"""
+def _evals_sort(evals, convention='c', return_indices=False):
+    """Sort a list of eigenvalue triplets by varios conventions"""
     evals = np.array(evals)
     iso = np.average(evals, axis=1)
-    sort_i = np.argsort(np.abs(evals-iso[:, None]),
-                        axis=1)[:, [1, 0, 2]]
-    haeb_evals = evals[np.arange(evals.shape[0])[:, None],
-                       sort_i]
+
+    ind_order = [0, 1, 2]
+    if convention in ('i', 'd'):
+        to_sort = evals
+        if convention == 'd':
+            ind_order = [2, 1, 0]
+    elif convention in ('h', 'n'):
+        to_sort = np.abs(evals-iso[:, None])
+        if convention == 'h':
+            ind_order = [1, 0, 2]
+
+    sort_i = np.argsort(to_sort,
+                        axis=1)[:, ind_order]
+    sorted_evals = evals[np.arange(evals.shape[0])[:, None],
+                         sort_i]
     if not return_indices:
-        return haeb_evals
+        return sorted_evals
     else:
-        return haeb_evals, sort_i
+        return sorted_evals, sort_i
+
+
+def _haeb_sort(evals, return_indices=False):
+    return _evals_sort(evals, 'h', return_indices)
 
 
 def _anisotropy(haeb_evals, reduced=False):

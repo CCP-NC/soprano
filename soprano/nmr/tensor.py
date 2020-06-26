@@ -20,8 +20,9 @@ NMR tensor as well as its representation in multiple conventions
 """
 
 import numpy as np
-from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry, _span,
-                               _skew, _evecs_2_quat, _dip_constant)
+from soprano.nmr.utils import (_evals_sort, _haeb_sort, _anisotropy,
+                               _asymmetry, _span, _skew, _evecs_2_quat,
+                               _dip_constant)
 from soprano.data.nmr import _get_isotope_data
 from ase.quaternions import Quaternion
 
@@ -33,7 +34,12 @@ class NMRTensor(object):
     properties and representations.
     """
 
-    def __init__(self, data):
+    ORDER_INCREASING = 'i'
+    ORDER_DECREASING = 'd'
+    ORDER_HAEBERLEN = 'h'
+    ORDER_NQR = 'n'
+
+    def __init__(self, data, order=ORDER_INCREASING):
         """
         Initialise the NMRTensor
 
@@ -44,15 +50,16 @@ class NMRTensor(object):
         """
 
         self._data = np.array(data)
+        self._order = order
         self._symm = (self._data+self._data.T)/2.0
 
         # Diagonalise tensor
         evals, evecs = np.linalg.eigh(self._symm)
 
-        self._haeb_evals, self._haeb_inds = _haeb_sort([evals], True)
-        self._anisotropy = _anisotropy(self._haeb_evals)[0]
-        self._redaniso = _anisotropy(self._haeb_evals, True)[0]
-        self._asymmetry = _asymmetry(self._haeb_evals)[0]
+        _haeb_evals = _haeb_sort([evals])[0]
+        self._anisotropy = _anisotropy(_haeb_evals[None, :])[0]
+        self._redaniso = _anisotropy(_haeb_evals[None, :], True)[0]
+        self._asymmetry = _asymmetry(_haeb_evals[None, :])[0]
         self._span = _span(evals[None, :])[0]
         self._skew = _skew(evals[None, :])[0]
 
@@ -63,12 +70,13 @@ class NMRTensor(object):
         self._sph1 = (self._data-self._data.T)/2.0
         self._sph2 = self._symm - self._sph0
 
-        evecs[:, 2] = np.cross(evecs[:, 0], evecs[:, 1])
+        # Sort eigenvalues and eigenvectors as specified
+        self._evals, sort_i = _evals_sort([evals], order, True)
+        self._evals = self._evals[0]
+        self._evecs = evecs[:, sort_i[0]]
+        self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
 
-        self._evals = evals
-        self._evecs = evecs
-
-        self._quat = _evecs_2_quat([evecs])[0]
+        self._quat = _evecs_2_quat([self._evecs])[0]
 
     @property
     def data(self):
@@ -79,18 +87,8 @@ class NMRTensor(object):
         return self._evals
 
     @property
-    def haeb_eigenvalues(self):
-        return self._haeb_evals[0]
-
-    @property
     def eigenvectors(self):
         return self._evecs
-
-    @property
-    def haeb_eigenvectors(self):
-        h_evecs = self._evecs[:, self._haeb_inds[0]]
-        h_evecs[:, 2] = np.cross(h_evecs[:, 0], h_evecs[:, 1])
-        return h_evecs
 
     @property
     def trace(self):
@@ -141,7 +139,7 @@ class NMRTensor(object):
 
         convention = convention.lower()
 
-        return Quaternion.from_matrix(self._evecs.T).euler_angles(convention)
+        return self.quaternion.euler_angles(convention)
 
         pass
 

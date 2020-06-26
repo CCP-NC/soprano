@@ -175,6 +175,21 @@ class TestNMR(unittest.TestCase):
                                                    ms_tens.eigenvectors[:, 1]),
                                           ms_tens.eigenvectors[:, 2]), 1)
 
+        # Let's now try various conventions
+        data = np.diag([1, 2, -6])
+
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        self.assertTrue(np.allclose(tc.eigenvalues, [-6, 1, 2]))
+
+        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
+        self.assertTrue(np.allclose(td.eigenvalues, [2, 1, -6]))
+
+        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
+        self.assertTrue(np.allclose(th.eigenvalues, [2, 1, -6]))
+
+        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        self.assertTrue(np.allclose(tn.eigenvalues, [1, 2, -6]))
+
 
 if __name__ == '__main__':
     unittest.main()
