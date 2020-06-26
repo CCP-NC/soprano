@@ -145,7 +145,7 @@ class NMRTensor(object):
 
     @staticmethod
     def make_dipolar(a, i, j, cell=[0, 0, 0], isotopes={}, isotope_i=None,
-                     isotope_j=None):
+                     isotope_j=None, rotation_axis=None):
         """Create a dipolar NMRTensor
 
         Create a dipolar NMR tensor from an atoms object and the indices
@@ -168,6 +168,10 @@ class NMRTensor(object):
         |                    back on the previous definitions. Otherwise it
         |                    overrides everything else.
         |   isotope_j (int): isotope of atom j. See above.
+        |   rotation_axis (np.array):   an axis around which the selected pair
+        |                               is rotating. If present, the tensor
+        |                               will be averaged for infinitely fast
+        |                               rotation around it.
 
         | Returns:
         |   diptens (NMRTensor):    an NMRTensor object with the dipolar 
@@ -182,6 +186,13 @@ class NMRTensor(object):
                                    isotope_list=[isotope_i, isotope_j])
 
         d = _dip_constant(np.linalg.norm(r)*1e-10, *gammas)
-        D = d*(3*r[:, None]*r[None, :]-np.eye(3))/2.0
+
+        if rotation_axis is None:
+            D = d*(3*r[:, None]*r[None, :]-np.eye(3))/2.0
+        else:
+            a = np.array(rotation_axis)
+            a /= np.linalg.norm(a)
+            vp2 = (np.dot(r, a)/np.linalg.norm(r))**2
+            D = 0.5*d*(3*vp2-1)*(1.5*a[:, None]*a[None, :]-0.5*np.eye(3))
 
         return NMRTensor(D)

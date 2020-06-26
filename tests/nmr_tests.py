@@ -190,6 +190,36 @@ class TestNMR(unittest.TestCase):
         tn = NMRTensor(data, NMRTensor.ORDER_NQR)
         self.assertTrue(np.allclose(tn.eigenvalues, [1, 2, -6]))
 
+    def test_diprotavg(self):
+        # Test dipolar rotational averaging
+
+        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+
+        from ase.quaternions import Quaternion
+        from soprano.properties.transform import Rotate
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import transformGen
+        from soprano.properties.nmr import DipolarTensor
+
+        N = 30  # Number of averaging steps
+        axis = np.array([1.0, 1.0, 0])
+        axis /= np.linalg.norm(axis)
+
+        rot = Rotate(quaternion=Quaternion.from_axis_angle(
+            axis, 2*np.pi/N))
+
+        rot_eth = AtomsCollection(transformGen(eth, rot, N))
+
+        rot_dip = [D[(0, 1)]
+                   for D in DipolarTensor.get(rot_eth, sel_i=[0], sel_j=[1])]
+
+        dip_avg_num = np.average(rot_dip, axis=0)
+
+        dip_tens = NMRTensor.make_dipolar(eth, 0, 1, rotation_axis=axis)
+        dip_avg_tens = dip_tens.data
+
+        self.assertTrue(np.allclose(dip_avg_num, dip_avg_tens))
+
 
 if __name__ == '__main__':
     unittest.main()
