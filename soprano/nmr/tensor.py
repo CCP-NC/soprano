@@ -80,15 +80,15 @@ class NMRTensor(object):
 
     @property
     def data(self):
-        return self._data
+        return self._data.copy()
 
     @property
     def eigenvalues(self):
-        return self._evals
+        return self._evals.copy()
 
     @property
     def eigenvectors(self):
-        return self._evecs
+        return self._evecs.copy()
 
     @property
     def trace(self):
@@ -120,11 +120,11 @@ class NMRTensor(object):
 
     @property
     def quaternion(self):
-        return self._quat
+        return Quaternion(self._quat.q)
 
     @property
     def spherical_repr(self):
-        return [self._sph0, self._sph1, self._sph2]
+        return [self._sph0.copy(), self._sph1.copy(), self._sph2.copy()]
 
     def euler_angles(self, convention='zyz'):
         """Return Euler angles of the Principal Axis System
@@ -139,7 +139,7 @@ class NMRTensor(object):
 
         convention = convention.lower()
 
-        return self.quaternion.euler_angles(convention)
+        return self._quat.euler_angles(convention)
 
         pass
 
