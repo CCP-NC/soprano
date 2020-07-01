@@ -193,23 +193,14 @@ class AtomSelection(object):
             raise ValueError(
                 'Given Atoms object does not match this selection')
 
-        subset = atoms.copy()
-        not_sel = list(set(range(len(atoms))) -
-                       set(self._indices))
-        del subset[not_sel]
+        subset = atoms[self._indices]
+        # Copy any extra arrays
+        for k, arr in self._arrays.items():
+            subset.set_array(k, arr)
 
-        # Now the arrays
-        for k in self._arrays:
-            # The array needs to be sorted with the indices
-            # in order to match the order of the atoms in the Atoms object
-            _, arr = zip(*sorted(zip(self._indices, self._arrays[k]),
-                                 key=lambda t: t[0]))
-            if use_cell_indices and k == 'cell_indices':
-                subset.set_scaled_positions(subset.get_scaled_positions() +
-                                            arr)
-                continue
-            else:
-                subset.new_array(k, np.array(arr))
+        if use_cell_indices and subset.has('cell_indices'):
+            ijk = subset.get_array('cell_indices')
+            subset.set_scaled_positions(subset.get_scaled_positions() + ijk)
 
         return subset
 

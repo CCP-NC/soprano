@@ -33,7 +33,7 @@ class SiteLabels(AtomsProperty):
     """
     SiteLabels
 
-    Compute a unique label for an for an atom belonging to a molecule by 
+    Compute a unique label for an atom belonging to a molecule by 
     exploiting network topology. Atoms can have the same label, but only if
     they're fundamentally indistinguishable in the molecule's chemical context
     (for example, three hydrogen atoms on a CH3 group). The label describes 

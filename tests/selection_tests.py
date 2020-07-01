@@ -94,6 +94,21 @@ class TestSelection(unittest.TestCase):
 
         self.assertTrue(all(s.subset(a).get_array('testarr') == [1, 2]))
 
+        # Test that arrays are reordered
+        a.set_array('testarr', np.array([1, 2, 3, 4]))
+
+        s = AtomSelection(a, [2, 0])
+        a2 = s.subset(a)
+
+        self.assertTrue((a2.get_array('testarr') == np.array([3, 1])).all())
+
+        # Cell indices test!
+        s = AtomSelection(a, [0, 3])
+        s.set_array('cell_indices', [[0, 0, 0], [-1, 0, 0]])
+        a2 = s.subset(a, True)
+
+        self.assertTrue(np.allclose(a2.get_positions()[-1], [-1, 3, 3]))
+
     def test_mapsel(self):
 
         from soprano.collection import AtomsCollection
