@@ -196,7 +196,7 @@ class AtomSelection(object):
         subset = atoms[self._indices]
         # Copy any extra arrays
         for k, arr in self._arrays.items():
-            subset.set_array(k, arr)
+            subset.set_array(k, arr.copy())
 
         if use_cell_indices and subset.has('cell_indices'):
             ijk = subset.get_array('cell_indices')
