@@ -223,7 +223,8 @@ class AtomSelection(object):
         return sliced
 
     def __iter__(self):
-        return [self[i:i+1] for i in range(len(self))].__iter__()
+        for i in range(len(self._indices)):
+            yield self[i]
 
     # Overloading operators to allow sum, subtraction and product of selections
     @_operator_checks

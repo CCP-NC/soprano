@@ -122,6 +122,20 @@ class TestSelection(unittest.TestCase):
                              else len(s) == 0
                              for i, s in enumerate(h_sel)]))
 
+    def test_iterate(self):
+
+        a = Atoms('HCHC', positions=[[i]*3 for i in range(4)],
+                  cell=[4]*3, pbc=[True]*3)
+
+        sAll = AtomSelection.all(a)
+
+        # Slicing?
+        self.assertTrue((sAll[:2].indices == [0, 1]).all())
+
+        # Iterating?
+        for i, s in enumerate(sAll):
+            self.assertEqual(i, s.indices[0])
+
 
 if __name__ == '__main__':
     unittest.main()
