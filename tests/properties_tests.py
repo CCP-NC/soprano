@@ -100,6 +100,7 @@ class TestPropertyLoad(unittest.TestCase):
                                                 MoleculeMass,
                                                 MoleculeCOMLinkage,
                                                 MoleculeRelativeRotation,
+                                                MoleculeSpectralSort,
                                                 CoordinationHistogram,
                                                 HydrogenBonds,
                                                 HydrogenBondsNumber)
@@ -136,6 +137,14 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(MoleculeNumber.get(a) == 4)
         self.assertTrue(np.isclose(MoleculeMass.get(a), 89.09408).all())
         self.assertTrue(len(MoleculeCOMLinkage.get(a)) == 6)
+
+        # Spectral sorting
+        elems = np.array(a.get_chemical_symbols())
+        mol_specsort = MoleculeSpectralSort.get(a)
+        for i in range(len(mols)-1):
+            for j in range(i+1,len(mols)):
+                self.assertTrue((elems[mol_specsort[i].indices] ==
+                                 elems[mol_specsort[j].indices]).all())
 
         # Now testing hydrogen bonds
         hbs = HydrogenBonds.get(a)

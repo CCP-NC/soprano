@@ -29,7 +29,7 @@ from ase.data import atomic_numbers
 from ase.quaternions import Quaternion
 from soprano.selection import AtomSelection
 from soprano.properties import AtomsProperty
-from soprano.utils import (swing_twist_decomp, is_string,
+from soprano.utils import (swing_twist_decomp, is_string, graph_specsort,
                            minimum_periodic, all_periodic, get_bonding_graph)
 from soprano.data import vdw_radii
 
@@ -778,6 +778,59 @@ class MoleculeRelativeRotation(AtomsProperty):
                                    constant_values=np.inf)
 
         return np.array(link_list)
+
+
+class MoleculeSpectralSort(AtomsProperty):
+
+    """
+    MoleculeSpectralSort
+
+    Reorder molecules to have their indices sorted using a spectral 
+    sorting method based on the Fiedler vector of their bonding graph. This
+    sorting should be equivalent for equivalent molecules - except for the
+    arbitrary ordering of equivalent atoms.
+
+    | Parameters:
+    |   force_recalc (bool): if True, always recalculate the molecules even if
+    |                        already present.
+
+    | Returns:
+    |   mol_specsort ([np.ndarray]): list of Molecules with indices sorted by
+                                     spectral method.
+
+    """
+
+    default_name = 'molecule_specsort'
+    default_params = {
+        'force_recalc': False,
+    }
+
+    @staticmethod
+    def extract(s, force_recalc):
+
+        if Molecules.default_name not in s.info or force_recalc:
+            Molecules.get(s)
+
+        mol_specsort = []
+
+        for mol in s.info[Molecules.default_name]:
+            # Start by getting the adjacency and degree matrices
+            N = len(mol)
+            bonds = mol.get_array('bonds')
+            A = np.zeros((N, N))
+            D = A.copy()
+            for i, b in enumerate(bonds):
+                D[i, i] = len(b)
+                A[i, [list(mol.indices).index(j) for j in b]] = 1
+
+            L = D - A
+
+            sort = graph_specsort(L)
+
+            mol = mol[sort]
+            mol_specsort.append(mol)
+
+        return mol_specsort
 
 
 class HydrogenBonds(AtomsProperty):

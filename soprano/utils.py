@@ -965,10 +965,10 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
 
     return out_v
 
-# Spectral sorting of a graph from its Laplacian matrix
-
 
 def graph_specsort(L):
+    # Spectral sorting of a graph from its Laplacian matrix
+
     evals, evecs = np.linalg.eigh(L)
     # Fiedler vector
     fied = evecs[:, 1]
