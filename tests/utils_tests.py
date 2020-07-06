@@ -17,13 +17,14 @@ from soprano.utils import *
 import unittest
 import numpy as np
 
+
 class TestOthers(unittest.TestCase):
 
     def test_seedname(self):
         self.assertEqual(seedname('a/b/seed.txt'), 'seed')
 
     def test_swing_twist(self):
-        
+
         from ase.quaternions import Quaternion
 
         test_n = 10
@@ -52,6 +53,28 @@ class TestOthers(unittest.TestCase):
 
             self.assertTrue(np.allclose(q1.q, qsw.q))
             self.assertTrue(np.allclose(q2.q, qtw.q))
+
+    def test_specsort(self):
+        # Define the Laplacian of a graph
+        # This one is chosen so the ordering is 100% unambiguous
+
+        N = 6
+        D = np.zeros((N, N))
+        A = D.copy()
+
+        # Add edges
+        edges = np.array([(0, 1), (1, 2), (1, 3), (1, 4),
+                          (2, 3), (2, 4), (2, 5), (3, 5)])
+        for e in edges:
+            D[e[0], e[0]] += 1
+            D[e[1], e[1]] += 1
+            A[e[0], e[1]] = 1
+            A[e[1], e[0]] = 1
+
+        L = D - A
+        ssort = graph_specsort(L)
+
+        self.assertTrue((ssort == [0, 1, 4, 2, 3, 5]).all())
 
     """
     # This is temporarily removed as the function isn't quite well developed
@@ -130,6 +153,7 @@ class TestSupercellMethods(unittest.TestCase):
 
         vp, vcells = minimum_periodic(v, c)
         self.assertTrue(np.isclose(np.linalg.norm(vp, axis=-1), 0.1).all())
+
 
 if __name__ == '__main__':
     unittest.main()

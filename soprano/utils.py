@@ -160,14 +160,14 @@ def hkl2d2_matgen(abc):
     abc_prod = np.prod(abc[0, :])
 
     hkl2d2 = np.array([[b2c2*sin[0]**2.0,
-                         abc_prod*abc[0, 2]*(cos[0]*cos[1]-cos[2]),
-                         abc_prod*abc[0, 1]*(cos[0]*cos[2]-cos[1])],
-                        [abc_prod*abc[0, 2]*(cos[0]*cos[1]-cos[2]),
-                         a2c2*sin[1]**2.0,
-                         abc_prod*abc[0, 0]*(cos[1]*cos[2]-cos[0])],
-                        [abc_prod*abc[0, 1]*(cos[0]*cos[2]-cos[1]),
-                         abc_prod*abc[0, 0]*(cos[1]*cos[2]-cos[0]),
-                         a2b2*sin[2]**2.0]])
+                        abc_prod*abc[0, 2]*(cos[0]*cos[1]-cos[2]),
+                        abc_prod*abc[0, 1]*(cos[0]*cos[2]-cos[1])],
+                       [abc_prod*abc[0, 2]*(cos[0]*cos[1]-cos[2]),
+                        a2c2*sin[1]**2.0,
+                        abc_prod*abc[0, 0]*(cos[1]*cos[2]-cos[0])],
+                       [abc_prod*abc[0, 1]*(cos[0]*cos[2]-cos[1]),
+                        abc_prod*abc[0, 0]*(cos[1]*cos[2]-cos[0]),
+                        a2b2*sin[2]**2.0]])
 
     hkl2d2 /= abc_prod**2.0*(1.0-np.dot(cos, cos)+2.0*np.prod(cos))
 
@@ -606,7 +606,7 @@ def max_distance_in_cell(cell):
 
 
 def periodic_bridson(cell, rmin, max_attempts=30,
-                     prepoints=None, prepoints_cuts=None, 
+                     prepoints=None, prepoints_cuts=None,
                      maxblock=1000):
     """ Periodic version of the Bridson algorithm for generation of Poisson
     sphere distributions of points. This returns a generator.
@@ -667,7 +667,7 @@ def periodic_bridson(cell, rmin, max_attempts=30,
         cell_corners = np.array(np.meshgrid(*[[0, 1]]*3, indexing='ij')
                                 ).reshape((3, -1))
         for i0 in range(0, N**3, maxblock):
-            go = grid_origins[:,i0:i0+maxblock]
+            go = grid_origins[:, i0:i0+maxblock]
             grid_corners = (go[:, :, None]+cell_corners[:, None, :])/N
             dfx = (prepoints[:, :, None, None] - grid_corners[None, :, :, :]
                    + 0.5) % 1-0.5
@@ -964,3 +964,16 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
             out_v = np.concatenate((out_v, o_v[None, :]), axis=0)
 
     return out_v
+
+# Spectral sorting of a graph from its Laplacian matrix
+
+
+def graph_specsort(L):
+    evals, evecs = np.linalg.eigh(L)
+    # Fiedler vector
+    fied = evecs[:, 1]
+    # Sign convention: more positive than negative components
+    n = len(evals)
+    fied *= -1 if np.sum(fied > 0) < n/2.0 else 1
+
+    return np.argsort(fied)
