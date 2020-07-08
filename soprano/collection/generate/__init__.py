@@ -27,3 +27,4 @@ from soprano.collection.generate.rattle import rattleGen
 from soprano.collection.generate.transform import transformGen
 from soprano.collection.generate.defect import (defectGen, substitutionGen,
                                                 additionGen)
+from soprano.collection.generate.molneigh import molecularNeighbourhoodGen
