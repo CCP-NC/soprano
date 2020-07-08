@@ -17,12 +17,13 @@
 """Generator producing molecular neighbourhoods"""
 
 import numpy as np
+from ase import Atoms
 # Internal imports
 from soprano.utils import minimum_supcell, supcell_gridgen
 
 
 def molecularNeighbourhoodGen(struct, mols, central_mol=0, max_R=10,
-                              method='com'):
+                              method='com', use_supercell=False):
     """Generator function to create a spherical molecular neighbourhood. Given
     a structure and its molecules as returned by the Molecules property, 
     produce supercell structures that contain one molecule each, progressively
@@ -40,6 +41,9 @@ def molecularNeighbourhoodGen(struct, mols, central_mol=0, max_R=10,
     |   method (str): method to compute distance between molecules. 'com' 
     |                 means using the center of mass. 'nearest' means using
     |                 the closest atom. Default is 'com'.
+    |   use_supercell (bool): if True, all returned structures will have a 
+    |                         cell large enough to contain the entire
+    |                         neighbourhood. Default is False.
 
     | Returns:
     |   molecularNeighbourhoodGen (generator): an iterator object that yields
@@ -66,15 +70,39 @@ def molecularNeighbourhoodGen(struct, mols, central_mol=0, max_R=10,
         positions = np.zeros((len(grid), len(mols), 3))
         for i, a in enumerate(mol_structs):
             dp = a.get_positions() - p0
-            p = dp[None,:,:] + grid[:,None,:]
+            p = dp[None, :, :] + grid[:, None, :]
             # Closest one?
-            positions[:,i,:] = p[range(len(grid)), 
-                                 np.argmin(np.linalg.norm(p, axis=-1), axis=1)]
+            positions[:, i, :] = p[range(len(grid)),
+                                   np.argmin(np.linalg.norm(p, axis=-1),
+                                             axis=1)]
     else:
         raise RuntimeError('Invalid method passed to '
                            'molecularNeighbourhoodGen')
 
     # Order of appearance?
     distances = np.linalg.norm(positions, axis=-1)
+    sphere = np.where(distances <= max_R)
+    distances = distances[sphere[0], sphere[1]]
+    fxyz = fgrid[sphere[0]]
+    xyz = grid[sphere[0]]
+    mol_i = np.arange(len(mols))[sphere[1]]
+    positions = positions[sphere[0], sphere[1]]
 
-    # Find which ones are 
+    # Now the order
+    order = np.argsort(distances)
+
+    for i in order:
+        a = mol_structs[mol_i[i]].copy()
+        # Create the structure
+        if use_supercell:
+            a.set_cell(np.dot(np.diag(scell), a.get_cell()))
+        a.set_positions(a.get_positions() + xyz[i])
+
+        # Add some info
+        a.info['neighbourhood_info'] = {
+            'molecule_index': mol_i[i],
+            'molecule_cell': fxyz[i],
+            'molecule_distance': distances[i]
+        }
+
+        yield a
