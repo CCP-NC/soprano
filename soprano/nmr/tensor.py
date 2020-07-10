@@ -182,17 +182,19 @@ class NMRTensor(object):
         pos = a.get_positions()
         elems = np.array(a.get_chemical_symbols())
         r = pos[j]-pos[i] + np.dot(a.get_cell(), cell)
+        rnorm = np.linalg.norm(r)
         gammas = _get_isotope_data(elems[[i, j]], 'gamma', isotopes=isotopes,
                                    isotope_list=[isotope_i, isotope_j])
 
-        d = _dip_constant(np.linalg.norm(r)*1e-10, *gammas)
+        d = _dip_constant(rnorm*1e-10, *gammas)
 
+        r /= rnorm
         if rotation_axis is None:
             D = d*(3*r[:, None]*r[None, :]-np.eye(3))/2.0
         else:
             a = np.array(rotation_axis)
             a /= np.linalg.norm(a)
-            vp2 = (np.dot(r, a)/np.linalg.norm(r))**2
+            vp2 = np.dot(r, a)**2
             D = 0.5*d*(3*vp2-1)*(1.5*a[:, None]*a[None, :]-0.5*np.eye(3))
 
         return NMRTensor(D)
