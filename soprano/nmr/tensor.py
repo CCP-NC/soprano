@@ -46,15 +46,34 @@ class NMRTensor(object):
         Create an NMRTensor object from a 3x3 matrix.
 
         Arguments:
-            data (np.ndarray):  3x3 matrix containing the tensor
+            data (np.ndarray or tuple):  3x3 matrix containing the tensor, or
+                                         pair [evals, evecs] for the symmetric
+                                         part alone.
+            order (str):        Order to use for eigenvalues/eigenvectors. Can
+                                be 'i' (ORDER_INCREASING), 'd' 
+                                (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                                'n' (ORDER_NQR). Default is 'i'.
         """
 
-        self._data = np.array(data)
         self._order = order
-        self._symm = (self._data+self._data.T)/2.0
 
-        # Diagonalise tensor
-        evals, evecs = np.linalg.eigh(self._symm)
+        if len(data) == 3:
+            self._data = np.array(data)
+            if self._data.shape != (3, 3):
+                raise ValueError('Invalid matrix data passed to NMRTensor')
+            self._symm = (self._data+self._data.T)/2.0
+            evals, evecs = np.linalg.eigh(self._symm)
+        elif len(data) == 2:
+            evals, evecs = data
+            evecs = np.array(evecs)
+            sort_i = np.argsort(evals)
+            if len(evals) != 3 or evecs.shape != (3, 3):
+                raise ValueError('Invalid eigenvalues/vectors passed to '
+                                 'NMRTensor')
+            evals = evals[sort_i]
+            evecs = evecs[:, sort_i]
+            self._symm = np.linalg.multi_dot([evecs, np.diag(evals), evecs.T])
+            self._data = self._symm
 
         self._incr_evals = evals
         self._haeb_evals = _haeb_sort([evals])[0]
@@ -70,9 +89,14 @@ class NMRTensor(object):
         self._sph = None
 
         # Sort eigenvalues and eigenvectors as specified
-        self._evals, sort_i = _evals_sort([evals], order, True)
-        self._evals = self._evals[0]
-        self._evecs = evecs[:, sort_i[0]]
+        if order != self.ORDER_INCREASING:
+            self._evals, sort_i = _evals_sort([evals], order, True)
+            self._evals = self._evals[0]
+            self._evecs = evecs[:, sort_i[0]]
+        else:
+            # No point in fixing what ain't broken
+            self._evals = evals
+            self._evecs = evecs
 
         # Last eigenvector must be the cross product of the first two
         # (apparently this is much faster than np.cross. Beats me why)
@@ -212,13 +236,28 @@ class NMRTensor(object):
 
         d = _dip_constant(rnorm*1e-10, *gammas)
 
-        r /= rnorm
+        evals = np.zeros(3)
+        evecs = np.zeros((3, 3))
+
         if rotation_axis is None:
-            D = d*(3*r[:, None]*r[None, :]-np.eye(3))/2.0
+            axis = r/rnorm
         else:
-            a = np.array(rotation_axis)
-            a /= np.linalg.norm(a)
-            vp2 = np.dot(r, a)**2
-            D = 0.5*d*(3*vp2-1)*(1.5*a[:, None]*a[None, :]-0.5*np.eye(3))
+            axis = np.array(rotation_axis)/np.linalg.norm(rotation_axis)
+            vp2 = np.dot(r/rnorm, axis)**2
+            d = 0.5*d*(3*vp2-1)
+
+        evals[2] = d
+        evals[:2] = -d/2.0
+
+        evecs[:, 2] = axis
+        evecs[1, 0] = axis[0]
+        evecs[0, 0] = -axis[1]
+        evecs[:, 1] = np.cross(evecs[:, 2], evecs[:, 0])
+
+        if d < 0:
+            evals = evals[::-1]
+            evecs = evecs[:, ::-1]
+
+        D = [evals, evecs]
 
         return NMRTensor(D)

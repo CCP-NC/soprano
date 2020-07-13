@@ -38,9 +38,9 @@ def _evals_sort(evals, convention='c', return_indices=False):
     sort_i = np.argsort(to_sort,
                         axis=1)
     if convention == 'd':
-        sort_i = sort_i[:,::-1]
+        sort_i = sort_i[:, ::-1]
     elif convention == 'h':
-        sort_i[:,0], sort_i[:,1] = sort_i[:,1], sort_i[:,0].copy()
+        sort_i[:, 0], sort_i[:, 1] = sort_i[:, 1], sort_i[:, 0].copy()
     sorted_evals = evals[np.arange(evals.shape[0])[:, None],
                          sort_i]
     if not return_indices:
@@ -105,6 +105,23 @@ def _dip_constant(Rij, gi, gj):
     ratios gi and gj"""
 
     return - (cnst.mu_0*cnst.hbar*gi*gj / (8*np.pi**2*Rij**3))
+
+
+def _dip_tensor(d, r, rotation_axis=None):
+    """Full dipolar tensor given a constant and a connecting vector"""
+
+    r = np.array(r)
+    r /= np.linalg.norm(r)
+
+    if rotation_axis is None:
+        D = d*(3*r[:, None]*r[None, :]-np.eye(3))/2.0
+    else:
+        a = np.array(rotation_axis)
+        a /= np.linalg.norm(a)
+        vp2 = np.dot(r, a)**2
+        D = 0.5*d*(3*vp2-1)*(3*a[:, None]*a[None, :]-np.eye(3))/2.0
+
+    return D
 
 
 def _J_constant(Kij, gi, gj):
