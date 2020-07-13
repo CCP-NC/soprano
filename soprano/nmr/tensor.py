@@ -157,10 +157,7 @@ class NMRTensor(object):
         """
 
         convention = convention.lower()
-
-        return self._quat.euler_angles(convention)
-
-        pass
+        return self.quaternion.euler_angles(convention)
 
     @staticmethod
     def make_dipolar(a, i, j, cell=[0, 0, 0], isotopes={}, isotope_i=None,
