@@ -73,7 +73,15 @@ class NMRTensor(object):
         self._evals, sort_i = _evals_sort([evals], order, True)
         self._evals = self._evals[0]
         self._evecs = evecs[:, sort_i[0]]
-        self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
+
+        # Last eigenvector must be the cross product of the first two
+        # (apparently this is much faster than np.cross. Beats me why)
+        self._evecs[0, 2] = (self._evecs[1, 0]*self._evecs[2, 1] -
+                             self._evecs[2, 0]*self._evecs[1, 1])
+        self._evecs[1, 2] = (self._evecs[2, 0]*self._evecs[0, 1] -
+                             self._evecs[0, 0]*self._evecs[2, 1])
+        self._evecs[2, 2] = (self._evecs[0, 0]*self._evecs[1, 1] -
+                             self._evecs[1, 0]*self._evecs[0, 1])
 
         self._quat = None
 
