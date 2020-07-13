@@ -13,13 +13,14 @@ import os
 import sys
 import glob
 from ase import io, Atoms
-from ase.build import bulk
+from ase.build import bulk, molecule
 sys.path.insert(0, os.path.abspath(
                    os.path.join(os.path.dirname(__file__), "../")))  # noqa
 from soprano.collection import AtomsCollection
 from soprano.collection.generate import (airssGen, linspaceGen, rattleGen,
-                                         defectGen)
+                                         defectGen, molecularNeighbourhoodGen)
 from soprano.utils import minimum_periodic
+from soprano.properties.linkage import Molecules
 import unittest
 import numpy as np
 
@@ -120,6 +121,36 @@ class TestGenerate(unittest.TestCase):
 
         self.assertTrue(holds)
 
+    def test_molneigh(self):
+
+        metmol = molecule('CH4')
+
+        cellmol = metmol.copy()
+        cellmol.set_pbc(True)
+        cellmol.set_cell([6, 6, 6])
+        c2 = cellmol.copy()
+        c2.set_positions(c2.get_positions()+3)
+        cellmol += c2
+
+        mols = Molecules.get(cellmol)
+        mol_i = [i for i, m in enumerate(mols) if 0 in m.indices][0]
+
+        mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5.2)
+        all_neigh = [a for a in mnGen]
+
+        self.assertEqual(len(all_neigh), 9)
+        self.assertAlmostEqual(all_neigh[0].info['neighbourhood_info']
+                               ['molecule_distance'],
+                               0)
+        self.assertAlmostEqual(all_neigh[1].info['neighbourhood_info']
+                               ['molecule_distance'],
+                               3**1.5)
+
+        mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5,
+                                          method='nearest')
+        all_neigh = [a for a in mnGen]
+
+        self.assertEqual(len(all_neigh), 9)
 
 if __name__ == '__main__':
     unittest.main()

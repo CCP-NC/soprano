@@ -127,7 +127,7 @@ def airssGen(input_file,
                                 '\nstderr:\n{1}')
                                .format(stdout, stderr))
         if clone_calc:
-            newcell.set_calculator(copy.deepcopy(calc))
+            newcell.calc = copy.deepcopy(calc)
         # Generate it a name, function of its properties
         postfix = hashlib.md5(str(newcell.get_positions()
                                   ).encode()).hexdigest()
