@@ -56,19 +56,18 @@ class NMRTensor(object):
         # Diagonalise tensor
         evals, evecs = np.linalg.eigh(self._symm)
 
-        _haeb_evals = _haeb_sort([evals])[0]
-        self._anisotropy = _anisotropy(_haeb_evals[None, :])[0]
-        self._redaniso = _anisotropy(_haeb_evals[None, :], True)[0]
-        self._asymmetry = _asymmetry(_haeb_evals[None, :])[0]
-        self._span = _span(evals[None, :])[0]
-        self._skew = _skew(evals[None, :])[0]
+        self._incr_evals = evals
+        self._haeb_evals = _haeb_sort([evals])[0]
+        self._anisotropy = None
+        self._redaniso = None
+        self._asymmetry = None
+        self._span = None
+        self._skew = None
 
-        self._trace = np.trace(data)
+        self._trace = None
 
         # Spherical tensor components
-        self._sph0 = np.eye(3)*self.trace/3
-        self._sph1 = (self._data-self._data.T)/2.0
-        self._sph2 = self._symm - self._sph0
+        self._sph = None
 
         # Sort eigenvalues and eigenvectors as specified
         self._evals, sort_i = _evals_sort([evals], order, True)
@@ -76,7 +75,7 @@ class NMRTensor(object):
         self._evecs = evecs[:, sort_i[0]]
         self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
 
-        self._quat = _evecs_2_quat([self._evecs])[0]
+        self._quat = None
 
     @property
     def data(self):
@@ -92,39 +91,59 @@ class NMRTensor(object):
 
     @property
     def trace(self):
+        if self._trace is None:
+            self._trace = np.trace(self._data)
         return self._trace
 
     @property
     def isotropy(self):
-        return self._trace/3.0
+        return self.trace/3.0
 
     @property
     def anisotropy(self):
+        if self._anisotropy is None:
+            self._anisotropy = _anisotropy(self._haeb_evals[None, :])[0]
         return self._anisotropy
 
     @property
     def reduced_anisotropy(self):
+        if self._redaniso is None:
+            self._redaniso = _anisotropy(self._haeb_evals[None, :], True)[0]
         return self._redaniso
 
     @property
     def asymmetry(self):
+        if self._asymmetry is None:
+            self._asymmetry = _asymmetry(self._haeb_evals[None, :])[0]
         return self._asymmetry
 
     @property
     def span(self):
+        if self._span is None:
+            self._span = _span(self._incr_evals[None, :])[0]
         return self._span
 
     @property
     def skew(self):
+        if self._skew is None:
+            self._skew = _skew(self._incr_evals[None, :])[0]
         return self._skew
 
     @property
     def quaternion(self):
+        if self._quat is None:
+            self._quat = _evecs_2_quat([self._evecs])[0]
         return Quaternion(self._quat.q)
 
     @property
     def spherical_repr(self):
-        return [self._sph0.copy(), self._sph1.copy(), self._sph2.copy()]
+        if self._sph is None:
+            self._sph = np.zeros((3, 3, 3))
+            self._sph[0] = np.eye(3)*self.trace/3
+            self._sph[1] = (self._data-self._data.T)/2.0
+            self._sph[2] = self._symm - self._sph0
+
+        return self._sph.copy()
 
     def euler_angles(self, convention='zyz'):
         """Return Euler angles of the Principal Axis System
