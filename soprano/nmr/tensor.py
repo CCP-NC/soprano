@@ -250,9 +250,16 @@ class NMRTensor(object):
         evals[:2] = -d/2.0
 
         evecs[:, 2] = axis
-        evecs[1, 0] = axis[0]
-        evecs[0, 0] = -axis[1]
-        evecs[:, 1] = np.cross(evecs[:, 2], evecs[:, 0])
+
+        x, y = axis[:2]
+        evecs[1, 0] = x
+        evecs[0, 0] = -y
+        evecs[:, 0] /= (x**2+y**2)**0.5
+
+        evecs[0, 1]
+        evecs[0, 1] = -evecs[2, 2]*evecs[1, 0]
+        evecs[1, 1] = evecs[2, 2]*evecs[0, 0]
+        evecs[2, 1] = evecs[0, 2]*evecs[1, 0]-evecs[1, 2]*evecs[0, 0]
 
         if d < 0:
             evals = evals[::-1]

@@ -220,6 +220,9 @@ class TestNMR(unittest.TestCase):
 
         self.assertTrue(np.allclose(dip_avg_num, dip_avg_tens))
 
+        # Test eigenvectors
+        evecs = dip_tens.eigenvectors
+        self.assertTrue(np.allclose(np.dot(evecs.T, evecs), np.eye(3)))
 
 if __name__ == '__main__':
     unittest.main()
