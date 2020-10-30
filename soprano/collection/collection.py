@@ -741,7 +741,8 @@ class AtomsCollection(object):
                         protocol=2)
 
     @staticmethod
-    def load_tree(path, load_format, opt_args={}, safety_check=3):
+    def load_tree(path, load_format, opt_args={}, safety_check=3,
+                  tolerant_loading=False):
         """Load a collection's structures from a series of folders, named like
         the structures, inside a given parent folder, as created by save_tree.
         The files can be loaded from a format of choice, or a
@@ -775,6 +776,10 @@ class AtomsCollection(object):
         |                          .collection file, all subfolders. Array
         |                          data will be discarded;
         |                       0: no checks, try to load from all subfolders.
+        |   tolerant_loading (bool): if set to true, proceeds to load the
+        |                            structures into an AtomsCollection, even
+        |                            if some of the structures could not be 
+        |                            read.
 
         | Returns:
         |   coll (AtomsCollection): loaded collection
@@ -821,12 +826,23 @@ class AtomsCollection(object):
             elif is_func:
                 s = load_format(os.path.join(path, d), **opt_args)
 
-            structures.append(s)
+            if s is not None:
+                structures.append(s)
 
         if check < 2:
             info = coll['info']
         else:
             info = {}
+
+        percentage_failed = round((1-len(structures)/len(dirlist))*100)
+
+        if percentage_failed > 0:
+            print("{0}% of structures could not be loaded."
+                  .format(percentage_failed))
+            if not tolerant_loading:
+                print("Set tolerant_loading to True if you would still like to"
+                      " load the remaining structures.")
+                return
 
         loaded_coll = AtomsCollection(structures, info=info)
 
