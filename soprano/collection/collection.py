@@ -843,7 +843,7 @@ class AtomsCollection(object):
                 raise IOError("{0}% of structures could not be loaded.".
                               format(percentage_failed))
                 return
-            elif tolerant_loading:
+            elif not tolerant_loading:
                 raise IOError("{0}% of structures could not be loaded. Set"
                               " tolerant_loading to True if you would still"
                               " like to load the remaining structures."
