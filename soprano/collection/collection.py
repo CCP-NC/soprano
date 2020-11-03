@@ -778,7 +778,7 @@ class AtomsCollection(object):
         |                       0: no checks, try to load from all subfolders.
         |   tolerant_loading (bool): if set to true, proceeds to load the
         |                            structures into an AtomsCollection, even
-        |                            if some of the structures could not be 
+        |                            if some of the structures could not be
         |                            read.
 
         | Returns:
@@ -822,8 +822,8 @@ class AtomsCollection(object):
         for d in dirlist:
             try:
                 if is_ext:
-                    s = ase_io.read(os.path.join(path, d, d + '.' + load_format),
-                                    **opt_args)
+                    s = ase_io.read(os.path.join(path, d, d + '.' +
+                                    load_format), **opt_args)
                 elif is_func:
                     s = load_format(os.path.join(path, d), **opt_args)
                 structures.append(s)
@@ -836,7 +836,6 @@ class AtomsCollection(object):
             info = {}
 
         percentage_failed = round((1-len(structures)/len(dirlist))*100)
-
 
         if percentage_failed > 0:
 
