@@ -824,10 +824,11 @@ class AtomsCollection(object):
                 s = ase_io.read(os.path.join(path, d, d + '.' + load_format),
                                 **opt_args)
             elif is_func:
-                s = load_format(os.path.join(path, d), **opt_args)
-
-            if s is not None:
-                structures.append(s)
+                try:
+                    s = load_format(os.path.join(path, d), **opt_args)
+                    structures.append(s)
+                except Exception as e:
+                    print(e)
 
         if check < 2:
             info = coll['info']
@@ -837,12 +838,20 @@ class AtomsCollection(object):
         percentage_failed = round((1-len(structures)/len(dirlist))*100)
 
         if percentage_failed > 0:
-            print("{0}% of structures could not be loaded."
-                  .format(percentage_failed))
-            if not tolerant_loading:
-                print("Set tolerant_loading to True if you would still like to"
-                      " load the remaining structures.")
+
+            if percentage_failed == 100:
+                raise IOError("{0}% of structures could not be loaded.".
+                              format(percentage_failed))
                 return
+            elif tolerant_loading:
+                raise IOError("{0}% of structures could not be loaded. Set"
+                              " tolerant_loading to True if you would still"
+                              " like to load the remaining structures."
+                              .format(percentage_failed))
+                return
+            else:
+                print("{0}% of structures could not be loaded."
+                      .format(percentage_failed))
 
         loaded_coll = AtomsCollection(structures, info=info)
 
