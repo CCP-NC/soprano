@@ -820,15 +820,15 @@ class AtomsCollection(object):
 
         structures = []
         for d in dirlist:
-            if is_ext:
-                s = ase_io.read(os.path.join(path, d, d + '.' + load_format),
-                                **opt_args)
-            elif is_func:
-                try:
+            try:
+                if is_ext:
+                    s = ase_io.read(os.path.join(path, d, d + '.' + load_format),
+                                    **opt_args)
+                elif is_func:
                     s = load_format(os.path.join(path, d), **opt_args)
-                    structures.append(s)
-                except Exception as e:
-                    print(e)
+                structures.append(s)
+            except Exception as e:
+                print(e)
 
         if check < 2:
             info = coll['info']
@@ -836,6 +836,7 @@ class AtomsCollection(object):
             info = {}
 
         percentage_failed = round((1-len(structures)/len(dirlist))*100)
+
 
         if percentage_failed > 0:
 
