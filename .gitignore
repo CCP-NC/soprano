@@ -106,6 +106,9 @@ venv.bak/
 # VSCode
 .vscode/
 
+# IDEA
+.idea/
+
 # Test stuff
 tests/test_save/*
 tests/*.pkl

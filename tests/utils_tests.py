@@ -76,22 +76,6 @@ class TestOthers(unittest.TestCase):
 
         self.assertTrue((ssort == [0, 1, 4, 2, 3, 5]).all())
 
-    """
-    # This is temporarily removed as the function isn't quite well developed
-    yet.
-
-    def test_periodic_c(self):
-
-        testn = 10
-        pointn = 10
-        v = np.random.random((pointn, 3))
-        v_centred = (v-periodic_center(v))%1
-
-        for i in range(testn):
-            v += np.random.random(3)
-            self.assertTrue(np.allclose((v-periodic_center(v))%1, v_centred))
-    """
-
 
 class TestLatticeMethods(unittest.TestCase):
 
@@ -116,32 +100,39 @@ class TestSupercellMethods(unittest.TestCase):
         cell_scale = 1.0
         cell_min = 0.2
         cell_skew = 0.2
-        r_brutef_bounds = (10, 10, 10)
+        r_brutef_bounds = (11, 11, 11)
 
-        for attempt in range(n_attempts):
+        # Lattices to test
+        lattices = [
+            (np.eye(3)*cell_scale, 2.0),
+            (np.diag([1,2,1.5])*cell_scale, 1.5),
+            (np.array([[1, 0, 0], [0, 0.7, 0], [0.7, 0, 0.5]])*cell_scale, 2.0)
+        ]
+
+        for (cart, max_r) in lattices:
 
             # Define a lattice (cartesian)
-            cart = np.diag(np.random.random(3)*cell_scale+cell_min)
-            cart += np.random.random((3, 3))*cell_skew
             abc = cart2abc(cart)
-            centre = np.dot(cart, np.ones(3)*0.5)
+            centre = np.dot(np.ones(3)*0.5, cart)
             # Now find a "brute force" grid
             grid_bf_i, grid_bf = supcell_gridgen(cart, r_brutef_bounds)
             grid_bf -= centre
             grid_bf_norm = np.linalg.norm(grid_bf, axis=1)
-            # Pick a suitable radius
-            max_r = np.random.random()*cell_scale+cell_min
+
             # Find the supercell
             scell_shape = minimum_supcell(max_r, latt_cart=cart)
             grid_i, grid = supcell_gridgen(cart, scell_shape)
             grid -= centre  # We refer to the centre
             grid_norm = np.linalg.norm(grid, axis=1)
+
             # Now let's check the sphere points
             sphere_p = grid_i[np.where(grid_norm < max_r)]
             sphere_bf_p = grid_bf_i[np.where(grid_bf_norm < max_r)]
+
             # Now, are they equal?
             sphere_p = set([tuple(p) for p in sphere_p])
             sphere_bf_p = set([tuple(p) for p in sphere_bf_p])
+            
             self.assertEqual(sphere_p, sphere_bf_p)
 
     def test_min_periodic(self):
