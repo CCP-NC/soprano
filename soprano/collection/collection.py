@@ -47,6 +47,8 @@ from ase.build import niggli_reduce
 from ase.calculators.singlepoint import SinglePointCalculator
 from soprano import utils
 
+utils.customize_warnings()
+
 
 class _AllCaller(object):
 
