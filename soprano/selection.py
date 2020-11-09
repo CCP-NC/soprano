@@ -34,7 +34,9 @@ import warnings
 import operator
 import numpy as np
 
-from soprano.utils import minimum_supcell, supcell_gridgen
+from soprano.utils import minimum_supcell, supcell_gridgen, customize_warnings
+
+customize_warnings()
 
 # This decorator applies to all operators providing some basic checksP
 

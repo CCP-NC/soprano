@@ -95,6 +95,18 @@ def silence_stdio(silence_stdout=True, silence_stderr=True):
             sys.stderr = old_stderr
 
 
+def customize_warnings():
+
+    def customwarning(msg, category, filename, lineno, line=None):
+        outmsg = ('\033[93m \033[1m WARNING: \033[0m {0} '
+                  '({1}, line: {2})\n').format(msg, filename, lineno)
+        return outmsg
+
+    warnings.formatwarning = customwarning
+
+# Apply it right away (for stuff in this module)
+customize_warnings()
+
 def abc2cart(abc):
     """Transforms an axes and angles representation of lattice parameters
        into a Cartesian one
