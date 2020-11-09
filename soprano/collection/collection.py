@@ -33,6 +33,7 @@ import ase
 import glob
 import shutil
 import inspect
+import warnings
 import numpy as np
 # 2-to-3 compatibility
 try:
@@ -742,7 +743,7 @@ class AtomsCollection(object):
 
     @staticmethod
     def load_tree(path, load_format, opt_args={}, safety_check=3,
-                  tolerant_loading=False):
+                  tolerant=False):
         """Load a collection's structures from a series of folders, named like
         the structures, inside a given parent folder, as created by save_tree.
         The files can be loaded from a format of choice, or a
@@ -776,10 +777,10 @@ class AtomsCollection(object):
         |                          .collection file, all subfolders. Array
         |                          data will be discarded;
         |                       0: no checks, try to load from all subfolders.
-        |   tolerant_loading (bool): if set to true, proceeds to load the
-        |                            structures into an AtomsCollection, even
-        |                            if some of the structures could not be
-        |                            read.
+        |   tolerant (bool): if set to true, proceeds to load the
+        |                    structures into an AtomsCollection, even
+        |                    if some of the structures could not be
+        |                    read.
 
         | Returns:
         |   coll (AtomsCollection): loaded collection
@@ -828,14 +829,14 @@ class AtomsCollection(object):
                     s = load_format(os.path.join(path, d), **opt_args)
                 structures.append(s)
             except Exception as e:
-                print(e)
+                warnings.warn(e)
 
         if check < 2:
             info = coll['info']
         else:
             info = {}
 
-        percentage_failed = round((1-len(structures)/len(dirlist))*100)
+        percentage_failed = (1-len(structures)/len(dirlist))*100
 
         if percentage_failed > 0:
 
@@ -843,15 +844,18 @@ class AtomsCollection(object):
                 raise IOError("{0}% of structures could not be loaded.".
                               format(percentage_failed))
                 return
-            elif not tolerant_loading:
+            elif not tolerant:
                 raise IOError("{0}% of structures could not be loaded. Set"
-                              " tolerant_loading to True if you would still"
+                              " tolerant to True if you would still"
                               " like to load the remaining structures."
                               .format(percentage_failed))
                 return
             else:
-                print("{0}% of structures could not be loaded."
-                      .format(percentage_failed))
+                percentage_success = 100-percentage_failed
+                info['percentage_loaded'] = percentage_success
+
+                warnings.warn("{0:.0f}% of structures could not be loaded."
+                              .format(percentage_failed))
 
         loaded_coll = AtomsCollection(structures, info=info)
 
