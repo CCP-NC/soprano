@@ -843,11 +843,11 @@ class AtomsCollection(object):
         if percentage_failed > 0:
 
             if percentage_failed == 100:
-                raise IOError("{0}% of structures could not be loaded.".
+                raise IOError("{0:.2f}% of structures could not be loaded.".
                               format(percentage_failed))
                 return
             elif not tolerant:
-                raise IOError("{0}% of structures could not be loaded. Set"
+                raise IOError("{0:.2f}% of structures could not be loaded. Set"
                               " tolerant to True if you would still"
                               " like to load the remaining structures."
                               .format(percentage_failed))
@@ -856,7 +856,7 @@ class AtomsCollection(object):
                 percentage_success = 100-percentage_failed
                 info['percentage_loaded'] = percentage_success
 
-                warnings.warn("{0:.0f}% of structures could not be loaded."
+                warnings.warn("{0:.2f}% of structures could not be loaded."
                               .format(percentage_failed))
         else:
             print("100% of structures loaded successfully.")
