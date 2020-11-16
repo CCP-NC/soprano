@@ -858,6 +858,8 @@ class AtomsCollection(object):
 
                 warnings.warn("{0:.0f}% of structures could not be loaded."
                               .format(percentage_failed))
+        else:
+            print("100% of structures loaded successfully.")
 
         loaded_coll = AtomsCollection(structures, info=info)
 
