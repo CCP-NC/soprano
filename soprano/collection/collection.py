@@ -831,7 +831,7 @@ class AtomsCollection(object):
                     s = load_format(os.path.join(path, d), **opt_args)
                 structures.append(s)
             except Exception as e:
-                warnings.warn(e)
+                warnings.warn(str(e))
 
         if check < 2:
             info = coll['info']
