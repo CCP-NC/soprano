@@ -21,6 +21,7 @@ Data on NMR relevant properties of elements and isotopes - spin, gyromagnetic
 ratio and quadrupole moment.
 """
 
+import re
 import json
 import pkgutil
 import numpy as np
