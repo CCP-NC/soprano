@@ -7,7 +7,11 @@ working with crystallography and simulations to generate, manipulate, run calcul
 crystal structures, with a particular attention to the output of ab-initio random structure searching, or [AIRSS](https://www.mtg.msm.cam.ac.uk/Codes/AIRSS). It provides a number of functionalities to help automate many common tasks in computational crystallography.
 
 ## How to install
-You can install Soprano simply by cloning this repository and using `pip`:
+Soprano is now available on the Python Package Index. You can install the latest stable release by using `pip`:
+
+    pip install soprano --user
+
+In addition, you can get the latest version (not guaranteed to be stable) from github:
 
     git clone https://github.com/CCP-NC/soprano.git
     pip install ./soprano --user
