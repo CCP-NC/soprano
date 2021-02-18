@@ -311,7 +311,7 @@ class DipolarDiagonal(AtomsProperty):
 
         for ij, (d, v) in dip_dict.items():
 
-            evals = np.array([-d/2, -d/2, d])
+            evals = np.array([-d, -d, 2*d])
             # Eigenvectors
             evecs = np.zeros((3, 3))
             # Z is equal to v

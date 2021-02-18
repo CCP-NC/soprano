@@ -246,8 +246,8 @@ class NMRTensor(object):
             vp2 = np.dot(r/rnorm, axis)**2
             d = 0.5*d*(3*vp2-1)
 
-        evals[2] = d
-        evals[:2] = -d/2.0
+        evals[2] = 2*d
+        evals[:2] = -d
 
         evecs[:, 2] = axis
 

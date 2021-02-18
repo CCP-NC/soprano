@@ -131,7 +131,7 @@ class TestNMR(unittest.TestCase):
 
             evals = dipdiag[ij]['evals']
             evecs = dipdiag[ij]['evecs']
-            self.assertAlmostEqual(evals[2], d)
+            self.assertAlmostEqual(evals[2], 2*d)
             self.assertAlmostEqual(np.dot(evecs[:, 2], v), 1)
             self.assertTrue(np.isclose(np.dot(evecs.T, evecs),
                                        np.eye(3)).all())
@@ -141,7 +141,9 @@ class TestNMR(unittest.TestCase):
             self.assertTrue(np.isclose(np.sort(evals),
                                        np.sort(evalstt)).all())
             self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij], v]),
-                                   d)
+                                   2*d)
+
+
 
     def test_tensor(self):
 
