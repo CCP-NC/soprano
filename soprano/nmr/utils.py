@@ -114,12 +114,12 @@ def _dip_tensor(d, r, rotation_axis=None):
     r /= np.linalg.norm(r)
 
     if rotation_axis is None:
-        D = d*(3*r[:, None]*r[None, :]-np.eye(3))/2.0
+        D = d*(3*r[:, None]*r[None, :]-np.eye(3))
     else:
         a = np.array(rotation_axis)
         a /= np.linalg.norm(a)
         vp2 = np.dot(r, a)**2
-        D = 0.5*d*(3*vp2-1)*(3*a[:, None]*a[None, :]-np.eye(3))/2.0
+        D = 0.5*d*(3*vp2-1)*(3*a[:, None]*a[None, :]-np.eye(3))
 
     return D
 

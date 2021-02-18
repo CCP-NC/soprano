@@ -28,7 +28,7 @@ from scipy import constants as cnst
 from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.nmr.utils import _dip_constant
+from soprano.nmr.utils import _dip_constant, _dip_tensor
 from soprano.data.nmr import _get_isotope_data
 
 
@@ -52,9 +52,9 @@ class DipolarCoupling(AtomsProperty):
 
          D_{ij} = 
          \\begin{bmatrix}
-          -\\frac{d_{ij}}{2} & 0 & 0 \\\\
-          0 & -\\frac{d_{ij}}{2} & 0 \\\\
-          0 & 0 & d_{ij} \\\\
+          -d_{ij}   & 0         & 0       \\\\
+          0         & -d_{ij}   & 0       \\\\
+          0         & 0         & 2d_{ij} \\\\
          \\end{bmatrix}
 
     where the z-axis is aligned with :math:`r_{ij}` and the other two can be any
@@ -179,7 +179,7 @@ class DipolarTensor(AtomsProperty):
 
     .. math::
 
-         D_{ij} = d_{ij}\\frac{3\\hat{r}_{ij}\\otimes \\hat{r}_{ij}-\\mathbb{I}}{2}
+         D_{ij} = d_{ij}(3\\hat{r}_{ij}\\otimes \\hat{r}_{ij}-\\mathbb{I})
 
     where :math:`\\hat{r}_{ij} = r_{ij}/|r_{ij}|` and the Kronecker product is
     used.
@@ -208,6 +208,9 @@ class DipolarTensor(AtomsProperty):
     |   block_size (int): maximum size of blocks used when processing large
     |                     chunks of pairs. Necessary to avoid memory problems
     |                     for very large systems. Default is 1000.
+    |   rotation_axis (np.ndarray): if present, return the residual dipolar
+    |                               tensors after fast averaging around the
+    |                               given axis. Default is None.
 
     | Returns: 
     |   dip_dict (dict): Dictionary of tensors in Hz by atomic index pair.
@@ -222,11 +225,12 @@ class DipolarTensor(AtomsProperty):
         'isotope_list': None,
         'self_coupling': False,
         'block_size': 1000,
+        'rotation_axis': None,
     }
 
     @staticmethod
     def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
-                block_size):
+                block_size, rotation_axis):
 
         dip_dict = DipolarCoupling.extract(s,
                                            sel_i=sel_i, sel_j=sel_j,
@@ -238,7 +242,7 @@ class DipolarTensor(AtomsProperty):
         # Now build the tensors
         tdict = {}
         for ij, (d, r) in dip_dict.items():
-            tdict[ij] = d*(3*r[:, None]*r[None, :]-np.eye(3))/2
+            tdict[ij] = _dip_tensor(d, r, rotation_axis)
 
         return tdict
 
