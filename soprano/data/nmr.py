@@ -52,6 +52,9 @@ def _get_nmr_data():
 def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
                       use_q_isotopes=False):
 
+    if isinstance(elems, str):
+        elems = [elems] # It's a single element
+
     data = np.zeros(len(elems))
     nmr_data = _get_nmr_data()
 
