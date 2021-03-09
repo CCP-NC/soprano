@@ -826,14 +826,13 @@ class AtomsCollection(object):
         structures = []
         for d in dirlist:
             try:
-                with utils.silence_stdio(suppress_ase_warnings,
-                                         suppress_ase_warnings):
-                    if is_ext:
-
+                if is_ext:
+                    with utils.silence_stdio(suppress_ase_warnings,
+                                             suppress_ase_warnings):
                         s = ase_io.read(os.path.join(path, d, d + '.' +
                                                      load_format), **opt_args)
-                    elif is_func:
-                        s = load_format(os.path.join(path, d), **opt_args)
+                elif is_func:
+                    s = load_format(os.path.join(path, d), **opt_args)
                 structures.append(s)
             except Exception as e:
                 warnings.warn(str(e))
