@@ -266,7 +266,7 @@ class AtomsCollection(object):
 
         if type(indices) is int:
             # Special case, a single element!
-            indices = indices%len(self)
+            indices = indices % len(self)
             indices = slice(indices, indices+1)
 
         try:
@@ -633,7 +633,7 @@ class AtomsCollection(object):
         return 0
 
     def save_tree(self, path, save_format, name_root='structure',
-                  opt_args={}, safety_check=3):
+                  opt_args={}, safety_check=3, suppress_ase_warnings=True):
         """Save the collection's structures as a series of folders, named like
         the structures, inside a given parent folder (that will be created if
         not present). Arrays and info are stored in a pickled .collection file
@@ -729,11 +729,13 @@ class AtomsCollection(object):
             except OSError:
                 shutil.rmtree(fold)
                 os.mkdir(fold)
-            if is_ext:
-                ase_io.write(os.path.join(fold, sname + '.' + save_format), s,
-                             **opt_args)
-            elif is_func:
-                save_format(s, fold, **opt_args)
+            with utils.silence_stdio(suppress_ase_warnings,
+                                     suppress_ase_warnings):
+                if is_ext:
+                    ase_io.write(os.path.join(fold, sname + '.' + save_format),
+                                 s, **opt_args)
+                elif is_func:
+                    save_format(s, fold, **opt_args)
 
             dirlist.append(sname)
 
@@ -745,7 +747,7 @@ class AtomsCollection(object):
 
     @staticmethod
     def load_tree(path, load_format, opt_args={}, safety_check=3,
-                  tolerant=False):
+                  tolerant=False, suppress_ase_warnings=True):
         """Load a collection's structures from a series of folders, named like
         the structures, inside a given parent folder, as created by save_tree.
         The files can be loaded from a format of choice, or a
@@ -825,8 +827,10 @@ class AtomsCollection(object):
         for d in dirlist:
             try:
                 if is_ext:
-                    s = ase_io.read(os.path.join(path, d, d + '.' +
-                                    load_format), **opt_args)
+                    with utils.silence_stdio(suppress_ase_warnings,
+                                             suppress_ase_warnings):
+                        s = ase_io.read(os.path.join(path, d, d + '.' +
+                                                     load_format), **opt_args)
                 elif is_func:
                     s = load_format(os.path.join(path, d), **opt_args)
                 structures.append(s)
