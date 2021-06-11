@@ -226,5 +226,26 @@ class TestNMR(unittest.TestCase):
         evecs = dip_tens.eigenvectors
         self.assertTrue(np.allclose(np.dot(evecs.T, evecs), np.eye(3)))
 
+    def test_jmat(self):
+        # Test spin operator matrices
+        
+        from soprano.nmr.jmat import JMat
+
+        s = JMat()
+
+        self.assertTrue(np.allclose(s.Jx@s.Jy-s.Jy@s.Jx, 1.0j*s.Jz))
+        self.assertTrue(np.allclose(s.Jy@s.Jz-s.Jz@s.Jy, 1.0j*s.Jx))
+        self.assertTrue(np.allclose(s.Jz@s.Jx-s.Jx@s.Jz, 1.0j*s.Jy))
+        self.assertTrue(np.allclose(s.Jx@s.Jx+s.Jy@s.Jy+s.Jz@s.Jz, s.J2))
+
+        s = JMat(1.5)
+
+        self.assertTrue(np.allclose(s.Jx@s.Jy-s.Jy@s.Jx, 1.0j*s.Jz))
+        self.assertTrue(np.allclose(s.Jy@s.Jz-s.Jz@s.Jy, 1.0j*s.Jx))
+        self.assertTrue(np.allclose(s.Jz@s.Jx-s.Jx@s.Jz, 1.0j*s.Jy))
+        self.assertTrue(np.allclose(s.Jx@s.Jx+s.Jy@s.Jy+s.Jz@s.Jz, s.J2))
+
+
+
 if __name__ == '__main__':
     unittest.main()
