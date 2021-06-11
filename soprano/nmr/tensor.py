@@ -27,6 +27,19 @@ from soprano.data.nmr import _get_isotope_data
 from ase.quaternions import Quaternion
 
 
+def _needs_eigenvalues(f):
+
+    def decorated(self, *args, **kwargs):
+
+        if self._incr_evals is None:
+            evals, evecs = np.linalg.eigh(self._symm)
+            self._save_raw_eigenvalues(evals, evecs)
+
+        return f(self, *args, **kwargs)
+
+    return decorated
+
+
 class NMRTensor(object):
     """NMRTensor
 
@@ -50,7 +63,7 @@ class NMRTensor(object):
                                          pair [evals, evecs] for the symmetric
                                          part alone.
             order (str):        Order to use for eigenvalues/eigenvectors. Can
-                                be 'i' (ORDER_INCREASING), 'd' 
+                                be 'i' (ORDER_INCREASING), 'd'
                                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                                 'n' (ORDER_NQR). Default is 'i'.
         """
@@ -62,7 +75,7 @@ class NMRTensor(object):
             if self._data.shape != (3, 3):
                 raise ValueError('Invalid matrix data passed to NMRTensor')
             self._symm = (self._data+self._data.T)/2.0
-            evals, evecs = np.linalg.eigh(self._symm)
+            self._incr_evals = None
         elif len(data) == 2:
             evals, evecs = data
             evecs = np.array(evecs)
@@ -74,9 +87,8 @@ class NMRTensor(object):
             evecs = evecs[:, sort_i]
             self._symm = np.linalg.multi_dot([evecs, np.diag(evals), evecs.T])
             self._data = self._symm
+            self._save_raw_eigenvalues(evals, evecs)
 
-        self._incr_evals = evals
-        self._haeb_evals = _haeb_sort([evals])[0]
         self._anisotropy = None
         self._redaniso = None
         self._asymmetry = None
@@ -88,8 +100,17 @@ class NMRTensor(object):
         # Spherical tensor components
         self._sph = None
 
+        self._quat = None
+
+    def _save_raw_eigenvalues(self, evals, evecs):
+        """Store eigenvalues from the raw form (how they come out of
+        np.linalg.eigh)
+        """
+        self._incr_evals = evals
+        self._haeb_evals = _haeb_sort([evals])[0]
+
         # Sort eigenvalues and eigenvectors as specified
-        if order != self.ORDER_INCREASING:
+        if self._order != self.ORDER_INCREASING:
             self._evals, sort_i = _evals_sort([evals], order, True)
             self._evals = self._evals[0]
             self._evecs = evecs[:, sort_i[0]]
@@ -107,17 +128,17 @@ class NMRTensor(object):
         self._evecs[2, 2] = (self._evecs[0, 0]*self._evecs[1, 1] -
                              self._evecs[1, 0]*self._evecs[0, 1])
 
-        self._quat = None
-
     @property
     def data(self):
         return self._data.copy()
 
     @property
+    @_needs_eigenvalues
     def eigenvalues(self):
         return self._evals.copy()
 
     @property
+    @_needs_eigenvalues
     def eigenvectors(self):
         return self._evecs.copy()
 
@@ -132,36 +153,42 @@ class NMRTensor(object):
         return self.trace/3.0
 
     @property
+    @_needs_eigenvalues
     def anisotropy(self):
         if self._anisotropy is None:
             self._anisotropy = _anisotropy(self._haeb_evals[None, :])[0]
         return self._anisotropy
 
     @property
+    @_needs_eigenvalues
     def reduced_anisotropy(self):
         if self._redaniso is None:
             self._redaniso = _anisotropy(self._haeb_evals[None, :], True)[0]
         return self._redaniso
 
     @property
+    @_needs_eigenvalues
     def asymmetry(self):
         if self._asymmetry is None:
             self._asymmetry = _asymmetry(self._haeb_evals[None, :])[0]
         return self._asymmetry
 
     @property
+    @_needs_eigenvalues
     def span(self):
         if self._span is None:
             self._span = _span(self._incr_evals[None, :])[0]
         return self._span
 
     @property
+    @_needs_eigenvalues
     def skew(self):
         if self._skew is None:
             self._skew = _skew(self._incr_evals[None, :])[0]
         return self._skew
 
     @property
+    @_needs_eigenvalues
     def quaternion(self):
         if self._quat is None:
             self._quat = _evecs_2_quat([self._evecs])[0]
@@ -173,7 +200,7 @@ class NMRTensor(object):
             self._sph = np.zeros((3, 3, 3))
             self._sph[0] = np.eye(3)*self.trace/3
             self._sph[1] = (self._data-self._data.T)/2.0
-            self._sph[2] = self._symm - self._sph0
+            self._sph[2] = self._symm - self._sph[0]
 
         return self._sph.copy()
 
