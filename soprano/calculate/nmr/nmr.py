@@ -35,6 +35,7 @@ from scipy import constants as cnst
 from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.nmr.utils import _dip_constant
+from soprano.nmr.jmat import JMat
 from soprano.data.nmr import (_get_isotope_data, _get_nmr_data, _el_iso,
                               EFG_TO_CHI)
 from soprano.calculate.powder.triavg import TriAvg
@@ -191,6 +192,7 @@ class NMRCalculator(object):
         self.set_isotopes(isos)
 
         self.set_larmor_frequency(larmor_frequency, larmor_units)
+        self.set_single_crystal(0, 0)
 
         self._references = {}
 
@@ -367,10 +369,203 @@ class NMRCalculator(object):
         self._pwdscheme = TriAvg(mode)
         self._orients = self._pwdscheme.get_orient_points(N)
 
-    def spectrum_1d(self, element, min_freq=-50, max_freq=50, bins=100,
-                    freq_broad=None, freq_units='ppm',
-                    effects=NMRFlags.CS_ISO, use_central=False,
-                    use_reference=False):
+    def spectrum_1d(self, element, min_freq=None, max_freq=None, bins=100,
+                    broadening=None, units='ppm',
+                    cs_iso=True, cs_aniso=False, Q_order=0, mas=False,
+                    only_central=False, use_reference=False):
+
+        # # First, define the frequency range
+        el, iso = _el_iso(element)
+        larm = self._B*_nmr_data[el][iso]['gamma']/(2.0*np.pi*1e6)
+        I = _nmr_data[el][iso]['I']
+        # Units? We want this to be in ppm
+        u = {
+            'ppm': 1,
+            'MHz': 1e6/larm,
+        }
+        try:
+            units = u[units]
+        except KeyError:
+            raise ValueError('Invalid units passed to spectrum_1d')
+
+        # If it's not a quadrupolar nucleus, no reason to keep those effects
+        # around...
+        Q_order = Q_order if abs(I) > 0.5 else 0
+
+        # Ok, so get the relevant atoms and their properties
+        a_inds = np.where((self._elems == el) & (self._isos == iso))[0]
+
+        # Are there even any such atoms?
+        if len(a_inds) == 0:
+            raise RuntimeError('No atoms of the desired isotopes found in the'
+                               ' system')
+
+        if (cs_iso or cs_aniso):
+            try:
+                ms_tens = self._sample.get_array('ms')[a_inds]
+                # Symmetrize
+                ms_tens = (ms_tens+np.swapaxes(ms_tens, 1, 2))/2.0
+                # Split
+                ms_iso = np.trace(ms_tens, axis1=1, axis2=2)/3.0
+                ms_aniso = ms_tens - np.eye(3)[None]*ms_iso[:, None, None]
+            except KeyError:
+                raise RuntimeError('Impossible to compute chemical shift - '
+                                   'sample has no shielding data')
+
+        if Q_order > 0:
+            try:
+                efg_tens = self._sample.get_array('efg')[a_inds]
+            except KeyError:
+                raise RuntimeError('Impossible to compute quadrupolar effects'
+                                   ' - sample has no EFG data')
+            Q = _nmr_data[el][iso]['Q']
+            chi_tens = efg_tens*Q*EFG_TO_CHI
+
+        # Reference (zero if not given)
+        try:
+            ref = self._references[el][iso]
+        except KeyError:
+            ref = 0.0
+
+        # States?
+        m = np.arange(-abs(I), abs(I)+1)
+        m_i = np.arange(len(m))
+        if only_central:
+            if (I % 1 == 0):
+                raise RuntimeError('Can not use central transition for nucleus'
+                                   ' with integer spin')
+            m_i = [len(m)/2-1, len(m)/2]
+            m = m[m_i]
+
+        Na = len(a_inds)            # Number of atoms
+        Nc = len(self._orients[0])  # Number of crystallites
+        Nm = len(m)                 # Number of states
+
+        # Define all energy levels
+        E = np.zeros((Na, Nc, Nm))
+
+        # Isotropic shift
+        if cs_iso:
+            E += ms_iso[:, None, None]*m[None, None, :]
+
+        if cs_aniso and not mas:
+            dirs = self._orients[0]
+            dd = dirs[None, :, None, :]*dirs[None, :, :, None]
+            Ecsa = np.sum(ms_aniso*dd, axis=(2, 3))
+            E += Ecsa[:,:,None]*m[None,None,:]
+
+        if Q_order > 0:
+            # Compute rotated Q tensors
+            thetas = np.arccos(self._orients[0][:, 2])
+            phis = np.arctan2(self._orients[0][:, 1], self._orients[0][:, 0])
+
+            def makeRmat(th, ph):
+                N = len(th)
+                ct = np.cos(th)
+                st = np.sin(th)
+                cp = np.cos(ph)
+                sp = np.sin(ph)
+                R = np.array([[ct*cp, -sp, st*cp],
+                              [sp*ct, cp, sp*st],
+                              [-st, 0*st, ct]])
+                R = np.moveaxis(R, 2, 0)
+                return R
+
+            Rs = makeRmat(thetas, phis)
+            chi_tens = np.transpose(Rs, (0, 2, 1))[None]@chi_tens[:,None]@Rs
+
+            # Spin operators
+            J = JMat(I).Jvec
+            JJ = J[None,:]@J[:,None]
+
+
+
+        print(E)
+
+        raise NotImplementedError('Still not finished')
+
+        #
+        # chi_tens = RsT[None,:]@chi_tens[:,None]@Rs[None,:]
+
+        # # Let's start with peak positions - quantities non dependent on
+        # # orientation
+
+        # # Shape: atoms*1Q transitions
+        # peaks = np.zeros((len(a_inds), int(2*I)))
+
+        # # Magnetic quantum number values
+        # if I % 1 == 0.5 and use_central:
+        #     m = np.array([-0.5, 0.5])[None, :]
+        # else:
+        #     m = np.arange(-I, I+1).astype(float)[None, :]
+
+        # if effects & NMRFlags.CS_ISO:
+        #     peaks += np.trace(ms_tens, axis1=1, axis2=2)[:,None]/3
+
+        # # Any orientational effects at all?
+        # has_orient = effects & (NMRFlags.CS_ORIENT | NMRFlags.Q_1_ORIENT |
+        #                         NMRFlags.Q_2_ORIENT_STATIC |
+        #                         NMRFlags.Q_2_ORIENT_MAS)
+        # # Are we using a POWDER average?
+        # use_pwd = len(self._orients[2]) > 0
+
+        # if has_orient:
+        #     # Further expand the peaks!
+        #     peaks = np.repeat(
+        #         peaks[:, :, None], len(self._orients[0]), axis=-1)
+
+        # ###
+
+        # # Finally, the overall spectrum
+        # spec = np.zeros(freq_axis.shape)
+
+        # for p_nuc in peaks:
+        #     for p_trans in p_nuc:
+        #         if has_orient and use_pwd:
+        #             spec += self._pwdscheme.average(freq_axis,
+        #                                             p_trans,
+        #                                             self._orients[1],
+        #                                             self._orients[2])
+
+        # if freq_broad is None and (not has_orient or not use_pwd):
+        #     print('WARNING: no artificial broadening detected in a calculation'
+        #           ' without line-broadening contributions. The spectrum could '
+        #           'appear distorted or empty')
+
+        # if freq_broad is not None:
+        #     if has_orient and use_pwd:
+        #         fc = (max_freq+min_freq)/2.0
+        #         bk = np.exp(-((freq_axis-fc)/freq_broad)**2.0)
+        #         bk /= np.sum(bk)
+        #         spec = np.convolve(spec, bk, mode='same')
+        #     else:
+        #         bpeaks = np.exp(-((freq_axis-peaks[:, :, None]) /
+        #                           freq_broad)**2)  # Broadened peaks
+        #         # Normalise them BY PEAK MAXIMUM
+        #         norm_max = np.amax(bpeaks, axis=-1, keepdims=True)
+        #         norm_max = np.where(np.isclose(norm_max, 0), np.inf, norm_max)
+        #         bpeaks /= norm_max
+        #         spec = np.sum(bpeaks, axis=(0, 1) if not has_orient
+        #                       else (0, 1, 2))
+
+        # # Normalize the spectrum to the number of nuclei
+        # normsum = np.sum(spec)
+        # if (np.isclose(normsum, 0)):
+        #     print('WARNING: no peaks found in the given frequency range. '
+        #           'The spectrum will be empty')
+        # else:
+        #     spec *= len(a_inds)*len(spec)/normsum
+
+        # if use_reference:
+        #     freq_axis = ref - freq_axis
+
+        # freqs = freq_axis/u[freq_units]
+        # return spec, freqs
+
+    def spectrum_1d_old(self, element, min_freq=-50, max_freq=50, bins=100,
+                        freq_broad=None, freq_units='ppm',
+                        effects=NMRFlags.CS_ISO, use_central=False,
+                        use_reference=False):
         """
         Return a simulated spectrum for the given sample and element.
 

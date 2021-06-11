@@ -22,7 +22,7 @@ NMR tensor as well as its representation in multiple conventions
 import numpy as np
 from soprano.nmr.utils import (_evals_sort, _haeb_sort, _anisotropy,
                                _asymmetry, _span, _skew, _evecs_2_quat,
-                               _dip_constant)
+                               _dip_constant, _mas_average)
 from soprano.data.nmr import _get_isotope_data
 from ase.quaternions import Quaternion
 
@@ -209,15 +209,9 @@ class NMRTensor(object):
     @property
     def mas_average(self):
         if self._mas_tens is None:
-            M = self._symm
-            self._mas_tens = np.zeros((3,3))
-            self._mas_tens[2,2] = self.isotropy
-            self._mas_tens[0,0] = (M[0,0]+M[1,1])/6+2/3*M[2,2]
-            self._mas_tens[1,1] = (M[0,0]+M[1,1])/2
-            self._mas_tens[2,0] = 2**0.5/6*(-M[0,0]-M[1,1]+2*M[2,2])
-            self._mas_tens[0,2] = self._mas_tens[2,0]
+            self._mas_tens = _mas_average(self._symm)
 
-        return self._mas_tens.copy()    
+        return self._mas_tens.copy()
 
     def euler_angles(self, convention='zyz'):
         """Return Euler angles of the Principal Axis System
