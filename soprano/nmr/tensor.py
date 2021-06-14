@@ -209,7 +209,7 @@ class NMRTensor(object):
     @property
     def mas_average(self):
         if self._mas_tens is None:
-            self._mas_tens = _mas_average(self._symm)
+            self._mas_tens = _mas_average([self._symm])[0]
 
         return self._mas_tens.copy()
 

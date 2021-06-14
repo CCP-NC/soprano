@@ -131,13 +131,15 @@ def _J_constant(Kij, gi, gj):
     return cnst.h*gi*gj*Kij/(4*np.pi**2)*1e19
 
 
-def _mas_average(M):
-    """Compute the Magic Angle Spinning average of a symmetric 3x3 tensor"""
-    Mmas = M*0
-    Mmas[2, 2] = np.trace(M)/3
-    Mmas[0, 0] = (M[0, 0]+M[1, 1])/6+2/3*M[2, 2]
-    Mmas[1, 1] = (M[0, 0]+M[1, 1])/2
-    Mmas[2, 0] = 2**0.5/6*(-M[0, 0]-M[1, 1]+2*M[2, 2])
-    Mmas[0, 2] = Mmas[2, 0]
+def _mas_average(Ms):
+    """Compute the Magic Angle Spinning average of a list of symmetric 3x3 
+    tensors"""
+    Ms = np.array(Ms)
+    Mmas = Ms*0
+    Mmas[:, 2, 2] = np.trace(Ms, axis1=1, axis2=2)/3
+    Mmas[:, 0, 0] = (Ms[:, 0, 0]+Ms[:, 1, 1])/6+2/3*Ms[:, 2, 2]
+    Mmas[:, 1, 1] = (Ms[:, 0, 0]+Ms[:, 1, 1])/2
+    Mmas[:, 2, 0] = 2**0.5/6*(-Ms[:, 0, 0]-Ms[:, 1, 1]+2*Ms[:, 2, 2])
+    Mmas[:, 0, 2] = Mmas[:, 2, 0]
 
     return Mmas
