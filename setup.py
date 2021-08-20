@@ -80,5 +80,5 @@ if __name__ == '__main__':
               'scipy',
               'ase'
           ],
-          python_requires='>=3.1.*'
+          python_requires='>=3.6.*'
           )
