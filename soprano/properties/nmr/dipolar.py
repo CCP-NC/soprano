@@ -30,6 +30,7 @@ from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 from soprano.nmr.utils import _dip_constant, _dip_tensor
 from soprano.data.nmr import _get_isotope_data
+from soprano.rnd import Random
 
 
 class DipolarCoupling(AtomsProperty):
@@ -317,7 +318,7 @@ class DipolarDiagonal(AtomsProperty):
             # Z is equal to v
             evecs[:, 2] = v
             # Y is any random orthogonal vector
-            rv = np.random.random(3)
+            rv = Random.random(3)
             evecs[:, 1] = np.cross(v, rv)
             evecs[:, 1] /= np.linalg.norm(evecs[:, 1])
             # X = Y cross Z

@@ -26,6 +26,7 @@ import os
 import numpy as np
 # Internal imports
 import soprano.utils as utils
+from soprano.rnd import Random
 
 
 def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
@@ -91,9 +92,9 @@ def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
 
         # Rattle positions
         if method == 'uniform':
-            dxyz = (np.random.random(pos.shape)-0.5)*2*amplitude
+            dxyz = (Random.random(pos.shape)-0.5)*2*amplitude
         elif method == 'normal':
-            dxyz = np.random.normal(size=pos.shape)*amplitude
+            dxyz = Random.normal(size=pos.shape)*amplitude
 
         rnds.set_positions(pos+dxyz)
 

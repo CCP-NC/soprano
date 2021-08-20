@@ -41,6 +41,7 @@ from itertools import product as iter_product
 
 from soprano.optional import (requireNetworkX, requireScikitLearn,
                               requireSpglib)
+from soprano.rnd import Random
 
 
 def seedname(path):
@@ -693,7 +694,7 @@ def periodic_bridson(cell, rmin, max_attempts=30,
         queue = [np.array([0, 0, 0])]
     else:
         free_ijk = np.array(np.where(grid == 0))
-        queue = [free_ijk[:, np.random.randint(free_ijk.shape[1])]]
+        queue = [free_ijk[:, Random.randint(free_ijk.shape[1])]]
 
     # Start iterations
     while np.sum(grid != 0) < N**3 and len(queue) > 0:
@@ -711,10 +712,10 @@ def periodic_bridson(cell, rmin, max_attempts=30,
             good = False
             if candidates.shape[1] == 0:
                 continue
-            i = np.random.randint(candidates.shape[1])
+            i = Random.randint(candidates.shape[1])
             ijk = candidates[:, i]
             # Pick the point
-            fp = (ijk+np.random.random(3))/N
+            fp = (ijk+Random.random(3))/N
             # Check it
             near_mask = (checkMask+ijk[:, None]) % N
             near_points = tuple(near_mask[:, np.where(grid[tuple(near_mask)]
@@ -958,7 +959,7 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
     for a in range(attempts):
 
         # Random initialisation
-        o_v = np.random.random(3)-0.5
+        o_v = Random.random(3)-0.5
         o_v /= np.linalg.norm(o_v)
 
         # Iterate

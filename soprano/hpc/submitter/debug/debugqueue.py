@@ -31,6 +31,7 @@ import subprocess as sp
 from threading import Thread
 from soprano.utils import safe_communicate
 from soprano.hpc.submitter.queues import QueueInterface
+from soprano.rnd import Random
 
 
 class DebugQueueInterface(QueueInterface):
@@ -126,7 +127,7 @@ class DebugQueueInterface(QueueInterface):
                         if len(vals) == 1:
                             job[keyw] = float(vals[0])
                         elif len(vals) == 2:
-                            job[keyw] = np.random.uniform(*map(float, vals))
+                            job[keyw] = Random.uniform(*map(float, vals))
 
         # Python 2-to-3 compatibility
         try:
@@ -142,7 +143,7 @@ class DebugQueueInterface(QueueInterface):
         # Generate a suitable id
         new_id = '1'
         while new_id in self._job_list:
-            new_id = str(np.random.randint(10**(len(new_id)),
+            new_id = str(Random.randint(10**(len(new_id)),
                                            10**(1+len(new_id))))
 
         self._job_list[new_id] = job

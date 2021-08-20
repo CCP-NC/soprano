@@ -34,6 +34,7 @@ import soprano.utils as utils
 from soprano.selection import AtomSelection
 from soprano.properties.linkage import Bonds
 from soprano.data import vdw_radii
+from soprano.rnd import Random
 
 
 def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
@@ -101,7 +102,7 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
 
             while not good and attempts > 0:
                 # 1. Generate point in fractional coordinates
-                fp = np.random.random((3,))
+                fp = Random.random((3,))
                 # 2. If required check it against existing atoms
                 if avoid_atoms:
                     dx = np.dot(avoid_fpos-fp[None, :], cell)
@@ -245,7 +246,7 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
         if bset is None:
             continue
         if len(bset) == 0:
-            rndv = np.random.random((1, 3))-0.5
+            rndv = Random.random((1, 3))-0.5
             rndv /= np.linalg.norm(rndv, axis=1)[:, None]
             attach_v[i] = rndv
         else:
