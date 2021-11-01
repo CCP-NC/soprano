@@ -184,7 +184,7 @@ class AtomSelection(object):
         |                            pick the specified periodic copies of
         |                            the corresponding atoms (useful e.g. to
         |                            take the correct periodic copies for a
-        |                            molecule)
+        |                            molecule). Default is False
 
         | Returns:
         |   subset (ase.Atoms):      Atoms object containing only the
