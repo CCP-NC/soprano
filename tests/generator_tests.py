@@ -43,6 +43,12 @@ class TestGenerate(unittest.TestCase):
         try:
             acoll = AtomsCollection(agen)
         except RuntimeError as e:
+            if "Invalid output" in str(e):
+                sys.stdout = _stdout
+                print(
+                    "WARNING - AIRSS' buildcell seems to have failed to run"
+                    )
+                return
             if "Buildcell" in str(e):
                 sys.stdout = _stdout
                 # Then we just don't have the program
