@@ -14,6 +14,7 @@ import sys
 import unittest
 import numpy as np
 from ase import Atoms
+from ase.build import bulk
 from ase.io import read
 
 sys.path.insert(
@@ -92,6 +93,32 @@ class TestPropertyLoad(unittest.TestCase):
         num_atoms_prop = coll.all.map(NumAtoms.get)
 
         self.assertTrue((num_atoms == num_atoms_prop).all)
+
+    def test_remap(self):
+
+        from soprano.properties.map import RemapIndices, Remap
+
+        # Create a test reference structure
+        s1 = bulk('Au', cubic=True)
+        shuffle = [3,0,2,1]
+        ref = s1[shuffle]
+
+        # Rattle the atoms a bit
+        rng = np.random.default_rng(0)
+        s1.positions += (rng.random((4,3))-0.5)/10.0
+
+        indices = RemapIndices.extract(s1, ref, True, False)
+        self.assertTrue(all([i == j for (i, j) in zip(shuffle, indices)]))
+
+        # Test using scaled coordinates instead
+
+        indices = RemapIndices.extract(s1, ref, True, True)
+        self.assertTrue(all([i == j for (i, j) in zip(shuffle, indices)]))
+
+        # Now just the remapping
+        s2 = Remap.extract(s1, ref, True, False)
+
+        self.assertTrue((s2.positions == s1.positions[shuffle]).all())
 
     def test_linkageprops(self):
 
