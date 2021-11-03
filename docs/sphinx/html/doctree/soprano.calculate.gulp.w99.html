@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.calculate.gulp.w99 module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.gulp.html" accesskey="U">soprano.calculate.gulp package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.gulp.html" accesskey="U">soprano.calculate.gulp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.gulp.w99 module</a></li> 
       </ul>
     </div>  
 
@@ -48,7 +49,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.calculate.gulp.w99">
+  <section id="module-soprano.calculate.gulp.w99">
 <span id="soprano-calculate-gulp-w99-module"></span><h1>soprano.calculate.gulp.w99 module<a class="headerlink" href="#module-soprano.calculate.gulp.w99" title="Permalink to this headline">¶</a></h1>
 <p>Classes and functions for using the W99 force field in GULP.
 This force field only applies to organic molecules. More information can be
@@ -57,15 +58,15 @@ found in the original paper by Donald E. Williams:</p>
 <em>Improved Intermolecular Force Field for Molecules Containing H, C, N, and O
 Atoms, with Application to Nucleoside and Peptide Crystals</em>  - Journal
 of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</p>
-<dl class="exception">
-<dt id="soprano.calculate.gulp.w99.W99Error">
-<em class="property">exception </em><code class="sig-prename descclassname">soprano.calculate.gulp.w99.</code><code class="sig-name descname">W99Error</code><a class="headerlink" href="#soprano.calculate.gulp.w99.W99Error" title="Permalink to this definition">¶</a></dt>
+<dl class="py exception">
+<dt class="sig sig-object py" id="soprano.calculate.gulp.w99.W99Error">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></span><span class="sig-name descname"><span class="pre">W99Error</span></span><a class="headerlink" href="#soprano.calculate.gulp.w99.W99Error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
-<dl class="function">
-<dt id="soprano.calculate.gulp.w99.find_w99_atomtypes">
-<code class="sig-prename descclassname">soprano.calculate.gulp.w99.</code><code class="sig-name descname">find_w99_atomtypes</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.gulp.w99.find_w99_atomtypes" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.calculate.gulp.w99.find_w99_atomtypes">
+<span class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></span><span class="sig-name descname"><span class="pre">find_w99_atomtypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.gulp.w99.find_w99_atomtypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the W99 force field atom types for a given structure.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
@@ -79,9 +80,9 @@ of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</p>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="soprano.calculate.gulp.w99.get_w99_energy">
-<code class="sig-prename descclassname">soprano.calculate.gulp.w99.</code><code class="sig-name descname">get_w99_energy</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">charge_method='eem'</em>, <em class="sig-param">Etol=1e-06</em>, <em class="sig-param">gulp_command='gulp'</em>, <em class="sig-param">gulp_path=None</em>, <em class="sig-param">save_charges=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.gulp.w99.get_w99_energy" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.calculate.gulp.w99.get_w99_energy">
+<span class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></span><span class="sig-name descname"><span class="pre">get_w99_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Etol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.gulp.w99.get_w99_energy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the W99 force field energy using GULP.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
@@ -123,9 +124,10 @@ of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</p>
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -156,7 +158,7 @@ of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -185,12 +187,13 @@ of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.gulp.html" >soprano.calculate.gulp package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.gulp.html" >soprano.calculate.gulp package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.gulp.w99 module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

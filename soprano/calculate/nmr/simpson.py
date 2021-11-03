@@ -27,14 +27,17 @@ from __future__ import unicode_literals
 import re
 import numpy as np
 from collections import namedtuple
-from soprano.properties.nmr import (MSIsotropy, MSReducedAnisotropy,
-                                    MSAsymmetry,
-                                    MSQuaternion,
-                                    EFGQuadrupolarConstant, EFGAsymmetry,
-                                    EFGQuaternion,
-                                    DipolarCoupling)
-from soprano.selection import AtomSelection
-from soprano.data.nmr import _get_nmr_data, _el_iso
+from soprano.properties.nmr import (
+    MSIsotropy,
+    MSReducedAnisotropy,
+    MSAsymmetry,
+    MSQuaternion,
+    EFGQuadrupolarConstant,
+    EFGAsymmetry,
+    EFGQuaternion,
+    DipolarCoupling,
+)
+from soprano.data.nmr import _get_nmr_data
 
 _spinsys_template = """spinsys {{
 {header}
@@ -50,8 +53,9 @@ nuclei {nuclei}
 """
 
 
-def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
-                  q_order=0, dip_sel=None, path=None):
+def write_spinsys(
+    s, isotope_list=None, use_ms=False, ms_iso=False, q_order=0, dip_sel=None, path=None
+):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
     system. This is meant to be a low-level function, used by other higher
@@ -90,14 +94,15 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
     if isotope_list is None:
         isotope_list = [int(nmr_data[n]["iso"]) for n in nuclei]
 
-    nuclei = [str(i)+n for i, n in zip(isotope_list, nuclei)]
+    nuclei = [str(i) + n for i, n in zip(isotope_list, nuclei)]
 
     # Build header
-    header = _header_template.format(channels=' '.join(set(nuclei)),
-                                     nuclei=' '.join(nuclei))
+    header = _header_template.format(
+        channels=" ".join(set(nuclei)), nuclei=" ".join(nuclei)
+    )
 
     # Build MS block
-    ms_block = ''
+    ms_block = ""
 
     if use_ms:
 
@@ -105,55 +110,60 @@ def write_spinsys(s, isotope_list=None, use_ms=False, ms_iso=False,
         if not ms_iso:
             msaniso = MSReducedAnisotropy.get(s)
             msasymm = MSAsymmetry.get(s)
-            eulangs = np.array([q.euler_angles()
-                                for q in MSQuaternion.get(s)])*180/np.pi
+            eulangs = (
+                np.array([q.euler_angles() for q in MSQuaternion.get(s)]) * 180 / np.pi
+            )
         else:
             msaniso = np.zeros(len(s))
             msasymm = np.zeros(len(s))
             eulangs = np.zeros((len(s), 3))
 
         for i, ms in enumerate(msiso):
-            ms_block += ('shift {0} {1}p {2}p '
-                         '{3} {4} {5} {6}\n').format(i+1,
-                                                     ms, msaniso[i],
-                                                     msasymm[i], *eulangs[i])
+            ms_block += ("shift {0} {1}p {2}p " "{3} {4} {5} {6}\n").format(
+                i + 1, ms, msaniso[i], msasymm[i], *eulangs[i]
+            )
 
     # Build EFG block
-    efg_block = ''
+    efg_block = ""
 
     if q_order > 0:
         if q_order > 2:
-            raise ValueError('Invalid quadrupolar order')
+            raise ValueError("Invalid quadrupolar order")
         Cq = EFGQuadrupolarConstant(isotope_list=isotope_list)(s)
         eta_q = EFGAsymmetry.get(s)
-        eulangs = np.array([q.euler_angles()
-                            for q in EFGQuaternion.get(s)])*180/np.pi
+        eulangs = (
+            np.array([q.euler_angles() for q in EFGQuaternion.get(s)]) * 180 / np.pi
+        )
         for i, cq in enumerate(Cq):
             if cq == 0:
                 continue
-            efg_block += ('quadrupole {0} {1} {2} {3}'
-                          ' {4} {5} {6}\n').format(i+1, q_order, cq, eta_q[i],
-                                                   *eulangs[i])
+            efg_block += ("quadrupole {0} {1} {2} {3}" " {4} {5} {6}\n").format(
+                i + 1, q_order, cq, eta_q[i], *eulangs[i]
+            )
 
     # Build dipolar block
-    dip_block = ''
+    dip_block = ""
 
     if dip_sel is not None and len(dip_sel) > 1:
         dip = DipolarCoupling(sel_i=dip_sel, isotope_list=isotope_list)(s)
         for (i, j), (d, v) in dip.items():
-            a, b = (np.array([np.arccos(-v[2]),
-                              np.arctan2(-v[1],
-                                         -v[0])]) % (2*np.pi)) * 180/np.pi
-            dip_block += ('dipole {0} {1} {2} {3}'
-                          ' {4} 0.0\n').format(i+1, j+1, d*2*np.pi, a, b)
+            a, b = (
+                (np.array([np.arccos(-v[2]), np.arctan2(-v[1], -v[0])]) % (2 * np.pi))
+                * 180
+                / np.pi
+            )
+            dip_block += ("dipole {0} {1} {2} {3}" " {4} 0.0\n").format(
+                i + 1, j + 1, d * 2 * np.pi, a, b
+            )
 
-    out_file = _spinsys_template.format(header=header, ms=ms_block,
-                                        efg=efg_block, dipolar=dip_block)
+    out_file = _spinsys_template.format(
+        header=header, ms=ms_block, efg=efg_block, dipolar=dip_block
+    )
 
     if path is None:
         return out_file
     else:
-        with open(path, 'w') as of:
+        with open(path, "w") as of:
             of.write(out_file)
 
 
@@ -161,25 +171,28 @@ def load_simpson_dat(filename):
     """Load a SIMPSON output .dat file and return it as a numpy array."""
 
     dat = np.loadtxt(filename)
-    return np.concatenate([dat[:, 0, None],
-                           (dat[:, 1] + 1.0j*dat[:, 2])[:, None]], axis=1)
+    return np.concatenate(
+        [dat[:, 0, None], (dat[:, 1] + 1.0j * dat[:, 2])[:, None]], axis=1
+    )
 
 
-SimpsonTemplates = namedtuple('SimpsonTemplates',
-                              """BASIC_SPECTRUM,
+SimpsonTemplates = namedtuple(
+    "SimpsonTemplates",
+    """BASIC_SPECTRUM,
                               BROADENED_SPECTRUM
-                              """)
+                              """,
+)
 
 SimpsonTemplates = SimpsonTemplates(
     BASIC_SPECTRUM={
-        'pars': {},
-        'pulseq': """
+        "pars": {},
+        "pulseq": """
 global par
 delay [expr 1e6/$par(sw)]
 store 1
 acq $par(np) 1
 """,
-        'main': """
+        "main": """
 global par
 
 set f [fsimpson]
@@ -187,20 +200,19 @@ fsave $f $par(name)_fid.dat -xreim
 fft $f
 fsave $f $par(name)_spe.dat -xreim
 puts "Simulation complete"
-"""
+""",
     },
-
     BROADENED_SPECTRUM={
-        'pars': {
-            'broad': '1',
+        "pars": {
+            "broad": "1",
         },
-        'pulseq': """
+        "pulseq": """
 global par
 delay [expr 1e6/$par(sw)]
 store 1
 acq $par(np) 1
 """,
-        'main': """
+        "main": """
 global par
 
 set f [fsimpson]
@@ -209,8 +221,9 @@ faddlb $f $par(broad) 0
 fft $f
 fsave $f $par(name)_spe.dat -xreim
 puts "Simulation complete"
-"""
-    })
+""",
+    },
+)
 
 
 def _check_template_pars(f):
@@ -218,16 +231,17 @@ def _check_template_pars(f):
         f(self, *args, **kwargs)
 
         # Scan for missing parameters
-        par_re = re.compile('\$par\(([0-9a-zA-Z_]+)\)')
+        par_re = re.compile("\\$par\\(([0-9a-zA-Z_]+)\\)")
 
-        req_pars = set(par_re.findall(self.main) +
-                       par_re.findall(self.pulseq))
+        req_pars = set(par_re.findall(self.main) + par_re.findall(self.pulseq))
         # Remove 'name' since that's defined by default
-        req_pars = req_pars.difference(['name'])
+        req_pars = req_pars.difference(["name"])
 
         if not req_pars.issubset(set(self.pars.keys())):
-            print('WARNING: some parameters required for this sequence seem'
-                  ' to be not defined')
+            print(
+                "WARNING: some parameters required for this sequence seem"
+                " to be not defined"
+            )
 
     return decorated_f
 
@@ -251,20 +265,20 @@ class SimpsonSequence:
         self.spinsys_source = spinsys_source
 
         self.pars = {
-            'proton_frequency': '4e7',
-            'start_operator': 'Inx',
-            'detect_operator': 'Inx',
-            'np': '8192',
-            'sw': '8000',
-            'num_cores': '1',
-            'crystal_file': 'alpha0beta0'
+            "proton_frequency": "4e7",
+            "start_operator": "Inx",
+            "detect_operator": "Inx",
+            "np": "8192",
+            "sw": "8000",
+            "num_cores": "1",
+            "crystal_file": "alpha0beta0",
         }
 
         self.apply_template(SimpsonTemplates.BASIC_SPECTRUM)
 
     @_check_template_pars
     def apply_template(self, template):
-        """Apply an existing sequence template from SimpsonTemplates, 
+        """Apply an existing sequence template from SimpsonTemplates,
         including default parameters.
 
         | Args:
@@ -272,9 +286,9 @@ class SimpsonSequence:
 
         """
 
-        self.pars.update(template['pars'])
-        self.pulseq = template['pulseq']
-        self.main = template['main']
+        self.pars.update(template["pars"])
+        self.pulseq = template["pulseq"]
+        self.main = template["main"]
 
     @_check_template_pars
     def apply_custom_template(self, pars, pulseq, main):
@@ -312,26 +326,26 @@ class SimpsonSequence:
 
         """
 
-        outf = 'source {0}\n\n'.format(self.spinsys_source)
+        outf = "source {0}\n\n".format(self.spinsys_source)
 
         # Write out par block
-        outf += 'par {\n'
+        outf += "par {\n"
         for p, val in self.pars.items():
-            outf += '\t{0} {1}\n'.format(p, val)
-        outf += '}\n\n'
+            outf += "\t{0} {1}\n".format(p, val)
+        outf += "}\n\n"
 
         # Write out pulseq
-        outf += 'proc pulseq {} {\n'
+        outf += "proc pulseq {} {\n"
         outf += self.pulseq
-        outf += '\n}\n\n'
+        outf += "\n}\n\n"
 
         # Write out main
-        outf += 'proc main {} {\n'
+        outf += "proc main {} {\n"
         outf += self.main
-        outf += '\n}\n\n'
+        outf += "\n}\n\n"
 
         if path is None:
             return outf
         else:
-            with open(path, 'w') as of:
+            with open(path, "w") as of:
                 of.write(outf)

@@ -26,19 +26,27 @@ from __future__ import unicode_literals
 import numpy as np
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                               _span, _skew, _evecs_2_quat,
-                               _J_constant)
-from soprano.data.nmr import _get_nmr_data, _get_isotope_data
+from soprano.nmr.utils import (
+    _haeb_sort,
+    _anisotropy,
+    _asymmetry,
+    _span,
+    _skew,
+    _evecs_2_quat,
+    _J_constant,
+)
+
+from soprano.data.nmr import _get_isotope_data
 
 
 def _has_isc_check(f):
     # Decorator to add a check for the J coupling array
     def decorated_f(s, *args, **kwargs):
-        tag = kwargs.get('tag', 'isc')
+        tag = kwargs.get("tag", "isc")
         if not (s.has(tag)):
-            raise RuntimeError('No J coupling data for tag {0}'.format(tag) +
-                               ' found in this system')
+            raise RuntimeError(
+                "No J coupling data for tag {0}".format(tag) + " found in this system"
+            )
         return f(s, *args, **kwargs)
 
     return decorated_f
@@ -68,35 +76,35 @@ class ISCDiagonal(AtomsProperty):
 
     """
 
-    default_name = 'isc_diagonal'
-    default_params = {
-        'tag': 'isc',
-        'save_info': True
-    }
+    default_name = "isc_diagonal"
+    default_params = {"tag": "isc", "save_info": True}
 
     @staticmethod
     @_has_isc_check
     def extract(s, tag, save_info):
 
-        isc_dict = {(i, j): np.array(t) for j, r in enumerate(s.get_array(tag))
-                    for i, t in enumerate(r) if t is not None}
+        isc_dict = {
+            (i, j): np.array(t)
+            for j, r in enumerate(s.get_array(tag))
+            for i, t in enumerate(r)
+            if t is not None
+        }
 
-        isc_diag = {ij: dict(zip(['evals', 'evecs'],
-                                 np.linalg.eigh((t+t.T)/2.0)))
-                    for ij, t in isc_dict.items()}
+        isc_diag = {
+            ij: dict(zip(["evals", "evecs"], np.linalg.eigh((t + t.T) / 2.0)))
+            for ij, t in isc_dict.items()
+        }
         isc_pairs = sorted(isc_diag.keys())
-        isc_evals = np.array([isc_diag[ij]['evals'] for ij in isc_pairs])
-        isc_evecs = np.array([isc_diag[ij]['evecs'] for ij in isc_pairs])
+        isc_evals = np.array([isc_diag[ij]["evals"] for ij in isc_pairs])
+        isc_evecs = np.array([isc_diag[ij]["evecs"] for ij in isc_pairs])
 
         if save_info:
-            s.info[ISCDiagonal.default_name + '_' +
-                   tag + '_pairs'] = isc_pairs
-            s.info[ISCDiagonal.default_name + '_' +
-                   tag + '_evals'] = isc_evals
-            s.info[ISCDiagonal.default_name + '_' +
-                   tag + '_evals_hsort'] = _haeb_sort(isc_evals)
-            s.info[ISCDiagonal.default_name + '_' +
-                   tag + '_evecs'] = isc_evecs
+            s.info[ISCDiagonal.default_name + "_" + tag + "_pairs"] = isc_pairs
+            s.info[ISCDiagonal.default_name + "_" + tag + "_evals"] = isc_evals
+            s.info[ISCDiagonal.default_name + "_" + tag + "_evals_hsort"] = _haeb_sort(
+                isc_evals
+            )
+            s.info[ISCDiagonal.default_name + "_" + tag + "_evecs"] = isc_evecs
 
         return isc_diag
 
@@ -143,31 +151,32 @@ class JCDiagonal(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair.
 
     """
 
-    default_name = 'jc_diagonal'
+    default_name = "jc_diagonal"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
         # Compute the diagonalised eigenvectors if necessary
-        iname_pairs = ISCDiagonal.default_name + '_' + tag + '_pairs'
-        iname_evals = ISCDiagonal.default_name + '_' + tag + '_evals'
-        iname_evecs = ISCDiagonal.default_name + '_' + tag + '_evecs'
+        iname_pairs = ISCDiagonal.default_name + "_" + tag + "_pairs"
+        iname_evals = ISCDiagonal.default_name + "_" + tag + "_evals"
+        iname_evecs = ISCDiagonal.default_name + "_" + tag + "_evecs"
         if iname_pairs not in s.info or force_recalc:
             iprop = ISCDiagonal(tag=tag)
             iprop(s)
@@ -188,12 +197,10 @@ class JCDiagonal(AtomsProperty):
 
         # Find gammas
         elems = s.get_chemical_symbols()
-        _nmr_data = _get_nmr_data()
 
-        gammas = _get_isotope_data(elems, 'gamma', isotopes, isotope_list)
+        gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
 
-        sel_pairs = [(i, j) for i in sel_i.indices
-                     for j in sel_j.indices]
+        sel_pairs = [(i, j) for i in sel_i.indices for j in sel_j.indices]
         if not self_coupling:
             sel_pairs = [p for p in sel_pairs if p[0] != p[1]]
 
@@ -205,7 +212,7 @@ class JCDiagonal(AtomsProperty):
                 continue
             evals = _J_constant(all_evals[i], gammas[sp[0]], gammas[sp[1]])
             evecs = all_evecs[i]
-            jc_dict[sp] = {'evals': evals, 'evecs': evecs}
+            jc_dict[sp] = {"evals": evals, "evecs": evecs}
 
         return jc_dict
 
@@ -246,34 +253,40 @@ class JCIsotropy(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_isotropy'
+    default_name = "jc_isotropy"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evals = [jc_dict[ij]['evals'] for ij in jc_keys]
+        jc_evals = [jc_dict[ij]["evals"] for ij in jc_keys]
         jc_iso = np.average(jc_evals, axis=1)
 
         return dict(zip(jc_dict.keys(), jc_iso))
@@ -315,34 +328,40 @@ class JCAnisotropy(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_anisotropy'
+    default_name = "jc_anisotropy"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evals = [jc_dict[ij]['evals'] for ij in jc_keys]
+        jc_evals = [jc_dict[ij]["evals"] for ij in jc_keys]
         jc_evals = _haeb_sort(jc_evals)
         jc_aniso = _anisotropy(jc_evals)
 
@@ -385,34 +404,40 @@ class JCReducedAnisotropy(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_red_anisotropy'
+    default_name = "jc_red_anisotropy"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evals = [jc_dict[ij]['evals'] for ij in jc_keys]
+        jc_evals = [jc_dict[ij]["evals"] for ij in jc_keys]
         jc_evals = _haeb_sort(jc_evals)
         jc_aniso = _anisotropy(jc_evals, reduced=True)
 
@@ -455,34 +480,40 @@ class JCAsymmetry(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_asymmetry'
+    default_name = "jc_asymmetry"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evals = [jc_dict[ij]['evals'] for ij in jc_keys]
+        jc_evals = [jc_dict[ij]["evals"] for ij in jc_keys]
         jc_evals = _haeb_sort(jc_evals)
         jc_asymm = _asymmetry(jc_evals)
 
@@ -525,34 +556,40 @@ class JCSpan(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_span'
+    default_name = "jc_span"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evals = [jc_dict[ij]['evals'] for ij in jc_keys]
+        jc_evals = [jc_dict[ij]["evals"] for ij in jc_keys]
         jc_evals = _haeb_sort(jc_evals)
         jc_span = _span(jc_evals)
 
@@ -595,36 +632,42 @@ class JCSkew(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_skew'
+    default_name = "jc_skew"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evals = [jc_dict[ij]['evals'] for ij in jc_keys]
+        jc_evals = [jc_dict[ij]["evals"] for ij in jc_keys]
         jc_evals = _haeb_sort(jc_evals)
-        jc_skew = _asymmetry(jc_evals)
+        jc_skew = _skew(jc_evals)
 
         return dict(zip(jc_dict.keys(), jc_skew))
 
@@ -666,34 +709,40 @@ class JCQuaternion(AtomsProperty):
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present. Default is False.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
-    default_name = 'jc_skew'
+    default_name = "jc_skew"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'tag': 'isc',
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'force_recalc': False,
+        "sel_i": None,
+        "sel_j": None,
+        "tag": "isc",
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "force_recalc": False,
     }
 
     @staticmethod
     @_has_isc_check
-    def extract(s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling,
-                force_recalc):
+    def extract(
+        s, sel_i, sel_j, tag, isotopes, isotope_list, self_coupling, force_recalc
+    ):
 
-        jDiagProp = JCDiagonal(sel_i=sel_i, sel_j=sel_j, isotopes=isotopes,
-                               tag=tag, isotope_list=isotope_list,
-                               self_coupling=self_coupling,
-                               force_recalc=force_recalc)
+        jDiagProp = JCDiagonal(
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            tag=tag,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            force_recalc=force_recalc,
+        )
         jc_dict = jDiagProp(s)
         jc_keys = jc_dict.keys()
-        jc_evecs = [jc_dict[ij]['evecs'] for ij in jc_keys]
+        jc_evecs = [jc_dict[ij]["evecs"] for ij in jc_keys]
         jc_quat = _evecs_2_quat(jc_evecs)
 
         return dict(zip(jc_dict.keys(), jc_quat))

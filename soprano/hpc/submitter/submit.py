@@ -33,7 +33,6 @@ import shutil
 import signal
 import tempfile
 import numpy as np
-import threading as thr
 import subprocess as sp
 from datetime import datetime
 from socket import timeout as TimeoutError
@@ -88,10 +87,20 @@ class Submitter(object):
     values when the script is submitted.
     """
 
-    def __init__(self, name, queue, submit_script, max_jobs=4, check_time=10,
-                 max_time=3600, temp_folder=None, remote_workdir=None,
-                 remote_getfiles=['*.*'], ssh_timeout=1.0,
-                 continuation=False):
+    def __init__(
+        self,
+        name,
+        queue,
+        submit_script,
+        max_jobs=4,
+        check_time=10,
+        max_time=3600,
+        temp_folder=None,
+        remote_workdir=None,
+        remote_getfiles=["*.*"],
+        ssh_timeout=1.0,
+        continuation=False,
+    ):
         """Initialize the Submitter object
 
         | Args:
@@ -168,11 +177,10 @@ class Submitter(object):
 
         # Check type
         if not isinstance(queue, QueueInterface):
-            raise TypeError('A QueueInterface must be passed to the '
-                            'Submitter')
+            raise TypeError("A QueueInterface must be passed to the " "Submitter")
 
         if not is_string(submit_script):
-            raise TypeError('submit_script must be a string')
+            raise TypeError("submit_script must be a string")
 
         self.name = name
         self.queue = queue
@@ -180,13 +188,12 @@ class Submitter(object):
         self.max_jobs = max_jobs
         self.check_time = check_time
         self.max_time = max_time if max_time > 0 else np.inf
-        self.tmp_dir = (os.path.abspath(temp_folder)
-                        if temp_folder is not None else '')
+        self.tmp_dir = os.path.abspath(temp_folder) if temp_folder is not None else ""
 
         # User defined signals
-        self._free_signals = [signal.__dict__[s] for s in ('SIGUSR1',
-                                                           'SIGUSR2')
-                              if s in signal.__dict__]
+        self._free_signals = [
+            signal.__dict__[s] for s in ("SIGUSR1", "SIGUSR2") if s in signal.__dict__
+        ]
         self._user_signals = {}
 
         self._log = None  # Will keep track of failed jobs etc.
@@ -195,11 +202,11 @@ class Submitter(object):
         if remote_workdir is None:
             self.host = None
         else:
-            if ':' in remote_workdir:
-                self.host, self.hostdir = remote_workdir.split(':', 1)
+            if ":" in remote_workdir:
+                self.host, self.hostdir = remote_workdir.split(":", 1)
             else:
                 self.host = remote_workdir
-                self.hostdir = ''
+                self.hostdir = ""
 
         self.remote_getfiles = remote_getfiles
 
@@ -231,16 +238,20 @@ class Submitter(object):
         """
 
         # Is the command a reserved word?
-        if command in ('start', 'stop', 'list'):
-            raise ValueError('The commands start, stop and list are reserved'
-                             ' and can not be used for custom signals.')
+        if command in ("start", "stop", "list"):
+            raise ValueError(
+                "The commands start, stop and list are reserved"
+                " and can not be used for custom signals."
+            )
 
         # Are there any free signals left?
         try:
             signum = self._free_signals.pop()
         except IndexError:
-            raise RuntimeError('Impossible to assign more signals - maximum '
-                               'number supported by the OS has been reached.')
+            raise RuntimeError(
+                "Impossible to assign more signals - maximum "
+                "number supported by the OS has been reached."
+            )
 
         self._user_signals[command] = [signum, callback]
 
@@ -254,16 +265,15 @@ class Submitter(object):
 
         try:
             signum, _ = self._user_signals[command]
-            del(self._user_signals[command])
+            del self._user_signals[command]
             self._free_signals.append(signum)
         except KeyError:
-            raise ValueError('Command does not correspon to any assigned'
-                             ' signal.')
+            raise ValueError("Command does not correspon to any assigned" " signal.")
 
     def start(self):
 
-        self._log = open(self.name + '.log', 'w')
-        self.log('Starting run on {0}\n'.format(datetime.now()))
+        self._log = open(self.name + ".log", "w")
+        self.log("Starting run on {0}\n".format(datetime.now()))
 
         self._jobs = {}
         self._waiting_jobs = []  # Jobs created but not yet submitted
@@ -285,28 +295,29 @@ class Submitter(object):
 
         # Just a sanity check
         has_name = False
-        for l in self.submit_script.split('\n'):
-            if '<name>' in l.split('#')[0]:
+        for line in self.submit_script.split("\n"):
+            if "<name>" in line.split("#")[0]:
                 has_name = True
                 break
 
         if not has_name:
-            self.log('WARNING: the submission script does not contain the '
-                     '<name> tag in any non-commented lines. '
-                     'This is most likely an error - check your '
-                     'input files\n')
+            self.log(
+                "WARNING: the submission script does not contain the "
+                "<name> tag in any non-commented lines. "
+                "This is most likely an error - check your "
+                "input files\n"
+            )
 
         self.start_run()
         self._main_loop()
         self.finish_run()
-        self.log('Run finished on {0}\n'.format(datetime.now()))
+        self.log("Run finished on {0}\n".format(datetime.now()))
         self._log.close()
 
     def _catch_signal(self, signum, frame):
         if signum in (signal.SIGINT, signal.SIGTERM):
             # This catches the signal when termination is asked
-            self.log('SIGTERM received - '
-                     'Starting termination of this run...\n')
+            self.log("SIGTERM received - " "Starting termination of this run...\n")
             self._terminate()
         else:
             for cmd in self._user_signals:
@@ -323,7 +334,7 @@ class Submitter(object):
                 if self.host is not None:
                     self._getjob_remote(self._jobs[job_id])
                 self.finish_job(**self._jobs[job_id])
-                shutil.rmtree(self._jobs[job_id]['folder'])
+                shutil.rmtree(self._jobs[job_id]["folder"])
         else:
             self._save()
 
@@ -333,7 +344,7 @@ class Submitter(object):
         """Main loop run as separate thread. Should not be edited when
         inheriting from the class"""
 
-        while self._running and (time.time()-self._t0) < self.max_time:
+        while self._running and (time.time() - self._t0) < self.max_time:
 
             loop_t0 = time.time()
 
@@ -345,15 +356,16 @@ class Submitter(object):
                     if njob is None:
                         break
                     # Create the temporary folder
-                    njob['folder'] = tempfile.mkdtemp(dir=self.tmp_dir)
+                    njob["folder"] = tempfile.mkdtemp(dir=self.tmp_dir)
                     # Perform setup
                     if not self.setup_job(**njob):
-                        self.log('Job {0} did not pass setup check, '
-                                 'skipping\n'.format(njob['name']))
+                        self.log(
+                            "Job {0} did not pass setup check, "
+                            "skipping\n".format(njob["name"])
+                        )
                         # Remove the temporary directory
-                        shutil.rmtree(njob['folder'])
-                        self.log(('Folder {0} '
-                                  'deleted\n').format(njob['folder']))
+                        shutil.rmtree(njob["folder"])
+                        self.log(("Folder {0} " "deleted\n").format(njob["folder"]))
                         continue
                 else:
                     njob = self._waiting_jobs.pop(0)
@@ -364,42 +376,43 @@ class Submitter(object):
                     try:
                         self._putjob_remote(njob)
                     except TimeoutError:
-                        self.log('Timeout when trying to push input files to'
-                                 ' host. If it happens too frequently, try '
-                                 'increasing the ssh_timeout argument.\n')
+                        self.log(
+                            "Timeout when trying to push input files to"
+                            " host. If it happens too frequently, try "
+                            "increasing the ssh_timeout argument.\n"
+                        )
                         self._waiting_jobs.append(njob)
                         break
 
                 # Create custom script
-                job_script = self.submit_script.replace('<name>',
-                                                        njob['name'])
+                job_script = self.submit_script.replace("<name>", njob["name"])
                 # Replace the rest of the tags
-                for tag in njob['args']:
-                    job_script = job_script.replace('<{0}>'.format(tag),
-                                                    str(njob['args'][tag]))
-                job_script = job_script.replace('<folder>',
-                                                njob['folder'])
+                for tag in njob["args"]:
+                    job_script = job_script.replace(
+                        "<{0}>".format(tag), str(njob["args"][tag])
+                    )
+                job_script = job_script.replace("<folder>", njob["folder"])
 
                 # And submit! [Only if still running]
                 if not self._running:
                     break
                 else:
-                    self.log('Submitting job '
-                             '{0} to queue\n'.format(njob['name']))
+                    self.log("Submitting job " "{0} to queue\n".format(njob["name"]))
 
                     if self.host is not None:
-                        cwd = os.path.join(self.hostdir, njob['name'])
+                        cwd = os.path.join(self.hostdir, njob["name"])
                     else:
-                        cwd = njob['folder']
+                        cwd = njob["folder"]
 
-                    job_id = self.queue.submit(job_script,
-                                               cwd=cwd)
+                    job_id = self.queue.submit(job_script, cwd=cwd)
                     self._jobs[job_id] = njob
 
             # Now check for finished jobs
-            self._completed_jobs += [job_id for job_id in self._jobs
-                                     if self.check_job(job_id,
-                                                       **self._jobs[job_id])]
+            self._completed_jobs += [
+                job_id
+                for job_id in self._jobs
+                if self.check_job(job_id, **self._jobs[job_id])
+            ]
 
             for job_id in self._completed_jobs:
                 cjob = self._jobs[job_id]
@@ -408,43 +421,50 @@ class Submitter(object):
                     try:
                         self._getjob_remote(cjob)
                     except TimeoutError:
-                        self.log('Timeout when trying to fetch results from'
-                                 ' host. If it happens too frequently, try '
-                                 'increasing the ssh_timeout argument.\n')
+                        self.log(
+                            "Timeout when trying to fetch results from"
+                            " host. If it happens too frequently, try "
+                            "increasing the ssh_timeout argument.\n"
+                        )
                         continue
-                self.log('Job {0} completed\n'.format((cjob['name'])))
+                self.log("Job {0} completed\n".format((cjob["name"])))
                 self.finish_job(**cjob)
                 # Remove the temporary directory
-                shutil.rmtree(cjob['folder'])
-                self.log('Folder {0} deleted\n'.format(cjob['folder']))
+                shutil.rmtree(cjob["folder"])
+                self.log("Folder {0} deleted\n".format(cjob["folder"]))
                 # Finally delete it from our list
-                del(self._jobs[job_id])
+                del self._jobs[job_id]
 
             # Only keep the ones that haven't been copied yet
-            self._completed_jobs = list(set(self._completed_jobs) &
-                                        set(self._jobs.keys()))
+            self._completed_jobs = list(
+                set(self._completed_jobs) & set(self._jobs.keys())
+            )
 
-            sleep_time = self.check_time - (time.time()-loop_t0)
+            sleep_time = self.check_time - (time.time() - loop_t0)
             sleep_time = sleep_time if sleep_time > 0 else 0
             time.sleep(sleep_time)
 
     def _putjob_remote(self, njob):
         """Copy the files generated for a job to a remote work directory"""
         with self.queue.remote_target.context as rtarg:
-            rtarg.run_cmd('mkdir {0}'.format(njob['name']),
-                          cwd=self.hostdir)
-            rtarg.put_files(os.path.join(njob['folder'], '*'),
-                            os.path.join(self.hostdir,
-                                         njob['name']))
+            rtarg.run_cmd("mkdir {0}".format(njob["name"]), cwd=self.hostdir)
+            rtarg.put_files(
+                os.path.join(njob["folder"], "*"),
+                os.path.join(self.hostdir, njob["name"]),
+            )
 
     def _getjob_remote(self, cjob):
         with self.queue.remote_target.context as rtarg:
-            rpaths = [os.path.join(self.hostdir, cjob['name'],
-                                   f.format(name=cjob['name'],
-                                            **cjob['args']))
-                      for f in self.remote_getfiles]
-            rtarg.get_files(rpaths, cjob['folder'])
-            rtarg.run_cmd('rm -rf {0}'.format(cjob['name']), cwd=self.hostdir)
+            rpaths = [
+                os.path.join(
+                    self.hostdir,
+                    cjob["name"],
+                    f.format(name=cjob["name"], **cjob["args"]),
+                )
+                for f in self.remote_getfiles
+            ]
+            rtarg.get_files(rpaths, cjob["folder"])
+            rtarg.run_cmd("rm -rf {0}".format(cjob["name"]), cwd=self.hostdir)
 
     def _save(self):
 
@@ -455,26 +475,26 @@ class Submitter(object):
         except TypeError:
             raise TypeError("Method save_state must return a dict")
 
-        to_save = ['_jobs', '_waiting_jobs', '_completed_jobs']
+        to_save = ["_jobs", "_waiting_jobs", "_completed_jobs"]
 
         for k in to_save:
             savedata[k] = getattr(self, k)
 
-        self.log('Saving data for future runs...\n')
+        self.log("Saving data for future runs...\n")
         try:
-            pickle.dump(savedata, open(self._pklname, 'w'))
+            pickle.dump(savedata, open(self._pklname, "w"))
         except IOError:
-            self.log('Saving failed\n')
+            self.log("Saving failed\n")
 
     def _load(self):
 
-        to_load = ['_jobs', '_waiting_jobs', '_completed_jobs']
+        to_load = ["_jobs", "_waiting_jobs", "_completed_jobs"]
 
-        self.log('Loading data from past runs...\n')
+        self.log("Loading data from past runs...\n")
         try:
             loaddata = pickle.load(open(self._pklname))
         except IOError:
-            self.log('Loading failed\n')
+            self.log("Loading failed\n")
             return
 
         for k in to_load:
@@ -494,7 +514,7 @@ class Submitter(object):
 
     def next_job(self):
         """Return a dictionary definition of the next job in line"""
-        return {'name': 'default_job', 'args': {}}
+        return {"name": "default_job", "args": {}}
 
     def setup_job(self, name, args, folder):
         """Perform preparatory operations on the job"""
@@ -527,20 +547,19 @@ class Submitter(object):
     def stop(fname, subname):
         """Stop Submitter process from filename and name,
         return False if failed"""
-        return sp.Popen(['pkill', '-f', fname + ' ' + subname]).wait() == 0
+        return sp.Popen(["pkill", "-f", fname + " " + subname]).wait() == 0
 
     @staticmethod
     def list():
-        list_proc = sp.Popen(['ps', 'aux'],
-                             stdin=sp.PIPE,
-                             stdout=sp.PIPE,
-                             stderr=sp.PIPE)
+        list_proc = sp.Popen(
+            ["ps", "aux"], stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE
+        )
         stdout, stderr = safe_communicate(list_proc)
         # Parse stdout
         all_subms = []
-        for l in stdout.split('\n'):
-            if 'soprano.hpc.submitter._spawn' in l:
-                lspl = l.split()
+        for line in stdout.split("\n"):
+            if "soprano.hpc.submitter._spawn" in line:
+                lspl = line.split()
                 # File, name, time, PID
                 subm = lspl[-3], lspl[-2], lspl[-7], int(lspl[1])
                 all_subms.append(subm)
@@ -549,4 +568,4 @@ class Submitter(object):
 
     @property
     def _pklname(self):
-        return self.name + '_save.pkl'
+        return self.name + "_save.pkl"

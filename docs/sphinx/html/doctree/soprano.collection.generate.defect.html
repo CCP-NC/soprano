@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.collection.generate.defect module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.collection.html" >soprano.collection package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.collection.generate.html" accesskey="U">soprano.collection.generate package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.collection.generate.html" accesskey="U">soprano.collection.generate package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.collection.generate.defect module</a></li> 
       </ul>
     </div>  
 
@@ -48,14 +49,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.collection.generate.defect">
+  <section id="module-soprano.collection.generate.defect">
 <span id="soprano-collection-generate-defect-module"></span><h1>soprano.collection.generate.defect module<a class="headerlink" href="#module-soprano.collection.generate.defect" title="Permalink to this headline">¶</a></h1>
 <p>Generator producing structures with a randomly positioned point defect</p>
-<dl class="function">
-<dt id="soprano.collection.generate.defect.additionGen">
-<code class="sig-prename descclassname">soprano.collection.generate.defect.</code><code class="sig-name descname">additionGen</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">add</em>, <em class="sig-param">to_addition=None</em>, <em class="sig-param">n=1</em>, <em class="sig-param">add_r=1.2</em>, <em class="sig-param">accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.additionGen" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.collection.generate.defect.additionGen">
+<span class="sig-prename descclassname"><span class="pre">soprano.collection.generate.defect.</span></span><span class="sig-name descname"><span class="pre">additionGen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_addition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.additionGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function to create multiple structures with an atom of a
-given element added in the existing cell. The atoms will be attached to 
+given element added in the existing cell. The atoms will be attached to
 the atoms passed in the to_addition selection. If none is passed,
 all atoms will be additioned in turn. Multiple defects can be included, in
 which case all permutations will be generated. The algorithm will try
@@ -104,9 +105,9 @@ filter function.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="soprano.collection.generate.defect.defectGen">
-<code class="sig-prename descclassname">soprano.collection.generate.defect.</code><code class="sig-name descname">defectGen</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">defect</em>, <em class="sig-param">poisson_r=None</em>, <em class="sig-param">avoid_atoms=True</em>, <em class="sig-param">vdw_set='csd'</em>, <em class="sig-param">vdw_scale=1</em>, <em class="sig-param">max_attempts=30</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.defectGen" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.collection.generate.defect.defectGen">
+<span class="sig-prename descclassname"><span class="pre">soprano.collection.generate.defect.</span></span><span class="sig-name descname"><span class="pre">defectGen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poisson_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avoid_atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_attempts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.defectGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function to create multiple structures with a defect of a
 given element randomly added to the existing cell. The defects can be
 distributed following a random uniform distribution or a Poisson-sphere
@@ -135,9 +136,9 @@ only by extracting structures until StopIteration is raised.</p>
 <div class="line">will be estimated based on the Van der Waals radii</div>
 <div class="line">set of choice. Default is True.</div>
 </div>
-<div class="line">vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only </div>
+<div class="line">vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only</div>
 <div class="line-block">
-<div class="line">relevant if avoid_atoms is True. </div>
+<div class="line">relevant if avoid_atoms is True.</div>
 <div class="line">Default is csd [S. Alvarez, 2013].</div>
 </div>
 <div class="line">vdw_scale (float): scaling factor to apply to the base Van der Waals</div>
@@ -171,9 +172,9 @@ only by extracting structures until StopIteration is raised.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="soprano.collection.generate.defect.substitutionGen">
-<code class="sig-prename descclassname">soprano.collection.generate.defect.</code><code class="sig-name descname">substitutionGen</code><span class="sig-paren">(</span><em class="sig-param">struct</em>, <em class="sig-param">subst</em>, <em class="sig-param">to_replace=None</em>, <em class="sig-param">n=1</em>, <em class="sig-param">accept=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.substitutionGen" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.collection.generate.defect.substitutionGen">
+<span class="sig-prename descclassname"><span class="pre">soprano.collection.generate.defect.</span></span><span class="sig-name descname"><span class="pre">substitutionGen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.generate.defect.substitutionGen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator function to create multiple structures with a defect of a
 given element substituted in the existing cell. The defects will be put in
 place of the atoms passed in the to_replace selection. If none is passed,
@@ -213,9 +214,10 @@ filter function.</p>
 </div>
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -246,7 +248,7 @@ filter function.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -275,12 +277,13 @@ filter function.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.collection.html" >soprano.collection package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.collection.generate.html" >soprano.collection.generate package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.collection.generate.html" >soprano.collection.generate package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.collection.generate.defect module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

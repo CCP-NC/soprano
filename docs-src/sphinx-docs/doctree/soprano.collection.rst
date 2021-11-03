@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.collection.generate
 
@@ -17,5 +18,6 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.collection.collection

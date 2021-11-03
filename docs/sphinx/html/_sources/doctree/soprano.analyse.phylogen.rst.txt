@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.analyse.phylogen.genes
    soprano.analyse.phylogen.mapping

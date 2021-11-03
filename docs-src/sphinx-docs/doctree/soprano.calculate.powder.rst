@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.calculate.powder.powder
    soprano.calculate.powder.shrewd

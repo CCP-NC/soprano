@@ -13,21 +13,19 @@ import pickle
 kill_id = sys.argv[1]
 mydir = os.path.dirname(os.path.realpath(__file__))
 try:
-	qfile = open(os.path.join(mydir, 'queue.pkl'), 'rb')
-	joblist = pickle.load(qfile)
-	qfile.close()
-	if kill_id not in joblist:
-		raise IOError()		
+    qfile = open(os.path.join(mydir, "queue.pkl"), "rb")
+    joblist = pickle.load(qfile)
+    qfile.close()
+    if kill_id not in joblist:
+        raise IOError()
 except IOError:
-	sys.exit("Job <{0}> not found".format(kill_id))
+    sys.exit("Job <{0}> not found".format(kill_id))
 
 # If it's in joblist, delete it
-del(joblist[kill_id])
+del joblist[kill_id]
 print("Job <{0}> has been terminated".format(kill_id))
 
 if len(joblist) > 0:
-	pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'wb'))
+    pickle.dump(joblist, open(os.path.join(mydir, "queue.pkl"), "wb"))
 else:
-	os.remove(os.path.join(mydir, 'queue.pkl'))
-
-
+    os.remove(os.path.join(mydir, "queue.pkl"))

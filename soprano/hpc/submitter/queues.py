@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 import re
 import subprocess as sp
 
-from soprano.utils import is_string, safe_communicate
+from soprano.utils import safe_communicate
 from soprano.hpc.submitter.utils import RemoteTarget
 
 
@@ -52,8 +52,9 @@ class QueueInterface(object):
     - PBS (another managing system using qsub)
     """
 
-    def __init__(self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre,
-                 list_user_opt=None):
+    def __init__(
+        self, sub_cmd, list_cmd, kill_cmd, sub_outre, list_outre, list_user_opt=None
+    ):
         """Initialize the QueueInterface.
 
         | Args:
@@ -80,11 +81,11 @@ class QueueInterface(object):
         self.kill_cmd = kill_cmd
 
         self.sub_outre = re.compile(sub_outre)
-        if 'job_id' not in self.sub_outre.groupindex:
-            raise ValueError('sub_outre does not contain job_id group')
+        if "job_id" not in self.sub_outre.groupindex:
+            raise ValueError("sub_outre does not contain job_id group")
         self.list_outre = re.compile(list_outre)
-        if 'job_id' not in self.list_outre.groupindex:
-            raise ValueError('list_outre does not contain job_id group')
+        if "job_id" not in self.list_outre.groupindex:
+            raise ValueError("list_outre does not contain job_id group")
 
         self.list_user_opt = list_user_opt
 
@@ -127,27 +128,30 @@ class QueueInterface(object):
         """
 
         if self._rTarg is None:
-            subproc = sp.Popen(self.sub_cmd.split(), stdin=sp.PIPE,
-                               stdout=sp.PIPE,
-                               stderr=sp.PIPE,
-                               cwd=cwd)
+            subproc = sp.Popen(
+                self.sub_cmd.split(),
+                stdin=sp.PIPE,
+                stdout=sp.PIPE,
+                stderr=sp.PIPE,
+                cwd=cwd,
+            )
 
             stdout, stderr = safe_communicate(subproc, script)
         else:
             with self._rTarg.context as rTarg:
-                stdout, stderr = rTarg.run_cmd(self.sub_cmd,
-                                               cwd=cwd, stdin=script)
+                stdout, stderr = rTarg.run_cmd(self.sub_cmd, cwd=cwd, stdin=script)
 
         # Parse out the job id!
         match = self.sub_outre.search(stdout)
         if match is None:
-            raise RuntimeError('Submission of job has failed with output:\n'
-                               '\tSTDOUT: {0}\n\tSTDERR: {1}'.format(stdout,
-                                                                     stderr))
+            raise RuntimeError(
+                "Submission of job has failed with output:\n"
+                "\tSTDOUT: {0}\n\tSTDERR: {1}".format(stdout, stderr)
+            )
         else:
-            return match.groupdict()['job_id']
+            return match.groupdict()["job_id"]
 
-    def list(self, user='$USER'):
+    def list(self, user="$USER"):
         """List all jobs found in the queue
 
         | Returns:
@@ -162,11 +166,10 @@ class QueueInterface(object):
 
         cmd = self.list_cmd
         if self.list_user_opt is not None:
-            cmd += ' {0} {1}'.format(self.list_user_opt, user)
+            cmd += " {0} {1}".format(self.list_user_opt, user)
 
         if self._rTarg is None:
-            subproc = sp.Popen(cmd.split(), stdout=sp.PIPE,
-                               stderr=sp.PIPE)
+            subproc = sp.Popen(cmd.split(), stdout=sp.PIPE, stderr=sp.PIPE)
 
             stdout, stderr = safe_communicate(subproc)
         else:
@@ -175,13 +178,13 @@ class QueueInterface(object):
 
         # Parse out everything!
         jobs = {}
-        for line in stdout.split('\n'):
+        for line in stdout.split("\n"):
             match = self.list_outre.search(line)
             if match is None:
                 continue
             else:
                 jobdict = match.groupdict()
-                jobs[jobdict['job_id']] = jobdict
+                jobs[jobdict["job_id"]] = jobdict
 
         return jobs
 
@@ -194,14 +197,13 @@ class QueueInterface(object):
         """
 
         if self._rTarg is None:
-            subproc = sp.Popen(self.kill_cmd.split() + [job_id],
-                               stdout=sp.PIPE,
-                               stderr=sp.PIPE)
+            subproc = sp.Popen(
+                self.kill_cmd.split() + [job_id], stdout=sp.PIPE, stderr=sp.PIPE
+            )
             stdout, stderr = safe_communicate(subproc)
         else:
             with self._rTarg.context as rTarg:
-                stdout, stderr = rTarg.run_cmd(self.kill_cmd +
-                                               ' {0}'.format(job_id))
+                stdout, stderr = rTarg.run_cmd(self.kill_cmd + " {0}".format(job_id))
 
     @property
     def remote_target(self):
@@ -210,30 +212,33 @@ class QueueInterface(object):
 
     @classmethod
     def LSF(cls):
-        return cls(sub_cmd='bsub',
-                   list_cmd='bjobs',
-                   kill_cmd='bkill',
-                   sub_outre='Job \<(?P<job_id>[0-9]+)\>',
-                   list_outre='(?P<job_id>[0-9]+)[^(RUN|PEND)]*'
-                              '(?P<job_status>RUN|PEND)',
-                   list_user_opt='-u')
+        return cls(
+            sub_cmd="bsub",
+            list_cmd="bjobs",
+            kill_cmd="bkill",
+            sub_outre="Job \\<(?P<job_id>[0-9]+)\\>",
+            list_outre="(?P<job_id>[0-9]+)[^(RUN|PEND)]*" "(?P<job_status>RUN|PEND)",
+            list_user_opt="-u",
+        )
 
     @classmethod
     def GridEngine(cls):
-        return cls(sub_cmd='qsub',
-                   list_cmd='qstat',
-                   kill_cmd='qdel',
-                   sub_outre='Your job (?P<job_id>[0-9]+)',
-                   list_outre='(?P<job_id>[0-9]+)\s.*'
-                              '\s(?P<job_status>r|qw)\s',
-                   list_user_opt='-u')
+        return cls(
+            sub_cmd="qsub",
+            list_cmd="qstat",
+            kill_cmd="qdel",
+            sub_outre="Your job (?P<job_id>[0-9]+)",
+            list_outre="(?P<job_id>[0-9]+)\\s.*" "\\s(?P<job_status>r|qw)\\s",
+            list_user_opt="-u",
+        )
 
     @classmethod
     def PBS(cls):
-        return cls(sub_cmd='qsub',
-                   list_cmd='qstat',
-                   kill_cmd='qdel',
-                   sub_outre='(?P<job_id>[^\s]+)',
-                   list_outre='(?P<job_id>[^\s]+)\s.*'
-                              '\s(?P<job_status>R|Q)\s',
-                   list_user_opt='-u')
+        return cls(
+            sub_cmd="qsub",
+            list_cmd="qstat",
+            kill_cmd="qdel",
+            sub_outre="(?P<job_id>[^\\s]+)",
+            list_outre="(?P<job_id>[^\\s]+)\\s.*" "\\s(?P<job_status>R|Q)\\s",
+            list_user_opt="-u",
+        )

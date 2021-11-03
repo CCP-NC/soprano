@@ -22,13 +22,30 @@ Some of these are valid only for Atoms objects loaded from a .magres file.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.properties.nmr.ms import (MSDiagonal, MSIsotropy, MSAnisotropy,
-                                       MSReducedAnisotropy, MSAsymmetry,
-                                       MSSpan, MSSkew, MSQuaternion)
-from soprano.properties.nmr.efg import (EFGDiagonal, EFGVzz, EFGAnisotropy,
-                                        EFGReducedAnisotropy, EFGAsymmetry,
-                                        EFGSpan, EFGSkew,
-                                        EFGQuadrupolarConstant,
-                                        EFGQuaternion)
-from soprano.properties.nmr.dipolar import (DipolarCoupling, DipolarDiagonal,
-                                            DipolarRSS, DipolarTensor)
+from soprano.properties.nmr.ms import (
+    MSDiagonal,
+    MSIsotropy,
+    MSAnisotropy,
+    MSReducedAnisotropy,
+    MSAsymmetry,
+    MSSpan,
+    MSSkew,
+    MSQuaternion,
+)
+from soprano.properties.nmr.efg import (
+    EFGDiagonal,
+    EFGVzz,
+    EFGAnisotropy,
+    EFGReducedAnisotropy,
+    EFGAsymmetry,
+    EFGSpan,
+    EFGSkew,
+    EFGQuadrupolarConstant,
+    EFGQuaternion,
+)
+from soprano.properties.nmr.dipolar import (
+    DipolarCoupling,
+    DipolarDiagonal,
+    DipolarRSS,
+    DipolarTensor,
+)

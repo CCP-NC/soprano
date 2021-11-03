@@ -29,37 +29,37 @@ import json
 import pkgutil
 
 try:
-    _xrd_seldata = pkgutil.get_data('soprano',
-                                    'data/xrd_sel_rules.json').decode('utf-8')
+    _xrd_seldata = pkgutil.get_data("soprano", "data/xrd_sel_rules.json").decode(
+        "utf-8"
+    )
     xrd_sel_rules = json.loads(_xrd_seldata)
 except IOError:
     xrd_sel_rules = None
 
 try:
-    _halldata = pkgutil.get_data('soprano',
-                                 'data/hall_2_no.json').decode('utf-8')
+    _halldata = pkgutil.get_data("soprano", "data/hall_2_no.json").decode("utf-8")
     hall_2_no = json.loads(_halldata)
 except IOError:
     hall_2_no = None
 
 
 def _ifq(cond, ifT, ifF):
-    """ Fortran-style ternary if """
+    """Fortran-style ternary if"""
     return ifT if cond else ifF
 
 
 def _evenq(x):
-    """ Returns True if x is even """
+    """Returns True if x is even"""
     return x % 2 == 0
 
 
 def _integerq(x):
-    """ Returns true if x is integer """
+    """Returns true if x is integer"""
     return int(x) == x
 
 
-def get_sel_rule_from_international(n, o='all'):
-    """ Generate a function object that acts as a selection rule for XRD lines
+def get_sel_rule_from_international(n, o="all"):
+    """Generate a function object that acts as a selection rule for XRD lines
     for the given symmetry group expressed in international number notation
 
     | Args:
@@ -91,32 +91,39 @@ def get_sel_rule_from_international(n, o='all'):
     if xrd_sel_rules is None:
         raise RuntimeError("Could not load XRD selection rules")
     if n not in xrd_sel_rules:
-        raise ValueError("""Invalid n passed to
-                            get_sel_rule_from_international""")
+        raise ValueError(
+            """Invalid n passed to
+                            get_sel_rule_from_international"""
+        )
 
     if o not in xrd_sel_rules[n]:
-        if 'all' in xrd_sel_rules[n]:
-            o = 'all'
+        if "all" in xrd_sel_rules[n]:
+            o = "all"
         else:
-            if o != 'all':
-                raise ValueError("""Invalid o passed to
-                                    get_sel_rule_from_international""")
+            if o != "all":
+                raise ValueError(
+                    """Invalid o passed to
+                                    get_sel_rule_from_international"""
+                )
             else:
-                raise ValueError("""An option o must be specified for
-                                    n = {0}""".format(n))
+                raise ValueError(
+                    """An option o must be specified for
+                                    n = {0}""".format(
+                        n
+                    )
+                )
 
-    xrd_rule_instr = compile(xrd_sel_rules[n][o], '<string>', 'eval')
+    xrd_rule_instr = compile(xrd_sel_rules[n][o], "<string>", "eval")
 
-    return lambda hkl: eval(xrd_rule_instr, {'ifq': _ifq,
-                                             'evenq': _evenq,
-                                             'integerq': _integerq},
-                            {'h': hkl[0],
-                             'k': hkl[1],
-                             'l': hkl[2]})
+    return lambda hkl: eval(
+        xrd_rule_instr,
+        {"ifq": _ifq, "evenq": _evenq, "integerq": _integerq},
+        {"h": hkl[0], "k": hkl[1], "l": hkl[2]},
+    )
 
 
 def get_sel_rule_from_hall(h):
-    """ Generate a function object that acts as a selection rule for XRD lines
+    """Generate a function object that acts as a selection rule for XRD lines
     for the given symmetry group expressed in Hall number notation
 
     | Args:
@@ -138,13 +145,17 @@ def get_sel_rule_from_hall(h):
     h = str(h)
 
     if hall_2_no is None:
-        raise RuntimeError("""Could not load Hall-to-international conversion
-                              table""")
+        raise RuntimeError(
+            """Could not load Hall-to-international conversion
+                              table"""
+        )
     if h not in hall_2_no:
-        raise ValueError("""Invalid h passed to
-                            get_sel_rule_from_hall""")
+        raise ValueError(
+            """Invalid h passed to
+                            get_sel_rule_from_hall"""
+        )
 
-    n = hall_2_no[h]['n']
-    o = hall_2_no[h]['o']
+    n = hall_2_no[h]["n"]
+    o = hall_2_no[h]["o"]
 
     return get_sel_rule_from_international(n, o)

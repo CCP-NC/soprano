@@ -42,31 +42,28 @@ class CastepEnthalpy(AtomsProperty):
 
     """
 
-    default_name = 'castep_enthalpy'
-    default_params = {
-        'castep_path': '.',
-        'seedname_info': 'name'
-    }
+    default_name = "castep_enthalpy"
+    default_params = {"castep_path": ".", "seedname_info": "name"}
 
     @staticmethod
     def extract(s, castep_path, seedname_info):
         # Open the file
-        fname = os.path.join(castep_path, s.info[seedname_info] + '.castep')
+        fname = os.path.join(castep_path, s.info[seedname_info] + ".castep")
         f = open(fname).read()
         # Parse the expression of interest
-        ent_re = re.compile('BFGS: Final Enthalpy\s+=\s+([\+\-\.0-9E]+)\s+eV')
+        ent_re = re.compile("BFGS: Final Enthalpy\\s+=\\s+([+\\-.0-9E]+)\\s+eV")
         match = ent_re.findall(f)
         if len(match) > 0:
             try:
                 return float(match[-1])
-            except:
-                raise RuntimeError('Can\'t parse enthalpy:'
-                                   'corrupted CASTEP file')
+            except ValueError:
+                raise RuntimeError("Can't parse enthalpy:" "corrupted CASTEP file")
         else:
             # Settle for the final free energy
-            nrg_re = re.compile('Final free energy \(E\-TS\)\s+=\s+'
-                                '([\+\-\.0-9E]+)\s+eV')
+            nrg_re = re.compile(
+                "Final free energy \\(E\\-TS\\)\\s+=\\s+" "([+\\-.0-9E]+)\\s+eV"
+            )
             match = nrg_re.findall(f)
             if len(match) == 0:
-                raise RuntimeError('Corrupted or incomplete CASTEP file')
+                raise RuntimeError("Corrupted or incomplete CASTEP file")
             return float(match[-1])

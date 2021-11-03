@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.properties.transform.transform module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.transform.html" accesskey="U">soprano.properties.transform package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.properties.transform.html" accesskey="U">soprano.properties.transform package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.properties.transform.transform module</a></li> 
       </ul>
     </div>  
 
@@ -48,13 +49,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.properties.transform.transform">
+  <section id="module-soprano.properties.transform.transform">
 <span id="soprano-properties-transform-transform-module"></span><h1>soprano.properties.transform.transform module<a class="headerlink" href="#module-soprano.properties.transform.transform" title="Permalink to this headline">¶</a></h1>
 <p>Implementation of AtomsProperties that transform the instance in some
 way</p>
-<dl class="class">
-<dt id="soprano.properties.transform.transform.Mirror">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.transform.transform.</code><code class="sig-name descname">Mirror</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Mirror" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Mirror">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.transform.transform.</span></span><span class="sig-name descname"><span class="pre">Mirror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Mirror" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Returns an Atoms object with some or all the atoms reflected with either a
 given center or a given plane. Absolute or scaled coordinates may be used.</p>
@@ -103,26 +104,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.transform.transform.Mirror.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'reflected'</em><a class="headerlink" href="#soprano.properties.transform.transform.Mirror.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Mirror.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'reflected'</span></em><a class="headerlink" href="#soprano.properties.transform.transform.Mirror.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.transform.transform.Mirror.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'center': None, 'plane': None, 'scaled': False, 'selection': None}</em><a class="headerlink" href="#soprano.properties.transform.transform.Mirror.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Mirror.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'center':</span> <span class="pre">None,</span> <span class="pre">'plane':</span> <span class="pre">None,</span> <span class="pre">'scaled':</span> <span class="pre">False,</span> <span class="pre">'selection':</span> <span class="pre">None}</span></em><a class="headerlink" href="#soprano.properties.transform.transform.Mirror.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.transform.transform.Mirror.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">selection</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Mirror.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Mirror.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Mirror.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.transform.transform.Rotate">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.transform.transform.</code><code class="sig-name descname">Rotate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Rotate" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Rotate">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.transform.transform.</span></span><span class="sig-name descname"><span class="pre">Rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Rotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Returns an Atoms object with some or all the atoms rotated by a given
 quaternion and with a given center. Absolute or scaled coordinates may be
@@ -173,26 +194,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.transform.transform.Rotate.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'rotated'</em><a class="headerlink" href="#soprano.properties.transform.transform.Rotate.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Rotate.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'rotated'</span></em><a class="headerlink" href="#soprano.properties.transform.transform.Rotate.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.transform.transform.Rotate.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'center': [0, 0, 0], 'periodic': False, 'quaternion': None, 'scaled': False, 'selection': None}</em><a class="headerlink" href="#soprano.properties.transform.transform.Rotate.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Rotate.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'center':</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0],</span> <span class="pre">'periodic':</span> <span class="pre">False,</span> <span class="pre">'quaternion':</span> <span class="pre">None,</span> <span class="pre">'scaled':</span> <span class="pre">False,</span> <span class="pre">'selection':</span> <span class="pre">None}</span></em><a class="headerlink" href="#soprano.properties.transform.transform.Rotate.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.transform.transform.Rotate.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">selection</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Rotate.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Rotate.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Rotate.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.transform.transform.Translate">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.transform.transform.</code><code class="sig-name descname">Translate</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Translate" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Translate">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.transform.transform.</span></span><span class="sig-name descname"><span class="pre">Translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Translate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Returns an Atoms object with some or all the atoms translated by a given
 vector. Absolute or scaled coordinates may be used.</p>
@@ -230,26 +271,47 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.transform.transform.Translate.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'translated'</em><a class="headerlink" href="#soprano.properties.transform.transform.Translate.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Translate.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'translated'</span></em><a class="headerlink" href="#soprano.properties.transform.transform.Translate.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.transform.transform.Translate.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'scaled': False, 'selection': None, 'vector': [0, 0, 0]}</em><a class="headerlink" href="#soprano.properties.transform.transform.Translate.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Translate.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'scaled':</span> <span class="pre">False,</span> <span class="pre">'selection':</span> <span class="pre">None,</span> <span class="pre">'vector':</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]}</span></em><a class="headerlink" href="#soprano.properties.transform.transform.Translate.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.transform.transform.Translate.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">selection</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Translate.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.transform.transform.Translate.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.transform.transform.Translate.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -280,7 +342,7 @@ only argument to get the property with the given parameters.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -309,12 +371,13 @@ only argument to get the property with the given parameters.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.transform.html" >soprano.properties.transform package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.properties.transform.html" >soprano.properties.transform package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.properties.transform.transform module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

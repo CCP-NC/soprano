@@ -25,7 +25,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
-import numpy as np
 
 import subprocess as sp
 from threading import Thread
@@ -74,27 +73,31 @@ class DebugQueueInterface(QueueInterface):
 
     def _main_loop(self):
 
-        while(len(self._job_list) > 0):
+        while len(self._job_list) > 0:
             t = time.time()
             completed_jobs = []
             for j_id in list(self._job_list.keys()):
                 job = self._job_list[j_id]
-                if job['status'] == 'w' and (t-job['t0']) > job['WAIT']:
+                if job["status"] == "w" and (t - job["t0"]) > job["WAIT"]:
                     # Switch to run
-                    job['status'] = 'r'
+                    job["status"] = "r"
                     # And actually run it!
-                    proc = sp.Popen(['bash'], stdin=sp.PIPE,
-                                    stdout=sp.PIPE,
-                                    stderr=sp.PIPE,
-                                    cwd=job['cwd'])
-                    stdout, stderr = safe_communicate(proc, job['script'])
-                elif job['status'] == 'r' \
-                        and (t-job['t0']-job['WAIT']) > job['RUN']:
+                    proc = sp.Popen(
+                        ["bash"],
+                        stdin=sp.PIPE,
+                        stdout=sp.PIPE,
+                        stderr=sp.PIPE,
+                        cwd=job["cwd"],
+                    )
+                    stdout, stderr = safe_communicate(proc, job["script"])
+                elif (
+                    job["status"] == "r" and (t - job["t0"] - job["WAIT"]) > job["RUN"]
+                ):
                     # Just eliminate it
                     completed_jobs.append(j_id)
 
             for cj in completed_jobs:
-                del(self._job_list[cj])
+                del self._job_list[cj]
 
             time.sleep(self._dt)
 
@@ -111,15 +114,12 @@ class DebugQueueInterface(QueueInterface):
         """
 
         # Parse the script for parameters
-        job = {
-            'WAIT': 0.0,
-            'RUN': 0.0
-        }
+        job = {"WAIT": 0.0, "RUN": 0.0}
 
-        for l in script.split('\n'):
-            if l[:2] == '#$':
+        for line in script.split("\n"):
+            if line[:2] == "#$":
                 # Parse!
-                keyw, vals = l[2:].split(None, 1)
+                keyw, vals = line[2:].split(None, 1)
                 if keyw in job:
                     if type(job[keyw]) is float:
                         # Ok, what do we have?
@@ -131,23 +131,22 @@ class DebugQueueInterface(QueueInterface):
 
         # Python 2-to-3 compatibility
         try:
-            script = bytes(script, 'utf-8')
+            script = bytes(script, "utf-8")
         except TypeError:
             pass
 
         # Ok, now add the actual script
-        job['script'] = script
-        job['cwd'] = cwd
-        job['t0'] = time.time()
-        job['status'] = 'w'
+        job["script"] = script
+        job["cwd"] = cwd
+        job["t0"] = time.time()
+        job["status"] = "w"
         # Generate a suitable id
-        new_id = '1'
+        new_id = "1"
         while new_id in self._job_list:
-            new_id = str(Random.randint(10**(len(new_id)),
-                                           10**(1+len(new_id))))
+            new_id = str(Random.randint(10 ** (len(new_id)), 10 ** (1 + len(new_id))))
 
         self._job_list[new_id] = job
-        if self._runthr is None or not(self._runthr.isAlive()):
+        if self._runthr is None or not (self._runthr.isAlive()):
             self._runthr = Thread(target=self._main_loop)
             self._runthr.daemon = True
             self._runthr.start()
@@ -165,8 +164,7 @@ class DebugQueueInterface(QueueInterface):
 
         jobs = {}
         for j_id in self._job_list:
-            jobs[j_id] = {'job_id': j_id,
-                          'job_status': self._job_list[j_id]['status']}
+            jobs[j_id] = {"job_id": j_id, "job_status": self._job_list[j_id]["status"]}
 
         return jobs
 
@@ -179,6 +177,6 @@ class DebugQueueInterface(QueueInterface):
         """
 
         try:
-            del(self._job_list[job_id])
+            del self._job_list[job_id]
         except KeyError:
             pass

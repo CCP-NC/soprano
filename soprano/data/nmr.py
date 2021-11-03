@@ -29,12 +29,15 @@ import scipy.constants as cnst
 
 # EFG conversion constant.
 # Units chosen so that EFG_TO_CHI*Quadrupolar moment*Vzz = Hz
-EFG_TO_CHI = cnst.physical_constants['atomic unit of electric field '
-                                     'gradient'][0]*cnst.e*1e-31/cnst.h
+EFG_TO_CHI = (
+    cnst.physical_constants["atomic unit of electric field " "gradient"][0]
+    * cnst.e
+    * 1e-31
+    / cnst.h
+)
 
 try:
-    _nmr_data = pkgutil.get_data('soprano',
-                                 'data/nmrdata.json').decode('utf-8')
+    _nmr_data = pkgutil.get_data("soprano", "data/nmrdata.json").decode("utf-8")
     _nmr_data = json.loads(_nmr_data)
 except IOError:
     _nmr_data = None
@@ -45,15 +48,16 @@ def _get_nmr_data():
     if _nmr_data is not None:
         return _nmr_data
     else:
-        raise RuntimeError('NMR data not available. Something may be '
-                           'wrong with this installation of Soprano')
+        raise RuntimeError(
+            "NMR data not available. Something may be "
+            "wrong with this installation of Soprano"
+        )
 
 
-def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
-                      use_q_isotopes=False):
+def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes=False):
 
     if isinstance(elems, str):
-        elems = [elems] # It's a single element
+        elems = [elems]  # It's a single element
 
     data = np.zeros(len(elems))
     nmr_data = _get_nmr_data()
@@ -62,11 +66,11 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
 
         if e not in nmr_data:
             # Non-existing element
-            raise RuntimeError('No NMR data on element {0}'.format(e))
+            raise RuntimeError("No NMR data on element {0}".format(e))
 
-        iso = nmr_data[e]['iso']
-        if use_q_isotopes and nmr_data[e]['Q_iso'] is not None:
-            iso = nmr_data[e]['Q_iso']
+        iso = nmr_data[e]["iso"]
+        if use_q_isotopes and nmr_data[e]["Q_iso"] is not None:
+            iso = nmr_data[e]["Q_iso"]
         if e in isotopes:
             iso = isotopes[e]
         if isotope_list is not None and isotope_list[i] is not None:
@@ -75,32 +79,33 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None,
         try:
             data[i] = nmr_data[e][str(iso)][key]
         except KeyError:
-            raise RuntimeError('Data {0} does not exist for isotope {1} of '
-                               'element {2}'.format(key, iso, e))
+            raise RuntimeError(
+                "Data {0} does not exist for isotope {1} of "
+                "element {2}".format(key, iso, e)
+            )
 
     return data
 
 
 def _el_iso(sym):
-    """ Utility function: split isotope and element in conventional
+    """Utility function: split isotope and element in conventional
     representation.
     """
 
     nmr_data = _get_nmr_data()
 
-    match = re.findall('([0-9]*)([A-Za-z]+)', sym)
+    match = re.findall("([0-9]*)([A-Za-z]+)", sym)
     if len(match) != 1:
-        raise ValueError('Invalid isotope symbol')
+        raise ValueError("Invalid isotope symbol")
     elif match[0][1] not in nmr_data:
-        raise ValueError('Invalid element symbol')
+        raise ValueError("Invalid element symbol")
 
     el = match[0][1]
     # What about the isotope?
-    iso = str(nmr_data[el]['iso']) if match[0][0] == '' else match[0][0]
+    iso = str(nmr_data[el]["iso"]) if match[0][0] == "" else match[0][0]
 
     if iso not in nmr_data[el]:
-        raise ValueError('No data on isotope {0} for element {1}'.format(iso,
-                                                                         el))
+        raise ValueError("No data on isotope {0} for element {1}".format(iso, el))
 
     return el, iso
 
@@ -116,14 +121,14 @@ def nmr_gamma(el, iso=None):
     |   iso (int):  isotope. Default is the most abundant one.
 
     | Returns:
-    |   gamma (float):  gyromagnetic ratio in rad/(s*T)    
+    |   gamma (float):  gyromagnetic ratio in rad/(s*T)
     """
 
     isotopes = {}
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], 'gamma', isotopes=isotopes)
+    return _get_isotope_data([el], "gamma", isotopes=isotopes)
 
 
 def nmr_spin(el, iso=None):
@@ -144,7 +149,7 @@ def nmr_spin(el, iso=None):
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], 'I', isotopes=isotopes)
+    return _get_isotope_data([el], "I", isotopes=isotopes)
 
 
 def nmr_quadrupole(el, iso=None):
@@ -165,4 +170,4 @@ def nmr_quadrupole(el, iso=None):
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], 'Q', isotopes=isotopes)
+    return _get_isotope_data([el], "Q", isotopes=isotopes)

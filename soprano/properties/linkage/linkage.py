@@ -22,15 +22,19 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
-import pkgutil
 import numpy as np
 from ase.data import atomic_numbers
 from ase.quaternions import Quaternion
 from soprano.selection import AtomSelection
 from soprano.properties import AtomsProperty
-from soprano.utils import (swing_twist_decomp, is_string, graph_specsort,
-                           minimum_periodic, all_periodic, get_bonding_graph)
+from soprano.utils import (
+    swing_twist_decomp,
+    is_string,
+    graph_specsort,
+    minimum_periodic,
+    all_periodic,
+    get_bonding_graph,
+)
 from soprano.data import vdw_radii
 
 
@@ -41,7 +45,7 @@ def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     # So that we know how big the supercell needs to be
 
     # Build a custom VdW set
-    vdw_r = np.array(vdw_radii[vdw_set])*vdw_scale
+    vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
     vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
     for el, r in vdw_custom.items():
         vdw_r[atomic_numbers[el]] = r
@@ -53,13 +57,13 @@ def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     atomn = len(s)
     triui = np.triu_indices(atomn, k=1)
     v = s.get_positions()
-    v = (v[:, None, :]-v[None, :, :])[triui]
+    v = (v[:, None, :] - v[None, :, :])[triui]
     # Reduce them
     v, v_i, v_cells = all_periodic(v, s.get_cell(), vdw_max, pbc=s.get_pbc())
     v = np.linalg.norm(v, axis=-1)
 
     # Now distance and VdW matrices
-    vdw_M = ((vdw_vals[None, :]+vdw_vals[:, None])/2.0)[triui]
+    vdw_M = ((vdw_vals[None, :] + vdw_vals[:, None]) / 2.0)[triui]
     link_M = v <= vdw_M[v_i]
     linked = np.where(link_M)
 
@@ -89,17 +93,14 @@ class LinkageList(AtomsProperty):
 
     """
 
-    default_name = 'linkage_list'
-    default_params = {
-        'size': 0,
-        'return_pairs': False
-    }
+    default_name = "linkage_list"
+    default_params = {"size": 0, "return_pairs": False}
 
     @staticmethod
     def extract(s, size, return_pairs):
         # Get the interatomic pair distances
         v = s.get_positions()
-        v = v[:, None, :]-v[None, :, :]
+        v = v[:, None, :] - v[None, :, :]
         pair_inds = np.triu_indices(v.shape[0], k=1)
         v = v[pair_inds]
         # Reduce them
@@ -112,10 +113,12 @@ class LinkageList(AtomsProperty):
             if link_list.shape[0] >= size:
                 link_list = link_list[:size]
             else:
-                link_list = np.pad(link_list,
-                                   (0, size-link_list.shape[0]),
-                                   mode=str('constant'),
-                                   constant_values=np.inf)
+                link_list = np.pad(
+                    link_list,
+                    (0, size - link_list.shape[0]),
+                    mode=str("constant"),
+                    constant_values=np.inf,
+                )
 
         if not return_pairs:
             return link_list
@@ -143,7 +146,7 @@ class Bonds(AtomsProperty):
     another throughout two different periodic boundaries is not accounted for.
 
     | Parameters:
-    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default
     |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
@@ -164,28 +167,33 @@ class Bonds(AtomsProperty):
 
     """
 
-    default_name = 'bonds'
+    default_name = "bonds"
     default_params = {
-        'vdw_set': 'csd',
-        'vdw_scale': 1.0,
-        'default_vdw': 2.0,
-        'vdw_custom': {},
-        'return_matrix': False,
-        'save_info': True,
+        "vdw_set": "csd",
+        "vdw_scale": 1.0,
+        "default_vdw": 2.0,
+        "vdw_custom": {},
+        "return_matrix": False,
+        "save_info": True,
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom, return_matrix,
-                save_info):
+    def extract(
+        s, vdw_set, vdw_scale, default_vdw, vdw_custom, return_matrix, save_info
+    ):
 
-        linked, triui, v, v_i, v_cells = _compute_bonds(s,
-                                                        vdw_set,
-                                                        vdw_scale,
-                                                        default_vdw,
-                                                        vdw_custom)
+        linked, triui, v, v_i, v_cells = _compute_bonds(
+            s, vdw_set, vdw_scale, default_vdw, vdw_custom
+        )
 
-        bonds = list(zip(triui[0][v_i[linked]], triui[1][v_i[linked]],
-                         -v_cells[linked], v[linked]))
+        bonds = list(
+            zip(
+                triui[0][v_i[linked]],
+                triui[1][v_i[linked]],
+                -v_cells[linked],
+                v[linked],
+            )
+        )
 
         if save_info:
             s.info[Bonds.default_name] = list(bonds)
@@ -198,7 +206,7 @@ class Bonds(AtomsProperty):
             bmat[triui[1][v_i[linked]], triui[0][v_i[linked]]] = 1
 
             if save_info:
-                s.info[Bonds.default_name + '_matrix'] = bmat
+                s.info[Bonds.default_name + "_matrix"] = bmat
 
             return list(bonds), bmat
 
@@ -217,7 +225,7 @@ class CoordinationHistogram(AtomsProperty):
     search; otherwise a full histogram for all pairs of species is returned.
 
     | Parameters:
-    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default
     |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
@@ -242,33 +250,36 @@ class CoordinationHistogram(AtomsProperty):
 
     """
 
-    default_name = 'coord_histogram'
+    default_name = "coord_histogram"
     default_params = {
-        'vdw_set': 'csd',
-        'vdw_scale': 1.0,
-        'default_vdw': 2.0,
-        'vdw_custom': {},
-        'species_1': None,
-        'species_2': None,
-        'max_coord': 6
+        "vdw_set": "csd",
+        "vdw_scale": 1.0,
+        "default_vdw": 2.0,
+        "vdw_custom": {},
+        "species_1": None,
+        "species_2": None,
+        "max_coord": 6,
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom,
-                species_1, species_2, max_coord):
+    def extract(
+        s, vdw_set, vdw_scale, default_vdw, vdw_custom, species_1, species_2, max_coord
+    ):
 
         elems = np.array(s.get_chemical_symbols())
 
         # Get the bonds
-        bond_calc = Bonds(vdw_set=vdw_set,
-                          vdw_scale=vdw_scale,
-                          default_vdw=default_vdw,
-                          vdw_custom=vdw_custom)
+        bond_calc = Bonds(
+            vdw_set=vdw_set,
+            vdw_scale=vdw_scale,
+            default_vdw=default_vdw,
+            vdw_custom=vdw_custom,
+        )
         bonds = bond_calc(s)
         # What if there are none?
         if len(bonds) == 0:
             # Just return
-            print('WARNING: no bonds detected for CoordinationHistogram')
+            print("WARNING: no bonds detected for CoordinationHistogram")
             return {}
         bond_inds = np.concatenate(list(zip(*bonds))[:2])
         bond_elems = elems[bond_inds]
@@ -285,15 +296,15 @@ class CoordinationHistogram(AtomsProperty):
             species_2 = np.array([species_2])
 
         # Initialise the histogram
-        hist = {s1: {s2: np.zeros(max_coord+1)
-                     for s2 in species_2}
-                for s1 in species_1}
+        hist = {
+            s1: {s2: np.zeros(max_coord + 1) for s2 in species_2} for s1 in species_1
+        }
 
         for s1 in species_1:
             # Which atoms are of species 1, and what are they bonded to?
             i1 = np.where(bond_elems == s1)[0]
             b1 = bond_inds[i1]
-            be1 = bond_elems[(i1-bN).astype(int)]
+            be1 = bond_elems[(i1 - bN).astype(int)]
             for s2 in species_2:
                 # Which ones are bonded to species 2?
                 i2 = np.where(be1 == s2)
@@ -302,7 +313,7 @@ class CoordinationHistogram(AtomsProperty):
                 hist_i, hist_n = np.unique(counts, return_counts=True)
                 # Fix for numbers that are too high...
                 hist_big = np.where(hist_i > max_coord)[0]
-                if (len(hist_big) > 0):
+                if len(hist_big) > 0:
                     # In this case find the max_coord index, if absent add it
                     hist_maxc = np.where(hist_i == max_coord)[0]
                     if len(hist_maxc) == 0:
@@ -330,7 +341,7 @@ class Molecules(AtomsProperty):
     the system can not be split in molecules at all.
 
     | Parameters:
-    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default
     |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
@@ -349,13 +360,13 @@ class Molecules(AtomsProperty):
 
     """
 
-    default_name = 'molecules'
+    default_name = "molecules"
     default_params = {
-        'vdw_set': 'csd',
-        'vdw_scale': 1.0,
-        'default_vdw': 2.0,
-        'vdw_custom': {},
-        'save_info': True,
+        "vdw_set": "csd",
+        "vdw_scale": 1.0,
+        "default_vdw": 2.0,
+        "vdw_custom": {},
+        "save_info": True,
     }
 
     @staticmethod
@@ -365,15 +376,16 @@ class Molecules(AtomsProperty):
         # Sanity check
         if N < 2:
             # WTF?
-            print('WARNING: impossible to calculate molecules on single-atom '
-                  'system')
+            print("WARNING: impossible to calculate molecules on single-atom " "system")
             return None
 
         # Get the bonds
-        bond_calc = Bonds(vdw_set=vdw_set,
-                          vdw_scale=vdw_scale,
-                          default_vdw=default_vdw,
-                          vdw_custom=vdw_custom)
+        bond_calc = Bonds(
+            vdw_set=vdw_set,
+            vdw_scale=vdw_scale,
+            default_vdw=default_vdw,
+            vdw_custom=vdw_custom,
+        )
         bonds = bond_calc(s)
 
         mol_sets = []
@@ -381,8 +393,7 @@ class Molecules(AtomsProperty):
 
         def get_linked(i):
             i_bonds = filter(lambda b: i in b[:2], bonds)
-            links = map(lambda b: (b[1], b[2]) if b[0] == i else (b[0], -b[2]),
-                        i_bonds)
+            links = map(lambda b: (b[1], b[2]) if b[0] == i else (b[0], -b[2]), i_bonds)
             return links
 
         while len(unsorted_atoms) > 0:
@@ -403,18 +414,17 @@ class Molecules(AtomsProperty):
                         unsorted_atoms.remove(l)
                     current_mol_bonds[-1].append(l)
 
-            mol_sets.append((current_mol, current_mol_cells,
-                             current_mol_bonds))
+            mol_sets.append((current_mol, current_mol_cells, current_mol_bonds))
 
         mols = []
         for m_i, m_cells, m_bonds in mol_sets:
             mols.append(AtomSelection(s, m_i))
-            mols[-1].set_array('cell_indices', m_cells)
+            mols[-1].set_array("cell_indices", m_cells)
             # This is necessary to guarantee shape consistency
             m_barr = np.empty((len(m_bonds),), dtype=list)
             for i, m_b in enumerate(m_bonds):
                 m_barr[i] = m_b
-            mols[-1].set_array('bonds', m_barr)
+            mols[-1].set_array("bonds", m_barr)
 
         if save_info:
             s.info[Molecules.default_name] = mols
@@ -440,10 +450,8 @@ class MoleculeNumber(AtomsProperty):
 
     """
 
-    default_name = 'molecule_n'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "molecule_n"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     def extract(s, force_recalc):
@@ -476,10 +484,10 @@ class MoleculeMass(AtomsProperty):
 
     """
 
-    default_name = 'molecule_mass'
+    default_name = "molecule_mass"
     default_params = {
-        'force_recalc': False,
-        'size': 0,
+        "force_recalc": False,
+        "size": 0,
     }
 
     @staticmethod
@@ -500,10 +508,12 @@ class MoleculeMass(AtomsProperty):
             if mol_m.shape[0] >= size:
                 mol_m = mol_m[:size]
             else:
-                mol_m = np.pad(mol_m,
-                               (0, size-mol_m.shape[0]),
-                               mode=str('constant'),
-                               constant_values=np.inf)
+                mol_m = np.pad(
+                    mol_m,
+                    (0, size - mol_m.shape[0]),
+                    mode=str("constant"),
+                    constant_values=np.inf,
+                )
 
         return mol_m
 
@@ -527,9 +537,9 @@ class MoleculeCOM(AtomsProperty):
 
     """
 
-    default_name = 'molecule_com'
+    default_name = "molecule_com"
     default_params = {
-        'force_recalc': False,
+        "force_recalc": False,
     }
 
     @staticmethod
@@ -545,12 +555,11 @@ class MoleculeCOM(AtomsProperty):
         for mol in s.info[Molecules.default_name]:
 
             mol_pos = all_pos[mol.indices]
-            mol_pos += np.tensordot(mol.get_array('cell_indices'),
-                                    s.get_cell(),
-                                    axes=(1, 0))
+            mol_pos += np.tensordot(
+                mol.get_array("cell_indices"), s.get_cell(), axes=(1, 0)
+            )
             mol_ms = all_m[mol.indices]
-            mol_com.append(np.sum(mol_pos*mol_ms[:, None],
-                                  axis=0)/np.sum(mol_ms))
+            mol_com.append(np.sum(mol_pos * mol_ms[:, None], axis=0) / np.sum(mol_ms))
 
         return np.array(mol_com)
 
@@ -579,10 +588,10 @@ class MoleculeCOMLinkage(AtomsProperty):
 
     """
 
-    default_name = 'molecule_com_linkage'
+    default_name = "molecule_com_linkage"
     default_params = {
-        'force_recalc': False,
-        'size': 0,
+        "force_recalc": False,
+        "size": 0,
     }
 
     @staticmethod
@@ -595,11 +604,11 @@ class MoleculeCOMLinkage(AtomsProperty):
 
         # Safety check
         if len(mol_com) < 2:
-            return [np.inf]*size
+            return [np.inf] * size
 
         # Now make the linkage
         v = np.array(mol_com)
-        v = v[:, None, :]-v[None, :, :]
+        v = v[:, None, :] - v[None, :, :]
         v = v[np.triu_indices(v.shape[0], k=1)]
         # Reduce them
         v, _ = minimum_periodic(v, s.get_cell())
@@ -611,10 +620,12 @@ class MoleculeCOMLinkage(AtomsProperty):
             if link_list.shape[0] >= size:
                 link_list = link_list[:size]
             else:
-                link_list = np.pad(link_list,
-                                   (0, size-link_list.shape[0]),
-                                   mode=str('constant'),
-                                   constant_values=np.inf)
+                link_list = np.pad(
+                    link_list,
+                    (0, size - link_list.shape[0]),
+                    mode=str("constant"),
+                    constant_values=np.inf,
+                )
 
         return link_list
 
@@ -636,9 +647,9 @@ class MoleculeQuaternion(AtomsProperty):
 
     """
 
-    default_name = 'molecule_quaternion'
+    default_name = "molecule_quaternion"
     default_params = {
-        'force_recalc': False,
+        "force_recalc": False,
     }
 
     @staticmethod
@@ -654,20 +665,21 @@ class MoleculeQuaternion(AtomsProperty):
         for mol in s.info[Molecules.default_name]:
 
             mol_pos = all_pos[mol.indices]
-            mol_pos += np.tensordot(mol.get_array('cell_indices'),
-                                    s.get_cell(),
-                                    axes=(1, 1))
+            mol_pos += np.tensordot(
+                mol.get_array("cell_indices"), s.get_cell(), axes=(1, 1)
+            )
             mol_ms = all_m[mol.indices]
 
             # We still need to correct the positions with the COM
-            mol_com = np.sum(mol_pos*mol_ms[:, None],
-                             axis=0)/np.sum(mol_ms)
+            mol_com = np.sum(mol_pos * mol_ms[:, None], axis=0) / np.sum(mol_ms)
             mol_pos -= mol_com
 
-            tens_i = np.identity(3)[None, :, :] * \
-                np.linalg.norm(mol_pos, axis=1)[:, None, None]**2
+            tens_i = (
+                np.identity(3)[None, :, :]
+                * np.linalg.norm(mol_pos, axis=1)[:, None, None] ** 2
+            )
 
-            tens_i -= mol_pos[:, None, :]*mol_pos[:, :, None]
+            tens_i -= mol_pos[:, None, :] * mol_pos[:, :, None]
             tens_i *= mol_ms[:, None, None]
             tens_i = np.sum(tens_i, axis=0)
 
@@ -679,12 +691,10 @@ class MoleculeQuaternion(AtomsProperty):
             mol_pos = sorted(mol_pos, key=lambda x: -np.linalg.norm(x))
             if len(mol_pos) > 1:
                 evecs[0] *= np.sign(np.dot(evecs[0], mol_pos[0]))
-            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos,
-                                                      mol_pos[0])) > 0)[0]
+            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos, mol_pos[0])) > 0)[0]
             if len(e1dirs) > 0:
                 evecs[1] *= np.sign(np.dot(evecs[1], mol_pos[e1dirs[0]]))
-            evecs[2] *= np.sign(np.dot(evecs[2],
-                                       np.cross(evecs[0], evecs[1])))
+            evecs[2] *= np.sign(np.dot(evecs[2], np.cross(evecs[0], evecs[1])))
             # Evecs must be proper
             evecs /= np.linalg.det(evecs)
 
@@ -731,12 +741,12 @@ class MoleculeRelativeRotation(AtomsProperty):
 
     """
 
-    default_name = 'molecule_rel_rotation'
+    default_name = "molecule_rel_rotation"
     default_params = {
-        'force_recalc': False,
-        'size': 0,
-        'swing_plane': None,
-        'twist_axis': None,
+        "force_recalc": False,
+        "size": 0,
+        "swing_plane": None,
+        "twist_axis": None,
     }
 
     @staticmethod
@@ -744,8 +754,10 @@ class MoleculeRelativeRotation(AtomsProperty):
 
         # Sanity check
         if swing_plane is not None and twist_axis is not None:
-            raise RuntimeError('Only one between swing_plane and twist_axis '
-                               'can be passed to MoleculeRelativeRotation')
+            raise RuntimeError(
+                "Only one between swing_plane and twist_axis "
+                "can be passed to MoleculeRelativeRotation"
+            )
 
         if Molecules.default_name not in s.info or force_recalc:
             Molecules.get(s)
@@ -760,22 +772,24 @@ class MoleculeRelativeRotation(AtomsProperty):
 
         # Safety check
         if len(mol_quat) < 2:
-            return [np.inf]*size
+            return [np.inf] * size
 
         # Now make the linkage
         v = np.array(mol_quat)
         v = np.tensordot(v, v, axes=(-1, -1))
-        link_list = 1.0-np.abs(v[np.triu_indices(v.shape[0], k=1)])
+        link_list = 1.0 - np.abs(v[np.triu_indices(v.shape[0], k=1)])
         link_list.sort()
 
         if size > 0:
             if link_list.shape[0] >= size:
                 link_list = link_list[:size]
             else:
-                link_list = np.pad(link_list,
-                                   (0, size-link_list.shape[0]),
-                                   mode=str('constant'),
-                                   constant_values=np.inf)
+                link_list = np.pad(
+                    link_list,
+                    (0, size - link_list.shape[0]),
+                    mode=str("constant"),
+                    constant_values=np.inf,
+                )
 
         return np.array(link_list)
 
@@ -785,7 +799,7 @@ class MoleculeSpectralSort(AtomsProperty):
     """
     MoleculeSpectralSort
 
-    Reorder molecules to have their indices sorted using a spectral 
+    Reorder molecules to have their indices sorted using a spectral
     sorting method based on the Fiedler vector of their bonding graph. This
     sorting should be equivalent for equivalent molecules - except for the
     arbitrary ordering of equivalent atoms.
@@ -800,9 +814,9 @@ class MoleculeSpectralSort(AtomsProperty):
 
     """
 
-    default_name = 'molecule_specsort'
+    default_name = "molecule_specsort"
     default_params = {
-        'force_recalc': False,
+        "force_recalc": False,
     }
 
     @staticmethod
@@ -816,7 +830,7 @@ class MoleculeSpectralSort(AtomsProperty):
         for mol in s.info[Molecules.default_name]:
             # Start by getting the adjacency and degree matrices
             N = len(mol)
-            bonds = mol.get_array('bonds')
+            bonds = mol.get_array("bonds")
             A = np.zeros((N, N))
             D = A.copy()
             for i, b in enumerate(bonds):
@@ -845,7 +859,7 @@ class HydrogenBonds(AtomsProperty):
     bonded to the proton and B the one of the hydrogen bonded one.
 
     | Parameters:
-    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default 
+    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default
     |                              is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Values bigger than one make for more
@@ -873,28 +887,35 @@ class HydrogenBonds(AtomsProperty):
 
     """
 
-    default_name = 'hydrogen_bonds'
+    default_name = "hydrogen_bonds"
     default_params = {
-        'vdw_set': 'csd',
-        'vdw_scale': 1.0,
-        'default_vdw': 2.0,
-        'vdw_custom': {},
-        'hbond_elems': ['O', 'N'],
-        'max_length': 3.5,
-        'max_angle': 45.0,
-        'save_info': True
+        "vdw_set": "csd",
+        "vdw_scale": 1.0,
+        "default_vdw": 2.0,
+        "vdw_custom": {},
+        "hbond_elems": ["O", "N"],
+        "max_length": 3.5,
+        "max_angle": 45.0,
+        "save_info": True,
     }
 
     @staticmethod
-    def extract(s, vdw_set, vdw_scale, default_vdw, vdw_custom, hbond_elems,
-                max_length, max_angle, save_info):
-
+    def extract(
+        s,
+        vdw_set,
+        vdw_scale,
+        default_vdw,
+        vdw_custom,
+        hbond_elems,
+        max_length,
+        max_angle,
+        save_info,
+    ):
         def elem_inds(s, el):
-            return [i for i, cs in enumerate(s.get_chemical_symbols())
-                    if cs == el]
+            return [i for i, cs in enumerate(s.get_chemical_symbols()) if cs == el]
 
         def bname(A, B):
-            return '{0}H..{1}'.format(A, B)
+            return "{0}H..{1}".format(A, B)
 
         # Define types
         hbonds = {}
@@ -903,7 +924,7 @@ class HydrogenBonds(AtomsProperty):
                 hbonds[bname(elA, elB)] = []
 
         # First, grab the hydrogen atoms
-        h_atoms = elem_inds(s, 'H')
+        h_atoms = elem_inds(s, "H")
         if len(h_atoms) == 0:
             # Nothing to do
             if save_info:
@@ -924,47 +945,42 @@ class HydrogenBonds(AtomsProperty):
         bond_atoms_pos = s.get_positions()[bond_atoms]
         # Van der Waals radii length of H-atom bonds
 
-        vdw_r = np.array(vdw_radii[vdw_set])*vdw_scale
+        vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
         vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
         for el, r in vdw_custom.items():
             vdw_r[atomic_numbers[el]] = r
 
         bonds_vdw = vdw_r[s.get_atomic_numbers()[bond_atoms]]
-        bonds_vdw = (bonds_vdw+vdw_r[1])/2.0
+        bonds_vdw = (bonds_vdw + vdw_r[1]) / 2.0
 
         # Now find the shortest and second shortest bonds for each H
-        h_links = (h_atoms_pos[:, None, :]-bond_atoms_pos[None, :, :])
+        h_links = h_atoms_pos[:, None, :] - bond_atoms_pos[None, :, :]
         shape = h_links.shape
-        h_links, h_cells = minimum_periodic(h_links.reshape((-1, 3)),
-                                            s.get_cell())
+        h_links, h_cells = minimum_periodic(h_links.reshape((-1, 3)), s.get_cell())
         h_links = h_links.reshape(shape)
         h_cells = h_cells.reshape(shape)
         h_links_norm = np.linalg.norm(h_links, axis=-1)
 
         # Now for each hydrogen: first and second closest
-        h_closest = np.argsort(h_links_norm,
-                               axis=-1)[:, :2]
+        h_closest = np.argsort(h_links_norm, axis=-1)[:, :2]
 
         # Which ones DO actually form bonds?
         rngh = range(len(h_atoms))
         # Condition one: closest atom, A, is bonded
-        h_bonded = h_links_norm[rngh,
-                                h_closest[:, 0]] <= bonds_vdw[h_closest[:, 0]]
+        h_bonded = h_links_norm[rngh, h_closest[:, 0]] <= bonds_vdw[h_closest[:, 0]]
         # Condition two: furthest atom, B, is NOT bonded...
-        h_bonded = np.logical_and(h_bonded,
-                                  h_links_norm[rngh,
-                                               h_closest[:, 1]
-                                               ] > bonds_vdw[h_closest[:, 1]])
+        h_bonded = np.logical_and(
+            h_bonded, h_links_norm[rngh, h_closest[:, 1]] > bonds_vdw[h_closest[:, 1]]
+        )
         # Condition three: ...but still closer to A than max_length
-        links_ab = h_links[rngh, h_closest[:, 0]] - \
-            h_links[rngh, h_closest[:, 1]]
+        links_ab = h_links[rngh, h_closest[:, 0]] - h_links[rngh, h_closest[:, 1]]
         links_ab_norm = np.linalg.norm(links_ab, axis=-1)
         h_bonded = np.logical_and(h_bonded, links_ab_norm <= max_length)
         # Condition four: finally, the angle between AH and AB in A-H..B
         # must be smaller than max_angle
-        angles_abah = np.sum(links_ab*h_links[rngh, h_closest[:, 0]], axis=-1)
-        angles_abah /= links_ab_norm*h_links_norm[rngh, h_closest[:, 0]]
-        angles_abah = np.arccos(angles_abah)*180.0/np.pi
+        angles_abah = np.sum(links_ab * h_links[rngh, h_closest[:, 0]], axis=-1)
+        angles_abah /= links_ab_norm * h_links_norm[rngh, h_closest[:, 0]]
+        angles_abah = np.arccos(angles_abah) * 180.0 / np.pi
         h_bonded = np.logical_and(h_bonded, angles_abah <= max_angle)
 
         # The survivors are actual h bonds!
@@ -983,11 +999,13 @@ class HydrogenBonds(AtomsProperty):
             elA = s.get_chemical_symbols()[bond_atoms[ai]]
             elB = s.get_chemical_symbols()[bond_atoms[bi]]
 
-            bond = {'H': h_atoms[h],
-                    'A': (bond_atoms[ai], h_cells[h, ai]),
-                    'B': (bond_atoms[bi], h_cells[h, bi]),
-                    'length': links_ab_norm[h],
-                    'angle': angles_abah[h]}
+            bond = {
+                "H": h_atoms[h],
+                "A": (bond_atoms[ai], h_cells[h, ai]),
+                "B": (bond_atoms[bi], h_cells[h, bi]),
+                "length": links_ab_norm[h],
+                "angle": angles_abah[h],
+            }
 
             btype = bname(elA, elB)
             hbonds[btype].append(bond)
@@ -1017,10 +1035,8 @@ class HydrogenBondsNumber(AtomsProperty):
 
     """
 
-    default_name = 'hydrogen_bonds_n'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "hydrogen_bonds_n"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     def extract(s, force_recalc):
@@ -1062,11 +1078,8 @@ class DihedralAngleList(AtomsProperty):
 
     """
 
-    default_name = 'dihedral_angle_list'
-    default_params = {
-        'dihedral_pattern': ['H', 'C', 'C', 'H'],
-        'bonds_params': {}
-    }
+    default_name = "dihedral_angle_list"
+    default_params = {"dihedral_pattern": ["H", "C", "C", "H"], "bonds_params": {}}
 
     @staticmethod
     def extract(s, dihedral_pattern, bonds_params):
@@ -1079,8 +1092,7 @@ class DihedralAngleList(AtomsProperty):
 
         # Build a network
         dp = np.array(dihedral_pattern)
-        nodes = np.where(np.any(elems[:, None] == dp[None, :],
-                                axis=1))[0]
+        nodes = np.where(np.any(elems[:, None] == dp[None, :], axis=1))[0]
 
         bond_table = {n: [] for n in nodes}
         for b in bonds:
@@ -1104,18 +1116,18 @@ class DihedralAngleList(AtomsProperty):
                         # If so, spawn new pointers and save the corresponding
                         # memory of the previous path
                         new_pointers.append(b[0])
-                        new_pointer_memory.append(
-                            list(pointer_memory[p_i]) + [p])
+                        new_pointer_memory.append(list(pointer_memory[p_i]) + [p])
                         new_pointer_traversal.append(
-                            np.concatenate((pointer_traversal[p_i],
-                                            np.array(b[1])[None, :])))
+                            np.concatenate(
+                                (pointer_traversal[p_i], np.array(b[1])[None, :])
+                            )
+                        )
             pointers = new_pointers
             pointer_memory = new_pointer_memory
             pointer_traversal = np.array(new_pointer_traversal)
 
         # Now build the dihedra array
-        dihedra = np.array([pointer_memory[i] + [p]
-                            for i, p in enumerate(pointers)])
+        dihedra = np.array([pointer_memory[i] + [p] for i, p in enumerate(pointers)])
 
         # Symmetry check, epurate the repeated ones if needed
         is_symm = np.all(dihedral_pattern == dihedral_pattern[::-1])
@@ -1123,9 +1135,9 @@ class DihedralAngleList(AtomsProperty):
         if is_symm:
             duplicate = []
             for i, d1 in enumerate(dihedra):
-                for j, d2 in enumerate(dihedra[i+1:]):
+                for j, d2 in enumerate(dihedra[i + 1 :]):
                     if np.all(d2 == d1[::-1]):
-                        duplicate.append(j+i+1)
+                        duplicate.append(j + i + 1)
             unique = list(set(range(len(dihedra))) - set(duplicate))
             dihedra = dihedra[unique]
             pointer_traversal = pointer_traversal[unique]
@@ -1146,9 +1158,10 @@ class DihedralAngleList(AtomsProperty):
         bxa /= np.linalg.norm(bxa, axis=-1)[:, None]
         cxb = np.cross(links[:, 2, :], links[:, 1, :])
         cxb /= np.linalg.norm(cxb, axis=-1)[:, None]
-        angles = np.arccos(np.clip(np.sum(bxa*cxb, axis=-1), -1, 1))
-        angles = np.where(np.sum(bxa*links[:, 2, :], axis=-1) > 0,
-                          2*np.pi-angles, angles)
+        angles = np.arccos(np.clip(np.sum(bxa * cxb, axis=-1), -1, 1))
+        angles = np.where(
+            np.sum(bxa * links[:, 2, :], axis=-1) > 0, 2 * np.pi - angles, angles
+        )
 
         # And return!
         return angles
@@ -1172,10 +1185,10 @@ class BondGraph(AtomsProperty):
 
     """
 
-    default_name = 'bond_graph'
+    default_name = "bond_graph"
     default_params = {
-        'force_recalc': False,
-        'save_info': True,
+        "force_recalc": False,
+        "save_info": True,
     }
 
     @staticmethod

@@ -29,13 +29,12 @@ import os
 import numpy as np
 import subprocess as sp
 from soprano.utils import safe_communicate
-from soprano.calculate.gulp._utils import (_gulp_cell_definition,
-                                           _gulp_parse_charges)
+from soprano.calculate.gulp._utils import _gulp_cell_definition, _gulp_parse_charges
 
 
-def get_gulp_charges(s, charge_method="eem", save_charges=True,
-                     gulp_command='gulp',
-                     gulp_path=None):
+def get_gulp_charges(
+    s, charge_method="eem", save_charges=True, gulp_command="gulp", gulp_path=None
+):
     """Calculate the atomic partial charges using GULP.
 
     | Parameters:
@@ -60,8 +59,8 @@ def get_gulp_charges(s, charge_method="eem", save_charges=True,
     """
 
     # Sanity check
-    if charge_method not in ['eem', 'qeq', 'pacha']:
-        raise ValueError('Invalid charge_method passed to get_gulp_charges')
+    if charge_method not in ["eem", "qeq", "pacha"]:
+        raise ValueError("Invalid charge_method passed to get_gulp_charges")
 
     # Now define the input
     gin = "{0}\n".format(charge_method)
@@ -69,21 +68,22 @@ def get_gulp_charges(s, charge_method="eem", save_charges=True,
 
     # AND GO!
     if gulp_path is None:
-        gulp_path = ''
+        gulp_path = ""
 
     gulp_cmd = [os.path.join(gulp_path, gulp_command)]
 
     # Run the thing...
     try:
-        gulp_proc = sp.Popen(gulp_cmd,
-                             universal_newlines=True,
-                             stdin=sp.PIPE,
-                             stdout=sp.PIPE,
-                             stderr=sp.PIPE)
+        gulp_proc = sp.Popen(
+            gulp_cmd,
+            universal_newlines=True,
+            stdin=sp.PIPE,
+            stdout=sp.PIPE,
+            stderr=sp.PIPE,
+        )
         stdout, stderr = safe_communicate(gulp_proc, gin)
     except OSError:
-        raise RuntimeError('GULP not found on this system with the given '
-                           'command')
+        raise RuntimeError("GULP not found on this system with the given " "command")
 
     # Necessary for compatibility in Python2
     try:
@@ -92,16 +92,16 @@ def get_gulp_charges(s, charge_method="eem", save_charges=True,
         pass
 
     # And parse the output
-    gulp_lines = stdout.split('\n')
+    gulp_lines = stdout.split("\n")
     charges = _gulp_parse_charges(gulp_lines)
     if charges is None:
-        raise RuntimeError('ERROR - GULP run failed to return charges')
+        raise RuntimeError("ERROR - GULP run failed to return charges")
 
     # Run a security check
-    if not np.all(s.get_atomic_numbers() == charges['Z']):
-        raise RuntimeError('ERROR - Invalid charges parsed from GULP output')
+    if not np.all(s.get_atomic_numbers() == charges["Z"]):
+        raise RuntimeError("ERROR - Invalid charges parsed from GULP output")
 
-    charges = charges['q']
+    charges = charges["q"]
 
     if save_charges:
         s.set_initial_charges(charges)

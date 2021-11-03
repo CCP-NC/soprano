@@ -18,16 +18,18 @@
 random.py
 
 Manages randomness across the board for Soprano functions
-""" 
+"""
 
 from numpy.random import MT19937
 from numpy.random import RandomState, SeedSequence
 
 # Define a single Random Generator to use across the board in Soprano functions
 
+
 class RandomType(type):
     def __getattr__(cls, key):
         return cls._generator.__getattribute__(key)
+
 
 class Random(object, metaclass=RandomType):
 

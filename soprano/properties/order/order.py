@@ -33,12 +33,11 @@ def _valid_triples(l):
     """Valid triples for angular momentum l for which m1 + m2 + m3 = 0"""
 
     # m1 can be anything
-    m1 = np.arange(-l, l+1)
+    m1 = np.arange(-l, l + 1)
     # m2 can be anything such that |m1+m2| <= l
-    m2 = [np.arange(-l-min(m, 0), l+1-max(m, 0)) for m in m1]
+    m2 = [np.arange(-l - min(m, 0), l + 1 - max(m, 0)) for m in m1]
 
-    return np.array([[m, mm, -m-mm] for i, m in enumerate(m1)
-                     for mm in m2[i]])
+    return np.array([[m, mm, -m - mm] for i, m in enumerate(m1) for mm in m2[i]])
 
 
 def _steinhardt_pars(vecs, l_channels, compute_W=False, weights=None):
@@ -49,26 +48,32 @@ def _steinhardt_pars(vecs, l_channels, compute_W=False, weights=None):
     W = np.zeros(len(l_channels))
 
     # Translate vectors in polar form
-    vecs = np.array(vecs)/np.linalg.norm(vecs, axis=1)[:, None]
-    pols = np.array([np.arccos(vecs[:, 2]),
-                     np.arctan2(vecs[:, 1], vecs[:, 0])]).T
+    vecs = np.array(vecs) / np.linalg.norm(vecs, axis=1)[:, None]
+    pols = np.array([np.arccos(vecs[:, 2]), np.arctan2(vecs[:, 1], vecs[:, 0])]).T
 
     # What about weights?
     if weights is None:
-        weights = np.ones(vecs.shape[0])/len(vecs)
+        weights = np.ones(vecs.shape[0]) / len(vecs)
 
     for i, l in enumerate(l_channels):
-        mvals = np.arange(-l, l+1)
-        Qlm.append(np.sum(sph_harm(mvals[None, :], l, pols[:, 1, None],
-                                   pols[:, 0, None])*weights[:, None], axis=0))
-        Qsum = np.sum(np.conj(Qlm[i])*Qlm[i])
-        Q[i] = np.abs(np.sqrt(Qsum*4*np.pi/(2*l+1.0)))
+        mvals = np.arange(-l, l + 1)
+        Qlm.append(
+            np.sum(
+                sph_harm(mvals[None, :], l, pols[:, 1, None], pols[:, 0, None])
+                * weights[:, None],
+                axis=0,
+            )
+        )
+        Qsum = np.sum(np.conj(Qlm[i]) * Qlm[i])
+        Q[i] = np.abs(np.sqrt(Qsum * 4 * np.pi / (2 * l + 1.0)))
         if compute_W:
             m1, m2, m3 = _valid_triples(l).T
-            ls = np.array([l]*len(m1))
+            ls = np.array([l] * len(m1))
             w3j = wigner_3j(ls, m1, ls, m2, ls, m3)
-            W[i] = np.abs(np.sum(w3j*Qlm[i][m1+l]*Qlm[i][m2+l]*Qlm[i][m3+l]
-                                 )/(Qsum)**1.5)
+            W[i] = np.abs(
+                np.sum(w3j * Qlm[i][m1 + l] * Qlm[i][m2 + l] * Qlm[i][m3 + l])
+                / (Qsum) ** 1.5
+            )
 
     if not compute_W:
         return Q
@@ -108,7 +113,7 @@ class BondOrder(AtomsProperty):
     |   cutoff_radius (float): radius at which to cut the smoothing sigmoid
     |                          function, in Angstroms. Default is 2.0.
     |   cutoff_width (float): width parameter of the sigmoid, controlling the
-    |                         steepness with which it falls to zero, in 
+    |                         steepness with which it falls to zero, in
     |                         Angstroms. Default is 0.05.
     |   compute_W (bool): whether to also compute the W parameter (third
     |                     order) besides the Q (second order).
@@ -119,24 +124,31 @@ class BondOrder(AtomsProperty):
 
     """
 
-    default_name = 'bond_order'
+    default_name = "bond_order"
     default_params = {
-        'l_channels': np.arange(1, 11),
-        'center_atoms': None,
-        'environment_atoms': None,
-        'cutoff_radius': 2.0,
-        'cutoff_width': 0.05,
-        'compute_W': False
+        "l_channels": np.arange(1, 11),
+        "center_atoms": None,
+        "environment_atoms": None,
+        "cutoff_radius": 2.0,
+        "cutoff_width": 0.05,
+        "compute_W": False,
     }
 
     @staticmethod
-    def extract(s, l_channels, center_atoms, environment_atoms, cutoff_radius,
-                cutoff_width, compute_W):
+    def extract(
+        s,
+        l_channels,
+        center_atoms,
+        environment_atoms,
+        cutoff_radius,
+        cutoff_width,
+        compute_W,
+    ):
 
         # Check that l_channels are valid
         l_channels = np.array(l_channels)
         if ((l_channels < 1) | ((l_channels % 1) != 0)).any():
-            raise ValueError('Invalid angular momentum channels')
+            raise ValueError("Invalid angular momentum channels")
 
         # Turn center_atoms and environment_atoms into AtomSelections
         if not isinstance(center_atoms, AtomSelection):
@@ -167,9 +179,11 @@ class BondOrder(AtomsProperty):
             bnorms = np.linalg.norm(bonds, axis=1)
 
             # Compute sigmoid weights
-            bweights = 0.5*(((cutoff_radius-bnorms)/cutoff_width) /
-                            (((cutoff_radius-bnorms)/cutoff_width)**2+1)**0.5
-                            + 1)
+            bweights = 0.5 * (
+                ((cutoff_radius - bnorms) / cutoff_width)
+                / (((cutoff_radius - bnorms) / cutoff_width) ** 2 + 1) ** 0.5
+                + 1
+            )
             bweights /= np.sum(bweights)  # Norm to 1
 
             all_vecs = np.concatenate((all_vecs, bonds))
@@ -179,10 +193,11 @@ class BondOrder(AtomsProperty):
         all_weights /= len(center_atoms.indices)
 
         # Now compute the order parameters!
-        stp = _steinhardt_pars(all_vecs, l_channels, weights=all_weights,
-                               compute_W=compute_W)
+        stp = _steinhardt_pars(
+            all_vecs, l_channels, weights=all_weights, compute_W=compute_W
+        )
 
         if compute_W:
-            return {'Q': stp[0], 'W': stp[1]}
+            return {"Q": stp[0], "W": stp[1]}
         else:
-            return {'Q': stp}
+            return {"Q": stp}

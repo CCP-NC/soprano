@@ -24,7 +24,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-import glob
 import argparse as ap
 from ase import io
 
@@ -33,12 +32,17 @@ def __main__():
 
     parser = ap.ArgumentParser()
     # Main argument
-    parser.add_argument('input_folders', type=str, nargs='+', default=None,
-                        help="Folders of VASP input files to convert to CELL")
+    parser.add_argument(
+        "input_folders",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Folders of VASP input files to convert to CELL",
+    )
 
     args = parser.parse_args()
 
-    _inpfiles = ('POSCAR', 'CONTCAR')
+    _inpfiles = ("POSCAR", "CONTCAR")
 
     for inpf in args.input_folders:
         # Check that these folders have the right files
@@ -49,17 +53,21 @@ def __main__():
             except IOError as e:
                 if "Could not determine chemical symbols" in str(e):
                     # Wrong header format!
-                    print("WARNING - ASE could not read elements in "
-                          "POSCAR file.\n"
-                          "By convention, elements should be elencated in the "
-                          "first line of the POSCAR file in the order "
-                          "in which they appear in the line in which the "
-                          "number of each atom type is given.")
+                    print(
+                        "WARNING - ASE could not read elements in "
+                        "POSCAR file.\n"
+                        "By convention, elements should be elencated in the "
+                        "first line of the POSCAR file in the order "
+                        "in which they appear in the line in which the "
+                        "number of each atom type is given."
+                    )
                 continue
         if a is None:
-            print("No valid structure files found in folder "
-                  "{0}\nSkipping...".format(inpf))
+            print(
+                "No valid structure files found in folder "
+                "{0}\nSkipping...".format(inpf)
+            )
             continue
 
         name = os.path.split(inpf)[-1]
-        io.write(name + '.cell', a)
+        io.write(name + ".cell", a)

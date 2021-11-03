@@ -29,8 +29,7 @@ from __future__ import unicode_literals
 import numpy as np
 
 from soprano.properties.linkage import Bonds
-from soprano.utils import (minimum_periodic, get_bonding_graph,
-                           get_bonding_distance)
+from soprano.utils import minimum_periodic, get_bonding_graph, get_bonding_distance
 
 
 def euclideanDistance(s, i, j, periodic=True):
@@ -41,7 +40,7 @@ def euclideanDistance(s, i, j, periodic=True):
     |   s (ase.Atoms): the structure on which to compute the distance
     |   i (int): index of the first atom
     |   j (int): index of the second atom
-    |   periodic (bool): whether to account for periodic boundaries when 
+    |   periodic (bool): whether to account for periodic boundaries when
     |                    computing the distance; default is True
 
     | Returns:
@@ -54,7 +53,7 @@ def euclideanDistance(s, i, j, periodic=True):
     cell = s.get_cell()
     pos = s.get_positions()
 
-    r = pos[j]-pos[i]
+    r = pos[j] - pos[i]
 
     if periodic:
         r, _ = minimum_periodic(r[None, :], cell)

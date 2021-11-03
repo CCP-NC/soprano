@@ -61,29 +61,26 @@ class RemoteTarget(object):
 
         # Check that Paramiko is even present
         if pmk is None:
-            raise RuntimeError('Paramiko not installed - RemoteTarget can not'
-                               ' be initialised')
+            raise RuntimeError(
+                "Paramiko not installed - RemoteTarget can not" " be initialised"
+            )
 
         # Ok, check that the hostname exists
         config = pmk.SSHConfig()
-        config.parse(open(os.path.expanduser('~/.ssh/config')))
+        config.parse(open(os.path.expanduser("~/.ssh/config")))
 
         if host not in config.get_hostnames():
-            raise ValueError('Host '
-                             '{0} not found in ~/.ssh/config'.format(host))
+            raise ValueError("Host " "{0} not found in ~/.ssh/config".format(host))
 
         hostdata = config.lookup(host)
-        self._connect_args = {
-            'hostname': hostdata['hostname'],
-            'timeout': timeout
-        }
+        self._connect_args = {"hostname": hostdata["hostname"], "timeout": timeout}
 
-        if 'port' in hostdata:
-            self._connect_args['port'] = int(hostdata['port'])
-        if 'user' in hostdata:
-            self._connect_args['username'] = hostdata['user']
-        if 'identityfile' in hostdata:
-            self._connect_args['key_filename'] = hostdata['identityfile'][-1]
+        if "port" in hostdata:
+            self._connect_args["port"] = int(hostdata["port"])
+        if "user" in hostdata:
+            self._connect_args["username"] = hostdata["user"]
+        if "identityfile" in hostdata:
+            self._connect_args["key_filename"] = hostdata["identityfile"][-1]
 
         # Now create the SSHClient and parse the system's hostkeys
         self._client = pmk.SSHClient()
@@ -154,13 +151,11 @@ class RemoteTargetContext(object):
         """
 
         if cwd is not None:
-            cmd = 'cd {0}; '.format(cwd) + cmd
+            cmd = "cd {0}; ".format(cwd) + cmd
 
-        (_stdin,
-         _stdout,
-         _stderr) = self._client.exec_command(cmd,
-                                              timeout=self._connect_args[
-                                                  'timeout'])
+        (_stdin, _stdout, _stderr) = self._client.exec_command(
+            cmd, timeout=self._connect_args["timeout"]
+        )
 
         if stdin is not None:
             _stdin.write(stdin)
@@ -188,8 +183,7 @@ class RemoteTargetContext(object):
 
             for f in files:
                 _, fname = os.path.split(f)
-                self._sftp.put(f, os.path.join(remotedir, fname),
-                               confirm=True)
+                self._sftp.put(f, os.path.join(remotedir, fname), confirm=True)
 
     @_ensure_open_sftp
     def get_files(self, remotepaths, localdir):
@@ -214,5 +208,6 @@ class RemoteTargetContext(object):
 
             for f in files:
                 _, fname = os.path.split(f)
-                self._sftp.get(os.path.join(remotedir, f),
-                               os.path.join(localdir, fname))
+                self._sftp.get(
+                    os.path.join(remotedir, f), os.path.join(localdir, fname)
+                )

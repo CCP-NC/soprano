@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano package &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -36,7 +36,8 @@
           <a href="modules.html" title="soprano"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">soprano</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">soprano</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano package</a></li> 
       </ul>
     </div>  
 
@@ -45,9 +46,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano">
+  <section id="module-soprano">
 <span id="soprano-package"></span><h1>soprano package<a class="headerlink" href="#module-soprano" title="Permalink to this headline">¶</a></h1>
-<p>Soprano 0.8.7.1</p>
+<p>Soprano 0.8.11</p>
 <p>A Python library to crack crystals
 by Simone Sturniolo</p>
 <p>Copyright (C) 2016 - Science and Technology Facility Council</p>
@@ -61,7 +62,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.</p>
 <p>You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<div class="section" id="subpackages">
+<section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
@@ -128,6 +129,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <li class="toctree-l5"><a class="reference internal" href="soprano.collection.generate.airss.html">soprano.collection.generate.airss module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="soprano.collection.generate.defect.html">soprano.collection.generate.defect module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="soprano.collection.generate.linspace.html">soprano.collection.generate.linspace module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="soprano.collection.generate.molneigh.html">soprano.collection.generate.molneigh module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="soprano.collection.generate.rattle.html">soprano.collection.generate.rattle module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="soprano.collection.generate.transform.html">soprano.collection.generate.transform module</a></li>
 </ul>
@@ -154,13 +156,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 <li class="toctree-l2"><a class="reference internal" href="soprano.hpc.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="soprano.hpc.submitter.html">soprano.hpc.submitter package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="soprano.hpc.submitter.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="soprano.hpc.submitter.debug.html">soprano.hpc.submitter.debug package</a><ul>
-<li class="toctree-l6"><a class="reference internal" href="soprano.hpc.submitter.debug.html#submodules">Submodules</a><ul>
-<li class="toctree-l7"><a class="reference internal" href="soprano.hpc.submitter.debug.debugqueue.html">soprano.hpc.submitter.debug.debugqueue module</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l5"><a class="reference internal" href="soprano.hpc.submitter.debug.html">soprano.hpc.submitter.debug package</a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="soprano.hpc.submitter.html#submodules">Submodules</a><ul>
@@ -265,21 +261,23 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="submodules">
+</section>
+<section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="soprano.measure.html">soprano.measure module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="soprano.optional.html">soprano.optional module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="soprano.rnd.html">soprano.rnd module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="soprano.selection.html">soprano.selection module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="soprano.utils.html">soprano.utils module</a></li>
 </ul>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -310,7 +308,7 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -336,12 +334,13 @@ along with this program.  If not, see &lt;<a class="reference external" href="ht
           <a href="modules.html" title="soprano"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li> 
+          <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano package</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

@@ -31,7 +31,7 @@ from soprano.collection import AtomsCollection
 
 class AtomsProperty(object):
 
-    default_name = 'generic_property'
+    default_name = "generic_property"
     default_params = {}
 
     def __init__(self, name=None, **params):
@@ -55,8 +55,10 @@ class AtomsProperty(object):
         self.params = dict(self.default_params)
         for p in params:
             if p not in self.params:
-                raise ValueError('Invalid argument passed to'
-                                 ' \'{0}\''.format(self.__class__.__name__))
+                raise ValueError(
+                    "Invalid argument passed to"
+                    " '{0}'".format(self.__class__.__name__)
+                )
             else:
                 self.params[p] = params[p]
 

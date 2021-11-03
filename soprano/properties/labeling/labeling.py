@@ -33,12 +33,12 @@ class SiteLabels(AtomsProperty):
     """
     SiteLabels
 
-    Compute a unique label for an atom belonging to a molecule by 
+    Compute a unique label for an atom belonging to a molecule by
     exploiting network topology. Atoms can have the same label, but only if
     they're fundamentally indistinguishable in the molecule's chemical context
-    (for example, three hydrogen atoms on a CH3 group). The label describes 
+    (for example, three hydrogen atoms on a CH3 group). The label describes
     the molecular network as traversed starting from the given site, with each
-    pair of square brackets indicating the traversal of a further bond, and 
+    pair of square brackets indicating the traversal of a further bond, and
     all paths kept to the shortest possible.
 
     | Parameters:
@@ -55,12 +55,8 @@ class SiteLabels(AtomsProperty):
     |   site_labels (list[str]): A list of the computed site labels
     """
 
-    default_name = 'site_labels'
-    default_params = {
-        'force_recalc': False,
-        'sites': None,
-        'custom_symbol': None
-    }
+    default_name = "site_labels"
+    default_params = {"force_recalc": False, "sites": None, "custom_symbol": None}
 
     @staticmethod
     def extract(s, force_recalc, sites, custom_symbol):
@@ -80,7 +76,7 @@ class SiteLabels(AtomsProperty):
         for s_i in sites:
             # Find the molecule that it belongs to
             s_mol = [m for m in mols if s_i in m.indices][0]
-            s_elems = np.array(elems, dtype='S2')
+            s_elems = np.array(elems, dtype="S2")
             if custom_symbol is not None:
                 s_elems[s_i] = custom_symbol
             # Grab the bonds
@@ -88,8 +84,7 @@ class SiteLabels(AtomsProperty):
             # This is a necessary step since the bonds are not classified
             # by original structure index yet
             bonds = {a: bonds[i] for i, a in enumerate(s_mol.indices)}
-            labels.append(recursive_mol_label(s_i, s_mol.indices, 
-                                              bonds, s_elems))
+            labels.append(recursive_mol_label(s_i, s_mol.indices, bonds, s_elems))
 
         return labels
 
@@ -124,12 +119,8 @@ class MoleculeSites(AtomsProperty):
     |                           AtomSelection form) to site labels.
     """
 
-    default_name = 'molecule_sites'
-    default_params = {
-        'force_recalc': False,
-        'save_info': True,
-        'save_asarray': False
-    }
+    default_name = "molecule_sites"
+    default_params = {"force_recalc": False, "save_info": True, "save_asarray": False}
 
     @staticmethod
     def extract(s, force_recalc, save_info, save_asarray):
@@ -155,7 +146,7 @@ class MoleculeSites(AtomsProperty):
 
             # Now grab the unique sites and pick the name of the molecule
             site_names = sorted(list(set(sites.values())))
-            site_dict = {'name': site_names[0]}
+            site_dict = {"name": site_names[0]}
             # Now rename the sites
             elem_sites = {}
             for a in sites:
@@ -164,10 +155,11 @@ class MoleculeSites(AtomsProperty):
                     elem_sites[elems[a]] = [s_i]
                 elif s_i not in elem_sites[elems[a]]:
                     elem_sites[elems[a]].append(s_i)
-                sites[a] = '{0}_{1}'.format(elems[a],
-                                            elem_sites[elems[a]].index(s_i)+1)
+                sites[a] = "{0}_{1}".format(
+                    elems[a], elem_sites[elems[a]].index(s_i) + 1
+                )
 
-            site_dict['sites'] = sites
+            site_dict["sites"] = sites
             mol_sites.append(site_dict)
 
             if save_asarray:
@@ -204,10 +196,10 @@ class HydrogenBondTypes(AtomsProperty):
     |                               detailed way.
     """
 
-    default_name = 'hydrogen_bond_types'
+    default_name = "hydrogen_bond_types"
     default_params = {
-        'force_recalc': False,
-        'save_info': True,
+        "force_recalc": False,
+        "save_info": True,
     }
 
     @staticmethod
@@ -232,9 +224,9 @@ class HydrogenBondTypes(AtomsProperty):
         hblabels = []
         for hbtype in hbonds:
             for hb in hbonds[hbtype]:
-                A_i = hb['A'][0]
-                H_i = hb['H']
-                B_i = hb['B'][0]
+                A_i = hb["A"][0]
+                H_i = hb["H"]
+                B_i = hb["B"][0]
 
                 # Check in which molecule they are
                 AH_sites = None
@@ -246,15 +238,16 @@ class HydrogenBondTypes(AtomsProperty):
                         B_sites = all_sites[m_i]
 
                 if AH_sites is None or B_sites is None:
-                    raise RuntimeError('Invalid hydrogen bond detected')
+                    raise RuntimeError("Invalid hydrogen bond detected")
 
                 # Now build the proper definition
-                hblabel = ('{0}<{1},{2}>'
-                           '..{3}<{4}>').format(AH_sites['name'],
-                                                AH_sites['sites'][A_i],
-                                                AH_sites['sites'][H_i],
-                                                B_sites['name'],
-                                                B_sites['sites'][B_i])
+                hblabel = ("{0}<{1},{2}>" "..{3}<{4}>").format(
+                    AH_sites["name"],
+                    AH_sites["sites"][A_i],
+                    AH_sites["sites"][H_i],
+                    B_sites["name"],
+                    B_sites["sites"][B_i],
+                )
                 hblabels.append(hblabel)
 
         return sorted(hblabels)
@@ -282,11 +275,8 @@ class CarbonHybridationState(AtomsProperty):
 
     """
 
-    default_name = 'carbon_hybridation_state'
-    default_params = {
-        'bonds': None,
-        'save_info': True
-    }
+    default_name = "carbon_hybridation_state"
+    default_params = {"bonds": None, "save_info": True}
 
     @staticmethod
     def extract(s, bonds, save_info):
@@ -294,24 +284,25 @@ class CarbonHybridationState(AtomsProperty):
         elems = np.array(s.get_chemical_symbols())
         hybrid = np.zeros(len(elems)).astype(int)
 
-        if (elems == 'C').any():
+        if (elems == "C").any():
             # Only do this if there is any carbon...
 
             if bonds is None:
                 # Recalculate bonds
                 bonds = Bonds.get(s)
 
-            C_i = set(list(np.where(elems == 'C')[0]))
+            C_i = set(list(np.where(elems == "C")[0]))
 
             for b in bonds:
                 C_b = C_i.intersection(b[:2])
                 hybrid[list(C_b)] += 1
 
             # Now go from number of bonds to hybridation state
-            hybrid[list(C_i)] = np.where((hybrid[list(C_i)] > 1) *
-                                         (hybrid[list(C_i)] <= 4),
-                                         hybrid[list(C_i)]-1,
-                                         0)
+            hybrid[list(C_i)] = np.where(
+                (hybrid[list(C_i)] > 1) * (hybrid[list(C_i)] <= 4),
+                hybrid[list(C_i)] - 1,
+                0,
+            )
 
         if save_info:
             s.set_array(CarbonHybridationState.default_name, hybrid)

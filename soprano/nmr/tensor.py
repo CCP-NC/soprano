@@ -20,9 +20,16 @@ NMR tensor as well as its representation in multiple conventions
 """
 
 import numpy as np
-from soprano.nmr.utils import (_evals_sort, _haeb_sort, _anisotropy,
-                               _asymmetry, _span, _skew, _evecs_2_quat,
-                               _dip_constant)
+from soprano.nmr.utils import (
+    _evals_sort,
+    _haeb_sort,
+    _anisotropy,
+    _asymmetry,
+    _span,
+    _skew,
+    _evecs_2_quat,
+    _dip_constant,
+)
 from soprano.data.nmr import _get_isotope_data
 from ase.quaternions import Quaternion
 
@@ -34,10 +41,10 @@ class NMRTensor(object):
     properties and representations.
     """
 
-    ORDER_INCREASING = 'i'
-    ORDER_DECREASING = 'd'
-    ORDER_HAEBERLEN = 'h'
-    ORDER_NQR = 'n'
+    ORDER_INCREASING = "i"
+    ORDER_DECREASING = "d"
+    ORDER_HAEBERLEN = "h"
+    ORDER_NQR = "n"
 
     def __init__(self, data, order=ORDER_INCREASING):
         """
@@ -50,7 +57,7 @@ class NMRTensor(object):
                                          pair [evals, evecs] for the symmetric
                                          part alone.
             order (str):        Order to use for eigenvalues/eigenvectors. Can
-                                be 'i' (ORDER_INCREASING), 'd' 
+                                be 'i' (ORDER_INCREASING), 'd'
                                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                                 'n' (ORDER_NQR). Default is 'i'.
         """
@@ -60,16 +67,15 @@ class NMRTensor(object):
         if len(data) == 3:
             self._data = np.array(data)
             if self._data.shape != (3, 3):
-                raise ValueError('Invalid matrix data passed to NMRTensor')
-            self._symm = (self._data+self._data.T)/2.0
+                raise ValueError("Invalid matrix data passed to NMRTensor")
+            self._symm = (self._data + self._data.T) / 2.0
             evals, evecs = np.linalg.eigh(self._symm)
         elif len(data) == 2:
             evals, evecs = data
             evecs = np.array(evecs)
             sort_i = np.argsort(evals)
             if len(evals) != 3 or evecs.shape != (3, 3):
-                raise ValueError('Invalid eigenvalues/vectors passed to '
-                                 'NMRTensor')
+                raise ValueError("Invalid eigenvalues/vectors passed to " "NMRTensor")
             evals = evals[sort_i]
             evecs = evecs[:, sort_i]
             self._symm = np.linalg.multi_dot([evecs, np.diag(evals), evecs.T])
@@ -100,12 +106,18 @@ class NMRTensor(object):
 
         # Last eigenvector must be the cross product of the first two
         # (apparently this is much faster than np.cross. Beats me why)
-        self._evecs[0, 2] = (self._evecs[1, 0]*self._evecs[2, 1] -
-                             self._evecs[2, 0]*self._evecs[1, 1])
-        self._evecs[1, 2] = (self._evecs[2, 0]*self._evecs[0, 1] -
-                             self._evecs[0, 0]*self._evecs[2, 1])
-        self._evecs[2, 2] = (self._evecs[0, 0]*self._evecs[1, 1] -
-                             self._evecs[1, 0]*self._evecs[0, 1])
+        self._evecs[0, 2] = (
+            self._evecs[1, 0] * self._evecs[2, 1]
+            - self._evecs[2, 0] * self._evecs[1, 1]
+        )
+        self._evecs[1, 2] = (
+            self._evecs[2, 0] * self._evecs[0, 1]
+            - self._evecs[0, 0] * self._evecs[2, 1]
+        )
+        self._evecs[2, 2] = (
+            self._evecs[0, 0] * self._evecs[1, 1]
+            - self._evecs[1, 0] * self._evecs[0, 1]
+        )
 
         self._quat = None
 
@@ -129,7 +141,7 @@ class NMRTensor(object):
 
     @property
     def isotropy(self):
-        return self.trace/3.0
+        return self.trace / 3.0
 
     @property
     def anisotropy(self):
@@ -171,13 +183,13 @@ class NMRTensor(object):
     def spherical_repr(self):
         if self._sph is None:
             self._sph = np.zeros((3, 3, 3))
-            self._sph[0] = np.eye(3)*self.trace/3
-            self._sph[1] = (self._data-self._data.T)/2.0
+            self._sph[0] = np.eye(3) * self.trace / 3
+            self._sph[1] = (self._data - self._data.T) / 2.0
             self._sph[2] = self._symm - self._sph0
 
         return self._sph.copy()
 
-    def euler_angles(self, convention='zyz'):
+    def euler_angles(self, convention="zyz"):
         """Return Euler angles of the Principal Axis System
 
         Return Euler angles of the PAS for this tensor in the
@@ -192,19 +204,27 @@ class NMRTensor(object):
         return self.quaternion.euler_angles(convention)
 
     @staticmethod
-    def make_dipolar(a, i, j, cell=[0, 0, 0], isotopes={}, isotope_i=None,
-                     isotope_j=None, rotation_axis=None):
+    def make_dipolar(
+        a,
+        i,
+        j,
+        cell=[0, 0, 0],
+        isotopes={},
+        isotope_i=None,
+        isotope_j=None,
+        rotation_axis=None,
+    ):
         """Create a dipolar NMRTensor
 
         Create a dipolar NMR tensor from an atoms object and the indices
         of two atoms. Values are in Hz.
 
         | Args:
-        |   a (ase.Atoms):      Atoms object of the structure to compute the 
+        |   a (ase.Atoms):      Atoms object of the structure to compute the
         |                       tensor for
         |   i (int):            index of first atom
         |   j (int):            index of second atom
-        |   cell (np.array):    vector of the cell of the second atom, for 
+        |   cell (np.array):    vector of the cell of the second atom, for
         |                       couplings between atoms in different cells.
         |                       By default is [0,0,0].
         |   isotopes (dict): dictionary of specific isotopes to use, by element
@@ -222,31 +242,35 @@ class NMRTensor(object):
         |                               rotation around it.
 
         | Returns:
-        |   diptens (NMRTensor):    an NMRTensor object with the dipolar 
+        |   diptens (NMRTensor):    an NMRTensor object with the dipolar
         |                           coupling matrix as data.
 
         """
 
         pos = a.get_positions()
         elems = np.array(a.get_chemical_symbols())
-        r = pos[j]-pos[i] + np.dot(a.get_cell(), cell)
+        r = pos[j] - pos[i] + np.dot(a.get_cell(), cell)
         rnorm = np.linalg.norm(r)
-        gammas = _get_isotope_data(elems[[i, j]], 'gamma', isotopes=isotopes,
-                                   isotope_list=[isotope_i, isotope_j])
+        gammas = _get_isotope_data(
+            elems[[i, j]],
+            "gamma",
+            isotopes=isotopes,
+            isotope_list=[isotope_i, isotope_j],
+        )
 
-        d = _dip_constant(rnorm*1e-10, *gammas)
+        d = _dip_constant(rnorm * 1e-10, *gammas)
 
         evals = np.zeros(3)
         evecs = np.zeros((3, 3))
 
         if rotation_axis is None:
-            axis = r/rnorm
+            axis = r / rnorm
         else:
-            axis = np.array(rotation_axis)/np.linalg.norm(rotation_axis)
-            vp2 = np.dot(r/rnorm, axis)**2
-            d = 0.5*d*(3*vp2-1)
+            axis = np.array(rotation_axis) / np.linalg.norm(rotation_axis)
+            vp2 = np.dot(r / rnorm, axis) ** 2
+            d = 0.5 * d * (3 * vp2 - 1)
 
-        evals[2] = 2*d
+        evals[2] = 2 * d
         evals[:2] = -d
 
         evecs[:, 2] = axis
@@ -254,12 +278,12 @@ class NMRTensor(object):
         x, y = axis[:2]
         evecs[1, 0] = x
         evecs[0, 0] = -y
-        evecs[:, 0] /= (x**2+y**2)**0.5
+        evecs[:, 0] /= (x ** 2 + y ** 2) ** 0.5
 
         evecs[0, 1]
-        evecs[0, 1] = -evecs[2, 2]*evecs[1, 0]
-        evecs[1, 1] = evecs[2, 2]*evecs[0, 0]
-        evecs[2, 1] = evecs[0, 2]*evecs[1, 0]-evecs[1, 2]*evecs[0, 0]
+        evecs[0, 1] = -evecs[2, 2] * evecs[1, 0]
+        evecs[1, 1] = evecs[2, 2] * evecs[0, 0]
+        evecs[2, 1] = evecs[0, 2] * evecs[1, 0] - evecs[1, 2] * evecs[0, 0]
 
         if d < 0:
             evals = evals[::-1]

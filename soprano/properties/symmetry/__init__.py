@@ -22,5 +22,4 @@ Depends on having the Python bindings to SPGLIB installed on the system.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.properties.symmetry.symmetry import (SymmetryDataset, 
-                                                  WyckoffPoints)
+from soprano.properties.symmetry.symmetry import SymmetryDataset, WyckoffPoints

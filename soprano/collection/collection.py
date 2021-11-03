@@ -35,6 +35,7 @@ import shutil
 import inspect
 import warnings
 import numpy as np
+
 # 2-to-3 compatibility
 try:
     import cPickle as pickle
@@ -65,13 +66,15 @@ class _AllCaller(object):
         else:
             self._class = all_class
         if not all([x.__class__ is self._class for x in all_list]):
-            raise ValueError('Elements of list passed to an _AllCaller'
-                             ' must be of the same type.')
+            raise ValueError(
+                "Elements of list passed to an _AllCaller" " must be of the same type."
+            )
         self._all = all_list
         # Now get a list of all members in common between these instances
         if len(self._all) > 0:
-            self._instance_attrs = set.intersection(*[set(ins.__dict__.keys())
-                                                      for ins in self._all])
+            self._instance_attrs = set.intersection(
+                *[set(ins.__dict__.keys()) for ins in self._all]
+            )
 
     def __getattr__(self, name):
         """Here's the magic of the class - when a method isn't found belonging
@@ -80,33 +83,35 @@ class _AllCaller(object):
         if hasattr(self._class, name):
             attr = getattr(self._class, name)
             # Is it a function?
-            if not hasattr(attr, '__call__'):
+            if not hasattr(attr, "__call__"):
                 return np.array([getattr(x, name) for x in self._all])
 
             def iterfunc(*args, **kwargs):
-                return np.array([getattr(x, name)(*args, **kwargs)
-                                 for x in self._all])
+                return np.array([getattr(x, name)(*args, **kwargs) for x in self._all])
+
             return iterfunc
         elif name in self._instance_attrs:
             # It's an instance attribute
             return np.array([getattr(x, name) for x in self._all])
         else:
-            raise AttributeError(('Not all \'{0}\' objects have attribute'
-                                  ' \'{1}\'').format(self._class.__name__,
-                                                     name))
+            raise AttributeError(
+                ("Not all '{0}' objects have attribute" " '{1}'").format(
+                    self._class.__name__, name
+                )
+            )
 
     def map(self, f, *args, **kwargs):
         """Map a function to each element of the ._all list and return the
         results."""
 
         # First, check the signature
-        if not hasattr(f, '__call__'):
-            raise TypeError('Only functions can be mapped')
+        if not hasattr(f, "__call__"):
+            raise TypeError("Only functions can be mapped")
 
         nargs, nargs_def = utils.inspect_args(f)
         if nargs < 1 + len(args) + len(kwargs):
             # Function is invalid!
-            raise ValueError('Invalid function passed to map')
+            raise ValueError("Invalid function passed to map")
         return [f(x, *args, **kwargs) for x in self._all]
 
 
@@ -119,10 +124,14 @@ class AtomsCollection(object):
     arrays of informations related to them.
     """
 
-    def __init__(self, structures=[],
-                 info={},
-                 cell_reduce=False,
-                 progress=False, suppress_ase_warnings=True):
+    def __init__(
+        self,
+        structures=[],
+        info={},
+        cell_reduce=False,
+        progress=False,
+        suppress_ase_warnings=True,
+    ):
         """
         Initialize the AtomsCollection
 
@@ -158,8 +167,7 @@ class AtomsCollection(object):
         for s_i, struct in enumerate(structures):
             if progress:
                 # Progress bar
-                sys.stdout.write("\rLoading: {0}".format(utils.progbar(s_i+1,
-                                                                       s_n)))
+                sys.stdout.write("\rLoading: {0}".format(utils.progbar(s_i + 1, s_n)))
             # Is it an Atoms object?
             if type(struct) is ase.Atoms:
                 self.structures.append(ase.Atoms(struct))
@@ -172,33 +180,33 @@ class AtomsCollection(object):
                     self.structures[-1].calc._old_atoms = self.structures[-1]
             # Or is it a string?
             elif utils.is_string(struct):
-                with utils.silence_stdio(suppress_ase_warnings,
-                                         suppress_ase_warnings):
+                with utils.silence_stdio(suppress_ase_warnings, suppress_ase_warnings):
                     self.structures.append(ase_io.read(str(struct)))
                 # If there's no name, give it the filename
-                if 'name' not in self.structures[-1].info:
-                    self.structures[-1].info['name'] = utils.seedname(struct)
+                if "name" not in self.structures[-1].info:
+                    self.structures[-1].info["name"] = utils.seedname(struct)
             else:
-                raise TypeError('Structures must be Atoms objects or valid '
-                                'file names,'
-                                ' not {0}'.format(type(struct).__name__))
+                raise TypeError(
+                    "Structures must be Atoms objects or valid "
+                    "file names,"
+                    " not {0}".format(type(struct).__name__)
+                )
             if cell_reduce:
                 # Here we must keep the energy if it was present
                 # We do this by hand because ASE has its good reasons
                 # for severing the atoms-calculator connection when changing
                 # the unit cell.
                 try:
-                    _E = self.structures[-1].calc.results['energy']
+                    _E = self.structures[-1].calc.results["energy"]
                 except (KeyError, AttributeError):
                     _E = None
                 niggli_reduce(self.structures[-1])
                 if _E is not None:
-                    _calc = SinglePointCalculator(self.structures[-1],
-                                                  energy=_E)
+                    _calc = SinglePointCalculator(self.structures[-1], energy=_E)
                     self.structures[-1].set_calculator(_calc)
 
         if progress:
-            sys.stdout.write('\nLoaded {0} structures\n'.format(s_n))
+            sys.stdout.write("\nLoaded {0} structures\n".format(s_n))
 
         self._all = _AllCaller(self.structures, ase.Atoms)
 
@@ -206,8 +214,7 @@ class AtomsCollection(object):
 
         # Now assign the info
         if type(info) is not dict:
-            raise TypeError('Info must be dict,'
-                            ' not {0}'.format(type(info).__name__))
+            raise TypeError("Info must be dict," " not {0}".format(type(info).__name__))
         else:
             self.info = info.copy()
 
@@ -215,9 +222,11 @@ class AtomsCollection(object):
         """Addition of two collections brings a merging"""
 
         if not isinstance(other, self.__class__):
-            raise TypeError('\'AtomsCollection\' does not support operator +'
-                            ' with object of type'
-                            ' \'{0}\''.format(type(other).__name__))
+            raise TypeError(
+                "'AtomsCollection' does not support operator +"
+                " with object of type"
+                " '{0}'".format(type(other).__name__)
+            )
 
         # Create a common collection, join arrays where present, copy all info
         all_struct = list(self.structures)
@@ -233,7 +242,6 @@ class AtomsCollection(object):
         sum_struct = AtomsCollection(all_struct, all_info)
 
         # Now arrays
-        all_arrays = {}
         for aname in self._arrays:
             # Grab the shape
             shape = self._arrays[aname].shape[1:]
@@ -242,7 +250,7 @@ class AtomsCollection(object):
             if aname in other._arrays:
                 all_arr += list(other.get_array(aname))
             else:
-                all_arr += [np.zeros(shape)*np.nan]*other.length
+                all_arr += [np.zeros(shape) * np.nan] * other.length
             sum_struct.set_array(aname, all_arr, shape=shape)
 
         for aname in other._arrays:
@@ -252,7 +260,7 @@ class AtomsCollection(object):
             # Grab the shape
             shape = other._arrays[aname].shape[1:]
             all_arr = list(other.get_array(aname))
-            all_arr = [np.zeros(shape)]*self.length + all_arr
+            all_arr = [np.zeros(shape)] * self.length + all_arr
             sum_struct.set_array(aname, all_arr, shape=shape)
 
         return sum_struct
@@ -267,7 +275,7 @@ class AtomsCollection(object):
         if type(indices) is int:
             # Special case, a single element!
             indices = indices % len(self)
-            indices = slice(indices, indices+1)
+            indices = slice(indices, indices + 1)
 
         try:
             struct_slice = self.structures[indices]
@@ -314,7 +322,7 @@ class AtomsCollection(object):
 
         | Args:
         |   name (str): name of the array to operate on.
-        |   a (np.ndarray or function<Atoms, \*\*kwargs>
+        |   a (np.ndarray or function<Atoms, \\*\\*kwargs>
         |                    => Any): the data to assign to the array (must
         |                             be same length as the collection) or
         |                             a function that takes an Atoms object
@@ -335,14 +343,16 @@ class AtomsCollection(object):
         a = np.array(a, dtype)
         if a.shape == ():
             a = a.item()
-            if hasattr(a, '__call__'):
+            if hasattr(a, "__call__"):
                 # It's a function
                 a = np.array(self.all.map(a, **args), dtype)
             else:
                 # Invalid
-                raise TypeError('new_array requires to pass either an array'
-                                ' or a function taking an Atoms object as its'
-                                ' first argument and returning a value.')
+                raise TypeError(
+                    "new_array requires to pass either an array"
+                    " or a function taking an Atoms object as its"
+                    " first argument and returning a value."
+                )
 
         # Now check that the shape is valid
         if shape is not None:
@@ -351,11 +361,13 @@ class AtomsCollection(object):
             else:
                 targ_shape = (self.length,) + shape
             if a.shape != targ_shape:
-                raise ValueError('Array of invalid shape passed to new_array')
+                raise ValueError("Array of invalid shape passed to new_array")
         else:
             if a.shape[0] != self.length:
-                raise ValueError('Array passed to new_array should be'
-                                 ' as long as the number of structures')
+                raise ValueError(
+                    "Array passed to new_array should be"
+                    " as long as the number of structures"
+                )
 
         # And finally, assign
         self._arrays[name] = a
@@ -374,7 +386,7 @@ class AtomsCollection(object):
         """
 
         if name not in self._arrays:
-            raise ValueError('Array \'{0}\' does not exist'.format(name))
+            raise ValueError("Array '{0}' does not exist".format(name))
         else:
             return np.array(self._arrays[name], copy=copy)
 
@@ -402,27 +414,27 @@ class AtomsCollection(object):
         from ase.calculators.calculator import Calculator as cCalculator
         from ase.calculators.calculator import FileIOCalculator as ioCalculator
 
-        if (gCalculator not in calctype.__bases__) and \
-           (cCalculator not in calctype.__bases__) and \
-           (ioCalculator not in calctype.__bases__):
-            raise TypeError('calctype must be a type of ASE Calculator')
+        if (
+            (gCalculator not in calctype.__bases__)
+            and (cCalculator not in calctype.__bases__)
+            and (ioCalculator not in calctype.__bases__)
+        ):
+            raise TypeError("calctype must be a type of ASE Calculator")
 
         if labels is not None and len(labels) != self.length:
-            raise ValueError('labels must be long as the collection itself')
+            raise ValueError("labels must be long as the collection itself")
 
         # Then set it up
         for i, s in enumerate(self.structures):
             if labels is None:
                 # First: do we have a name?
-                if 'name' in s.info:
-                    label = s.info['name']
+                if "name" in s.info:
+                    label = s.info["name"]
                 else:
-                    label = 'struct_{0}'.format(i)
+                    label = "struct_{0}".format(i)
             else:
                 label = labels[i]
-            calc = calctype(atoms=s,
-                            label=str(label),
-                            **params)
+            calc = calctype(atoms=s, label=str(label), **params)
             # To make sure...
             s.set_calculator(calc)
 
@@ -443,13 +455,12 @@ class AtomsCollection(object):
 
         # First, check if we even have those
         if any([c is None for c in self.all.calc]):
-            raise RuntimeError('Not all structures in collection'
-                               ' have a calculator')
+            raise RuntimeError("Not all structures in collection" " have a calculator")
         kwargs = {}
         if properties is not None:
-            kwargs['properties'] = properties
+            kwargs["properties"] = properties
         if system_changes is not None:
-            kwargs['system_changes'] = system_changes
+            kwargs["system_changes"] = system_changes
         self.all.map(lambda s: s.calc.calculate(atoms=s, **kwargs))
 
     def chunkify(self, chunk_size=None, chunk_n=None):
@@ -466,27 +477,31 @@ class AtomsCollection(object):
         """
 
         if [chunk_size, chunk_n].count(None) != 1:
-            raise RuntimeError('Only one between chunk_size and chunk_n'
-                               'must be passed')
+            raise RuntimeError(
+                "Only one between chunk_size and chunk_n" "must be passed"
+            )
 
         if chunk_size is not None and type(chunk_size) is not int:
-            raise TypeError('chunk_size must be an int')
+            raise TypeError("chunk_size must be an int")
         if chunk_n is not None and type(chunk_n) is not int:
-            raise TypeError('chunk_n must be an int')
+            raise TypeError("chunk_n must be an int")
 
         # Now determine the size
         if chunk_size is None:
-            chunk_size = int(np.ceil(self.length*1.0/chunk_n))
+            chunk_size = int(np.ceil(self.length * 1.0 / chunk_n))
 
-        struct_chunks = [self.structures[i:i+chunk_size]
-                         for i in range(0, self.length, chunk_size)]
+        struct_chunks = [
+            self.structures[i : i + chunk_size]
+            for i in range(0, self.length, chunk_size)
+        ]
         chunks = [AtomsCollection(s, self.info) for s in struct_chunks]
 
         # Now the arrays
         for aname in self._arrays:
             for i, c in enumerate(chunks):
-                c.set_array(aname, self._arrays[aname][i*chunk_size:
-                                                       i*(chunk_size+1)])
+                c.set_array(
+                    aname, self._arrays[aname][i * chunk_size : i * (chunk_size + 1)]
+                )
 
         return chunks
 
@@ -504,19 +519,18 @@ class AtomsCollection(object):
 
         # First, check that we do have the array
         if not self.has(name):
-            raise ValueError("Array \'{0}\' does not exist".format(name))
+            raise ValueError("Array '{0}' does not exist".format(name))
 
         arr_names = list(self._arrays.keys())
-        data_block = zip(self.structures,
-                         *[self._arrays[n] for n in arr_names])
+        data_block = zip(self.structures, *[self._arrays[n] for n in arr_names])
         key_i = arr_names.index(name)
-        data_block = list(zip(*sorted(data_block,
-                                      key=lambda x: x[key_i+1],
-                                      reverse=reverse)))
+        data_block = list(
+            zip(*sorted(data_block, key=lambda x: x[key_i + 1], reverse=reverse))
+        )
 
         sorted_copy = AtomsCollection(data_block[0], info=self.info)
         for ai, an in enumerate(arr_names):
-            sorted_copy.set_array(an, data_block[ai+1])
+            sorted_copy.set_array(an, data_block[ai + 1])
 
         return sorted_copy
 
@@ -537,7 +551,7 @@ class AtomsCollection(object):
         filter_slice = []
 
         for i, s in enumerate(self.structures):
-            if (filter_func(s)):
+            if filter_func(s):
                 filter_slice.append(i)
 
         return self[filter_slice]
@@ -554,14 +568,13 @@ class AtomsCollection(object):
         |                         hashable types, like int or str.
 
         | Returns:
-        |   classified (dict): a dictionary using class names as keys and 
+        |   classified (dict): a dictionary using class names as keys and
         |                      sliced collections as values
 
         """
 
         classes = np.array(classes)
-        classified = {k: self[np.where(classes == k)[0]]
-                      for k in set(classes)}
+        classified = {k: self[np.where(classes == k)[0]] for k in set(classes)}
 
         return classified
 
@@ -572,19 +585,18 @@ class AtomsCollection(object):
         selfcopy = self[:]
         selfcopy._all = None
 
-        with open(filename, 'wb') as f:
+        with open(filename, "wb") as f:
             pickle.dump(selfcopy, f, protocol=2)
 
     @staticmethod
     def load(filename):
         """Load a pickled copy from a given file path"""
 
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             coll = pickle.load(f)
 
         if not isinstance(coll, AtomsCollection):
-            raise ValueError('File does not contain an AtomsCollection'
-                             ' object')
+            raise ValueError("File does not contain an AtomsCollection" " object")
         # Restore the _AllCaller
         coll._all = _AllCaller(coll.structures, ase.Atoms)
         return coll
@@ -598,12 +610,12 @@ class AtomsCollection(object):
         - contains a series of folders matching the list stored in the
           .collection file, and nothing else
 
-        This function will return 0 if both conditions are satisfied, 1 if 
+        This function will return 0 if both conditions are satisfied, 1 if
         only the first is, 2 if no .collection file is found, and -1 if the
         folder itself doesn't exist.
 
-        | Args: 
-        |   path (str): path to check for whether it matches or not the 
+        | Args:
+        |   path (str): path to check for whether it matches or not the
         |               collection pattern
 
         | Returns:
@@ -615,25 +627,32 @@ class AtomsCollection(object):
 
         # Begin by checking whether there is a .collection file
         try:
-            with open(os.path.join(path, '.collection'), 'rb') as f:
+            with open(os.path.join(path, ".collection"), "rb") as f:
                 coll = pickle.load(f)
         except (IOError, UnicodeDecodeError):
             return 2  # No or invalid .collection file found
 
         # Check if the directories match
-        dirlist = coll['dirlist']
-        dirs = glob.glob(os.path.join(path, '*'))
+        dirlist = coll["dirlist"]
+        dirs = glob.glob(os.path.join(path, "*"))
         all_dirs = all([os.path.isdir(d) for d in dirs])
         dirs = [os.path.relpath(d, path) for d in dirs]
 
         # Are they even all directories?
-        if (not all_dirs or set(dirlist) != set(dirs)):
+        if not all_dirs or set(dirlist) != set(dirs):
             return 1
 
         return 0
 
-    def save_tree(self, path, save_format, name_root='structure',
-                  opt_args={}, safety_check=3, suppress_ase_warnings=True):
+    def save_tree(
+        self,
+        path,
+        save_format,
+        name_root="structure",
+        opt_args={},
+        safety_check=3,
+        suppress_ase_warnings=True,
+    ):
         """Save the collection's structures as a series of folders, named like
         the structures, inside a given parent folder (that will be created if
         not present). Arrays and info are stored in a pickled .collection file
@@ -681,9 +700,12 @@ class AtomsCollection(object):
         check = AtomsCollection.check_tree(path)
 
         def ow_ask(path):
-            return utils.safe_input(('Folder {0} exists, '
-                                     'overwrite (y/n)?').format(path)
-                                    ).lower() == 'y'
+            return (
+                utils.safe_input(
+                    ("Folder {0} exists, " "overwrite (y/n)?").format(path)
+                ).lower()
+                == "y"
+            )
 
         if check > -1:
             # The folder exists
@@ -695,19 +717,21 @@ class AtomsCollection(object):
                     perm = True
             else:
                 if safety_check >= 2:
-                    raise IOError(('Trying to overwrite folder {0} which did'
-                                   ' not pass check_tree control (result {1})'
-                                   ' with safety_check level '
-                                   '{2}').format(path,
-                                                 check,
-                                                 safety_check))
+                    raise IOError(
+                        (
+                            "Trying to overwrite folder {0} which did"
+                            " not pass check_tree control (result {1})"
+                            " with safety_check level "
+                            "{2}"
+                        ).format(path, check, safety_check)
+                    )
                 elif safety_check == 1:
                     perm = ow_ask(path)
                 else:
                     perm = True
 
             if not perm:
-                print('Can not overwrite folder {0}, skipping...'.format(path))
+                print("Can not overwrite folder {0}, skipping...".format(path))
 
             shutil.rmtree(path)
 
@@ -716,38 +740,45 @@ class AtomsCollection(object):
 
         # Format type?
         is_ext = utils.is_string(save_format)
-        is_func = hasattr(save_format, '__call__')
+        is_func = hasattr(save_format, "__call__")
         if not (is_ext or is_func):
-            raise ValueError('Invalid save_format passed to save_tree')
+            raise ValueError("Invalid save_format passed to save_tree")
 
         dirlist = []
         for i, s in enumerate(self.structures):
-            sname = s.info.get('name', '{0}_{1}'.format(name_root, i+1))
+            sname = s.info.get("name", "{0}_{1}".format(name_root, i + 1))
             fold = os.path.join(path, sname)
             try:
                 os.mkdir(fold)
             except OSError:
                 shutil.rmtree(fold)
                 os.mkdir(fold)
-            with utils.silence_stdio(suppress_ase_warnings,
-                                     suppress_ase_warnings):
+            with utils.silence_stdio(suppress_ase_warnings, suppress_ase_warnings):
                 if is_ext:
-                    ase_io.write(os.path.join(fold, sname + '.' + save_format),
-                                 s, **opt_args)
+                    ase_io.write(
+                        os.path.join(fold, sname + "." + save_format), s, **opt_args
+                    )
                 elif is_func:
                     save_format(s, fold, **opt_args)
 
             dirlist.append(sname)
 
-        with open(os.path.join(path, '.collection'), 'wb') as f:
-            pickle.dump({'dirlist': dirlist,
-                         'arrays': self._arrays,
-                         'info': self.info}, f,
-                        protocol=2)
+        with open(os.path.join(path, ".collection"), "wb") as f:
+            pickle.dump(
+                {"dirlist": dirlist, "arrays": self._arrays, "info": self.info},
+                f,
+                protocol=2,
+            )
 
     @staticmethod
-    def load_tree(path, load_format, opt_args={}, safety_check=3,
-                  tolerant=False, suppress_ase_warnings=True):
+    def load_tree(
+        path,
+        load_format,
+        opt_args={},
+        safety_check=3,
+        tolerant=False,
+        suppress_ase_warnings=True,
+    ):
         """Load a collection's structures from a series of folders, named like
         the structures, inside a given parent folder, as created by save_tree.
         The files can be loaded from a format of choice, or a
@@ -794,43 +825,51 @@ class AtomsCollection(object):
         check = AtomsCollection.check_tree(path)
 
         if check == -1:
-            raise IOError('Folder {0} does not exist'.format(path))
+            raise IOError("Folder {0} does not exist".format(path))
 
         dirlist = []
         if check < 2:
-            with open(os.path.join(path, '.collection'), 'rb') as f:
+            with open(os.path.join(path, ".collection"), "rb") as f:
                 coll = pickle.load(f)
             if check == 1 and safety_check == 3:
-                raise IOError(('Folder {0} is not a valid collection '
-                               'tree').format(path))
+                raise IOError(
+                    ("Folder {0} is not a valid collection " "tree").format(path)
+                )
             if safety_check >= 2:
-                dirlist = coll['dirlist']
+                dirlist = coll["dirlist"]
             else:
-                dirlist = [os.path.relpath(d, path)
-                           for d in glob.glob(os.path.join(path, '*')) if
-                           os.path.isdir(d)]
+                dirlist = [
+                    os.path.relpath(d, path)
+                    for d in glob.glob(os.path.join(path, "*"))
+                    if os.path.isdir(d)
+                ]
         else:
             if safety_check > 0:
-                raise IOError(('Folder {0} is not a valid collection '
-                               'tree').format(path))
-            dirlist = [os.path.relpath(d, path)
-                       for d in glob.glob(os.path.join(path, '*')) if
-                       os.path.isdir(d)]
+                raise IOError(
+                    ("Folder {0} is not a valid collection " "tree").format(path)
+                )
+            dirlist = [
+                os.path.relpath(d, path)
+                for d in glob.glob(os.path.join(path, "*"))
+                if os.path.isdir(d)
+            ]
 
         # Format type?
         is_ext = utils.is_string(load_format)
-        is_func = hasattr(load_format, '__call__')
+        is_func = hasattr(load_format, "__call__")
         if not (is_ext or is_func):
-            raise ValueError('Invalid load_format passed to load_tree')
+            raise ValueError("Invalid load_format passed to load_tree")
 
         structures = []
         for d in dirlist:
             try:
                 if is_ext:
-                    with utils.silence_stdio(suppress_ase_warnings,
-                                             suppress_ase_warnings):
-                        s = ase_io.read(os.path.join(path, d, d + '.' +
-                                                     load_format), **opt_args)
+                    with utils.silence_stdio(
+                        suppress_ase_warnings, suppress_ase_warnings
+                    ):
+                        s = ase_io.read(
+                            os.path.join(path, d, d + "." + load_format), **opt_args
+                        )
                 elif is_func:
                     s = load_format(os.path.join(path, d), **opt_args)
                 structures.append(s)
@@ -838,44 +877,51 @@ class AtomsCollection(object):
                 warnings.warn(str(e))
 
         if check < 2:
-            info = coll['info']
+            info = coll["info"]
         else:
             info = {}
 
-        percentage_failed = (1-len(structures)/len(dirlist))*100
+        percentage_failed = (1 - len(structures) / len(dirlist)) * 100
 
         if percentage_failed > 0:
 
             if percentage_failed == 100:
-                raise IOError("{0:.2f}% of structures could not be loaded.".
-                              format(percentage_failed))
+                raise IOError(
+                    "{0:.2f}% of structures could not be loaded.".format(
+                        percentage_failed
+                    )
+                )
                 return
             elif not tolerant:
-                raise IOError("{0:.2f}% of structures could not be loaded. Set"
-                              " tolerant to True if you would still"
-                              " like to load the remaining structures."
-                              .format(percentage_failed))
+                raise IOError(
+                    "{0:.2f}% of structures could not be loaded. Set"
+                    " tolerant to True if you would still"
+                    " like to load the remaining structures.".format(percentage_failed)
+                )
                 return
             else:
-                percentage_success = 100-percentage_failed
-                info['percentage_loaded'] = percentage_success
+                percentage_success = 100 - percentage_failed
+                info["percentage_loaded"] = percentage_success
 
-                warnings.warn("{0:.2f}% of structures could not be loaded."
-                              .format(percentage_failed))
+                warnings.warn(
+                    "{0:.2f}% of structures could not be loaded.".format(
+                        percentage_failed
+                    )
+                )
         else:
             print("100% of structures loaded successfully.")
 
         loaded_coll = AtomsCollection(structures, info=info)
 
         if safety_check >= 2:
-            arrays = coll['arrays']
+            arrays = coll["arrays"]
             for k, a in arrays.items():
                 loaded_coll.set_array(k, a)
 
         return loaded_coll
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # Just load whatever was passed in the command line!
 

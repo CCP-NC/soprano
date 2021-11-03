@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 """
 Test code for the random generator
-""" 
+"""
 
 import unittest
-import numpy as np
 from soprano.rnd import Random
 
-class TestRandom(unittest.TestCase):
 
+class TestRandom(unittest.TestCase):
     def test_randomness(self):
 
         self.assertFalse(Random.random() == Random.random())
@@ -22,5 +21,6 @@ class TestRandom(unittest.TestCase):
 
         self.assertEqual(i1, i2)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

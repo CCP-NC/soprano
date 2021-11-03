@@ -23,5 +23,9 @@ collections.
 from __future__ import absolute_import
 
 from soprano.analyse.phylogen.phylogenclust import PhylogenCluster
-from soprano.analyse.phylogen.genes import (Gene, GeneError, GeneDictionary,
-                                            load_genefile)
+from soprano.analyse.phylogen.genes import (
+    Gene,
+    GeneError,
+    GeneDictionary,
+    load_genefile,
+)

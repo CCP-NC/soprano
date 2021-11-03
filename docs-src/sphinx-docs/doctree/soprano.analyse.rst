@@ -10,5 +10,6 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.analyse.phylogen

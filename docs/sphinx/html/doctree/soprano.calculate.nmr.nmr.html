@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.calculate.nmr.nmr module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.nmr.html" accesskey="U">soprano.calculate.nmr package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.nmr.html" accesskey="U">soprano.calculate.nmr package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.nmr.nmr module</a></li> 
       </ul>
     </div>  
 
@@ -48,13 +49,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.calculate.nmr.nmr">
+  <section id="module-soprano.calculate.nmr.nmr">
 <span id="soprano-calculate-nmr-nmr-module"></span><h1>soprano.calculate.nmr.nmr module<a class="headerlink" href="#module-soprano.calculate.nmr.nmr" title="Permalink to this headline">¶</a></h1>
 <p>Classes and functions for simulating approximated NMR spectroscopic results
 from structures.</p>
-<dl class="class">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.calculate.nmr.nmr.</code><code class="sig-name descname">NMRCalculator</code><span class="sig-paren">(</span><em class="sig-param">sample</em>, <em class="sig-param">larmor_frequency=400</em>, <em class="sig-param">larmor_units='MHz'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.nmr.nmr.</span></span><span class="sig-name descname"><span class="pre">NMRCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">larmor_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">larmor_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MHz'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>An object providing an interface to produce basic simulated NMR spectra
 from .magres files. It should be kept in mind that this is <em>not</em> a proper
@@ -117,15 +118,15 @@ methods that require a list of effects of interest:</p>
 </div>
 </div>
 </div>
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.B">
-<em class="property">property </em><code class="sig-name descname">B</code><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.B" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.B">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">B</span></span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.B" title="Permalink to this definition">¶</a></dt>
 <dd><p>Static magnetic field, in Tesla</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.dq_buildup">
-<code class="sig-name descname">dq_buildup</code><span class="sig-paren">(</span><em class="sig-param">sel_i</em>, <em class="sig-param">sel_j=None</em>, <em class="sig-param">t_max=0.001</em>, <em class="sig-param">t_steps=1000</em>, <em class="sig-param">R_cut=3</em>, <em class="sig-param">kdq=0.155</em>, <em class="sig-param">A=1</em>, <em class="sig-param">tau=inf</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.dq_buildup" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.dq_buildup">
+<span class="sig-name descname"><span class="pre">dq_buildup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sel_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sel_j</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R_cut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kdq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.155</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.dq_buildup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of double quantum buildup curves for given pairs
 of atoms, built according to the theory given in:</p>
 <p>G. Pileio et al., “Analytical theory of gamma-encoded double-quantum
@@ -134,19 +135,19 @@ Journal of Magnetic Resonance 186 (2007) 65-74</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of </div>
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of</div>
 <div class="line-block">
 <div class="line">atoms for which to compute the</div>
 <div class="line">curves. By default is None</div>
 <div class="line">(= all of them).</div>
 </div>
-<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of </div>
+<div class="line">sel_i (AtomSelection or [int]): Selection or list of indices of</div>
 <div class="line-block">
 <div class="line">atoms for which to compute the</div>
-<div class="line">curves with sel_i. By default is </div>
+<div class="line">curves with sel_i. By default is</div>
 <div class="line">None (= same as sel_i).</div>
 </div>
-<div class="line">t_max (float): maximum DQ buildup time, in seconds. Default </div>
+<div class="line">t_max (float): maximum DQ buildup time, in seconds. Default</div>
 <div class="line-block">
 <div class="line">is 1e-3.</div>
 </div>
@@ -158,7 +159,7 @@ Journal of Magnetic Resonance 186 (2007) 65-74</p>
 <div class="line">kdq (float): same as the k constant in eq. 35 of the reference. A</div>
 <div class="line-block">
 <div class="line">parameter depending on the specific sequence used.</div>
-<div class="line">Default is 0.155. </div>
+<div class="line">Default is 0.155.</div>
 </div>
 <div class="line">A (float): overall scaling factor for the curve. Default is 1.</div>
 <div class="line">tau (float): exponential decay factor for the curve. Default</div>
@@ -178,9 +179,9 @@ Journal of Magnetic Resonance 186 (2007) 65-74</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.get_larmor_frequency">
-<code class="sig-name descname">get_larmor_frequency</code><span class="sig-paren">(</span><em class="sig-param">element</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.get_larmor_frequency" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.get_larmor_frequency">
+<span class="sig-name descname"><span class="pre">get_larmor_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.get_larmor_frequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Larmor frequency of the virtual spectrometer for the desired
 element in MHz.</p>
 <div class="line-block">
@@ -202,9 +203,9 @@ element in MHz.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_element_isotope">
-<code class="sig-name descname">set_element_isotope</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">isotope</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_element_isotope" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.set_element_isotope">
+<span class="sig-name descname"><span class="pre">set_element_isotope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_element_isotope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the isotope for all occurrences of a given element.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -222,9 +223,9 @@ element in MHz.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_isotopes">
-<code class="sig-name descname">set_isotopes</code><span class="sig-paren">(</span><em class="sig-param">isotopes</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_isotopes" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.set_isotopes">
+<span class="sig-name descname"><span class="pre">set_isotopes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">isotopes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_isotopes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the isotopes for each atom in sample.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -245,9 +246,9 @@ element in MHz.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_larmor_frequency">
-<code class="sig-name descname">set_larmor_frequency</code><span class="sig-paren">(</span><em class="sig-param">larmor_frequency=400</em>, <em class="sig-param">larmor_units='MHz'</em>, <em class="sig-param">element='1H'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_larmor_frequency" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.set_larmor_frequency">
+<span class="sig-name descname"><span class="pre">set_larmor_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">larmor_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">larmor_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'MHz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1H'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_larmor_frequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the Larmor frequency of the virtual spectrometer with the desired
 units and reference element.</p>
 <div class="line-block">
@@ -271,9 +272,9 @@ units and reference element.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_powder">
-<code class="sig-name descname">set_powder</code><span class="sig-paren">(</span><em class="sig-param">N=8</em>, <em class="sig-param">mode='hemisphere'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_powder" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.set_powder">
+<span class="sig-name descname"><span class="pre">set_powder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hemisphere'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_powder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the orientation of the sample as a powder average.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -293,9 +294,9 @@ units and reference element.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_reference">
-<code class="sig-name descname">set_reference</code><span class="sig-paren">(</span><em class="sig-param">ref</em>, <em class="sig-param">element</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_reference" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.set_reference">
+<span class="sig-name descname"><span class="pre">set_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_reference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the chemical shift reference (in ppm) for a given element. If not
 provided it will be assumed to be zero.</p>
 <div class="line-block">
@@ -315,9 +316,9 @@ provided it will be assumed to be zero.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.set_single_crystal">
-<code class="sig-name descname">set_single_crystal</code><span class="sig-paren">(</span><em class="sig-param">theta</em>, <em class="sig-param">phi</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_single_crystal" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.set_single_crystal">
+<span class="sig-name descname"><span class="pre">set_single_crystal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.set_single_crystal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the orientation of the sample as a single crystallite.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -328,9 +329,9 @@ provided it will be assumed to be zero.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.nmr.nmr.NMRCalculator.spectrum_1d">
-<code class="sig-name descname">spectrum_1d</code><span class="sig-paren">(</span><em class="sig-param">element</em>, <em class="sig-param">min_freq=-50</em>, <em class="sig-param">max_freq=50</em>, <em class="sig-param">bins=100</em>, <em class="sig-param">freq_broad=None</em>, <em class="sig-param">freq_units='ppm'</em>, <em class="sig-param">effects=1</em>, <em class="sig-param">use_central=False</em>, <em class="sig-param">use_reference=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.spectrum_1d" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.nmr.nmr.NMRCalculator.spectrum_1d">
+<span class="sig-name descname"><span class="pre">spectrum_1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_broad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ppm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">effects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_central</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.nmr.nmr.NMRCalculator.spectrum_1d" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a simulated spectrum for the given sample and element.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -401,9 +402,10 @@ provided it will be assumed to be zero.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -434,7 +436,7 @@ provided it will be assumed to be zero.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -463,12 +465,13 @@ provided it will be assumed to be zero.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.nmr.html" >soprano.calculate.nmr package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.nmr.html" >soprano.calculate.nmr package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.nmr.nmr module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

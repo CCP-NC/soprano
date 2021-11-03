@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.hpc.submitter.submit module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.hpc.html" >soprano.hpc package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.hpc.submitter.html" accesskey="U">soprano.hpc.submitter package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.hpc.submitter.html" accesskey="U">soprano.hpc.submitter package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.hpc.submitter.submit module</a></li> 
       </ul>
     </div>  
 
@@ -48,13 +49,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.hpc.submitter.submit">
+  <section id="module-soprano.hpc.submitter.submit">
 <span id="soprano-hpc-submitter-submit-module"></span><h1>soprano.hpc.submitter.submit module<a class="headerlink" href="#module-soprano.hpc.submitter.submit" title="Permalink to this headline">¶</a></h1>
 <p>Definition of Submitter class</p>
 <p>Base class for all Submitters to inherit from.</p>
-<dl class="class">
-<dt id="soprano.hpc.submitter.submit.Submitter">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.hpc.submitter.submit.</code><code class="sig-name descname">Submitter</code><span class="sig-paren">(</span><em class="sig-param">name, queue, submit_script, max_jobs=4, check_time=10, max_time=3600, temp_folder=None, remote_workdir=None, remote_getfiles=['*.*'], ssh_timeout=1.0, continuation=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.submit.</span></span><span class="sig-name descname"><span class="pre">Submitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submit_script</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_workdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_getfiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['*.*']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssh_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Submitter object</p>
 <p>Template to derive all specialised Submitters. These are meant to generate,
@@ -193,9 +194,9 @@ values when the script is submitted.</p>
 </div>
 </div>
 </div>
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.add_signal">
-<code class="sig-name descname">add_signal</code><span class="sig-paren">(</span><em class="sig-param">command</em>, <em class="sig-param">callback</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.add_signal" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.add_signal">
+<span class="sig-name descname"><span class="pre">add_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.add_signal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a signal listener to this submitter. Unix systems only allow
 for up to TWO user-defined signals to be specified.</p>
 <div class="line-block">
@@ -217,52 +218,52 @@ for up to TWO user-defined signals to be specified.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.check_job">
-<code class="sig-name descname">check_job</code><span class="sig-paren">(</span><em class="sig-param">job_id</em>, <em class="sig-param">name</em>, <em class="sig-param">args</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.check_job" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.check_job">
+<span class="sig-name descname"><span class="pre">check_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.check_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if given job is complete or not</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.finish_job">
-<code class="sig-name descname">finish_job</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">args</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.finish_job" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.finish_job">
+<span class="sig-name descname"><span class="pre">finish_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.finish_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs completion operations on the job. At this point any
 relevant output files should be copied from ‘folder’ to their final
 destination as the temporary folder itself will be deleted immediately
 after</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.finish_run">
-<code class="sig-name descname">finish_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.finish_run" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.finish_run">
+<span class="sig-name descname"><span class="pre">finish_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.finish_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Operations to perform after the daemon thread stops running</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.list">
-<em class="property">static </em><code class="sig-name descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.list" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.list">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.load_state">
-<code class="sig-name descname">load_state</code><span class="sig-paren">(</span><em class="sig-param">loaded</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.load_state" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.load_state">
+<span class="sig-name descname"><span class="pre">load_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaded</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.load_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace attributes from loaded data in dictionary form</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.log">
-<code class="sig-name descname">log</code><span class="sig-paren">(</span><em class="sig-param">logtxt</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.log" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logtxt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.log" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.next_job">
-<code class="sig-name descname">next_job</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.next_job" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.next_job">
+<span class="sig-name descname"><span class="pre">next_job</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.next_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary definition of the next job in line</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.remove_signal">
-<code class="sig-name descname">remove_signal</code><span class="sig-paren">(</span><em class="sig-param">command</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.remove_signal" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.remove_signal">
+<span class="sig-name descname"><span class="pre">remove_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.remove_signal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a previously defined custom signal by its assigned command.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -272,50 +273,51 @@ after</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.save_state">
-<code class="sig-name descname">save_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.save_state" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.save_state">
+<span class="sig-name descname"><span class="pre">save_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.save_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary containing serialisable data to be saved from
 one run to the next</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.set_parameters">
-<code class="sig-name descname">set_parameters</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.set_parameters">
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.set_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set additional parameters. In this generic example class it has
 no arguments, but in specific implementations it will be used to
 add more variables without overriding __init__.</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.setup_job">
-<code class="sig-name descname">setup_job</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">args</em>, <em class="sig-param">folder</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.setup_job" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.setup_job">
+<span class="sig-name descname"><span class="pre">setup_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.setup_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform preparatory operations on the job</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.start">
-<code class="sig-name descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.start" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.start" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.start_run">
-<code class="sig-name descname">start_run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.start_run" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.start_run">
+<span class="sig-name descname"><span class="pre">start_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.start_run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Operations to perform when the daemon thread starts running</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.hpc.submitter.submit.Submitter.stop">
-<em class="property">static </em><code class="sig-name descname">stop</code><span class="sig-paren">(</span><em class="sig-param">fname</em>, <em class="sig-param">subname</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.stop" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.hpc.submitter.submit.Submitter.stop">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.submit.Submitter.stop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stop Submitter process from filename and name,
 return False if failed</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -346,7 +348,7 @@ return False if failed</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -375,12 +377,13 @@ return False if failed</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.hpc.html" >soprano.hpc package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.hpc.submitter.html" >soprano.hpc.submitter package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.hpc.submitter.html" >soprano.hpc.submitter package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.hpc.submitter.submit module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

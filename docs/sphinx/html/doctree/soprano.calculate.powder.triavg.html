@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.calculate.powder.triavg module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.powder.html" accesskey="U">soprano.calculate.powder package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.powder.html" accesskey="U">soprano.calculate.powder package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.powder.triavg module</a></li> 
       </ul>
     </div>  
 
@@ -48,7 +49,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.calculate.powder.triavg">
+  <section id="module-soprano.calculate.powder.triavg">
 <span id="soprano-calculate-powder-triavg-module"></span><h1>soprano.calculate.powder.triavg module<a class="headerlink" href="#module-soprano.calculate.powder.triavg" title="Permalink to this headline">¶</a></h1>
 <p>triavg.py</p>
 <p>Contains a class to define the the POWDER averaging algorithm for NMR spectra,
@@ -56,18 +57,18 @@ as described in:</p>
 <p>D. W. Alderman, Mark S. Solum, and David M. Grant
 Methods for analyzing spectroscopic line shapes. NMR solid powder patterns
 [J. Chern. Phys. 84 (7), 1 April 1986]</p>
-<dl class="class">
-<dt id="soprano.calculate.powder.triavg.TriAvg">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.calculate.powder.triavg.</code><code class="sig-name descname">TriAvg</code><span class="sig-paren">(</span><em class="sig-param">mode</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.calculate.powder.triavg.TriAvg">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.powder.triavg.</span></span><span class="sig-name descname"><span class="pre">TriAvg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.calculate.powder.powder.html#soprano.calculate.powder.powder.PowderScheme" title="soprano.calculate.powder.powder.PowderScheme"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.calculate.powder.powder.PowderScheme</span></code></a></p>
-<dl class="method">
-<dt id="soprano.calculate.powder.triavg.TriAvg.average">
-<code class="sig-name descname">average</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">weights</em>, <em class="sig-param">tris</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.average" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.powder.triavg.TriAvg.average">
+<span class="sig-name descname"><span class="pre">average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tris</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.average" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.powder.triavg.TriAvg.get_orient_angles">
-<code class="sig-name descname">get_orient_angles</code><span class="sig-paren">(</span><em class="sig-param">N</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.get_orient_angles" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.powder.triavg.TriAvg.get_orient_angles">
+<span class="sig-name descname"><span class="pre">get_orient_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.get_orient_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate and return the TriAvg angles (in the form of angles in radians),
 weights, and triangles.</p>
 <div class="line-block">
@@ -93,9 +94,9 @@ weights, and triangles.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.powder.triavg.TriAvg.get_orient_points">
-<code class="sig-name descname">get_orient_points</code><span class="sig-paren">(</span><em class="sig-param">N</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.get_orient_points" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.powder.triavg.TriAvg.get_orient_points">
+<span class="sig-name descname"><span class="pre">get_orient_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.get_orient_points" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate and return the TriAvg angles (in the form of direction cosines),
 weights, and triangles.</p>
 <div class="line-block">
@@ -121,9 +122,9 @@ weights, and triangles.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.powder.triavg.TriAvg.get_orient_trig">
-<code class="sig-name descname">get_orient_trig</code><span class="sig-paren">(</span><em class="sig-param">N</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.get_orient_trig" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.powder.triavg.TriAvg.get_orient_trig">
+<span class="sig-name descname"><span class="pre">get_orient_trig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.powder.triavg.TriAvg.get_orient_trig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate and return the TriAvg angles (in the form of trigonometric fuctions),
 weights, and triangles.</p>
 <div class="line-block">
@@ -151,9 +152,10 @@ weights, and triangles.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -184,7 +186,7 @@ weights, and triangles.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -213,12 +215,13 @@ weights, and triangles.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.powder.html" >soprano.calculate.powder package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.powder.html" >soprano.calculate.powder package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.powder.triavg module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

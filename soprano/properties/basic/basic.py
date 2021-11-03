@@ -39,10 +39,8 @@ class LatticeCart(AtomsProperty):
 
     """
 
-    default_name = 'lattice_cart'
-    default_params = {
-        'shape': (3, 3)
-    }
+    default_name = "lattice_cart"
+    default_params = {"shape": (3, 3)}
 
     @staticmethod
     def extract(s, shape):
@@ -62,17 +60,14 @@ class LatticeABC(AtomsProperty):
 
     """
 
-    default_name = 'lattice_abc'
-    default_params = {
-        'shape': (2, 3),
-        'deg': False
-    }
+    default_name = "lattice_abc"
+    default_params = {"shape": (2, 3), "deg": False}
 
     @staticmethod
     def extract(s, shape, deg):
         abc = cart2abc(s.get_cell())
         if deg:
-            abc[1, :] *= 180.0/np.pi
+            abc[1, :] *= 180.0 / np.pi
         return abc.reshape(shape)
 
 
@@ -85,14 +80,14 @@ class CalcEnergy(AtomsProperty):
 
     """
 
-    default_name = 'calc_energy'
+    default_name = "calc_energy"
     default_params = {}
 
     @staticmethod
     def extract(s):
         try:
             return s.get_potential_energy()
-        except:
+        except Exception:
             return None
 
 
@@ -105,7 +100,7 @@ class NumAtoms(AtomsProperty):
 
     """
 
-    default_name = 'num_atoms'
+    default_name = "num_atoms"
     default_params = {}
 
     @staticmethod

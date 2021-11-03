@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.nmr.tensor module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,7 +38,8 @@
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
-          <li class="nav-item nav-item-3"><a href="soprano.nmr.html" accesskey="U">soprano.nmr package</a> &#187;</li> 
+          <li class="nav-item nav-item-3"><a href="soprano.nmr.html" accesskey="U">soprano.nmr package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.nmr.tensor module</a></li> 
       </ul>
     </div>  
 
@@ -47,73 +48,109 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.nmr.tensor">
+  <section id="module-soprano.nmr.tensor">
 <span id="soprano-nmr-tensor-module"></span><h1>soprano.nmr.tensor module<a class="headerlink" href="#module-soprano.nmr.tensor" title="Permalink to this headline">¶</a></h1>
 <p>Contains the NMRTensor class, simplifying the process of diagonalisation of an
 NMR tensor as well as its representation in multiple conventions</p>
-<dl class="class">
-<dt id="soprano.nmr.tensor.NMRTensor">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.nmr.tensor.</code><code class="sig-name descname">NMRTensor</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.nmr.tensor.</span></span><span class="sig-name descname"><span class="pre">NMRTensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'i'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class containing an NMR tensor, useful to access all its most important
 properties and representations.</p>
 <p>Initialise the NMRTensor</p>
 <p>Create an NMRTensor object from a 3x3 matrix.</p>
 <dl class="simple">
-<dt>Arguments:</dt><dd><p>data (np.ndarray):  3x3 matrix containing the tensor</p>
+<dt>Arguments:</dt><dd><dl class="simple">
+<dt>data (np.ndarray or tuple):  3x3 matrix containing the tensor, or</dt><dd><p>pair [evals, evecs] for the symmetric
+part alone.</p>
+</dd>
+<dt>order (str):        Order to use for eigenvalues/eigenvectors. Can</dt><dd><p>be ‘i’ (ORDER_INCREASING), ‘d’
+(ORDER_DECREASING), ‘h’ (ORDER_HAEBERLEN) or
+‘n’ (ORDER_NQR). Default is ‘i’.</p>
 </dd>
 </dl>
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.anisotropy">
-<em class="property">property </em><code class="sig-name descname">anisotropy</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.anisotropy" title="Permalink to this definition">¶</a></dt>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.ORDER_DECREASING">
+<span class="sig-name descname"><span class="pre">ORDER_DECREASING</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'d'</span></em><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.ORDER_DECREASING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.asymmetry">
-<em class="property">property </em><code class="sig-name descname">asymmetry</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.asymmetry" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.ORDER_HAEBERLEN">
+<span class="sig-name descname"><span class="pre">ORDER_HAEBERLEN</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'h'</span></em><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.ORDER_HAEBERLEN" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.data">
-<em class="property">property </em><code class="sig-name descname">data</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.data" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.ORDER_INCREASING">
+<span class="sig-name descname"><span class="pre">ORDER_INCREASING</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'i'</span></em><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.ORDER_INCREASING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.eigenvalues">
-<em class="property">property </em><code class="sig-name descname">eigenvalues</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.eigenvalues" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.ORDER_NQR">
+<span class="sig-name descname"><span class="pre">ORDER_NQR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'n'</span></em><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.ORDER_NQR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.eigenvectors">
-<em class="property">property </em><code class="sig-name descname">eigenvectors</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.eigenvectors" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.anisotropy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">anisotropy</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.anisotropy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.haeb_eigenvalues">
-<em class="property">property </em><code class="sig-name descname">haeb_eigenvalues</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.haeb_eigenvalues" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.asymmetry">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">asymmetry</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.asymmetry" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.isotropy">
-<em class="property">property </em><code class="sig-name descname">isotropy</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.isotropy" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.data">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.make_dipolar">
-<em class="property">static </em><code class="sig-name descname">make_dipolar</code><span class="sig-paren">(</span><em class="sig-param">a, i, j, cell=[0, 0, 0], isotopes={}, isotope_i=None, isotope_j=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.make_dipolar" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.eigenvalues">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">eigenvalues</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.eigenvalues" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.eigenvectors">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">eigenvectors</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.eigenvectors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.euler_angles">
+<span class="sig-name descname"><span class="pre">euler_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zyz'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.euler_angles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Euler angles of the Principal Axis System</p>
+<p>Return Euler angles of the PAS for this tensor in the
+required convention (currently supported: zyz, zxz).</p>
+<dl class="simple">
+<dt>Keyword Arguments:</dt><dd><p>convention {str} – Euler angles convention to use
+(default: {‘zyz’})</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.isotropy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">isotropy</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.isotropy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.make_dipolar">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">make_dipolar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotopes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_i</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_j</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.make_dipolar" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a dipolar NMRTensor</p>
 <p>Create a dipolar NMR tensor from an atoms object and the indices
 of two atoms. Values are in Hz.</p>
 <div class="line-block">
 <div class="line">Args:</div>
 <div class="line-block">
-<div class="line">a (ase.Atoms):      Atoms object of the structure to compute the </div>
+<div class="line">a (ase.Atoms):      Atoms object of the structure to compute the</div>
 <div class="line-block">
 <div class="line">tensor for</div>
 </div>
 <div class="line">i (int):            index of first atom</div>
 <div class="line">j (int):            index of second atom</div>
-<div class="line">cell (np.array):    vector of the cell of the second atom, for </div>
+<div class="line">cell (np.array):    vector of the cell of the second atom, for</div>
 <div class="line-block">
 <div class="line">couplings between atoms in different cells.</div>
 <div class="line">By default is [0,0,0].</div>
@@ -131,12 +168,18 @@ of two atoms. Values are in Hz.</p>
 <div class="line">overrides everything else.</div>
 </div>
 <div class="line">isotope_j (int): isotope of atom j. See above.</div>
+<div class="line">rotation_axis (np.array):   an axis around which the selected pair</div>
+<div class="line-block">
+<div class="line">is rotating. If present, the tensor</div>
+<div class="line">will be averaged for infinitely fast</div>
+<div class="line">rotation around it.</div>
+</div>
 </div>
 </div>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">diptens (NMRTensor):    an NMRTensor object with the dipolar </div>
+<div class="line">diptens (NMRTensor):    an NMRTensor object with the dipolar</div>
 <div class="line-block">
 <div class="line">coupling matrix as data.</div>
 </div>
@@ -144,41 +187,42 @@ of two atoms. Values are in Hz.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.quaternion">
-<em class="property">property </em><code class="sig-name descname">quaternion</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.quaternion" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.quaternion">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">quaternion</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.quaternion" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.reduced_anisotropy">
-<em class="property">property </em><code class="sig-name descname">reduced_anisotropy</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.reduced_anisotropy" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.reduced_anisotropy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reduced_anisotropy</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.reduced_anisotropy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.skew">
-<em class="property">property </em><code class="sig-name descname">skew</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.skew" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.skew">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">skew</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.skew" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.span">
-<em class="property">property </em><code class="sig-name descname">span</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.span" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.span">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">span</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.span" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.spherical_repr">
-<em class="property">property </em><code class="sig-name descname">spherical_repr</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.spherical_repr" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.spherical_repr">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">spherical_repr</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.spherical_repr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.nmr.tensor.NMRTensor.trace">
-<em class="property">property </em><code class="sig-name descname">trace</code><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.trace" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.nmr.tensor.NMRTensor.trace">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trace</span></span><a class="headerlink" href="#soprano.nmr.tensor.NMRTensor.trace" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -209,7 +253,7 @@ of two atoms. Values are in Hz.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -237,12 +281,13 @@ of two atoms. Values are in Hz.</p>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
-          <li class="nav-item nav-item-3"><a href="soprano.nmr.html" >soprano.nmr package</a> &#187;</li> 
+          <li class="nav-item nav-item-3"><a href="soprano.nmr.html" >soprano.nmr package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.nmr.tensor module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

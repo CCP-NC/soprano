@@ -22,4 +22,4 @@ Module containing tabulated data
 from __future__ import absolute_import
 
 from soprano.data.vdw import vdw_radii, vdw_radius
-from soprano.data.nmr import (nmr_spin, nmr_quadrupole, nmr_gamma)
+from soprano.data.nmr import nmr_spin, nmr_quadrupole, nmr_gamma

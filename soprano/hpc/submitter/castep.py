@@ -32,7 +32,6 @@ import sys
 import glob
 import shutil
 import tempfile
-import numpy as np
 import subprocess as sp
 
 from soprano.utils import seedname, safe_communicate
@@ -41,12 +40,16 @@ from ase.calculators.castep import create_castep_keywords
 
 
 class CastepSubmitter(Submitter):
-
-    def set_parameters(self, folder_in, folder_out, castep_command,
-                       castep_path=None,
-                       copy_extensions=['.castep'],
-                       pspot_files=[],
-                       dryrun_test=False):
+    def set_parameters(
+        self,
+        folder_in,
+        folder_out,
+        castep_command,
+        castep_path=None,
+        copy_extensions=[".castep"],
+        pspot_files=[],
+        dryrun_test=False,
+    ):
         """Set the parameters of the CASTEP Submitter
 
         | Args:
@@ -98,44 +101,38 @@ class CastepSubmitter(Submitter):
     def start_run(self):
         # Initialize the CASTEP keywords file in a dedicated temporary folder
         self.kwdir = tempfile.mkdtemp()
-        self.log('Creating CASTEP keywords in folder '
-                 '{0}\n'.format(self.kwdir))
+        self.log("Creating CASTEP keywords in folder " "{0}\n".format(self.kwdir))
         # Avoid the annoying print out to screen!
         _stdout, sys.stdout = sys.stdout, self._log
-        create_castep_keywords(self.castep_command,
-                               os.path.join(self.kwdir,
-                                            'castep_keywords.py'))
+        create_castep_keywords(
+            self.castep_command, os.path.join(self.kwdir, "castep_keywords.py")
+        )
         sys.stdout = _stdout
         sys.path.append(self.kwdir)
-        self.log('CASTEP keywords created\n')
+        self.log("CASTEP keywords created\n")
 
     def next_job(self):
         """Grab the next job from folder_in"""
 
-        cfile_list = glob.glob(os.path.join(self.folder_in, '*.cell'))
+        cfile_list = glob.glob(os.path.join(self.folder_in, "*.cell"))
         if len(cfile_list) == 0:
             return None
 
         cfile = cfile_list[0]
         name = seedname(cfile)
-        self.log('Starting job {0}\n'.format(name))
+        self.log("Starting job {0}\n".format(name))
         files = [cfile]
         # Check if .param file is available too
-        if os.path.isfile(os.path.join(self.folder_in, name + '.param')):
-            files += [os.path.join(self.folder_in, name + '.param')]
-        job = {
-            'name': name,
-            'args': {
-                'files': files
-            }
-        }
+        if os.path.isfile(os.path.join(self.folder_in, name + ".param")):
+            files += [os.path.join(self.folder_in, name + ".param")]
+        job = {"name": name, "args": {"files": files}}
 
         return job
 
     def setup_job(self, name, args, folder):
         """Copy files to temporary folder to prepare for execution"""
 
-        for f in args['files']:
+        for f in args["files"]:
             shutil.move(f, folder)
         # Also copy the pseudopotentials
         for pp in self.pspots:
@@ -143,18 +140,21 @@ class CastepSubmitter(Submitter):
 
         success = True
 
-        self.log('Copying files for job {0}\n'.format(name))
+        self.log("Copying files for job {0}\n".format(name))
 
         # Perform dryrun test if required
         if self.drun:
-            self.log('Performing DRYRUN\n')
-            dry_proc = sp.Popen([self.castep_command, name, '--dryrun'],
-                                cwd=folder, stdout=sp.PIPE,
-                                stderr=sp.PIPE)
+            self.log("Performing DRYRUN\n")
+            dry_proc = sp.Popen(
+                [self.castep_command, name, "--dryrun"],
+                cwd=folder,
+                stdout=sp.PIPE,
+                stderr=sp.PIPE,
+            )
             stdout, stderr = safe_communicate(dry_proc)
             # When it's finished...
             try:
-                castfile = open(os.path.join(folder, name + '.castep'))
+                castfile = open(os.path.join(folder, name + ".castep"))
             except IOError:
                 return False
             # Does the file contain the required lines?
@@ -165,7 +165,7 @@ class CastepSubmitter(Submitter):
             success = False
             for i, l in enumerate(castlines):
                 if drline1 in l:
-                    if drline2 in castlines[i+1]:
+                    if drline2 in castlines[i + 1]:
                         success = True
                         break
 
@@ -179,19 +179,20 @@ class CastepSubmitter(Submitter):
         """Save required output files to the output folder"""
 
         for cext in self.cp_ext:
-            files = glob.glob(os.path.join(folder, '*'+cext))
+            files = glob.glob(os.path.join(folder, "*" + cext))
             for f in files:
-                shutil.move(f, os.path.join(self.folder_out,
-                                            os.path.basename(f)))
+                shutil.move(f, os.path.join(self.folder_out, os.path.basename(f)))
 
     def finish_run(self):
         """Try removing the temporary keywords directory"""
         try:
             shutil.rmtree(self.kwdir)
         except OSError:
-            self.log("Could not delete temporary castep_keywords.py"
-                     "directory at {0}".format(self.kwdir))
+            self.log(
+                "Could not delete temporary castep_keywords.py"
+                "directory at {0}".format(self.kwdir)
+            )
         sys.path.remove(self.kwdir)
 
         if self.castpath is not None:
-            sys.path.remove(castep_path)
+            sys.path.remove(self.castpath)

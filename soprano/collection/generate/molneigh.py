@@ -17,38 +17,39 @@
 """Generator producing molecular neighbourhoods"""
 
 import numpy as np
-from ase import Atoms
+
 # Internal imports
 from soprano.utils import minimum_supcell, supcell_gridgen
 
 
-def molecularNeighbourhoodGen(struct, mols, central_mol=0, max_R=10,
-                              method='com', use_supercell=False):
+def molecularNeighbourhoodGen(
+    struct, mols, central_mol=0, max_R=10, method="com", use_supercell=False
+):
     """Generator function to create a spherical molecular neighbourhood. Given
-    a structure and its molecules as returned by the Molecules property, 
+    a structure and its molecules as returned by the Molecules property,
     produce supercell structures that contain one molecule each, progressively
     further away from the one indicated as central.
 
     | Args:
     |   struct (ase.Atoms): original structure
     |   mols ([ase.AtomsSelection]): list of molecules, as returned by the
-    |                                soprano.properties.linkage.Molecules 
+    |                                soprano.properties.linkage.Molecules
     |                                class.
-    |   central_mol (int): index of the molecule whose centre of mass is 
+    |   central_mol (int): index of the molecule whose centre of mass is
     |                      considered central. Default is 0.
-    |   max_R (float): maximum radius of the neighbourhood sphere. Default is 
+    |   max_R (float): maximum radius of the neighbourhood sphere. Default is
     |                  10 Ang.
-    |   method (str): method to compute distance between molecules. 'com' 
+    |   method (str): method to compute distance between molecules. 'com'
     |                 means using the center of mass. 'nearest' means using
     |                 the closest atom. Default is 'com'.
-    |   use_supercell (bool): if True, all returned structures will have a 
+    |   use_supercell (bool): if True, all returned structures will have a
     |                         cell large enough to contain the entire
     |                         neighbourhood. Default is False.
 
     | Returns:
     |   molecularNeighbourhoodGen (generator): an iterator object that yields
-    |                                         structures within the given 
-    |                                         spherical neighbourhood.                                         
+    |                                         structures within the given
+    |                                         spherical neighbourhood.
 
     """
 
@@ -64,20 +65,19 @@ def molecularNeighbourhoodGen(struct, mols, central_mol=0, max_R=10,
     p0 = mol_coms[central_mol]
 
     # Positions?
-    if method == 'com':
-        positions = mol_coms[None, :, :]+grid[:, None, :]-p0
-    elif method == 'nearest':
+    if method == "com":
+        positions = mol_coms[None, :, :] + grid[:, None, :] - p0
+    elif method == "nearest":
         positions = np.zeros((len(grid), len(mols), 3))
         for i, a in enumerate(mol_structs):
             dp = a.get_positions() - p0
             p = dp[None, :, :] + grid[:, None, :]
             # Closest one?
-            positions[:, i, :] = p[range(len(grid)),
-                                   np.argmin(np.linalg.norm(p, axis=-1),
-                                             axis=1)]
+            positions[:, i, :] = p[
+                range(len(grid)), np.argmin(np.linalg.norm(p, axis=-1), axis=1)
+            ]
     else:
-        raise RuntimeError('Invalid method passed to '
-                           'molecularNeighbourhoodGen')
+        raise RuntimeError("Invalid method passed to " "molecularNeighbourhoodGen")
 
     # Order of appearance?
     distances = np.linalg.norm(positions, axis=-1)
@@ -99,10 +99,10 @@ def molecularNeighbourhoodGen(struct, mols, central_mol=0, max_R=10,
         a.set_positions(a.get_positions() + xyz[i])
 
         # Add some info
-        a.info['neighbourhood_info'] = {
-            'molecule_index': mol_i[i],
-            'molecule_cell': fxyz[i],
-            'molecule_distance': distances[i]
+        a.info["neighbourhood_info"] = {
+            "molecule_index": mol_i[i],
+            "molecule_cell": fxyz[i],
+            "molecule_distance": distances[i],
         }
 
         yield a

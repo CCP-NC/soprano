@@ -28,21 +28,25 @@ from __future__ import unicode_literals
 import copy
 import numpy as np
 from collections import namedtuple
+
 # Internal imports
 from soprano import utils
 from soprano.calculate.xrd import sel_rules as xrdsel
+
 try:
     try:
         import spglib
     except ImportError:
         from pyspglib import spglib
 except ImportError:
-    raise ImportError('pySPGLIB not installed on this system, XRD'
-                      ' functionality cannot be used.')
+    raise ImportError(
+        "pySPGLIB not installed on this system, XRD" " functionality cannot be used."
+    )
 
 
-XraySpectrum = namedtuple("XraySpectrum", ("theta2", "hkl", "hkl_unique",
-                                           "invd", "intensity", "lambdax"))
+XraySpectrum = namedtuple(
+    "XraySpectrum", ("theta2", "hkl", "hkl_unique", "invd", "intensity", "lambdax")
+)
 
 XraySpectrumData = namedtuple("XraySpectrumData", ("theta2", "intensity"))
 
@@ -54,8 +58,14 @@ class XRDCalculator(object):
 
     """
 
-    def __init__(self, lambdax=1.54056, theta2_digits=6, baseline=0.0,
-                 peak_func=None, peak_f_args=None):
+    def __init__(
+        self,
+        lambdax=1.54056,
+        theta2_digits=6,
+        baseline=0.0,
+        peak_func=None,
+        peak_f_args=None,
+    ):
         """
         Initialize the XDRCalculator object's main parameters
 
@@ -69,7 +79,7 @@ class XRDCalculator(object):
         |                                  calculating theoretical peaks
         |   baseline (Optional[float]): baseline to use as starting point for
         |                               simulated spectra
-        |   peak_func (Optional[function<float, float, \*kargs>
+        |   peak_func (Optional[function<float, float, \\*kargs>
         |                       => <np.ndarray>]): the function used to
         |                                          simulate peaks. Should take
         |                                          th2 as its first argument,
@@ -99,7 +109,7 @@ class XRDCalculator(object):
     def peak_func(self):
         """The function used to build peaks in simulated spectra
 
-           Should be of form peak_func(theta2, peak_position, \*peak_f_args)
+        Should be of form peak_func(theta2, peak_position, \\*peak_f_args)
 
         """
         return self._peak_func
@@ -113,27 +123,27 @@ class XRDCalculator(object):
     # has to be made clear as well
     def set_peak_func(self, peak_func=None, peak_f_args=None):
         """Set a new peak_func for this XDRCalculator. If no new function is
-           passed, reset the default Gaussian function.
+        passed, reset the default Gaussian function.
 
-           | Args:
-           |   peak_func (Optional[function<float, float, \*kargs>
-           |                       => <np.ndarray>]): the function used to
-           |                                          simulate peaks. Should
-           |                                          take th2 as its first
-           |                                          argument, peak centre as
-           |                                          its second, and any
-           |                                          number of optional
-           |                                          arguments. Returns a
-           |                                          numpy array containing
-           |                                          the peak shape. Should
-           |                                          be able to work with
-           |                                          numpy arrays as input
-           |   peak_f_args (Optional[list<float>]): optional arguments for
-           |                                        peak_func. If no peak_func
-           |                                        has been supplied by the
-           |                                        user, the first value will
-           |                                        be used as the Gaussian
-           |                                        width
+        | Args:
+        |   peak_func (Optional[function<float, float, \\*kargs>
+        |                       => <np.ndarray>]): the function used to
+        |                                          simulate peaks. Should
+        |                                          take th2 as its first
+        |                                          argument, peak centre as
+        |                                          its second, and any
+        |                                          number of optional
+        |                                          arguments. Returns a
+        |                                          numpy array containing
+        |                                          the peak shape. Should
+        |                                          be able to work with
+        |                                          numpy arrays as input
+        |   peak_f_args (Optional[list<float>]): optional arguments for
+        |                                        peak_func. If no peak_func
+        |                                        has been supplied by the
+        |                                        user, the first value will
+        |                                        be used as the Gaussian
+        |                                        width
         """
 
         # If there's no peak function args...
@@ -149,9 +159,11 @@ class XRDCalculator(object):
             nargs, nargs_def = utils.inspect_args(peak_func)
             if nargs < 2:
                 raise ValueError("Invalid peak_func passed to set_peak_func")
-            elif (nargs-(2+nargs_def)) > len(peak_f_args):
-                raise ValueError("""Invalid number of peak_f_args passed to
-                                    set_peak_func""")
+            elif (nargs - (2 + nargs_def)) > len(peak_f_args):
+                raise ValueError(
+                    """Invalid number of peak_f_args passed to
+                                    set_peak_func"""
+                )
         else:
             # A gaussian here
             peak_func = _gauss_peak_default
@@ -164,7 +176,7 @@ class XRDCalculator(object):
         self._peak_func = peak_func
         self._peak_f_args = peak_f_args
 
-    def powder_peaks(self, atoms=None, latt_abc=None, n=1, o='all'):
+    def powder_peaks(self, atoms=None, latt_abc=None, n=1, o="all"):
         """
         Calculate the peaks (without intensities) of a powder
         XRD spectrum given either an Atoms object or the lattice in ABC form
@@ -192,42 +204,47 @@ class XRDCalculator(object):
 
         # First a sanity check
         if sum(arg is not None for arg in [atoms, latt_abc]) != 1:
-            raise ValueError("""One and only one between atoms and latt_abc
-                                must be passed to powder_peaks""")
+            raise ValueError(
+                """One and only one between atoms and latt_abc
+                                must be passed to powder_peaks"""
+            )
         if atoms is not None:
             # Define the lattice
             latt_abc = utils.cart2abc(atoms.get_cell())
             # And the symmetry
             symm_data = spglib.get_symmetry_dataset(atoms)
-            h = int(symm_data['hall_number'])
+            h = int(symm_data["hall_number"])
             try:
                 sel_rule = xrdsel.get_sel_rule_from_hall(h)
             except ValueError:
                 # Not found?
-                raise RuntimeWarning("""Required symmetry not found -
+                raise RuntimeWarning(
+                    """Required symmetry not found -
                                         No selection rules will be applied to
-                                        XRD powder spectrum""")
+                                        XRD powder spectrum"""
+                )
         else:
             latt_abc = np.array(latt_abc, copy=False)
             if latt_abc.shape != (2, 3):
-                raise ValueError(
-                    "Invalid argument latt_abc passed to xrd_pwd_peaks")
+                raise ValueError("Invalid argument latt_abc passed to xrd_pwd_peaks")
             try:
                 sel_rule = xrdsel.get_sel_rule_from_international(n, o)
             except ValueError:
                 # Not found?
-                raise RuntimeWarning("""Required symmetry not found -
+                raise RuntimeWarning(
+                    """Required symmetry not found -
                                         No selection rules will be applied to
-                                        XRD powder spectrum""")
+                                        XRD powder spectrum"""
+                )
 
-        inv_d_max = 2.0/self.lambdax  # Upper limit to the inverse distance
+        inv_d_max = 2.0 / self.lambdax  # Upper limit to the inverse distance
 
         # Second, find the matrix linking hkl indices to the inverse distance
         hkl2d2 = utils.hkl2d2_matgen(latt_abc)
         hkl_shape = utils.minimum_supcell(inv_d_max, r_matrix=hkl2d2)
 
-        min_hkl_bounds = (-((np.array(hkl_shape)-1)/2)).astype(int)
-        max_hkl_bounds = hkl_shape+min_hkl_bounds
+        min_hkl_bounds = (-((np.array(hkl_shape) - 1) / 2)).astype(int)
+        max_hkl_bounds = hkl_shape + min_hkl_bounds
 
         hrange = range(min_hkl_bounds[0], max_hkl_bounds[0])
         krange = range(min_hkl_bounds[1], max_hkl_bounds[1])
@@ -235,44 +252,47 @@ class XRDCalculator(object):
 
         # We now build a full grid of hkl indices. In this way
         # iteration is performed over numpy arrays and thus faster
-        hkl_grid = np.array(
-            np.meshgrid(hrange, krange, lrange)).reshape((3, -1))
+        hkl_grid = np.array(np.meshgrid(hrange, krange, lrange)).reshape((3, -1))
         # First applying the selection rule
         selected_i = np.where(np.apply_along_axis(sel_rule, 0, hkl_grid))[0]
         hkl_grid = hkl_grid[:, selected_i]
-        inv_d_grid = np.sqrt(np.sum(hkl_grid *
-                                    np.tensordot(hkl2d2, hkl_grid,
-                                                 axes=((1,), (0,))), axis=0))
+        inv_d_grid = np.sqrt(
+            np.sum(hkl_grid * np.tensordot(hkl2d2, hkl_grid, axes=((1,), (0,))), axis=0)
+        )
 
         # Some will still have inv_d > inv_d_max, we fix that here
         # We also eliminate both 2theta = 0 and 2theta = pi to avoid
         # divergence later in the geometric factor
-        valid_i = np.where((inv_d_grid < inv_d_max)*(inv_d_grid > 0))[0]
+        valid_i = np.where((inv_d_grid < inv_d_max) * (inv_d_grid > 0))[0]
         hkl_grid = hkl_grid[:, valid_i]
         inv_d_grid = inv_d_grid[valid_i]
-        theta_grid = np.arcsin(inv_d_grid/inv_d_max)
+        theta_grid = np.arcsin(inv_d_grid / inv_d_max)
         # Now we calculate theta2.
         # Theta needs to be truncated to a certain number of
         # digits to avoid the same peak to be wrongly
         # considered as two.
         # This function also takes care of the sorting
-        unique_sorting = np.unique(np.round(2.0*theta_grid*180.0/np.pi,
-                                            self.theta2_digits),
-                                   return_index=True,
-                                   return_inverse=True)
+        unique_sorting = np.unique(
+            np.round(2.0 * theta_grid * 180.0 / np.pi, self.theta2_digits),
+            return_index=True,
+            return_inverse=True,
+        )
 
         peak_n = len(unique_sorting[0])
-        hkl_sorted = [hkl_grid[:,
-                               np.where(unique_sorting[2] == i)[0]].T.tolist()
-                      for i in range(peak_n)]
+        hkl_sorted = [
+            hkl_grid[:, np.where(unique_sorting[2] == i)[0]].T.tolist()
+            for i in range(peak_n)
+        ]
         hkl_unique = hkl_grid[:, unique_sorting[1]].T
         invd = inv_d_grid[unique_sorting[1]]
-        xpeaks = XraySpectrum(unique_sorting[0],
-                              np.array(hkl_sorted, dtype=object),
-                              hkl_unique,
-                              invd,
-                              np.ones(peak_n),
-                              self.lambdax)
+        xpeaks = XraySpectrum(
+            unique_sorting[0],
+            np.array(hkl_sorted, dtype=object),
+            hkl_unique,
+            invd,
+            np.ones(peak_n),
+            self.lambdax,
+        )
 
         return xpeaks
 
@@ -331,20 +351,20 @@ class XRDCalculator(object):
         th2_min = -np.inf if th2_min is None else th2_min
         th2_max = np.inf if th2_max is None else th2_max
 
-        range_i = np.where((th2_min <= xpeaks.theta2) &
-                           (xpeaks.theta2 <= th2_max))[0]
+        range_i = np.where((th2_min <= xpeaks.theta2) & (xpeaks.theta2 <= th2_max))[0]
 
         # Switch type
         if type(xpeaks) is XraySpectrum:
-            return XraySpectrum(xpeaks.theta2[range_i],
-                                xpeaks.hkl[range_i],
-                                xpeaks.hkl_unique[range_i],
-                                xpeaks.invd[range_i],
-                                xpeaks.intensity[range_i],
-                                xpeaks.lambdax)
+            return XraySpectrum(
+                xpeaks.theta2[range_i],
+                xpeaks.hkl[range_i],
+                xpeaks.hkl_unique[range_i],
+                xpeaks.invd[range_i],
+                xpeaks.intensity[range_i],
+                xpeaks.lambdax,
+            )
         else:
-            return XraySpectrumData(xpeaks.theta2[range_i],
-                                    xpeaks.intensity[range_i])
+            return XraySpectrumData(xpeaks.theta2[range_i], xpeaks.intensity[range_i])
 
     def spec_simul(self, xpeaks, th2_axis):
         """
@@ -376,18 +396,18 @@ class XRDCalculator(object):
             raise ValueError("Invalid th2_axis passed to spec_simul")
 
         # So here we are. Actual simulation!
-        simul_peaks = peaks_int[None, :]*self.peak_func(th2_axis[:, None],
-                                                        peaks_th2[None, :],
-                                                        *self.peak_f_args)
+        simul_peaks = peaks_int[None, :] * self.peak_func(
+            th2_axis[:, None], peaks_th2[None, :], *self.peak_f_args
+        )
 
-        simul_spec = np.sum(simul_peaks, axis=1) + \
-            np.ones(len(th2_axis))*self.baseline
+        simul_spec = (
+            np.sum(simul_peaks, axis=1) + np.ones(len(th2_axis)) * self.baseline
+        )
         simul_spec = XraySpectrumData(th2_axis, simul_spec)
 
         return simul_spec, simul_peaks
 
-    def lebail_fit(self, xpeaks, exp_spec,
-                   rwp_tol=1e-2, max_iter=100):
+    def lebail_fit(self, xpeaks, exp_spec, rwp_tol=1e-2, max_iter=100):
         """
         Perform a refining on an XraySpectrum object's intensities based on
         experimental data with leBail's method.
@@ -427,11 +447,10 @@ class XRDCalculator(object):
         xpeaks = copy.deepcopy(xpeaks)
 
         # Fetch the data
-        peaks_th2 = xpeaks.theta2
         th2_axis = np.array(exp_spec.theta2, copy=False)
         int_axis = np.array(exp_spec.intensity, copy=False)
         # Find a suitable starting height for the peaks
-        peaks_int = (xpeaks.intensity*0.0)+np.amax(int_axis)/4.0
+        peaks_int = (xpeaks.intensity * 0.0) + np.amax(int_axis) / 4.0
 
         # Perform the first simulation
         simul_spec, simul_peaks = self.spec_simul(xpeaks, th2_axis)
@@ -441,8 +460,7 @@ class XRDCalculator(object):
         # Now the iterations
         for i in range(max_iter):
             # Perform a correction
-            peaks_int *= _leBail_rescale_I(simul_peaks, simul_spec.intensity,
-                                           int_axis)
+            peaks_int *= _leBail_rescale_I(simul_peaks, simul_spec.intensity, int_axis)
             # Store
             np.copyto(xpeaks.intensity, peaks_int)
             # Recalculate
@@ -450,10 +468,10 @@ class XRDCalculator(object):
             # Calculate Rwp
             rwp = _Rwp_eval(simul_spec.intensity, int_axis)
             # Stop if already zero, we can't get any better
-            if (rwp == 0):
+            if rwp == 0:
                 break
             # Gain?
-            delta_rwp = abs((rwp-rwp0)/rwp)
+            delta_rwp = abs((rwp - rwp0) / rwp)
             if delta_rwp < rwp_tol:
                 break
             rwp0 = rwp
@@ -468,10 +486,12 @@ class XRDCalculator(object):
 def _Rwp_eval(simul_int, exp_int):
     """Evaluate Rwp for use in LeBail fitting"""
 
-    weights = 1.0/exp_int
+    weights = 1.0 / exp_int
 
-    r_wp = np.sqrt(np.sum(weights*(exp_int-simul_int)**2.0) /
-                   np.sum(weights*exp_int**2.0))
+    r_wp = np.sqrt(
+        np.sum(weights * (exp_int - simul_int) ** 2.0)
+        / np.sum(weights * exp_int ** 2.0)
+    )
 
     return r_wp
 
@@ -482,12 +502,14 @@ def _leBail_rescale_I(simul_peaks, simul_spec, exp_spec):
     sum_peaks = np.sum(simul_peaks, axis=0)
     # It could be zero somewhere, fix that
     sum_peaks = np.where(sum_peaks > 0, sum_peaks, np.inf)
-    i_scale = np.sum(exp_spec[:, None]*simul_peaks/simul_spec[:, None],
-                     axis=0)/sum_peaks
+    i_scale = (
+        np.sum(exp_spec[:, None] * simul_peaks / simul_spec[:, None], axis=0)
+        / sum_peaks
+    )
 
     return i_scale
 
 
 def _gauss_peak_default(x, x0, w):
     """Gaussian peak function (for spectrum simulation)"""
-    return np.exp(-((x-x0)/w)**2.0)
+    return np.exp(-(((x - x0) / w) ** 2.0))

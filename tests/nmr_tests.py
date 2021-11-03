@@ -15,27 +15,32 @@ import numpy as np
 from ase import io
 from ase.quaternions import Quaternion
 from soprano.nmr.tensor import NMRTensor
-from soprano.properties.nmr import (MSIsotropy, MSAnisotropy,
-                                    MSReducedAnisotropy, MSAsymmetry,
-                                    MSSpan, MSSkew,
-                                    EFGVzz, EFGAsymmetry,
-                                    EFGQuadrupolarConstant,
-                                    EFGQuaternion, DipolarCoupling,
-                                    DipolarDiagonal, DipolarTensor)
-from soprano.selection import AtomSelection
+from soprano.properties.nmr import (
+    MSIsotropy,
+    MSAnisotropy,
+    MSReducedAnisotropy,
+    MSAsymmetry,
+    MSSpan,
+    MSSkew,
+    EFGVzz,
+    EFGAsymmetry,
+    EFGQuadrupolarConstant,
+    EFGQuaternion,
+    DipolarCoupling,
+    DipolarDiagonal,
+    DipolarTensor,
+)
 
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "test_data")
+_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
 
 class TestNMR(unittest.TestCase):
-
     def test_shielding(self):
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, 'ethanol_ms.dat')) as f:
+        with open(os.path.join(_TESTDATA_DIR, "ethanol_ms.dat")) as f:
             data = f.readlines()[8:]
 
         iso = MSIsotropy.get(eth)
@@ -54,21 +59,22 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(aniso[i], vals[1])
             self.assertAlmostEqual(r_aniso[i], vals[2])
             self.assertAlmostEqual(asymm[i], vals[3])
-            self.assertAlmostEqual(span[i], max(vals[4:7])-min(vals[4:7]))
-            self.assertAlmostEqual(skew[i],
-                                   3*(sorted(vals[4:7])[1]-iso[i])/span[i])
+            self.assertAlmostEqual(span[i], max(vals[4:7]) - min(vals[4:7]))
+            self.assertAlmostEqual(
+                skew[i], 3 * (sorted(vals[4:7])[1] - iso[i]) / span[i]
+            )
 
     def test_efg(self):
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, 'ethanol_efg.dat')) as f:
+        with open(os.path.join(_TESTDATA_DIR, "ethanol_efg.dat")) as f:
             data = f.readlines()[8:]
 
         asymm = EFGAsymmetry.get(eth)
 
-        qprop = EFGQuadrupolarConstant(isotopes={'H': 2})
+        qprop = EFGQuadrupolarConstant(isotopes={"H": 2})
         qcnst = qprop(eth)
         quats = EFGQuaternion.get(eth)
 
@@ -79,25 +85,34 @@ class TestNMR(unittest.TestCase):
             # And check...
             # The quadrupolar constant has some imprecision due to values
             # of quadrupole moment, so we only ask 2 places in kHz
-            self.assertAlmostEqual(qcnst[i]*1e-3, vals[0]*1e-3, places=2)
+            self.assertAlmostEqual(qcnst[i] * 1e-3, vals[0] * 1e-3, places=2)
             self.assertAlmostEqual(asymm[i], vals[1])
-            vq = Quaternion.from_euler_angles(*(np.array(vals[-3:]
-                                                         )*np.pi/180.0))
+            vq = Quaternion.from_euler_angles(*(np.array(vals[-3:]) * np.pi / 180.0))
             # Product to see if they go back to the origin
             # The datafile contains conjugate quaternions
-            pq = vq*quats[i]
+            pq = vq * quats[i]
             cosphi = np.clip(pq.q[0], -1, 1)
             phi = np.arccos(cosphi)
             # 180 degrees rotations are possible (signs are not fixed)
-            self.assertTrue(np.isclose((phi*2) % np.pi, 0) or
-                            np.isclose((phi*2) % np.pi, np.pi))
+            self.assertTrue(
+                np.isclose((phi * 2) % np.pi, 0) or np.isclose((phi * 2) % np.pi, np.pi)
+            )
+
+        # A more basic test for the Vzz
+        Vzz_p = EFGVzz.get(eth)
+        Vzz_raw = []
+        for efg in eth.get_array("efg"):
+            evals, _ = np.linalg.eigh(efg)
+            Vzz_raw.append(evals[np.argmax(abs(evals))])
+
+        self.assertTrue(np.isclose(Vzz_p, Vzz_raw).all())
 
     def test_dipolar(self):
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, 'ethanol_dip.dat')) as f:
+        with open(os.path.join(_TESTDATA_DIR, "ethanol_dip.dat")) as f:
             data = f.readlines()[8:]
 
         dip = DipolarCoupling.get(eth)
@@ -107,11 +122,11 @@ class TestNMR(unittest.TestCase):
         # Magres labels
         symbs = np.array(eth.get_chemical_symbols())
         elems = set(symbs)
-        mlabs = ['']*len(eth)
+        mlabs = [""] * len(eth)
         for e in elems:
             e_i = np.where(symbs == e)[0]
             for i, j in enumerate(e_i):
-                mlabs[j] = '{0}_{1}'.format(e, i+1)
+                mlabs[j] = "{0}_{1}".format(e, i + 1)
 
         data_dip = {}
         for l in data:
@@ -123,32 +138,26 @@ class TestNMR(unittest.TestCase):
 
         for ij, (d, v) in dip.items():
             # The precision is rather low, probably due to the gammas
-            self.assertAlmostEqual(d*2*np.pi, data_dip[ij][0], places=-3)
-            a, b = np.array([np.arccos(-v[2]),
-                             np.arctan2(-v[1], -v[0])]) % (2*np.pi)
-            ba_dat = (np.array(data_dip[ij][1:])*np.pi/180.0) % (2*np.pi)
+            self.assertAlmostEqual(d * 2 * np.pi, data_dip[ij][0], places=-3)
+            a, b = np.array([np.arccos(-v[2]), np.arctan2(-v[1], -v[0])]) % (2 * np.pi)
+            ba_dat = (np.array(data_dip[ij][1:]) * np.pi / 180.0) % (2 * np.pi)
             self.assertTrue(np.isclose([b, a], ba_dat, atol=0.1).all())
 
-            evals = dipdiag[ij]['evals']
-            evecs = dipdiag[ij]['evecs']
-            self.assertAlmostEqual(evals[2], 2*d)
+            evals = dipdiag[ij]["evals"]
+            evecs = dipdiag[ij]["evecs"]
+            self.assertAlmostEqual(evals[2], 2 * d)
             self.assertAlmostEqual(np.dot(evecs[:, 2], v), 1)
-            self.assertTrue(np.isclose(np.dot(evecs.T, evecs),
-                                       np.eye(3)).all())
+            self.assertTrue(np.isclose(np.dot(evecs.T, evecs), np.eye(3)).all())
 
             # Further test the full tensors
             evalstt = np.linalg.eigh(diptens[ij])[0]
-            self.assertTrue(np.isclose(np.sort(evals),
-                                       np.sort(evalstt)).all())
-            self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij], v]),
-                                   2*d)
-
-
+            self.assertTrue(np.isclose(np.sort(evals), np.sort(evalstt)).all())
+            self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij], v]), 2 * d)
 
     def test_tensor(self):
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
-        ms = eth.get_array('ms')
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        ms = eth.get_array("ms")
 
         iso = MSIsotropy.get(eth)
         aniso = MSAnisotropy.get(eth)
@@ -158,7 +167,7 @@ class TestNMR(unittest.TestCase):
         skew = MSSkew.get(eth)
 
         # Get the eigenvalues
-        diag = [np.linalg.eigh((m+m.T)/2.0) for m in ms]
+        diag = [np.linalg.eigh((m + m.T) / 2.0) for m in ms]
 
         for i in range(len(eth)):
 
@@ -173,9 +182,13 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(skew[i], ms_tens.skew)
 
             self.assertTrue(np.isclose(evals, ms_tens.eigenvalues).all())
-            self.assertAlmostEqual(np.dot(np.cross(ms_tens.eigenvectors[:, 0],
-                                                   ms_tens.eigenvectors[:, 1]),
-                                          ms_tens.eigenvectors[:, 2]), 1)
+            self.assertAlmostEqual(
+                np.dot(
+                    np.cross(ms_tens.eigenvectors[:, 0], ms_tens.eigenvectors[:, 1]),
+                    ms_tens.eigenvectors[:, 2],
+                ),
+                1,
+            )
 
         # Let's now try various conventions
         data = np.diag([1, 2, -6])
@@ -195,7 +208,7 @@ class TestNMR(unittest.TestCase):
     def test_diprotavg(self):
         # Test dipolar rotational averaging
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, 'ethanol.magres'))
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         from ase.quaternions import Quaternion
         from soprano.properties.transform import Rotate
@@ -207,13 +220,11 @@ class TestNMR(unittest.TestCase):
         axis = np.array([1.0, 1.0, 0])
         axis /= np.linalg.norm(axis)
 
-        rot = Rotate(quaternion=Quaternion.from_axis_angle(
-            axis, 2*np.pi/N))
+        rot = Rotate(quaternion=Quaternion.from_axis_angle(axis, 2 * np.pi / N))
 
         rot_eth = AtomsCollection(transformGen(eth, rot, N))
 
-        rot_dip = [D[(0, 1)]
-                   for D in DipolarTensor.get(rot_eth, sel_i=[0], sel_j=[1])]
+        rot_dip = [D[(0, 1)] for D in DipolarTensor.get(rot_eth, sel_i=[0], sel_j=[1])]
 
         dip_avg_num = np.average(rot_dip, axis=0)
 
@@ -226,5 +237,6 @@ class TestNMR(unittest.TestCase):
         evecs = dip_tens.eigenvectors
         self.assertTrue(np.allclose(np.dot(evecs.T, evecs), np.eye(3)))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

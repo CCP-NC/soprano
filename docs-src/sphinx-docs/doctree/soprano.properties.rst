@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.properties.basic
    soprano.properties.castep
@@ -24,5 +25,6 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.properties.atomsproperty

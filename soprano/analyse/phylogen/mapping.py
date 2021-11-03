@@ -30,8 +30,7 @@ from scipy import linalg
 def _check_dimensionality(mapfunc):
     def mapfunc_decorated(p):
         if p.shape[0] < 2:
-            raise ValueError('Dimensionality of the problem'
-                             'too small for 2D mapping')
+            raise ValueError("Dimensionality of the problem" "too small for 2D mapping")
         return mapfunc(p)
 
     return mapfunc_decorated
@@ -84,7 +83,7 @@ def standard_classcond_component(p):
     S1 = np.cov(p1.T)
     S2 = np.cov(p2.T)
 
-    evals, evecs = linalg.eig(a=S1, b=(S1+S2))
+    evals, evecs = linalg.eig(a=S1, b=(S1 + S2))
     A = evecs[:, :2]
     return np.tensordot(A, p, axes=(0, 1))
 
@@ -103,13 +102,13 @@ def optimal_discriminant_plane(p):
     # Find the average points
     m1 = np.average(p1, axis=0)
     m2 = np.average(p2, axis=0)
-    mdiff = m1-m2
+    mdiff = m1 - m2
 
     B = np.dot(mdiff[:, None], mdiff[None, :])
 
     S1 = np.cov(p1.T)
     S2 = np.cov(p2.T)
-    S = S1+S2
+    S = S1 + S2
 
     # So the fisher direction is found analytically...
     A = np.zeros((B.shape[0], 2))
@@ -118,6 +117,6 @@ def optimal_discriminant_plane(p):
     A[:, 0] /= np.linalg.norm(A[:, 0])  # Normalized
     # And then the second one
     z = np.dot(invS, A[:, 0])
-    A[:, 1] = A[:, 0]-np.dot(A[:, 0], z)*z
+    A[:, 1] = A[:, 0] - np.dot(A[:, 0], z) * z
 
     return np.tensordot(A, p, axes=(0, 1))

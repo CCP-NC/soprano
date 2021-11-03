@@ -26,20 +26,20 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+
 class PowderScheme(object):
+    def __init__(self, mode):
 
-	def __init__(self, mode):
+        if mode not in ("sphere", "hemisphere", "octant"):
+            raise ValueError("Invalid mode passed to powder averaging scheme")
 
-		if mode not in ('sphere', 'hemisphere', 'octant'):
-			raise ValueError('Invalid mode passed to powder averaging scheme')
+        self.mode = mode
 
-		self.mode = mode
+    def get_orient_angles(self, N):
+        pass
 
-	def get_orient_angles(self, N):
-		pass
+    def get_orient_trig(self, N):
+        pass
 
-	def get_orient_trig(self, N):
-		pass
-
-	def get_orient_points(self, N):
-		pass
+    def get_orient_points(self, N):
+        pass

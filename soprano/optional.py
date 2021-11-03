@@ -50,24 +50,24 @@ except ImportError:
 
 """
 These decorators check if the required module is available, if not print
-an error message, if yes pass it as a variable to the function itself. 
+an error message, if yes pass it as a variable to the function itself.
 They all take the name one desires the library to have within the function
 as an argument. The function needs to have a named variable of the same name
 in its interface.
 """
 
 
-def requireNetworkX(import_name='networkx'):
-
+def requireNetworkX(import_name="networkx"):
     def decorator(func):
-
         @wraps(func)
         def wrapper(*args, **kwargs):
 
             if _networkx is None:
-                raise RuntimeError('This function requires an installation of'
-                                   ' NetworkX to work - please install it '
-                                   'with:\n\tpip install networkx')
+                raise RuntimeError(
+                    "This function requires an installation of"
+                    " NetworkX to work - please install it "
+                    "with:\n\tpip install networkx"
+                )
             else:
                 kwargs[import_name] = _networkx
                 return func(*args, **kwargs)
@@ -77,24 +77,26 @@ def requireNetworkX(import_name='networkx'):
     return decorator
 
 
-def requireSpglib(import_name='spglib'):
-
+def requireSpglib(import_name="spglib"):
     def decorator(func):
-
         @wraps(func)
         def wrapper(*args, **kwargs):
 
-            v = list(map(int, _spglib.__version__.split('.')))
+            v = list(map(int, _spglib.__version__.split(".")))
 
             if _spglib is None:
-                raise RuntimeError('This function requires an installation of'
-                                   ' spglib to work - please install it '
-                                   'with:\n\tpip install spglib')
+                raise RuntimeError(
+                    "This function requires an installation of"
+                    " spglib to work - please install it "
+                    "with:\n\tpip install spglib"
+                )
             elif v[0] < 1 or (v[0] == 1 and v[1] <= 8):
-                raise RuntimeError('This function requires a version of'
-                                   ' spglib superior to 1.8 to work - '
-                                   'please install it '
-                                   'with:\n\tpip install --upgrade spglib')
+                raise RuntimeError(
+                    "This function requires a version of"
+                    " spglib superior to 1.8 to work - "
+                    "please install it "
+                    "with:\n\tpip install --upgrade spglib"
+                )
             else:
                 kwargs[import_name] = _spglib
                 return func(*args, **kwargs)
@@ -104,17 +106,17 @@ def requireSpglib(import_name='spglib'):
     return decorator
 
 
-def requireScikitLearn(import_name='sklearn'):
-
+def requireScikitLearn(import_name="sklearn"):
     def decorator(func):
-
         @wraps(func)
         def wrapper(*args, **kwargs):
 
             if _sklearn is None:
-                raise RuntimeError('This function requires an installation of'
-                                   ' scikit-learn to work - please install '
-                                   'it with:\n\tpip install scikit-learn')
+                raise RuntimeError(
+                    "This function requires an installation of"
+                    " scikit-learn to work - please install "
+                    "it with:\n\tpip install scikit-learn"
+                )
             else:
                 kwargs[import_name] = _sklearn
                 return func(*args, **kwargs)

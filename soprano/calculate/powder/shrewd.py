@@ -17,17 +17,14 @@
 """
 shrewd.py
 
-Contains a class to define the SHREWD (Spherical Harmonics Reduction or Elimination by 
+Contains a class to define the SHREWD (Spherical Harmonics Reduction or Elimination by
 a Weighted Distribution) powder averaging scheme.
 Implementation taken from:
 
 Mattias Edén, Malcolm H. Levitt,
-"Computation of Orientational Averages in Solid-State NMR by Gaussian Spherical Quadrature",
-Journal of Magnetic Resonance,
-Volume 132, Issue 2,
-1998,
-Pages 220-239,
-ISSN 1090-7807,
+"Computation of Orientational Averages in Solid-State NMR by Gaussian Spherical
+Quadrature", Journal of Magnetic Resonance, Volume 132, Issue 2, 1998,
+Pages 220-239, ISSN 1090-7807,
 https://doi.org/10.1006/jmre.1998.1427.
 """
 
@@ -39,33 +36,31 @@ from __future__ import unicode_literals
 
 import numpy as np
 import warnings
-from scipy.special import legendre, sph_harm
-from scipy.linalg import lstsq
+from scipy.special import legendre
 from scipy.optimize import minimize
 from soprano.calculate.powder.zcw import ZCW
 
 
 class SHREWD(ZCW):
-
     def _calc_engine(self, N):
         phi, ct, weights = super()._calc_engine(N)
 
         # Compute weights
         lmax = len(phi)
-        lM = np.array([legendre(l)(ct) for l in range(lmax)]).T
-        lb = np.array([1] + [0]*(lmax-1))
+        lM = np.array([legendre(lc)(ct) for lc in range(lmax)]).T
+        lb = np.array([1] + [0] * (lmax - 1))
 
-        alpha = 0.1 # This term helps with keeping the weights in check
+        alpha = 0.1  # This term helps with keeping the weights in check
 
         def f(w):
-            return np.sum((np.dot(lM, w)-lb)**2 + alpha*w**2)
+            return np.sum((np.dot(lM, w) - lb) ** 2 + alpha * w ** 2)
 
         def df(w):
-            return 2*(np.dot((np.dot(lM, w)-lb), lM)) + 2*alpha*w
+            return 2 * (np.dot((np.dot(lM, w) - lb), lM)) + 2 * alpha * w
 
         sol = minimize(f, weights, jac=df)
         if sol.status != 0:
-            warnings.warn('Optimization of weights for SHREWD did not converge')
+            warnings.warn("Optimization of weights for SHREWD did not converge")
         weights = sol.x
         # Normalise them, just for safety
         weights /= np.sum(weights)

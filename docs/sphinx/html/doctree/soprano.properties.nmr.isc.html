@@ -1,19 +1,20 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.properties.nmr.isc module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +40,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" accesskey="U">soprano.properties.nmr package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" accesskey="U">soprano.properties.nmr package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.properties.nmr.isc module</a></li> 
       </ul>
     </div>  
 
@@ -48,13 +50,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.properties.nmr.isc">
+  <section id="module-soprano.properties.nmr.isc">
 <span id="soprano-properties-nmr-isc-module"></span><h1>soprano.properties.nmr.isc module<a class="headerlink" href="#module-soprano.properties.nmr.isc" title="Permalink to this headline">¶</a></h1>
 <p>Implementation of AtomsProperties that relate to NMR J
 couplings</p>
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.ISCDiagonal">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">ISCDiagonal</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.ISCDiagonal">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">ISCDiagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces an array containing eigenvalues and eigenvectors for the
 symmetric part of each J coupling tensor in the system. By default
@@ -98,26 +100,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.ISCDiagonal.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'isc_diagonal'</em><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.ISCDiagonal.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'isc_diagonal'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.ISCDiagonal.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'save_info': True, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.ISCDiagonal.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'save_info':</span> <span class="pre">True,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.ISCDiagonal.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.ISCDiagonal.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.ISCDiagonal.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCAnisotropy">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCAnisotropy</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAnisotropy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCAnisotropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J coupling anisotropies for atom pairs
 in the system. See JCDiagonal for how reduced couplings are transformed
@@ -166,7 +188,7 @@ into couplings.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -185,26 +207,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCAnisotropy.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_anisotropy'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAnisotropy.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_anisotropy'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCAnisotropy.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAnisotropy.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCAnisotropy.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAnisotropy.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCAsymmetry">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCAsymmetry</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAsymmetry">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCAsymmetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J coupling asymmetries for atom pairs
 in the system. See JCDiagonal for how reduced couplings are transformed
@@ -253,7 +295,7 @@ into couplings.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -272,26 +314,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCAsymmetry.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_asymmetry'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAsymmetry.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_asymmetry'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCAsymmetry.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAsymmetry.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCAsymmetry.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCAsymmetry.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCAsymmetry.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCDiagonal">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCDiagonal</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCDiagonal">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCDiagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of diagonalised J coupling tensors for atom pairs
 in the system. The J coupling for a pair of nuclei i and j is defined as:</p>
@@ -343,7 +405,7 @@ the J coupling reduced tensor found in a .magres file, in 10^19.T^2.J^-1.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair.</div>
 </div>
@@ -362,26 +424,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCDiagonal.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_diagonal'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCDiagonal.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_diagonal'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCDiagonal.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCDiagonal.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCDiagonal.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCDiagonal.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCDiagonal.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCIsotropy">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCIsotropy</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCIsotropy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCIsotropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J coupling isotropies for atom pairs
 in the system. See JCDiagonal for how reduced couplings are transformed
@@ -430,7 +512,7 @@ into couplings.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -449,26 +531,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCIsotropy.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_isotropy'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCIsotropy.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_isotropy'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCIsotropy.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCIsotropy.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCIsotropy.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCIsotropy.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCIsotropy.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCQuaternion">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCQuaternion</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCQuaternion">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCQuaternion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J ase.Quaternion objects expressing the
 orientation of the J coupling tensors with respect to the cartesian axes
@@ -519,7 +621,7 @@ containing the relevant information.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -538,26 +640,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCQuaternion.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_skew'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCQuaternion.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_skew'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCQuaternion.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCQuaternion.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCQuaternion.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCQuaternion.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCQuaternion.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCReducedAnisotropy</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCReducedAnisotropy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCReducedAnisotropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J coupling reduced anisotropies for atom pairs
 in the system. See JCDiagonal for how reduced couplings are transformed
@@ -606,7 +728,7 @@ into couplings.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -625,26 +747,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_red_anisotropy'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCReducedAnisotropy.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_red_anisotropy'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCReducedAnisotropy.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCReducedAnisotropy.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCReducedAnisotropy.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCReducedAnisotropy.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCSkew">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCSkew</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSkew">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCSkew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J coupling skews for atom pairs
 in the system. See JCDiagonal for how reduced couplings are transformed
@@ -693,7 +835,7 @@ into couplings.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -712,26 +854,46 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCSkew.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_skew'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSkew.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_skew'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCSkew.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSkew.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCSkew.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSkew.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSkew.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.nmr.isc.JCSpan">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.nmr.isc.</code><code class="sig-name descname">JCSpan</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSpan">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.isc.</span></span><span class="sig-name descname"><span class="pre">JCSpan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a dictionary of J coupling spans for atom pairs
 in the system. See JCDiagonal for how reduced couplings are transformed
@@ -780,7 +942,7 @@ into couplings.</p>
 </div>
 </div>
 <div class="line-block">
-<div class="line">Returns: </div>
+<div class="line">Returns:</div>
 <div class="line-block">
 <div class="line">dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.</div>
 </div>
@@ -799,26 +961,47 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCSpan.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'jc_span'</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSpan.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'jc_span'</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.nmr.isc.JCSpan.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'isotope_list': None, 'isotopes': {}, 'sel_i': None, 'sel_j': None, 'self_coupling': False, 'tag': 'isc'}</em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSpan.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'isotope_list':</span> <span class="pre">None,</span> <span class="pre">'isotopes':</span> <span class="pre">{},</span> <span class="pre">'sel_i':</span> <span class="pre">None,</span> <span class="pre">'sel_j':</span> <span class="pre">None,</span> <span class="pre">'self_coupling':</span> <span class="pre">False,</span> <span class="pre">'tag':</span> <span class="pre">'isc'}</span></em><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.nmr.isc.JCSpan.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.extract" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.nmr.isc.JCSpan.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.isc.JCSpan.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -849,7 +1032,7 @@ only argument to get the property with the given parameters.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -878,12 +1061,13 @@ only argument to get the property with the given parameters.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" >soprano.properties.nmr package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.properties.nmr.html" >soprano.properties.nmr package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.properties.nmr.isc module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

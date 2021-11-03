@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.calculate.gulp
    soprano.calculate.nmr

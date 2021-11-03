@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Contains classes, modules and functions useful for basic NMR analysis. More 
+Contains classes, modules and functions useful for basic NMR analysis. More
 useful and specialised classes are found in soprano.properties.nmr and
 in soprano.calculate.nmr
-""" 
+"""
 
 from soprano.nmr.tensor import NMRTensor

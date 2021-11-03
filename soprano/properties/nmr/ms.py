@@ -24,16 +24,21 @@ from __future__ import unicode_literals
 
 import numpy as np
 from soprano.properties import AtomsProperty
-from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                               _span, _skew, _evecs_2_quat)
+from soprano.nmr.utils import (
+    _haeb_sort,
+    _anisotropy,
+    _asymmetry,
+    _span,
+    _skew,
+    _evecs_2_quat,
+)
 
 
 def _has_ms_check(f):
     # Decorator to add a check for the magnetic shieldings array
     def decorated_f(s, *args, **kwargs):
-        if not (s.has('ms')):
-            raise RuntimeError('No magnetic shielding data found for this'
-                               ' system')
+        if not (s.has("ms")):
+            raise RuntimeError("No magnetic shielding data found for this" " system")
         return f(s, *args, **kwargs)
 
     return decorated_f
@@ -59,26 +64,23 @@ class MSDiagonal(AtomsProperty):
 
     """
 
-    default_name = 'ms_diagonal'
-    default_params = {
-        'save_array': True
-    }
+    default_name = "ms_diagonal"
+    default_params = {"save_array": True}
 
     @staticmethod
     @_has_ms_check
     def extract(s, save_array):
 
-        ms_diag = [np.linalg.eigh((ms+ms.T)/2.0) for ms in s.get_array('ms')]
+        ms_diag = [np.linalg.eigh((ms + ms.T) / 2.0) for ms in s.get_array("ms")]
         ms_evals, ms_evecs = [np.array(a) for a in zip(*ms_diag)]
 
         if save_array:
-            s.set_array(MSDiagonal.default_name + '_evals', ms_evals)
+            s.set_array(MSDiagonal.default_name + "_evals", ms_evals)
             # Store also the Haeberlen sorted version
-            s.set_array(MSDiagonal.default_name +
-                        '_evals_hsort', _haeb_sort(ms_evals))
-            s.set_array(MSDiagonal.default_name + '_evecs', ms_evecs)
+            s.set_array(MSDiagonal.default_name + "_evals_hsort", _haeb_sort(ms_evals))
+            s.set_array(MSDiagonal.default_name + "_evecs", ms_evecs)
 
-        return np.array([dict(zip(('evals', 'evecs'), ms)) for ms in ms_diag])
+        return np.array([dict(zip(("evals", "evecs"), ms)) for ms in ms_diag])
 
 
 class MSIsotropy(AtomsProperty):
@@ -100,16 +102,14 @@ class MSIsotropy(AtomsProperty):
 
     """
 
-    default_name = 'ms_isotropy'
-    default_params = {
-        'ref': None
-    }
+    default_name = "ms_isotropy"
+    default_params = {"ref": None}
 
     @staticmethod
     @_has_ms_check
     def extract(s, ref):
 
-        ms_iso = np.trace(s.get_array('ms'), axis1=1, axis2=2)/3.0
+        ms_iso = np.trace(s.get_array("ms"), axis1=1, axis2=2) / 3.0
 
         # Referenced?
         if ref is not None:
@@ -137,20 +137,17 @@ class MSAnisotropy(AtomsProperty):
 
     """
 
-    default_name = 'ms_anisotropy'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "ms_anisotropy"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
+        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(ms_evals)
 
@@ -174,20 +171,17 @@ class MSReducedAnisotropy(AtomsProperty):
 
     """
 
-    default_name = 'ms_red_anisotropy'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "ms_red_anisotropy"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
+        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(ms_evals, reduced=True)
 
@@ -211,20 +205,17 @@ class MSAsymmetry(AtomsProperty):
 
     """
 
-    default_name = 'ms_asymmetry'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "ms_asymmetry"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
+        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _asymmetry(ms_evals)
 
@@ -248,20 +239,17 @@ class MSSpan(AtomsProperty):
 
     """
 
-    default_name = 'ms_span'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "ms_span"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
+        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _span(ms_evals)
 
@@ -285,20 +273,17 @@ class MSSkew(AtomsProperty):
 
     """
 
-    default_name = 'ms_skew'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "ms_skew"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if (not s.has(MSDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + '_evals_hsort')
+        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _skew(ms_evals)
 
@@ -322,19 +307,16 @@ class MSQuaternion(AtomsProperty):
 
     """
 
-    default_name = 'ms_quats'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "ms_quats"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_ms_check
     def extract(s, force_recalc):
 
-        if (not s.has(MSDiagonal.default_name + '_evecs') or
-                force_recalc):
+        if not s.has(MSDiagonal.default_name + "_evecs") or force_recalc:
             MSDiagonal.get(s)
 
-        ms_evecs = s.get_array(MSDiagonal.default_name + '_evecs')
+        ms_evecs = s.get_array(MSDiagonal.default_name + "_evecs")
 
         return _evecs_2_quat(ms_evecs)

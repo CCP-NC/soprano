@@ -28,20 +28,21 @@ from scipy.linalg import null_space
 from soprano.optional import requireSpglib
 
 
-@requireSpglib('spglib')
+@requireSpglib("spglib")
 def _get_symmetry_dataset(s, symprec, spglib=None):
     lattice = s.get_cell()
     positions = s.get_scaled_positions()
     numbers = s.get_atomic_numbers()
-    symdata = spglib.get_symmetry_dataset((lattice, positions, numbers),
-                                          symprec=symprec)
+    symdata = spglib.get_symmetry_dataset(
+        (lattice, positions, numbers), symprec=symprec
+    )
     return symdata
 
 
-@requireSpglib('spglib')
+@requireSpglib("spglib")
 def _get_symmetry_ops(hall_no, spglib=None):
     symdata = spglib.get_symmetry_from_database(hall_no)
-    return symdata['rotations'], symdata['translations']
+    return symdata["rotations"], symdata["translations"]
 
 
 def _loci_intersect(l1, l2):
@@ -67,7 +68,7 @@ def _loci_intersect(l1, l2):
     elif l1[0] == 2:
         # l2 has to be a plane too
         v = np.cross(l1[1], l2[1])
-        return (1, v/np.linalg.norm(v))
+        return (1, v / np.linalg.norm(v))
 
 
 def _find_wyckoff_points(a, symprec=1e-5):
@@ -77,10 +78,10 @@ def _find_wyckoff_points(a, symprec=1e-5):
     definite in them."""
 
     dset = _get_symmetry_dataset(a, symprec)
-    hno = dset['hall_number']
+    hno = dset["hall_number"]
 
     # First, check the standard cell
-    stdcell = dset['std_lattice']
+    stdcell = dset["std_lattice"]
     # And the transformation properties
     icell = np.linalg.inv(stdcell)
     ic2 = np.dot(icell.T, icell)
@@ -92,11 +93,11 @@ def _find_wyckoff_points(a, symprec=1e-5):
     # Operations in the non-transformed frame
     R, T = _get_symmetry_ops(hno)
     # Transformation
-    P, o = dset['transformation_matrix'], dset['origin_shift']
+    P, o = dset["transformation_matrix"], dset["origin_shift"]
     iP = np.linalg.inv(P)
 
     # Operations in the transformed frame
-    rR = np.einsum('ij,ajk,kl', iP, R, P)
+    rR = np.einsum("ij,ajk,kl", iP, R, P)
     rT = np.dot(T, iP.T) % 1
 
     # Invariant loci for the operations
@@ -117,22 +118,23 @@ def _find_wyckoff_points(a, symprec=1e-5):
         elif dof == 3:
             v = None
         else:
-            raise RuntimeError('Invalid symmetry operation')
+            raise RuntimeError("Invalid symmetry operation")
         invLoci.append((dof, v))
 
     invLoci = np.array(invLoci, dtype=object)
 
     # A grid of candidate Wyckoff points: they always come in
     # fractions n/24
-    wgrid = np.reshape(np.meshgrid(*[range(24)]*3, indexing='ij'),
-                       (3, -1)).T
+    wgrid = np.reshape(np.meshgrid(*[range(24)] * 3, indexing="ij"), (3, -1)).T
 
     # Identify the points that match under transformation and modulo 24
-    matching_ops = np.all(np.isclose((np.tensordot(R, wgrid,
-                                                   axes=(2, 1)) +
-                                      T[:, :, None]*24) % 24,
-                                     wgrid.T[None] % 24),
-                          axis=1)
+    matching_ops = np.all(
+        np.isclose(
+            (np.tensordot(R, wgrid, axes=(2, 1)) + T[:, :, None] * 24) % 24,
+            wgrid.T[None] % 24,
+        ),
+        axis=1,
+    )
     # Indices of all matching points
     w_indices = np.where(np.any(matching_ops[1:], axis=0))[0]
 
@@ -154,23 +156,25 @@ def _find_wyckoff_points(a, symprec=1e-5):
             wp_ops.append(zip(rR[ops_inds], rT[ops_inds]))
 
     # Find their positions in fractional coordinates
-    wp_fxyz = (np.dot(wgrid[wp_indices]/24.0, iP.T)-np.dot(iP, o)) % 1
+    wp_fxyz = (np.dot(wgrid[wp_indices] / 24.0, iP.T) - np.dot(iP, o)) % 1
     # Remove any identical rows
     if wp_fxyz.shape[0] > 0:
-        wp_fxyz, uinds = np.unique(np.round(wp_fxyz*24).astype(int), axis=0, return_index=True)
-        wp_fxyz = wp_fxyz/24.0
+        wp_fxyz, uinds = np.unique(
+            np.round(wp_fxyz * 24).astype(int), axis=0, return_index=True
+        )
+        wp_fxyz = wp_fxyz / 24.0
     else:
         uinds = []
     wp0_ops = np.array(wp0_ops)[uinds]
     wp_ops = np.array(wp_ops)[uinds]
 
-    isohess = [] # Here the meanings are:
+    isohess = []  # Here the meanings are:
     # 0 - no constraints
     # 1 - is positive/negative definite
     # 2 - is isotropic
     for ops in wp0_ops:
         wh = _wyckoff_isohess(ops)
-        isohess.append(wh*(2*is_def+is_iso-1))
+        isohess.append(wh * (2 * is_def + is_iso - 1))
     isohess = np.array(isohess)
 
     return wp_fxyz, wp_ops, isohess
@@ -179,7 +183,7 @@ def _find_wyckoff_points(a, symprec=1e-5):
 def _wyckoff_isohess(ops):
     """For each set of operations in wp_ops, representing a Wyckoff
     point that is symmetric under them, find whether the symmetry is
-    such that any symmetric 3x3 tensor valued function ought to be 
+    such that any symmetric 3x3 tensor valued function ought to be
     isotropic in that point"""
 
     """
@@ -202,20 +206,20 @@ def _wyckoff_isohess(ops):
 
                     T = xI + S = xO'O + O'SO
 
-       where S is a traceless symmetric tensor. Now, in what 
+       where S is a traceless symmetric tensor. Now, in what
        conditions can we say that S has to be zero?
      - The first is that O'O = I. This is true of rotations
        and reflections, but not of all symmetry operations.
        If it's not true for any operation in wp_ops, then S
        can not be zero.
      - The second is that the intersection of the null
-       spaces of P2kron(O',O')P1 is empty. Here P1 is a 9x5 
+       spaces of P2kron(O',O')P1 is empty. Here P1 is a 9x5
        matrix such that P1s = t-xi, where s is the vectorised
        form of S and i the same for I, and P2 is the inverse.
 
     Note that this has to hold for the operations expressed in an *orthogonal*
-    basis. Otherwise it can fail. However, if it works in one basis, it's 
-    valid in all of them. 
+    basis. Otherwise it can fail. However, if it works in one basis, it's
+    valid in all of them.
     """
 
     # Rotation/transformation matrices
@@ -230,30 +234,35 @@ def _wyckoff_isohess(ops):
     # These matrices go back and fro to the 'reduced' form of the
     # unfolded symmetric traceless tensor (9 to only 5 components)
 
-    P1 = np.array([[1, 0, 0, 0, 0],
-                   [0, 1, 0, 0, 0],
-                   [0, 0, 1, 0, 0],
-                   [0, 1, 0, 0, 0],
-                   [0, 0, 0, 1, 0],
-                   [0, 0, 0, 0, 1],
-                   [0, 0, 1, 0, 0],
-                   [0, 0, 0, 0, 1],
-                   [-1, 0, 0, -1, 0]])
+    P1 = np.array(
+        [
+            [1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 1],
+            [-1, 0, 0, -1, 0],
+        ]
+    )
 
-    P2 = np.array([
-        [1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0],
-    ])
+    P2 = np.array(
+        [
+            [1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0],
+        ]
+    )
 
     ns = np.eye(5)
     for r in R:
         r5 = np.linalg.multi_dot([P2, np.kron(r, r).T, P1])
-        ns1 = null_space(r5-np.eye(5))
-        ns = np.dot(ns, null_space(np.concatenate([ns, -ns1],
-                                                  axis=1))[:ns.shape[1]])
+        ns1 = null_space(r5 - np.eye(5))
+        ns = np.dot(ns, null_space(np.concatenate([ns, -ns1], axis=1))[: ns.shape[1]])
         if ns.shape[1] == 0:
             return True
         ns /= np.linalg.norm(ns, axis=0)[None, :]

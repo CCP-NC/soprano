@@ -1,0 +1,9 @@
+[flake8]
+exclude =
+	.git
+	docs-src/sphinx-docs/conf.py
+ignore = F403,F405,E121,E123,E126,E226,E24,E704,W503,W504,E203,E741
+max_line_length = 88
+per_file_ignores =
+	**__init__.py:F401
+	soprano/nmr/utils.py:F401

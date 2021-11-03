@@ -1,23 +1,23 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.optional module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="soprano.selection module" href="soprano.selection.html" />
+    <link rel="next" title="soprano.rnd module" href="soprano.rnd.html" />
     <link rel="prev" title="soprano.measure module" href="soprano.measure.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -30,14 +30,15 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.selection.html" title="soprano.selection module"
+          <a href="soprano.rnd.html" title="soprano.rnd module"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="soprano.measure.html" title="soprano.measure module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.optional module</a></li> 
       </ul>
     </div>  
 
@@ -46,29 +47,30 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.optional">
+  <section id="module-soprano.optional">
 <span id="soprano-optional-module"></span><h1>soprano.optional module<a class="headerlink" href="#module-soprano.optional" title="Permalink to this headline">¶</a></h1>
 <p>optional.py</p>
 <p>Contains imports for libraries considered optional, and decorators to include
 checks for them.</p>
-<dl class="function">
-<dt id="soprano.optional.requireNetworkX">
-<code class="sig-prename descclassname">soprano.optional.</code><code class="sig-name descname">requireNetworkX</code><span class="sig-paren">(</span><em class="sig-param">import_name='networkx'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.optional.requireNetworkX" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.optional.requireNetworkX">
+<span class="sig-prename descclassname"><span class="pre">soprano.optional.</span></span><span class="sig-name descname"><span class="pre">requireNetworkX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">import_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'networkx'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.optional.requireNetworkX" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.optional.requireScikitLearn">
-<code class="sig-prename descclassname">soprano.optional.</code><code class="sig-name descname">requireScikitLearn</code><span class="sig-paren">(</span><em class="sig-param">import_name='sklearn'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.optional.requireScikitLearn" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.optional.requireScikitLearn">
+<span class="sig-prename descclassname"><span class="pre">soprano.optional.</span></span><span class="sig-name descname"><span class="pre">requireScikitLearn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">import_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sklearn'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.optional.requireScikitLearn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.optional.requireSpglib">
-<code class="sig-prename descclassname">soprano.optional.</code><code class="sig-name descname">requireSpglib</code><span class="sig-paren">(</span><em class="sig-param">import_name='spglib'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.optional.requireSpglib" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.optional.requireSpglib">
+<span class="sig-prename descclassname"><span class="pre">soprano.optional.</span></span><span class="sig-name descname"><span class="pre">requireSpglib</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">import_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spglib'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.optional.requireSpglib" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -86,8 +88,8 @@ checks for them.</p>
   <p class="topless"><a href="soprano.measure.html"
                         title="previous chapter">soprano.measure module</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="soprano.selection.html"
-                        title="next chapter">soprano.selection module</a></p>
+  <p class="topless"><a href="soprano.rnd.html"
+                        title="next chapter">soprano.rnd module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -99,7 +101,7 @@ checks for them.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -119,19 +121,20 @@ checks for them.</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="soprano.selection.html" title="soprano.selection module"
+          <a href="soprano.rnd.html" title="soprano.rnd module"
              >next</a> |</li>
         <li class="right" >
           <a href="soprano.measure.html" title="soprano.measure module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.optional module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

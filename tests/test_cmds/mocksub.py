@@ -7,7 +7,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-import sys
 import time
 import pickle
 import numpy as np
@@ -24,14 +23,14 @@ except NameError:
     get_input = input
 
 try:
-	script_first_line = get_input()
+    script_first_line = get_input()
 except EOFError:
-	script_first_line = ""
+    script_first_line = ""
 
 try:
-	joblist = pickle.load(open(os.path.join(mydir, 'queue.pkl'), 'rb'))
+    joblist = pickle.load(open(os.path.join(mydir, "queue.pkl"), "rb"))
 except IOError:
-	joblist = {}
+    joblist = {}
 
 # Well, add a job with the name of the script's first word
 fline_spl = script_first_line.split()
@@ -40,13 +39,12 @@ joblength = float(fline_spl[1])
 
 rnd_id = np.random.randint(100000, 999999)
 while rnd_id in joblist:
-	rnd_id = np.random.randint(100000, 999999)
+    rnd_id = np.random.randint(100000, 999999)
 rnd_id = str(rnd_id)
-joblist[rnd_id] = {'name': jobname,
-                        'end': time.time()+joblength}
+joblist[rnd_id] = {"name": jobname, "end": time.time() + joblength}
 if len(fline_spl) > 2:
-    joblist[rnd_id]['path'] = fline_spl[2]
+    joblist[rnd_id]["path"] = fline_spl[2]
 
 print("Job <{0}> submitted".format(rnd_id))
 
-pickle.dump(joblist, open(os.path.join(mydir, 'queue.pkl'), 'wb'))
+pickle.dump(joblist, open(os.path.join(mydir, "queue.pkl"), "wb"))

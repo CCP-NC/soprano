@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.scripts.msaverage
    soprano.scripts.phylogen

@@ -27,6 +27,7 @@ import warnings
 import numpy as np
 from scipy.cluster import hierarchy, vq
 from scipy.spatial import distance as spdist
+
 # 2-to-3 compatibility
 try:
     import cPickle as pickle
@@ -35,9 +36,9 @@ except ImportError:
 # Internal imports
 from soprano.utils import get_sklearn_clusters
 from soprano.collection import AtomsCollection
-from soprano.analyse.phylogen.genes import (Gene, GeneDictionary,
-                                            GeneError, load_genefile)
+from soprano.analyse.phylogen.genes import load_genefile
 from soprano.analyse.phylogen import mapping
+
 
 class PhylogenCluster(object):
 
@@ -49,9 +50,7 @@ class PhylogenCluster(object):
     defined by those "genes".
     """
 
-    def __init__(self, coll, genes=None,
-                 norm_range=(0.0, 1.0),
-                 norm_dist=1.0):
+    def __init__(self, coll, genes=None, norm_range=(0.0, 1.0), norm_dist=1.0):
         """Initialize the PhylogenCluster object.
 
         | Args:
@@ -85,7 +84,7 @@ class PhylogenCluster(object):
 
         # Start by copying the collection
         if not isinstance(coll, AtomsCollection):
-            raise TypeError('coll must be an AtomsCollection')
+            raise TypeError("coll must be an AtomsCollection")
         self._collection = copy.deepcopy(coll)
 
         # Now initialize all the main fields
@@ -99,7 +98,7 @@ class PhylogenCluster(object):
         self._needs_recalc = False
 
         self._gene_legend = None  # Legend of genes as assigned
-        self._gene_vectors_raw = None   # For genes that work as points
+        self._gene_vectors_raw = None  # For genes that work as points
         self._gene_matrices_raw = None  # For genes that work as distances
         self._gene_vectors_norm = None  # Normalised version of the above
         self._gene_matrices_norm = None  # Normalised version of the above
@@ -140,12 +139,11 @@ class PhylogenCluster(object):
             # First, check if it's already stored
             if g.name in self._gene_storage:
                 # Is it the same?
-                if self._gene_storage[g.name]['def'] == g:
+                if self._gene_storage[g.name]["def"] == g:
                     continue
             # If it's not, it needs to be calculated
             gene_val = None
-            self._has_pairgenes = self._has_pairgenes or\
-                g.is_pair
+            self._has_pairgenes = self._has_pairgenes or g.is_pair
 
             if load_arrays:
                 # Check if it is present
@@ -157,10 +155,7 @@ class PhylogenCluster(object):
             if gene_val is None or np.any(np.isnan(gene_val)):
                 gene_val = g.evaluate(self._collection)
 
-            self._gene_storage[g.name] = {
-                'def': g,
-                'val': gene_val
-            }
+            self._gene_storage[g.name] = {"def": g, "val": gene_val}
 
         self._needs_recalc = True
 
@@ -176,30 +171,28 @@ class PhylogenCluster(object):
         g_mats_weights = []
 
         for g in self._genes:
-            gene_val = self._gene_storage[g.name]['val']
+            gene_val = self._gene_storage[g.name]["val"]
             # Here we need to perform a reshaping
             if not g.is_pair and len(gene_val.shape) == 1:
                 gene_val = gene_val.reshape((-1, 1))
             elif g.is_pair and len(gene_val.shape) == 2:
-                gene_val = gene_val.reshape((gene_val.shape[0],
-                                             gene_val.shape[1],
-                                             1))
+                gene_val = gene_val.reshape((gene_val.shape[0], gene_val.shape[1], 1))
             # Now normalization and weights
             if not g.is_pair:
                 # Append
-                self._gene_vectors_raw = np.append(self._gene_vectors_raw,
-                                                   gene_val,
-                                                   axis=-1)
+                self._gene_vectors_raw = np.append(
+                    self._gene_vectors_raw, gene_val, axis=-1
+                )
                 gn = gene_val.shape[-1]
-                g_vecs_weights += [g.weight/np.sqrt(gn)]*gn
+                g_vecs_weights += [g.weight / np.sqrt(gn)] * gn
                 self._gene_legend[0].append((g.name, gn))
             else:
                 # Append
-                self._gene_matrices_raw = np.append(self._gene_matrices_raw,
-                                                    gene_val,
-                                                    axis=-1)
+                self._gene_matrices_raw = np.append(
+                    self._gene_matrices_raw, gene_val, axis=-1
+                )
                 gn = gene_val.shape[-1]
-                g_mats_weights += [g.weight/np.sqrt(gn)]*gn
+                g_mats_weights += [g.weight / np.sqrt(gn)] * gn
                 self._gene_legend[1].append((g.name, gn))
 
         # Now calculate the normalized versions
@@ -214,35 +207,36 @@ class PhylogenCluster(object):
             else:
                 vmin = np.amin(vnorm, axis=0)
                 vmax = np.amax(vnorm, axis=0)
-                vspan = vmax-vmin
+                vspan = vmax - vmin
                 # Fix the risk of division by zero
                 vspan = np.where(np.isclose(vspan, 0), np.inf, vspan)
-                vnorm = (vnorm-vmin)/vspan
-                vnorm *= self._normrng[1]-self._normrng[0]
+                vnorm = (vnorm - vmin) / vspan
+                vnorm *= self._normrng[1] - self._normrng[0]
                 vnorm += self._normrng[0]
-        self._gene_vectors_norm = vnorm*g_vecs_weights
+        self._gene_vectors_norm = vnorm * g_vecs_weights
 
         mnorm = self._gene_matrices_raw.copy()
         if self._normdist is not None:
             mmax = np.amax(mnorm, axis=(0, 1))
-            if not np.isclose(mmax, 0):
-                mnorm *= self._normdist/mmax
-        self._gene_matrices_norm = mnorm*g_mats_weights
+            if mmax.size > 0 and not np.isclose(mmax, 0):
+                mnorm *= self._normdist / mmax
+        self._gene_matrices_norm = mnorm * g_mats_weights
 
         # Distmat: start with vectors, add distances
-        self._distmat = np.linalg.norm(self._gene_vectors_norm[:, None, :] -
-                                       self._gene_vectors_norm[None, :, :],
-                                       axis=-1)
+        self._distmat = np.linalg.norm(
+            self._gene_vectors_norm[:, None, :] - self._gene_vectors_norm[None, :, :],
+            axis=-1,
+        )
 
-        self._distmat = np.linalg.norm(np.append(self._distmat[:, :, None],
-                                                 self._gene_matrices_norm,
-                                                 axis=-1),
-                                       axis=-1)
+        self._distmat = np.linalg.norm(
+            np.append(self._distmat[:, :, None], self._gene_matrices_norm, axis=-1),
+            axis=-1,
+        )
 
         self._needs_recalc = False
 
     def get_genome_vectors(self):
-        """ Return the genome vectors in raw form (not normalized).
+        """Return the genome vectors in raw form (not normalized).
         The vectors refer to genes that allow to define a specific point for
         each structure.
 
@@ -262,7 +256,7 @@ class PhylogenCluster(object):
         return self._gene_vectors_raw.copy(), self._gene_legend[0][:]
 
     def get_genome_matrices(self):
-        """ Return the genome matrices in raw form (not normalized).
+        """Return the genome matrices in raw form (not normalized).
         The matrices refer to genes that only allow to define a distance
         between structures. The element at i,j represents the distance
         between said structures. The matrix is symmetric and has
@@ -285,7 +279,7 @@ class PhylogenCluster(object):
         return self._gene_matrices_raw.copy(), self._gene_legend[1][:]
 
     def get_genome_vectors_norm(self):
-        """ Return the genome vectors in normalized and weighted form.
+        """Return the genome vectors in normalized and weighted form.
         The vectors refer to genes that allow to define a specific point for
         each structure.
 
@@ -305,7 +299,7 @@ class PhylogenCluster(object):
         return self._gene_vectors_norm.copy(), self._gene_legend[0][:]
 
     def get_genome_matrices_norm(self):
-        """ Return the genome matrices in normalized and weighted form.
+        """Return the genome matrices in normalized and weighted form.
         The matrices refer to genes that only allow to define a distance
         between structures. The element at i,j represents the distance
         between said structures. The matrix is symmetric and has
@@ -344,7 +338,7 @@ class PhylogenCluster(object):
 
         return self._distmat
 
-    def get_linkage(self, method='single'):
+    def get_linkage(self, method="single"):
         """Get the linkage matrix between structures in the collection,
         based on the genes currently in use. Only used in hierarchical
         clustering.
@@ -370,7 +364,7 @@ class PhylogenCluster(object):
 
         return hierarchy.linkage(cdist, method=method)
 
-    def get_hier_clusters(self, t, method='single'):
+    def get_hier_clusters(self, t, method="single"):
         """Get multiple clusters (in the form of a list of collections) based
         on the hierarchical clustering methods and the currently set genes.
 
@@ -407,13 +401,13 @@ class PhylogenCluster(object):
             self._recalc()
 
         Z = self.get_linkage(method=method)
-        clusts = hierarchy.fcluster(Z, t, criterion='distance')
+        clusts = hierarchy.fcluster(Z, t, criterion="distance")
         clust_n = np.amax(clusts)
-        clust_slices = [np.where(clusts == i)[0] for i in range(1, clust_n+1)]
+        clust_slices = [np.where(clusts == i)[0] for i in range(1, clust_n + 1)]
 
         return clusts, clust_slices
 
-    def get_hier_tree(self, method='single'):
+    def get_hier_tree(self, method="single"):
         """Get a tree data structure describing the clustering order of based
         on the hierarchical clustering methods and the currently set genes.
 
@@ -471,15 +465,17 @@ class PhylogenCluster(object):
         # Sanity check
         if self._has_pairgenes:
             # Then this method can't work!
-            raise RuntimeError('k-means clustering can not be used with'
-                               'presence of pair distance genes')
+            raise RuntimeError(
+                "k-means clustering can not be used with"
+                "presence of pair distance genes"
+            )
 
         if self._needs_recalc:
             self._recalc()
 
         centroids, dist = vq.kmeans(self._gene_vectors_norm, n)
         clusts, cdists = vq.vq(self._gene_vectors_norm, centroids)
-        clust_n = np.amax(clusts)+1
+        clust_n = np.amax(clusts) + 1
         clust_slices = [np.where(clusts == i)[0] for i in range(clust_n)]
         clusts += 1
 
@@ -516,14 +512,16 @@ class PhylogenCluster(object):
         # Sanity check
         if self._has_pairgenes:
             # Then this method can't work!
-            raise RuntimeError('k-means clustering can not be used with'
-                               'presence of pair distance genes')
+            raise RuntimeError(
+                "k-means clustering can not be used with"
+                "presence of pair distance genes"
+            )
 
         if self._needs_recalc:
             self._recalc()
 
         clusts = get_sklearn_clusters(self._gene_vectors_norm, method, params)
-        clust_n = np.amax(clusts)+1
+        clust_n = np.amax(clusts) + 1
         clust_slices = [np.where(clusts == i)[0] for i in range(clust_n)]
         clusts += 1
 
@@ -553,18 +551,16 @@ class PhylogenCluster(object):
 
         """
 
-        if method == 'hier':
+        if method == "hier":
             try:
-                return self.get_hier_clusters(params['t'])
+                return self.get_hier_clusters(params["t"])
             except KeyError:
-                raise ValueError('Parameter t required for hierarchical'
-                                 ' clustering')
-        elif method == 'kmeans':
+                raise ValueError("Parameter t required for hierarchical" " clustering")
+        elif method == "kmeans":
             try:
-                return self.get_kmeans_clusters(params['n'])
+                return self.get_kmeans_clusters(params["n"])
             except KeyError:
-                raise ValueError('Parameter n required for k-means'
-                                 ' clustering')
+                raise ValueError("Parameter n required for k-means" " clustering")
         else:
             return self.get_sklearn_clusters(method, params)
 
@@ -579,9 +575,9 @@ class PhylogenCluster(object):
         |               instead of normalised gene values. Default is False.
 
         | Returns:
-        |   avgs (np.ndarray): 2D array of average values of each gene for 
+        |   avgs (np.ndarray): 2D array of average values of each gene for
         |                      each cluster.
-        |   stds (np.ndarray): 2D array of standard deviations of each gene 
+        |   stds (np.ndarray): 2D array of standard deviations of each gene
         |                      for each cluster.
         |   genome_legend (list[tuple]): a list of tuples containing (name,
         |                                length) of the gene fragments in the
@@ -590,7 +586,7 @@ class PhylogenCluster(object):
 
         # Sanity check
         if self._has_pairgenes:
-            warnings.warn('Pair distance gene stats can not be calculated')
+            warnings.warn("Pair distance gene stats can not be calculated")
 
         if raw:
             gv = self._gene_vectors_raw.copy()
@@ -608,8 +604,7 @@ class PhylogenCluster(object):
 
         return avgs, stds, self._gene_legend[0][:]
 
-    def get_elbow_plot(self, method='kmeans', param_name='n',
-                       param_range=range(1, 11)):
+    def get_elbow_plot(self, method="kmeans", param_name="n", param_range=range(1, 11)):
         """Returns data for an elbow plot by scanning the outcome of a given
         clustering method within a range of values for a chosen parameter.
         Used to determine optimal parameter values.
@@ -637,7 +632,7 @@ class PhylogenCluster(object):
         for pval in param_range:
             clusts = self.get_clusters(method, params={param_name: pval})
             stats = self.get_cluster_stats(clusts)
-            wss.append(np.sum(stats[1]**2))
+            wss.append(np.sum(stats[1] ** 2))
 
         return np.array(wss), param_range
 
@@ -659,25 +654,27 @@ class PhylogenCluster(object):
         # Sanity check
         if self._has_pairgenes:
             # Then this method can't work!
-            raise RuntimeError('No mapping can be performed in presence of'
-                               'pair distance genes')
+            raise RuntimeError(
+                "No mapping can be performed in presence of" "pair distance genes"
+            )
 
         if self._needs_recalc:
             self._recalc()
 
         algos = {
-            'total-principal': mapping.total_principal_component,
-            'clafic': mapping.classcond_principal_component,
-            'fukunaga-koontz': mapping.standard_classcond_component,
-            'optimal-discriminant': mapping.optimal_discriminant_plane
+            "total-principal": mapping.total_principal_component,
+            "clafic": mapping.classcond_principal_component,
+            "fukunaga-koontz": mapping.standard_classcond_component,
+            "optimal-discriminant": mapping.optimal_discriminant_plane,
         }
 
         try:
             return algos[method](self._gene_vectors_norm)
         except KeyError:
-            raise ValueError(('Invalid method passed to create_mapping.\n'
-                              'Valid methods are: \n-') +
-                             ('\n-'.join(algos.keys())))
+            raise ValueError(
+                ("Invalid method passed to create_mapping.\n" "Valid methods are: \n-")
+                + ("\n-".join(algos.keys()))
+            )
 
     def save_collection(self, filename):
         """Save as pickle the collection bound to this PhylogenCluster.
@@ -688,14 +685,14 @@ class PhylogenCluster(object):
         saveC = self._collection[:]
 
         for g in self._gene_storage:
-            saveC.set_array(g, self._gene_storage[g]['val'])
+            saveC.set_array(g, self._gene_storage[g]["val"])
 
         saveC.save(filename)
 
     def save(self, filename):
         """Simply save a pickled copy to a given file path"""
 
-        f = open(filename, 'w')
+        f = open(filename, "w")
         pickle.dump(self, f)
 
     @staticmethod
@@ -705,5 +702,5 @@ class PhylogenCluster(object):
         f = open(filename)
         f = pickle.load(f)
         if not isinstance(f, PhylogenCluster):
-            raise ValueError('File does not contain a PhylogenCluster object')
+            raise ValueError("File does not contain a PhylogenCluster object")
         return f

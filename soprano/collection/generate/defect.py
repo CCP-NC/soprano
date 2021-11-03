@@ -22,13 +22,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
-import json
-import pkgutil
 import itertools
 import numpy as np
 from ase import Atoms
 from ase.data import atomic_numbers
+
 # Internal imports
 import soprano.utils as utils
 from soprano.selection import AtomSelection
@@ -37,8 +35,15 @@ from soprano.data import vdw_radii
 from soprano.rnd import Random
 
 
-def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
-              vdw_set='csd', vdw_scale=1, max_attempts=30):
+def defectGen(
+    struct,
+    defect,
+    poisson_r=None,
+    avoid_atoms=True,
+    vdw_set="csd",
+    vdw_scale=1,
+    max_attempts=30,
+):
     """Generator function to create multiple structures with a defect of a
     given element randomly added to the existing cell. The defects can be
     distributed following a random uniform distribution or a Poisson-sphere
@@ -60,8 +65,8 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
     |                       in the cell will be rejected. The cutoff distance
     |                       will be estimated based on the Van der Waals radii
     |                       set of choice. Default is True.
-    |   vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only 
-    |                              relevant if avoid_atoms is True. 
+    |   vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only
+    |                              relevant if avoid_atoms is True.
     |                              Default is csd [S. Alvarez, 2013].
     |   vdw_scale (float): scaling factor to apply to the base Van der Waals
     |                      radii values. Only relevant if avoid_atoms is True.
@@ -90,9 +95,9 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
     if avoid_atoms:
         avoid_fpos = struct.get_scaled_positions()
         avoid_vdw = vdw_radii[vdw_set][struct.get_atomic_numbers()]
-        avoid_cut = (avoid_vdw +
-                     vdw_radii[vdw_set][atomic_numbers[defect]]
-                     )*vdw_scale/2.0
+        avoid_cut = (
+            (avoid_vdw + vdw_radii[vdw_set][atomic_numbers[defect]]) * vdw_scale / 2.0
+        )
 
     if poisson_r is None:
         # Random generation
@@ -105,7 +110,7 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
                 fp = Random.random((3,))
                 # 2. If required check it against existing atoms
                 if avoid_atoms:
-                    dx = np.dot(avoid_fpos-fp[None, :], cell)
+                    dx = np.dot(avoid_fpos - fp[None, :], cell)
                     dr = np.linalg.norm(dx, axis=1)
                     good = (dr > avoid_cut).all()
                 else:
@@ -113,21 +118,25 @@ def defectGen(struct, defect, poisson_r=None, avoid_atoms=True,
                 attempts -= 1
 
             if good:
-                yield Atoms(defect, scaled_positions=[fp], cell=cell)+struct
+                yield Atoms(defect, scaled_positions=[fp], cell=cell) + struct
             else:
-                raise RuntimeError('Failed to generate a defect obeying'
-                                   ' constraints with the given number of '
-                                   'attempts.')
+                raise RuntimeError(
+                    "Failed to generate a defect obeying"
+                    " constraints with the given number of "
+                    "attempts."
+                )
     else:
         # Use Bridson's algorithm
         if avoid_atoms:
-            gen = utils.periodic_bridson(cell, poisson_r,
-                                         max_attempts=max_attempts,
-                                         prepoints=avoid_fpos,
-                                         prepoints_cuts=avoid_cut)
+            gen = utils.periodic_bridson(
+                cell,
+                poisson_r,
+                max_attempts=max_attempts,
+                prepoints=avoid_fpos,
+                prepoints_cuts=avoid_cut,
+            )
         else:
-            gen = utils.periodic_bridson(cell, poisson_r,
-                                         max_attempts=max_attempts)
+            gen = utils.periodic_bridson(cell, poisson_r, max_attempts=max_attempts)
 
         while True:
             p = next(gen, None)
@@ -167,7 +176,7 @@ def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
         to_replace = AtomSelection.all(struct)
 
     defconfs = itertools.combinations(to_replace.indices, n)
-    elems = np.array(struct.get_chemical_symbols()).astype('<U2')
+    elems = np.array(struct.get_chemical_symbols()).astype("<U2")
 
     for dc in defconfs:
         dstruct = struct.copy()
@@ -182,10 +191,9 @@ def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
         yield dstruct
 
 
-def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
-                accept=None):
+def additionGen(struct, add, to_addition=None, n=1, add_r=1.2, accept=None):
     """Generator function to create multiple structures with an atom of a
-    given element added in the existing cell. The atoms will be attached to 
+    given element added in the existing cell. The atoms will be attached to
     the atoms passed in the to_addition selection. If none is passed,
     all atoms will be additioned in turn. Multiple defects can be included, in
     which case all permutations will be generated. The algorithm will try
@@ -227,10 +235,9 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
     pos = struct.get_positions()
 
     # Separate bonds by atoms
-    atom_bonds = [[] if i in to_addition.indices else None
-                  for i in range(len(struct))]
+    atom_bonds = [[] if i in to_addition.indices else None for i in range(len(struct))]
     for b in bonds:
-        v = pos[b[1]]-pos[b[0]]+np.dot(b[2], cell)
+        v = pos[b[1]] - pos[b[0]] + np.dot(b[2], cell)
         try:
             atom_bonds[b[0]].append(v.copy())
         except AttributeError:
@@ -241,12 +248,12 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
             pass
 
     # Compute possible attachment points for each atom
-    attach_v = [None]*len(struct)
+    attach_v = [None] * len(struct)
     for i, bset in enumerate(atom_bonds):
         if bset is None:
             continue
         if len(bset) == 0:
-            rndv = Random.random((1, 3))-0.5
+            rndv = Random.random((1, 3)) - 0.5
             rndv /= np.linalg.norm(rndv, axis=1)[:, None]
             attach_v[i] = rndv
         else:
@@ -259,8 +266,7 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2,
         addpos = itertools.product(*attach_v[list(ac)])
         for ap in addpos:
             astruct = struct.copy()
-            astruct += Atoms(add*n, positions=pos[list(ac)]
-                             + np.array(ap)*add_r)
+            astruct += Atoms(add * n, positions=pos[list(ac)] + np.array(ap) * add_r)
 
             if accept is not None:
                 if not accept(astruct, ac):

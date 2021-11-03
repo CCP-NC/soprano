@@ -24,19 +24,25 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy import constants as cnst
 from soprano.properties import AtomsProperty
-from soprano.nmr.utils import (_haeb_sort, _anisotropy, _asymmetry,
-                               _span, _skew, _evecs_2_quat)
-from soprano.data.nmr import _get_nmr_data, _get_isotope_data, EFG_TO_CHI
+from soprano.nmr.utils import (
+    _haeb_sort,
+    _anisotropy,
+    _asymmetry,
+    _span,
+    _skew,
+    _evecs_2_quat,
+)
+from soprano.data.nmr import _get_isotope_data, EFG_TO_CHI
 
 
 def _has_efg_check(f):
     # Decorator to add a check for the electric field gradient array
     def decorated_f(s, *args, **kwargs):
-        if not (s.has('efg')):
-            raise RuntimeError('No electric field gradient data found for'
-                               ' this system')
+        if not (s.has("efg")):
+            raise RuntimeError(
+                "No electric field gradient data found for" " this system"
+            )
         return f(s, *args, **kwargs)
 
     return decorated_f
@@ -62,28 +68,25 @@ class EFGDiagonal(AtomsProperty):
 
     """
 
-    default_name = 'efg_diagonal'
-    default_params = {
-        'save_array': True
-    }
+    default_name = "efg_diagonal"
+    default_params = {"save_array": True}
 
     @staticmethod
     @_has_efg_check
     def extract(s, save_array):
 
-        efg_diag = [np.linalg.eigh((efg+efg.T)/2.0)
-                    for efg in s.get_array('efg')]
+        efg_diag = [np.linalg.eigh((efg + efg.T) / 2.0) for efg in s.get_array("efg")]
         efg_evals, efg_evecs = [np.array(a) for a in zip(*efg_diag)]
 
         if save_array:
-            s.set_array(EFGDiagonal.default_name + '_evals', efg_evals)
+            s.set_array(EFGDiagonal.default_name + "_evals", efg_evals)
             # Store also the Haeberlen sorted version
-            s.set_array(EFGDiagonal.default_name +
-                        '_evals_hsort', _haeb_sort(efg_evals))
-            s.set_array(EFGDiagonal.default_name + '_evecs', efg_evecs)
+            s.set_array(
+                EFGDiagonal.default_name + "_evals_hsort", _haeb_sort(efg_evals)
+            )
+            s.set_array(EFGDiagonal.default_name + "_evecs", efg_evecs)
 
-        return np.array([dict(zip(('evals', 'evecs'), efg))
-                         for efg in efg_diag])
+        return np.array([dict(zip(("evals", "evecs"), efg)) for efg in efg_diag])
 
 
 class EFGVzz(AtomsProperty):
@@ -104,20 +107,17 @@ class EFGVzz(AtomsProperty):
     |   efg_list (np.ndarray): list of Vzz values
     """
 
-    default_name = 'efg_vzz'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_vzz"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return efg_evals[:, -1]
 
@@ -141,20 +141,17 @@ class EFGAnisotropy(AtomsProperty):
 
     """
 
-    default_name = 'efg_anisotropy'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_anisotropy"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(efg_evals)
 
@@ -178,20 +175,17 @@ class EFGReducedAnisotropy(AtomsProperty):
 
     """
 
-    default_name = 'efg_red_anisotropy'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_red_anisotropy"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(efg_evals, reduced=True)
 
@@ -215,20 +209,17 @@ class EFGAsymmetry(AtomsProperty):
 
     """
 
-    default_name = 'efg_asymmetry'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_asymmetry"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _asymmetry(efg_evals)
 
@@ -252,20 +243,17 @@ class EFGSpan(AtomsProperty):
 
     """
 
-    default_name = 'efg_span'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_span"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _span(efg_evals)
 
@@ -289,20 +277,17 @@ class EFGSkew(AtomsProperty):
 
     """
 
-    default_name = 'efg_skew'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_skew"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + '_evals_hsort')
+        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _skew(efg_evals)
 
@@ -348,20 +333,19 @@ class EFGQuadrupolarConstant(AtomsProperty):
 
     """
 
-    default_name = 'efg_qconst'
+    default_name = "efg_qconst"
     default_params = {
-        'force_recalc': False,
-        'use_q_isotopes': False,
-        'isotopes': {},
-        'isotope_list': None
+        "force_recalc": False,
+        "use_q_isotopes": False,
+        "isotopes": {},
+        "isotope_list": None,
     }
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
         # First thing, build the isotope dictionary
@@ -369,13 +353,12 @@ class EFGQuadrupolarConstant(AtomsProperty):
 
         # Is isotope list valid?
         if isotope_list is not None and len(isotope_list) != len(elems):
-            print('WARNING - invalid isotope_list, ignoring')
+            print("WARNING - invalid isotope_list, ignoring")
             isotope_list = None
 
-        q_list = _get_isotope_data(elems, 'Q', isotopes, isotope_list,
-                                   use_q_isotopes)
+        q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
 
-        return EFG_TO_CHI*q_list*EFGVzz.get(s)
+        return EFG_TO_CHI * q_list * EFGVzz.get(s)
 
 
 class EFGQuadrupolarProduct(AtomsProperty):
@@ -390,7 +373,7 @@ class EFGQuadrupolarProduct(AtomsProperty):
 
     .. math::
 
-        \\P_Q = C_Q (1+frac{\eta_Q^2}{3})
+        \\P_Q = C_Q (1+frac{\\eta_Q^2}{3})
 
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
@@ -413,20 +396,19 @@ class EFGQuadrupolarProduct(AtomsProperty):
 
     """
 
-    default_name = 'efg_qprod'
+    default_name = "efg_qprod"
     default_params = {
-        'force_recalc': False,
-        'use_q_isotopes': False,
-        'isotopes': {},
-        'isotope_list': None
+        "force_recalc": False,
+        "use_q_isotopes": False,
+        "isotopes": {},
+        "isotope_list": None,
     }
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
 
-        if (not s.has(EFGDiagonal.default_name + '_evals_hsort') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
             EFGDiagonal.get(s)
 
         # First thing, build the isotope dictionary
@@ -434,13 +416,17 @@ class EFGQuadrupolarProduct(AtomsProperty):
 
         # Is isotope list valid?
         if isotope_list is not None and len(isotope_list) != len(elems):
-            print('WARNING - invalid isotope_list, ignoring')
+            print("WARNING - invalid isotope_list, ignoring")
             isotope_list = None
 
-        q_list = _get_isotope_data(elems, 'Q', isotopes, isotope_list,
-                                   use_q_isotopes)
+        q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
 
-        return EFG_TO_CHI*q_list*EFGVzz.get(s) * (1+(EFGAsymmetry.get(s)**2)/3)**0.5
+        return (
+            EFG_TO_CHI
+            * q_list
+            * EFGVzz.get(s)
+            * (1 + (EFGAsymmetry.get(s) ** 2) / 3) ** 0.5
+        )
 
 
 class EFGQuaternion(AtomsProperty):
@@ -462,19 +448,16 @@ class EFGQuaternion(AtomsProperty):
 
     """
 
-    default_name = 'efg_quats'
-    default_params = {
-        'force_recalc': False
-    }
+    default_name = "efg_quats"
+    default_params = {"force_recalc": False}
 
     @staticmethod
     @_has_efg_check
     def extract(s, force_recalc):
 
-        if (not s.has(EFGDiagonal.default_name + '_evecs') or
-                force_recalc):
+        if not s.has(EFGDiagonal.default_name + "_evecs") or force_recalc:
             EFGDiagonal.get(s)
 
-        efg_evecs = s.get_array(EFGDiagonal.default_name + '_evecs')
+        efg_evecs = s.get_array(EFGDiagonal.default_name + "_evecs")
 
         return _evecs_2_quat(efg_evecs)

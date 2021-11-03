@@ -24,8 +24,7 @@ Available sets:
     territories", Dalton Trans. 42, 8617 (2013)
     - jmol: extracted from the source code of JMol
     - ase:  default set for the Atomic Simulation Environment
-    
-    
+
 """
 
 import json
@@ -37,21 +36,18 @@ from ase.data.vdw import vdw_radii as _vdw_radii_ase
 
 def _load_vdw(name):
 
-    _vdw_data = pkgutil.get_data('soprano', 'data/vdw_{0}.json'.format(name)
-                                 ).decode('utf-8')
+    _vdw_data = pkgutil.get_data("soprano", "data/vdw_{0}.json".format(name)).decode(
+        "utf-8"
+    )
     _vdw_radii = np.array(json.loads(_vdw_data))
 
     return _vdw_radii
 
 
-vdw_radii = {
-    'ase': _vdw_radii_ase,
-    'jmol': _load_vdw('jmol'),
-    'csd': _load_vdw('csd')
-}
+vdw_radii = {"ase": _vdw_radii_ase, "jmol": _load_vdw("jmol"), "csd": _load_vdw("csd")}
 
 
-def vdw_radius(el, vdwset='csd'):
+def vdw_radius(el, vdwset="csd"):
     """Return Van der Waals radius for a certain element
 
     Return a Van der Waals radius for a given element, as taken from one
@@ -62,7 +58,6 @@ def vdw_radius(el, vdwset='csd'):
     territories", Dalton Trans. 42, 8617 (2013) [default]
     - jmol: extracted from the source code of JMol
     - ase:  default set for the Atomic Simulation Environment
-
 
     | Args:
     |   el (str):       element symbol
@@ -75,6 +70,6 @@ def vdw_radius(el, vdwset='csd'):
     try:
         Z = atomic_numbers[el]
     except KeyError:
-        raise ValueError('Invalid element symbol')
+        raise ValueError("Invalid element symbol")
 
     return vdw_radii[vdwset][Z]

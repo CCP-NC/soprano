@@ -39,8 +39,9 @@ except Exception as e:
     for j in subm._jobs:
         subm.queue.kill(j)
         try:
-            shutil.rmtree(subm._jobs[j]['folder'])
+            shutil.rmtree(subm._jobs[j]["folder"])
         except OSError:
             pass  # Whatever, it was deleted already I guess
-    subm.log('Submitter crashed following error:'
-             '\n{0}:\n\t{1}'.format(type(e).__name__, e))
+    subm.log(
+        "Submitter crashed following error:" "\n{0}:\n\t{1}".format(type(e).__name__, e)
+    )

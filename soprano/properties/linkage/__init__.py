@@ -22,15 +22,20 @@ system, self-correlation etc.
 # Python 2-to-3 compatibility code
 from __future__ import absolute_import
 
-from soprano.properties.linkage.linkage import (LinkageList, Bonds, Molecules,
-                                                MoleculeNumber, MoleculeMass,
-                                                MoleculeCOM,
-                                                MoleculeCOMLinkage,
-                                                MoleculeQuaternion,
-                                                MoleculeRelativeRotation,
-                                                MoleculeSpectralSort,
-                                                CoordinationHistogram,
-                                                HydrogenBonds,
-                                                HydrogenBondsNumber,
-                                                DihedralAngleList,
-                                                BondGraph)
+from soprano.properties.linkage.linkage import (
+    LinkageList,
+    Bonds,
+    Molecules,
+    MoleculeNumber,
+    MoleculeMass,
+    MoleculeCOM,
+    MoleculeCOMLinkage,
+    MoleculeQuaternion,
+    MoleculeRelativeRotation,
+    MoleculeSpectralSort,
+    CoordinationHistogram,
+    HydrogenBonds,
+    HydrogenBondsNumber,
+    DihedralAngleList,
+    BondGraph,
+)

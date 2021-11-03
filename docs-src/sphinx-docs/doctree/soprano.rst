@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.analyse
    soprano.calculate
@@ -24,8 +25,10 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.measure
    soprano.optional
+   soprano.rnd
    soprano.selection
    soprano.utils

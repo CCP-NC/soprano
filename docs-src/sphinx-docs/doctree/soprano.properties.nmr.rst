@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.properties.nmr.dipolar
    soprano.properties.nmr.efg

@@ -22,14 +22,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
 import numpy as np
+
 # Internal imports
-import soprano.utils as utils
 from soprano.rnd import Random
 
 
-def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
+def rattleGen(struct, amplitude=0.01, n=100, method="uniform"):
     """Generator function to create multiple structures by randomly displacing
     atoms of a given amount.
 
@@ -60,27 +59,31 @@ def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
 
     """
 
-    if method not in ('uniform', 'normal'):
-        raise ValueError('Invalid method argument passed to rattleGen')
+    if method not in ("uniform", "normal"):
+        raise ValueError("Invalid method argument passed to rattleGen")
 
     pos = struct.get_positions()
 
     # Check amplitude shape
     try:
-        amplitude = np.array(amplitude)*1.0
+        amplitude = np.array(amplitude) * 1.0
     except TypeError:
-        raise ValueError('Invalid amplitude argument passed to rattleGen')
+        raise ValueError("Invalid amplitude argument passed to rattleGen")
 
     ampsh = amplitude.shape
     if len(ampsh) == 1:
         if ampsh != (pos.shape[0],):
-            raise ValueError('Shape mismatch between amplitude and struct '
-                             'arguments passed to rattleGen')
+            raise ValueError(
+                "Shape mismatch between amplitude and struct "
+                "arguments passed to rattleGen"
+            )
         amplitude = amplitude[:, None]
     elif len(ampsh) == 2:
         if ampsh != pos.shape:
-            raise ValueError('Shape mismatch between amplitude and struct '
-                             'arguments passed to rattleGen')
+            raise ValueError(
+                "Shape mismatch between amplitude and struct "
+                "arguments passed to rattleGen"
+            )
 
     i = 0
 
@@ -91,12 +94,12 @@ def rattleGen(struct, amplitude=0.01, n=100, method='uniform'):
         rnds = struct.copy()
 
         # Rattle positions
-        if method == 'uniform':
-            dxyz = (Random.random(pos.shape)-0.5)*2*amplitude
-        elif method == 'normal':
-            dxyz = Random.normal(size=pos.shape)*amplitude
+        if method == "uniform":
+            dxyz = (Random.random(pos.shape) - 0.5) * 2 * amplitude
+        elif method == "normal":
+            dxyz = Random.normal(size=pos.shape) * amplitude
 
-        rnds.set_positions(pos+dxyz)
+        rnds.set_positions(pos + dxyz)
 
         yield rnds
         i += 1

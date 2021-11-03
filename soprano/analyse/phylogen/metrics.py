@@ -43,8 +43,7 @@ def confmat(clust1, clust2):
     |   confmat (np.ndarray): confusion matrix for the two clusterings.
     """
 
-    cmat = [[len(set(c1).intersection(c2)) for c2 in clust2]
-            for c1 in clust1]
+    cmat = [[len(set(c1).intersection(c2)) for c2 in clust2] for c1 in clust1]
 
     return np.array(cmat)
 
@@ -71,9 +70,9 @@ def norm_confmat(clust1, clust2):
     """
 
     cmat = confmat(clust1, clust2)
-    norm = [[(len(c1)*len(c2))**0.5 for c2 in clust2] for c1 in clust1]
+    norm = [[(len(c1) * len(c2)) ** 0.5 for c2 in clust2] for c1 in clust1]
 
-    return cmat/np.array(norm)
+    return cmat / np.array(norm)
 
 
 def fowles_mallows_index(clust1, clust2):
@@ -91,10 +90,10 @@ def fowles_mallows_index(clust1, clust2):
     in both clusterings, and n_k (n'_k) the number of elements in cluster k
     of the first (second) clustering.
 
-    Ref: 
-    Fowlkes, E. B.; Mallows, C. L. (1 September 1983). 
-    "A Method for Comparing Two Hierarchical Clusterings". 
-    Journal of the American Statistical Association. 78 (383): 553. 
+    Ref:
+    Fowlkes, E. B.; Mallows, C. L. (1 September 1983).
+    "A Method for Comparing Two Hierarchical Clusterings".
+    Journal of the American Statistical Association. 78 (383): 553.
     doi:10.2307/2288117
 
     | Args:
@@ -105,15 +104,15 @@ def fowles_mallows_index(clust1, clust2):
 
 
     | Returns:
-    |   fm_ind (float): the Fowles-Mallows index 
+    |   fm_ind (float): the Fowles-Mallows index
     """
 
     cmat = confmat(clust1, clust2)
 
-    N11 = (np.sum(cmat**2.0)-np.sum(cmat))/2.0
+    N11 = (np.sum(cmat ** 2.0) - np.sum(cmat)) / 2.0
     n1 = np.array([len(c) for c in clust1])
     n2 = np.array([len(c) for c in clust2])
-    WI = N11/np.sum(0.5*n1*(n1-1))
-    WII = N11/np.sum(0.5*n2*(n2-1))
+    WI = N11 / np.sum(0.5 * n1 * (n1 - 1))
+    WII = N11 / np.sum(0.5 * n2 * (n2 - 1))
 
-    return (WI*WII)**0.5
+    return (WI * WII) ** 0.5

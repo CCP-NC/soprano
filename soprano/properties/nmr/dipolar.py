@@ -24,7 +24,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from scipy import constants as cnst
 from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
@@ -51,7 +50,7 @@ class DipolarCoupling(AtomsProperty):
 
     .. math::
 
-         D_{ij} = 
+         D_{ij} =
          \\begin{bmatrix}
           -d_{ij}   & 0         & 0       \\\\
           0         & -d_{ij}   & 0       \\\\
@@ -86,25 +85,24 @@ class DipolarCoupling(AtomsProperty):
     |                     chunks of pairs. Necessary to avoid memory problems
     |                     for very large systems. Default is 1000.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
     |                    pointing from i to j, by atomic index pair.
 
     """
 
-    default_name = 'dip_coupling'
+    default_name = "dip_coupling"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'block_size': 1000,
+        "sel_i": None,
+        "sel_j": None,
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "block_size": 1000,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
-                block_size):
+    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size):
 
         # Selections
         if sel_i is None:
@@ -120,19 +118,17 @@ class DipolarCoupling(AtomsProperty):
         # Find gammas
         elems = s.get_chemical_symbols()
 
-        gammas = _get_isotope_data(elems, 'gamma', isotopes, isotope_list)
+        gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
 
         # Viable pairs
-        pairs = [(i, j) for i in sel_i.indices
-                 for j in sel_j.indices]
+        pairs = [(i, j) for i in sel_i.indices for j in sel_j.indices]
         if not self_coupling:
             pairs = [p for p in pairs if p[0] != p[1]]
 
         pairs = np.array(pairs).T
         # Need to sort them and remove any duplicates, also take i < j as
         # convention
-        pairs = np.array(list(zip(*set([tuple(x)
-                                        for x in np.sort(pairs, axis=0).T]))))
+        pairs = np.array(list(zip(*set([tuple(x) for x in np.sort(pairs, axis=0).T]))))
 
         pos = s.get_positions()
 
@@ -144,20 +140,23 @@ class DipolarCoupling(AtomsProperty):
         npairs = pairs.shape[1]
 
         for b_i in range(0, npairs, block_size):
-            block = pairs.T[b_i:b_i+block_size]
+            block = pairs.T[b_i : b_i + block_size]
             r_ij = pos[block[:, 1]] - pos[block[:, 0]]
             # Reduce to NN
             r_ij, _ = minimum_periodic(r_ij, s.get_cell(), exclude_self=True)
             # Distance
             R_ij = np.linalg.norm(r_ij, axis=1)
             # Versors
-            v_ij = np.concatenate([v_ij, r_ij/R_ij[:, None]], axis=0)
+            v_ij = np.concatenate([v_ij, r_ij / R_ij[:, None]], axis=0)
             # Couplings
-            d_ij = np.concatenate([d_ij,
-                                   _dip_constant(R_ij*1e-10,
-                                                 gammas[block[:, 0]],
-                                                 gammas[block[:, 1]])
-                                   ])
+            d_ij = np.concatenate(
+                [
+                    d_ij,
+                    _dip_constant(
+                        R_ij * 1e-10, gammas[block[:, 0]], gammas[block[:, 1]]
+                    ),
+                ]
+            )
 
         return {tuple(ij): [d_ij[l], v_ij[l]] for l, ij in enumerate(pairs.T)}
 
@@ -213,32 +212,43 @@ class DipolarTensor(AtomsProperty):
     |                               tensors after fast averaging around the
     |                               given axis. Default is None.
 
-    | Returns: 
+    | Returns:
     |   dip_dict (dict): Dictionary of tensors in Hz by atomic index pair.
 
     """
 
-    default_name = 'dip_coupling'
+    default_name = "dip_coupling"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'block_size': 1000,
-        'rotation_axis': None,
+        "sel_i": None,
+        "sel_j": None,
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "block_size": 1000,
+        "rotation_axis": None,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
-                block_size, rotation_axis):
+    def extract(
+        s,
+        sel_i,
+        sel_j,
+        isotopes,
+        isotope_list,
+        self_coupling,
+        block_size,
+        rotation_axis,
+    ):
 
-        dip_dict = DipolarCoupling.extract(s,
-                                           sel_i=sel_i, sel_j=sel_j,
-                                           isotopes=isotopes,
-                                           isotope_list=isotope_list,
-                                           self_coupling=self_coupling,
-                                           block_size=block_size)
+        dip_dict = DipolarCoupling.extract(
+            s,
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            block_size=block_size,
+        )
 
         # Now build the tensors
         tdict = {}
@@ -282,37 +292,36 @@ class DipolarDiagonal(AtomsProperty):
     |                     chunks of pairs. Necessary to avoid memory problems
     |                     for very large systems. Default is 1000.
 
-    | Returns: 
+    | Returns:
     |   dip_tens_dict (dict): Dictionary of dipolar eigenvalues (in Hz) and
     |                         eigenvectors, by atomic index pair.
 
     """
 
-    default_name = 'dip_diagonal'
+    default_name = "dip_diagonal"
     default_params = {
-        'sel_i': None,
-        'sel_j': None,
-        'isotopes': {},
-        'isotope_list': None,
-        'self_coupling': False,
-        'block_size': 1000
+        "sel_i": None,
+        "sel_j": None,
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "block_size": 1000,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling,
-                block_size):
+    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size):
 
         # First, just get the values
-        dip_dict = DipolarCoupling.extract(s, sel_i, sel_j,
-                                           isotopes, isotope_list,
-                                           self_coupling, block_size)
+        dip_dict = DipolarCoupling.extract(
+            s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size
+        )
 
         # Now build the tensors
         dip_tens_dict = {}
 
         for ij, (d, v) in dip_dict.items():
 
-            evals = np.array([-d, -d, 2*d])
+            evals = np.array([-d, -d, 2 * d])
             # Eigenvectors
             evecs = np.zeros((3, 3))
             # Z is equal to v
@@ -324,7 +333,7 @@ class DipolarDiagonal(AtomsProperty):
             # X = Y cross Z
             evecs[:, 0] = np.cross(evecs[:, 1], v)
 
-            dip_tens_dict[ij] = {'evals': evals, 'evecs': evecs}
+            dip_tens_dict[ij] = {"evals": evals, "evecs": evecs}
 
         return dip_tens_dict
 
@@ -357,12 +366,12 @@ class DipolarRSS(AtomsProperty):
 
     """
 
-    default_name = 'dip_rss'
+    default_name = "dip_rss"
     default_params = {
-        'cutoff': 5.0,
-        'isonuclear': False,
-        'isotopes': {},
-        'isotope_list': None,
+        "cutoff": 5.0,
+        "isonuclear": False,
+        "isotopes": {},
+        "isotope_list": None,
     }
 
     @staticmethod
@@ -375,7 +384,7 @@ class DipolarRSS(AtomsProperty):
         pos = s.get_positions()
         elems = np.array(s.get_chemical_symbols())
 
-        gammas = _get_isotope_data(elems, 'gamma', isotopes, isotope_list)
+        gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
 
         dip_rss = []
 
@@ -388,17 +397,17 @@ class DipolarRSS(AtomsProperty):
             else:
                 rij = pos[np.where(elems == el)]
                 gj = gammas[i]
-            rij = rij[None, :, :]+scell[:, None, :]-pos[i, None, None]
+            rij = rij[None, :, :] + scell[:, None, :] - pos[i, None, None]
             Rij = np.linalg.norm(rij.reshape((-1, 3)), axis=-1)
             # Valid indices?
             ij = np.where((Rij > 0) & (Rij <= cutoff))
-            Rij = Rij[ij]*1e-10
+            Rij = Rij[ij] * 1e-10
             try:
                 gj = gj[ij]
             except IndexError:
                 pass
 
             dip = _dip_constant(Rij, gammas[i], gj)
-            dip_rss.append(np.sqrt(np.sum(dip**2)))
+            dip_rss.append(np.sqrt(np.sum(dip ** 2)))
 
         return np.array(dip_rss)

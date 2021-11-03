@@ -16,8 +16,8 @@
 
 """Generator producing structures interpolated between two extremes"""
 
-import os
 import numpy as np
+
 # Internal imports
 import soprano.utils as utils
 
@@ -50,25 +50,27 @@ def linspaceGen(struct_0, struct_1, steps=10, periodic=False):
     chem1 = struct_1.get_chemical_symbols()
 
     if chem0 != chem1:
-        raise RuntimeError('The two structures passed to linspaceGen do not '
-                           'have the same chemical composition')
+        raise RuntimeError(
+            "The two structures passed to linspaceGen do not "
+            "have the same chemical composition"
+        )
 
     pos0 = struct_0.get_positions()
     pos1 = struct_1.get_positions()
 
-    rootname = struct_0.info['name'] if 'name' in struct_0.info else 'linspace'
+    rootname = struct_0.info["name"] if "name" in struct_0.info else "linspace"
 
     # Adjust pos1 to be periodic if asked to
     if periodic:
-        dpos = pos1-pos0
+        dpos = pos1 - pos0
         dpos = utils.minimum_periodic(dpos, struct_0.get_cell())[0]
-        pos1 = pos0+dpos
+        pos1 = pos0 + dpos
 
     for i, t in enumerate(np.linspace(0, 1, steps)):
 
-        pos = pos0*(1-t)+pos1*t
+        pos = pos0 * (1 - t) + pos1 * t
         struct = struct_0.copy()
         struct.set_positions(pos)
-        struct.info['name'] = '{0}_{1}'.format(rootname, i)
+        struct.info["name"] = "{0}_{1}".format(rootname, i)
 
         yield struct

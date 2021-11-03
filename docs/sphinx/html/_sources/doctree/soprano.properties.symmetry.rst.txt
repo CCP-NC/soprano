@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.properties.symmetry.symmetry
    soprano.properties.symmetry.utils

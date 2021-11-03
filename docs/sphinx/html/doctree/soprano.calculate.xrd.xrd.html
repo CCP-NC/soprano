@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.calculate.xrd.xrd module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.xrd.html" accesskey="U">soprano.calculate.xrd package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.xrd.html" accesskey="U">soprano.calculate.xrd package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.xrd.xrd module</a></li> 
       </ul>
     </div>  
 
@@ -48,13 +49,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.calculate.xrd.xrd">
+  <section id="module-soprano.calculate.xrd.xrd">
 <span id="soprano-calculate-xrd-xrd-module"></span><h1>soprano.calculate.xrd.xrd module<a class="headerlink" href="#module-soprano.calculate.xrd.xrd" title="Permalink to this headline">¶</a></h1>
 <p>Classes and functions for simulating X-ray diffraction
 spectroscopic results from structures.</p>
-<dl class="class">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.calculate.xrd.xrd.</code><code class="sig-name descname">XRDCalculator</code><span class="sig-paren">(</span><em class="sig-param">lambdax=1.54056</em>, <em class="sig-param">theta2_digits=6</em>, <em class="sig-param">baseline=0.0</em>, <em class="sig-param">peak_func=None</em>, <em class="sig-param">peak_f_args=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">XRDCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambdax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.54056</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta2_digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_f_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class implementing methods for XRD simulations, comparisons and
 fittings.</p>
@@ -103,9 +104,9 @@ fittings.</p>
 </div>
 </div>
 </div>
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.dataset_range">
-<code class="sig-name descname">dataset_range</code><span class="sig-paren">(</span><em class="sig-param">xpeaks</em>, <em class="sig-param">theta2_range=(None</em>, <em class="sig-param">None)</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.dataset_range" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.dataset_range">
+<span class="sig-name descname"><span class="pre">dataset_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta2_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.dataset_range" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Restrict the given dataset (XraySpectrum or XraySpectrumData) to</dt><dd><p>only the values that lie within a certain theta2 range.</p>
 </dd>
@@ -138,9 +139,9 @@ fittings.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset">
-<code class="sig-name descname">exp_dataset</code><span class="sig-paren">(</span><em class="sig-param">th2_axis</em>, <em class="sig-param">int_axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset">
+<span class="sig-name descname"><span class="pre">exp_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">th2_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build an experimental dataset as an XraySpectrumData object.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -166,9 +167,9 @@ fittings.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit">
-<code class="sig-name descname">lebail_fit</code><span class="sig-paren">(</span><em class="sig-param">xpeaks</em>, <em class="sig-param">exp_spec</em>, <em class="sig-param">rwp_tol=0.01</em>, <em class="sig-param">max_iter=100</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit">
+<span class="sig-name descname"><span class="pre">lebail_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rwp_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform a refining on an XraySpectrum object’s intensities based on
 experimental data with leBail’s method.</p>
 <div class="line-block">
@@ -217,22 +218,22 @@ experimental data with leBail’s method.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args">
-<em class="property">property </em><code class="sig-name descname">peak_f_args</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">peak_f_args</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args" title="Permalink to this definition">¶</a></dt>
 <dd><p>Additional arguments to be passed to peak_func</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.peak_func">
-<em class="property">property </em><code class="sig-name descname">peak_func</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_func" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.peak_func">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">peak_func</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>The function used to build peaks in simulated spectra</p>
 <p>Should be of form peak_func(theta2, peak_position, *peak_f_args)</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks">
-<code class="sig-name descname">powder_peaks</code><span class="sig-paren">(</span><em class="sig-param">atoms=None</em>, <em class="sig-param">latt_abc=None</em>, <em class="sig-param">n=1</em>, <em class="sig-param">o='all'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks">
+<span class="sig-name descname"><span class="pre">powder_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt_abc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the peaks (without intensities) of a powder
 XRD spectrum given either an Atoms object or the lattice in ABC form
 and the spacegroup indices to apply the selection rules</p>
@@ -273,9 +274,9 @@ and the spacegroup indices to apply the selection rules</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func">
-<code class="sig-name descname">set_peak_func</code><span class="sig-paren">(</span><em class="sig-param">peak_func=None</em>, <em class="sig-param">peak_f_args=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func">
+<span class="sig-name descname"><span class="pre">set_peak_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_f_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set a new peak_func for this XDRCalculator. If no new function is
 passed, reset the default Gaussian function.</p>
 <div class="line-block">
@@ -309,9 +310,9 @@ passed, reset the default Gaussian function.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.spec_simul">
-<code class="sig-name descname">spec_simul</code><span class="sig-paren">(</span><em class="sig-param">xpeaks</em>, <em class="sig-param">th2_axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.spec_simul">
+<span class="sig-name descname"><span class="pre">spec_simul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th2_axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate an XRD spectrum given positions of peaks, intensities,
 baseline, and a peak function (a Gaussian by default).</p>
 <div class="line-block">
@@ -347,71 +348,72 @@ baseline, and a peak function (a Gaussian by default).</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.calculate.xrd.xrd.</code><code class="sig-name descname">XraySpectrum</code><span class="sig-paren">(</span><em class="sig-param">theta2</em>, <em class="sig-param">hkl</em>, <em class="sig-param">hkl_unique</em>, <em class="sig-param">invd</em>, <em class="sig-param">intensity</em>, <em class="sig-param">lambdax</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">XraySpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl_unique</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of XraySpectrum(theta2, hkl, hkl_unique, invd, intensity, lambdax)</p>
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.hkl">
-<em class="property">property </em><code class="sig-name descname">hkl</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.hkl">
+<span class="sig-name descname"><span class="pre">hkl</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique">
-<em class="property">property </em><code class="sig-name descname">hkl_unique</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique">
+<span class="sig-name descname"><span class="pre">hkl_unique</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.intensity">
-<em class="property">property </em><code class="sig-name descname">intensity</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.intensity">
+<span class="sig-name descname"><span class="pre">intensity</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 4</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.invd">
-<em class="property">property </em><code class="sig-name descname">invd</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.invd">
+<span class="sig-name descname"><span class="pre">invd</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.lambdax">
-<em class="property">property </em><code class="sig-name descname">lambdax</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.lambdax">
+<span class="sig-name descname"><span class="pre">lambdax</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 5</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.theta2">
-<em class="property">property </em><code class="sig-name descname">theta2</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.theta2" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.theta2">
+<span class="sig-name descname"><span class="pre">theta2</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.theta2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.calculate.xrd.xrd.</code><code class="sig-name descname">XraySpectrumData</code><span class="sig-paren">(</span><em class="sig-param">theta2</em>, <em class="sig-param">intensity</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">XraySpectrumData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of XraySpectrumData(theta2, intensity)</p>
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.intensity">
-<em class="property">property </em><code class="sig-name descname">intensity</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData.intensity">
+<span class="sig-name descname"><span class="pre">intensity</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.theta2">
-<em class="property">property </em><code class="sig-name descname">theta2</code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData.theta2">
+<span class="sig-name descname"><span class="pre">theta2</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -442,7 +444,7 @@ baseline, and a peak function (a Gaussian by default).</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -471,12 +473,13 @@ baseline, and a peak function (a Gaussian by default).</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.calculate.html" >soprano.calculate package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.calculate.xrd.html" >soprano.calculate.xrd package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.calculate.xrd.html" >soprano.calculate.xrd package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.calculate.xrd.xrd module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

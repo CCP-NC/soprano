@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.analyse.phylogen.genes module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.analyse.html" >soprano.analyse package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.analyse.phylogen.html" accesskey="U">soprano.analyse.phylogen package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.analyse.phylogen.html" accesskey="U">soprano.analyse.phylogen package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.analyse.phylogen.genes module</a></li> 
       </ul>
     </div>  
 
@@ -48,12 +49,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.analyse.phylogen.genes">
+  <section id="module-soprano.analyse.phylogen.genes">
 <span id="soprano-analyse-phylogen-genes-module"></span><h1>soprano.analyse.phylogen.genes module<a class="headerlink" href="#module-soprano.analyse.phylogen.genes" title="Permalink to this headline">¶</a></h1>
 <p>Definitions for the various genes used by PhylogenCluster</p>
-<dl class="class">
-<dt id="soprano.analyse.phylogen.genes.Gene">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">Gene</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">weight=1.0</em>, <em class="sig-param">params={}</em>, <em class="sig-param">parser=None</em>, <em class="sig-param">pair=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.Gene">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">Gene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A description of a property, a ‘gene’, characterizing a structure, to be
 used with a PhylogenCluster. A number of default genes is provided, but
@@ -90,15 +91,15 @@ can be used in a .genefile with the phylogen.py script though.</p>
 </div>
 </div>
 </div>
-<dl class="method">
-<dt id="soprano.analyse.phylogen.genes.Gene.evaluate">
-<code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.evaluate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.Gene.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.evaluate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the gene on a given AtomsCollection</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.analyse.phylogen.genes.Gene.is_pair">
-<em class="property">property </em><code class="sig-name descname">is_pair</code><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.is_pair" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.Gene.is_pair">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_pair</span></span><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.is_pair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether the gene can only compare a pair of structures or can also
 give an absolute value for each structure individually (required for
 k-means clustering)</p>
@@ -106,34 +107,34 @@ k-means clustering)</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.analyse.phylogen.genes.GeneDictionary">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">GeneDictionary</code><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.GeneDictionary">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">GeneDictionary</span></span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Container class holding gene definitions</p>
-<dl class="method">
-<dt id="soprano.analyse.phylogen.genes.GeneDictionary.get_gene">
-<em class="property">classmethod </em><code class="sig-name descname">get_gene</code><span class="sig-paren">(</span><em class="sig-param">g</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.get_gene" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.GeneDictionary.get_gene">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_gene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.get_gene" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the definition for a given gene</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.analyse.phylogen.genes.GeneDictionary.help">
-<em class="property">classmethod </em><code class="sig-name descname">help</code><span class="sig-paren">(</span><em class="sig-param">g=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.help" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.GeneDictionary.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get an help string for a given gene</p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="exception">
-<dt id="soprano.analyse.phylogen.genes.GeneError">
-<em class="property">exception </em><code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">GeneError</code><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneError" title="Permalink to this definition">¶</a></dt>
+<dl class="py exception">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.GeneError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">GeneError</span></span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.load_genefile">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">load_genefile</code><span class="sig-paren">(</span><em class="sig-param">gfile</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.load_genefile" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.load_genefile">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">load_genefile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.load_genefile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a gene file and return the (validated) list of genes contained
 within.</p>
 <div class="line-block">
@@ -153,104 +154,105 @@ within.</p>
 </div>
 </dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_bond_order">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_bond_order</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">s1=None</em>, <em class="sig-param">s2=None</em>, <em class="sig-param">channels=10</em>, <em class="sig-param">cutoff_radius=2.0</em>, <em class="sig-param">cutoff_width=0.05</em>, <em class="sig-param">mode='Q'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_bond_order" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_bond_order">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_bond_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Q'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_bond_order" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_coord_histogram">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_coord_histogram</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">s1='C'</em>, <em class="sig-param">s2='H'</em>, <em class="sig-param">max_coord=6</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_coord_histogram" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_coord_histogram">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_coord_histogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_coord_histogram" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fdist">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_defect_asymmetric_fdist</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">index=0</em>, <em class="sig-param">struct=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fdist" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fdist">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_defect_asymmetric_fdist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fdist" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fpos">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_defect_asymmetric_fpos</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">index=0</em>, <em class="sig-param">struct=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fpos" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fpos">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_defect_asymmetric_fpos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_defect_asymmetric_fpos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_energy">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_energy</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_energy" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_energy">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_energy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_angle">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_hbonds_angle</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_angle" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_hbonds_angle">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_hbonds_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_angle" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_fprint">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_hbonds_fprint</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_fprint" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_hbonds_fprint">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_hbonds_fprint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_fprint" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_length">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_hbonds_length</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_length" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_hbonds_length">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_hbonds_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_length" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_hbonds_site_compare</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_hbonds_site_compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_site_compare" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_hbonds_site_reference</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">ref=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_hbonds_site_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_site_reference" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_hbonds_totn">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_hbonds_totn</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_totn" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_hbonds_totn">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_hbonds_totn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_hbonds_totn" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_latt_abc">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_latt_abc</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_abc" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_latt_abc">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_latt_abc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_abc" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_latt_ang">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_latt_ang</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_ang" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_latt_ang">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_latt_ang</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_ang" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_latt_cart">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_latt_cart</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_cart" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_latt_cart">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_latt_cart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_latt_cart" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_linkage_list">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_linkage_list</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">size=0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_linkage_list" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_linkage_list">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_linkage_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_linkage_list" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_mol_com">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_mol_com</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">Z=0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_com" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_mol_com">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_mol_com</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_com" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_mol_m">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_mol_m</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">Z=0</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_m" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_mol_m">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_mol_m</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_m" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_mol_num">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_mol_num</code><span class="sig-paren">(</span><em class="sig-param">c</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_num" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_mol_num">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_mol_num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_num" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
-<dt id="soprano.analyse.phylogen.genes.parsegene_mol_rot">
-<code class="sig-prename descclassname">soprano.analyse.phylogen.genes.</code><code class="sig-name descname">parsegene_mol_rot</code><span class="sig-paren">(</span><em class="sig-param">c</em>, <em class="sig-param">Z=0</em>, <em class="sig-param">twist_axis=None</em>, <em class="sig-param">swing_plane=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_rot" title="Permalink to this definition">¶</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="soprano.analyse.phylogen.genes.parsegene_mol_rot">
+<span class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></span><span class="sig-name descname"><span class="pre">parsegene_mol_rot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twist_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swing_plane</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.parsegene_mol_rot" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -281,7 +283,7 @@ within.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -310,12 +312,13 @@ within.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.analyse.html" >soprano.analyse package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.analyse.phylogen.html" >soprano.analyse.phylogen package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.analyse.phylogen.html" >soprano.analyse.phylogen package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.analyse.phylogen.genes module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

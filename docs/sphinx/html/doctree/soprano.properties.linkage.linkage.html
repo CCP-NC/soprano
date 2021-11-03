@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.properties.linkage.linkage module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -39,7 +39,8 @@
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.linkage.html" accesskey="U">soprano.properties.linkage package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.properties.linkage.html" accesskey="U">soprano.properties.linkage package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.properties.linkage.linkage module</a></li> 
       </ul>
     </div>  
 
@@ -48,12 +49,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.properties.linkage.linkage">
+  <section id="module-soprano.properties.linkage.linkage">
 <span id="soprano-properties-linkage-linkage-module"></span><h1>soprano.properties.linkage.linkage module<a class="headerlink" href="#module-soprano.properties.linkage.linkage" title="Permalink to this headline">¶</a></h1>
 <p>Implementation of AtomsProperties that relate to linkage of atoms</p>
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.BondGraph">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">BondGraph</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.BondGraph">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">BondGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Bond graph returns a networkx graph of the molecules in the structure. To
 use this property you must have the networkx library installed.</p>
@@ -90,19 +91,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.BondGraph.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'bond_graph'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.BondGraph.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'bond_graph'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.BondGraph.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'save_info': True}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.BondGraph.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'save_info':</span> <span class="pre">True}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.BondGraph.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.BondGraph.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.BondGraph.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -127,9 +128,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.Bonds">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">Bonds</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Bonds">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">Bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces an array of tuples identifying all bonds existing within the
 system (calculated using Van der Waals radii). The tuples are structured
@@ -144,7 +145,7 @@ another throughout two different periodic boundaries is not accounted for.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
 <div class="line-block">
-<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default </div>
+<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</div>
 <div class="line-block">
 <div class="line">is csd [S. Alvarez, 2013].</div>
 </div>
@@ -195,19 +196,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.Bonds.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'bonds'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Bonds.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'bonds'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.Bonds.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'default_vdw': 2.0, 'return_matrix': False, 'save_info': True, 'vdw_custom': {}, 'vdw_scale': 1.0, 'vdw_set': 'csd'}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Bonds.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'default_vdw':</span> <span class="pre">2.0,</span> <span class="pre">'return_matrix':</span> <span class="pre">False,</span> <span class="pre">'save_info':</span> <span class="pre">True,</span> <span class="pre">'vdw_custom':</span> <span class="pre">{},</span> <span class="pre">'vdw_scale':</span> <span class="pre">1.0,</span> <span class="pre">'vdw_set':</span> <span class="pre">'csd'}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.Bonds.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">vdw_set</em>, <em class="sig-param">vdw_scale</em>, <em class="sig-param">default_vdw</em>, <em class="sig-param">vdw_custom</em>, <em class="sig-param">return_matrix</em>, <em class="sig-param">save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Bonds.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_vdw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_custom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Bonds.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -232,9 +233,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.CoordinationHistogram">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">CoordinationHistogram</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.CoordinationHistogram">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">CoordinationHistogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces an histogram representing, for each pair of species present in
 the system, how many atoms of species 1 have n bonds with species 2, n
@@ -246,7 +247,7 @@ search; otherwise a full histogram for all pairs of species is returned.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
 <div class="line-block">
-<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default </div>
+<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</div>
 <div class="line-block">
 <div class="line">is csd [S. Alvarez, 2013].</div>
 </div>
@@ -303,19 +304,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.CoordinationHistogram.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'coord_histogram'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.CoordinationHistogram.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'coord_histogram'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.CoordinationHistogram.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'default_vdw': 2.0, 'max_coord': 6, 'species_1': None, 'species_2': None, 'vdw_custom': {}, 'vdw_scale': 1.0, 'vdw_set': 'csd'}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.CoordinationHistogram.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'default_vdw':</span> <span class="pre">2.0,</span> <span class="pre">'max_coord':</span> <span class="pre">6,</span> <span class="pre">'species_1':</span> <span class="pre">None,</span> <span class="pre">'species_2':</span> <span class="pre">None,</span> <span class="pre">'vdw_custom':</span> <span class="pre">{},</span> <span class="pre">'vdw_scale':</span> <span class="pre">1.0,</span> <span class="pre">'vdw_set':</span> <span class="pre">'csd'}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.CoordinationHistogram.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">vdw_set</em>, <em class="sig-param">vdw_scale</em>, <em class="sig-param">default_vdw</em>, <em class="sig-param">vdw_custom</em>, <em class="sig-param">species_1</em>, <em class="sig-param">species_2</em>, <em class="sig-param">max_coord</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.CoordinationHistogram.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_vdw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_custom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_coord</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.CoordinationHistogram.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -340,9 +341,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.DihedralAngleList">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">DihedralAngleList</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.DihedralAngleList">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">DihedralAngleList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces a list of dihedral angles found in the system, identified by
 looking for a bonding pattern. The amount of said angles can vary from
@@ -385,19 +386,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.DihedralAngleList.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'dihedral_angle_list'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.DihedralAngleList.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'dihedral_angle_list'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.DihedralAngleList.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'bonds_params': {}, 'dihedral_pattern': ['H', 'C', 'C', 'H']}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.DihedralAngleList.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'bonds_params':</span> <span class="pre">{},</span> <span class="pre">'dihedral_pattern':</span> <span class="pre">['H',</span> <span class="pre">'C',</span> <span class="pre">'C',</span> <span class="pre">'H']}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.DihedralAngleList.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">dihedral_pattern</em>, <em class="sig-param">bonds_params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.DihedralAngleList.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dihedral_pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds_params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.DihedralAngleList.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -422,9 +423,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.HydrogenBonds">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">HydrogenBonds</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBonds">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">HydrogenBonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Hydrogen Bonds</p>
 <p>Produces a dictionary containing the atom indices defining hydrogen bonds
@@ -435,7 +436,7 @@ bonded to the proton and B the one of the hydrogen bonded one.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
 <div class="line-block">
-<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default </div>
+<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</div>
 <div class="line-block">
 <div class="line">is csd [S. Alvarez, 2013].</div>
 </div>
@@ -494,19 +495,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.HydrogenBonds.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'hydrogen_bonds'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBonds.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'hydrogen_bonds'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.HydrogenBonds.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'default_vdw': 2.0, 'hbond_elems': ['O', 'N'], 'max_angle': 45.0, 'max_length': 3.5, 'save_info': True, 'vdw_custom': {}, 'vdw_scale': 1.0, 'vdw_set': 'csd'}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBonds.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'default_vdw':</span> <span class="pre">2.0,</span> <span class="pre">'hbond_elems':</span> <span class="pre">['O',</span> <span class="pre">'N'],</span> <span class="pre">'max_angle':</span> <span class="pre">45.0,</span> <span class="pre">'max_length':</span> <span class="pre">3.5,</span> <span class="pre">'save_info':</span> <span class="pre">True,</span> <span class="pre">'vdw_custom':</span> <span class="pre">{},</span> <span class="pre">'vdw_scale':</span> <span class="pre">1.0,</span> <span class="pre">'vdw_set':</span> <span class="pre">'csd'}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.HydrogenBonds.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">vdw_set</em>, <em class="sig-param">vdw_scale</em>, <em class="sig-param">default_vdw</em>, <em class="sig-param">vdw_custom</em>, <em class="sig-param">hbond_elems</em>, <em class="sig-param">max_length</em>, <em class="sig-param">max_angle</em>, <em class="sig-param">save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBonds.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_vdw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_custom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hbond_elems</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBonds.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -531,9 +532,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.HydrogenBondsNumber">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">HydrogenBondsNumber</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBondsNumber">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">HydrogenBondsNumber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Number of hydrogen bonds detected in this system, classified by type.
 By default will use already existing hydrogen bonds if they’re present as
@@ -567,19 +568,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'hydrogen_bonds_n'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'hydrogen_bonds_n'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.HydrogenBondsNumber.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBondsNumber.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.HydrogenBondsNumber.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.HydrogenBondsNumber.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.HydrogenBondsNumber.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -604,9 +605,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.LinkageList">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">LinkageList</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.LinkageList">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">LinkageList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces an array containing the atomic pair distances in a system,
 reduced to their shortest periodic version and sorted min to max.</p>
@@ -649,19 +650,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.LinkageList.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'linkage_list'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.LinkageList.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'linkage_list'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.LinkageList.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'return_pairs': False, 'size': 0}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.LinkageList.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'return_pairs':</span> <span class="pre">False,</span> <span class="pre">'size':</span> <span class="pre">0}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.LinkageList.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">size</em>, <em class="sig-param">return_pairs</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.LinkageList.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_pairs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.LinkageList.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -686,9 +687,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOM">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">MoleculeCOM</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOM">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeCOM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>List of centers of mass for the molecules present in the system. By
 default will use already existing molecules if they’re present as a saved
@@ -725,19 +726,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOM.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_com'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOM.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_com'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOM.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOM.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOM.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOM.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOM.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -762,9 +763,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOMLinkage">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">MoleculeCOMLinkage</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOMLinkage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeCOMLinkage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Linkage list - following the same criteria as the atomic one - calculated
 for the centers of mass of the molecules present in the system. By default
@@ -807,19 +808,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_com_linkage'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_com_linkage'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'size': 0}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'size':</span> <span class="pre">0}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -844,9 +845,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.MoleculeMass">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">MoleculeMass</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeMass">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeMass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Total mass of each of the molecules detected in this system. By default
 will use already existing molecules if they’re present as a saved array in
@@ -885,19 +886,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeMass.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_mass'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeMass.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_mass'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeMass.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'size': 0}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeMass.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'size':</span> <span class="pre">0}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.MoleculeMass.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeMass.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeMass.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -922,9 +923,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.MoleculeNumber">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">MoleculeNumber</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeNumber">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeNumber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Number of molecules detected in this system. By default will use already
 existing molecules if they’re present as a saved array in the system.</p>
@@ -957,19 +958,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeNumber.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_n'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeNumber.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_n'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeNumber.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeNumber.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.MoleculeNumber.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeNumber.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeNumber.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -994,9 +995,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">MoleculeQuaternion</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeQuaternion">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeQuaternion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>A list of quaternions expressing the rotation of the molecule’s intertia
 tensor principal frame with respect to the cartesian axes.</p>
@@ -1029,19 +1030,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_quaternion'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeQuaternion.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_quaternion'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeQuaternion.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.MoleculeQuaternion.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeQuaternion.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeQuaternion.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -1066,9 +1067,9 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.MoleculeRelativeRotation">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">MoleculeRelativeRotation</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeRelativeRotation">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeRelativeRotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>A list of relative rotations between molecules. Uses the inertia tensor
 eigenvectors to establish a local frame for each molecule, then uses
@@ -1127,19 +1128,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecule_rel_rotation'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_rel_rotation'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'force_recalc': False, 'size': 0, 'swing_plane': None, 'twist_axis': None}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False,</span> <span class="pre">'size':</span> <span class="pre">0,</span> <span class="pre">'swing_plane':</span> <span class="pre">None,</span> <span class="pre">'twist_axis':</span> <span class="pre">None}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">force_recalc</em>, <em class="sig-param">size</em>, <em class="sig-param">swing_plane</em>, <em class="sig-param">twist_axis</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swing_plane</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twist_axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -1164,9 +1165,84 @@ object.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="soprano.properties.linkage.linkage.Molecules">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.properties.linkage.linkage.</code><code class="sig-name descname">Molecules</code><span class="sig-paren">(</span><em class="sig-param">name=None</em>, <em class="sig-param">**params</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeSpectralSort">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">MoleculeSpectralSort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeSpectralSort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
+<p>Reorder molecules to have their indices sorted using a spectral
+sorting method based on the Fiedler vector of their bonding graph. This
+sorting should be equivalent for equivalent molecules - except for the
+arbitrary ordering of equivalent atoms.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">mol_specsort ([np.ndarray]): list of Molecules with indices sorted by
+spectral method.</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeSpectralSort.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecule_specsort'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeSpectralSort.default_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeSpectralSort.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'force_recalc':</span> <span class="pre">False}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeSpectralSort.default_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.MoleculeSpectralSort.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.MoleculeSpectralSort.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Molecules">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.properties.linkage.linkage.</span></span><span class="sig-name descname"><span class="pre">Molecules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="soprano.properties.atomsproperty.html#soprano.properties.atomsproperty.AtomsProperty" title="soprano.properties.atomsproperty.AtomsProperty"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></a></p>
 <p>Produces an array containing multiple AtomSelection objects representing
 molecules in the system as found by connecting atoms closer than the half
@@ -1175,7 +1251,7 @@ the system can not be split in molecules at all.</p>
 <div class="line-block">
 <div class="line">Parameters:</div>
 <div class="line-block">
-<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default </div>
+<div class="line">vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</div>
 <div class="line-block">
 <div class="line">is csd [S. Alvarez, 2013].</div>
 </div>
@@ -1222,19 +1298,19 @@ only argument to get the property with the given parameters.</p>
 <div class="line">params: named arguments specific to this type of property</div>
 </div>
 </div>
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.Molecules.default_name">
-<code class="sig-name descname">default_name</code><em class="property"> = 'molecules'</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.default_name" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Molecules.default_name">
+<span class="sig-name descname"><span class="pre">default_name</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'molecules'</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.default_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="soprano.properties.linkage.linkage.Molecules.default_params">
-<code class="sig-name descname">default_params</code><em class="property"> = {'default_vdw': 2.0, 'save_info': True, 'vdw_custom': {}, 'vdw_scale': 1.0, 'vdw_set': 'csd'}</em><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.default_params" title="Permalink to this definition">¶</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Molecules.default_params">
+<span class="sig-name descname"><span class="pre">default_params</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'default_vdw':</span> <span class="pre">2.0,</span> <span class="pre">'save_info':</span> <span class="pre">True,</span> <span class="pre">'vdw_custom':</span> <span class="pre">{},</span> <span class="pre">'vdw_scale':</span> <span class="pre">1.0,</span> <span class="pre">'vdw_set':</span> <span class="pre">'csd'}</span></em><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.default_params" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.properties.linkage.linkage.Molecules.extract">
-<em class="property">static </em><code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">s</em>, <em class="sig-param">vdw_set</em>, <em class="sig-param">vdw_scale</em>, <em class="sig-param">default_vdw</em>, <em class="sig-param">vdw_custom</em>, <em class="sig-param">save_info</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.extract" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.properties.linkage.linkage.Molecules.extract">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_vdw</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdw_custom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_info</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.linkage.linkage.Molecules.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the given property with given parameters from an Atoms
 object.</p>
 <div class="line-block">
@@ -1259,9 +1335,10 @@ object.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -1292,7 +1369,7 @@ object.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1321,12 +1398,13 @@ object.</p>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
           <li class="nav-item nav-item-3"><a href="soprano.properties.html" >soprano.properties package</a> &#187;</li>
-          <li class="nav-item nav-item-4"><a href="soprano.properties.linkage.html" >soprano.properties.linkage package</a> &#187;</li> 
+          <li class="nav-item nav-item-4"><a href="soprano.properties.linkage.html" >soprano.properties.linkage package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.properties.linkage.linkage module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

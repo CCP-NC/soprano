@@ -27,6 +27,7 @@ import copy
 import hashlib
 import subprocess as sp
 from ase import io as ase_io
+
 # Internal imports
 from soprano.utils import seedname, safe_communicate
 
@@ -37,11 +38,13 @@ except ImportError:
     from io import StringIO
 
 
-def airssGen(input_file,
-             n=100,
-             buildcell_command='buildcell',
-             buildcell_path=None,
-             clone_calc=True):
+def airssGen(
+    input_file,
+    n=100,
+    buildcell_command="buildcell",
+    buildcell_path=None,
+    clone_calc=True,
+):
     """Generator function binding to AIRSS' Buildcell.
 
     This function searches for a buildcell executable and uses it to
@@ -73,22 +76,22 @@ def airssGen(input_file,
 
     # First: check that AIRSS is even installed
     if buildcell_path is None:
-        buildcell_path = ''
+        buildcell_path = ""
     airss_cmd = [os.path.join(buildcell_path, buildcell_command)]
 
     try:
-        stdout, stderr = sp.Popen(airss_cmd + ['-h'],
-                                  stdout=sp.PIPE,
-                                  stderr=sp.PIPE).communicate()
+        stdout, stderr = sp.Popen(
+            airss_cmd + ["-h"], stdout=sp.PIPE, stderr=sp.PIPE
+        ).communicate()
     except OSError:
         # Not even installed!
-        raise RuntimeError('No instance of Buildcell found on this system')
+        raise RuntimeError("No instance of Buildcell found on this system")
 
     # Now open the given input file
     try:
-        input_file = open(input_file)   # If it's a string
+        input_file = open(input_file)  # If it's a string
     except TypeError:
-        pass                            # If it's already a file
+        pass  # If it's already a file
     template = input_file.read()
     # Now get the file name
     basename = seedname(input_file.name)
@@ -110,26 +113,29 @@ def airssGen(input_file,
             i += 1
 
         # Generate a structure
-        subproc = sp.Popen(airss_cmd,
-                           universal_newlines=True,
-                           stdin=sp.PIPE,
-                           stdout=sp.PIPE,
-                           stderr=sp.PIPE)
+        subproc = sp.Popen(
+            airss_cmd,
+            universal_newlines=True,
+            stdin=sp.PIPE,
+            stdout=sp.PIPE,
+            stderr=sp.PIPE,
+        )
         stdout, stderr = safe_communicate(subproc, template)
 
         # Now turn it into a proper Atoms object
         # To do this we need to make it look like a file to ASE's io.read
         try:
-            newcell = ase_io.read(StringIO(stdout), format='castep-cell')
-        except:
+            newcell = ase_io.read(StringIO(stdout), format="castep-cell")
+        except Exception:
             # If ANYTHING happens, let's consider that stdout might be wrong
-            raise RuntimeError(('Invalid output from buildcell:\nstdout:\n{0}'
-                                '\nstderr:\n{1}')
-                               .format(stdout, stderr))
+            raise RuntimeError(
+                (
+                    "Invalid output from buildcell:\nstdout:\n{0}" "\nstderr:\n{1}"
+                ).format(stdout, stderr)
+            )
         if clone_calc:
             newcell.calc = copy.deepcopy(calc)
         # Generate it a name, function of its properties
-        postfix = hashlib.md5(str(newcell.get_positions()
-                                  ).encode()).hexdigest()
-        newcell.info['name'] = '{0}_{1}'.format(basename, postfix)
+        postfix = hashlib.md5(str(newcell.get_positions()).encode()).hexdigest()
+        newcell.info["name"] = "{0}_{1}".format(basename, postfix)
         yield newcell

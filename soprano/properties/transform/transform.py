@@ -24,7 +24,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
-from ase import Atoms
 from ase.quaternions import Quaternion
 from soprano.utils import minimum_periodic
 from soprano.properties import AtomsProperty
@@ -32,15 +31,15 @@ from soprano.selection import AtomSelection
 
 
 def _transform_sel_check(extrfunc):
-
     def decorated_extrfunc(s, selection, **kwargs):
 
         # Perform basic checks on selection
         if selection is None:
             selection = AtomSelection.all(s)
         elif not selection.validate(s):
-            raise ValueError('Selection passed to transform does not apply to'
-                             ' system.')
+            raise ValueError(
+                "Selection passed to transform does not apply to" " system."
+            )
 
         return extrfunc(s, selection, **kwargs)
 
@@ -68,11 +67,7 @@ class Translate(AtomsProperty):
     """
 
     default_name = "translated"
-    default_params = {
-        'selection': None,
-        'vector': [0, 0, 0],
-        'scaled': False
-    }
+    default_params = {"selection": None, "vector": [0, 0, 0], "scaled": False}
 
     @staticmethod
     @_transform_sel_check
@@ -80,7 +75,7 @@ class Translate(AtomsProperty):
 
         vector = np.array(vector)
         if vector.shape != (3,):
-            raise ValueError('Invalid vector passed to Translate.')
+            raise ValueError("Invalid vector passed to Translate.")
 
         sT = s.copy()
 
@@ -128,11 +123,11 @@ class Rotate(AtomsProperty):
 
     default_name = "rotated"
     default_params = {
-        'selection': None,
-        'center': [0, 0, 0],
-        'quaternion': None,
-        'scaled': False,
-        'periodic': False,
+        "selection": None,
+        "center": [0, 0, 0],
+        "quaternion": None,
+        "scaled": False,
+        "periodic": False,
     }
 
     @staticmethod
@@ -141,7 +136,7 @@ class Rotate(AtomsProperty):
 
         center = np.array(center)
         if center.shape != (3,):
-            raise ValueError('Invalid center passed to Rotate.')
+            raise ValueError("Invalid center passed to Rotate.")
 
         if quaternion is None:
             quaternion = Quaternion()
@@ -157,8 +152,7 @@ class Rotate(AtomsProperty):
         if periodic:
             ppos, _ = minimum_periodic(pos[selection.indices], s.get_cell())
             pos[selection.indices] = ppos
-        pos[selection.indices] = quaternion \
-            .rotate(pos[selection.indices].T).T
+        pos[selection.indices] = quaternion.rotate(pos[selection.indices].T).T
         pos += center
 
         if not scaled:
@@ -197,28 +191,23 @@ class Mirror(AtomsProperty):
     """
 
     default_name = "reflected"
-    default_params = {
-        'selection': None,
-        'center': None,
-        'plane': None,
-        'scaled': False
-    }
+    default_params = {"selection": None, "center": None, "plane": None, "scaled": False}
 
     @staticmethod
     @_transform_sel_check
     def extract(s, selection, center, plane, scaled):
 
         if plane is not None and center is not None:
-            raise ValueError('Can\'t pass both center and plane to Mirror')
+            raise ValueError("Can't pass both center and plane to Mirror")
 
         if center is not None:
             center = np.array(center)
             if center.shape != (3,):
-                raise ValueError('Invalid center passed to Mirror.')
+                raise ValueError("Invalid center passed to Mirror.")
         elif plane is not None:
             plane = np.array(plane)
             if plane.shape != (4,):
-                raise ValueError('Invalid plane passed to Mirror.')
+                raise ValueError("Invalid plane passed to Mirror.")
         else:
             center = np.zeros(3)
 
@@ -238,10 +227,11 @@ class Mirror(AtomsProperty):
         else:
 
             # Find the components of the position vectors normal to the plane
-            nu = plane[:3]/np.linalg.norm(plane[:3])
-            norm_pos = (np.dot(pos[selection.indices],
-                               plane[:3])+plane[3])[:, None]*nu
-            pos[selection.indices] = pos[selection.indices] - 2*norm_pos
+            nu = plane[:3] / np.linalg.norm(plane[:3])
+            norm_pos = (np.dot(pos[selection.indices], plane[:3]) + plane[3])[
+                :, None
+            ] * nu
+            pos[selection.indices] = pos[selection.indices] - 2 * norm_pos
 
         if not scaled:
             sT.set_positions(pos)

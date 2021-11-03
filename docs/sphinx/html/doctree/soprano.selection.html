@@ -1,24 +1,24 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.selection module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="soprano.utils module" href="soprano.utils.html" />
-    <link rel="prev" title="soprano.optional module" href="soprano.optional.html" /> 
+    <link rel="prev" title="soprano.rnd module" href="soprano.rnd.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -33,11 +33,12 @@
           <a href="soprano.utils.html" title="soprano.utils module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="soprano.optional.html" title="soprano.optional module"
+          <a href="soprano.rnd.html" title="soprano.rnd module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="soprano.html" accesskey="U">soprano package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.selection module</a></li> 
       </ul>
     </div>  
 
@@ -46,15 +47,15 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.selection">
+  <section id="module-soprano.selection">
 <span id="soprano-selection-module"></span><h1>soprano.selection module<a class="headerlink" href="#module-soprano.selection" title="Permalink to this headline">¶</a></h1>
 <p>selection.py</p>
 <p>Contains the definition of an AtomSelection class,
 namely a group of selected atoms for a given structure,
 and methods to build it.</p>
-<dl class="class">
-<dt id="soprano.selection.AtomSelection">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.selection.</code><code class="sig-name descname">AtomSelection</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">sel_indices</em>, <em class="sig-param">authenticate=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.selection.</span></span><span class="sig-name descname"><span class="pre">AtomSelection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sel_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authenticate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>AtomSelection object.</p>
 <p>An AtomSelection represents a group of atoms from an ASE Atoms object.
@@ -84,9 +85,9 @@ methods to build selections with various criteria.</p>
 </div>
 </div>
 </div>
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.all">
-<em class="property">static </em><code class="sig-name descname">all</code><span class="sig-paren">(</span><em class="sig-param">atoms</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.all" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.all">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.all" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a selection for the given Atoms object of all atoms.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -102,9 +103,9 @@ methods to build selections with various criteria.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.from_array">
-<em class="property">static </em><code class="sig-name descname">from_array</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">name</em>, <em class="sig-param">value</em>, <em class="sig-param">op='eq'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_array" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.from_array">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eq'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a selection for the given Atoms object of other atoms
 based on a comparison with some array value. Default is selection of
 all atoms that have the same exact value. However different operators
@@ -135,9 +136,9 @@ can be specified for different selection criteria.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.from_bonds">
-<em class="property">static </em><code class="sig-name descname">from_bonds</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">center</em>, <em class="sig-param">n</em>, <em class="sig-param">op='le'</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_bonds" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.from_bonds">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'le'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_bonds" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a selection for the given Atoms object of other atoms
 based on their reciprocal bonding distance. Default is selection of
 all atoms that are within a certain bonding distance (less-or-equal
@@ -173,9 +174,9 @@ bonding graph are never selected.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.from_box">
-<em class="property">static </em><code class="sig-name descname">from_box</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">abc0</em>, <em class="sig-param">abc1</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">scaled=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_box" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.from_box">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abc0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abc1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_box" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a selection for the given Atoms object of all atoms within
 a given box volume.</p>
 <div class="line-block">
@@ -202,9 +203,9 @@ a given box volume.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.from_element">
-<em class="property">static </em><code class="sig-name descname">from_element</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">element</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_element" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.from_element">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a selection for the given Atoms object of all atoms of a
 specific element.</p>
 <div class="line-block">
@@ -222,9 +223,9 @@ specific element.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.from_sphere">
-<em class="property">static </em><code class="sig-name descname">from_sphere</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">center</em>, <em class="sig-param">r</em>, <em class="sig-param">periodic=False</em>, <em class="sig-param">scaled=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_sphere" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.from_sphere">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">from_sphere</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.from_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a selection for the given Atoms object of all atoms within
 a given spherical volume.</p>
 <div class="line-block">
@@ -251,9 +252,9 @@ a given spherical volume.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.get_array">
-<code class="sig-name descname">get_array</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.get_array" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.get_array">
+<span class="sig-name descname"><span class="pre">get_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.get_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve a previously stored data array.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -269,9 +270,9 @@ a given spherical volume.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.has">
-<code class="sig-name descname">has</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.has" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.has">
+<span class="sig-name descname"><span class="pre">has</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.has" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the selection has a given array</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -287,14 +288,14 @@ a given spherical volume.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.indices">
-<em class="property">property </em><code class="sig-name descname">indices</code><a class="headerlink" href="#soprano.selection.AtomSelection.indices" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.indices">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">indices</span></span><a class="headerlink" href="#soprano.selection.AtomSelection.indices" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.set_array">
-<code class="sig-name descname">set_array</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">array</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.set_array" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.set_array">
+<span class="sig-name descname"><span class="pre">set_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.set_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save an array of given name containing arbitraty information
 tied to the selected atoms.
 This must match the length of the selection and will be passed on to
@@ -308,9 +309,9 @@ any Atoms objects created with .subset.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.subset">
-<code class="sig-name descname">subset</code><span class="sig-paren">(</span><em class="sig-param">atoms</em>, <em class="sig-param">use_cell_indices=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.subset" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.subset">
+<span class="sig-name descname"><span class="pre">subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cell_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.subset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate an Atoms object containing only the selected atoms.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -324,7 +325,7 @@ any Atoms objects created with .subset.</p>
 <div class="line">pick the specified periodic copies of</div>
 <div class="line">the corresponding atoms (useful e.g. to</div>
 <div class="line">take the correct periodic copies for a</div>
-<div class="line">molecule)</div>
+<div class="line">molecule). Default is False</div>
 </div>
 </div>
 </div>
@@ -339,17 +340,18 @@ any Atoms objects created with .subset.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.selection.AtomSelection.validate">
-<code class="sig-name descname">validate</code><span class="sig-paren">(</span><em class="sig-param">atoms</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.validate" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.selection.AtomSelection.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.selection.AtomSelection.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that the given Atoms object validates with this selection.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -364,8 +366,8 @@ any Atoms objects created with .subset.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="soprano.optional.html"
-                        title="previous chapter">soprano.optional module</a></p>
+  <p class="topless"><a href="soprano.rnd.html"
+                        title="previous chapter">soprano.rnd module</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="soprano.utils.html"
                         title="next chapter">soprano.utils module</a></p>
@@ -380,7 +382,7 @@ any Atoms objects created with .subset.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -403,16 +405,17 @@ any Atoms objects created with .subset.</p>
           <a href="soprano.utils.html" title="soprano.utils module"
              >next</a> |</li>
         <li class="right" >
-          <a href="soprano.optional.html" title="soprano.optional module"
+          <a href="soprano.rnd.html" title="soprano.rnd module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
-          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li> 
+          <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.selection module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

@@ -11,46 +11,45 @@ from __future__ import unicode_literals
 
 import os
 import sys
-import glob
-from ase import io, Atoms
-from ase.build import bulk, molecule
-sys.path.insert(0, os.path.abspath(
-                   os.path.join(os.path.dirname(__file__), "../")))  # noqa
-from soprano.collection import AtomsCollection
-from soprano.collection.generate import (airssGen, linspaceGen, rattleGen,
-                                         defectGen, molecularNeighbourhoodGen)
-from soprano.utils import minimum_periodic
-from soprano.properties.linkage import Molecules
 import unittest
 import numpy as np
+from ase import Atoms
+from ase.build import bulk, molecule
+
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
+)  # noqa
 
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
 
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "test_data")
+_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
 
 class TestGenerate(unittest.TestCase):
-
     def test_airss(self):
+
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import airssGen
 
         to_gen = 10
 
         # Load the Al.cell file (capture the annoying ASE output...)
         _stdout, sys.stdout = sys.stdout, StringIO()
-        agen = airssGen(os.path.join(_TESTDATA_DIR, 'Al.cell'), n=to_gen)
+        agen = airssGen(os.path.join(_TESTDATA_DIR, "Al.cell"), n=to_gen)
 
         try:
             acoll = AtomsCollection(agen)
         except RuntimeError as e:
-            if 'Buildcell' in str(e):
+            if "Buildcell" in str(e):
                 sys.stdout = _stdout
                 # Then we just don't have the program
-                print('WARNING - The AIRSS generator could not be tested as '
-                      'no AIRSS installation has been found on this system.')
+                print(
+                    "WARNING - The AIRSS generator could not be tested as "
+                    "no AIRSS installation has been found on this system."
+                )
                 return
             else:
                 raise e
@@ -59,34 +58,45 @@ class TestGenerate(unittest.TestCase):
 
         # Some basic checks
         self.assertEqual(acoll.length, to_gen)
-        self.assertTrue(all([chem == 'Al8'
-                             for chem in acoll.all.get_chemical_formula()]))
+        self.assertTrue(
+            all([chem == "Al8" for chem in acoll.all.get_chemical_formula()])
+        )
 
     def test_linspace(self):
 
-        a1 = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.2, 0.0]], cell=[1]*3)
-        a2 = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.8, 0.0]], cell=[1]*3)
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import linspaceGen
+
+        a1 = Atoms("CO", [[0.0, 0.0, 0.0], [0.0, 0.2, 0.0]], cell=[1] * 3)
+        a2 = Atoms("CO", [[0.0, 0.0, 0.0], [0.0, 0.8, 0.0]], cell=[1] * 3)
 
         lgen = linspaceGen(a1, a2, steps=5, periodic=False)
         lcoll = AtomsCollection(lgen)
 
-        self.assertTrue(np.all(np.isclose(lcoll.all.get_positions()[:, 1, 1],
-                                          np.linspace(0.2, 0.8, 5)
-                                          )
-                               ))
+        self.assertTrue(
+            np.all(
+                np.isclose(lcoll.all.get_positions()[:, 1, 1], np.linspace(0.2, 0.8, 5))
+            )
+        )
 
         # With periodicity
         lgen = linspaceGen(a1, a2, steps=5, periodic=True)
         lcoll = AtomsCollection(lgen)
 
-        self.assertTrue(np.all(np.isclose(lcoll.all.get_positions()[:, 1, 1],
-                                          np.linspace(0.2, -0.2, 5)
-                                          )
-                               ))
+        self.assertTrue(
+            np.all(
+                np.isclose(
+                    lcoll.all.get_positions()[:, 1, 1], np.linspace(0.2, -0.2, 5)
+                )
+            )
+        )
 
     def test_rattle(self):
 
-        a = Atoms('CO', [[0.0, 0.0, 0.0], [0.0, 0.5, 0.0]])
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import rattleGen
+
+        a = Atoms("CO", [[0.0, 0.0, 0.0], [0.0, 0.5, 0.0]])
         pos = a.get_positions()
 
         # Some exception tests
@@ -99,23 +109,27 @@ class TestGenerate(unittest.TestCase):
         rcoll = AtomsCollection(rgen)
         rpos = rcoll.all.get_positions()
 
-        self.assertTrue(np.all(np.abs((rpos-pos)[:, 0, 0]) <= 0.01))
-        self.assertTrue(np.all(np.abs((rpos-pos)[:, 1, 1]) <= 0.02))
+        self.assertTrue(np.all(np.abs((rpos - pos)[:, 0, 0]) <= 0.01))
+        self.assertTrue(np.all(np.abs((rpos - pos)[:, 1, 1]) <= 0.02))
 
     def test_defect(self):
 
-        si2 = bulk('Si')
+        from soprano.utils import minimum_periodic
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import defectGen
+
+        si2 = bulk("Si")
 
         poisson_r = 0.5
 
-        dGen = defectGen(si2, 'H', poisson_r)
+        dGen = defectGen(si2, "H", poisson_r)
         dColl = AtomsCollection(dGen)
 
         dPos = dColl.all.get_positions()[:, 0]
 
         holds = True
         for i, p1 in enumerate(dPos[:-1]):
-            vecs, _ = minimum_periodic(dPos[i+1:]-p1, si2.get_cell())
+            vecs, _ = minimum_periodic(dPos[i + 1 :] - p1, si2.get_cell())
             p_holds = (np.linalg.norm(vecs, axis=1) >= poisson_r).all()
             holds = holds and p_holds
 
@@ -123,34 +137,36 @@ class TestGenerate(unittest.TestCase):
 
     def test_molneigh(self):
 
-        metmol = molecule('CH4')
+        from soprano.properties.linkage import Molecules
+        from soprano.collection.generate import molecularNeighbourhoodGen
+
+        metmol = molecule("CH4")
 
         cellmol = metmol.copy()
         cellmol.set_pbc(True)
         cellmol.set_cell([6, 6, 6])
         c2 = cellmol.copy()
-        c2.set_positions(c2.get_positions()+3)
+        c2.set_positions(c2.get_positions() + 3)
         cellmol += c2
 
         mols = Molecules.get(cellmol)
-        mol_i = [i for i, m in enumerate(mols) if 0 in m.indices][0]
 
         mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5.2)
         all_neigh = [a for a in mnGen]
 
         self.assertEqual(len(all_neigh), 9)
-        self.assertAlmostEqual(all_neigh[0].info['neighbourhood_info']
-                               ['molecule_distance'],
-                               0)
-        self.assertAlmostEqual(all_neigh[1].info['neighbourhood_info']
-                               ['molecule_distance'],
-                               3**1.5)
+        self.assertAlmostEqual(
+            all_neigh[0].info["neighbourhood_info"]["molecule_distance"], 0
+        )
+        self.assertAlmostEqual(
+            all_neigh[1].info["neighbourhood_info"]["molecule_distance"], 3 ** 1.5
+        )
 
-        mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5,
-                                          method='nearest')
+        mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5, method="nearest")
         all_neigh = [a for a in mnGen]
 
         self.assertEqual(len(all_neigh), 9)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

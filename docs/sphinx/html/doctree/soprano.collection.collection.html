@@ -1,19 +1,19 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>soprano.collection.collection module &#8212; Soprano beta (Boggess) documentation</title>
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -38,7 +38,8 @@
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
-          <li class="nav-item nav-item-3"><a href="soprano.collection.html" accesskey="U">soprano.collection package</a> &#187;</li> 
+          <li class="nav-item nav-item-3"><a href="soprano.collection.html" accesskey="U">soprano.collection package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.collection.collection module</a></li> 
       </ul>
     </div>  
 
@@ -47,14 +48,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-soprano.collection.collection">
+  <section id="module-soprano.collection.collection">
 <span id="soprano-collection-collection-module"></span><h1>soprano.collection.collection module<a class="headerlink" href="#module-soprano.collection.collection" title="Permalink to this headline">¶</a></h1>
 <p>Definition of the Collection class.</p>
 <p>It handles multiple Atoms ASE objects and mirrors in this sense the structure
 of the Atoms object itself.</p>
-<dl class="class">
-<dt id="soprano.collection.collection.AtomsCollection">
-<em class="property">class </em><code class="sig-prename descclassname">soprano.collection.collection.</code><code class="sig-name descname">AtomsCollection</code><span class="sig-paren">(</span><em class="sig-param">structures=[]</em>, <em class="sig-param">info={}</em>, <em class="sig-param">cell_reduce=False</em>, <em class="sig-param">progress=False</em>, <em class="sig-param">suppress_ase_warnings=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">soprano.collection.collection.</span></span><span class="sig-name descname"><span class="pre">AtomsCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_reduce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_ase_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>AtomsCollection object.</p>
 <p>An AtomsCollection represents a group of ASE Atoms objects.
@@ -84,14 +85,14 @@ arrays of informations related to them.</p>
 </div>
 </div>
 </div>
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.all">
-<em class="property">property </em><code class="sig-name descname">all</code><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.all" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.all">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">all</span></span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.all" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.check_tree">
-<em class="property">static </em><code class="sig-name descname">check_tree</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.check_tree" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.check_tree">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">check_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.check_tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a path is a valid ‘tree’ format for a collection. This is
 any folder that satisfies the following conditions:</p>
 <ul class="simple">
@@ -99,13 +100,13 @@ any folder that satisfies the following conditions:</p>
 <li><p>contains a series of folders matching the list stored in the
 .collection file, and nothing else</p></li>
 </ul>
-<p>This function will return 0 if both conditions are satisfied, 1 if 
+<p>This function will return 0 if both conditions are satisfied, 1 if
 only the first is, 2 if no .collection file is found, and -1 if the
 folder itself doesn’t exist.</p>
 <div class="line-block">
-<div class="line">Args: </div>
+<div class="line">Args:</div>
 <div class="line-block">
-<div class="line">path (str): path to check for whether it matches or not the </div>
+<div class="line">path (str): path to check for whether it matches or not the</div>
 <div class="line-block">
 <div class="line">collection pattern</div>
 </div>
@@ -119,9 +120,9 @@ folder itself doesn’t exist.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.chunkify">
-<code class="sig-name descname">chunkify</code><span class="sig-paren">(</span><em class="sig-param">chunk_size=None</em>, <em class="sig-param">chunk_n=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.chunkify" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.chunkify">
+<span class="sig-name descname"><span class="pre">chunkify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.chunkify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split this collection into multiple collections based on either
 size or number of chunks.</p>
 <div class="line-block">
@@ -139,9 +140,9 @@ size or number of chunks.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.classify">
-<code class="sig-name descname">classify</code><span class="sig-paren">(</span><em class="sig-param">classes</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.classify" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.classify">
+<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.classify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a dictionary of collections based on the names of assigned
 classes.</p>
 <div class="line-block">
@@ -159,7 +160,7 @@ classes.</p>
 <div class="line-block">
 <div class="line">Returns:</div>
 <div class="line-block">
-<div class="line">classified (dict): a dictionary using class names as keys and </div>
+<div class="line">classified (dict): a dictionary using class names as keys and</div>
 <div class="line-block">
 <div class="line">sliced collections as values</div>
 </div>
@@ -167,9 +168,9 @@ classes.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.filter">
-<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param">filter_func</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.filter" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a collection composed only of the elements for which a given
 filter function returns True.</p>
 <div class="line-block">
@@ -192,9 +193,9 @@ filter function returns True.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.get_array">
-<code class="sig-name descname">get_array</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.get_array" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.get_array">
+<span class="sig-name descname"><span class="pre">get_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.get_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a copy of an array of given name (or a reference if copy=False)</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -214,26 +215,26 @@ filter function returns True.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.has">
-<code class="sig-name descname">has</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.has" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.has">
+<span class="sig-name descname"><span class="pre">has</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.has" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if array of given name exists</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.length">
-<em class="property">property </em><code class="sig-name descname">length</code><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.length" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.length">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.length" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.load">
-<em class="property">static </em><code class="sig-name descname">load</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.load" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.load">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a pickled copy from a given file path</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.load_tree">
-<em class="property">static </em><code class="sig-name descname">load_tree</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">load_format</em>, <em class="sig-param">opt_args={}</em>, <em class="sig-param">safety_check=3</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.load_tree" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.load_tree">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">load_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">safety_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_ase_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.load_tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a collection’s structures from a series of folders, named like
 the structures, inside a given parent folder, as created by save_tree.
 The files can be loaded from a format of choice, or a
@@ -280,6 +281,12 @@ function can be passed that will load them in a custom way.</p>
 </div>
 <div class="line">0: no checks, try to load from all subfolders.</div>
 </div>
+<div class="line">tolerant (bool): if set to true, proceeds to load the</div>
+<div class="line-block">
+<div class="line">structures into an AtomsCollection, even</div>
+<div class="line">if some of the structures could not be</div>
+<div class="line">read.</div>
+</div>
 </div>
 </div>
 <div class="line-block">
@@ -290,9 +297,9 @@ function can be passed that will load them in a custom way.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.run_calculators">
-<code class="sig-name descname">run_calculators</code><span class="sig-paren">(</span><em class="sig-param">properties=None</em>, <em class="sig-param">system_changes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.run_calculators" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.run_calculators">
+<span class="sig-name descname"><span class="pre">run_calculators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">system_changes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.run_calculators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run all previously set ASE calculators.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -313,15 +320,15 @@ function can be passed that will load them in a custom way.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.save">
-<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.save" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simply save a pickled copy to a given file path</p>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.save_tree">
-<code class="sig-name descname">save_tree</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">save_format</em>, <em class="sig-param">name_root='structure'</em>, <em class="sig-param">opt_args={}</em>, <em class="sig-param">safety_check=3</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.save_tree" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.save_tree">
+<span class="sig-name descname"><span class="pre">save_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'structure'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">safety_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_ase_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.save_tree" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the collection’s structures as a series of folders, named like
 the structures, inside a given parent folder (that will be created if
 not present). Arrays and info are stored in a pickled .collection file
@@ -384,9 +391,9 @@ saved per folder.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.set_array">
-<code class="sig-name descname">set_array</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">a</em>, <em class="sig-param">dtype=None</em>, <em class="sig-param">shape=None</em>, <em class="sig-param">args={}</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.set_array" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.set_array">
+<span class="sig-name descname"><span class="pre">set_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.set_array" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add or modify an array of data related to the Atoms objects
 in this collection.</p>
 <div class="line-block">
@@ -417,9 +424,9 @@ in this collection.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.set_calculators">
-<code class="sig-name descname">set_calculators</code><span class="sig-paren">(</span><em class="sig-param">calctype</em>, <em class="sig-param">labels=None</em>, <em class="sig-param">params={}</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.set_calculators" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.set_calculators">
+<span class="sig-name descname"><span class="pre">set_calculators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calctype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.set_calculators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set an ASE calculator on each structure in the collection,
 and set said calculator’s parameters.</p>
 <div class="line-block">
@@ -439,9 +446,9 @@ and set said calculator’s parameters.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="soprano.collection.collection.AtomsCollection.sorted_byarray">
-<code class="sig-name descname">sorted_byarray</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">reverse=False</em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.sorted_byarray" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="soprano.collection.collection.AtomsCollection.sorted_byarray">
+<span class="sig-name descname"><span class="pre">sorted_byarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.collection.collection.AtomsCollection.sorted_byarray" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a copy of this collection sorted by a given array.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -460,9 +467,10 @@ and set said calculator’s parameters.</p>
 
 </dd></dl>
 
-</div>
+</section>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -493,7 +501,7 @@ and set said calculator’s parameters.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -521,12 +529,13 @@ and set said calculator’s parameters.</p>
         <li class="nav-item nav-item-0"><a href="../index.html">Soprano beta (Boggess) documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="modules.html" >soprano</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="soprano.html" >soprano package</a> &#187;</li>
-          <li class="nav-item nav-item-3"><a href="soprano.collection.html" >soprano.collection package</a> &#187;</li> 
+          <li class="nav-item nav-item-3"><a href="soprano.collection.html" >soprano.collection package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">soprano.collection.collection module</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2016, Simone Sturniolo.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
     </div>
   </body>
 </html>

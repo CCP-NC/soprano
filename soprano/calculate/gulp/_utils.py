@@ -32,9 +32,9 @@ def _gulp_cell_definition(s, syms=None):
     """Create a cell definition for a GULP input file. Will use syms if
     passed, otherwise standard chemical symbols"""
 
-    gcell = "vectors\n{0}\n".format('\n'.join(['\t'.join([str(x)
-                                                          for x in row])
-                                               for row in s.get_cell()]))
+    gcell = "vectors\n{0}\n".format(
+        "\n".join(["\t".join([str(x) for x in row]) for row in s.get_cell()])
+    )
     gcell += "frac\n"
     syms = s.get_chemical_symbols() if syms is None else syms
     pos = s.get_scaled_positions()
@@ -46,27 +46,25 @@ def _gulp_cell_definition(s, syms=None):
 
 def _gulp_parse_energy(lines):
     """Parse energy out of a GULP output split in lines"""
-    for l in lines[::-1]:
-        if 'Total lattice energy       =' in l and 'eV' in l:
-            return float(l.split()[4])
+    for line in lines[::-1]:
+        if "Total lattice energy       =" in line and "eV" in line:
+            return float(line.split()[4])
 
     return None
 
 
 def _gulp_parse_charges(lines):
     """Parse charges out of a GULP output split in lines"""
-    q_re = re.compile('Final charges from\s+([a-zA-Z\-]+)\s+:')
-    qline_re = re.compile('([0-9]+)\s+([0-9]+)\s+([0-9\.\-]+)')
-    for i, l in enumerate(lines[::-1]):
-        q_type = q_re.findall(l)
+    q_re = re.compile("Final charges from\\s+([a-zA-Z\\-]+)\\s+:")
+    qline_re = re.compile("([0-9]+)\\s+([0-9]+)\\s+([0-9.\\-]+)")
+    for i, line in enumerate(lines[::-1]):
+        q_type = q_re.findall(line)
         if len(q_type) == 1:
             # Found it!
-            charges = {'type': q_type[0],
-                       'q': [],
-                       'Z': []}
+            charges = {"type": q_type[0], "q": [], "Z": []}
             # Go forward until you find the first valid line
             in_block = False
-            for l2 in lines[(len(lines)-i):]:
+            for l2 in lines[(len(lines) - i) :]:
                 parsed = qline_re.findall(l2)
                 if len(parsed) == 0:
                     if in_block:
@@ -75,7 +73,7 @@ def _gulp_parse_charges(lines):
                         continue
                 else:
                     in_block = True
-                    charges['q'].append(float(parsed[0][2]))
-                    charges['Z'].append(int(parsed[0][1]))
+                    charges["q"].append(float(parsed[0][2]))
+                    charges["Z"].append(int(parsed[0][1]))
 
     return None

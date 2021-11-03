@@ -42,16 +42,16 @@ customize_warnings()
 
 
 def _operator_checks(opfunc):
-
     def decorated_opfunc(self, other):
         if not isinstance(other, AtomSelection):
-            raise TypeError('AtomSelection does not support operations with'
-                            ' different types')
+            raise TypeError(
+                "AtomSelection does not support operations with" " different types"
+            )
 
         if self._auth is not None and other._auth is not None:
             # Check compatibility
             if self._auth != other._auth:
-                raise ValueError('Selections come from different systems')
+                raise ValueError("Selections come from different systems")
 
         return opfunc(self, other)
 
@@ -89,9 +89,8 @@ class AtomSelection(object):
 
         # A quick check: are the indices actually contained in the Atoms?
         if len(sel_indices) > 0:
-            if (min(sel_indices) < 0 or
-                    max(sel_indices) >= len(atoms)):
-                raise ValueError('Invalid indices for given Atoms object')
+            if min(sel_indices) < 0 or max(sel_indices) >= len(atoms):
+                raise ValueError("Invalid indices for given Atoms object")
 
         self._indices = np.array(sel_indices)
 
@@ -117,7 +116,7 @@ class AtomSelection(object):
         """
 
         h = hashlib.md5()
-        h.update(''.join(atoms.get_chemical_symbols()).encode())
+        h.update("".join(atoms.get_chemical_symbols()).encode())
 
         return h.hexdigest()
 
@@ -168,8 +167,7 @@ class AtomSelection(object):
     def validate(self, atoms):
         """Check that the given Atoms object validates with this selection."""
         if self._auth is None:
-            warnings.warn('WARNING'
-                          ' - this selection does not support validation')
+            warnings.warn("WARNING" " - this selection does not support validation")
             return True
         else:
             return self._hash(atoms) == self._auth
@@ -192,16 +190,15 @@ class AtomSelection(object):
         """
 
         if not self.validate(atoms):
-            raise ValueError(
-                'Given Atoms object does not match this selection')
+            raise ValueError("Given Atoms object does not match this selection")
 
         subset = atoms[self._indices]
         # Copy any extra arrays
         for k, arr in self._arrays.items():
             subset.set_array(k, arr.copy())
 
-        if use_cell_indices and subset.has('cell_indices'):
-            ijk = subset.get_array('cell_indices')
+        if use_cell_indices and subset.has("cell_indices"):
+            ijk = subset.get_array("cell_indices")
             subset.set_scaled_positions(subset.get_scaled_positions() + ijk)
 
         return subset
@@ -211,7 +208,7 @@ class AtomSelection(object):
 
         if type(indices) is int:
             # Special case, a single element!
-            indices = slice(indices, indices+1)
+            indices = slice(indices, indices + 1)
 
         try:
             newsel = self._indices[indices]
@@ -238,12 +235,10 @@ class AtomSelection(object):
         ans._indices = np.array(list(set(self.indices).union(other.indices)))
         # For the arrays:
         # only join the ones present in BOTH selections
-        common_k = set(self._arrays.keys()
-                       ).intersection(set(other._arrays.keys()))
+        common_k = set(self._arrays.keys()).intersection(set(other._arrays.keys()))
         ans._arrays = {}
         for k in common_k:
-            ans._arrays[k] = np.concatenate((self._arrays[k],
-                                             other._arrays[k]))
+            ans._arrays[k] = np.concatenate((self._arrays[k], other._arrays[k]))
 
         return ans
 
@@ -252,7 +247,7 @@ class AtomSelection(object):
 
         # Difference
         ans = copy.deepcopy(self)
-        ans._indices = np.array(list(set(self.indices)-set(other.indices)))
+        ans._indices = np.array(list(set(self.indices) - set(other.indices)))
         # For the arrays:
         # keep them but remove the removed indices
         arr_i = [np.where(self.indices == i)[0][0] for i in ans._indices]
@@ -266,8 +261,7 @@ class AtomSelection(object):
 
         # Intersection
         ans = copy.deepcopy(self)
-        ans._indices = np.array(list(set(self.indices)
-                                     .intersection(other.indices)))
+        ans._indices = np.array(list(set(self.indices).intersection(other.indices)))
         # For the arrays:
         # keep the ones present in either selection,
         # but only the relevant indices of course,
@@ -289,9 +283,13 @@ class AtomSelection(object):
             if arr1 is not None and arr2 is not None:
                 # Do they conflict?
                 if not np.all(arr1 == arr2):
-                    print(('WARNING - conflicting arrays of name {0} found'
-                           ' will be removed during intersection'
-                           ' operation').format(k))
+                    print(
+                        (
+                            "WARNING - conflicting arrays of name {0} found"
+                            " will be removed during intersection"
+                            " operation"
+                        ).format(k)
+                    )
                     continue
 
             ans._arrays[k] = arr1 if arr1 is not None else arr2
@@ -362,23 +360,25 @@ class AtomSelection(object):
         # Do we need periodic copies?
         if periodic and any(atoms.get_pbc()):
             # Get the range
-            max_r = np.linalg.norm(np.array(abc1)-abc0)
-            scell_shape = minimum_supcell(max_r, latt_cart=atoms.get_cell(),
-                                          pbc=atoms.get_pbc())
+            max_r = np.linalg.norm(np.array(abc1) - abc0)
+            scell_shape = minimum_supcell(
+                max_r, latt_cart=atoms.get_cell(), pbc=atoms.get_pbc()
+            )
             grid_frac, grid = supcell_gridgen(atoms.get_cell(), scell_shape)
             if scaled:
-                pos = (pos[:, None, :]+grid_frac[None, :, :])
+                pos = pos[:, None, :] + grid_frac[None, :, :]
             else:
-                pos = (pos[:, None, :]+grid[None, :, :])
+                pos = pos[:, None, :] + grid[None, :, :]
 
-        where_i = np.where(np.all(pos > abc0, axis=-1) &
-                           np.all(pos < abc1, axis=-1))[:2]
+        where_i = np.where(np.all(pos > abc0, axis=-1) & np.all(pos < abc1, axis=-1))[
+            :2
+        ]
 
         sel_i = where_i[0]
 
         sel = AtomSelection(atoms, sel_i)
         if periodic:
-            sel.set_array('cell_indices', grid_frac[where_i[1]])
+            sel.set_array("cell_indices", grid_frac[where_i[1]])
 
         return sel
 
@@ -408,26 +408,27 @@ class AtomSelection(object):
         # Do we need periodic copies?
         if periodic and any(atoms.get_pbc()):
             # Get the range
-            r_bounds = minimum_supcell(r, latt_cart=atoms.get_cell(),
-                                       pbc=atoms.get_pbc())
+            r_bounds = minimum_supcell(
+                r, latt_cart=atoms.get_cell(), pbc=atoms.get_pbc()
+            )
             grid_frac, grid = supcell_gridgen(atoms.get_cell(), r_bounds)
             if scaled:
-                pos = (pos[:, None, :]+grid_frac[None, :, :])
+                pos = pos[:, None, :] + grid_frac[None, :, :]
             else:
-                pos = (pos[:, None, :]+grid[None, :, :])
+                pos = pos[:, None, :] + grid[None, :, :]
 
-        where_i = np.where(np.linalg.norm(pos-center, axis=-1) <= r)
+        where_i = np.where(np.linalg.norm(pos - center, axis=-1) <= r)
 
         sel_i = where_i[0]
 
         sel = AtomSelection(atoms, sel_i)
         if periodic:
-            sel.set_array('cell_indices', grid_frac[where_i[1]])
+            sel.set_array("cell_indices", grid_frac[where_i[1]])
 
         return sel
 
     @staticmethod
-    def from_bonds(atoms, center, n, op='le'):
+    def from_bonds(atoms, center, n, op="le"):
         """Generate a selection for the given Atoms object of other atoms
         based on their reciprocal bonding distance. Default is selection of
         all atoms that are within a certain bonding distance (less-or-equal
@@ -455,7 +456,7 @@ class AtomSelection(object):
         """
 
         # Start by computing the bonding graph
-        from soprano.properties.linkage import BondGraph, Bonds
+        from soprano.properties.linkage import BondGraph
         from soprano.utils import get_bonding_distance
 
         bgraph = BondGraph.get(atoms)
@@ -470,7 +471,7 @@ class AtomSelection(object):
         return AtomSelection(atoms, sel_i)
 
     @staticmethod
-    def from_array(atoms, name, value, op='eq'):
+    def from_array(atoms, name, value, op="eq"):
         """Generate a selection for the given Atoms object of other atoms
         based on a comparison with some array value. Default is selection of
         all atoms that have the same exact value. However different operators

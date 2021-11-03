@@ -22,12 +22,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
-import numpy as np
 from ase import Atoms
-# Internal imports
-import soprano.utils as utils
-from soprano.properties import AtomsProperty
 
 
 def transformGen(struct_0, transform, steps=10):
@@ -52,17 +47,17 @@ def transformGen(struct_0, transform, steps=10):
     """
 
     # Sanity check
-    if not hasattr(transform, '__call__'):
-        raise ValueError('Invalid transform function passed to transformGen')
+    if not hasattr(transform, "__call__"):
+        raise ValueError("Invalid transform function passed to transformGen")
 
-    rootname = struct_0.info['name'] if 'name' in struct_0.info else 'transf'
+    rootname = struct_0.info["name"] if "name" in struct_0.info else "transf"
     struct = struct_0
 
     for i in range(steps):
 
         struct = transform(struct)
         if type(struct) is not Atoms:
-            raise RuntimeError('Invalid return value from transform')
-        struct.info['name'] = '{0}_{1}'.format(rootname, i)
+            raise RuntimeError("Invalid return value from transform")
+        struct.info["name"] = "{0}_{1}".format(rootname, i)
 
         yield struct

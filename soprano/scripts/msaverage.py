@@ -32,26 +32,46 @@ from soprano.properties.linkage import Bonds
 
 def __main__():
 
-    parser = ap.ArgumentParser(description="""
+    parser = ap.ArgumentParser(
+        description="""
         Processes .magres files containing chemical groups of the form XH3
         (by default, CH3 and NH3), to average the required NMR tensors for the
         hydrogen atoms connected to such groups.
-        """)
+        """
+    )
     # Main argument
-    parser.add_argument('input_files', type=str, nargs='+', default=None,
-                        help="Magres files on which to carry out averages")
+    parser.add_argument(
+        "input_files",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Magres files on which to carry out averages",
+    )
     # Optional arguments
-    parser.add_argument('-X', type=str, nargs='+', default=['C', 'N'],
-                        help="Nuclei to consider for XH3 groups "
-                        "(default: C and N)")
-    parser.add_argument('-vdws', type=float, default=1.0,
-                        help="Van der Waals radius scale for bond calculation."
-                        " Increase for higher tolerance")
-    parser.add_argument('-avg', type=str, nargs='+', default=['ms', 'efg'],
-                        help="Arrays to average over XH3 groups "
-                        "(default: ms and efg)")
-    parser.add_argument('-prefix', type=str, default='avg',
-                        help="Prefix added to output files")
+    parser.add_argument(
+        "-X",
+        type=str,
+        nargs="+",
+        default=["C", "N"],
+        help="Nuclei to consider for XH3 groups " "(default: C and N)",
+    )
+    parser.add_argument(
+        "-vdws",
+        type=float,
+        default=1.0,
+        help="Van der Waals radius scale for bond calculation."
+        " Increase for higher tolerance",
+    )
+    parser.add_argument(
+        "-avg",
+        type=str,
+        nargs="+",
+        default=["ms", "efg"],
+        help="Arrays to average over XH3 groups " "(default: ms and efg)",
+    )
+    parser.add_argument(
+        "-prefix", type=str, default="avg", help="Prefix added to output files"
+    )
 
     args = parser.parse_args()
 
@@ -61,12 +81,12 @@ def __main__():
         try:
             a = io.read(f)
         except IOError:
-            print('File {0} not found, skipping'.format(f))
+            print("File {0} not found, skipping".format(f))
             continue
 
         # Do they have magres data?
         if not any([a.has(k) for k in args.avg]):
-            print('File {0} has no data to average, skipping'.format(f))
+            print("File {0} has no data to average, skipping".format(f))
             continue
 
         # Find what to average
@@ -74,14 +94,13 @@ def __main__():
 
         # Find XH3 groups
         symbs = np.array(a.get_chemical_symbols())
-        hinds = np.where(symbs == 'H')[0]
+        hinds = np.where(symbs == "H")[0]
         h3groups = []
 
         for xsymb in args.X:
 
             xinds = np.where(symbs == xsymb)[0]
-            xinds = xinds[np.where(np.sum(bmat[xinds][:, hinds],
-                                          axis=1) == 3)[0]]
+            xinds = xinds[np.where(np.sum(bmat[xinds][:, hinds], axis=1) == 3)[0]]
             if len(xinds) > 0:
                 h3groups.append(np.where(bmat[xinds][:, hinds] == 1)[1])
 
@@ -94,4 +113,4 @@ def __main__():
                 arr[h3] = np.average(arr[h3], axis=0)
             avg_a.set_array(k, arr)
 
-        io.write('{0}_{1}'.format(args.prefix, f), avg_a)
+        io.write("{0}_{1}".format(args.prefix, f), avg_a)

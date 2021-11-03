@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 5
 
    soprano.calculate.xrd.sel_rules
    soprano.calculate.xrd.xrd
