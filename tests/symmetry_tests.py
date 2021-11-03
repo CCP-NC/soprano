@@ -65,6 +65,8 @@ class TestSymmetry(unittest.TestCase):
 
         gtest = GaussField(si2)
 
+        rng = np.random.default_rng(0)
+
         for wp in wpoints:
             fpos = wp.fpos
             pos = wp.pos
@@ -72,9 +74,9 @@ class TestSymmetry(unittest.TestCase):
             for o in wp.operations:
                 self.assertTrue(np.isclose((np.dot(o[0], fpos) + o[1]) % 1, fpos).all())
             if wp.hessian == "isotropic":
-                dr1 = np.random.normal(size=3)
+                dr1 = rng.normal(size=3)
                 dr1 /= np.linalg.norm(dr1)
-                dr2 = np.random.normal(size=3)
+                dr2 = rng.normal(size=3)
                 dr2 /= np.linalg.norm(dr2)
                 g1 = gtest.field(pos + dr1 * 1e-3)
                 g2 = gtest.field(pos + dr2 * 1e-3)

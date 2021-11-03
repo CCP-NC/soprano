@@ -64,12 +64,15 @@ class TestCollection(unittest.TestCase):
         # Generate a few random structures
         elrnd = ["H", "C", "O", "N"]
         asernd = []
+
+        rng = np.random.default_rng(0)
+
         for n in range(4):
-            aselen = np.random.randint(1, 10)
+            aselen = rng.integers(1, 10)
             asernd.append(
                 Atoms(
-                    symbols=np.random.choice(elrnd, aselen),
-                    positions=np.random.random((aselen, 3)),
+                    symbols=rng.choice(elrnd, aselen),
+                    positions=rng.random((aselen, 3)),
                 )
             )
 
@@ -90,12 +93,15 @@ class TestCollection(unittest.TestCase):
         # Generate a few random structures
         elrnd = ["H", "C", "O", "N"]
         asernd = []
+
+        rng = np.random.default_rng(0)
+
         for n in range(4):
-            aselen = np.random.randint(2, 10)
+            aselen = rng.integers(2, 10)
             asernd.append(
                 Atoms(
-                    symbols=np.random.choice(elrnd, aselen),
-                    positions=np.random.random((aselen, 3)),
+                    symbols=rng.choice(elrnd, aselen),
+                    positions=rng.random((aselen, 3)),
                 )
             )
 
@@ -120,12 +126,15 @@ class TestCollection(unittest.TestCase):
         # Generate a few random structures
         elrnd = ["H", "C", "O", "N"]
         asernd = []
+
+        rng = np.random.default_rng(0)
+
         for n in range(4):
-            aselen = np.random.randint(1, 10)
+            aselen = rng.integers(1, 10)
             asernd.append(
                 Atoms(
-                    symbols=np.random.choice(elrnd, aselen),
-                    positions=np.random.random((aselen, 3)),
+                    symbols=rng.choice(elrnd, aselen),
+                    positions=rng.random((aselen, 3)),
                 )
             )
 
@@ -151,12 +160,15 @@ class TestCollection(unittest.TestCase):
         # Generate a few random structures
         elrnd = ["H", "C", "O", "N"]
         asernd = []
+
+        rng = np.random.default_rng(0)
+
         for n in range(full_len):
-            aselen = np.random.randint(1, 10)
+            aselen = rng.integers(1, 10)
             asernd.append(
                 Atoms(
-                    symbols=np.random.choice(elrnd, aselen),
-                    positions=np.random.random((aselen, 3)),
+                    symbols=rng.choice(elrnd, aselen),
+                    positions=rng.random((aselen, 3)),
                 )
             )
 

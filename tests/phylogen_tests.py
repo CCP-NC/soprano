@@ -98,7 +98,7 @@ class TestPhylogen(unittest.TestCase):
 
         # Now test that it works also when instantiating a cluster
         c1 = AtomsCollection(
-            [Atoms("CCC", positions=np.random.random((3, 3)), cell=[1] * 3)]
+            [Atoms("CCC", positions=np.eye(3), cell=[1] * 3)]
         )
         p1 = PhylogenCluster(c1, gfpath)
 

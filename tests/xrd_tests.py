@@ -95,13 +95,14 @@ class TestXRDCalculator(unittest.TestCase):
         # Define a fake experimental spectrum to fit
         peak_n = 3
         th2_axis = np.linspace(0, np.pi, 1000)
+        rng = np.random.default_rng(0)
 
         xpeaks = XraySpectrum(
-            np.random.random(peak_n) * np.pi,
+            rng.random(peak_n) * np.pi,
             [],
             [],
             [],
-            np.random.random(peak_n) * 3.0 + 1.0,
+            rng.random(peak_n) * 3.0 + 1.0,
             xr.lambdax,
         )
 

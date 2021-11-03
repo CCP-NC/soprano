@@ -129,15 +129,15 @@ class TestSelection(unittest.TestCase):
         from soprano.selection import AtomSelection
         from soprano.collection import AtomsCollection
 
-        rand_el = ["H" if x > 0.5 else "C" for x in np.random.random(10)]
-        coll = AtomsCollection([Atoms(el) for el in rand_el])
+        el_list = 'HHHCCHCHCH'
+        coll = AtomsCollection([Atoms(el) for el in el_list])
 
         h_sel = coll.all.map(AtomSelection.from_element, element="H")
 
         self.assertTrue(
             all(
                 [
-                    len(s) == 1 if rand_el[i] == "H" else len(s) == 0
+                    len(s) == 1 if el_list[i] == "H" else len(s) == 0
                     for i, s in enumerate(h_sel)
                 ]
             )

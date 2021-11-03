@@ -33,12 +33,14 @@ class TestOthers(unittest.TestCase):
 
         test_n = 10
 
+        rng = np.random.default_rng(0)
+
         for t_i in range(test_n):
 
             # Create two quaternions with random rotations
-            theta1, theta2 = np.random.random(2) * 2 * np.pi
-            ax1 = np.random.random(3)
-            ax2 = np.cross(np.random.random(3), ax1)
+            theta1, theta2 = rng.random(2) * 2 * np.pi
+            ax1 = rng.random(3)
+            ax2 = np.cross(rng.random(3), ax1)
             ax1 /= np.linalg.norm(ax1)
             ax2 /= np.linalg.norm(ax2)
 

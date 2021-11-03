@@ -87,7 +87,7 @@ class TestPropertyLoad(unittest.TestCase):
         from soprano.collection import AtomsCollection
         from soprano.properties.basic import NumAtoms
 
-        num_atoms = np.random.randint(1, 11, size=10)
+        num_atoms = np.array([3, 5, 4, 1, 6, 10, 12, 2, 7, 9])
         coll = AtomsCollection([Atoms("H" * n) for n in num_atoms])
 
         num_atoms_prop = coll.all.map(NumAtoms.get)
