@@ -34,9 +34,9 @@ class TestSubmit(unittest.TestCase):
             pass
 
         qInt = QueueInterface(
-            sub_cmd="mocksub.py",
-            list_cmd="mocklist.py",
-            kill_cmd="mockkill.py",
+            sub_cmd=os.path.join(_TESTCMD_DIR, "mocksub.py"),
+            list_cmd=os.path.join(_TESTCMD_DIR, "mocklist.py"),
+            kill_cmd=os.path.join(_TESTCMD_DIR, "mockkill.py"),
             sub_outre="\\<(?P<job_id>[0-9]+)\\>",
             list_outre="(?P<job_id>[0-9]+)[^(RUN|PEND)]*" "(?P<job_status>RUN|PEND)",
         )
