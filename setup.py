@@ -67,6 +67,7 @@ if __name__ == "__main__":
                 "soprano_submitter = " "soprano.hpc.submitter:__main__",
                 "phylogen = " "soprano.scripts.phylogen:__main__",
                 "magresaverage = " "soprano.scripts.msaverage:__main__",
+                "extract_nmr = " "soprano.scripts.extract_nmr:__main__",
             ]
         },
         use_2to3=False,
