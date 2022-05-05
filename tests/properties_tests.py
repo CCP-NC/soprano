@@ -13,7 +13,7 @@ import os
 import sys
 import unittest
 import numpy as np
-from ase import Atoms
+from ase import Atoms, Atom
 from ase.build import bulk
 from ase.io import read
 
@@ -99,26 +99,52 @@ class TestPropertyLoad(unittest.TestCase):
         from soprano.properties.map import RemapIndices, Remap
 
         # Create a test reference structure
-        s1 = bulk('Au', cubic=True)
-        shuffle = [3,0,2,1]
-        ref = s1[shuffle]
+        ref = bulk('Au', cubic=True)
+        # label the 4 atoms a,b,c,d
+        ref.set_array('ref_labels', np.array(['a', 'b', 'c', 'd']))
+        shuffle   = [3,0,2,1]
+        unshuffle = [1,3,2,0]
+        # shuffle the order and store as s1 atoms object
+        s1 = ref[shuffle]
 
         # Rattle the atoms a bit
         rng = np.random.default_rng(0)
         s1.positions += (rng.random((4,3))-0.5)/10.0
 
-        indices = RemapIndices.extract(s1, ref, True, False)
-        self.assertTrue(all([i == j for (i, j) in zip(shuffle, indices)]))
+        # Test naive remapping
+        indices = RemapIndices.extract(s1, ref, mic=False, check_species=True, tolerance=1.0)
+        # indices should be those needed to 'unshuffle' s1 back to ref ordering
+        self.assertTrue(all([i == j for (i, j) in zip(unshuffle, indices)]))
 
-        # Test using scaled coordinates instead
+        # Test using minimum image convention instead
+        indices = RemapIndices.extract(s1, ref, mic=True, check_species=True, tolerance=1.0)
+        # indices should be those needed to 'unshuffle' s1 back to ref ordering
+        self.assertTrue(all([i == j for (i, j) in zip(unshuffle, indices)]))
 
-        indices = RemapIndices.extract(s1, ref, True, True)
-        self.assertTrue(all([i == j for (i, j) in zip(shuffle, indices)]))
+        # since they're all the same, we can switch off the check_species
+        indices = RemapIndices.extract(s1, ref, mic=True, check_species=False, tolerance=1.0)
+        self.assertTrue(all([i == j for (i, j) in zip(unshuffle, indices)]))
 
-        # Now just the remapping
-        s2 = Remap.extract(s1, ref, True, False)
+        # Now the remapping itself
+        s2 = Remap.extract(s1, ref, mic=True, check_species=True, tolerance=1.0)
+        self.assertTrue((s2.positions == s1[unshuffle].positions).all())
+        self.assertTrue((s2.get_array('ref_labels') == ref.get_array('ref_labels')).all())
 
-        self.assertTrue((s2.positions == s1.positions[shuffle]).all())
+        # Now test that a tight tolerance catches the slight mismatch
+        with self.assertRaises(Exception) as context:
+            indices = RemapIndices.extract(s1, ref, mic=True, check_species=True, tolerance=0.01)
+        self.assertTrue('are not within the tolerance distance' in str(context.exception))
+
+        # Add in a different species almost on top of atom 0
+        # and check that it fails unless check species is True
+        ref.append(Atom('H', position=ref[0].position + 0.00001))
+        s1.append( Atom('H', position=ref[1].position + 0.00001))
+        # Make sure the output 
+        s2 = Remap.extract(s1, ref, mic=True, check_species=False, tolerance=5.0)
+        self.assertFalse(all(ref.symbols == s2.symbols))
+        s2 = Remap.extract(s1, ref, mic=True, check_species=True, tolerance=5.0)
+        self.assertTrue(all(ref.symbols == s2.symbols))
+
 
     def test_linkageprops(self):
 
