@@ -96,6 +96,25 @@ class TestSelection(unittest.TestCase):
         self.assertTrue(set(s1.indices) == set([0, 1, 2, 3]))
         self.assertTrue(set(s2.indices) == set([0, 1, 2]))
 
+        # String test
+        # add cif-like labels:
+        a.set_array('labels', np.array(['H1a', 'C1', 'H1b', 'C1']))
+        s1 = AtomSelection.from_selection_string(a, "H")
+        s2 = AtomSelection.from_selection_string(a, "C")
+        s3 = AtomSelection.from_selection_string(a, "C.1")
+        s4 = AtomSelection.from_selection_string(a, "C.1-2")
+        s5 = AtomSelection.from_selection_string(a, "C.1-2,H.2")
+        s6 = AtomSelection.from_selection_string(a, "C.1,C.2")
+        s7 = AtomSelection.from_selection_string(a, "C1,H1a")
+
+        self.assertTrue(set(s1.indices) == set([0, 2]))
+        self.assertTrue(set(s2.indices) == set([1, 3]))
+        self.assertTrue(set(s3.indices) == set([1]))
+        self.assertTrue(set(s4.indices) == set([1, 3]))
+        self.assertTrue(set(s5.indices) == set([1, 2, 3]))
+        self.assertTrue(set(s6.indices) == set([1, 3]))
+        self.assertTrue(set(s7.indices) == set([0, 1, 3]))
+
     def test_arrays(self):
 
         from soprano.selection import AtomSelection
