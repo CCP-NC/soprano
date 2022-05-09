@@ -33,6 +33,9 @@ import hashlib
 import warnings
 import operator
 import numpy as np
+import re
+from collections import defaultdict
+
 
 from soprano.utils import minimum_supcell, supcell_gridgen, customize_warnings
 
@@ -332,6 +335,86 @@ class AtomSelection(object):
 
         sel_i = np.where(np.array(atoms.get_chemical_symbols()) == element)[0]
 
+        return AtomSelection(atoms, sel_i)
+    @staticmethod
+    def from_selection_string(atoms, selection_string):
+        """Generate a selection for the given Atoms object based on a standardised 
+        string format.
+        (Useful to parse command-line-arguments.)
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   selection_string (str): string specifying a subset of atoms. See example below.
+
+        | Returns:
+        |   selection (AtomSelection)
+
+
+        Examples of selection_string: 
+        'Si' - select all Si atoms
+        'Si.1' - select the first Si atom
+        'Si.1-3' - select the first three Si atoms
+        'Si.1-3,5' - select the first three and fifth Si atoms
+        'C.1,H.2' - select the first carbon and second hydrogen atoms
+        'C1' - select the atom with 'C1' label, regardles of where it appears. 
+        'C1,C3a' - select the atoms with 'C1' and 'C3a' labels, regardles of where they appear. 
+        """
+        def has_numbers(selection_string):
+            return bool(re.search(r'\d', selection_string))
+        def has_hyphen(selection_string):
+            return bool(re.search(r'-', selection_string))
+        def has_period(selection_string):
+            return bool(re.search(r'\.', selection_string))
+
+        selection = defaultdict(lambda: [])
+        for split in selection_string.split(","):
+            # split into element and sites
+            sites = re.split('([a-zA-Z]+)', split)[1:]
+            el = sites.pop(0)
+            # make sure no numbers left in el
+            assert not has_numbers(el)
+            # get the indices of each element in the atoms object
+            element_indices = AtomSelection.from_element(atoms, el).indices
+            # make sure the chosen element is present!
+            assert el in atoms.symbols
+            # make sure the spitting worked as expected
+            sites = sites[0]
+            
+            # if empty string -> select all element indices
+            if sites == '':
+                selection[el] = element_indices
+                break
+
+            # if starts with period -> regular index
+            if sites[0] == '.':
+                # split on '.'
+                sites = sites[1:].split(".")
+                el_indices = []
+                for site in sites:
+                    # if it has a hyphen:
+                    if has_hyphen(site):
+                        site = site.split("-")
+                        el_indices+=range(int(site[0]), int(site[1]) + 1)
+                    else:
+                        el_indices.append(int(site))
+                # switch to python indexing:
+                el_indices = np.array(el_indices) - 1
+                selection[el].extend(element_indices[el_indices])
+        
+            else:
+                # must be a cif-style label!
+                # sites is of the form 'C1'
+                assert not has_hyphen(sites) # no hyphens allowed for now
+                assert not has_period(sites) # no periods allowed for now
+                # use 'split' as the label to look for:
+                indices = np.where(atoms.get_array('labels') == split)[0]
+                if len(indices) == 0:
+                    warnings.warn(f'Warning: could not find {split} in the structure')
+                selection[el].extend(indices)
+        
+        # flatten, sort and remove any duplicate indices
+        sel_i = list(set([idx for el in selection for idx in selection[el]]))
+        # Return the selection
         return AtomSelection(atoms, sel_i)
 
     @staticmethod
