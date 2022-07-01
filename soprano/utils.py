@@ -50,6 +50,15 @@ def replace_folder(path, new_folder):
     """Replace the folder of the given path with a new one"""
     return os.path.join(new_folder, os.path.basename(path))
 
+def has_cif_labels(atoms):
+    """Check if the atoms object has CIF labels
+    Does this simply by comparing the labels with the element symbols.
+    If they're all the same, then so special labels are present.  
+    """
+    symbols = atoms.get_chemical_symbols()
+    labels = atoms.get_array('labels')
+    return not all(symbols == labels)
+
 
 def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
     """A textual progress bar for the command line

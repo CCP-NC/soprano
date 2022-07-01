@@ -24,8 +24,10 @@ from __future__ import unicode_literals
 
 import numpy as np
 from soprano.properties import AtomsProperty
+from soprano.selection import AtomSelection
 from soprano.utils import recursive_mol_label
 from soprano.properties.linkage import Molecules, HydrogenBonds, Bonds
+from ase.spacegroup import get_spacegroup
 
 
 class SiteLabels(AtomsProperty):
@@ -308,3 +310,58 @@ class CarbonHybridationState(AtomsProperty):
             s.set_array(CarbonHybridationState.default_name, hybrid)
 
         return hybrid
+
+class UniqueSites(AtomsProperty):
+
+    """
+    UniqueSites
+
+    Assigns unique labels to atoms based on their position in the system and the
+    allowed symmetry operations.
+
+    Basically a wrapper around the ASE functionality.
+    
+    Atoms can have the same label, but only if they're
+    fundamentally indistinguishable. These sites will be saved by default and can
+    be used for better insight when carrying out other analysis.
+
+    | Parameters:
+    |   save_info (bool): if True, save the found unique sites as part of
+    |                     the Atoms object info. By default True.
+    |   symprec (float): the tolerance for symmetry operations. Default: 1e-4
+
+    | Returns:
+    |   unique ([int]): list of integers 
+    """
+
+    default_name = "unique_sites"
+    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4}
+
+    @staticmethod
+    def extract(s, force_recalc, save_info, symprec):
+
+        # first we need the spacegroup
+        sg = get_spacegroup(s)
+        # tag each symmetry group of equivaluent sites with a unique integer label
+        tags = sg.tag_sites(s.get_scaled_positions(), symprec=symprec)
+
+
+        # -- check to make sure that no two elements have the same tag --#
+        # unique elements 
+        elems = set(s.get_chemical_symbols())
+        # indices for each element
+        element_indices = [AtomSelection.from_element(s, el).indices for el in elems]
+        # tags for each element
+        element_tags = [tags[inds] for inds in element_indices]
+        # unique tags for each element
+        element_unique_tags = [set(el_tags) for el_tags in element_tags]
+        # check that no two elements have the same tag
+        if set.intersection(*element_unique_tags) != set():
+            raise ValueError("Some elements have the same 'unique-by-symmetry' tag -- this is not allowed.")
+        #-------------------------------------------------------------------#
+
+
+        if save_info:
+            s.info[UniqueSites.default_name] = tags
+
+        return tags
