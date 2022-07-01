@@ -36,9 +36,13 @@ import argparse as ap
 import os
 import sys
 from ase import io
+from ase.spacegroup import get_spacegroup
+from soprano.properties.labeling import UniqueSites
 from soprano.properties.linkage import Bonds
 from soprano.properties.nmr import *
 from soprano.selection import AtomSelection
+from soprano.utils import has_cif_labels
+from collections import OrderedDict
 
 import warnings
 
@@ -49,30 +53,12 @@ __date__ = "March 21, 2022"
 
 
 
-def atoms_selection(selection_string):
-    """Parse the atom string. Adapted from [sumo](https://github.com/SMTG-UCL/sumo)
-    Args:
-        selection_string (str): The atoms to extract, in the form ``"C.1.2.3,"``.
-    Returns:
-        dict: The atomic indices for which to extract the NMR properties. Formatted as::
-            {Element: [atom_indices]}.
-        Indices are 1-indexed. If an element symbol
-        is included with an empty list, then all sites for that species are considered.
-    """
-    selection = {}
-    for split in selection_string.split(","):
-        sites = split.split(".")
-        el = sites.pop(0)
-        sites = list(map(int, sites))
-        selection[el] = np.array(sites)
-    return selection
-
 def isotope_selection(selection_string):
     """Parse the isotope string. Adapted from [sumo](https://github.com/SMTG-UCL/sumo)
     Args:
-        selection_string (str): The isotopes specify, in the form ``"H.2,N.15" for deuterium and N 15``.
+        selection_string (str): The isotopes specification, in the form ``"H.2,N.15" for deuterium and N 15``.
     Returns:
-        dict: The atomic indices for which to extract the NMR properties. Formatted as::
+        dict: The isotope for each element specified. Formatted as::
             {Element: Isotope}.
     """
     selection = {}
@@ -112,7 +98,7 @@ def __main__():
     parser.add_argument(
         "-s",
         "--select",
-        type=atoms_selection,
+        type=str,
         metavar="A",
         help=('element/atoms to include (e.g. "C" for only carbon or '
         '"C.1.2.3,H.1.2" for carbons 1,2,3 and hydrogens 1 and 2)'),
@@ -126,6 +112,22 @@ def __main__():
         help=('Isotopes specification (e.g. "C.13" carbon 13 '
         '"H.2,N.15" deuterium and N 15). '
         'When nothing is specified it defaults to the most common NMR active isotope.'),
+    )
+    # add argument to reduce by symmetry
+    parser.add_argument(
+        "-r",
+        "--reduce",
+        action="store_true",
+        help=("Reduce the output by symmetry-equivalent sites. "
+        "Note that this doesn't take into account magnetic symmetry!"),
+    )
+    # add option to set the symprec
+    parser.add_argument(
+        "--symprec",
+        type=float,
+        default=1e-4,
+        help=("Set the symprec for the symmetry reduction. "
+        "Default is 1e-4."),
     )
     parser.add_argument(
         "-q",
@@ -174,15 +176,16 @@ def __main__():
 
 
         MS_HEADER  = '\n'+'\n'.join([
-            '#'+120*'-'+'#', 
-            '# {:^118} #'.format(f'Magnetic Shielding:  {f}') ,
-            '#'+120*'-'+'#'])
+            '#'+155*'-'+'#', 
+            '# {:^153} #'.format(f'Magnetic Shielding:  {f}') ,
+            '#'+155*'-'+'#'])
 
         EFG_HEADER = '\n'+'\n'.join([
-            '#'+120*'-'+'#', 
-            '# {:^118} #'.format(f'Electric Field Gradient:  {f}') ,
-            '#'+120*'-'+'#'])
+            '#'+155*'-'+'#', 
+            '# {:^153} #'.format(f'Electric Field Gradient:  {f}') ,
+            '#'+155*'-'+'#'])
 
+        # try to read in the file:
         try:
             atoms = io.read(f)
         except IOError:
@@ -196,24 +199,46 @@ def __main__():
             continue
 
         
+        # reduce by symmetry?
+        if args.reduce:
+            symprec = args.symprec
+            # sg = get_spacegroup(atoms, symprec=symprec)
+            # sites, mask = sg.unique_sites(atoms.get_scaled_positions(), symprec=symprec, output_mask=True, map_to_unitcell=True)
+            # inds = np.where(mask)[0]
+            # print(mask, inds)
+            # atoms = AtomSelection(atoms, inds).subset(atoms)
+            sitetags = UniqueSites.get(atoms)
+            max_tag = max(sitetags)
+            inds = [np.argmax(np.array(sitetags)==i) for i in range(max_tag+1)]
+            # Now we make sure that, for structures with cif labels
+            # the symmetry-unique sites that remain are those we 
+            # would expect based on the existing CIF labels.
+            if has_cif_labels(atoms):
+                ciflabels = atoms.get_array('labels')
+                # get indices of unique cif labels using OrderedDict
+                unique_cif_labels = list(OrderedDict.fromkeys(ciflabels))
+                # take first match of each unique cif label
+                inds_cif = [np.argmax(np.array(ciflabels)==i) for i in unique_cif_labels]
+                # test that they all match otherwise raise warning
+                all_matched = all(np.array(inds) == np.array(inds_cif))
+                if not all_matched:
+                    warnings.warn("The symmetry-reduced sites don't match the CIF labels!"
+                    "Manually check that the symmetry reduction is working as expected."
+                    "Proceeding with the CIF label reduction rather than the symmetry reduction.")
+                    inds = inds_cif
+
+            atoms = AtomSelection(atoms, inds).subset(atoms)
+            
+
+
+
         # select subset of atoms
         if args.select:
-            indices = atoms.get_array('indices') # these are 1-indexed per jmol convention
-            
-            # this works but is pretty ugly... 
-            keep = [atom.index 
-                   for atom in atoms 
-                   if (atom.symbol in args.select) and len(args.select[atom.symbol]) == 0 \
-                   or atom.symbol in args.select and indices[atom.index] in args.select[atom.symbol]]
-            atoms = AtomSelection(atoms, keep).subset(atoms)
-
-        # select by other? 
-        
-        
+            atoms = AtomSelection.from_selection_string(atoms, args.select).subset(atoms)
         
         # Obtain nice labels for subset atoms:
         indices = atoms.get_array('indices')
-        labels  = ["{0}_{1}".format(l, i) for l, i in zip(atoms.get_array('labels'), indices)]
+        labels  = ["{0}   {1}".format(l, i) for l, i in zip(atoms.get_array('labels'), indices)]
 
 
 
@@ -240,14 +265,25 @@ def __main__():
                 if not args.quiet:
                     if not args.csv:
                         summary += [MS_HEADER.format(fname=f)]
-                    summary += [f'Label{sep} Isotropy/ppm{sep} Anisotropy/ppm{sep} Asymmetry {sep}' + \
-                                f'Span/ppm{sep} Skew{sep}' + \
-                                f'alpha/deg{sep} beta/deg{sep} gamma/deg']
+                    table_headers = ['Label', 
+                                     'Index',
+                                     'Isotropy/ppm', 
+                                     'Anisotropy/ppm', 
+                                     'Asymmetry', 
+                                     'Span/ppm', 
+                                     'Skew', 
+                                     'alpha/deg', 
+                                     'beta/deg', 
+                                     'gamma/deg']
+                    summary += [f'{sep}'.join([f'{lab:<9}' for lab in table_headers])]
+                indices = atoms.get_array('indices')
+                labels = atoms.get_array('labels')
                 for i, jl in enumerate(labels):
                     a, b, c = quat[i].euler_angles(mode='zyz')*180/np.pi # rad to degrees
-                    summary +=[f'{jl: <5}{sep} {iso[i]:12.2f}{sep} {aniso[i]:14.2f}{sep} {asymm[i]:9.2f}{sep}' + \
+                    summary +=[f'{jl: <5}{sep} {indices[i]:>9d}{sep} \t' + \
+                               f'{iso[i]:12.2f}{sep} {aniso[i]:14.2f}{sep} {asymm[i]:9.2f}{sep}' + \
                                f'{span[i]:8.2f}{sep}{skew[i]:5.2f}{sep}' + \
-                               f'{a:9.2f}{sep} {b:9.2f}{sep} {c:9.2f}']
+                               f'\t{a:9.2f}{sep} {b:9.2f}{sep} {c:9.2f}']
                     if args.quiet:
                         # add file path to end if in quiet mode
                         summary += [f]
@@ -295,12 +331,13 @@ def __main__():
                 if not args.quiet:
                     if not args.csv:
                         summary += [EFG_HEADER.format(fname=f)]
-                    table_headers = ['Label', 'Vzz/au', 'Cq/MHz', 'Eta', 'alpha/deg', 'beta/deg', 'gamma/deg']
-                    summary += [f'{sep}'.join([f'{lab:>9}' for lab in table_headers])]
+                    table_headers = ['Label', 'Index', 'Vzz/au', 'Cq/MHz', 'Eta', 'alpha/deg', 'beta/deg', 'gamma/deg']
+                    summary += [f'{sep}'.join([f'{lab:^9}' for lab in table_headers])]
 
                 for i, jl in enumerate(labels):
                     a, b, c = quat[i].euler_angles(mode='zyz')*180/np.pi # rad to degrees
-                    summary +=[f'{jl:<9}{sep} {vzz[i]:9.2f}{sep} {qC[i]:12.4e}{sep}' + \
+                    summary +=[f'{jl:<5}{sep} {indices[i]:>9d}{sep}\t' +\
+                               f'{vzz[i]:9.2f}{sep} {qC[i]:12.4e}{sep}' + \
                                f'{eta[i]:8.3f}{sep}' + \
                                f'{a:9.2f}{sep} {b:9.2f}{sep} {c:9.2f}']
                     if args.quiet:
