@@ -34,7 +34,7 @@ import warnings
 import operator
 import numpy as np
 import re
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 
 from soprano.utils import minimum_supcell, supcell_gridgen, customize_warnings
@@ -397,6 +397,12 @@ class AtomSelection(object):
                         el_indices+=range(int(site[0]), int(site[1]) + 1)
                     else:
                         el_indices.append(int(site))
+                # if zero in el_indices -> throw error
+                if 0 in el_indices:
+                    raise ValueError(
+                        "WARNING - zero in selection string, please use 1-indexing"
+                        " during selection operation. Always double-check if selection matches your expectations!"
+                    )
                 # switch to python indexing:
                 el_indices = np.array(el_indices) - 1
                 selection[el].extend(element_indices[el_indices])
@@ -409,11 +415,16 @@ class AtomSelection(object):
                 # use 'split' as the label to look for:
                 indices = np.where(atoms.get_array('labels') == split)[0]
                 if len(indices) == 0:
-                    warnings.warn(f'Warning: could not find {split} in the structure')
+                    # raise error if no atoms with this label found
+                    raise ValueError(
+                        "No atoms with label {0} found in the atoms object".format(split)
+                    )
+                    
                 selection[el].extend(indices)
         
-        # flatten, sort and remove any duplicate indices
-        sel_i = list(set([idx for el in selection for idx in selection[el]]))
+        # flatten and remove any duplicate indices
+        # (this way preserves the order. From python 3.7 onwards, we can use standard dictionaries)
+        sel_i = list(OrderedDict.fromkeys([idx for el in selection for idx in selection[el]]))
         # Return the selection
         return AtomSelection(atoms, sel_i)
 
