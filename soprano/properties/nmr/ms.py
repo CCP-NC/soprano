@@ -23,6 +23,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import numpy as np
+import warnings
 from soprano.properties import AtomsProperty
 from soprano.nmr.utils import (
     _haeb_sort,
@@ -111,20 +112,190 @@ class MSDiagonal(AtomsProperty):
 
         return np.array([dict(zip(("evals", "evecs"), ms)) for ms in ms_diag])
 
+class MSShielding(AtomsProperty):
 
+    """
+    MSShielding
+
+    Produces an array containing the magnetic shielding isotropies in a system
+    (ppm).
+
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   save_array (bool): if True, save the ms_shielding array in the
+    |                      Atoms object as an array. By default True.
+
+    | Returns:
+    |   ms_shielding (np.ndarray): list of shieldings
+
+    """
+
+    default_name = "ms_shielding"
+    default_params = {"save_array": True}
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, save_array):
+
+        ms_shielding = np.trace(s.get_array("ms"), axis1=1, axis2=2) / 3.0
+
+        if save_array:
+            # Save the isotropic shieldings 
+            s.set_array(MSShielding.default_name, ms_shielding)
+
+        return ms_shielding
+class MSShift(AtomsProperty):
+
+    """
+    MSShift
+
+    Produces an array containing the chemical shifts (ppm).
+    References must be provided for the chemical shifts to be calculated.
+    Optionally, the you can also specify the gradient, m
+    
+    .. math::
+        \\delta = \\sigma_{ref} - m\\sigma
+    
+
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+    | Parameters:
+    |   ref (list/float/dict): reference frequency per element. Must
+    |                          be provided.
+    |   gradients float/list/dict: usually around -1. Optional.
+    |                              Default: -1 for all elements.
+    |   save_array (bool): if True, save the ms_shift array in the
+    |                      Atoms object as an array. By default True.
+
+    | Returns:
+    |   ms_shift (np.ndarray): list of shifts
+
+    """
+
+    default_name = "ms_shift"
+    default_params = {"ref": {}, "grad": -1.0, "save_array": True}
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, ref, grad, save_array):
+        # make sure we have some references set!
+        if not ref:
+            raise ValueError("No reference provided for chemical shifts")
+
+
+        # get shieldings
+        ms_shieldings = MSShielding.get(s)
+        
+        symbols = np.array(s.get_chemical_symbols())
+        
+        # --- REFERENCES --- #
+        # array to store the reference for each site
+        # defaults to zeros
+        references = np.zeros(len(s))
+
+        #-- FLOAT --#
+        # if we have a single float, we use it for all sites
+        if isinstance(ref, float):
+            references[:] = ref
+            # if the strucure has more than one type of element, we
+            # a single reference is probably not what we want
+            # so we raise a warning.
+            if len(set(symbols)) > 1:
+                warnings.warn('Using the same reference for all elements.\n'
+                    'That is probably not what you want.')
+        #-- DICT --#
+        ## Assuming a format like {'C': 100.0, 'H': 200.0}
+        elif isinstance(ref, dict):
+            for el, val in ref.items():
+                references[symbols == el] = val
+            # throw a warning if there are any elements not in the dictionary
+            missing_refs = set(symbols) - set(ref.keys())
+            if missing_refs:
+                warnings.warn(f"Elements {missing_refs} are not in the references dictionary"
+                                " and their reference will be set to zero.")
+        #-- LIST --#
+        ## Assuming a format like [100.0, 100.0, 200.0] with one item per site
+        elif isinstance(ref, list):
+            if len(ref) != len(s):
+                raise ValueError("Reference list must have one item per site/\n"
+                "Alternatively, use a dictionary with the element as key and the reference as value")
+            references[:] = ref[:]
+        else:
+            raise ValueError("Reference must be a dictionary element: reference"
+                                " or a float or a list of"
+                                " floats")
+        
+        # --- GRADIENTS --- #
+        # default gradient of -1 for each site
+        gradients = -1 * np.ones(len(s))
+
+        # Do we have gradients set explicitly?
+        if grad:
+            ## FLOAT ##
+            ## the same gradient for all sites
+            if isinstance(grad, float):
+                gradients[:] = grad
+                if len(set(symbols)) > 1:
+                    warnings.warn('You are using the same gradient for all '
+                    'elements while referencing the chemical shift.')
+            ## DICT ##
+            ## Assuming a format like {'C': -1, 'H': -0.98}
+            elif isinstance(grad, dict):
+                for el, val in grad.items():
+                    gradients[symbols == el] = val
+            ## LIST ##
+            ## Assuming a format like [-1, -1, -0.98] with one item per site
+            elif isinstance(grad, list):
+                if len(grad) != len(s):
+                    raise ValueError("Gradient list must be the same length as the system"
+                    "Or use a dictionary with the element as key and the gradient as value")
+                gradients[:] = grad[:]
+            else:
+                raise ValueError("Gradients must be a dictionary element: gradient"
+                                " or a float or a list of"
+                                " floats")
+        # if any of the gradients is outside -1.5 to -0.5 we need to
+        # raise a warning
+        if np.any(gradients < -1.5) or np.any(gradients > -0.5):
+            warnings.warn("Gradients are outside the range: -1.5 to -0.5.\n"
+                            "That's a surprising value! Please double check the"
+                            "gradients.\n"
+                            f"You provided:\n {grad}")
+
+
+        # Convert from shielding to chemical shift
+        ms_shifts = references + gradients * ms_shieldings
+
+        if save_array:
+            # Save the isotropic shifts
+            s.set_array(MSShift.default_name, ms_shifts)
+
+
+        return ms_shifts
 class MSIsotropy(AtomsProperty):
 
     """
     MSIsotropy
 
     Produces an array containing the magnetic shielding isotropies in a system
-    (ppm, with reference if provided).
+    (ppm).
+    If references are provided, the returned values represent the chemical shift.
+
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
+    Refactored into MSShielding and MSShift. This remains here for backwards
+    compatibility.
+
     | Parameters:
-    |   ref (float): reference frequency in ppm. If provided, the chemical shift
+    |   ref (float/dict): reference frequency per element. If provided, the chemical shift
     |                will be returned instead of the magnetic shielding.
+    |   gradients float/list/dict: usually around -1. 
+    |   save_array (bool): if True, save the diagonalised tensors in the
+    |                      Atoms object as an array. By default True.
 
     | Returns:
     |   ms_iso (np.ndarray): list of shieldings/shifts
@@ -132,20 +303,23 @@ class MSIsotropy(AtomsProperty):
     """
 
     default_name = "ms_isotropy"
-    default_params = {"ref": None}
+    default_params = {"ref": {}, "grad": -1.0, "save_array": True}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref):
+    def extract(s, ref, grad, save_array):
+        
+        if ref:
+            # the user wants to use the chemical shift
+            ms_iso =  MSShift.extract(s, ref, grad, save_array)
+        else:
+            # the user wants to use the magnetic shielding
+            ms_iso =  MSShielding.extract(s, save_array)
 
-        ms_iso = np.trace(s.get_array("ms"), axis1=1, axis2=2) / 3.0
-
-        # Referenced?
-        if ref is not None:
-            ms_iso = (ref - ms_iso) / (1-ref*1e-6)
-
-        return ms_iso
-
+        if save_array:
+            # Save the isotropic shifts
+            s.set_array(MSIsotropy.default_name, ms_iso)
+        return ms_iso    
 
 class MSAnisotropy(AtomsProperty):
 
