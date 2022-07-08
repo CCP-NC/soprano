@@ -29,7 +29,13 @@ from soprano.scripts import  nmr
 epilog = f"""
     Author: {__author__} ({__email__})\n
     Last updated: {__date__}"""
-@click.group(help="CLI tool to streamline common soprano tasks.", epilog=epilog)
+help_text = """
+A CLI tool to streamline common soprano tasks. It has various 
+subcommands, each of which has its own set of options and help.
+"""
+@click.group(
+    name="Soprano Command Line Interface",
+    help=help_text, epilog=epilog)
 def cli():
     pass
 

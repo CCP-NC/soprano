@@ -14,12 +14,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-'''CLI to extract and process NMR-related properties from .magres files.'''
+'''CLI to extract and process NMR-related properties from .magres files.
+
+TODO: add support for different shift {Haeberlen,NQR,IUPAC}and quadrupole {Haeberlen,NQR} conventions.
+'''
 
 __author__ = "J. Kane Shenton"
 __maintainer__ = "J. Kane Shenton"
 __email__ = "kane.shenton@stfc.ac.uk"
-__date__ = "July 04, 2022"
+__date__ = "July 08, 2022"
 
 
 import click
@@ -120,8 +123,11 @@ def keyvalue_parser(ctx, parameter, value):
                 'selection',
                 type=str,
                 default=None,
-                help='Selection string for include (e.g. "C" for only carbon or '
-        '"C.1.2.3,H.1.2" for carbons 1,2,3 and hydrogens 1 and 2)')
+                help='Selection string of sites include. e.g. \n'
+                '``-s C`` for only and all carbon atoms,\n'
+                '``-s C.1-3,H.1.2`` for carbons 1,2,3 and hydrogens 1 and 2,\n'
+                '``-s C1,H1a,H1b`` for any sites with the labels C1, H1a and H1b.'
+                )
 @click.option('--output',
             '-o',
             type=str,
@@ -131,8 +137,8 @@ def keyvalue_parser(ctx, parameter, value):
             '-f',
             default=None,
             type=click.Choice(['csv', 'json']),
-            help='Output file format. One of {csv, json}.'
-            'If not specified, format guessed from extension.')
+            help='Output file format. '
+            'If not specified, the format is guessed from output filename extension.')
 # merge output files
 @click.option('--merge',
             '-m',
@@ -147,8 +153,8 @@ def keyvalue_parser(ctx, parameter, value):
             # type=isotope_selection,
             default='',
             metavar = 'ISOTOPES',
-            help='Isotopes specification (e.g. "13C" for carbon 13 '
-        '"2H,15N" for deuterium and 15N). '
+            help='Isotopes specification (e.g. ``-i 13C`` for carbon 13 '
+        '``-i 2H,15N`` for deuterium and 15N). '
         'When nothing is specified it defaults to the most common NMR active isotope.')         
 # flag option to reduce by symmetry
 @click.option('--reduce',
@@ -156,44 +162,42 @@ def keyvalue_parser(ctx, parameter, value):
             is_flag=True,
             default=False,
             help="Reduce the output by symmetry-equivalent sites. "
+        "The merged equivalent sites are averaged. "
+        "If there are CIF-style labels present, then these override the symmetry-grouping in "
+        "case of a clash. "
         "Note that this doesn't take into account magnetic symmetry!")
-# flag to average over equivalent sites
-@click.option('--average',
-            '-a',
-            is_flag=True,
-            default=False,
-            help="Average over equivalent sites. "
-        "Note that this doesn't take into account magnetic symmetry!")
-# option to specify group_pattern for averaging
-@click.option('--average-group',
-            '-g',
-            type=str,
-            default=None,
-            help="Group pattern for averaging. "
-            "Currently only works for XHn groups such as CH3, CH2 etc."
-            "You can specify several, comma separated"
-             "If not specified, no averaging is performed.")
-
-
 # symprec flag
 @click.option('--symprec',
             type=click.FLOAT,
             default=1e-4,
             help="Symmetry precision for symmetry reduction. "
         "Defaults to 1e-4.")
-# flag to suppress some output
-@click.option('--quiet',
-            '-q',
-            is_flag=True,
-            default=False,
-            help="If present, suppress print headers and append filename to each line")
+# option to specify group_pattern for averaging
+@click.option('--average-group',
+            '-g',
+            type=str,
+            default=None,
+            help="Group pattern for averaging. "
+            "Currently only works for XHn groups such as CH3, CH2, NH2 etc. "
+            "You can specify several, comma separated as in ``-g CH3,CH2,NH2``. "
+            "If not specified, no averaging is performed.")
+# combine rule
+@click.option('--combine-rule',
+            default='mean',
+            type=click.Choice(['mean', 'first']),
+            help="How to combine the data from equivalent sites. "
+        "``mean`` is the default, which averages the data. "
+        "``first`` Takes the first item from each group of equivalent sites. "
+        "Special handling for labels, indices, tags and multiplicity. "
+        "Set verbose to True to see what rules have been used.")
 #  what to extract/analyse
 @click.option('--properties',
             '-p',
             type=click.Choice(implemented_properties),
             default=['efg', 'ms'],
             multiple=True,
-            help="Properties for which to extract and summarise e.g. '-p ms -p efg'"
+            help="Properties for which to extract and summarise e.g. ``-p ms.`` "
+            "They can be combined by using the flag multiple times: ``-p ms -p efg.`` "
             "Defaults to both ms and efg.")
 # optional argument for the precision of the output
 @click.option('--precision',
@@ -205,12 +209,14 @@ def keyvalue_parser(ctx, parameter, value):
             'euler_convention',
             type=click.Choice(['zyz', 'zxz']),
             default='zyz',
-            help="Convention for Euler angles. Defaults to 'zyz'.")
+            help="Convention for Euler angles. Defaults to ``zyz``.")
 # sort by df column
 @click.option('--sortby',
             type=str,
             default=None,
-            help="Sort by column. Defaults to sorting by site number.")
+            help="Sort by column. Defaults to sorting by site number. "
+            "It can be any column in the output. "
+            "For example ``--sortby EFG_Vzz``")
 @click.option('--sort-order',
             type=click.Choice(['ascending', 'descending']),
             default='ascending',
@@ -219,20 +225,26 @@ def keyvalue_parser(ctx, parameter, value):
 @click.option('--references',
             callback = keyvalue_parser,
             default='',
-            help="Reference shielding for each element (in ppm). ")
+            help="Reference shielding for each element (in ppm). "
+            "The format is ``--references C:170,H:123``. "
+            "If the value is a single float, that reference will be used for all sites (not recommended!). ")
 @click.option('--gradients',
             callback = keyvalue_parser,
             default='',
             help="Reference shielding gradients for each element. "
             "Defaults to -1 for all elements. Set it like this: "
-            "--gradients H:-1,C:-0.97")
+            "``--gradients H:-1,C:-0.97``. "
+            "If the value is a single float, that gradient will be used for all sites (not recommended!). "
+            )
 # todo: have an option to set a file/env variable for the references... 
 
 # flag to view
 @click.option('--view',
             is_flag=True,
             default=False,
-            help="If present, view the structure with the ASE GUI.")
+            help="If present, view the structure(s) with the ASE GUI."
+            "Note that the ASE GUI can color the sites according to their tags. "
+            "This can be used to see what sites were tagged as equivalent.")
 
 
 # verbose flag
@@ -254,10 +266,9 @@ def nmr(files,
         references,
         gradients,
         reduce,
-        average,
         average_group,
+        combine_rule,
         symprec,
-        quiet,
         properties,
         precision,
         euler_convention,
@@ -321,7 +332,6 @@ def nmr(files,
                 click.echo('\nTagging equivalent sites')
 
             tags = UniqueSites.get(atoms, symprec=symprec)
-            atoms.set_tags(tags)
             if verbose:
                 unique_sites, unique_site_idx = np.unique(tags, return_index=True)
                 click.echo('    This leaves {0} unique sites'.format(len(unique_sites)))
@@ -352,6 +362,8 @@ def nmr(files,
                     tags[group] = -(ipat+1)*1e5-ig
         # update atoms object with new labels
         atoms.set_array('labels', labels)
+        # update atoms tags
+        atoms.set_tags(tags)
         
         # select subset of atoms based on selection string
         if selection:
@@ -408,10 +420,10 @@ def nmr(files,
         df = df.iloc[selection_indices]
 
         # apply group averaging
-        if average_group or average or reduce:
+        if average_group or reduce:
             # These are the rules for aggregating groups
             # Default rule: take the mean
-            aggrules = dict.fromkeys(df, 'mean')
+            aggrules = dict.fromkeys(df, combine_rule)
             # note we could add more things here! e.g.
             # aggrules = dict.fromkeys(df, ['mean', 'std'])
             # for most of the columns that have objects, we just take the first one
@@ -449,7 +461,7 @@ def nmr(files,
         if verbose:
             total_explicit_sites = df['multiplicity'].sum()
             click.echo(f'\nFound {total_explicit_sites} total sites.')
-            if average_group or average or reduce:
+            if average_group or reduce:
                 click.echo(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
 
 
@@ -459,6 +471,22 @@ def nmr(files,
             click.echo(FOOTER)
         
     if view:
+        # If it's organic molecule/structure
+        # we usaully want to reload with molecular units intact
+        from soprano.properties.linkage import Molecules
+        for i, atoms in enumerate(images):
+            elements = set(atoms.get_chemical_symbols())
+            # Rough very basic check if it's organic:
+            if 'C' in elements and 'H' in elements:
+                # let's assume this is an organic molecule/crystal
+                # and try to reload the atoms object with the correct
+                # connectivity:
+                mols = Molecules.get(atoms)
+                temp = mols[0].subset(atoms, use_cell_indices=True)
+                for mol in mols[1:]:
+                    temp.extend(mol.subset(atoms, use_cell_indices=True))
+                images[i] =temp
+
         aseview(images)
     if merge:
         # merge all dataframes into one
