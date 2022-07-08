@@ -214,7 +214,8 @@ class TestPropertyLoad(unittest.TestCase):
 
     def test_labelprops(self):
 
-        from soprano.properties.labeling import MoleculeSites, HydrogenBondTypes
+        from soprano.properties.labeling import MoleculeSites, HydrogenBondTypes, UniqueSites
+        from collections import OrderedDict
 
         a = read(os.path.join(_TESTDATA_DIR, "nh3.cif"))
 
@@ -234,6 +235,29 @@ class TestPropertyLoad(unittest.TestCase):
         ] * 12
 
         self.assertEqual(HydrogenBondTypes.get(a), hbtypes)
+
+        # Now we test labelleing Unique Sites
+        a = read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        tagged_sites = UniqueSites.get(a, symprec=1e-3)
+        max_tag = max(tagged_sites)
+        # Z = 4 for this molecule, so we should have 4 copies of each 
+        # site. 
+        self.assertEqual(len(tagged_sites) / len(set(tagged_sites)), 4)
+        
+        # Now we make sure that
+        # the symmetry-unique sites that remain are those we 
+        # would expect based on the existing CIF labels.
+        
+        # get indices of unique cif labels using OrderedDict
+        unique_sites = [np.argmax(np.array(tagged_sites)==i) for i in range(max_tag+1)]
+        labels = a.get_array('labels')
+        unique_cif_labels = list(OrderedDict.fromkeys(labels))
+        # take first match of each unique cif label
+        sel_i_cif = [np.argmax(np.array(labels)==i) for i in unique_cif_labels]
+        # test that they all match
+        all_matched = all(np.array(unique_sites) == np.array(sel_i_cif))
+        self.assertTrue(all_matched)
+
 
     def test_transformprops(self):
 
