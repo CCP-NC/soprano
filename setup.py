@@ -68,11 +68,12 @@ if __name__ == "__main__":
                 "phylogen = " "soprano.scripts.phylogen:__main__",
                 "magresaverage = " "soprano.scripts.msaverage:__main__",
                 "extract_nmr = " "soprano.scripts.extract_nmr:__main__",
+                "soprano = " "soprano.scripts.cli:cli",
             ]
         },
         use_2to3=False,
         convert_2to3_doctests=[],
         # Requirements
-        install_requires=["numpy>=1.18.5,<2.0", "scipy", "ase>=3.23", "spglib>=2.4"],
+        install_requires=["numpy>=1.18.5,<2.0", "scipy", "ase>=3.23", "spglib>=2.4", "click", "pandas"],
         python_requires=">=3.8",
     )
