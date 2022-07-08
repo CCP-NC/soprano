@@ -22,7 +22,6 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "July 04, 2022"
 
 
-from tabnanny import verbose
 import click
 import numpy as np
 import re
@@ -30,15 +29,12 @@ import os
 import sys
 import re
 from ase import io
-from ase.spacegroup import get_spacegroup
 from ase.visualize import view as aseview
 from soprano.properties.labeling import UniqueSites
-from soprano.properties.linkage import Bonds
 from soprano.properties.nmr import *
 from soprano.data.nmr import _el_iso, _get_isotope_list
 from soprano.selection import AtomSelection
 from soprano.utils import has_cif_labels
-from collections import OrderedDict
 import pandas as pd
 import warnings
 HEADER = '''
@@ -103,7 +99,7 @@ def keyvalue_parser(ctx, parameter, value):
 
     keyvaluedict = {}
     if value != '':
-        for sym in re.split(',|;', value):
+        for sym in re.split(',', value):
             try:
                 el, reference = re.split(":|=", sym)
                 keyvaluedict[el] = float(reference)
