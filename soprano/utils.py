@@ -55,8 +55,13 @@ def has_cif_labels(atoms):
     Does this simply by comparing the labels with the element symbols.
     If they're all the same, then so special labels are present.  
     """
+    if not atoms.has('labels'):
+        return False
     symbols = atoms.get_chemical_symbols()
     labels = atoms.get_array('labels')
+    if not all(symbols == labels) and any(symbols == labels):
+        warnings.warn("A mix of cif and non-cif-stlye labels detected.")
+        
     return not all(symbols == labels)
 
 

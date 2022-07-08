@@ -25,9 +25,10 @@ from __future__ import unicode_literals
 import numpy as np
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
-from soprano.utils import recursive_mol_label
+from soprano.utils import recursive_mol_label, has_cif_labels
 from soprano.properties.linkage import Molecules, HydrogenBonds, Bonds
 from ase.spacegroup import get_spacegroup
+import warnings
 
 
 class SiteLabels(AtomsProperty):
@@ -338,12 +339,15 @@ class UniqueSites(AtomsProperty):
     default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4}
 
     @staticmethod
-    def extract(s, force_recalc, save_info, symprec):
-
+    def extract(s, force_recalc, save_info, symprec, override_cif = False):
+        #-------------------------------------------------------------------#
+        # symmetry reduction:
         # first we need the spacegroup
         sg = get_spacegroup(s)
         # tag each symmetry group of equivaluent sites with a unique integer label
         tags = sg.tag_sites(s.get_scaled_positions(), symprec=symprec)
+
+        unique_tags, uniqueinds = np.unique(tags, return_index=True)
 
 
         # -- check to make sure that no two elements have the same tag --#
@@ -359,6 +363,39 @@ class UniqueSites(AtomsProperty):
         if set.intersection(*element_unique_tags) != set():
             raise ValueError("Some elements have the same 'unique-by-symmetry' tag -- this is not allowed.")
         #-------------------------------------------------------------------#
+        # CIF label-based reduction
+        #-------------------------------------------------------------------#
+        if has_cif_labels(s):
+            from collections import OrderedDict
+            ciflabels = s.get_array('labels')
+            _, unique_cif_inds, unique_cif_tags = np.unique(ciflabels, return_index=True, return_inverse=True)
+            # sort
+            unique_cif_inds = np.sort(unique_cif_inds)
+            unique_cif_labels = ciflabels[unique_cif_inds]
+            unique_cif_tags = unique_cif_tags[unique_cif_inds]
+            cif_tags = np.array([np.where(lab == unique_cif_labels)[0][0] for lab in ciflabels])
+            
+            offset = max(tags) - max(cif_tags)
+            if len(uniqueinds) != len(unique_cif_tags) or set(tags) != set(cif_tags):
+                all_matched = False
+            else:
+                all_matched = (tags == (cif_tags+offset)).all()
+            if not all_matched:
+                mismatch_locations = np.where(tags != (cif_tags+offset))[0]
+                warnings.warn("The symmetry-reduced sites don't match the CIF labels!"
+                "Manually check that the symmetry reduction is working as expected."
+                f"\nThe mismatched sites are: {ciflabels[mismatch_locations]} at {mismatch_locations}"
+                )
+                
+                if not override_cif:
+                    warnings.warn(
+                        "\nProceeding with the CIF label reduction rather than the symmetry reduction.")
+                    tags = cif_tags
+                else:
+                    warnings.warn(
+                        "\nProceeding with the symmetry reduction rather than the CIF label reduction."
+                        "\nThis is because the override_cif flag was set to True.")
+                    tags = cif_tags
 
 
         if save_info:

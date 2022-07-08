@@ -372,18 +372,23 @@ class AtomSelection(object):
             sites = re.split('([a-zA-Z]+)', split)[1:]
             el = sites.pop(0)
             # make sure no numbers left in el
-            assert not has_numbers(el)
+            if has_numbers(el):
+                raise ValueError("Problem parsing selection string: " + selection_string
+                                 + " - wasn't expect more numbers in " + el)
             # get the indices of each element in the atoms object
             element_indices = AtomSelection.from_element(atoms, el).indices
             # make sure the chosen element is present!
-            assert el in atoms.symbols
+            if not el in atoms.symbols:
+                raise ValueError(
+                    "Element {0} not present in the atoms object".format(el)
+                )
             # make sure the spitting worked as expected
             sites = sites[0]
             
             # if empty string -> select all element indices
             if sites == '':
                 selection[el] = element_indices
-                break
+                continue
 
             # if starts with period -> regular index
             if sites[0] == '.':
@@ -410,8 +415,16 @@ class AtomSelection(object):
             else:
                 # must be a cif-style label!
                 # sites is of the form 'C1'
-                assert not has_hyphen(sites) # no hyphens allowed for now
-                assert not has_period(sites) # no periods allowed for now
+                if has_hyphen(sites):
+                    raise ValueError(
+                        "Error - hyphen in selection string while using cif labels."
+                        "Use explicit comma-separated string intead. e.g. '-s C1,C2'"
+                    )
+                if has_period(sites):
+                    raise ValueError(
+                        "Error - period in selection string while using cif labels"
+                        "Use explicit comma-separated string intead. e.g. '-s C1,C2'"
+                    )
                 # use 'split' as the label to look for:
                 indices = np.where(atoms.get_array('labels') == split)[0]
                 if len(indices) == 0:
@@ -594,3 +607,49 @@ class AtomSelection(object):
         sel_i = np.where(op(arr, value))[0]
 
         return AtomSelection(atoms, sel_i)
+
+
+    @staticmethod
+    def unique(atoms, symprec=1e-4):
+        """Generate a selection for the given Atoms object containing
+        only the symmetry-unique atoms.
+
+        We use the spacegroup as found by spglib to determine the symmetry
+        operations and then use these to tag the equivalent atoms.
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   sympres (float): tolerance for symmetry equivalence
+        | Returns:
+        |   selection (AtomSelection)
+
+        """
+        from soprano.properties.labeling import UniqueSites
+        from soprano.utils import has_cif_labels
+
+        sitetags = UniqueSites.get(atoms)
+        max_tag = max(sitetags)
+        sel_i = [np.argmax(np.array(sitetags)==i) for i in range(max_tag+1)]
+        # Now we make sure that, for structures with cif labels
+        # the symmetry-unique sites that remain are those we 
+        # would expect based on the existing CIF labels.
+        if has_cif_labels(atoms):
+            ciflabels = atoms.get_array('labels')
+            # get indices of unique cif labels using OrderedDict
+            unique_cif_labels = list(OrderedDict.fromkeys(ciflabels))
+            # take first match of each unique cif label
+            sel_i_cif = [np.argmax(np.array(ciflabels)==i) for i in unique_cif_labels]
+            # test that they all match otherwise raise warning
+            if len(sel_i_cif) != len(unique_cif_labels):
+                all_matched = False
+            else:
+                all_matched = all(np.array(sel_i) == np.array(sel_i_cif))
+            if not all_matched:
+                warnings.warn("The symmetry-reduced sites don't match the CIF labels!"
+                "Manually check that the symmetry reduction is working as expected."
+                "Proceeding with the CIF label reduction rather than the symmetry reduction.")
+                sel_i = sel_i_cif
+
+        sel = AtomSelection(atoms, sel_i)
+        
+        return sel
