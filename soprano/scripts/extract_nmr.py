@@ -21,7 +21,7 @@
 # - Add selection by X
 #    - got sumo-style atom selection down. What else would be good to implement now? 
 #  ~~Add support for custom isotopes~~
-# - Add function to symmetry-reduce the output -- merge symmetry-equivalent sites
+# - ~~Add function to symmetry-reduce the output -- merge symmetry-equivalent sites~~
 #    - e.g. get asymmetric unit cell for molecular crystals
 
 # Python 2-to-3 compatibility code
@@ -33,6 +33,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 import argparse as ap
+import re
 import os
 import sys
 from ase import io
@@ -56,19 +57,18 @@ __date__ = "March 21, 2022"
 def isotope_selection(selection_string):
     """Parse the isotope string. Adapted from [sumo](https://github.com/SMTG-UCL/sumo)
     Args:
-        selection_string (str): The isotopes specification, in the form ``"H.2,N.15" for deuterium and N 15``.
+        selection_string (str): The isotopes specification, in the form ``"2H,15N" for deuterium and 15N``.
     Returns:
         dict: The isotope for each element specified. Formatted as::
             {Element: Isotope}.
     """
-    selection = {}
+    isotope_dict = {}
     for split in selection_string.split(","):
-        isotopes = split.split(".")
-        el = isotopes.pop(0)
-        isotopes = list(map(int, isotopes))
-        assert len(isotopes) == 1 # anything else doesn't make sense
-        selection[el] = isotopes[0]
-    return selection
+        matchobj = re.match(r"(\d+)([A-Z][a-z]?)", split)
+        el = matchobj.group(2)
+        isotope = int(matchobj.group(1))
+        isotope_dict[el] = isotope
+    return isotope_dict
 
 def __main__():
 
@@ -109,8 +109,8 @@ def __main__():
         type=isotope_selection,
         metavar="I",
         default={},
-        help=('Isotopes specification (e.g. "C.13" carbon 13 '
-        '"H.2,N.15" deuterium and N 15). '
+        help=('Isotopes specification (e.g. "13C" for carbon 13 '
+        '"2H,15N" for deuterium and N 15). '
         'When nothing is specified it defaults to the most common NMR active isotope.'),
     )
     # add argument to reduce by symmetry
@@ -119,6 +119,14 @@ def __main__():
         "--reduce",
         action="store_true",
         help=("Reduce the output by symmetry-equivalent sites. "
+        "Note that this doesn't take into account magnetic symmetry!"),
+    )
+    #add option to average over reduced groups
+    parser.add_argument(
+        "-a",
+        "--average",
+        action="store_true",
+        help=("Average over symmetry-equivalent sites. "    
         "Note that this doesn't take into account magnetic symmetry!"),
     )
     # add option to set the symprec
@@ -146,6 +154,21 @@ def __main__():
         help="Properties for which to extract and summarise e.g. '-p ms efg'"
          "(default: ms and efg)",
     )
+    # optional argument for the precision of the output
+    parser.add_argument(
+        "--precision",
+        type=int,
+        default=3,
+        help="Precision of the output (default: 3) -- number of decimal places",
+    )
+    ## add optional argument for euler angle convention
+    parser.add_argument(
+        "--euler",
+        type=str,
+        default="zyz",
+        help="Euler angle convention (default: zyz). Can be either 'zyz' or 'zxz'",
+    )
+
     ## output csv? default False 
     parser.add_argument('--csv',    action='store_true', 
         help="output data to a CSV file for each .magres file"
@@ -163,6 +186,9 @@ def __main__():
 
     # how many files are to be summarised? 
     nfiles = len(args.input_files)
+
+    # label precision
+    PREC = args.precision
 
     # comma or tab separated?
     if args.csv:
@@ -198,47 +224,50 @@ def __main__():
             print("File {0} has no {1} data extract, skipping".format(f, ' '.join(properties)))
             continue
 
-        
+        # create new array for multiplicities
+        multiplicities = np.ones(len(atoms))
+        atoms.set_array('multiplicities', multiplicities)
+
         # reduce by symmetry?
         if args.reduce:
             symprec = args.symprec
-            # sg = get_spacegroup(atoms, symprec=symprec)
-            # sites, mask = sg.unique_sites(atoms.get_scaled_positions(), symprec=symprec, output_mask=True, map_to_unitcell=True)
-            # inds = np.where(mask)[0]
-            # print(mask, inds)
-            # atoms = AtomSelection(atoms, inds).subset(atoms)
-            sitetags = UniqueSites.get(atoms)
-            max_tag = max(sitetags)
-            inds = [np.argmax(np.array(sitetags)==i) for i in range(max_tag+1)]
-            # Now we make sure that, for structures with cif labels
-            # the symmetry-unique sites that remain are those we 
-            # would expect based on the existing CIF labels.
-            if has_cif_labels(atoms):
-                ciflabels = atoms.get_array('labels')
-                # get indices of unique cif labels using OrderedDict
-                unique_cif_labels = list(OrderedDict.fromkeys(ciflabels))
-                # take first match of each unique cif label
-                inds_cif = [np.argmax(np.array(ciflabels)==i) for i in unique_cif_labels]
-                # test that they all match otherwise raise warning
-                all_matched = all(np.array(inds) == np.array(inds_cif))
-                if not all_matched:
-                    warnings.warn("The symmetry-reduced sites don't match the CIF labels!"
-                    "Manually check that the symmetry reduction is working as expected."
-                    "Proceeding with the CIF label reduction rather than the symmetry reduction.")
-                    inds = inds_cif
+            tags = UniqueSites.get(atoms, symprec=symprec)
+            groups = [np.where(tags == i)[0] for i in range(max(tags))]
 
-            atoms = AtomSelection(atoms, inds).subset(atoms)
-            
+            # update multiplicities
+            group_multiplicities = [len(g) for g in groups]
+            for i, g in enumerate(groups):
+                multiplicities[g] = group_multiplicities[i]
+            atoms.set_array('multiplicities', multiplicities)
+            # average properties within each group
+            if args.average: 
+                for p in properties:
+                    arr = atoms.get_array(p)
+                    for group in groups:
+                        # print(f"Average {p} over symmetry-equivalent sites {group}")
+                        arr[group] = np.average(arr[group], axis=0)
+                    atoms.set_array(p, arr)
+
+            # create a new atoms object with only the unique sites
+            # taking the first site from each group
+            uniqueinds = [groups[i][0] for i in range(len(groups))]
+            atoms = AtomSelection(atoms, uniqueinds).subset(atoms)
 
 
+            print(atoms.get_array('multiplicities'))
+            # atoms = AtomSelection.unique(atoms, symprec=symprec).subset(atoms)
 
-        # select subset of atoms
+        # select subset of atoms based on selection string
         if args.select:
-            atoms = AtomSelection.from_selection_string(atoms, args.select).subset(atoms)
-        
-        # Obtain nice labels for subset atoms:
+            sel_selectionstring = AtomSelection.from_selection_string(atoms, args.select)
+            atoms = sel_selectionstring.subset(atoms)
+
+        # Note we could have combined selections as in Tutorial 3, but then 
+        # we lose the nice ordering of the atoms so better to apply selections successively...        
+
+        # Obtain labels for subset atoms:
         indices = atoms.get_array('indices')
-        labels  = ["{0}   {1}".format(l, i) for l, i in zip(atoms.get_array('labels'), indices)]
+        labels = atoms.get_array('labels')
 
 
 
@@ -253,6 +282,7 @@ def __main__():
                 # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
                 iso   = MSIsotropy.get(atoms)
                 aniso = MSAnisotropy.get(atoms)
+                red_aniso = MSReducedAnisotropy.get(atoms)
                 asymm = MSAsymmetry.get(atoms)
                 # Span and skew
                 span = MSSpan.get(atoms)
@@ -269,6 +299,7 @@ def __main__():
                                      'Index',
                                      'Isotropy/ppm', 
                                      'Anisotropy/ppm', 
+                                     'Red.anisotropy/ppm', 
                                      'Asymmetry', 
                                      'Span/ppm', 
                                      'Skew', 
@@ -276,14 +307,14 @@ def __main__():
                                      'beta/deg', 
                                      'gamma/deg']
                     summary += [f'{sep}'.join([f'{lab:<9}' for lab in table_headers])]
-                indices = atoms.get_array('indices')
-                labels = atoms.get_array('labels')
                 for i, jl in enumerate(labels):
-                    a, b, c = quat[i].euler_angles(mode='zyz')*180/np.pi # rad to degrees
+                    a, b, c = quat[i].euler_angles(mode=args.euler)*180/np.pi # rad to degrees
                     summary +=[f'{jl: <5}{sep} {indices[i]:>9d}{sep} \t' + \
-                               f'{iso[i]:12.2f}{sep} {aniso[i]:14.2f}{sep} {asymm[i]:9.2f}{sep}' + \
-                               f'{span[i]:8.2f}{sep}{skew[i]:5.2f}{sep}' + \
-                               f'\t{a:9.2f}{sep} {b:9.2f}{sep} {c:9.2f}']
+                               f'{iso[i]:12.{PREC}f}{sep} ' +\
+                               f'{aniso[i]:13.{PREC}f}{sep} {red_aniso[i]:17.{PREC}f}{sep}' + \
+                               f'{asymm[i]:9.{PREC}f}{sep}' + \
+                               f'{span[i]:8.{PREC}f}{sep}{skew[i]:5.{PREC}f}{sep}' + \
+                               f'\t{a:9.{PREC}f}{sep} {b:9.{PREC}f}{sep} {c:9.{PREC}f}']
                     if args.quiet:
                         # add file path to end if in quiet mode
                         summary += [f]
@@ -335,11 +366,11 @@ def __main__():
                     summary += [f'{sep}'.join([f'{lab:^9}' for lab in table_headers])]
 
                 for i, jl in enumerate(labels):
-                    a, b, c = quat[i].euler_angles(mode='zyz')*180/np.pi # rad to degrees
+                    a, b, c = quat[i].euler_angles(mode=args.euler)*180/np.pi # rad to degrees
                     summary +=[f'{jl:<5}{sep} {indices[i]:>9d}{sep}\t' +\
-                               f'{vzz[i]:9.2f}{sep} {qC[i]:12.4e}{sep}' + \
-                               f'{eta[i]:8.3f}{sep}' + \
-                               f'{a:9.2f}{sep} {b:9.2f}{sep} {c:9.2f}']
+                               f'{vzz[i]:9.{PREC}f}{sep} {qC[i]:12.{PREC}e}{sep}' + \
+                               f'{eta[i]:8.{PREC}f}{sep}' + \
+                               f'{a:9.{PREC}f}{sep} {b:9.{PREC}f}{sep} {c:9.{PREC}f}']
                     if args.quiet:
                         # add file path to end if in quiet mode
                         summary[-1] += f'  {f}'
