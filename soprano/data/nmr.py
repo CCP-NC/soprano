@@ -53,13 +53,15 @@ def _get_nmr_data():
             "wrong with this installation of Soprano"
         )
 
-
-def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes=False):
-
+def _get_isotope_list(elems, isotopes={}, isotope_list=None, use_q_isotopes=False):
+    '''
+    elems can be a single element string or a list of elements
+    returns the isotope number for each element elems
+    '''
     if isinstance(elems, str):
         elems = [elems]  # It's a single element
 
-    data = np.zeros(len(elems))
+    isotopelist = np.zeros(len(elems), dtype=int)
     nmr_data = _get_nmr_data()
 
     for i, e in enumerate(elems):
@@ -75,13 +77,24 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes
             iso = isotopes[e]
         if isotope_list is not None and isotope_list[i] is not None:
             iso = isotope_list[i]
+        isotopelist[i] = iso
+    return isotopelist
 
+def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes=False):
+    isotopelist = _get_isotope_list(elems, isotopes=isotopes, isotope_list=isotope_list, use_q_isotopes=use_q_isotopes)
+    
+    data = np.zeros(len(elems))
+    nmr_data = _get_nmr_data()
+
+    for i, iso in enumerate(isotopelist):
+        el = elems[i]
         try:
-            data[i] = nmr_data[e][str(iso)][key]
+            data[i] = nmr_data[el][str(iso)][key]
         except KeyError:
             raise RuntimeError(
                 "Data {0} does not exist for isotope {1} of "
-                "element {2}".format(key, iso, e)
+                "element {2}.\n"
+                "Edit the file soprano/data/nmrdata.json to add custom isotopes.".format(key, iso, el)
             )
 
     return data
@@ -163,7 +176,7 @@ def nmr_quadrupole(el, iso=None):
     |   iso (int):  isotope. Default is the most abundant one.
 
     | Returns:
-    |   Q (float):  quadrupole moment in barns
+    |   Q (float):  quadrupole moment in  millibarns
     """
 
     isotopes = {}
