@@ -28,4 +28,5 @@ from soprano.properties.labeling.labeling import (
     HydrogenBondTypes,
     CarbonHybridationState,
     UniqueSites,
+    MagresViewLabels,
 )

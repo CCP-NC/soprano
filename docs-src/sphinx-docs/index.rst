@@ -9,8 +9,9 @@ Welcome to Soprano's documentation! - |release| release
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
+   cli
    doctree/modules
 
 .. automodule:: soprano

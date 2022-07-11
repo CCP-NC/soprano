@@ -33,13 +33,14 @@ import sys
 import re
 from ase import io
 from ase.visualize import view as aseview
-from soprano.properties.labeling import UniqueSites
+from soprano.properties.labeling import UniqueSites, MagresViewLabels
 from soprano.properties.nmr import *
 from soprano.data.nmr import _el_iso, _get_isotope_list
 from soprano.selection import AtomSelection
 from soprano.utils import has_cif_labels
 import pandas as pd
 import warnings
+from collections import OrderedDict
 HEADER = '''
 ##########################################
 #  Extracting NMR info from magres file  #
@@ -59,6 +60,23 @@ cif2cell. e.g. for CASTEP:
 cif2cell mystructure.cif --export-cif-labels -p castep
 
 '''
+# We need to rename the columns to include units before printing
+UNITS = {
+    "MS_shielding": "ppm",
+    "MS_shift": "ppm",
+    "MS_anisotropy": "ppm",
+    "MS_reduced_anisotropy": "ppm",
+    "MS_span": "ppm",
+    "MS_alpha": "deg",
+    "MS_beta": "deg",
+    "MS_gamma": "deg",
+    "EFG_Vzz": 'au',
+    "EFG_quadrupolar_constant": 'MHz',
+    "EFG_alpha": "deg",
+    "EFG_beta": "deg",
+    "EFG_gamma": "deg",
+}
+
 implemented_properties = ['ms', 'efg']
 def isotope_selection(ctx, parameter, isotope_string):
     """Parse the isotope string.
@@ -109,6 +127,53 @@ def keyvalue_parser(ctx, parameter, value):
             except Exception as e:
                 raise e
     return keyvaluedict
+
+def get_column_list(ctx, parameter, value):
+    """Parse the column names string.
+    TODO: Document this a bit better.
+    Args:
+        ctx: click context
+        parameter: click parameter
+        value (str): The column names, comma-separated.
+                    Some shortcuts defined for MS_angles and EFG_angles.
+    Returns:
+        list: The column names specified.
+    """
+    if value == '' or value is None:
+        return None
+    # shortcuts for some column groups
+    special_names = {'MS_angles': 
+                        ['MS_alpha',
+                        'MS_beta',
+                        'MS_gamma'],
+                    'EFG_angles':
+                        ['EFG_alpha',
+                        'EFG_beta',
+                        'EFG_gamma',
+                            ],
+                    'MS_defaults':
+                        ['MS_shielding',
+                        'MS_anisotropy',
+                        'MS_reduced_anisotropy',
+                        'MS_asymmetry'],
+                    'EFG_defaults':
+                        ['EFG_Vzz',
+                        'EFG_quadrupolar_constant',
+                        'EFG_asymmetry'],
+
+                    }
+    special_names['default'] = special_names['MS_defaults'] + special_names['EFG_defaults']
+
+    specified_columns = [c.strip() for c in value.split(',')]
+    # replace special names
+    for special_name, special_cols in special_names.items():
+        if special_name in specified_columns:
+            specified_columns.remove(special_name)
+            specified_columns.extend(special_cols)
+    # make sure no duplicates, preserving order
+    specified_columns = list(OrderedDict.fromkeys(specified_columns))
+    return specified_columns
+
 
 @click.command()
 
@@ -237,6 +302,34 @@ def keyvalue_parser(ctx, parameter, value):
             "If the value is a single float, that gradient will be used for all sites (not recommended!). "
             )
 # todo: have an option to set a file/env variable for the references... 
+# flag to include certain columns only
+@click.option('--include',
+            callback=get_column_list,
+            default=None,
+            help="Include only certain columns. "
+            "The columns are specified as a comma-separated list. "
+            "For example ``--include MS_shielding,EFG_Vzz``. "
+            "Defaults to all columns.")
+# flag to exclude certain columns
+@click.option('--exclude',
+            callback=get_column_list,
+            default=None,
+            help="Exclude certain columns. "
+            "The columns are specified as a comma-separated list. "
+            "For example ``--exclude MS_alpha,MS_beta,MS_gamma``. "
+            "Defaults to None.")
+# flag to filter results
+@click.option('--query',
+            type=str,
+            default=None,
+            help="Filter results based on query. "
+            "The filter is specified as a pandas query. "
+            "Note that you must enclose the query in quotes! "
+            "Refer to the column names without the units.  "
+            "For example ``--query 'MS_shielding > 100'``. "
+            "You can combine queries with ``and`` and ``or`` etc. "
+            "e.g. ``--query 'MS_shielding > 100 and MS_shielding < 180'``. "
+            "Defaults to #nofilter :).")
 
 # flag to view
 @click.option('--view',
@@ -274,6 +367,9 @@ def nmr(files,
         euler_convention,
         sortby,
         sort_order,
+        include,
+        exclude,
+        query,
         view,
         verbose):
     """
@@ -313,9 +409,13 @@ def nmr(files,
         if not any([atoms.has(k) for k in properties]):
             click.secho("Warning, file {0} has no {1} data extract, skipping {1}".format(fname, ' '.join(properties)), fg='red')
             continue
+
+        # Inform user of best practice RE CIF labels
         if verbose:
             if not has_cif_labels(atoms):
                 click.secho(NO_CIF_LABEL_WARNING, fg='blue')
+            
+
         all_selections = AtomSelection.all(atoms)
         # create new array for multiplicity
         multiplicity = np.ones(len(atoms))
@@ -382,6 +482,13 @@ def nmr(files,
                 'multiplicity': atoms.get_array('multiplicity'),
                 'tags': tags,
                 })
+
+        # If there are no cif labels, generate and save MagresView-style labels
+        if not has_cif_labels(atoms):
+            # generate MagresView-type Labels
+            magresview_labels = MagresViewLabels.get(atoms)
+            df.insert(2, 'MagresView_labels', magresview_labels)
+
         # Let's add a column for the file name -- useful to keep track of 
         # which file the data came from if merging multiple files.
         df['file'] = fname
@@ -390,7 +497,7 @@ def nmr(files,
                 ms_summary = pd.DataFrame(get_ms_summary(atoms, euler_convention, references, gradients))
                 if not references:
                     # drop shift column if no references are given
-                    ms_summary.drop(columns=['MS_shift/ppm'], inplace=True)
+                    ms_summary.drop(columns=['MS_shift'], inplace=True)
 
                 df = pd.concat([df, ms_summary], axis=1)
             except KeyError:
@@ -465,6 +572,47 @@ def nmr(files,
                 click.echo(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
 
 
+        if query:
+            # use pandas query to filter the dataframe
+            if verbose:
+                click.echo(f'\nFiltering dataframe using query: {query}')
+            df.query(query, inplace=True)
+            if verbose:
+                click.echo(f'-----> Filtered to {len(df)} sites.')
+
+
+        # what columns should we include/exclude?
+        essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
+        # shortcuts for some column groups
+        special_names = {'MS_angles': 
+                            ['MS_alpha',
+                            'MS_beta',
+                            'MS_gamma'],
+                        'EFG_angles':
+                            ['EFG_alpha',
+                            'EFG_beta',
+                            'EFG_gamma',
+                             ]
+                        }
+        if include:
+            # what columns should we include/exclude?
+            essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
+            specified_columns = [c for c in include if c not in essential_columns]
+            columns_to_include =essential_columns + specified_columns
+            if verbose:
+                click.echo(f'\nIncluding only columns: {specified_columns}')
+            if any([c not in df.columns for c in columns_to_include]):
+                raise ValueError(f'Not all columns requested {specified_columns}'
+                                 f' are in the dataframe ({df.columns})')
+            df = df[columns_to_include].copy()
+        if exclude:
+            if verbose:
+                click.echo(f'\nExcluding columns: {exclude}')
+            # remove those that are already not in df
+            specified_columns = [c for c in exclude if c in df.columns]
+            df = df.drop(specified_columns, axis=1)
+
+
         dfs.append(df)
         images.append(atoms)
         if verbose:
@@ -499,8 +647,14 @@ def nmr(files,
         
 def print_results(dfs, output, output_format, verbose):
     nframes = len(dfs)
+    # rename columns to include units for those that have units
+    for df in dfs:
+        new_names = {name: f'{name}/{unit}' for name, unit in UNITS.items()}
+        df.rename(columns=new_names, inplace=True)
+
     if output:
         for i, df in enumerate(dfs):
+
             if nframes > 1:
                 # then we want to write out 
                 # each dataframe to a separate file
@@ -558,16 +712,16 @@ def get_ms_summary(atoms, euler_convention, references, gradients):
     quat = MSQuaternion.get(atoms)
     alpha, beta, gamma = np.array([q.euler_angles(mode=euler_convention)*180/np.pi for q in quat]).T
     ms_summary = {
-            'MS_shielding/ppm': iso,
-            'MS_shift/ppm': shift,
-            'MS_anisotropy/ppm': aniso,
-            'MS_reduced_anisotropy/ppm': red_aniso,
+            'MS_shielding': iso,
+            'MS_shift': shift,
+            'MS_anisotropy': aniso,
+            'MS_reduced_anisotropy': red_aniso,
             'MS_asymmetry': asymm,
-            'MS_span/ppm': span,
+            'MS_span': span,
             'MS_skew': skew,
-            'MS_alpha/deg': alpha,
-            'MS_beta/deg': beta,
-            'MS_gamma/deg': gamma
+            'MS_alpha': alpha,
+            'MS_beta': beta,
+            'MS_gamma': gamma
             }
     return ms_summary
     
@@ -591,12 +745,12 @@ def get_efg_summary(atoms, isotopes, euler_convention):
     quat = EFGQuaternion.get(atoms)
     alpha, beta, gamma = np.array([q.euler_angles(mode=euler_convention)*180/np.pi for q in quat]).T
     efg_summary = {
-                'EFG_Vzz/au': Vzz,
-                'EFG_quadrupolar_constant/MHz': qC,
+                'EFG_Vzz': Vzz,
+                'EFG_quadrupolar_constant': qC,
                 'EFG_asymmetry': eta,
-                'EFG_alpha/deg': alpha,
-                'EFG_beta/deg': beta,
-                'EFG_gamma/deg': gamma
+                'EFG_alpha': alpha,
+                'EFG_beta': beta,
+                'EFG_gamma': gamma
                 }
     return efg_summary
 
