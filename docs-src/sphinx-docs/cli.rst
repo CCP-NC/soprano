@@ -7,7 +7,8 @@ Soprano Command Line Interface
 
 
 Examples
-==========
+------------
+
 * Extract a full summary (will look for both EFG and MS data):
     ``soprano nmr seedname.magres``
 * Output summary to a CSV file:
@@ -34,9 +35,5 @@ Examples
     ``soprano nmr seedname.magres -p efg --isotopes 13C,2H``
 * If you want to get only the unique sites in the structure, use the reduce option:
     ``soprano nmr seedname.magres -r``
-
-
-
-
 
 

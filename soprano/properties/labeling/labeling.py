@@ -402,3 +402,36 @@ class UniqueSites(AtomsProperty):
             s.info[UniqueSites.default_name] = tags
 
         return tags
+
+class MagresViewLabels(AtomsProperty):
+
+    """
+    MagresViewLabels
+
+    Compute labels for a structure following the MagresView convention.
+
+    | Parameters:
+    |   save_asarray (bool): if True the magresview site labels are also saved
+    |                        as an array. By default False.
+    
+    | Returns:
+    |   magresview_labels (list[str]): A list of the computed site labels
+    """
+
+    default_name = "magresview_labels"
+    default_params = {"save_asarray": False}
+
+    @staticmethod
+    def extract(s, save_asarray):
+        # Magres labels
+        symbs = np.array(s.get_chemical_symbols())
+        elems = set(symbs)
+        mlabs = [""] * len(s)
+        for e in elems:
+            e_i = np.where(symbs == e)[0]
+            for i, j in enumerate(e_i):
+                mlabs[j] = "{0}_{1}".format(e, i + 1)
+        if save_asarray:
+            s.set_array(MagresViewLabels.default_name, mlabs)
+
+        return mlabs
