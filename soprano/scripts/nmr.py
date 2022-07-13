@@ -19,6 +19,7 @@
 TODO: add support for different shift {Haeberlen,NQR,IUPAC}and quadrupole {Haeberlen,NQR} conventions.
 TODO: check if df is too wide to fit in window -- if so, split into multiple plots.
 TODO: spinsys output is not yet implemented.
+TODO: document config file setup
 '''
 
 __author__ = "J. Kane Shenton"
@@ -204,7 +205,7 @@ def get_column_list(ctx, parameter, value):
                 )
 @click.option('--output',
             '-o',
-            type=str,
+            type=click.Path(exists=False),
             default=None,
             help='Output file name. If not specified, output is printed to stdout.')
 @click.option('--output-format',
@@ -224,7 +225,6 @@ def get_column_list(ctx, parameter, value):
 @click.option('--isotopes',
             '-i',
             callback = isotope_selection,
-            # type=isotope_selection,
             default='',
             metavar = 'ISOTOPES',
             help='Isotopes specification (e.g. ``-i 13C`` for carbon 13 '
@@ -236,7 +236,8 @@ def get_column_list(ctx, parameter, value):
             is_flag=True,
             default=False,
             help="Reduce the output by symmetry-equivalent sites. "
-        "The merged equivalent sites are averaged. "
+        "The merged equivalent sites are combined according to ``--combine-rule``. "
+        "To see the rules used for each column, set ``--verbose``. "
         "If there are CIF-style labels present, then these override the symmetry-grouping in "
         "case of a clash. "
         "Note that this doesn't take into account magnetic symmetry!")
@@ -382,7 +383,10 @@ def nmr(files,
         view,
         verbose):
     """
-    e.g. soprano nmr seedname.magres
+    Extract and analyse NMR data from magres file(s).
+    
+    Usage:
+    soprano nmr seedname.magres
 
     Processes .magres file(s) containing NMR-related properties
     and prints a summary. It defaults to printing all NMR properties

@@ -24,7 +24,9 @@ __date__ = "July 04, 2022"
 
 
 import click
-from soprano.scripts import  nmr
+import os
+from soprano.scripts import  nmr, nmr_plot
+from configparser import ConfigParser
 
 epilog = f"""
     Author: {__author__} ({__email__})\n
@@ -33,13 +35,46 @@ help_text = """
 A CLI tool to streamline common soprano tasks. It has various 
 subcommands, each of which has its own set of options and help.
 """
+# join home and config file
+home = os.path.expanduser('~')
+# get default soprano config file:
+DEFAULT_CFG = os.environ.get('SOPRANO_CONFIG', f'{home}/.soprano/config.ini')
+
+#callback to load config file
+def configure(ctx, param, filename):
+    cfg = ConfigParser()
+    cfg.read(filename)
+    ctx.default_map = {}
+    for sect in cfg.sections():
+        command_path = sect.split('.')
+        if command_path[0] != 'soprano':
+            continue
+        defaults = ctx.default_map
+        for cmdname in command_path[1:]:
+            defaults = defaults.setdefault(cmdname, {})
+        defaults.update(cfg[sect])
+
 @click.group(
     name="Soprano Command Line Interface",
-    help=help_text, epilog=epilog)
-def cli():
+    help=help_text, epilog=epilog,
+    invoke_without_command=True)
+
+@click.option(
+    '-c', '--config',
+    type         = click.Path(dir_okay=False),
+    default      = DEFAULT_CFG,
+    callback     = configure,
+    is_eager     = True,
+    expose_value = False,
+    show_default = True,
+    help         = 'Read option defaults from the specified INI file'
+                    'If not set, first checks environment variable: '
+                    '``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``',
+)
+def soprano():
     pass
 
-cli.add_command(nmr.nmr)
+soprano.add_command(nmr.nmr)
 
 if __name__ == '__main__':
-    cli()
+    soprano()
