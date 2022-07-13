@@ -359,8 +359,8 @@ class UniqueSites(AtomsProperty):
         element_tags = [tags[inds] for inds in element_indices]
         # unique tags for each element
         element_unique_tags = [set(el_tags) for el_tags in element_tags]
-        # check that no two elements have the same tag
-        if set.intersection(*element_unique_tags) != set():
+        # check that no two different elements have the same tag
+        if len(elems) > 1 and set.intersection(*element_unique_tags) != set():
             raise ValueError("Some elements have the same 'unique-by-symmetry' tag -- this is not allowed.")
         #-------------------------------------------------------------------#
         # CIF label-based reduction
