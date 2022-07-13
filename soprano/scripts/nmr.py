@@ -17,6 +17,8 @@
 '''CLI to extract and process NMR-related properties from .magres files.
 
 TODO: add support for different shift {Haeberlen,NQR,IUPAC}and quadrupole {Haeberlen,NQR} conventions.
+TODO: check if df is too wide to fit in window -- if so, split into multiple plots.
+TODO: spinsys output is not yet implemented.
 '''
 
 __author__ = "J. Kane Shenton"
@@ -33,6 +35,7 @@ import sys
 import re
 from ase import io
 from ase.visualize import view as aseview
+from ase.units import Ha, Bohr
 from soprano.properties.labeling import UniqueSites, MagresViewLabels
 from soprano.properties.nmr import *
 from soprano.data.nmr import _el_iso, _get_isotope_list
@@ -70,7 +73,7 @@ UNITS = {
     "MS_alpha": "deg",
     "MS_beta": "deg",
     "MS_gamma": "deg",
-    "EFG_Vzz": 'au',
+    "EFG_Vzz": 'Vm^-2',
     "EFG_quadrupolar_constant": 'MHz',
     "EFG_alpha": "deg",
     "EFG_beta": "deg",
@@ -142,15 +145,13 @@ def get_column_list(ctx, parameter, value):
     if value == '' or value is None:
         return None
     # shortcuts for some column groups
-    special_names = {'MS_angles': 
-                        ['MS_alpha',
-                        'MS_beta',
-                        'MS_gamma'],
-                    'EFG_angles':
-                        ['EFG_alpha',
-                        'EFG_beta',
-                        'EFG_gamma',
-                            ],
+    special_names = {
+                    'minimal': 
+                        ['MS_shielding',
+                        'MS_anisotropy',
+                        'EFG_quadrupolar_constant',
+                        'EFG_asymmetry'
+                        ],
                     'MS_defaults':
                         ['MS_shielding',
                         'MS_anisotropy',
@@ -160,7 +161,15 @@ def get_column_list(ctx, parameter, value):
                         ['EFG_Vzz',
                         'EFG_quadrupolar_constant',
                         'EFG_asymmetry'],
-
+                    'MS_angles': 
+                        ['MS_alpha',
+                        'MS_beta',
+                        'MS_gamma'],
+                    'EFG_angles':
+                        ['EFG_alpha',
+                        'EFG_beta',
+                        'EFG_gamma',
+                            ],
                     }
     special_names['default'] = special_names['MS_defaults'] + special_names['EFG_defaults']
 
@@ -384,6 +393,8 @@ def nmr(files,
     
     # set pandas print precision
     pd.set_option('precision', precision)
+    # make sure we output all rows, even if there are lots!
+    pd.set_option('display.max_rows', None)
     
     nfiles = len(files)
     dfs = []
@@ -500,7 +511,7 @@ def nmr(files,
                     ms_summary.drop(columns=['MS_shift'], inplace=True)
 
                 df = pd.concat([df, ms_summary], axis=1)
-            except KeyError:
+            except RuntimeError:
                 warnings.warn(f'No MS data found in {fname}\n'
                 'Set argument `-p efg` if the file(s) only contains EFG data ')
                 pass
@@ -511,7 +522,7 @@ def nmr(files,
             try:
                 efg_summary = pd.DataFrame(get_efg_summary(atoms, isotopes, euler_convention))
                 df = df = pd.concat([df, efg_summary], axis=1)
-            except KeyError:
+            except RuntimeError:
                 warnings.warn(f'No EFG data found in {fname}\n'
                 'Set argument `-p ms` if the file(s) only contains MS data ')
                 pass
@@ -540,17 +551,9 @@ def nmr(files,
             del aggrules['indices']
             del aggrules['tags']
 
-            # Special rule for labels:
-            # if there are multiple labels, combine them with a comma
-            # if there is only one unique label, keep it as is
-            def agg_labels(df):
-                labels = df['labels']
-                unique_labels = np.unique(labels)
-                if len(unique_labels) > 1:
-                    return ','.join(unique_labels)
-                else:
-                    return unique_labels[0]
             aggrules['labels'] = set
+            if 'MagresViewLabels' in df.columns:
+                aggrules['MagresView_labels'] = set
             aggrules['multiplicity'] = 'count'
 
             if verbose:
@@ -561,6 +564,8 @@ def nmr(files,
             df = grouped.agg(aggrules).reset_index()
             # fix the labels print formatting            
             df['labels'] = df['labels'].apply(lambda x: ','.join(x))
+            if 'MagresView_labels' in df.columns:
+                df['MagresView_labels'] = df['MagresView_labels'].apply(lambda x: ','.join(sorted(list(x))))
             
         
         
@@ -602,8 +607,11 @@ def nmr(files,
             if verbose:
                 click.echo(f'\nIncluding only columns: {specified_columns}')
             if any([c not in df.columns for c in columns_to_include]):
-                raise ValueError(f'Not all columns requested {specified_columns}'
-                                 f' are in the dataframe ({df.columns})')
+                missing_columns = [c for c in columns_to_include if c not in df.columns]
+                warnings.warn(f'These columns specified {missing_columns}'
+                                 f' are not in the dataframe ({df.columns})')
+                # modify to only include available ones
+                columns_to_include = [c for c in columns_to_include if c in df.columns]
             df = df[columns_to_include].copy()
         if exclude:
             if verbose:
@@ -612,12 +620,16 @@ def nmr(files,
             specified_columns = [c for c in exclude if c in df.columns]
             df = df.drop(specified_columns, axis=1)
 
-
-        dfs.append(df)
-        images.append(atoms)
-        if verbose:
-            click.echo(FOOTER)
-        
+        if len(df) > 0:
+            dfs.append(df)
+            images.append(atoms)
+            if verbose:
+                click.echo(FOOTER)
+        # if the df is empty, raise warning and don't append
+        else:
+            warnings.warn(f"No results found for {fname}.\n "
+            "Try removing filters/checking the file contents.")
+            
     if view:
         # If it's organic molecule/structure
         # we usaully want to reload with molecular units intact
@@ -731,6 +743,8 @@ def get_efg_summary(atoms, isotopes, euler_convention):
     For an Atoms object with EFG tensor arrays, return a summary of the tensors.
     '''
     Vzz   = EFGVzz.get(atoms)
+    # convert Vzz from au to V/m^2
+    Vzz = Vzz * (Ha / Bohr) * 1e-1
 
     # For quadrupolar constants, isotopes become relevant. This means we need to create custom Property instances to
     # specify them. There are multiple ways to do so - check the docstrings for more details - but here we set them
