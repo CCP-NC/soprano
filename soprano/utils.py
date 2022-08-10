@@ -34,8 +34,10 @@ from contextlib import contextmanager
 import inspect
 import warnings
 import numpy as np
+from numpy import matlib as npm # optionl subpackage of numpy
 from scipy.special import factorial
 from ase.quaternions import Quaternion
+from typing import List
 
 from soprano.optional import requireNetworkX, requireScikitLearn, requireSpglib
 from soprano.rnd import Random
@@ -550,6 +552,32 @@ def swing_twist_decomp(quat, axis):
 
     return swing, twist
 
+def average_quaternions(quats: List[Quaternion]) -> Quaternion:
+    """
+    Average a list of quaternions.
+    Following: https://github.com/christophhagen/averaging-quaternions
+
+    Returns a normalized quaternion.
+    """
+    Q = np.array([q.q for q in quats])
+    # Number of quaternions to average
+    M = Q.shape[0]
+    assert M > 0, "No quaternions to average"
+    A = npm.zeros(shape=(4,4))
+
+    for i in range(0,M):
+        q = Q[i,:]
+        # multiply q with its transposed version q' and add A
+        A = np.outer(q,q) + A
+
+    # scale
+    A = (1.0/M)*A
+    # compute eigenvalues and -vectors
+    eigenValues, eigenVectors = np.linalg.eig(A)
+    # Sort by largest eigenvalue
+    eigenVectors = eigenVectors[:,eigenValues.argsort()[::-1]]
+    # return the real part of the largest eigenvector (has only real part)
+    return Quaternion(np.real(eigenVectors[:,0].A1))
 
 # ### Clebsch-Gordan and Wigner-3j symbols ###
 

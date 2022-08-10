@@ -41,10 +41,10 @@ from soprano.properties.labeling import UniqueSites, MagresViewLabels
 from soprano.properties.nmr import *
 from soprano.data.nmr import _el_iso, _get_isotope_list
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels
+from soprano.utils import has_cif_labels, average_quaternions
 import pandas as pd
 import warnings
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import logging
 import click_log
 # logging
@@ -729,6 +729,9 @@ def get_ms_summary(atoms, euler_convention, references, gradients):
     skew = MSSkew.get(atoms)
     # quaternion
     quat = MSQuaternion.get(atoms)
+    # We need to be carefull with the angle averaging
+    quat = average_quaternions_by_tags(quat, atoms.get_tags())
+    # Euler angles
     alpha, beta, gamma = np.array([q.euler_angles(mode=euler_convention)*180/np.pi for q in quat]).T
     ms_summary = {
             'MS_shielding': iso,
@@ -764,6 +767,9 @@ def get_efg_summary(atoms, isotopes, euler_convention):
 
     # quaternion
     quat = EFGQuaternion.get(atoms)
+    # We need to be carefull with the angle averaging
+    quat = average_quaternions_by_tags(quat, atoms.get_tags())
+    # Euler angles
     alpha, beta, gamma = np.array([q.euler_angles(mode=euler_convention)*180/np.pi for q in quat]).T
 
     # NQR transitions
@@ -905,3 +911,27 @@ def get_missing_cols(df, lst):
     Get the items in list that don't match any of the columns of a dataframe
     """
     return [x for x in lst if all(x not in col for col in df.columns)]
+def get_duplicates(seq):
+    '''
+    Returns dict {duplicate_value: [indices]} for duplicates in a list
+    '''
+    tally = defaultdict(list)
+    for i,item in enumerate(seq):
+        tally[item].append(i)
+    return dict([(key,locs) for key,locs in tally.items() 
+                            if len(locs)>1])
+def average_quaternions_by_tags(quaternions, tags):
+    '''
+    For repeated tags, average the quaternions.
+    Return the modified list of quaternions.
+    '''
+    if len(set(tags)) != len(tags):
+        dupl_dict = get_duplicates(tags)
+        for tag, idx in dupl_dict.items():
+            quat_group = [quaternions[ig] for ig in idx]
+            # compute group average quaternion
+            quat_av = average_quaternions(quat_group)
+            # update list of quaternions
+            for ig in idx:
+                quaternions[ig] = quat_av
+    return quaternions
