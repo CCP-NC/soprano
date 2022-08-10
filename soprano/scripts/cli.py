@@ -27,6 +27,12 @@ import click
 import os
 from soprano.scripts import  nmr, nmr_plot
 from configparser import ConfigParser
+import logging
+import click_log
+# logging
+logging.captureWarnings(True)
+logger = logging.getLogger(__name__)
+click_log.basic_config(logger)
 
 epilog = f"""
     Author: {__author__} ({__email__})\n
@@ -58,7 +64,7 @@ def configure(ctx, param, filename):
     name="Soprano Command Line Interface",
     help=help_text, epilog=epilog,
     invoke_without_command=True)
-
+    
 @click.option(
     '-c', '--config',
     type         = click.Path(dir_okay=False),
@@ -71,10 +77,14 @@ def configure(ctx, param, filename):
                     'If not set, first checks environment variable: '
                     '``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``',
 )
+@click_log.simple_verbosity_option(logger)
+
 def soprano():
+    logger.debug('Testing my logger')
     pass
 
 soprano.add_command(nmr.nmr)
+soprano.add_command(nmr_plot.plotnmr)
 
 if __name__ == '__main__':
     soprano()

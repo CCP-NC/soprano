@@ -42,6 +42,7 @@ from soprano.properties.nmr.efg import (
     EFGSkew,
     EFGQuadrupolarConstant,
     EFGQuaternion,
+    EFGNQR
 )
 from soprano.properties.nmr.dipolar import (
     DipolarCoupling,

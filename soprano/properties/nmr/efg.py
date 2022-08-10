@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+from collections import defaultdict
 
 import numpy as np
 from soprano.properties import AtomsProperty
@@ -32,6 +33,7 @@ from soprano.nmr.utils import (
     _span,
     _skew,
     _evecs_2_quat,
+    _frange,
 )
 from soprano.data.nmr import _get_isotope_data, EFG_TO_CHI
 
@@ -359,7 +361,93 @@ class EFGQuadrupolarConstant(AtomsProperty):
         q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
 
         return EFG_TO_CHI * q_list * EFGVzz.get(s)
+class EFGNQR(AtomsProperty):
 
+    """
+    EFGNQR
+
+    Produces an array containing NQR transition frequencies (in Hz) for every atom
+    in a system. For non-quadrupole active nuclei, the we return an empty dictionary.
+    Unless specified otherwise, the spin and quadrupole moment of the most common
+    NMR-active isotope is used.
+
+    For reference: the value returned by this property is defined as
+
+    .. math::
+
+        A = \\frac{V_{zz} Q}{4I(2I - 1)}
+        fq = 3A(2m+1)\\sqrt{1 + \\eta^2/3}
+
+    in Hz.
+    It is important to keep in mind that therefore this represents a
+    *frequency*; the corresponding 'omega' (pulsation) would be the same value
+    multiplied by 2*pi. 
+    TODO: double-check convention
+    TODO: better data structure for the output?
+
+    | Parameters:
+    |   force_recalc (bool): if True, always diagonalise the tensors even if
+    |                        already present.
+    |   use_q_isotopes (bool): if True, always use the most common quadrupole
+    |                          active isotope for each element, if there is
+    |                          one.
+    |   isotopes (dict): dictionary of specific isotopes to use, by element
+    |                    symbol. If the isotope doesn't exist an error will
+    |                    be raised. Overrides use_q_isotopes.
+    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
+    |                        different atoms of the same element are supposed
+    |                        to be of different isotopes. Where a 'None' is
+    |                        present will fall back on the previous
+    |                        definitions. Where an isotope is present it
+    |                        overrides everything else.
+
+    | Returns:
+    |   q_list (list): list of dictionaries of the possible NQR frequencies in Hz
+                        The keys of the dictionary are the possible m->m+1 values
+                        For example: "m=1->2" for non-quadrupole active nuclei
+                        the corresponding element will be an empty dictionary.
+
+    """
+
+    default_name = "efg_nqr"
+    default_params = {
+        "force_recalc": False,
+        "use_q_isotopes": False,
+        "isotopes": {},
+        "isotope_list": None,
+    }
+
+    @staticmethod
+    @_has_efg_check
+    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
+
+        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s)
+
+        # First thing, build the isotope dictionary
+        elems = s.get_chemical_symbols()
+
+        # Is isotope list valid?
+        if isotope_list is not None and len(isotope_list) != len(elems):
+            print("WARNING - invalid isotope_list, ignoring")
+            isotope_list = None
+
+        q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
+        I_list = _get_isotope_data(elems, "I", isotopes, isotope_list, use_q_isotopes)
+        eta_list = EFGAsymmetry.get(s)
+        nqr = [defaultdict(None) for i in range(len(elems))]
+
+        mask = I_list > 0.5
+        for i in np.where(mask)[0]:
+            A = EFG_TO_CHI * EFGVzz.get(s)[i] * q_list[i] / (4 * I_list[i] * (2 * I_list[i] - 1))
+            ms = [m for m in _frange(-I_list[i], I_list[i] + 1, 1) if m >= 0.0][:-1]
+            for m in ms:
+                key = f'm={m}->{m+1}'
+                fq = 3 * A * (2 * m + 1) * np.sqrt(1 + eta_list[i] ** 2 / 3)
+                nqr[i][key] = fq
+
+        
+        return nqr
 
 class EFGQuadrupolarProduct(AtomsProperty):
 

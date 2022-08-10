@@ -123,3 +123,8 @@ def _J_constant(Kij, gi, gj):
     gyromagnetic ratios gi and gj"""
 
     return cnst.h * gi * gj * Kij / (4 * np.pi ** 2) * 1e19
+
+def _frange(a, b, x):
+    while a < b:
+        yield a
+        a += x
