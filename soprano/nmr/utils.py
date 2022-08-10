@@ -580,3 +580,7 @@ def _compute_rotation(euler_angles: np.ndarray,
     symrot_check = Rotation.from_euler(euler_convention, [0, 0, symrotang_check]).as_matrix()
     mcheck = np.dot(np.dot(symrot_check, mcheck), np.linalg.inv(symrot_check))
     return euler_angles, mcheck
+def _frange(a, b, x):
+    while a < b:
+        yield a
+        a += x

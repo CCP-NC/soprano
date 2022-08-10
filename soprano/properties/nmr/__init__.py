@@ -44,6 +44,7 @@ from soprano.properties.nmr.efg import (
     EFGSkew,
     EFGQuadrupolarConstant,
     EFGQuaternion,
+    EFGNQR
     EFGTensor,
     EFGEuler,
 )

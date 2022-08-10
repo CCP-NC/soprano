@@ -45,6 +45,12 @@ from soprano.utils import has_cif_labels
 import pandas as pd
 import warnings
 from collections import OrderedDict
+import logging
+import click_log
+# logging
+logging.captureWarnings(True)
+logger = logging.getLogger('cli')
+click_log.basic_config(logger)
 HEADER = '''
 ##########################################
 #  Extracting NMR info from magres file  #
@@ -79,6 +85,7 @@ UNITS = {
     "EFG_alpha": "deg",
     "EFG_beta": "deg",
     "EFG_gamma": "deg",
+    "EFG_NQR": "MHz",
 }
 
 implemented_properties = ['ms', 'efg']
@@ -184,6 +191,7 @@ def get_column_list(ctx, parameter, value):
     specified_columns = list(OrderedDict.fromkeys(specified_columns))
     return specified_columns
 
+@click_log.simple_verbosity_option(logger)
 
 @click.command()
 
@@ -350,12 +358,12 @@ def get_column_list(ctx, parameter, value):
             "This can be used to see what sites were tagged as equivalent.")
 
 
-# verbose flag
-@click.option('--verbose',
-            '-v',
+# quiet flag
+@click.option('--quiet',
+            '-q',
             is_flag=True,
             default=False,
-            help="If present, print more information.")
+            help="If present, log less information.")
 
       
 
@@ -381,7 +389,7 @@ def nmr(files,
         exclude,
         query,
         view,
-        verbose):
+        quiet):
     """
     Extract and analyse NMR data from magres file(s).
     
@@ -394,6 +402,12 @@ def nmr(files,
     
     See the below arguments for how to extract specific information.
     """
+    if quiet:
+        logging.basicConfig(level=logging.WARNING)
+        verbose = False
+    else:
+        verbose = True
+        logging.basicConfig(level=logging.INFO)
     
     # set pandas print precision
     pd.set_option('precision', precision)
@@ -405,11 +419,11 @@ def nmr(files,
     images = []
     # loop over files
     for fname in files:
-        if verbose:
-            click.echo(HEADER.format(fname))
-            click.secho(f'{fname}', fg='blue')
-            click.echo('\nExtracting properties:')
-            click.secho(f'{properties}', fg='blue')
+
+        logger.info(HEADER)
+        logger.info(fname)
+        logger.info(f"\nExtracting properties: {properties}")
+
             
 
 
@@ -417,18 +431,17 @@ def nmr(files,
         try:
             atoms = io.read(fname)
         except IOError:
-            click.secho("Error: file {0} not read, skipping".format(fname), fg='red')
+            logger.error(f"Could not read file {fname}, skipping.")
             continue
         
         # Do they actually have any magres data?
         if not any([atoms.has(k) for k in properties]):
-            click.secho("Warning, file {0} has no {1} data extract, skipping {1}".format(fname, ' '.join(properties)), fg='red')
+            logger.error(f"File {fname} has no {' '.join(properties)} data to extract. Skipping.")
             continue
 
         # Inform user of best practice RE CIF labels
-        if verbose:
-            if not has_cif_labels(atoms):
-                click.secho(NO_CIF_LABEL_WARNING, fg='blue')
+        if not has_cif_labels(atoms):
+            logger.info(NO_CIF_LABEL_WARNING)
             
 
         all_selections = AtomSelection.all(atoms)
@@ -441,16 +454,16 @@ def nmr(files,
         # reduce by symmetry?
         tags = np.arange(len(atoms))
 
-
         if reduce:
-            if verbose:
-                click.echo('\nTagging equivalent sites')
 
+            logger.info('\nTagging equivalent sites')
+            # tag equivalent sites
             tags = UniqueSites.get(atoms, symprec=symprec)
-            if verbose:
-                unique_sites, unique_site_idx = np.unique(tags, return_index=True)
-                click.echo('    This leaves {0} unique sites'.format(len(unique_sites)))
-                click.echo(f'    The unique site labels are: {labels[unique_site_idx]}')
+
+            # log the number of unique sites
+            unique_sites, unique_site_idx = np.unique(tags, return_index=True)
+            logger.info(f'    This leaves {len(unique_sites)} unique sites')
+            logger.info(f'    The unique site labels are: {labels[unique_site_idx]}')
                 
 
 
@@ -459,16 +472,14 @@ def nmr(files,
             for ipat, pattern in enumerate(XHn_groups):
                 # check if we found any that matched this pattern
                 if len(pattern) == 0:
-                    click.echo(f"No XHn groups found for pattern {average_group.split(',')[ipat]}")
+                    logging.warn(f"No XHn groups found for pattern {average_group.split(',')[ipat]}")
                     continue
                 
-                if verbose:
-                    click.echo(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
+                logger.info(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
                 # get the indices of the atoms that matched this pattern
                 # update the tags and labels accordingly
                 for ig, group in enumerate(pattern):
-                    if verbose:
-                        click.echo(f"    Group {ig} contains: {np.unique(labels[group])}")
+                    logger.info(f"    Group {ig} contains: {np.unique(labels[group])}")
                     # fix labels here as aggregate of those in group
                     combined_label = '--'.join(np.unique(labels[group]))
                     # labels[group] = f'{ig}'#combined_label
@@ -482,8 +493,7 @@ def nmr(files,
         
         # select subset of atoms based on selection string
         if selection:
-            if verbose:
-                click.echo(f'\nSelecting atoms based on selection string: {selection}')
+            logger.info(f'\nSelecting atoms based on selection string: {selection}')
             sel_selectionstring = AtomSelection.from_selection_string(atoms, selection)
             all_selections *= sel_selectionstring
         elements = atoms.get_chemical_symbols()
@@ -560,9 +570,8 @@ def nmr(files,
                 aggrules['MagresView_labels'] = set
             aggrules['multiplicity'] = 'count'
 
-            if verbose:
-                click.echo('\nAveraging over sites with the same tag')
-                click.echo(f'   We apply the following rules to each column:\n {aggrules}')
+            logger.info('\nAveraging over sites with the same tag')
+            logger.info(f'   We apply the following rules to each column:\n {aggrules}')
             # apply group averaging
             grouped = df.groupby('tags')
             df = grouped.agg(aggrules).reset_index()
@@ -574,20 +583,18 @@ def nmr(files,
         
         
 
-        if verbose:
-            total_explicit_sites = df['multiplicity'].sum()
-            click.echo(f'\nFound {total_explicit_sites} total sites.')
-            if average_group or reduce:
-                click.echo(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
+        
+        total_explicit_sites = df['multiplicity'].sum()
+        logger.info(f'\nFound {total_explicit_sites} total sites.')
+        if average_group or reduce:
+            logger.info(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
 
 
         if query:
             # use pandas query to filter the dataframe
-            if verbose:
-                click.echo(f'\nFiltering dataframe using query: {query}')
+            logger.info(f'\nFiltering dataframe using query: {query}')
             df.query(query, inplace=True)
-            if verbose:
-                click.echo(f'-----> Filtered to {len(df)} sites.')
+            logger.info(f'-----> Filtered to {len(df)} sites.')
 
 
         # what columns should we include/exclude?
@@ -607,31 +614,29 @@ def nmr(files,
             # what columns should we include/exclude?
             essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
             specified_columns = [c for c in include if c not in essential_columns]
+            logger.info(f'\nIncluding only columns containing: {specified_columns}')
             columns_to_include =essential_columns + specified_columns
-            if verbose:
-                click.echo(f'\nIncluding only columns: {specified_columns}')
-            if any([c not in df.columns for c in columns_to_include]):
-                missing_columns = [c for c in columns_to_include if c not in df.columns]
-                warnings.warn(f'These columns specified {missing_columns}'
-                                 f' are not in the dataframe ({df.columns})')
-                # modify to only include available ones
-                columns_to_include = [c for c in columns_to_include if c in df.columns]
+            missing_columns = get_missing_cols(df, columns_to_include)
+            if len(missing_columns) > 0:
+                logger.warn(f'These columns specified {missing_columns}'
+                            f' do not match any in the dataframe ({df.columns})')
+            columns_to_include = get_matching_cols(df, columns_to_include)
             df = df[columns_to_include].copy()
         if exclude:
-            if verbose:
-                click.echo(f'\nExcluding columns: {exclude}')
+            logger.info(f'\nExcluding columns: {exclude}')
             # remove those that are already not in df
-            specified_columns = [c for c in exclude if c in df.columns]
+            specified_columns = get_matching_cols(df, exclude)
             df = df.drop(specified_columns, axis=1)
+        # drop any that have only NaN values
+        df = df.dropna(axis=1, how='all')
 
         if len(df) > 0:
             dfs.append(df)
             images.append(atoms)
-            if verbose:
-                click.echo(FOOTER)
+            logger.info(FOOTER)
         # if the df is empty, raise warning and don't append
         else:
-            warnings.warn(f"No results found for {fname}.\n "
+            logger.warn(f"No results found for {fname}.\n "
             "Try removing filters/checking the file contents.")
             
     if view:
@@ -665,9 +670,7 @@ def print_results(dfs, output, output_format, verbose):
     nframes = len(dfs)
     # rename columns to include units for those that have units
     for df in dfs:
-        new_names = {name: f'{name}/{unit}' for name, unit in UNITS.items()}
-        df.rename(columns=new_names, inplace=True)
-
+        df.rename(columns=units_rename, inplace=True)
     if output:
         for i, df in enumerate(dfs):
 
@@ -762,14 +765,35 @@ def get_efg_summary(atoms, isotopes, euler_convention):
     # quaternion
     quat = EFGQuaternion.get(atoms)
     alpha, beta, gamma = np.array([q.euler_angles(mode=euler_convention)*180/np.pi for q in quat]).T
+
+    # NQR transitions
+    nqrs = EFGNQR.get(atoms, isotopes=isotopes)
+    # unique transitions
+    transition_keys = sorted(set([k for nqr in nqrs for k in nqr.keys()]))
+    nqr_dict = {}
+    for k in transition_keys:
+        header = f'EFG_NQR {k}'
+        values = np.zeros(len(nqrs))
+        for inqr, nqr in enumerate(nqrs):
+            if k in nqr:
+                values[inqr] = nqr[k] * 1e-6
+            else:
+                values[inqr] = np.nan
+        nqr_dict[header] = values
+
+
+
     efg_summary = {
                 'EFG_Vzz': Vzz,
                 'EFG_quadrupolar_constant': qC,
                 'EFG_asymmetry': eta,
                 'EFG_alpha': alpha,
                 'EFG_beta': beta,
-                'EFG_gamma': gamma
+                'EFG_gamma': gamma,
+                **nqr_dict
                 }
+
+
     return efg_summary
 
 def sortdf(df, sortby, sort_order):
@@ -862,3 +886,22 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
         all_groups.append(groups)
 
     return all_groups
+
+
+def units_rename(colname, units_dict=UNITS):
+    for key, unit in units_dict.items():
+        if key in colname:
+            return f'{colname}/{unit}'
+    # if no matches found, return original name
+    return colname
+
+def get_matching_cols(df, lst):
+    """
+    Get the columns of a dataframe that roughly match a list of strings.
+    """
+    return [col for col in df.columns if any(x in col for x in lst)]
+def get_missing_cols(df, lst):
+    """
+    Get the items in list that don't match any of the columns of a dataframe
+    """
+    return [x for x in lst if all(x not in col for col in df.columns)]
