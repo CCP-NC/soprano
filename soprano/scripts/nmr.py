@@ -31,7 +31,6 @@ __date__ = "July 08, 2022"
 import click
 import numpy as np
 from ase import io
-from ase.visualize import view as aseview
 from ase.units import Ha, Bohr
 from soprano.properties.labeling import UniqueSites, MagresViewLabels
 from soprano.properties.nmr import *
@@ -45,12 +44,14 @@ import click_log
 from soprano.scripts.cli_utils import \
                                     add_options,\
                                     NMREXTRACT_OPTIONS, \
+                                    NO_CIF_LABEL_WARNING, \
                                     average_quaternions_by_tags,\
                                     get_missing_cols,\
                                     get_matching_cols,\
                                     print_results,\
                                     find_XHn_groups,\
-                                    sortdf
+                                    sortdf,\
+                                    viewimages
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger('cli')
@@ -63,17 +64,7 @@ FOOTER = '''
 # End of NMR info extraction            #
 ##########################################
 '''
-# TODO: write guide for this on website...
-NO_CIF_LABEL_WARNING = '''
-## Protip: ##
-This magres file doesn't seem to have CIF-stlye labels.
-Using these is considered a good idea, but it's not required.
-You can export these automatically from a cif file using 
-cif2cell. e.g. for CASTEP:
 
-cif2cell mystructure.cif --export-cif-labels -p castep
-
-'''
 
 @click_log.simple_verbosity_option(logger)
 
@@ -129,7 +120,7 @@ def nmr(files,
         logging.basicConfig(level=logging.INFO)
     
     # set pandas print precision
-    pd.set_option('precision', precision)
+    pd.set_option('display.precision', precision)
     # make sure we output all rows, even if there are lots!
     pd.set_option('display.max_rows', None)
     
@@ -348,23 +339,8 @@ def nmr(files,
             "Try removing filters/checking the file contents.")
             
     if view:
-        # If it's organic molecule/structure
-        # we usaully want to reload with molecular units intact
-        from soprano.properties.linkage import Molecules
-        for i, atoms in enumerate(images):
-            elements = set(atoms.get_chemical_symbols())
-            # Rough very basic check if it's organic:
-            if 'C' in elements and 'H' in elements:
-                # let's assume this is an organic molecule/crystal
-                # and try to reload the atoms object with the correct
-                # connectivity:
-                mols = Molecules.get(atoms)
-                temp = mols[0].subset(atoms, use_cell_indices=True)
-                for mol in mols[1:]:
-                    temp.extend(mol.subset(atoms, use_cell_indices=True))
-                images[i] =temp
-
-        aseview(images)
+        viewimages(images)
+        
     if merge:
         # merge all dataframes into one
         dfs = [pd.concat(dfs, axis=0)]

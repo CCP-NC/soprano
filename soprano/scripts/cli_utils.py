@@ -32,6 +32,10 @@ from soprano.utils import average_quaternions
 import os
 import numpy as np
 from configparser import ConfigParser
+from ase.visualize import view as aseview
+from soprano.properties.linkage import Molecules
+
+
 
 # join home and config file
 home = os.path.expanduser('~')
@@ -69,8 +73,24 @@ UNITS = {
     "EFG_beta": "deg",
     "EFG_gamma": "deg",
     "EFG_NQR": "MHz",
+    "D": "kHz",
+    "alpha": "deg",
+    "beta": "deg",
+    "gamma": "deg",
 }
 
+
+# TODO: write guide for this on website...
+NO_CIF_LABEL_WARNING = '''
+## Protip: ##
+This .magres file doesn't seem to have CIF-stlye labels.
+Using these is considered a good idea, but is not required.
+You can export these automatically from a cif file using 
+cif2cell. e.g. for CASTEP:
+
+cif2cell mystructure.cif --export-cif-labels -p castep
+
+'''
 
 ### PARSER HELPERS ###
 def isotope_selection(ctx, parameter, isotope_string):
@@ -189,16 +209,17 @@ config = click.option(
                     'If not set, first checks environment variable: '
                     '``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``',
 )
+selection_help = '''Selection string of sites include. e.g. 
+                ``-s C`` for only and all carbon atoms,
+                ``-s C.1-3,H.1.2`` for carbons 1,2,3 and hydrogens 1 and 2,
+                ``-s C1,H1a,H1b`` for any sites with the labels C1, H1a and H1b.'''
 # option to select a subset of atoms
 select = click.option('--select',
                 '-s',
                 'selection',
                 type=str,
                 default=None,
-                help='Selection string of sites include. e.g. \n'
-                '``-s C`` for only and all carbon atoms,\n'
-                '``-s C.1-3,H.1.2`` for carbons 1,2,3 and hydrogens 1 and 2,\n'
-                '``-s C1,H1a,H1b`` for any sites with the labels C1, H1a and H1b.'
+                help=selection_help,
                 )
 #  what to extract/analyse
 nmrproperties = click.option('--properties',
@@ -356,6 +377,21 @@ quiet = click.option('--quiet',
             help="If present, log less information.")
 
 
+# option to select a subset of atoms
+dip_selection_i = click.option('--select_i',
+                '-s_i',
+                'selection_i',
+                type=str,
+                default=None,
+                help=selection_help
+                )
+dip_selection_j = click.option('--select_j',
+                '-s_j',
+                'selection_j',
+                type=str,
+                default=None,
+                help=selection_help
+                )
 #### Groups of CLI options
 # options that apply to pandas dataframes
 DF_OPTIONS = [
@@ -378,6 +414,7 @@ NMR_OPTIONS = [
     euler,
     references,
     gradients,
+    select,
     ]
 
 COMMON_OPTIONS = [
@@ -386,10 +423,17 @@ COMMON_OPTIONS = [
     view,
     symprec,
     precision,
-    select, # is this common to all?
+    ]
+
+DIP_OPTIONS = [
+    isotopes,
+    average_group,
+    dip_selection_i,
+    dip_selection_j,
     ]
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
+DIPOLAR_OPTIONS = COMMON_OPTIONS + DIP_OPTIONS + DF_OPTIONS
 # function to add options to a subcommand
 def add_options(options):
     def _add_options(func):
@@ -400,6 +444,41 @@ def add_options(options):
 
 
 ### FUNCTIONS ###
+def viewimages(images):
+    '''
+    Use ASE GUI to view the images.
+
+    If they contain C and H, we'll assume it's a molecular 
+    crystal and reload it as such.
+
+    We must be careful to keep the same order of atoms.
+    '''
+    for i, atoms in enumerate(images):
+        # save initial order
+        atoms.set_array('order_tag', np.arange(len(atoms)))
+        
+        # check if it's a molecular crystal
+        elements = set(atoms.get_chemical_symbols())
+        # Rough very basic check if it's organic:
+        if 'C' in elements and 'H' in elements:
+            # temporarily translate the atoms to the COM
+            com = atoms.cell.T.dot([0.5,0.5,0.5]) - atoms.get_center_of_mass()
+            atoms.translate(com)
+            # let's assume this is an organic molecule/crystal
+            # and try to reload the atoms object with the correct
+            # connectivity:
+            mols = Molecules.get(atoms)
+            print('Found {} molecules'.format(len(mols)))
+            temp = mols[0].subset(atoms, use_cell_indices=True)
+            for mol in mols[1:]:
+                temp.extend(mol.subset(atoms, use_cell_indices=True))
+            # restore original order
+            temp = temp[temp.get_array('order_tag').argsort()]
+            # restore original centering 
+            temp.translate(-com)
+            images[i] =temp
+
+    aseview(images)
 def print_results(dfs, output, output_format, verbose):
     nframes = len(dfs)
     # rename columns to include units for those that have units
