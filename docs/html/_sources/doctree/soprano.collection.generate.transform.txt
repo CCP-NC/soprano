@@ -1,7 +1,0 @@
-soprano.collection.generate.transform module
-============================================
-
-.. automodule:: soprano.collection.generate.transform
-    :members:
-    :undoc-members:
-    :show-inheritance:

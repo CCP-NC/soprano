@@ -1,0 +1,1076 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Job Submitter &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="_static/favicon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API reference" href="api.html" />
+    <link rel="prev" title="Tutorial 6 - Soprano for defect calculations" href="tutorials/06-defect_calculations.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2Fsubmitter.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="_sources/submitter.md"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.md</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#deploying-a-submitter">
+   Deploying a Submitter
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#writing-a-submitter-class">
+     Writing a Submitter class
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#writing-a-tagged-submission-script">
+     Writing a tagged submission script
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#creating-a-submitter-instance">
+     Creating a Submitter instance
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#launching-a-submitter">
+     Launching a Submitter
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Job Submitter</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#deploying-a-submitter">
+   Deploying a Submitter
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#writing-a-submitter-class">
+     Writing a Submitter class
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#writing-a-tagged-submission-script">
+     Writing a tagged submission script
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#creating-a-submitter-instance">
+     Creating a Submitter instance
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#launching-a-submitter">
+     Launching a Submitter
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="job-submitter">
+<h1>Job Submitter<a class="headerlink" href="#job-submitter" title="Permalink to this headline">¶</a></h1>
+<p>In Soprano, the <code class="docutils literal notranslate"><span class="pre">hpc.submitter</span></code> module provides classes and tools meant
+to help computational scientists to automate the process of generating,
+running and possibly post-processing huge batches of molecular
+calculations like molecular dynamics, DFT calculations and so on on high
+performance computing machines where access to the nodes is regulated by
+a queueing system. The target is to allow users to create their own
+pipelines for high throughput calculations, like running the same
+analysis tools through an entire database of chemical structures, with
+only a few lines of Python code. Since this is, however, still a complex
+task that will inevitably require to be customised and tailored to the
+needs of each specific case, using this functionality requires a
+somewhat higher level of programming confidence than the rest of the
+library and can look a little daunting at first. No worries - this
+manual will guide you through the steps necessary to deploy your own
+Submitter to your machine of interest to run potentially any
+computational task you can think of. Besides instructions on the
+creation of a new Submitter, this manual also will include advice on how
+to test it and debug it locally, in order to minimise the risk of
+running into bugs after deploying the system. First, let us clarify what
+a Soprano Submitter instance <em>is</em> and <em>isn’t</em>. A Submitter is a very
+general class designed to automate the process of queueing, running and
+postprocessing huge amounts of calculations on a computing cluster. It
+can be used to do this locally on the machine it is running on or to use
+a remote system to do the heavy lifting. It is <em>not</em>:</p>
+<ul class="simple">
+<li><p>a system handling parallel calculations. There is no parallelism
+included in a Submitter. As the name suggests, it simply submits
+jobs to a queueing system like GridEngine, which then itself
+provides them with the required number of cores. To achieve maximum
+compatibility, the Submitter is entirely agnostic of the underlying
+hardware architecture;</p></li>
+<li><p>a system ready for deployment as-is. As it comes shipped with
+Soprano, the Submitter class basically does nothing. It is meant to
+be used as a parent class to write your own sub-class which
+specifies the details of the task of interest through a number of
+designated methods. This is absolutely on purpose - the objective
+here is maximum flexibility for potentially very demanding tasks,
+sacrificing immediate usability;</p></li>
+<li><p>a system meant to work as a server running continuously and
+accepting a flow of user requests. While it is possible to have a
+Submitter run indefinitely it is not advised to rely on it that way,
+as it currently lacks the robustness to deal with all the errors
+that could happen during that kind of usage and to restart itself in
+case of a crash. Rather, it should be best employed with runs of
+definite size, with a clear end in sight.</p></li>
+</ul>
+<p>Now let’s see a quick overview of what the typical pipeline for
+deploying a Submitter system is, followed by a more detailed explanation
+of all the steps involved.</p>
+</section>
+<section id="deploying-a-submitter">
+<h1>Deploying a Submitter<a class="headerlink" href="#deploying-a-submitter" title="Permalink to this headline">¶</a></h1>
+<p>The process to create and launch a Submitter requires the following
+steps:</p>
+<ul class="simple">
+<li><p>Write a class inheriting from <code class="docutils literal notranslate"><span class="pre">soprano.hpc.submitter.Submitter</span></code>
+implementing the desired calculation through its core methods;</p></li>
+<li><p>Create a submission script for your HPC system using tags which are
+going to be replaced by specific values in each job;</p></li>
+<li><p>Write a Python source file creating an instance of this class (it
+can also be the same file) and setting up its parameters, and
+positioning this file in the working directory. In some cases this
+might require creating a <code class="docutils literal notranslate"><span class="pre">soprano.hpc.submitter.QueueInterface</span></code> as
+well;</p></li>
+<li><p>Launch the newly created submitter from the command line by calling
+the appropriate Soprano script.</p></li>
+</ul>
+<p>Let’s see these steps in more detail.</p>
+<section id="writing-a-submitter-class">
+<h2>Writing a Submitter class<a class="headerlink" href="#writing-a-submitter-class" title="Permalink to this headline">¶</a></h2>
+<p>The basic template to inherit from the Submitter class can be as simple
+as this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.hpc.submitter</span> <span class="kn">import</span> <span class="n">Submitter</span>
+
+<span class="k">class</span> <span class="nc">MySubmitter</span><span class="p">(</span><span class="n">Submitter</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>However, such a class would be of no use since it does not implement any
+particular behaviour. The Submitter class originally has a number of
+methods. Some of them are preceded by an underscore and are meant to not
+be touched, as they handle the core behaviour of any Submitter. Others
+are meant to be overridden when inheriting from the base class and
+control custom behaviour - the specifics of the problem at hand. The
+core methods determine the Submitter workflow, which can be described as
+follows:</p>
+<div class="mermaid">
+            graph TD
+    Z[/&quot;set_parameters()&quot;/]
+    A(Sumitter Start) --&gt; B[&quot;start_run()&quot;]
+    B --&gt; C[&quot;next_job() Create a definition for the job&quot;]
+    C --&gt; D(Create temporary folder for new job)
+    D --&gt; E[&quot;setup_job(name, args, folder) Copy or create relevant files here&quot;]
+    E --&gt; F(&quot;Replace tags in submission script with appropriate values&quot;)
+    F --&gt; G(&quot;Submit job to queue (if necessary, copying to and from remote machine happens here)&quot;)
+    G &lt;--&gt; |SSH| H[/&quot;Remote machine&quot;/]
+    G --&gt; I[&quot;finish job(name, args, folder) Finalise job and copy files of interest before deletion&quot;]
+    I --&gt; J(&quot;Delete temporary folder&quot;)
+    J --&gt; K{Stop?}
+    K --&gt; |Yes| L[&quot;finish_run()&quot;]
+    K --&gt; |No| M(&quot;Wait until check_time has passed&quot;)
+    M --&gt; C
+        </div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">set_parameters(**kwargs)</span></code> - Must be executed by hand by the user
+after creating the Submitter instance. Can be overridden and have
+any interface. Since the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method should <em>not</em> be altered,
+this method provides a way for the user to feed class-specific
+parameters to any derived Submitter types.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">start_run()</span></code> - Executed at the beginning of a run. Here any tasks
+that are preparatory to initialising the entire run should be
+accomplished. By default does nothing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">next_job()</span></code> - Executed whenever the Submitter has a free slot to
+start a new job. Should return a definition for said job in the form
+of a dictionary containing a <code class="docutils literal notranslate"><span class="pre">name</span></code> (in the form of a string) and
+some <code class="docutils literal notranslate"><span class="pre">args</span></code> in the form of a dictionary: by default returns
+<code class="docutils literal notranslate"><span class="pre">{`name':</span> <span class="pre">`default_job',</span> <span class="pre">`args':</span> <span class="pre">{}}</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setup_job(name,</span> <span class="pre">args,</span> <span class="pre">folder)</span></code> - Executed immediately after
+<code class="docutils literal notranslate"><span class="pre">next_job()</span></code> and the creation of a temporary folder to contain its
+files. Must perform any operations required to set up the input for
+the upcoming calculations. For example, <code class="docutils literal notranslate"><span class="pre">next_job</span></code> could return a
+Python object defining an atomic structure on which the calculation
+ought to be performed; <code class="docutils literal notranslate"><span class="pre">setup_job</span></code> is where the input files to which
+said structure is written should be created and saved in the path
+defined by <code class="docutils literal notranslate"><span class="pre">folder</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finish_job(name,</span> <span class="pre">args,</span> <span class="pre">folder)</span></code> - Executed once the job has been
+run and the output files are in <code class="docutils literal notranslate"><span class="pre">folder</span></code> (if the job has been run on
+a remote machine, at this point the files will have been downloaded
+back to the local file system). At this point any post-processing
+should be done and any output files of relevance should be <em>copied
+to a persistent folder</em>. This is especially important as after this
+step the temporary folder will be deleted.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">finish_run()</span></code> - Executed at the end of the run, takes care of clean
+up. If any files need to be closed or resources deallocated this is
+the place to do it. By default does nothing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">save_state()</span></code> - Only executed when the Submitter is initialised
+with the argument <code class="docutils literal notranslate"><span class="pre">continuation=True</span></code>. This allows the Submitter to
+be stopped (or in case of accidents, crash) and store its current
+state in order for it to be restarted manually at a later time. By
+default the submitter only stores the list of the currently running
+jobs so that it can get back to monitoring them; however, here the
+user can define any additional data they want to be stored as well,
+as long as it can be ‘pickled’ <a class="footnote-reference brackets" href="#footnote-1" id="footnote-reference-1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. This data must be returned as
+members inside a dictionary. This method <em>must</em> return a dictionary,
+even if empty. The file is saved as <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;.pkl</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> is
+the ‘name’ argument passed to the Submitter’s constructor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load_state(loaded_data)</span></code> - Only executed when the Submitter is
+initialised with the argument <code class="docutils literal notranslate"><span class="pre">continuation=True</span></code> and a previously
+saved state file is found. Receives as argument a dictionary
+containing the saved data; this should be in the same format as the
+one returned by <code class="docutils literal notranslate"><span class="pre">save_state</span></code>. In general it should perform the same
+operations in reverse, restoring the Submitter to its original
+state.</p></li>
+</ul>
+</section>
+<section id="writing-a-tagged-submission-script">
+<h2>Writing a tagged submission script<a class="headerlink" href="#writing-a-tagged-submission-script" title="Permalink to this headline">¶</a></h2>
+<p>When submitting a job to a queueing system, one needs to do so in the
+form of a script, which usually contains the desired commands as well as
+a number of comments functioning as parameters for the queueing system
+itself. In the simplest case, this script could be limited to an
+executable (the program we need to run) and the name of its input file.
+When creating jobs with a Submitter, this script will be ran from within
+the folder in which the input files have been created with <code class="docutils literal notranslate"><span class="pre">setup_job</span></code>;
+however, it is reasonable to imagine that these might have different
+file names or parameters from job to job. To account for that, when one
+creates a submitter, a script is passed to in which any word that is
+supposed to change is replaced by a tag surrounded by angle brackets.
+The main purpose for this is to use the argument <code class="docutils literal notranslate"><span class="pre">name</span></code>; the same can be
+done with any element appearing in the <code class="docutils literal notranslate"><span class="pre">args</span></code> dictionary returned as
+part of the output of <code class="docutils literal notranslate"><span class="pre">next_job</span></code>. So for example</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="s2">&quot;&lt;sentence&gt;&quot;</span> &gt; &lt;name&gt;.txt
+</pre></div>
+</div>
+<p>for a job defined as</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;hello&#39;</span><span class="p">,</span> 
+ <span class="s1">&#39;args&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;sentence&#39;</span><span class="p">:</span> 
+          <span class="s1">&#39;Hello World!&#39;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>would produce a file named <code class="docutils literal notranslate"><span class="pre">hello.txt</span></code> containing the sentence “Hello
+World!”.</p>
+</section>
+<section id="creating-a-submitter-instance">
+<h2>Creating a Submitter instance<a class="headerlink" href="#creating-a-submitter-instance" title="Permalink to this headline">¶</a></h2>
+<p>Given that one has created and specified a derived Submitter class and a
+properly tagged submission script, it is then necessary to create a file
+that defines an instance of the Submitter itself. Assuming that we
+already imported the definition of the new class, the basic template for
+such a file will be</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.hpc.submitter</span> <span class="kn">import</span> <span class="n">QueueInterface</span>
+
+<span class="c1"># Other interfaces supported are LSF and PBS,</span>
+<span class="c1"># plus you can define your own.</span>
+<span class="n">myQ</span> <span class="o">=</span> <span class="n">QueueInterface</span><span class="o">.</span><span class="n">GridEngine</span><span class="p">()</span> 
+<span class="c1"># Here we load the script</span>
+<span class="n">myScr</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;tagged_script.sh&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">mySub</span> <span class="o">=</span> <span class="n">MySubmitter</span><span class="p">(</span><span class="s1">&#39;test_submitter&#39;</span><span class="p">,</span> <span class="n">myQ</span><span class="p">,</span> <span class="n">myScr</span><span class="p">)</span>
+<span class="n">mySub</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="c1"># Any parameters needed...</span>
+</pre></div>
+</div>
+<p>The constructor for a Submitter takes a number of optional parameters
+beyond the three obligatory ones (name, queue interface and script).
+They can all be found in the documentation but for convenience here’s a
+rundown:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">max_jobs</span> <span class="pre">(Optional[int])</span></code> - maximum number of jobs to submit at a
+given time. When this number of job has been submitted to the queue,
+the Submitter stops and waits until one of them is complete. Default
+is 4.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">check_time</span> <span class="pre">(Optional[float])</span></code> - time in seconds between consecutive
+checks for the queue status and attempts to submit new jobs. Default
+is 10.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_time</span> <span class="pre">(Optional[float])</span></code> - time in seconds the Submitter will
+run for before shutting down. If set to zero the thread won’t stop
+until killed with Submitter.stop.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temp_folder</span> <span class="pre">(Optional[str])</span></code> - where to store the temporary folders
+for the calculations. By default it’s the current folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remote_workdir</span> <span class="pre">(Optional[str])</span></code> - if present, uses a directory on a
+remote machine by logging in via SSH. Must be in the format
+<code class="docutils literal notranslate"><span class="pre">&lt;host&gt;:&lt;path/to/directory&gt;</span></code> (without the angle brackets, replace
+host name and directory suitably; the directory must already exist).
+Host must be defined in the user’s <code class="docutils literal notranslate"><span class="pre">~/.ssh/config</span> <span class="pre">file</span></code> - check the
+docs for RemoteTarget for more information. It is possible to omit
+the colon and directory, that will use the home directory of the
+given folder; that is HEAVILY DISCOURAGED though. Best practice
+would be to create an empty directory on the remote machine and use
+that, to avoid accidental overwriting/deleting of important files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remote_getfiles</span> <span class="pre">(Optional[list(str)])</span></code> - list of files to be
+downloaded from the remote copy of the job’s temporary directory. By
+default, all of them. Can be a list using specific names or
+wildcards. Filenames can also use the placeholder name to signify
+the job name, as well as any other element from the arguments.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ssh_timeout</span> <span class="pre">(Optional[float])</span></code> - connection timeout in seconds.
+Default is 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">continuation</span> <span class="pre">(Optional[bool])</span></code> - if True, when the Submitter is
+stopped it will not terminate the current jobs; rather, it will
+store the list of ongoing jobs in a pickle file. If the submitter is
+ran again from the same folder then it will “pick up from where it
+left” and try recovering those jobs, then restart. If one wishes
+for additional values to be saved and restored, the <code class="docutils literal notranslate"><span class="pre">save_state</span></code> and
+<code class="docutils literal notranslate"><span class="pre">load_state</span></code> methods need to be defined.</p></li>
+</ul>
+</section>
+<section id="launching-a-submitter">
+<h2>Launching a Submitter<a class="headerlink" href="#launching-a-submitter" title="Permalink to this headline">¶</a></h2>
+<p>Finally, once everything in place, it is possible to launch the
+Submitter. This is done by running the command <code class="docutils literal notranslate"><span class="pre">soprano_submitter.py</span></code>.
+The syntax is described as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>soprano_submitter.py [-h] [-n N] [-nohup] action submitter_file
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">submitter_file</span></code> is the name of the file in which the <em>instance</em>
+of the Submitter was created (as described in
+<a class="reference external" href="#creating-a-submitter-instance">2.3</a>)
+and <code class="docutils literal notranslate"><span class="pre">action</span></code> can be one of <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code> or <code class="docutils literal notranslate"><span class="pre">list</span></code>. The previous two
+are pretty self-explanatory; the third lists which Submitters, among the
+ones defined in the given file, are running, and how long they have
+been. The additional options work as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code> - display the help message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">N</span></code> - launch the submitter of name N. This must be used when
+multiple Submitters are instanced in <code class="docutils literal notranslate"><span class="pre">submitter_file</span></code>. The name must
+be the name of the variable (so for example in the example in
+<a class="reference external" href="#creating-a-submitter-instance">2.3</a>, that would be <code class="docutils literal notranslate"><span class="pre">mySub</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-nohup</span></code> - put the Submitter thread in ‘no hangup’ mode, meaning
+that it will keep running even if one closes the terminal session
+from which it was launched. This is mainly for the case in which a
+Submitter was launched on a machine to which we connect remotely via
+<code class="docutils literal notranslate"><span class="pre">ssh</span></code>.</p></li>
+</ul>
+<p>When a Submitter is started it runs in the background of a shell session
+until <code class="docutils literal notranslate"><span class="pre">max_time</span></code> seconds have passed or it is explicitly stopped. When
+stopped, if <code class="docutils literal notranslate"><span class="pre">continuation=True</span></code> wasn’t set, it kills all still ongoing
+jobs and deletes all the temporary folders; otherwise it leaves
+everything running and stores a pickled file with the pattern
+<code class="docutils literal notranslate"><span class="pre">&lt;submitter_name&gt;.pkl</span></code> in the current folder from which it can pick back
+up. Deleting the file in question is equivalent to resetting the run.
+During and at the end of a run, a log file called <code class="docutils literal notranslate"><span class="pre">&lt;submitter_name&gt;.log</span></code>
+is available containing messages detailing the workings of the
+Submitter. When defining a new Submitter class, one can use the method
+<code class="docutils literal notranslate"><span class="pre">self.log('Message')</span></code> inside it to write to this log file additional
+lines.</p>
+<hr class="footnotes docutils" />
+<aside class="footnote brackets" id="footnote-1" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#footnote-reference-1">1</a><span class="fn-bracket">]</span></span>
+<p>For more information on the process of serialisation, or
+‘pickling’, in Python, see:
+<a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
+</aside>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="tutorials/06-defect_calculations.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Tutorial 6 - Soprano for defect calculations</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="api.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API reference</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

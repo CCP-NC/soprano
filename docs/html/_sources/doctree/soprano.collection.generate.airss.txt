@@ -1,7 +1,0 @@
-soprano.collection.generate.airss module
-========================================
-
-.. automodule:: soprano.collection.generate.airss
-    :members:
-    :undoc-members:
-    :show-inheritance:
