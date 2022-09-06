@@ -1,7 +1,0 @@
-soprano.properties.nmr.efg module
-=================================
-
-.. automodule:: soprano.properties.nmr.efg
-   :members:
-   :undoc-members:
-   :show-inheritance:

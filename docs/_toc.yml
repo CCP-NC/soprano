@@ -1,0 +1,18 @@
+# Table of content
+# Learn more at https://jupyterbook.org/customize/toc.html
+#
+- file: intro
+- file: installation
+- file: tutorials
+  sections:
+    - file: tutorials/01-basic_concepts.ipynb
+    - file: tutorials/02-generators_properties_calculators.ipynb
+    - file: tutorials/03-atomselection_transforms.ipynb
+    - file: tutorials/04-clustering.ipynb
+    - file: tutorials/05-nmr.ipynb
+    - file: tutorials/06-defect_calculations.ipynb
+- file: submitter
+- file: api
+- file: citing
+
+    

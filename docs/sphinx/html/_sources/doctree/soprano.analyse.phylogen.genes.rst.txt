@@ -1,7 +1,0 @@
-soprano.analyse.phylogen.genes module
-=====================================
-
-.. automodule:: soprano.analyse.phylogen.genes
-   :members:
-   :undoc-members:
-   :show-inheritance:
