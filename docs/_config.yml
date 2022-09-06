@@ -1,0 +1,52 @@
+# Book settings
+# Learn more at https://jupyterbook.org/customize/config.html
+
+title                       : Soprano
+author                      : CCP-NC
+logo                        : ../img/soprano_logo.svg
+copyright                   : "2022"  # Copyright year to be placed in the footer
+
+
+# Force re-execution of notebooks on each build.
+# See https://jupyterbook.org/content/execute.html
+execute:
+  execute_notebooks: auto
+
+# Define the name of the latex output file for PDF builds
+latex:
+  latex_documents:
+    targetname: soprano_docs.tex
+
+# Add a bibtex file so that we can create citations
+# bibtex_bibfiles:
+#   - references.bib
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/CCP-NC/soprano  # Online location of your book
+  path_to_book: docs  # Optional path to your book, relative to the repository root
+  branch: master  # Which branch of the repository should be used when creating links (optional)
+
+# Add GitHub buttons to your book
+# See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
+html:
+  use_issues_button: true
+  use_repository_button: true
+  favicon                   : "../img/favicon.png"
+  extra_navbar              : "A Python library to crack crystals" 
+  # extra_footer              : "<strong>Soprano</strong>, a Python library developed for CCP-NC, with funding from EPSRC."
+  # google_analytics_id       : ""  # A GA id that can be used to track book views.
+  # announcement              : "" # A banner announcement at the top of the site.
+
+sphinx:
+  extra_extensions:
+  - 'sphinx.ext.autodoc'
+  - 'sphinx.ext.napoleon'
+  - 'sphinx.ext.viewcode'
+  - 'sphinx.ext.autosummary'
+  - 'sphinxcontrib.mermaid'
+  - 'sphinx.ext.mathjax'
+  config:
+    add_module_names: True
+    html_theme: "sphinx_book_theme"
+    autosummary_generate: True
