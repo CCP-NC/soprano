@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.data.vdw &#8212; Soprano</title>
     
@@ -635,12 +635,44 @@ territories”, Dalton Trans. 42, 8617 (2013)
 </div></blockquote>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vdw_radius</span></code>(el[, vdwset])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.data.vdw.vdw_radius" title="soprano.data.vdw.vdw_radius"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vdw_radius</span></code></a>(el[, vdwset])</p></td>
 <td><p>Return Van der Waals radius for a certain element</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.data.vdw.vdw_radius">
+<code class="sig-prename descclassname"><span class="pre">soprano.data.vdw.</span></code><code class="sig-name descname"><span class="pre">vdw_radius</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vdwset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csd'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/data/vdw.html#vdw_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.data.vdw.vdw_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Van der Waals radius for a certain element</p>
+<p>Return a Van der Waals radius for a given element, as taken from one
+of three available databases:</p>
+<ul class="simple">
+<li><p>csd:  extrapolated from the Cambridge Structural Database by Santiago</p></li>
+</ul>
+<p>Alvarez, as seen in S. Alvarez, “A cartography of the van der Waals
+territories”, Dalton Trans. 42, 8617 (2013) [default]
+- jmol: extracted from the source code of JMol
+- ase:  default set for the Atomic Simulation Environment</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">el (str):       element symbol</div>
+<div class="line">vdwset (str):   VdW set to use. Default is ‘csd’.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">vdw_radius (float): the Van der Waals radius</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

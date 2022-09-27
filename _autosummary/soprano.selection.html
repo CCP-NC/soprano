@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.selection &#8212; Soprano</title>
     
@@ -628,12 +628,322 @@ namely a group of selected atoms for a given structure,
 and methods to build it.</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">AtomSelection</span></code>(atoms, sel_indices[, authenticate])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.selection.AtomSelection" title="soprano.selection.AtomSelection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AtomSelection</span></code></a>(atoms, sel_indices[, authenticate])</p></td>
 <td><p>AtomSelection object.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.selection.AtomSelection">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.selection.</span></code><code class="sig-name descname"><span class="pre">AtomSelection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sel_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authenticate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>AtomSelection object.</p>
+<p>An AtomSelection represents a group of atoms from an ASE Atoms object.
+It keeps track of them and can be used to perform operations on them
+(for example geometrical transformation or extraction of specific
+properties).
+It does not keep track of the original Atoms object it’s been created
+from, but can be “authenticated” to verify that it is indeed operating
+consistently on the same structure. It also provides a series of static
+methods to build selections with various criteria.</p>
+<p>Initialize the AtomSelection.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): the atoms object on which the selection is</div>
+<div class="line-block">
+<div class="line">applied</div>
+</div>
+<div class="line">sel_indices (list[int]): the list of indices of the atoms that</div>
+<div class="line-block">
+<div class="line">are to be selected</div>
+</div>
+<div class="line">authenticate (Optional[bool]): whether to use hashing to confirm</div>
+<div class="line-block">
+<div class="line">the identity of the atoms object</div>
+<div class="line">we’re operating with</div>
+</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.__getitem__">
+<code class="sig-name descname"><span class="pre">__getitem__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.__getitem__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Slicing: take only part of a selection</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection._hash">
+<code class="sig-name descname"><span class="pre">_hash</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection._hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection._hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>A function to create an identifying hash for a given Atoms system.
+This is used later to check that the system is indeed unchanged when
+the Selection is reused.</p>
+<p>While changes in positions or cell don’t invalidate the Selection,
+changes in composition potentially do (indices of atoms can change).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.all">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">all</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a selection for the given Atoms object of all atoms.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">selection (AtomSelection)</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.from_array">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_array</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eq'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.from_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.from_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a selection for the given Atoms object of other atoms
+based on a comparison with some array value. Default is selection of
+all atoms that have the same exact value. However different operators
+can be specified for different selection criteria.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
+<div class="line">name (str): name of the array to select with</div>
+<div class="line">value (any type): value to compare the contents of the array with</div>
+<div class="line">op (Optional[str]): operator to use for comparison with the given</div>
+<div class="line-block">
+<div class="line">value. By default it’s eq, meaning</div>
+<div class="line">“equal” to value, which means all atoms</div>
+<div class="line">will be selected for whose the array of given</div>
+<div class="line">name has the given value.</div>
+<div class="line">Other options are the functions present in the</div>
+<div class="line"><cite>operator</cite> module and are:</div>
+<div class="line-block">
+<div class="line">- lt : less than</div>
+<div class="line">- le : less or equal</div>
+<div class="line">- eq : exactly equal</div>
+<div class="line">- ge : greater or equal</div>
+<div class="line">- gt : greater than</div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.from_bonds">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_bonds</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">op</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'le'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.from_bonds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.from_bonds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a selection for the given Atoms object of other atoms
+based on their reciprocal bonding distance. Default is selection of
+all atoms that are within a certain bonding distance (less-or-equal
+than n). However different operators can be specified for different
+selection criteria. Atoms that do not belong to the same tree of the
+bonding graph are never selected.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
+<div class="line">center (int): index of the atom to compute the bonding distance</div>
+<div class="line-block">
+<div class="line">from</div>
+</div>
+<div class="line">n (int): bonding distance to compare</div>
+<div class="line">op (Optional[str]): operator to use for comparison with the given</div>
+<div class="line-block">
+<div class="line">bonding distance. By default it’s le, meaning</div>
+<div class="line">“less or equal” than n, which means all atoms</div>
+<div class="line">will be selected that are at most n bonds away</div>
+<div class="line">from the center.</div>
+<div class="line">Other options are the functions present in the</div>
+<div class="line"><cite>operator</cite> module and are:</div>
+<div class="line-block">
+<div class="line">- lt : less than</div>
+<div class="line">- le : less or equal</div>
+<div class="line">- eq : exactly equal</div>
+<div class="line">- ge : greater or equal</div>
+<div class="line">- gt : greater than</div>
+</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.from_box">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_box</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abc0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abc1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.from_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.from_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a selection for the given Atoms object of all atoms within
+a given box volume.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
+<div class="line">abc0 ([float, float, float]): bottom corner of box</div>
+<div class="line">abc1 ([float, float, float]): top corner of box</div>
+<div class="line">periodic (Optional[bool]): if True, include periodic copies of the</div>
+<div class="line-block">
+<div class="line">atoms</div>
+</div>
+<div class="line">scaled (Optional[bool]): if True, consider scaled (fractional)</div>
+<div class="line-block">
+<div class="line">coordinates instead of absolute ones</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">selection (AtomSelection)</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.from_element">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_element</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.from_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.from_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a selection for the given Atoms object of all atoms of a
+specific element.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
+<div class="line">element (str): symbol of the element to select</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">selection (AtomSelection)</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.from_sphere">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">from_sphere</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.from_sphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.from_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a selection for the given Atoms object of all atoms within
+a given spherical volume.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms): Atoms object on which to perform selection</div>
+<div class="line">center ([float, float, float]): center of the sphere</div>
+<div class="line">r (float): radius of the sphere</div>
+<div class="line">periodic (Optional[bool]): if True, include periodic copies of the</div>
+<div class="line-block">
+<div class="line">atoms</div>
+</div>
+<div class="line">scaled (Optional[bool]): if True, consider scaled (fractional)</div>
+<div class="line-block">
+<div class="line">coordinates instead of absolute ones</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">selection (AtomSelection)</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.get_array">
+<code class="sig-name descname"><span class="pre">get_array</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.get_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.get_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve a previously stored data array.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to be set or created</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">array (np.ndarray): array of data to be saved</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.has">
+<code class="sig-name descname"><span class="pre">has</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.has"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.has" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the selection has a given array</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to be checked for</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">has (bool): if the array is present or not</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.set_array">
+<code class="sig-name descname"><span class="pre">set_array</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.set_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.set_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an array of given name containing arbitraty information
+tied to the selected atoms.
+This must match the length of the selection and will be passed on to
+any Atoms objects created with .subset.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the array to be set or created</div>
+<div class="line">array (np.ndarray): array of data to be saved</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.subset">
+<code class="sig-name descname"><span class="pre">subset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cell_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.subset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an Atoms object containing only the selected atoms.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">atoms (ase.Atoms):       Atoms object from which to take the</div>
+<div class="line-block">
+<div class="line">selection</div>
+</div>
+<div class="line">use_cell_indices (bool): If True, use the cell_indices array to</div>
+<div class="line-block">
+<div class="line">pick the specified periodic copies of</div>
+<div class="line">the corresponding atoms (useful e.g. to</div>
+<div class="line">take the correct periodic copies for a</div>
+<div class="line">molecule). Default is False</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">subset (ase.Atoms):      Atoms object containing only the</div>
+<div class="line-block">
+<div class="line">specified selection</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.selection.AtomSelection.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/selection.html#AtomSelection.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.selection.AtomSelection.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check that the given Atoms object validates with this selection.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

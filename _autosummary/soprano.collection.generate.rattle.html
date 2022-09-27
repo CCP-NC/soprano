@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.collection.generate.rattle &#8212; Soprano</title>
     
@@ -625,12 +625,62 @@ title="Print to PDF"
 <p>Generator producing structures rattled of a given amount</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rattleGen</span></code>(struct[, amplitude, n, method])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.collection.generate.rattle.rattleGen" title="soprano.collection.generate.rattle.rattleGen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rattleGen</span></code></a>(struct[, amplitude, n, method])</p></td>
 <td><p>Generator function to create multiple structures by randomly displacing atoms of a given amount.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.collection.generate.rattle.rattleGen">
+<code class="sig-prename descclassname"><span class="pre">soprano.collection.generate.rattle.</span></code><code class="sig-name descname"><span class="pre">rattleGen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/collection/generate/rattle.html#rattleGen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.collection.generate.rattle.rattleGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures by randomly displacing
+atoms of a given amount.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct (ase.Atoms): the starting structure to randomize</div>
+<div class="line">amplitude (float or np.ndarray): the amplitude of the random</div>
+<div class="line-block">
+<div class="line">displacement. Can be a single float</div>
+<div class="line">for all atoms, a 1D numpy array of</div>
+<div class="line">length N (N being the number of</div>
+<div class="line">atoms, one value each) or a 2D numpy</div>
+<div class="line">array of shape (N,3) (one value for</div>
+<div class="line">each dimension).</div>
+<div class="line">These values are used as interval for</div>
+<div class="line">uniform random numbers and as stdev</div>
+<div class="line">for normal random numbers</div>
+</div>
+<div class="line">n (int): maximum number of structures to generate. If set to None will</div>
+<div class="line-block">
+<div class="line">generate infinite structures</div>
+</div>
+<div class="line">method (str): must be either ‘uniform’ or ‘normal’. In the first case</div>
+<div class="line-block">
+<div class="line">the rattling will be a uniform random number between</div>
+<div class="line">+amplitude and -amplitude. In the second case it will be</div>
+<div class="line">a gaussian random number with +amplitude standard</div>
+<div class="line">deviation.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">rattleGenerator (generator): an iterator that yields copies of the</div>
+<div class="line-block">
+<div class="line">base structure with randomly displaced</div>
+<div class="line">atoms.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

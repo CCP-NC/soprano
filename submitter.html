@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Job Submitter &#8212; Soprano</title>
     
@@ -854,7 +854,7 @@ state in order for it to be restarted manually at a later time. By
 default the submitter only stores the list of the currently running
 jobs so that it can get back to monitoring them; however, here the
 user can define any additional data they want to be stored as well,
-as long as it can be ‘pickled’ <a class="footnote-reference brackets" href="#footnote-1" id="footnote-reference-1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>. This data must be returned as
+as long as it can be ‘pickled’ <a class="footnote-reference brackets" href="#id2" id="id1">1</a>. This data must be returned as
 members inside a dictionary. This method <em>must</em> return a dictionary,
 even if empty. The file is saved as <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;.pkl</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> is
 the ‘name’ argument passed to the Submitter’s constructor.</p></li>
@@ -998,12 +998,13 @@ Submitter. When defining a new Submitter class, one can use the method
 <code class="docutils literal notranslate"><span class="pre">self.log('Message')</span></code> inside it to write to this log file additional
 lines.</p>
 <hr class="footnotes docutils" />
-<aside class="footnote brackets" id="footnote-1" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#footnote-reference-1">1</a><span class="fn-bracket">]</span></span>
-<p>For more information on the process of serialisation, or
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>For more information on the process of serialisation, or
 ‘pickling’, in Python, see:
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">https://docs.python.org/3/library/pickle.html</a></p>
-</aside>
+</dd>
+</dl>
 </section>
 </section>
 

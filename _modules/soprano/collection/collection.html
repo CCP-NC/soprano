@@ -1,0 +1,1538 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.collection.collection &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/togglebutton.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/collection/collection.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.collection.collection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Definition of the Collection class.</span>
+
+<span class="sd">It handles multiple Atoms ASE objects and mirrors in this sense the structure</span>
+<span class="sd">of the Atoms object itself.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">ase</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># 2-to-3 compatibility</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pickle</span>
+<span class="c1"># More 2-to-3 compatibility, defining a wrapper function for inspect</span>
+<span class="c1"># Internal imports</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">io</span> <span class="k">as</span> <span class="n">ase_io</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">niggli_reduce</span>
+<span class="kn">from</span> <span class="nn">ase.calculators.singlepoint</span> <span class="kn">import</span> <span class="n">SinglePointCalculator</span>
+<span class="kn">from</span> <span class="nn">soprano</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">utils</span><span class="o">.</span><span class="n">customize_warnings</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="_AllCaller"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection._AllCaller">[docs]</a><span class="k">class</span> <span class="nc">_AllCaller</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;_AllCaller class.</span>
+
+<span class="sd">    A meta-object that serves the purpose of calling a function on all members</span>
+<span class="sd">    of a list in a natural way.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_list</span><span class="p">,</span> <span class="n">all_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the AllCaller with an &#39;all&#39; list&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">all_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="n">all_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="o">=</span> <span class="n">all_class</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">_class</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">all_list</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Elements of list passed to an _AllCaller&quot;</span> <span class="s2">&quot; must be of the same type.&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all</span> <span class="o">=</span> <span class="n">all_list</span>
+        <span class="c1"># Now get a list of all members in common between these instances</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_all</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_instance_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">[</span><span class="nb">set</span><span class="p">(</span><span class="n">ins</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">for</span> <span class="n">ins</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all</span><span class="p">]</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="_AllCaller.__getattr__"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection._AllCaller.__getattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Here&#39;s the magic of the class - when a method isn&#39;t found belonging</span>
+<span class="sd">        to it, go looking for it in its ._all list...&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="c1"># Is it a function?</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all</span><span class="p">])</span>
+
+            <span class="k">def</span> <span class="nf">iterfunc</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">iterfunc</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_attrs</span><span class="p">:</span>
+            <span class="c1"># It&#39;s an instance attribute</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Not all &#39;</span><span class="si">{0}</span><span class="s2">&#39; objects have attribute&quot;</span> <span class="s2">&quot; &#39;</span><span class="si">{1}</span><span class="s2">&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_class</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">name</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="_AllCaller.map"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection._AllCaller.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map a function to each element of the ._all list and return the</span>
+<span class="sd">        results.&quot;&quot;&quot;</span>
+
+        <span class="c1"># First, check the signature</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only functions can be mapped&quot;</span><span class="p">)</span>
+
+        <span class="n">nargs</span><span class="p">,</span> <span class="n">nargs_def</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">inspect_args</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nargs</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="c1"># Function is invalid!</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid function passed to map&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="AtomsCollection"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection">[docs]</a><span class="k">class</span> <span class="nc">AtomsCollection</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;AtomsCollection object.</span>
+
+<span class="sd">    An AtomsCollection represents a group of ASE Atoms objects.</span>
+<span class="sd">    It handles them together, can perform mass operations on them, and stores</span>
+<span class="sd">    arrays of informations related to them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structures</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">info</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">cell_reduce</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">suppress_ase_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the AtomsCollection</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |    structures (list[str] or list[ase.Atoms]): list of file names or</span>
+<span class="sd">        |                                               Atoms that will form</span>
+<span class="sd">        |                                               the collection</span>
+<span class="sd">        |    info (dict): dictionary of general information to attach</span>
+<span class="sd">        |                 to this collection</span>
+<span class="sd">        |    cell_reduce (bool): if True, perform a Niggli cell reduction on</span>
+<span class="sd">        |                        all loaded structures</span>
+<span class="sd">        |    progress (bool): visualize a progress bar for the loading process</span>
+<span class="sd">        |    suppress_ase_warnings (bool): suppress annoying ASE warnings when</span>
+<span class="sd">        |                                  loading files (default is True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Start by parsing out the structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">ase</span><span class="o">.</span><span class="n">Atoms</span><span class="p">):</span>
+            <span class="c1"># Well, it&#39;s just one...</span>
+            <span class="n">structures</span> <span class="o">=</span> <span class="p">[</span><span class="n">structures</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isgenerator</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
+            <span class="c1"># Let&#39;s unravel it</span>
+            <span class="n">iter_structs</span> <span class="o">=</span> <span class="n">structures</span>
+            <span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">iter_structs</span><span class="p">:</span>
+                <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;Loading collection...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">s_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">s_i</span><span class="p">,</span> <span class="n">struct</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">structures</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
+                <span class="c1"># Progress bar</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">Loading: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">progbar</span><span class="p">(</span><span class="n">s_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s_n</span><span class="p">)))</span>
+            <span class="c1"># Is it an Atoms object?</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ase</span><span class="o">.</span><span class="n">Atoms</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ase</span><span class="o">.</span><span class="n">Atoms</span><span class="p">(</span><span class="n">struct</span><span class="p">))</span>
+                <span class="c1"># Copy all arrays</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">struct</span><span class="o">.</span><span class="n">arrays</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">new_array</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">struct</span><span class="o">.</span><span class="n">calc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Prevents pointless attempts at re-calculating</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">_old_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># Or is it a string?</span>
+            <span class="k">elif</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">struct</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">silence_stdio</span><span class="p">(</span><span class="n">suppress_ase_warnings</span><span class="p">,</span> <span class="n">suppress_ase_warnings</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ase_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">struct</span><span class="p">)))</span>
+                <span class="c1"># If there&#39;s no name, give it the filename</span>
+                <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">seedname</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Structures must be Atoms objects or valid &quot;</span>
+                    <span class="s2">&quot;file names,&quot;</span>
+                    <span class="s2">&quot; not </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">cell_reduce</span><span class="p">:</span>
+                <span class="c1"># Here we must keep the energy if it was present</span>
+                <span class="c1"># We do this by hand because ASE has its good reasons</span>
+                <span class="c1"># for severing the atoms-calculator connection when changing</span>
+                <span class="c1"># the unit cell.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">_E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                    <span class="n">_E</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">niggli_reduce</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">_E</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">_calc</span> <span class="o">=</span> <span class="n">SinglePointCalculator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">energy</span><span class="o">=</span><span class="n">_E</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">_calc</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">progress</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Loaded </span><span class="si">{0}</span><span class="s2"> structures</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s_n</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all</span> <span class="o">=</span> <span class="n">_AllCaller</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">,</span> <span class="n">ase</span><span class="o">.</span><span class="n">Atoms</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Now assign the info</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">info</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Info must be dict,&quot;</span> <span class="s2">&quot; not </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">info</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AtomsCollection.__add__"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.__add__">[docs]</a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Addition of two collections brings a merging&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;AtomsCollection&#39; does not support operator +&quot;</span>
+                <span class="s2">&quot; with object of type&quot;</span>
+                <span class="s2">&quot; &#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create a common collection, join arrays where present, copy all info</span>
+        <span class="n">all_struct</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
+        <span class="n">all_struct</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
+
+        <span class="n">all_info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_info</span><span class="p">:</span>
+                <span class="n">all_info</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">all_info</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="n">sum_struct</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="p">(</span><span class="n">all_struct</span><span class="p">,</span> <span class="n">all_info</span><span class="p">)</span>
+
+        <span class="c1"># Now arrays</span>
+        <span class="k">for</span> <span class="n">aname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+            <span class="c1"># Grab the shape</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">aname</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="c1"># Check if present in the other as well</span>
+            <span class="n">all_arr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="n">aname</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">aname</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+                <span class="n">all_arr</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="n">aname</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">all_arr</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">length</span>
+            <span class="n">sum_struct</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">aname</span><span class="p">,</span> <span class="n">all_arr</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">aname</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+            <span class="c1"># Can not be present in both</span>
+            <span class="k">if</span> <span class="n">aname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Grab the shape</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">aname</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">all_arr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="n">aname</span><span class="p">))</span>
+            <span class="n">all_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="p">)]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">all_arr</span>
+            <span class="n">sum_struct</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">aname</span><span class="p">,</span> <span class="n">all_arr</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sum_struct</span></div>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="n">other</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="AtomsCollection.__getitem__"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Allow sophisticated slicing&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="c1"># Special case, a single element!</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">indices</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">struct_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">indices</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">indices</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Support for bool arrays</span>
+            <span class="n">struct_slice</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">]</span>
+
+        <span class="n">sliced</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="p">(</span><span class="n">struct_slice</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+        <span class="c1"># Now to add the arrays</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+            <span class="n">sliced</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">a</span><span class="p">][</span><span class="n">indices</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">sliced</span></div>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AtomsCollection.__deepcopy__"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.__deepcopy__">[docs]</a>    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memodict</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Protects against problems with infinite recursion in AllCaller&quot;&quot;&quot;</span>
+
+        <span class="n">dcopy</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">arr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+            <span class="n">dcopy</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">arr</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">dcopy</span></div>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all</span>
+
+<div class="viewcode-block" id="AtomsCollection.set_array"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.set_array">[docs]</a>    <span class="k">def</span> <span class="nf">set_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Add or modify an array of data related to the Atoms objects</span>
+<span class="sd">        in this collection.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   name (str): name of the array to operate on.</span>
+<span class="sd">        |   a (np.ndarray or function&lt;Atoms, \\*\\*kwargs&gt;</span>
+<span class="sd">        |                    =&gt; Any): the data to assign to the array (must</span>
+<span class="sd">        |                             be same length as the collection) or</span>
+<span class="sd">        |                             a function that takes an Atoms object</span>
+<span class="sd">        |                             as the first argument and returns a</span>
+<span class="sd">        |                             value. This will be mapped over the</span>
+<span class="sd">        |                             structures to create the array.</span>
+<span class="sd">        |   dtype (type): type to cast the values of the array to.</span>
+<span class="sd">        |   shape (tuple [int]): shape of each entry of the array. Will be</span>
+<span class="sd">        |                        checked if provided.</span>
+<span class="sd">        |   args (dict): named arguments to pass to the function provided</span>
+<span class="sd">        |                as a. Will be ignored if an array is passed instead.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># a can be an actual array or a function that operates on each</span>
+        <span class="c1"># separate Atoms object and returns a value</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
+                <span class="c1"># It&#39;s a function</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">),</span> <span class="n">dtype</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Invalid</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;new_array requires to pass either an array&quot;</span>
+                    <span class="s2">&quot; or a function taking an Atoms object as its&quot;</span>
+                    <span class="s2">&quot; first argument and returning a value.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Now check that the shape is valid</span>
+        <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">1</span><span class="p">,):</span>
+                <span class="n">targ_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">targ_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,)</span> <span class="o">+</span> <span class="n">shape</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">targ_shape</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Array of invalid shape passed to new_array&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Array passed to new_array should be&quot;</span>
+                    <span class="s2">&quot; as long as the number of structures&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># And finally, assign</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.get_array"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.get_array">[docs]</a>    <span class="k">def</span> <span class="nf">get_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a copy of an array of given name (or a reference if copy=False)</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   name (str): name of the array to retrieve.</span>
+<span class="sd">        |   copy (bool): if the array should be copied or a reference should</span>
+<span class="sd">        |                be returned instead.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   array (np.ndarray): the requested array</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Array &#39;</span><span class="si">{0}</span><span class="s2">&#39; does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.has"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.has">[docs]</a>    <span class="k">def</span> <span class="nf">has</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if array of given name exists&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.set_calculators"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.set_calculators">[docs]</a>    <span class="k">def</span> <span class="nf">set_calculators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calctype</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Set an ASE calculator on each structure in the collection,</span>
+<span class="sd">        and set said calculator&#39;s parameters.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   calctype (ASE Calculator type): the type of calculator</span>
+<span class="sd">        |                                   to instantiate.</span>
+<span class="sd">        |   labels (Optional[list[str]]): names to use for the calculators&#39;</span>
+<span class="sd">        |                                 files. If not present, random</span>
+<span class="sd">        |                                 generated names are used.</span>
+<span class="sd">        |   params (Optional[dict]): parameters of the calculator to set.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># First, a check</span>
+        <span class="kn">from</span> <span class="nn">ase.calculators.general</span> <span class="kn">import</span> <span class="n">Calculator</span> <span class="k">as</span> <span class="n">gCalculator</span>
+        <span class="kn">from</span> <span class="nn">ase.calculators.calculator</span> <span class="kn">import</span> <span class="n">Calculator</span> <span class="k">as</span> <span class="n">cCalculator</span>
+        <span class="kn">from</span> <span class="nn">ase.calculators.calculator</span> <span class="kn">import</span> <span class="n">FileIOCalculator</span> <span class="k">as</span> <span class="n">ioCalculator</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">gCalculator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">calctype</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">cCalculator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">calctype</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">ioCalculator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">calctype</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;calctype must be a type of ASE Calculator&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;labels must be long as the collection itself&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Then set it up</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># First: do we have a name?</span>
+                <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;struct_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">calc</span> <span class="o">=</span> <span class="n">calctype</span><span class="p">(</span><span class="n">atoms</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="c1"># To make sure...</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">calc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.run_calculators"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.run_calculators">[docs]</a>    <span class="k">def</span> <span class="nf">run_calculators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">system_changes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run all previously set ASE calculators.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   properties (list[str]): list of properties to calculate (depends</span>
+<span class="sd">        |                           on type of Calculator used)</span>
+<span class="sd">        |   system_changes (list[str]): list of changes to the structure</span>
+<span class="sd">        |                               since the last calculation. Can be</span>
+<span class="sd">        |                               any combination of these five:</span>
+<span class="sd">        |                               &#39;positions&#39;, &#39;numbers&#39;, &#39;cell&#39;,</span>
+<span class="sd">        |                               &#39;pbc&#39;, &#39;initial_charges&#39; and</span>
+<span class="sd">        |                               &#39;initial_magmoms&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># First, check if we even have those</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">calc</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Not all structures in collection&quot;</span> <span class="s2">&quot; have a calculator&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">properties</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span>
+        <span class="k">if</span> <span class="n">system_changes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;system_changes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">system_changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">calc</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">atoms</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.chunkify"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.chunkify">[docs]</a>    <span class="k">def</span> <span class="nf">chunkify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunk_n</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Split this collection into multiple collections based on either</span>
+<span class="sd">        size or number of chunks.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   chunk_size (Optional[int]): maximum size of a generated chunk</span>
+<span class="sd">        |   chunk_n (Optional[int]): number of chunks to generate</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   chunks (list[AtomsCollection]): a list of the generated chunks</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">[</span><span class="n">chunk_size</span><span class="p">,</span> <span class="n">chunk_n</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Only one between chunk_size and chunk_n&quot;</span> <span class="s2">&quot;must be passed&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chunk_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;chunk_size must be an int&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chunk_n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">chunk_n</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;chunk_n must be an int&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Now determine the size</span>
+        <span class="k">if</span> <span class="n">chunk_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">chunk_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">chunk_n</span><span class="p">))</span>
+
+        <span class="n">struct_chunks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">chunk_size</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">AtomsCollection</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">struct_chunks</span><span class="p">]</span>
+
+        <span class="c1"># Now the arrays</span>
+        <span class="k">for</span> <span class="n">aname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chunks</span><span class="p">):</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span>
+                    <span class="n">aname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">aname</span><span class="p">][</span><span class="n">i</span> <span class="o">*</span> <span class="n">chunk_size</span> <span class="p">:</span> <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">chunk_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">chunks</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.sorted_byarray"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.sorted_byarray">[docs]</a>    <span class="k">def</span> <span class="nf">sorted_byarray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a copy of this collection sorted by a given array.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   name (str): name of the array to use for the sorting</span>
+<span class="sd">        |   reverse (Optional[bool]): reverse order of sorting (max to min)</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   sorted (AtomsCollection): a sorted copy of the collection</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># First, check that we do have the array</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Array &#39;</span><span class="si">{0}</span><span class="s2">&#39; does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="n">arr_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">data_block</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">arr_names</span><span class="p">])</span>
+        <span class="n">key_i</span> <span class="o">=</span> <span class="n">arr_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">data_block</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="n">data_block</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">key_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="n">sorted_copy</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="p">(</span><span class="n">data_block</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ai</span><span class="p">,</span> <span class="n">an</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">arr_names</span><span class="p">):</span>
+            <span class="n">sorted_copy</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">an</span><span class="p">,</span> <span class="n">data_block</span><span class="p">[</span><span class="n">ai</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">sorted_copy</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.filter"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a collection composed only of the elements for which a given</span>
+<span class="sd">        filter function returns True.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   filter_func (function&lt;Atoms&gt;</span>
+<span class="sd">        |                       =&gt; bool): filter function. Should take an</span>
+<span class="sd">        |                                 Atoms object and return a boolean</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   filtered (AtomsCollection): the filtered version of the collection</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">filter_slice</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">filter_func</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="n">filter_slice</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">filter_slice</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.classify"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.classify">[docs]</a>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary of collections based on the names of assigned</span>
+<span class="sd">        classes.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   classes (np.ndarray): array of the class to which each structure</span>
+<span class="sd">        |                         belongs. For example [1, 2, 1] will put the</span>
+<span class="sd">        |                         first and third structures in class 1 and</span>
+<span class="sd">        |                         the other in class 2. The classes can be any</span>
+<span class="sd">        |                         hashable types, like int or str.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   classified (dict): a dictionary using class names as keys and</span>
+<span class="sd">        |                      sliced collections as values</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+        <span class="n">classified</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">classes</span> <span class="o">==</span> <span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">classes</span><span class="p">)}</span>
+
+        <span class="k">return</span> <span class="n">classified</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.save"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simply save a pickled copy to a given file path&quot;&quot;&quot;</span>
+
+        <span class="c1"># Pickling doesn&#39;t deal well with the _AllCaller, so we get rid of it</span>
+        <span class="n">selfcopy</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[:]</span>
+        <span class="n">selfcopy</span><span class="o">.</span><span class="n">_all</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">selfcopy</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.load"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a pickled copy from a given file path&quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">coll</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coll</span><span class="p">,</span> <span class="n">AtomsCollection</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File does not contain an AtomsCollection&quot;</span> <span class="s2">&quot; object&quot;</span><span class="p">)</span>
+        <span class="c1"># Restore the _AllCaller</span>
+        <span class="n">coll</span><span class="o">.</span><span class="n">_all</span> <span class="o">=</span> <span class="n">_AllCaller</span><span class="p">(</span><span class="n">coll</span><span class="o">.</span><span class="n">structures</span><span class="p">,</span> <span class="n">ase</span><span class="o">.</span><span class="n">Atoms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">coll</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.check_tree"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.check_tree">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">check_tree</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks if a path is a valid &#39;tree&#39; format for a collection. This is</span>
+<span class="sd">        any folder that satisfies the following conditions:</span>
+
+<span class="sd">        - contains a .collection file storing metadata</span>
+<span class="sd">        - contains a series of folders matching the list stored in the</span>
+<span class="sd">          .collection file, and nothing else</span>
+
+<span class="sd">        This function will return 0 if both conditions are satisfied, 1 if</span>
+<span class="sd">        only the first is, 2 if no .collection file is found, and -1 if the</span>
+<span class="sd">        folder itself doesn&#39;t exist.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   path (str): path to check for whether it matches or not the</span>
+<span class="sd">        |               collection pattern</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   result (int): 0, 1 or 2 depending on the outcome of the checks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="c1"># Begin by checking whether there is a .collection file</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.collection&quot;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">coll</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">2</span>  <span class="c1"># No or invalid .collection file found</span>
+
+        <span class="c1"># Check if the directories match</span>
+        <span class="n">dirlist</span> <span class="o">=</span> <span class="n">coll</span><span class="p">[</span><span class="s2">&quot;dirlist&quot;</span><span class="p">]</span>
+        <span class="n">dirs</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">))</span>
+        <span class="n">all_dirs</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">])</span>
+        <span class="n">dirs</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirs</span><span class="p">]</span>
+
+        <span class="c1"># Are they even all directories?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_dirs</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">(</span><span class="n">dirlist</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.save_tree"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.save_tree">[docs]</a>    <span class="k">def</span> <span class="nf">save_tree</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">,</span>
+        <span class="n">save_format</span><span class="p">,</span>
+        <span class="n">name_root</span><span class="o">=</span><span class="s2">&quot;structure&quot;</span><span class="p">,</span>
+        <span class="n">opt_args</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">safety_check</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">suppress_ase_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the collection&#39;s structures as a series of folders, named like</span>
+<span class="sd">        the structures, inside a given parent folder (that will be created if</span>
+<span class="sd">        not present). Arrays and info are stored in a pickled .collection file</span>
+<span class="sd">        which works as metadata for the whole directory tree.</span>
+<span class="sd">        The files can be saved in a format of choice, or a function can be</span>
+<span class="sd">        passed that will save them in a custom way. Only one collection can be</span>
+<span class="sd">        saved per folder.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   path (str): folder path in which the collection should be saved.</span>
+<span class="sd">        |   save_format (str or function): format in which the structures</span>
+<span class="sd">        |                                  should be saved.</span>
+<span class="sd">        |                                  If a string, it will be used as a</span>
+<span class="sd">        |                                  file extension. If a function, it</span>
+<span class="sd">        |                                  must take as arguments the</span>
+<span class="sd">        |                                  structure (an ase.Atoms object)</span>
+<span class="sd">        |                                  the save path (a string), and any</span>
+<span class="sd">        |                                  additional arguments passed as</span>
+<span class="sd">        |                                  opt_args, and take care of saving</span>
+<span class="sd">        |                                  the required files.</span>
+<span class="sd">        |   name_root (str): name prefix to be used for structures when a name</span>
+<span class="sd">        |                    is not available in their info dictionary</span>
+<span class="sd">        |   opt_args (dict): dictionary of additional arguments to pass to</span>
+<span class="sd">        |                    either ase.io.write (if save_format is a string)</span>
+<span class="sd">        |                    or to the save_format function.</span>
+<span class="sd">        |   safety_check (int): how much care should be taken not to overwrite</span>
+<span class="sd">        |                       potentially important data in path. Can be a</span>
+<span class="sd">        |                       number from 0 to 3.</span>
+<span class="sd">        |                       Here&#39;s the meaning of the codes:</span>
+<span class="sd">        |</span>
+<span class="sd">        |                       3 (default): always ask before overwriting an</span>
+<span class="sd">        |                         existing folder that passes the check_tree</span>
+<span class="sd">        |                         control, raise an exception otherwise;</span>
+<span class="sd">        |                       2: overwite any folder that passes fully the</span>
+<span class="sd">        |                          check_tree control, raise an exception</span>
+<span class="sd">        |                          otherwise;</span>
+<span class="sd">        |                       1: overwrite any folder that passes fully the</span>
+<span class="sd">        |                          check_tree control, ask for user input</span>
+<span class="sd">        |                          otherwise;</span>
+<span class="sd">        |                       0 (DANGER - use at your own risk!): no checks,</span>
+<span class="sd">        |                         always overwrite path.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="o">.</span><span class="n">check_tree</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">ow_ask</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">utils</span><span class="o">.</span><span class="n">safe_input</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s2">&quot;Folder </span><span class="si">{0}</span><span class="s2"> exists, &quot;</span> <span class="s2">&quot;overwrite (y/n)?&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="o">==</span> <span class="s2">&quot;y&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">check</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># The folder exists</span>
+            <span class="k">if</span> <span class="n">check</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">safety_check</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="c1"># Ask for permission</span>
+                    <span class="n">perm</span> <span class="o">=</span> <span class="n">ow_ask</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">perm</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">safety_check</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                        <span class="p">(</span>
+                            <span class="s2">&quot;Trying to overwrite folder </span><span class="si">{0}</span><span class="s2"> which did&quot;</span>
+                            <span class="s2">&quot; not pass check_tree control (result </span><span class="si">{1}</span><span class="s2">)&quot;</span>
+                            <span class="s2">&quot; with safety_check level &quot;</span>
+                            <span class="s2">&quot;</span><span class="si">{2}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">safety_check</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">safety_check</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">perm</span> <span class="o">=</span> <span class="n">ow_ask</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">perm</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">perm</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Can not overwrite folder </span><span class="si">{0}</span><span class="s2">, skipping...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># Re-create folder</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="c1"># Format type?</span>
+        <span class="n">is_ext</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">save_format</span><span class="p">)</span>
+        <span class="n">is_func</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">save_format</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">is_ext</span> <span class="ow">or</span> <span class="n">is_func</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid save_format passed to save_tree&quot;</span><span class="p">)</span>
+
+        <span class="n">dirlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">):</span>
+            <span class="n">sname</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">_</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name_root</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">fold</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">sname</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fold</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">fold</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">fold</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">silence_stdio</span><span class="p">(</span><span class="n">suppress_ase_warnings</span><span class="p">,</span> <span class="n">suppress_ase_warnings</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">is_ext</span><span class="p">:</span>
+                    <span class="n">ase_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fold</span><span class="p">,</span> <span class="n">sname</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">save_format</span><span class="p">),</span> <span class="n">s</span><span class="p">,</span> <span class="o">**</span><span class="n">opt_args</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">is_func</span><span class="p">:</span>
+                    <span class="n">save_format</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">fold</span><span class="p">,</span> <span class="o">**</span><span class="n">opt_args</span><span class="p">)</span>
+
+            <span class="n">dirlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sname</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.collection&quot;</span><span class="p">),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;dirlist&quot;</span><span class="p">:</span> <span class="n">dirlist</span><span class="p">,</span> <span class="s2">&quot;arrays&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arrays</span><span class="p">,</span> <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">},</span>
+                <span class="n">f</span><span class="p">,</span>
+                <span class="n">protocol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AtomsCollection.load_tree"><a class="viewcode-back" href="../../../_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.load_tree">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load_tree</span><span class="p">(</span>
+        <span class="n">path</span><span class="p">,</span>
+        <span class="n">load_format</span><span class="p">,</span>
+        <span class="n">opt_args</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">safety_check</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">tolerant</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">suppress_ase_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a collection&#39;s structures from a series of folders, named like</span>
+<span class="sd">        the structures, inside a given parent folder, as created by save_tree.</span>
+<span class="sd">        The files can be loaded from a format of choice, or a</span>
+<span class="sd">        function can be passed that will load them in a custom way.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   path (str): folder path in which the collection should be saved.</span>
+<span class="sd">        |   load_format (str or function): format from which the structures</span>
+<span class="sd">        |                                  should be loaded.</span>
+<span class="sd">        |                                  If a string, it will be used as a</span>
+<span class="sd">        |                                  file extension. If a function, it</span>
+<span class="sd">        |                                  must take as arguments the load</span>
+<span class="sd">        |                                  path (a string) and any additional</span>
+<span class="sd">        |                                  arguments passed as opt_args, and</span>
+<span class="sd">        |                                  return the loaded structure as an</span>
+<span class="sd">        |                                  ase.Atoms object.</span>
+<span class="sd">        |   opt_args(dict): dictionary of additional arguments to pass to</span>
+<span class="sd">        |                   either ase.io.read (if load_format is a string)</span>
+<span class="sd">        |                   or to the load_format function.</span>
+<span class="sd">        |   safety_check (int): how much care should be taken to verify the</span>
+<span class="sd">        |                       folder that is being loaded. Can be a number</span>
+<span class="sd">        |                       from 0 to 3.</span>
+<span class="sd">        |                       Here&#39;s the meaning of the codes:</span>
+<span class="sd">        |</span>
+<span class="sd">        |                       3 (default): only load a folder if it passes</span>
+<span class="sd">        |                         fully the check_tree control;</span>
+<span class="sd">        |                       2: load any folder that has a valid</span>
+<span class="sd">        |                          .collection file, but only the listed</span>
+<span class="sd">        |                          subfolders;</span>
+<span class="sd">        |                       1: load any folder that has a valid</span>
+<span class="sd">        |                          .collection file, all subfolders. Array</span>
+<span class="sd">        |                          data will be discarded;</span>
+<span class="sd">        |                       0: no checks, try to load from all subfolders.</span>
+<span class="sd">        |   tolerant (bool): if set to true, proceeds to load the</span>
+<span class="sd">        |                    structures into an AtomsCollection, even</span>
+<span class="sd">        |                    if some of the structures could not be</span>
+<span class="sd">        |                    read.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   coll (AtomsCollection): loaded collection</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="o">.</span><span class="n">check_tree</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">check</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Folder </span><span class="si">{0}</span><span class="s2"> does not exist&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+        <span class="n">dirlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.collection&quot;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">coll</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">check</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">safety_check</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s2">&quot;Folder </span><span class="si">{0}</span><span class="s2"> is not a valid collection &quot;</span> <span class="s2">&quot;tree&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">safety_check</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">dirlist</span> <span class="o">=</span> <span class="n">coll</span><span class="p">[</span><span class="s2">&quot;dirlist&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dirlist</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">safety_check</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="p">(</span><span class="s2">&quot;Folder </span><span class="si">{0}</span><span class="s2"> is not a valid collection &quot;</span> <span class="s2">&quot;tree&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">dirlist</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="c1"># Format type?</span>
+        <span class="n">is_ext</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">load_format</span><span class="p">)</span>
+        <span class="n">is_func</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">load_format</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">is_ext</span> <span class="ow">or</span> <span class="n">is_func</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid load_format passed to load_tree&quot;</span><span class="p">)</span>
+
+        <span class="n">structures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dirlist</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">is_ext</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">silence_stdio</span><span class="p">(</span>
+                        <span class="n">suppress_ase_warnings</span><span class="p">,</span> <span class="n">suppress_ase_warnings</span>
+                    <span class="p">):</span>
+                        <span class="n">s</span> <span class="o">=</span> <span class="n">ase_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">load_format</span><span class="p">),</span> <span class="o">**</span><span class="n">opt_args</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">is_func</span><span class="p">:</span>
+                    <span class="n">s</span> <span class="o">=</span> <span class="n">load_format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="o">**</span><span class="n">opt_args</span><span class="p">)</span>
+                <span class="n">structures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">check</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">coll</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">percentage_failed</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">structures</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dirlist</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="k">if</span> <span class="n">percentage_failed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">percentage_failed</span> <span class="o">==</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">{0:.2f}% o</span><span class="s2">f structures could not be loaded.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">percentage_failed</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">tolerant</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">{0:.2f}% o</span><span class="s2">f structures could not be loaded. Set&quot;</span>
+                    <span class="s2">&quot; tolerant to True if you would still&quot;</span>
+                    <span class="s2">&quot; like to load the remaining structures.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">percentage_failed</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">percentage_success</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">-</span> <span class="n">percentage_failed</span>
+                <span class="n">info</span><span class="p">[</span><span class="s2">&quot;percentage_loaded&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percentage_success</span>
+
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">{0:.2f}% o</span><span class="s2">f structures could not be loaded.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">percentage_failed</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;100</span><span class="si">% o</span><span class="s2">f structures loaded successfully.&quot;</span><span class="p">)</span>
+
+        <span class="n">loaded_coll</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="p">(</span><span class="n">structures</span><span class="p">,</span> <span class="n">info</span><span class="o">=</span><span class="n">info</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">safety_check</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">arrays</span> <span class="o">=</span> <span class="n">coll</span><span class="p">[</span><span class="s2">&quot;arrays&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">arrays</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">loaded_coll</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">loaded_coll</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Just load whatever was passed in the command line!</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">coll</span> <span class="o">=</span> <span class="n">AtomsCollection</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cell_reduce</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

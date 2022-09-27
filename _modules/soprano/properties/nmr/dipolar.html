@@ -1,0 +1,1022 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.properties.nmr.dipolar &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/properties/nmr/dipolar.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.properties.nmr.dipolar</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Implementation of AtomsProperties that relate to NMR dipole-dipole</span>
+<span class="sd">couplings&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">soprano.utils</span> <span class="kn">import</span> <span class="n">minimum_periodic</span><span class="p">,</span> <span class="n">minimum_supcell</span><span class="p">,</span> <span class="n">supcell_gridgen</span>
+<span class="kn">from</span> <span class="nn">soprano.properties</span> <span class="kn">import</span> <span class="n">AtomsProperty</span>
+<span class="kn">from</span> <span class="nn">soprano.selection</span> <span class="kn">import</span> <span class="n">AtomSelection</span>
+<span class="kn">from</span> <span class="nn">soprano.nmr.utils</span> <span class="kn">import</span> <span class="n">_dip_constant</span><span class="p">,</span> <span class="n">_dip_tensor</span>
+<span class="kn">from</span> <span class="nn">soprano.data.nmr</span> <span class="kn">import</span> <span class="n">_get_isotope_data</span>
+<span class="kn">from</span> <span class="nn">soprano.rnd</span> <span class="kn">import</span> <span class="n">Random</span>
+
+
+<div class="viewcode-block" id="DipolarCoupling"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarCoupling">[docs]</a><span class="k">class</span> <span class="nc">DipolarCoupling</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DipolarCoupling</span>
+
+<span class="sd">    Produces a dictionary of dipole-dipole coupling constants for atom pairs</span>
+<span class="sd">    in the system. For each pair, the closest periodic copy will be considered.</span>
+<span class="sd">    The constant for a pair of nuclei i and j is defined as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d_{ij} = -\\frac{\\mu_0\\hbar\\gamma_i\\gamma_j}{8\\pi^2r_{ij}^3}</span>
+
+<span class="sd">    where the gammas represent the gyromagnetic ratios of the nuclei and the</span>
+<span class="sd">    r is their distance. The full tensor of the interaction is then defined as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">         D_{ij} =</span>
+<span class="sd">         \\begin{bmatrix}</span>
+<span class="sd">          -d_{ij}   &amp; 0         &amp; 0       \\\\</span>
+<span class="sd">          0         &amp; -d_{ij}   &amp; 0       \\\\</span>
+<span class="sd">          0         &amp; 0         &amp; 2d_{ij} \\\\</span>
+<span class="sd">         \\end{bmatrix}</span>
+
+<span class="sd">    where the z-axis is aligned with :math:`r_{ij}` and the other two can be any</span>
+<span class="sd">    directions in the orthogonal plane.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms</span>
+<span class="sd">    |                                   for which to compute the dipolar</span>
+<span class="sd">    |                                   coupling. By default is None</span>
+<span class="sd">    |                                   (= all of them).</span>
+<span class="sd">    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms</span>
+<span class="sd">    |                                   for which to compute the dipolar</span>
+<span class="sd">    |                                   coupling with the ones in sel_i. By</span>
+<span class="sd">    |                                   default is None (= same as sel_i).</span>
+<span class="sd">    |   isotopes (dict): dictionary of specific isotopes to use, by element</span>
+<span class="sd">    |                    symbol. If the isotope doesn&#39;t exist an error will</span>
+<span class="sd">    |                    be raised.</span>
+<span class="sd">    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if</span>
+<span class="sd">    |                        different atoms of the same element are supposed</span>
+<span class="sd">    |                        to be of different isotopes. Where a &#39;None&#39; is</span>
+<span class="sd">    |                        present will fall back on the previous</span>
+<span class="sd">    |                        definitions. Where an isotope is present it</span>
+<span class="sd">    |                        overrides everything else.</span>
+<span class="sd">    |   self_coupling (bool): if True, include coupling of a nucleus with its</span>
+<span class="sd">    |                         own closest periodic copy. Otherwise excluded.</span>
+<span class="sd">    |                         Default is False.</span>
+<span class="sd">    |   block_size (int): maximum size of blocks used when processing large</span>
+<span class="sd">    |                     chunks of pairs. Necessary to avoid memory problems</span>
+<span class="sd">    |                     for very large systems. Default is 1000.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,</span>
+<span class="sd">    |                    pointing from i to j, by atomic index pair.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;dip_coupling&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sel_i&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;sel_j&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;isotopes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;isotope_list&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;self_coupling&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;block_size&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="DipolarCoupling.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarCoupling.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">sel_i</span><span class="p">,</span> <span class="n">sel_j</span><span class="p">,</span> <span class="n">isotopes</span><span class="p">,</span> <span class="n">isotope_list</span><span class="p">,</span> <span class="n">self_coupling</span><span class="p">,</span> <span class="n">block_size</span><span class="p">):</span>
+
+        <span class="c1"># Selections</span>
+        <span class="k">if</span> <span class="n">sel_i</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sel_i</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sel_i</span><span class="p">,</span> <span class="n">AtomSelection</span><span class="p">):</span>
+            <span class="n">sel_i</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">sel_i</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sel_j</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sel_j</span> <span class="o">=</span> <span class="n">sel_i</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sel_j</span><span class="p">,</span> <span class="n">AtomSelection</span><span class="p">):</span>
+            <span class="n">sel_j</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">sel_j</span><span class="p">)</span>
+
+        <span class="c1"># Find gammas</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()</span>
+
+        <span class="n">gammas</span> <span class="o">=</span> <span class="n">_get_isotope_data</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">,</span> <span class="n">isotopes</span><span class="p">,</span> <span class="n">isotope_list</span><span class="p">)</span>
+
+        <span class="c1"># Viable pairs</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sel_i</span><span class="o">.</span><span class="n">indices</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">sel_j</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">self_coupling</span><span class="p">:</span>
+            <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="n">pairs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="c1"># Need to sort them and remove any duplicates, also take i &lt; j as</span>
+        <span class="c1"># convention</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">set</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">pairs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">]))))</span>
+
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+
+        <span class="c1"># Split this in blocks to make sure we don&#39;t clog the memory</span>
+
+        <span class="n">d_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,))</span>
+        <span class="n">v_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">npairs</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">b_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">npairs</span><span class="p">,</span> <span class="n">block_size</span><span class="p">):</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">b_i</span> <span class="p">:</span> <span class="n">b_i</span> <span class="o">+</span> <span class="n">block_size</span><span class="p">]</span>
+            <span class="n">r_ij</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">block</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="n">block</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
+            <span class="c1"># Reduce to NN</span>
+            <span class="n">r_ij</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">minimum_periodic</span><span class="p">(</span><span class="n">r_ij</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">exclude_self</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># Distance</span>
+            <span class="n">R_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">r_ij</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Versors</span>
+            <span class="n">v_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">v_ij</span><span class="p">,</span> <span class="n">r_ij</span> <span class="o">/</span> <span class="n">R_ij</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># Couplings</span>
+            <span class="n">d_ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">d_ij</span><span class="p">,</span>
+                    <span class="n">_dip_constant</span><span class="p">(</span>
+                        <span class="n">R_ij</span> <span class="o">*</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="n">gammas</span><span class="p">[</span><span class="n">block</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">gammas</span><span class="p">[</span><span class="n">block</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ij</span><span class="p">):</span> <span class="p">[</span><span class="n">d_ij</span><span class="p">[</span><span class="n">l</span><span class="p">],</span> <span class="n">v_ij</span><span class="p">[</span><span class="n">l</span><span class="p">]]</span> <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">ij</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pairs</span><span class="o">.</span><span class="n">T</span><span class="p">)}</span></div></div>
+
+
+<div class="viewcode-block" id="DipolarTensor"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarTensor">[docs]</a><span class="k">class</span> <span class="nc">DipolarTensor</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DipolarTensor</span>
+
+<span class="sd">    Produces a dictionary of dipole-dipole coupling tensors for atom pairs</span>
+<span class="sd">    in the system. For each pair, the closest periodic copy will be considered.</span>
+<span class="sd">    The coupling constant for a pair of nuclei i and j is defined as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d_{ij} = -\\frac{\\mu_0\\hbar\\gamma_i\\gamma_j}{8\\pi^2r_{ij}^3}</span>
+
+<span class="sd">    where the gammas represent the gyromagnetic ratios of the nuclei and the</span>
+<span class="sd">    r is their distance. The full tensor of the interaction is then defined as</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">         D_{ij} = d_{ij}(3\\hat{r}_{ij}\\otimes \\hat{r}_{ij}-\\mathbb{I})</span>
+
+<span class="sd">    where :math:`\\hat{r}_{ij} = r_{ij}/|r_{ij}|` and the Kronecker product is</span>
+<span class="sd">    used.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms</span>
+<span class="sd">    |                                   for which to compute the dipolar</span>
+<span class="sd">    |                                   coupling. By default is None</span>
+<span class="sd">    |                                   (= all of them).</span>
+<span class="sd">    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms</span>
+<span class="sd">    |                                   for which to compute the dipolar</span>
+<span class="sd">    |                                   coupling with the ones in sel_i. By</span>
+<span class="sd">    |                                   default is None (= same as sel_i).</span>
+<span class="sd">    |   isotopes (dict): dictionary of specific isotopes to use, by element</span>
+<span class="sd">    |                    symbol. If the isotope doesn&#39;t exist an error will</span>
+<span class="sd">    |                    be raised.</span>
+<span class="sd">    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if</span>
+<span class="sd">    |                        different atoms of the same element are supposed</span>
+<span class="sd">    |                        to be of different isotopes. Where a &#39;None&#39; is</span>
+<span class="sd">    |                        present will fall back on the previous</span>
+<span class="sd">    |                        definitions. Where an isotope is present it</span>
+<span class="sd">    |                        overrides everything else.</span>
+<span class="sd">    |   self_coupling (bool): if True, include coupling of a nucleus with its</span>
+<span class="sd">    |                         own closest periodic copy. Otherwise excluded.</span>
+<span class="sd">    |                         Default is False.</span>
+<span class="sd">    |   block_size (int): maximum size of blocks used when processing large</span>
+<span class="sd">    |                     chunks of pairs. Necessary to avoid memory problems</span>
+<span class="sd">    |                     for very large systems. Default is 1000.</span>
+<span class="sd">    |   rotation_axis (np.ndarray): if present, return the residual dipolar</span>
+<span class="sd">    |                               tensors after fast averaging around the</span>
+<span class="sd">    |                               given axis. Default is None.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   dip_dict (dict): Dictionary of tensors in Hz by atomic index pair.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;dip_coupling&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sel_i&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;sel_j&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;isotopes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;isotope_list&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;self_coupling&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;block_size&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;rotation_axis&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="DipolarTensor.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarTensor.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span>
+        <span class="n">sel_i</span><span class="p">,</span>
+        <span class="n">sel_j</span><span class="p">,</span>
+        <span class="n">isotopes</span><span class="p">,</span>
+        <span class="n">isotope_list</span><span class="p">,</span>
+        <span class="n">self_coupling</span><span class="p">,</span>
+        <span class="n">block_size</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">dip_dict</span> <span class="o">=</span> <span class="n">DipolarCoupling</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
+            <span class="n">s</span><span class="p">,</span>
+            <span class="n">sel_i</span><span class="o">=</span><span class="n">sel_i</span><span class="p">,</span>
+            <span class="n">sel_j</span><span class="o">=</span><span class="n">sel_j</span><span class="p">,</span>
+            <span class="n">isotopes</span><span class="o">=</span><span class="n">isotopes</span><span class="p">,</span>
+            <span class="n">isotope_list</span><span class="o">=</span><span class="n">isotope_list</span><span class="p">,</span>
+            <span class="n">self_coupling</span><span class="o">=</span><span class="n">self_coupling</span><span class="p">,</span>
+            <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Now build the tensors</span>
+        <span class="n">tdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ij</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="ow">in</span> <span class="n">dip_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tdict</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="n">_dip_tensor</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tdict</span></div></div>
+
+
+<div class="viewcode-block" id="DipolarDiagonal"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarDiagonal">[docs]</a><span class="k">class</span> <span class="nc">DipolarDiagonal</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DipolarDiagonal</span>
+
+<span class="sd">    Produces a dictionary of dipole-dipole tensors as eigenvalues and</span>
+<span class="sd">    eigenvectors for atom pairs in the system. For each pair, the closest</span>
+<span class="sd">    periodic copy will be considered.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms</span>
+<span class="sd">    |                                   for which to compute the dipolar</span>
+<span class="sd">    |                                   coupling. By default is None</span>
+<span class="sd">    |                                   (= all of them).</span>
+<span class="sd">    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms</span>
+<span class="sd">    |                                   for which to compute the dipolar</span>
+<span class="sd">    |                                   coupling with the ones i sel_i. By</span>
+<span class="sd">    |                                   default is None (= same as sel_i).</span>
+<span class="sd">    |   isotopes (dict): dictionary of specific isotopes to use, by element</span>
+<span class="sd">    |                    symbol. If the isotope doesn&#39;t exist an error will</span>
+<span class="sd">    |                    be raised.</span>
+<span class="sd">    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if</span>
+<span class="sd">    |                        different atoms of the same element are supposed</span>
+<span class="sd">    |                        to be of different isotopes. Where a &#39;None&#39; is</span>
+<span class="sd">    |                        present will fall back on the previous</span>
+<span class="sd">    |                        definitions. Where an isotope is present it</span>
+<span class="sd">    |                        overrides everything else.</span>
+<span class="sd">    |   self_coupling (bool): if True, include coupling of a nucleus with its</span>
+<span class="sd">    |                         own closest periodic copy. Otherwise excluded.</span>
+<span class="sd">    |                         Default is False.</span>
+<span class="sd">    |   block_size (int): maximum size of blocks used when processing large</span>
+<span class="sd">    |                     chunks of pairs. Necessary to avoid memory problems</span>
+<span class="sd">    |                     for very large systems. Default is 1000.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   dip_tens_dict (dict): Dictionary of dipolar eigenvalues (in Hz) and</span>
+<span class="sd">    |                         eigenvectors, by atomic index pair.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;dip_diagonal&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sel_i&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;sel_j&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;isotopes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;isotope_list&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;self_coupling&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;block_size&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="DipolarDiagonal.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarDiagonal.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">sel_i</span><span class="p">,</span> <span class="n">sel_j</span><span class="p">,</span> <span class="n">isotopes</span><span class="p">,</span> <span class="n">isotope_list</span><span class="p">,</span> <span class="n">self_coupling</span><span class="p">,</span> <span class="n">block_size</span><span class="p">):</span>
+
+        <span class="c1"># First, just get the values</span>
+        <span class="n">dip_dict</span> <span class="o">=</span> <span class="n">DipolarCoupling</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">sel_i</span><span class="p">,</span> <span class="n">sel_j</span><span class="p">,</span> <span class="n">isotopes</span><span class="p">,</span> <span class="n">isotope_list</span><span class="p">,</span> <span class="n">self_coupling</span><span class="p">,</span> <span class="n">block_size</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Now build the tensors</span>
+        <span class="n">dip_tens_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">ij</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">dip_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="n">evals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">])</span>
+            <span class="c1"># Eigenvectors</span>
+            <span class="n">evecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="c1"># Z is equal to v</span>
+            <span class="n">evecs</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="c1"># Y is any random orthogonal vector</span>
+            <span class="n">rv</span> <span class="o">=</span> <span class="n">Random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">evecs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">rv</span><span class="p">)</span>
+            <span class="n">evecs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">evecs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="c1"># X = Y cross Z</span>
+            <span class="n">evecs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">evecs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span>
+
+            <span class="n">dip_tens_dict</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;evals&quot;</span><span class="p">:</span> <span class="n">evals</span><span class="p">,</span> <span class="s2">&quot;evecs&quot;</span><span class="p">:</span> <span class="n">evecs</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">dip_tens_dict</span></div></div>
+
+
+<div class="viewcode-block" id="DipolarRSS"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarRSS">[docs]</a><span class="k">class</span> <span class="nc">DipolarRSS</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DipolarRSS</span>
+
+<span class="sd">    Compute the Dipolar constant Root Sum Square for each atom in a system,</span>
+<span class="sd">    including periodicity, within a cutoff.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   cutoff (float): cutoff radius in Angstroms at which the sum stops. By</span>
+<span class="sd">    |                   default 5 Ang.</span>
+<span class="sd">    |   isonuclear (bool): if True, only nuclei of the same species will be</span>
+<span class="sd">    |                      considered. By default is False.</span>
+<span class="sd">    |   isotopes (dict): dictionary of specific isotopes to use, by element</span>
+<span class="sd">    |                    symbol. If the isotope doesn&#39;t exist an error will</span>
+<span class="sd">    |                    be raised.</span>
+<span class="sd">    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if</span>
+<span class="sd">    |                        different atoms of the same element are supposed</span>
+<span class="sd">    |                        to be of different isotopes. Where a &#39;None&#39; is</span>
+<span class="sd">    |                        present will fall back on the previous</span>
+<span class="sd">    |                        definitions. Where an isotope is present it</span>
+<span class="sd">    |                        overrides everything else.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   dip_rss (np.ndarray): dipolar constant RSS for each atom in the system</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;dip_rss&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;cutoff&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span>
+        <span class="s2">&quot;isonuclear&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;isotopes&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;isotope_list&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="DipolarRSS.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarRSS.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">,</span> <span class="n">isonuclear</span><span class="p">,</span> <span class="n">isotopes</span><span class="p">,</span> <span class="n">isotope_list</span><span class="p">):</span>
+
+        <span class="c1"># Supercell size</span>
+        <span class="n">scell_shape</span> <span class="o">=</span> <span class="n">minimum_supcell</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">scell</span> <span class="o">=</span> <span class="n">supcell_gridgen</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">scell_shape</span><span class="p">)</span>
+
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+
+        <span class="n">gammas</span> <span class="o">=</span> <span class="n">_get_isotope_data</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">,</span> <span class="n">isotopes</span><span class="p">,</span> <span class="n">isotope_list</span><span class="p">)</span>
+
+        <span class="n">dip_rss</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">el</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elems</span><span class="p">):</span>
+
+            <span class="c1"># Distances?</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isonuclear</span><span class="p">:</span>
+                <span class="n">rij</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">gj</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">gammas</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">scell</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rij</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elems</span> <span class="o">==</span> <span class="n">el</span><span class="p">)]</span>
+                <span class="n">gj</span> <span class="o">=</span> <span class="n">gammas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">rij</span> <span class="o">=</span> <span class="n">rij</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">scell</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">Rij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rij</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Valid indices?</span>
+            <span class="n">ij</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">Rij</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">Rij</span> <span class="o">&lt;=</span> <span class="n">cutoff</span><span class="p">))</span>
+            <span class="n">Rij</span> <span class="o">=</span> <span class="n">Rij</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-10</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">gj</span> <span class="o">=</span> <span class="n">gj</span><span class="p">[</span><span class="n">ij</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="n">dip</span> <span class="o">=</span> <span class="n">_dip_constant</span><span class="p">(</span><span class="n">Rij</span><span class="p">,</span> <span class="n">gammas</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">gj</span><span class="p">)</span>
+            <span class="n">dip_rss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dip</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dip_rss</span><span class="p">)</span></div></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

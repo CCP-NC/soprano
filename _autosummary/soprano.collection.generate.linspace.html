@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.collection.generate.linspace &#8212; Soprano</title>
     
@@ -625,12 +625,54 @@ title="Print to PDF"
 <p>Generator producing structures interpolated between two extremes</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">linspaceGen</span></code>(struct_0, struct_1[, steps, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.collection.generate.linspace.linspaceGen" title="soprano.collection.generate.linspace.linspaceGen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linspaceGen</span></code></a>(struct_0, struct_1[, steps, …])</p></td>
 <td><p>Generator function to create multiple structures with positions interpolated linearly between two extremes.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.collection.generate.linspace.linspaceGen">
+<code class="sig-prename descclassname"><span class="pre">soprano.collection.generate.linspace.</span></code><code class="sig-name descname"><span class="pre">linspaceGen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">struct_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/collection/generate/linspace.html#linspaceGen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.collection.generate.linspace.linspaceGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with positions
+interpolated linearly between two extremes.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct_0 (ase.Atoms): the starting structure</div>
+<div class="line">struct_1 (ase.Atoms): the final structure. The atoms should be in the</div>
+<div class="line-block">
+<div class="line">same order as the ones in struct_0</div>
+</div>
+<div class="line">steps (Optional[int]): number of interpolated steps to produce</div>
+<div class="line-block">
+<div class="line">(extremes included). Default is 10</div>
+</div>
+<div class="line">periodic (Optional[bool]): if True the interpolation will take into</div>
+<div class="line-block">
+<div class="line">account periodic boundaries and interpolate</div>
+<div class="line">between positions in struct_0 and the</div>
+<div class="line">closest periodic copy of positions in</div>
+<div class="line">struct_1. By default set to False</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">linspaceGenerator (generator): an iterator object that yields</div>
+<div class="line-block">
+<div class="line">structures created by linear</div>
+<div class="line">interpolation.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

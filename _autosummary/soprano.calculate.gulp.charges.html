@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.calculate.gulp.charges &#8212; Soprano</title>
     
@@ -625,12 +625,55 @@ title="Print to PDF"
 <p>Get charges using GULP</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gulp_charges</span></code>(s[, charge_method, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.gulp.charges.get_gulp_charges" title="soprano.calculate.gulp.charges.get_gulp_charges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gulp_charges</span></code></a>(s[, charge_method, …])</p></td>
 <td><p>Calculate the atomic partial charges using GULP.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.calculate.gulp.charges.get_gulp_charges">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.charges.</span></code><code class="sig-name descname"><span class="pre">get_gulp_charges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/gulp/charges.html#get_gulp_charges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.gulp.charges.get_gulp_charges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the atomic partial charges using GULP.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure to calculate the energy of</div>
+<div class="line">charge_method (Optional[str]): which method to use for atomic partial</div>
+<div class="line-block">
+<div class="line">charge calculation. Can be any of</div>
+<div class="line">‘eem’, ‘qeq’ and ‘pacha’.</div>
+<div class="line">Default is ‘eem’.</div>
+</div>
+<div class="line">save_charges (Optional[bool]): whether to save or not the charges in</div>
+<div class="line-block">
+<div class="line">the given ase.Atoms object. Default is</div>
+<div class="line">True.</div>
+</div>
+<div class="line">gulp_command (Optional[str]): command required to call the GULP</div>
+<div class="line-block">
+<div class="line">executable.</div>
+</div>
+<div class="line">gulp_path (Optional[str]): path where the GULP executable can be</div>
+<div class="line-block">
+<div class="line">found. If not present, the GULP command</div>
+<div class="line">will be invoked directly (assuming the</div>
+<div class="line">executable is in the system PATH).</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">charges(np.array(float)): per-atom partial charges</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

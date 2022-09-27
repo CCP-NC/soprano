@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.calculate.gulp.w99 &#8212; Soprano</title>
     
@@ -631,23 +631,111 @@ Atoms, with Application to Nucleoside and Peptide Crystals</em>  - Journal
 of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_w99_atomtypes</span></code>(s[, force_recalc])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.gulp.w99.find_w99_atomtypes" title="soprano.calculate.gulp.w99.find_w99_atomtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_w99_atomtypes</span></code></a>(s[, force_recalc])</p></td>
 <td><p>Calculate the W99 force field atom types for a given structure.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_w99_energy</span></code>(s[, charge_method, Etol, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.calculate.gulp.w99.get_w99_energy" title="soprano.calculate.gulp.w99.get_w99_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_w99_energy</span></code></a>(s[, charge_method, Etol, …])</p></td>
 <td><p>Calculate the W99 force field energy using GULP.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Exceptions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">W99Error</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.gulp.w99.W99Error" title="soprano.calculate.gulp.w99.W99Error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">W99Error</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py exception">
+<dt id="soprano.calculate.gulp.w99.W99Error">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></code><code class="sig-name descname"><span class="pre">W99Error</span></code><a class="reference internal" href="../_modules/soprano/calculate/gulp/w99.html#W99Error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.gulp.w99.W99Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dl class="py method">
+<dt id="soprano.calculate.gulp.w99.W99Error.with_traceback">
+<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.gulp.w99.W99Error.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.gulp.w99._w99_field_definition">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></code><code class="sig-name descname"><span class="pre">_w99_field_definition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">etol</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/gulp/w99.html#_w99_field_definition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.gulp.w99._w99_field_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output the W99 field definition for GULP input. System must already
+have w99 types calculated</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.gulp.w99.find_w99_atomtypes">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></code><code class="sig-name descname"><span class="pre">find_w99_atomtypes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_recalc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/gulp/w99.html#find_w99_atomtypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.gulp.w99.find_w99_atomtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the W99 force field atom types for a given structure.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure to calculate the atomtypes on</div>
+<div class="line">force_recalc (bool): whether to recalculate the molecules even if</div>
+<div class="line-block">
+<div class="line">already present. Default is False.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.gulp.w99.get_w99_energy">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.gulp.w99.</span></code><code class="sig-name descname"><span class="pre">get_w99_energy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Etol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gulp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gulp_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_charges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/gulp/w99.html#get_w99_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.gulp.w99.get_w99_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the W99 force field energy using GULP.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure to calculate the energy of</div>
+<div class="line">charge_method (Optional[str]): which method to use for atomic partial</div>
+<div class="line-block">
+<div class="line">charge calculation. Can be any of</div>
+<div class="line">‘eem’, ‘qeq’ and ‘pacha’.</div>
+<div class="line">Default is ‘eem’.</div>
+</div>
+<div class="line">Etol (Optional[float]): tolerance on energy for intermolecular</div>
+<div class="line-block">
+<div class="line">potential cutoffs (relative to single</div>
+<div class="line">interaction energy). Default is 1e-6 eV.</div>
+</div>
+<div class="line">gulp_command (Optional[str]): command required to call the GULP</div>
+<div class="line-block">
+<div class="line">executable.</div>
+</div>
+<div class="line">gulp_path (Optional[str]): path where the GULP executable can be</div>
+<div class="line-block">
+<div class="line">found. If not present, the GULP command</div>
+<div class="line">will be invoked directly (assuming the</div>
+<div class="line">executable is in the system PATH).</div>
+</div>
+<div class="line">save_charges (Optional[bool]): whether to retrieve also the charges</div>
+<div class="line-block">
+<div class="line">and save them in the Atoms object.</div>
+<div class="line">False by default.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">energy (float): the calculated energy</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

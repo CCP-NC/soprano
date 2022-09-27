@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.collection.generate.molneigh &#8212; Soprano</title>
     
@@ -625,12 +625,64 @@ title="Print to PDF"
 <p>Generator producing molecular neighbourhoods</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">molecularNeighbourhoodGen</span></code>(struct, mols[, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.collection.generate.molneigh.molecularNeighbourhoodGen" title="soprano.collection.generate.molneigh.molecularNeighbourhoodGen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">molecularNeighbourhoodGen</span></code></a>(struct, mols[, …])</p></td>
 <td><p>Generator function to create a spherical molecular neighbourhood.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.collection.generate.molneigh.molecularNeighbourhoodGen">
+<code class="sig-prename descclassname"><span class="pre">soprano.collection.generate.molneigh.</span></code><code class="sig-name descname"><span class="pre">molecularNeighbourhoodGen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_mol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'com'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_supercell</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/collection/generate/molneigh.html#molecularNeighbourhoodGen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.collection.generate.molneigh.molecularNeighbourhoodGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create a spherical molecular neighbourhood. Given
+a structure and its molecules as returned by the Molecules property,
+produce supercell structures that contain one molecule each, progressively
+further away from the one indicated as central.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct (ase.Atoms): original structure</div>
+<div class="line">mols ([ase.AtomsSelection]): list of molecules, as returned by the</div>
+<div class="line-block">
+<div class="line">soprano.properties.linkage.Molecules</div>
+<div class="line">class.</div>
+</div>
+<div class="line">central_mol (int): index of the molecule whose centre of mass is</div>
+<div class="line-block">
+<div class="line">considered central. Default is 0.</div>
+</div>
+<div class="line">max_R (float): maximum radius of the neighbourhood sphere. Default is</div>
+<div class="line-block">
+<div class="line">10 Ang.</div>
+</div>
+<div class="line">method (str): method to compute distance between molecules. ‘com’</div>
+<div class="line-block">
+<div class="line">means using the center of mass. ‘nearest’ means using</div>
+<div class="line">the closest atom. Default is ‘com’.</div>
+</div>
+<div class="line">use_supercell (bool): if True, all returned structures will have a</div>
+<div class="line-block">
+<div class="line">cell large enough to contain the entire</div>
+<div class="line">neighbourhood. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">molecularNeighbourhoodGen (generator): an iterator object that yields</div>
+<div class="line-block">
+<div class="line">structures within the given</div>
+<div class="line">spherical neighbourhood.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.hpc.submitter.debug.debugqueue &#8212; Soprano</title>
     
@@ -625,12 +625,126 @@ title="Print to PDF"
 <p>Definition of a fake QueueInterface class, useful for debugging Submitters.</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DebugQueueInterface</span></code>([dt])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface" title="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DebugQueueInterface</span></code></a>([dt])</p></td>
 <td><p>DebugQueueInterface object</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.debug.debugqueue.</span></code><code class="sig-name descname"><span class="pre">DebugQueueInterface</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/debug/debugqueue.html#DebugQueueInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.queues.html#soprano.hpc.submitter.queues.QueueInterface" title="soprano.hpc.submitter.queues.QueueInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.hpc.submitter.queues.QueueInterface</span></code></a></p>
+<p>DebugQueueInterface object</p>
+<p>A class meant to emulate a QueueInterface while doing absolutely nothing
+of what it does. Jobs are simply stored locally, there’s a fixed waiting
+time, and are then executed. Ideally they should be simple, quick stuff
+(like an echo command). No guarantees for actually long jobs.</p>
+<p>In the submitted script a syntax for additional variables is allowed,
+similar to real queue systems. These follow the convention of many engines
+of having to start with #$. For example</p>
+<p>#$ WAIT 10</p>
+<p>means the job will be put in a “wait” state for 10 seconds. The currently
+available variables are:</p>
+<p>WAIT - specify how long the job has to stay in a “wait” state. If two
+values are provided, these are considered bounds for a random number
+RUN - same as above, but for the running state. This has no bearing on the
+<em>actual</em> running time (it’s suggested that it’s something very quick)</p>
+<p>Initialize the DebugQueueInterface.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">dt (float): frequency with which the queue status is updated</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill">
+<code class="sig-name descname"><span class="pre">kill</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/debug/debugqueue.html#DebugQueueInterface.kill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the job with the given ID</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">job_id (str): ID of the job to kill</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list">
+<code class="sig-name descname"><span class="pre">list</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/debug/debugqueue.html#DebugQueueInterface.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all jobs found in the queue</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">jobs (dict): a dict of jobs classified by ID containing all info</div>
+<div class="line-block">
+<div class="line">that can be matched through list_outre</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.remote_target">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">remote_target</span></code><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.remote_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>RemoteTarget if a remote Host is set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.set_remote_host">
+<code class="sig-name descname"><span class="pre">set_remote_host</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.set_remote_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a remote host for use by this QueueInterface</p>
+<p>If a remote host is set, this Interface will try using the Paramiko
+library to connect to it via SSH. Check the docstring of
+soprano.hpc.submitter.utils.RemoteTarget to see what the limitations
+are for this usage.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">host (Optional[str]): host name of the remote machine to connect</div>
+<div class="line-block">
+<div class="line">to. Further information must be contained in</div>
+<div class="line">the user’s ~/.ssh/config file. If left empty</div>
+<div class="line">the remote host is UNSET and therefore the</div>
+<div class="line">interface goes back to local use.</div>
+</div>
+<div class="line">timeout (Optional[float]): connection timeout in seconds (default</div>
+<div class="line-block">
+<div class="line">is 1 second)</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit">
+<code class="sig-name descname"><span class="pre">submit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/debug/debugqueue.html#DebugQueueInterface.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a job to the queue.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">script (str): content of the submission script</div>
+<div class="line">cwd (Optional[str]): path to the desired working directory</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">job_id (str): the job ID assigned by the queue system and parsed</div>
+<div class="line-block">
+<div class="line">with sub_outre</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

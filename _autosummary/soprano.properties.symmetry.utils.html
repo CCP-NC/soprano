@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.properties.symmetry.utils &#8212; Soprano</title>
     
@@ -623,6 +623,30 @@ title="Print to PDF"
   <section id="module-soprano.properties.symmetry.utils">
 <span id="soprano-properties-symmetry-utils"></span><h1>soprano.properties.symmetry.utils<a class="headerlink" href="#module-soprano.properties.symmetry.utils" title="Permalink to this headline">¶</a></h1>
 <p>Utility functions for symmetry calculations</p>
+<dl class="py function">
+<dt id="soprano.properties.symmetry.utils._find_wyckoff_points">
+<code class="sig-prename descclassname"><span class="pre">soprano.properties.symmetry.utils.</span></code><code class="sig-name descname"><span class="pre">_find_wyckoff_points</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/symmetry/utils.html#_find_wyckoff_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.symmetry.utils._find_wyckoff_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find and return all Wyckoff points for a given atomic system,
+as well as the operations that each Wyckoff point is stable
+under, and whether the Hessian has local radial symmetry or is
+definite in them.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.properties.symmetry.utils._loci_intersect">
+<code class="sig-prename descclassname"><span class="pre">soprano.properties.symmetry.utils.</span></code><code class="sig-name descname"><span class="pre">_loci_intersect</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/symmetry/utils.html#_loci_intersect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.symmetry.utils._loci_intersect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the locus of points at the intersection of l1 and l2</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.properties.symmetry.utils._wyckoff_isohess">
+<code class="sig-prename descclassname"><span class="pre">soprano.properties.symmetry.utils.</span></code><code class="sig-name descname"><span class="pre">_wyckoff_isohess</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ops</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/symmetry/utils.html#_wyckoff_isohess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.symmetry.utils._wyckoff_isohess" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each set of operations in wp_ops, representing a Wyckoff
+point that is symmetric under them, find whether the symmetry is
+such that any symmetric 3x3 tensor valued function ought to be
+isotropic in that point</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

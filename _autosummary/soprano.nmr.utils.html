@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.nmr.utils &#8212; Soprano</title>
     
@@ -623,6 +623,64 @@ title="Print to PDF"
   <section id="module-soprano.nmr.utils">
 <span id="soprano-nmr-utils"></span><h1>soprano.nmr.utils<a class="headerlink" href="#module-soprano.nmr.utils" title="Permalink to this headline">¶</a></h1>
 <p>Utility functions for NMR-related properties</p>
+<dl class="py function">
+<dt id="soprano.nmr.utils._J_constant">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_J_constant</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Kij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_J_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._J_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>J coupling constants for pairs ij, with reduced constant Kij and
+gyromagnetic ratios gi and gj</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._anisotropy">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_anisotropy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">haeb_evals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduced</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_anisotropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._anisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate anisotropy given eigenvalues sorted with Haeberlen
+convention</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._asymmetry">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_asymmetry</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">haeb_evals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_asymmetry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._asymmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate asymmetry</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._dip_constant">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_dip_constant</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Rij</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_dip_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._dip_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dipolar constants for pairs ij, with distances Rij and gyromagnetic
+ratios gi and gj</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._dip_tensor">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_dip_tensor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_dip_tensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._dip_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full dipolar tensor given a constant and a connecting vector</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._evals_sort">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_evals_sort</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'c'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_evals_sort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._evals_sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort a list of eigenvalue triplets by varios conventions</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._evecs_2_quat">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_evecs_2_quat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evecs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_evecs_2_quat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._evecs_2_quat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a set of eigenvectors to a Quaternion expressing the
+rotation of the tensor’s PAS with respect to the Cartesian axes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._skew">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_skew</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_skew"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._skew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate skew</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.nmr.utils._span">
+<code class="sig-prename descclassname"><span class="pre">soprano.nmr.utils.</span></code><code class="sig-name descname"><span class="pre">_span</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/nmr/utils.html#_span"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.nmr.utils._span" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate span</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

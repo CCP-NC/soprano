@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.properties.basic.basic &#8212; Soprano</title>
     
@@ -625,21 +625,486 @@ title="Print to PDF"
 <p>Implementation of some basic AtomsProperty classes</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CalcEnergy</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.basic.basic.CalcEnergy" title="soprano.properties.basic.basic.CalcEnergy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CalcEnergy</span></code></a>([name])</p></td>
 <td><p>Property representing the energy calculated by an ASE calulator</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatticeABC</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.basic.basic.LatticeABC" title="soprano.properties.basic.basic.LatticeABC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatticeABC</span></code></a>([name])</p></td>
 <td><p>Property representing the axis-angles form of a structure’s lattice</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatticeCart</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.basic.basic.LatticeCart" title="soprano.properties.basic.basic.LatticeCart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LatticeCart</span></code></a>([name])</p></td>
 <td><p>Property representing the Cartesian form of a structure’s lattice</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumAtoms</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.basic.basic.NumAtoms" title="soprano.properties.basic.basic.NumAtoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumAtoms</span></code></a>([name])</p></td>
 <td><p>Property representing the number of atoms in a structure</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.properties.basic.basic.CalcEnergy">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.basic.basic.</span></code><code class="sig-name descname"><span class="pre">CalcEnergy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#CalcEnergy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.CalcEnergy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Property representing the energy calculated by an ASE calulator</p>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.CalcEnergy.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.CalcEnergy.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.CalcEnergy.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#CalcEnergy.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.CalcEnergy.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.CalcEnergy.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.CalcEnergy.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.basic.basic.LatticeABC">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.basic.basic.</span></code><code class="sig-name descname"><span class="pre">LatticeABC</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#LatticeABC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.LatticeABC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Property representing the axis-angles form of a structure’s lattice</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">shape (tuple): the shape to give to the array</div>
+<div class="line">deg (bool): whether to give the angles in degrees instead of radians</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.LatticeABC.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.LatticeABC.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.LatticeABC.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#LatticeABC.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.LatticeABC.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.LatticeABC.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.LatticeABC.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.basic.basic.LatticeCart">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.basic.basic.</span></code><code class="sig-name descname"><span class="pre">LatticeCart</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#LatticeCart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.LatticeCart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Property representing the Cartesian form of a structure’s lattice</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">shape (tuple): the shape to give to the array</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.LatticeCart.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.LatticeCart.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.LatticeCart.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#LatticeCart.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.LatticeCart.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.LatticeCart.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.LatticeCart.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.basic.basic.NumAtoms">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.basic.basic.</span></code><code class="sig-name descname"><span class="pre">NumAtoms</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#NumAtoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.NumAtoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Property representing the number of atoms in a structure</p>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.NumAtoms.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.NumAtoms.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.NumAtoms.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/basic/basic.html#NumAtoms.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.basic.basic.NumAtoms.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.basic.basic.NumAtoms.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.basic.basic.NumAtoms.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

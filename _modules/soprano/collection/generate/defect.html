@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.collection.generate.defect &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/collection/generate/defect.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.collection.generate.defect</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Generator producing structures with a randomly positioned point defect&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+<span class="kn">from</span> <span class="nn">ase.data</span> <span class="kn">import</span> <span class="n">atomic_numbers</span>
+
+<span class="c1"># Internal imports</span>
+<span class="kn">import</span> <span class="nn">soprano.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">soprano.selection</span> <span class="kn">import</span> <span class="n">AtomSelection</span>
+<span class="kn">from</span> <span class="nn">soprano.properties.linkage</span> <span class="kn">import</span> <span class="n">Bonds</span>
+<span class="kn">from</span> <span class="nn">soprano.data</span> <span class="kn">import</span> <span class="n">vdw_radii</span>
+<span class="kn">from</span> <span class="nn">soprano.rnd</span> <span class="kn">import</span> <span class="n">Random</span>
+
+
+<div class="viewcode-block" id="defectGen"><a class="viewcode-back" href="../../../../_autosummary/soprano.collection.generate.defect.html#soprano.collection.generate.defect.defectGen">[docs]</a><span class="k">def</span> <span class="nf">defectGen</span><span class="p">(</span>
+    <span class="n">struct</span><span class="p">,</span>
+    <span class="n">defect</span><span class="p">,</span>
+    <span class="n">poisson_r</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">avoid_atoms</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">vdw_set</span><span class="o">=</span><span class="s2">&quot;csd&quot;</span><span class="p">,</span>
+    <span class="n">vdw_scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">max_attempts</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generator function to create multiple structures with a defect of a</span>
+<span class="sd">    given element randomly added to the existing cell. The defects can be</span>
+<span class="sd">    distributed following a random uniform distribution or a Poisson-sphere</span>
+<span class="sd">    distribution which guarantees that no two defects are created closer than</span>
+<span class="sd">    a certain distance. These are created using a variation on Bridson&#39;s</span>
+<span class="sd">    algorithm. For that reason the defects will be created contiguously and</span>
+<span class="sd">    added in succession. A full cover of all the empty space will be provided</span>
+<span class="sd">    only by extracting structures until StopIteration is raised.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   struct (ase.Atoms): the starting structure. All defects will be added</span>
+<span class="sd">    |                       to it.</span>
+<span class="sd">    |   defect (str): element symbol of the defect to add.</span>
+<span class="sd">    |   poisson_r (float): if this argument is present, the Poisson sphere</span>
+<span class="sd">    |                      distribution rather than random uniform will be</span>
+<span class="sd">    |                      used, and this will be the minimum distance in</span>
+<span class="sd">    |                      Angstroms between the generated defects.</span>
+<span class="sd">    |   avoid_atoms (bool): if True, defects too close to the existing atoms</span>
+<span class="sd">    |                       in the cell will be rejected. The cutoff distance</span>
+<span class="sd">    |                       will be estimated based on the Van der Waals radii</span>
+<span class="sd">    |                       set of choice. Default is True.</span>
+<span class="sd">    |   vdw_set({ase, jmolm csd}): set of Van der Waals radii to use. Only</span>
+<span class="sd">    |                              relevant if avoid_atoms is True.</span>
+<span class="sd">    |                              Default is csd [S. Alvarez, 2013].</span>
+<span class="sd">    |   vdw_scale (float): scaling factor to apply to the base Van der Waals</span>
+<span class="sd">    |                      radii values. Only relevant if avoid_atoms is True.</span>
+<span class="sd">    |                      Values bigger than one make for larger empty</span>
+<span class="sd">    |                      volumes around existing atoms.</span>
+<span class="sd">    |   max_attempts(int): maximum number of attempts used to generate a</span>
+<span class="sd">    |                      random point. When using a uniform distribution,</span>
+<span class="sd">    |                      this is the maximum number of attempts that will be</span>
+<span class="sd">    |                      done to avoid existing atoms (if avoid_atoms is</span>
+<span class="sd">    |                      False, no attempts are needed). When using a Poisson</span>
+<span class="sd">    |                      sphere distribution, this is a parameter of the</span>
+<span class="sd">    |                      Bridson-like algorithm and will include also</span>
+<span class="sd">    |                      avoiding previously generated defects. Default</span>
+<span class="sd">    |                      is 30.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   defectGenerator (generator): an iterator object that yields</span>
+<span class="sd">    |                                structures with randomly distributed</span>
+<span class="sd">    |                                defects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Lattice parameters</span>
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+
+    <span class="c1"># Van der Waals radii (if needed)</span>
+    <span class="k">if</span> <span class="n">avoid_atoms</span><span class="p">:</span>
+        <span class="n">avoid_fpos</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">()</span>
+        <span class="n">avoid_vdw</span> <span class="o">=</span> <span class="n">vdw_radii</span><span class="p">[</span><span class="n">vdw_set</span><span class="p">][</span><span class="n">struct</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()]</span>
+        <span class="n">avoid_cut</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">avoid_vdw</span> <span class="o">+</span> <span class="n">vdw_radii</span><span class="p">[</span><span class="n">vdw_set</span><span class="p">][</span><span class="n">atomic_numbers</span><span class="p">[</span><span class="n">defect</span><span class="p">]])</span> <span class="o">*</span> <span class="n">vdw_scale</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">poisson_r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Random generation</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">good</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">attempts</span> <span class="o">=</span> <span class="n">max_attempts</span>
+
+            <span class="k">while</span> <span class="ow">not</span> <span class="n">good</span> <span class="ow">and</span> <span class="n">attempts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># 1. Generate point in fractional coordinates</span>
+                <span class="n">fp</span> <span class="o">=</span> <span class="n">Random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">3</span><span class="p">,))</span>
+                <span class="c1"># 2. If required check it against existing atoms</span>
+                <span class="k">if</span> <span class="n">avoid_atoms</span><span class="p">:</span>
+                    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">avoid_fpos</span> <span class="o">-</span> <span class="n">fp</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cell</span><span class="p">)</span>
+                    <span class="n">dr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">good</span> <span class="o">=</span> <span class="p">(</span><span class="n">dr</span> <span class="o">&gt;</span> <span class="n">avoid_cut</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">good</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">attempts</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">good</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">Atoms</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">scaled_positions</span><span class="o">=</span><span class="p">[</span><span class="n">fp</span><span class="p">],</span> <span class="n">cell</span><span class="o">=</span><span class="n">cell</span><span class="p">)</span> <span class="o">+</span> <span class="n">struct</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Failed to generate a defect obeying&quot;</span>
+                    <span class="s2">&quot; constraints with the given number of &quot;</span>
+                    <span class="s2">&quot;attempts.&quot;</span>
+                <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Use Bridson&#39;s algorithm</span>
+        <span class="k">if</span> <span class="n">avoid_atoms</span><span class="p">:</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">periodic_bridson</span><span class="p">(</span>
+                <span class="n">cell</span><span class="p">,</span>
+                <span class="n">poisson_r</span><span class="p">,</span>
+                <span class="n">max_attempts</span><span class="o">=</span><span class="n">max_attempts</span><span class="p">,</span>
+                <span class="n">prepoints</span><span class="o">=</span><span class="n">avoid_fpos</span><span class="p">,</span>
+                <span class="n">prepoints_cuts</span><span class="o">=</span><span class="n">avoid_cut</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gen</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">periodic_bridson</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">poisson_r</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="n">max_attempts</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span>
+            <span class="k">yield</span> <span class="n">Atoms</span><span class="p">(</span><span class="n">defect</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="p">[</span><span class="n">p</span><span class="p">],</span> <span class="n">cell</span><span class="o">=</span><span class="n">cell</span><span class="p">)</span> <span class="o">+</span> <span class="n">struct</span></div>
+
+
+<div class="viewcode-block" id="substitutionGen"><a class="viewcode-back" href="../../../../_autosummary/soprano.collection.generate.defect.html#soprano.collection.generate.defect.substitutionGen">[docs]</a><span class="k">def</span> <span class="nf">substitutionGen</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">subst</span><span class="p">,</span> <span class="n">to_replace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">accept</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generator function to create multiple structures with a defect of a</span>
+<span class="sd">    given element substituted in the existing cell. The defects will be put in</span>
+<span class="sd">    place of the atoms passed in the to_replace selection. If none is passed,</span>
+<span class="sd">    all atoms will be replaced in turn. Multiple defects can be included, in</span>
+<span class="sd">    which case all permutations will be generated.</span>
+<span class="sd">    It is also possible to reject some configurations based on the output of a</span>
+<span class="sd">    filter function.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   struct (ase.Atoms): the starting structure. All defects will be added</span>
+<span class="sd">    |                       to it.</span>
+<span class="sd">    |   subst (str): element symbol of the defect to add.</span>
+<span class="sd">    |   to_replace (AtomSelection): if present, only atoms belonging to this</span>
+<span class="sd">    |                               selection will be substituted.</span>
+<span class="sd">    |   n (int): number of defects to include in each structure. Default is 1.</span>
+<span class="sd">    |   accept (function): a function that determines whether a generated</span>
+<span class="sd">    |                      structure should be accepted or rejected. Takes as</span>
+<span class="sd">    |                      input the generated structure and a tuple of the</span>
+<span class="sd">    |                      indices of the substituted atoms, and must return a</span>
+<span class="sd">    |                      bool. If False, the structure will be rejected.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   defectGenerator (generator): an iterator object that yields</span>
+<span class="sd">    |                                structures with all possible</span>
+<span class="sd">    |                                substitutions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">to_replace</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">to_replace</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+
+    <span class="n">defconfs</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">to_replace</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;&lt;U2&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">dc</span> <span class="ow">in</span> <span class="n">defconfs</span><span class="p">:</span>
+        <span class="n">dstruct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">delems</span> <span class="o">=</span> <span class="n">elems</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">delems</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">dc</span><span class="p">)]</span> <span class="o">=</span> <span class="n">subst</span>
+        <span class="n">dstruct</span><span class="o">.</span><span class="n">set_chemical_symbols</span><span class="p">(</span><span class="n">delems</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">accept</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">accept</span><span class="p">(</span><span class="n">dstruct</span><span class="p">,</span> <span class="n">dc</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+        <span class="k">yield</span> <span class="n">dstruct</span></div>
+
+
+<div class="viewcode-block" id="additionGen"><a class="viewcode-back" href="../../../../_autosummary/soprano.collection.generate.defect.html#soprano.collection.generate.defect.additionGen">[docs]</a><span class="k">def</span> <span class="nf">additionGen</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">to_addition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add_r</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">accept</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generator function to create multiple structures with an atom of a</span>
+<span class="sd">    given element added in the existing cell. The atoms will be attached to</span>
+<span class="sd">    the atoms passed in the to_addition selection. If none is passed,</span>
+<span class="sd">    all atoms will be additioned in turn. Multiple defects can be included, in</span>
+<span class="sd">    which case all permutations will be generated. The algorithm will try</span>
+<span class="sd">    adding the atom in the direction that seems most compatible with all the</span>
+<span class="sd">    already existing bonds. If multiple directions satisfy the condition, they</span>
+<span class="sd">    will all be tested.</span>
+<span class="sd">    It is also possible to reject some configurations based on the output of a</span>
+<span class="sd">    filter function.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   struct (ase.Atoms): the starting structure. All atoms will be added</span>
+<span class="sd">    |                       to it.</span>
+<span class="sd">    |   add (str): element symbol of the atom to add.</span>
+<span class="sd">    |   to_addition (AtomSelection): if present, only atoms belonging to this</span>
+<span class="sd">    |                                selection will get an addition.</span>
+<span class="sd">    |   n (int): number of new atoms to include in each structure. Default</span>
+<span class="sd">    |            is 1.</span>
+<span class="sd">    |   add_r (float): distance, in Angstroms, at which to add the atoms.</span>
+<span class="sd">    |                  Default is 1.2 Ang</span>
+<span class="sd">    |   accept (function): a function that determines whether a generated</span>
+<span class="sd">    |                      structure should be accepted or rejected. Takes as</span>
+<span class="sd">    |                      input the generated structure and a tuple of</span>
+<span class="sd">    |                      the indices of the atoms to which the new atoms</span>
+<span class="sd">    |                      were added, and must return a bool. The newly added</span>
+<span class="sd">    |                      atoms will always be the last n of the structure.</span>
+<span class="sd">    |                      If False, the structure will be rejected.</span>
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   defectGenerator (generator): an iterator object that yields</span>
+<span class="sd">    |                                structures with all possible additions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">to_addition</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">to_addition</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+
+    <span class="c1"># Compute bonds</span>
+    <span class="n">bonds</span> <span class="o">=</span> <span class="n">Bonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+
+    <span class="n">cell</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+
+    <span class="c1"># Separate bonds by atoms</span>
+    <span class="n">atom_bonds</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_addition</span><span class="o">.</span><span class="n">indices</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">struct</span><span class="p">))]</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">-</span> <span class="n">pos</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cell</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">atom_bonds</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">atom_bonds</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">v</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="c1"># Compute possible attachment points for each atom</span>
+    <span class="n">attach_v</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">struct</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">bset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">atom_bonds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">bset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">rndv</span> <span class="o">=</span> <span class="n">Random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span> <span class="o">-</span> <span class="mf">0.5</span>
+            <span class="n">rndv</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rndv</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">attach_v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rndv</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">attach_v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">rep_alg</span><span class="p">(</span><span class="n">bset</span><span class="p">)</span>
+    <span class="n">attach_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">attach_v</span><span class="p">)</span>
+
+    <span class="n">addconfs</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">to_addition</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">ac</span> <span class="ow">in</span> <span class="n">addconfs</span><span class="p">:</span>
+        <span class="n">addpos</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">attach_v</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">ac</span><span class="p">)])</span>
+        <span class="k">for</span> <span class="n">ap</span> <span class="ow">in</span> <span class="n">addpos</span><span class="p">:</span>
+            <span class="n">astruct</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">astruct</span> <span class="o">+=</span> <span class="n">Atoms</span><span class="p">(</span><span class="n">add</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">pos</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">ac</span><span class="p">)]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ap</span><span class="p">)</span> <span class="o">*</span> <span class="n">add_r</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">accept</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">accept</span><span class="p">(</span><span class="n">astruct</span><span class="p">,</span> <span class="n">ac</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+            <span class="k">yield</span> <span class="n">astruct</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

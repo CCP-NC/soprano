@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.hpc.submitter.utils &#8212; Soprano</title>
     
@@ -625,15 +625,97 @@ title="Print to PDF"
 <p>Utilities for remote submission, especially using Paramiko for SSH</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoteTarget</span></code>(host[, timeout])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.hpc.submitter.utils.RemoteTarget" title="soprano.hpc.submitter.utils.RemoteTarget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoteTarget</span></code></a>(host[, timeout])</p></td>
 <td><p>RemoteTarget object</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoteTargetContext</span></code>(rT)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.hpc.submitter.utils.RemoteTargetContext" title="soprano.hpc.submitter.utils.RemoteTargetContext"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoteTargetContext</span></code></a>(rT)</p></td>
 <td><p>RemoteTargetContext object</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.hpc.submitter.utils.RemoteTarget">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.utils.</span></code><code class="sig-name descname"><span class="pre">RemoteTarget</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/utils.html#RemoteTarget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.utils.RemoteTarget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>RemoteTarget object</p>
+<p>Uses Paramiko to embed into one single object all we need to connect
+and send orders to some remote machine. It will accept a single host name
+as an argument and requires it to be present in the ~/.ssh/config file
+with all relevant parameters. It also must have an ssh key configurated
+for access (passwords are NOT accepted as they can’t be stored and passed
+safely) and must have already been added to known_hosts (in other words,
+you must already have connected to it from the shell).</p>
+<p>Initialize the RemoteTarget</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">host (str): the name of the target to connect to, as present</div>
+<div class="line-block">
+<div class="line">in the ~/.ssh/config file</div>
+</div>
+<div class="line">timeout (Optional[float]): connection timeout in seconds (default</div>
+<div class="line-block">
+<div class="line">is 1 second)</div>
+</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.hpc.submitter.utils.RemoteTarget.context">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">context</span></code><a class="headerlink" href="#soprano.hpc.submitter.utils.RemoteTarget.context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a context using this RemoteTarget to connect.
+This is done this way so that we only need to instantiate the Target
+once to avoid pointless overhead but still can handle the connection
+securely by making sure it’s closed no matter what.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.hpc.submitter.utils.RemoteTargetContext">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.utils.</span></code><code class="sig-name descname"><span class="pre">RemoteTargetContext</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rT</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/utils.html#RemoteTargetContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.utils.RemoteTargetContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>RemoteTargetContext object</p>
+<p>Works as a context to be used with the ‘with’ statement. Should usually
+just be created by a RemoteTarget through the appropriate property.</p>
+<dl class="py method">
+<dt id="soprano.hpc.submitter.utils.RemoteTargetContext.run_cmd">
+<code class="sig-name descname"><span class="pre">run_cmd</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/utils.html#RemoteTargetContext.run_cmd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.utils.RemoteTargetContext.run_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a command on the remote machine.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">cmd (str): command to run remotely</div>
+<div class="line">cwd (Optional[str]): working directory in which to run the command</div>
+<div class="line">stdin (Optional[str]): content to communicate to the command’s</div>
+<div class="line-block">
+<div class="line">stdin</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">stdout, stderr (str): string representations of output and error</div>
+<div class="line-block">
+<div class="line">messages from the command</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.hpc.submitter.utils._ensure_open_sftp">
+<code class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.utils.</span></code><code class="sig-name descname"><span class="pre">_ensure_open_sftp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/utils.html#_ensure_open_sftp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.utils._ensure_open_sftp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator for SFTP related functions in RemoteTargetContext</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

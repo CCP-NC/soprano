@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.calculate.xrd.sel_rules &#8212; Soprano</title>
     
@@ -626,15 +626,110 @@ title="Print to PDF"
 spacegroups.</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sel_rule_from_hall</span></code>(h)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall" title="soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sel_rule_from_hall</span></code></a>(h)</p></td>
 <td><p>Generate a function object that acts as a selection rule for XRD lines for the given symmetry group expressed in Hall number notation</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sel_rule_from_international</span></code>(n[, o])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.calculate.xrd.sel_rules.get_sel_rule_from_international" title="soprano.calculate.xrd.sel_rules.get_sel_rule_from_international"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sel_rule_from_international</span></code></a>(n[, o])</p></td>
 <td><p>Generate a function object that acts as a selection rule for XRD lines for the given symmetry group expressed in international number notation</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.calculate.xrd.sel_rules._evenq">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.sel_rules.</span></code><code class="sig-name descname"><span class="pre">_evenq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/sel_rules.html#_evenq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.sel_rules._evenq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if x is even</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.xrd.sel_rules._ifq">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.sel_rules.</span></code><code class="sig-name descname"><span class="pre">_ifq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cond</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifF</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/sel_rules.html#_ifq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.sel_rules._ifq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fortran-style ternary if</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.xrd.sel_rules._integerq">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.sel_rules.</span></code><code class="sig-name descname"><span class="pre">_integerq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/sel_rules.html#_integerq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.sel_rules._integerq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if x is integer</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.sel_rules.</span></code><code class="sig-name descname"><span class="pre">get_sel_rule_from_hall</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/sel_rules.html#get_sel_rule_from_hall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.sel_rules.get_sel_rule_from_hall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a function object that acts as a selection rule for XRD lines
+for the given symmetry group expressed in Hall number notation</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">h (int): Hall number of the required spacegroup</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">rule_func (function&lt; list&lt;int&gt; &gt;</div>
+<div class="line-block">
+<div class="line">=&gt; &lt;bool&gt;): a function that can be used to test triples of</div>
+<div class="line-block">
+<div class="line">Miller indices h,k,l to verify whether the</div>
+<div class="line">related plane gives rise or not to a peak</div>
+</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">RuntimeError: if the database of XRD selection rules or that of</div>
+<div class="line-block">
+<div class="line">Hall numbers was not properly loaded</div>
+</div>
+<div class="line">ValueError: if the passed argument is invalid</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.xrd.sel_rules.get_sel_rule_from_international">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.sel_rules.</span></code><code class="sig-name descname"><span class="pre">get_sel_rule_from_international</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/sel_rules.html#get_sel_rule_from_international"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.sel_rules.get_sel_rule_from_international" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a function object that acts as a selection rule for XRD lines
+for the given symmetry group expressed in international number notation</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">n (int): International number of the required spacegroup</div>
+<div class="line">o (Optional[int]): Sub-option of the required spacegroup</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">rule_func (function&lt; list&lt;int&gt; &gt;</div>
+<div class="line-block">
+<div class="line">=&gt; &lt;bool&gt;): a function that can be used to test triples of</div>
+<div class="line-block">
+<div class="line">Miller indices h,k,l to verify whether the</div>
+<div class="line">related plane gives rise or not to a peak</div>
+</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Raises:</div>
+<div class="line-block">
+<div class="line">RuntimeError: if the database of XRD selection rules was not properly</div>
+<div class="line-block">
+<div class="line">loaded</div>
+</div>
+<div class="line">ValueError: if some of the passed arguments are invalid</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

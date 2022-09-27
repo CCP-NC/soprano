@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.collection.generate.airss &#8212; Soprano</title>
     
@@ -625,12 +625,64 @@ title="Print to PDF"
 <p>Bindings for AIRSS Buildcell program for random structure generation</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">airssGen</span></code>(input_file[, n, buildcell_command, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.collection.generate.airss.airssGen" title="soprano.collection.generate.airss.airssGen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">airssGen</span></code></a>(input_file[, n, buildcell_command, …])</p></td>
 <td><p>Generator function binding to AIRSS’ Buildcell.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.collection.generate.airss.airssGen">
+<code class="sig-prename descclassname"><span class="pre">soprano.collection.generate.airss.</span></code><code class="sig-name descname"><span class="pre">airssGen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildcell_command</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'buildcell'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildcell_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/collection/generate/airss.html#airssGen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.collection.generate.airss.airssGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function binding to AIRSS’ Buildcell.</p>
+<p>This function searches for a buildcell executable and uses it to
+generate multiple new Atoms structures for a collection.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">input_file (str or file): the .cell file with appropriate comments</div>
+<div class="line-block">
+<div class="line">specifying the details of buildcell’s</div>
+<div class="line">construction work.</div>
+</div>
+<div class="line">n (int): number of structures to generate. If set to None the</div>
+<div class="line-block">
+<div class="line">generator goes on indefinitely.</div>
+</div>
+<div class="line">buildcell_command (str): command required to call the buildcell</div>
+<div class="line-block">
+<div class="line">executable.</div>
+</div>
+<div class="line">buildcell_path (str): path where the buildcell executable can be</div>
+<div class="line-block">
+<div class="line">found. If not present, the buildcell command</div>
+<div class="line">will be invoked directly (assuming the</div>
+<div class="line">executable is in the system PATH).</div>
+</div>
+<div class="line">clone_calc (bool): if True, the CASTEP calculator in the input file</div>
+<div class="line-block">
+<div class="line">will be copied and attached to the new structures.</div>
+<div class="line">This means that for example any additional CASTEP</div>
+<div class="line">keywords/blocks in the input file will be carried</div>
+<div class="line">on to the new structures. Default is True.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">airssGenerator (generator): an iterable object that yields structures</div>
+<div class="line-block">
+<div class="line">created by buildcell.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

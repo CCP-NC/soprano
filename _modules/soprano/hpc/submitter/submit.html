@@ -1,0 +1,1180 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.hpc.submitter.submit &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/hpc/submitter/submit.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.hpc.submitter.submit</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Definition of Submitter class</span>
+
+<span class="sd">Base class for all Submitters to inherit from.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">socket</span> <span class="kn">import</span> <span class="n">timeout</span> <span class="k">as</span> <span class="ne">TimeoutError</span>
+
+<span class="kn">from</span> <span class="nn">soprano.utils</span> <span class="kn">import</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">safe_communicate</span>
+<span class="kn">from</span> <span class="nn">soprano.hpc.submitter</span> <span class="kn">import</span> <span class="n">QueueInterface</span>
+
+
+<div class="viewcode-block" id="Submitter"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter">[docs]</a><span class="k">class</span> <span class="nc">Submitter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Submitter object</span>
+
+<span class="sd">    Template to derive all specialised Submitters. These are meant to generate,</span>
+<span class="sd">    submit and post-process any number of jobs on a queueing system in the form</span>
+<span class="sd">    of a background process running on a head node. It implements</span>
+<span class="sd">    methods that should be mostly overridden by the child classes.</span>
+<span class="sd">    The following methods define its core behaviour:</span>
+
+<span class="sd">    1) next_job is the function that outputs the specification for each new job</span>
+<span class="sd">       to submit. The specification should be a dict with two members, &#39;name&#39;</span>
+<span class="sd">       (a string) and &#39;args&#39; (ideally a dict). If no more jobs are available</span>
+<span class="sd">       it should return None;</span>
+<span class="sd">    2) setup_job takes as arguments name, args and folder (a temporary one</span>
+<span class="sd">       created independently) and is supposed to generate the input files</span>
+<span class="sd">       for the job before submission. It returns a boolean, confirming that</span>
+<span class="sd">       the setup went well; if False, the job will be skipped;</span>
+<span class="sd">    3) check_job takes as arguments job ID, name, args and folder and should</span>
+<span class="sd">       return a bool confirmation of whether the job has finished or not. By</span>
+<span class="sd">       default it simply checks whether the job is still listed in the queue,</span>
+<span class="sd">       however other checks can be implemented in its place;</span>
+<span class="sd">    4) finish_job takes as arguments name, args and folder and takes care of</span>
+<span class="sd">       the post processing once a job is complete. Here meaningful data should</span>
+<span class="sd">       be extracted and useful files copied to permament locations, as the</span>
+<span class="sd">       temporary folder will be deleted immediately afterwards. It returns</span>
+<span class="sd">       nothing;</span>
+<span class="sd">    5) start_run takes no arguments, executes at the beginning of a run;</span>
+<span class="sd">    6) finish_run takes no arguments, executes at the end of a run.</span>
+<span class="sd">    7) save_state takes no arguments, returns a dict. It is executed when</span>
+<span class="sd">       continuation=True is used and a run terminates. It will allow the user</span>
+<span class="sd">       to add class-specific data to the dictionary that is stored in the</span>
+<span class="sd">       pickle file (in addition to the default, namely the list and info on</span>
+<span class="sd">       currently running jobs). This should be used for example to store state</span>
+<span class="sd">       information that is necessary for job generation. It should be composed</span>
+<span class="sd">       of serialisable objects.</span>
+<span class="sd">    8) load_state takes as arguments the loaded data in dictionary form. It</span>
+<span class="sd">       should perform the reverse operation of save_state, grabbing the info</span>
+<span class="sd">       and restoring the Submitter&#39;s state to its previous condition.</span>
+
+<span class="sd">    In addition, the Submitter takes a template launching script which can</span>
+<span class="sd">    be tagged with keywords, mainly &lt;name&gt; for the job name or any other</span>
+<span class="sd">    arguments present in args. These will be replaced with the appropriate</span>
+<span class="sd">    values when the script is submitted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="n">queue</span><span class="p">,</span>
+        <span class="n">submit_script</span><span class="p">,</span>
+        <span class="n">max_jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="n">check_time</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">max_time</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+        <span class="n">temp_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">remote_workdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">remote_getfiles</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*.*&quot;</span><span class="p">],</span>
+        <span class="n">ssh_timeout</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">continuation</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the Submitter object</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   name (str): name to be used for this Submitter (two Submitters</span>
+<span class="sd">        |               with the same name can&#39;t be launched in the same</span>
+<span class="sd">        |               working directory)</span>
+<span class="sd">        |   queue (QueueInterface): object describing the properties of the</span>
+<span class="sd">        |                           interface to the queue system in use</span>
+<span class="sd">        |   submit_script (str): text of the script to use when submitting a</span>
+<span class="sd">        |                        job to the queue. All tags of the form &lt;name&gt;</span>
+<span class="sd">        |                        will be replaced with the job&#39;s name, and all</span>
+<span class="sd">        |                        similar tags of the form &lt;[arg]&gt; will be</span>
+<span class="sd">        |                        replaced if the argument name is present in</span>
+<span class="sd">        |                        the job&#39;s args dictionary</span>
+<span class="sd">        |   max_jobs (Optional[int]): maximum number of jobs to submit at a</span>
+<span class="sd">        |                             given time. Default is 4</span>
+<span class="sd">        |   check_time (Optional[float]): time in seconds between consecutive</span>
+<span class="sd">        |                                 checks for the queue status and</span>
+<span class="sd">        |                                 attempts to submit new jobs. Default</span>
+<span class="sd">        |                                 is 10</span>
+<span class="sd">        |   max_time (Optional[float]): time in seconds the Submitter will run</span>
+<span class="sd">        |                               for before shutting down. If set to</span>
+<span class="sd">        |                               zero the thread won&#39;t stop until</span>
+<span class="sd">        |                               killed with Submitter.stop.</span>
+<span class="sd">        |   temp_folder (Optional[str]): where to store the temporary folders</span>
+<span class="sd">        |                                for the calculations. By default it&#39;s</span>
+<span class="sd">        |                                the current folder.</span>
+<span class="sd">        |   remote_workdir (Optional[str]): if present, uses a directory on a</span>
+<span class="sd">        |                                   remote machine by logging in via</span>
+<span class="sd">        |                                   SSH. Must be in the format</span>
+<span class="sd">        |                                   &lt;host&gt;:&lt;path/to/directory&gt;.</span>
+<span class="sd">        |                                   Host must be defined in the user&#39;s</span>
+<span class="sd">        |                                   ~/.ssh/config file - check the</span>
+<span class="sd">        |                                   docs for RemoteTarget for more</span>
+<span class="sd">        |                                   information. It is possible to</span>
+<span class="sd">        |                                   omit the colon and directory, that</span>
+<span class="sd">        |                                   will use the home directory of the</span>
+<span class="sd">        |                                   given folder; that is HEAVILY</span>
+<span class="sd">        |                                   DISCOURAGED though. Best practice</span>
+<span class="sd">        |                                   would be to create an empty</span>
+<span class="sd">        |                                   directory on the remote machine</span>
+<span class="sd">        |                                   and use that, to avoid accidental</span>
+<span class="sd">        |                                   overwriting/deleting of important</span>
+<span class="sd">        |                                   files.</span>
+<span class="sd">        |   remote_getfiles (Optional[list(str)]): list of files to be</span>
+<span class="sd">        |                                          downloaded from the remote</span>
+<span class="sd">        |                                          copy of the job&#39;s temporary</span>
+<span class="sd">        |                                          directory. By default, all</span>
+<span class="sd">        |                                          of them. Can be a list</span>
+<span class="sd">        |                                          using specific names,</span>
+<span class="sd">        |                                          wildcards etc. Filenames</span>
+<span class="sd">        |                                          can also use the</span>
+<span class="sd">        |                                          placeholder {name} to</span>
+<span class="sd">        |                                          signify the job name, as</span>
+<span class="sd">        |                                          well as any other element</span>
+<span class="sd">        |                                          from the arguments.</span>
+<span class="sd">        |   ssh_timeout (Optional[float]): connection timeout in seconds</span>
+<span class="sd">        |                                  (default is 1 second)</span>
+<span class="sd">        |   continuation (Optional[bool]): if True, when the Submitter is</span>
+<span class="sd">        |                                  stopped it will not terminate the</span>
+<span class="sd">        |                                  current jobs; rather, it will store</span>
+<span class="sd">        |                                  the list in a pickle file.</span>
+<span class="sd">        |                                  If the submitter is ran from the</span>
+<span class="sd">        |                                  same folder then it will &quot;pick up</span>
+<span class="sd">        |                                  from where it left&quot; and try</span>
+<span class="sd">        |                                  recovering those jobs, then</span>
+<span class="sd">        |                                  restart. If one wishes for</span>
+<span class="sd">        |                                  additional values to be saved and</span>
+<span class="sd">        |                                  restored, the save_state and</span>
+<span class="sd">        |                                  load_state methods need to be</span>
+<span class="sd">        |                                  defined.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check type</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">QueueInterface</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;A QueueInterface must be passed to the &quot;</span> <span class="s2">&quot;Submitter&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_string</span><span class="p">(</span><span class="n">submit_script</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;submit_script must be a string&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">submit_script</span> <span class="o">=</span> <span class="n">submit_script</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_jobs</span> <span class="o">=</span> <span class="n">max_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_time</span> <span class="o">=</span> <span class="n">check_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_time</span> <span class="o">=</span> <span class="n">max_time</span> <span class="k">if</span> <span class="n">max_time</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">temp_folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">temp_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># User defined signals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_free_signals</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">signal</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;SIGUSR1&quot;</span><span class="p">,</span> <span class="s2">&quot;SIGUSR2&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signal</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Will keep track of failed jobs etc.</span>
+
+        <span class="c1"># Remote directory?</span>
+        <span class="k">if</span> <span class="n">remote_workdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">remote_workdir</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span> <span class="o">=</span> <span class="n">remote_workdir</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">remote_workdir</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">remote_getfiles</span> <span class="o">=</span> <span class="n">remote_getfiles</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">set_remote_host</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">ssh_timeout</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">continuation</span> <span class="o">=</span> <span class="n">continuation</span>
+
+<div class="viewcode-block" id="Submitter.set_parameters"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.set_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set additional parameters. In this generic example class it has</span>
+<span class="sd">        no arguments, but in specific implementations it will be used to</span>
+<span class="sd">        add more variables without overriding __init__.&quot;&quot;&quot;</span>
+
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Submitter.add_signal"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.add_signal">[docs]</a>    <span class="k">def</span> <span class="nf">add_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a signal listener to this submitter. Unix systems only allow</span>
+<span class="sd">        for up to TWO user-defined signals to be specified.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   command (str): command that should be used to call this signal.</span>
+<span class="sd">        |                  This would be used as:</span>
+<span class="sd">        |                  python -m soprano.hpc.submitter &lt;command&gt; &lt;file&gt;</span>
+<span class="sd">        |                  and will trigger the callback&#39;s execution</span>
+<span class="sd">        |   callback (function&lt;self&gt; =&gt; None): method of the user defined</span>
+<span class="sd">        |                      Submitter class to use as a callback when the</span>
+<span class="sd">        |                      given signal is sent. Should accept and return</span>
+<span class="sd">        |                      nothing.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Is the command a reserved word?</span>
+        <span class="k">if</span> <span class="n">command</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="s2">&quot;list&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The commands start, stop and list are reserved&quot;</span>
+                <span class="s2">&quot; and can not be used for custom signals.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Are there any free signals left?</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">signum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_free_signals</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Impossible to assign more signals - maximum &quot;</span>
+                <span class="s2">&quot;number supported by the OS has been reached.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">signum</span><span class="p">,</span> <span class="n">callback</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Submitter.remove_signal"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.remove_signal">[docs]</a>    <span class="k">def</span> <span class="nf">remove_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove a previously defined custom signal by its assigned command.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   command (str): command assigned to the signal handler to remove.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">signum</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">[</span><span class="n">command</span><span class="p">]</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">[</span><span class="n">command</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_free_signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">signum</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Command does not correspon to any assigned&quot;</span> <span class="s2">&quot; signal.&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.log&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Starting run on </span><span class="si">{0}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_jobs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Jobs created but not yet submitted</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_completed_jobs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Jobs completed but not yet finalised</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuation</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pklname</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>  <span class="c1"># Starting time. Second precision is fine</span>
+
+        <span class="c1"># Initialise signal catching</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catch_signal</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catch_signal</span><span class="p">)</span>
+        <span class="c1"># Now assign the user-defined ones</span>
+        <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">:</span>
+            <span class="n">signum</span><span class="p">,</span> <span class="n">cback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
+            <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_catch_signal</span><span class="p">)</span>
+
+        <span class="c1"># Just a sanity check</span>
+        <span class="n">has_name</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_script</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;&lt;name&gt;&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">has_name</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="s2">&quot;WARNING: the submission script does not contain the &quot;</span>
+                <span class="s2">&quot;&lt;name&gt; tag in any non-commented lines. &quot;</span>
+                <span class="s2">&quot;This is most likely an error - check your &quot;</span>
+                <span class="s2">&quot;input files</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_main_loop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finish_run</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Run finished on </span><span class="si">{0}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_catch_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">signum</span> <span class="ow">in</span> <span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">):</span>
+            <span class="c1"># This catches the signal when termination is asked</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;SIGTERM received - &quot;</span> <span class="s2">&quot;Starting termination of this run...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_terminate</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">signum</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">[</span><span class="n">cmd</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_user_signals</span><span class="p">[</span><span class="n">cmd</span><span class="p">][</span><span class="mi">1</span><span class="p">]()</span>
+
+    <span class="k">def</span> <span class="nf">_terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># Also, kill all jobs still running</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">continuation</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
+                <span class="c1"># If needed, get the files from remote host</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_getjob_remote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">finish_job</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">])</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">][</span><span class="s2">&quot;folder&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="Submitter._main_loop"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter._main_loop">[docs]</a>    <span class="k">def</span> <span class="nf">_main_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Main loop run as separate thread. Should not be edited when</span>
+<span class="sd">        inheriting from the class&quot;&quot;&quot;</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_time</span><span class="p">:</span>
+
+            <span class="n">loop_t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+            <span class="c1"># Submit jobs</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_jobs</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_waiting_jobs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">njob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_job</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">njob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="c1"># Create the temporary folder</span>
+                    <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tmp_dir</span><span class="p">)</span>
+                    <span class="c1"># Perform setup</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">setup_job</span><span class="p">(</span><span class="o">**</span><span class="n">njob</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="s2">&quot;Job </span><span class="si">{0}</span><span class="s2"> did not pass setup check, &quot;</span>
+                            <span class="s2">&quot;skipping</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                        <span class="p">)</span>
+                        <span class="c1"># Remove the temporary directory</span>
+                        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">])</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="s2">&quot;Folder </span><span class="si">{0}</span><span class="s2"> &quot;</span> <span class="s2">&quot;deleted</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">]))</span>
+                        <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">njob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_jobs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># If we&#39;re working with a remote host, we need to copy the</span>
+                <span class="c1"># input folder!</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_putjob_remote</span><span class="p">(</span><span class="n">njob</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="s2">&quot;Timeout when trying to push input files to&quot;</span>
+                            <span class="s2">&quot; host. If it happens too frequently, try &quot;</span>
+                            <span class="s2">&quot;increasing the ssh_timeout argument.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_waiting_jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">njob</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                <span class="c1"># Create custom script</span>
+                <span class="n">job_script</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">submit_script</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;name&gt;&quot;</span><span class="p">,</span> <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                <span class="c1"># Replace the rest of the tags</span>
+                <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]:</span>
+                    <span class="n">job_script</span> <span class="o">=</span> <span class="n">job_script</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                        <span class="s2">&quot;&lt;</span><span class="si">{0}</span><span class="s2">&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tag</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">][</span><span class="n">tag</span><span class="p">])</span>
+                    <span class="p">)</span>
+                <span class="n">job_script</span> <span class="o">=</span> <span class="n">job_script</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;folder&gt;&quot;</span><span class="p">,</span> <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">])</span>
+
+                <span class="c1"># And submit! [Only if still running]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_running</span><span class="p">:</span>
+                    <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Submitting job &quot;</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> to queue</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]))</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span><span class="p">,</span> <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">cwd</span> <span class="o">=</span> <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">]</span>
+
+                    <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">job_script</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">njob</span>
+
+            <span class="c1"># Now check for finished jobs</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_completed_jobs</span> <span class="o">+=</span> <span class="p">[</span>
+                <span class="n">job_id</span>
+                <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_job</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">])</span>
+            <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completed_jobs</span><span class="p">:</span>
+                <span class="n">cjob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">]</span>
+                <span class="c1"># If needed, get the files from remote host</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_getjob_remote</span><span class="p">(</span><span class="n">cjob</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="s2">&quot;Timeout when trying to fetch results from&quot;</span>
+                            <span class="s2">&quot; host. If it happens too frequently, try &quot;</span>
+                            <span class="s2">&quot;increasing the ssh_timeout argument.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Job </span><span class="si">{0}</span><span class="s2"> completed</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">finish_job</span><span class="p">(</span><span class="o">**</span><span class="n">cjob</span><span class="p">)</span>
+                <span class="c1"># Remove the temporary directory</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Folder </span><span class="si">{0}</span><span class="s2"> deleted</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">]))</span>
+                <span class="c1"># Finally delete it from our list</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="p">[</span><span class="n">job_id</span><span class="p">]</span>
+
+            <span class="c1"># Only keep the ones that haven&#39;t been copied yet</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_completed_jobs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_completed_jobs</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jobs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="p">)</span>
+
+            <span class="n">sleep_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_time</span> <span class="o">-</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">loop_t0</span><span class="p">)</span>
+            <span class="n">sleep_time</span> <span class="o">=</span> <span class="n">sleep_time</span> <span class="k">if</span> <span class="n">sleep_time</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Submitter._putjob_remote"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter._putjob_remote">[docs]</a>    <span class="k">def</span> <span class="nf">_putjob_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">njob</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy the files generated for a job to a remote work directory&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">remote_target</span><span class="o">.</span><span class="n">context</span> <span class="k">as</span> <span class="n">rtarg</span><span class="p">:</span>
+            <span class="n">rtarg</span><span class="o">.</span><span class="n">run_cmd</span><span class="p">(</span><span class="s2">&quot;mkdir </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]),</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span><span class="p">)</span>
+            <span class="n">rtarg</span><span class="o">.</span><span class="n">put_files</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">njob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">],</span> <span class="s2">&quot;*&quot;</span><span class="p">),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span><span class="p">,</span> <span class="n">njob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]),</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_getjob_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cjob</span><span class="p">):</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">remote_target</span><span class="o">.</span><span class="n">context</span> <span class="k">as</span> <span class="n">rtarg</span><span class="p">:</span>
+            <span class="n">rpaths</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span><span class="p">,</span>
+                    <span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">remote_getfiles</span>
+            <span class="p">]</span>
+            <span class="n">rtarg</span><span class="o">.</span><span class="n">get_files</span><span class="p">(</span><span class="n">rpaths</span><span class="p">,</span> <span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">])</span>
+            <span class="n">rtarg</span><span class="o">.</span><span class="n">run_cmd</span><span class="p">(</span><span class="s2">&quot;rm -rf </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cjob</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]),</span> <span class="n">cwd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hostdir</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">savedata</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">savedata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_state</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Method save_state must return a dict&quot;</span><span class="p">)</span>
+
+        <span class="n">to_save</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_jobs&quot;</span><span class="p">,</span> <span class="s2">&quot;_waiting_jobs&quot;</span><span class="p">,</span> <span class="s2">&quot;_completed_jobs&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">to_save</span><span class="p">:</span>
+            <span class="n">savedata</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Saving data for future runs...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">savedata</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pklname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Saving failed</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">to_load</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_jobs&quot;</span><span class="p">,</span> <span class="s2">&quot;_waiting_jobs&quot;</span><span class="p">,</span> <span class="s2">&quot;_completed_jobs&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Loading data from past runs...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">loaddata</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pklname</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;Loading failed</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">to_load</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">loaddata</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+            <span class="k">del</span> <span class="n">loaddata</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_state</span><span class="p">(</span><span class="n">loaddata</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Submitter.save_state"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.save_state">[docs]</a>    <span class="k">def</span> <span class="nf">save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary containing serialisable data to be saved from</span>
+<span class="sd">        one run to the next&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="Submitter.load_state"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.load_state">[docs]</a>    <span class="k">def</span> <span class="nf">load_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loaded</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Replace attributes from loaded data in dictionary form&quot;&quot;&quot;</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="Submitter.next_job"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.next_job">[docs]</a>    <span class="k">def</span> <span class="nf">next_job</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a dictionary definition of the next job in line&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;default_job&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">{}}</span></div>
+
+<div class="viewcode-block" id="Submitter.setup_job"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.setup_job">[docs]</a>    <span class="k">def</span> <span class="nf">setup_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform preparatory operations on the job&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Submitter.check_job"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.check_job">[docs]</a>    <span class="k">def</span> <span class="nf">check_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checks if given job is complete or not&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">job_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">list</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Submitter.finish_job"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.finish_job">[docs]</a>    <span class="k">def</span> <span class="nf">finish_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs completion operations on the job. At this point any</span>
+<span class="sd">        relevant output files should be copied from &#39;folder&#39; to their final</span>
+<span class="sd">        destination as the temporary folder itself will be deleted immediately</span>
+<span class="sd">        after&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Submitter.start_run"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.start_run">[docs]</a>    <span class="k">def</span> <span class="nf">start_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Operations to perform when the daemon thread starts running&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Submitter.finish_run"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.finish_run">[docs]</a>    <span class="k">def</span> <span class="nf">finish_run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Operations to perform after the daemon thread stops running&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logtxt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">logtxt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Submitter.stop"><a class="viewcode-back" href="../../../../_autosummary/soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter.stop">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">subname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop Submitter process from filename and name,</span>
+<span class="sd">        return False if failed&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;pkill&quot;</span><span class="p">,</span> <span class="s2">&quot;-f&quot;</span><span class="p">,</span> <span class="n">fname</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">subname</span><span class="p">])</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">list</span><span class="p">():</span>
+        <span class="n">list_proc</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;ps&quot;</span><span class="p">,</span> <span class="s2">&quot;aux&quot;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span>
+        <span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">safe_communicate</span><span class="p">(</span><span class="n">list_proc</span><span class="p">)</span>
+        <span class="c1"># Parse stdout</span>
+        <span class="n">all_subms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;soprano.hpc.submitter._spawn&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">lspl</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="c1"># File, name, time, PID</span>
+                <span class="n">subm</span> <span class="o">=</span> <span class="n">lspl</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="n">lspl</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">lspl</span><span class="p">[</span><span class="o">-</span><span class="mi">7</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">lspl</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">all_subms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subm</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">all_subms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_pklname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_save.pkl&quot;</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

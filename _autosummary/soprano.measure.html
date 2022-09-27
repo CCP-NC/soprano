@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.measure &#8212; Soprano</title>
     
@@ -627,15 +627,70 @@ title="Print to PDF"
 the level of a single ase.Atoms object.</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bondDistance</span></code>(s, i, j[, bond_matrix])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.measure.bondDistance" title="soprano.measure.bondDistance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bondDistance</span></code></a>(s, i, j[, bond_matrix])</p></td>
 <td><p>Return the distance in number of bonds between two atoms.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">euclideanDistance</span></code>(s, i, j[, periodic])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.measure.euclideanDistance" title="soprano.measure.euclideanDistance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">euclideanDistance</span></code></a>(s, i, j[, periodic])</p></td>
 <td><p>Return the distance between two atoms, in Angstroms.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.measure.bondDistance">
+<code class="sig-prename descclassname"><span class="pre">soprano.measure.</span></code><code class="sig-name descname"><span class="pre">bondDistance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_matrix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/measure.html#bondDistance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.measure.bondDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the distance in number of bonds between two atoms. Returns -1 if
+the two atoms are not connected. Requires NetworkX to be installed to
+work.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure on which to compute the distance</div>
+<div class="line">i (int): index of the first atom</div>
+<div class="line">j (int): index of the second atom</div>
+<div class="line">bond_matrix (np.ndarray): pre-computed bond matrix to use. If not</div>
+<div class="line-block">
+<div class="line">provided, will be calculated with default</div>
+<div class="line">parameters</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">r (int): computed bond distance</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.measure.euclideanDistance">
+<code class="sig-prename descclassname"><span class="pre">soprano.measure.</span></code><code class="sig-name descname"><span class="pre">euclideanDistance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/measure.html#euclideanDistance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.measure.euclideanDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the distance between two atoms, in Angstroms.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure on which to compute the distance</div>
+<div class="line">i (int): index of the first atom</div>
+<div class="line">j (int): index of the second atom</div>
+<div class="line">periodic (bool): whether to account for periodic boundaries when</div>
+<div class="line-block">
+<div class="line">computing the distance; default is True</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">r (float): computed distance</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

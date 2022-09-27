@@ -1,0 +1,1669 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.utils &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/togglebutton.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/utils.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">utils.py</span>
+
+<span class="sd">Contains package-wide useful routines that don&#39;t fall under any specific</span>
+<span class="sd">category. Many of these handle common operations involving periodicity,</span>
+<span class="sd">conversions between different representations etc.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">factorial</span>
+<span class="kn">from</span> <span class="nn">ase.quaternions</span> <span class="kn">import</span> <span class="n">Quaternion</span>
+
+<span class="kn">from</span> <span class="nn">soprano.optional</span> <span class="kn">import</span> <span class="n">requireNetworkX</span><span class="p">,</span> <span class="n">requireScikitLearn</span><span class="p">,</span> <span class="n">requireSpglib</span>
+<span class="kn">from</span> <span class="nn">soprano.rnd</span> <span class="kn">import</span> <span class="n">Random</span>
+
+
+<div class="viewcode-block" id="seedname"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.seedname">[docs]</a><span class="k">def</span> <span class="nf">seedname</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the filename (with no extension) from a full path&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="replace_folder"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.replace_folder">[docs]</a><span class="k">def</span> <span class="nf">replace_folder</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">new_folder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Replace the folder of the given path with a new one&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">new_folder</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="progbar"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.progbar">[docs]</a><span class="k">def</span> <span class="nf">progbar</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i_max</span><span class="p">,</span> <span class="n">bar_len</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">spinner</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">spin_rate</span><span class="o">=</span><span class="mf">3.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A textual progress bar for the command line</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   i (int): current progress index</span>
+<span class="sd">    |   max_i (int): final progress index</span>
+<span class="sd">    |   bar_len (Optional[int]): length in characters of the bar (no brackets)</span>
+<span class="sd">    |   spinner (Optional[bool]): show a spinner at the end</span>
+<span class="sd">    |   spin_rate (Optional[float]): spinner rotation speed (turns per full</span>
+<span class="sd">    |                                progress)</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   bar (str): a progress bar formatted as requested</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u2588</span><span class="s2">&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="p">}</span>
+    <span class="n">spin</span> <span class="o">=</span> <span class="s2">&quot;|</span><span class="se">\\</span><span class="s2">-/&quot;</span>
+    <span class="n">perc</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">i_max</span><span class="p">)</span> <span class="o">*</span> <span class="n">bar_len</span>
+    <span class="n">bar</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">{0}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">block</span><span class="p">[</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">perc</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bar_len</span><span class="p">)]))</span>
+    <span class="k">if</span> <span class="n">spinner</span><span class="p">:</span>
+        <span class="n">bar</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spin</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">perc</span> <span class="o">*</span> <span class="n">spin_rate</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">spin</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="n">bar</span></div>
+
+
+<div class="viewcode-block" id="silence_stdio"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.silence_stdio">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">silence_stdio</span><span class="p">(</span><span class="n">silence_stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">silence_stderr</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Useful stdout/err silencer&quot;&quot;&quot;</span>
+    <span class="n">dummy_out</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">silence_stdout</span><span class="p">:</span>
+        <span class="n">old_stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">dummy_out</span>
+    <span class="k">if</span> <span class="n">silence_stderr</span><span class="p">:</span>
+        <span class="n">old_stderr</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">dummy_out</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">dummy_out</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">silence_stdout</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">old_stdout</span>
+        <span class="k">if</span> <span class="n">silence_stderr</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">old_stderr</span></div>
+
+
+<span class="k">def</span> <span class="nf">customize_warnings</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">customwarning</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">outmsg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[93m </span><span class="se">\033</span><span class="s2">[1m WARNING: </span><span class="se">\033</span><span class="s2">[0m </span><span class="si">{0}</span><span class="s2"> &quot;</span> <span class="s2">&quot;(</span><span class="si">{1}</span><span class="s2">, line: </span><span class="si">{2}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">msg</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">outmsg</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span> <span class="o">=</span> <span class="n">customwarning</span>
+
+
+<span class="c1"># Apply it right away (for stuff in this module)</span>
+<span class="n">customize_warnings</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="abc2cart"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.abc2cart">[docs]</a><span class="k">def</span> <span class="nf">abc2cart</span><span class="p">(</span><span class="n">abc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transforms an axes and angles representation of lattice parameters</span>
+<span class="sd">    into a Cartesian one</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">abc</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid abc passed to abc2cart&quot;</span><span class="p">)</span>
+
+    <span class="n">cart</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">cart</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">sin</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+    <span class="n">cart</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+    <span class="n">cart</span><span class="o">.</span><span class="n">append</span><span class="p">([(</span><span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">sin</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+    <span class="n">cart</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cart</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="n">cart</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="n">cart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cart</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)])</span>
+
+    <span class="k">return</span> <span class="n">cart</span></div>
+
+
+<div class="viewcode-block" id="cart2abc"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.cart2abc">[docs]</a><span class="k">def</span> <span class="nf">cart2abc</span><span class="p">(</span><span class="n">cart</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Transforms a Cartesian representation of lattice parameters</span>
+<span class="sd">    into an axes and angles one</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">cart</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cart</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid cart passed to cart2abc&quot;</span><span class="p">)</span>
+
+    <span class="n">abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cart</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Now for the angles</span>
+    <span class="n">cart_roll_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">cart</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cart_roll_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">cart</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">cross_cart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">cart_roll_1</span><span class="p">,</span> <span class="n">cart_roll_2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">dot_cart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diagonal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cart_roll_1</span><span class="p">,</span> <span class="n">cart_roll_2</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+    <span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">cross_cart</span><span class="p">,</span> <span class="n">dot_cart</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">abc</span></div>
+
+
+<div class="viewcode-block" id="hkl2d2_matgen"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.hkl2d2_matgen">[docs]</a><span class="k">def</span> <span class="nf">hkl2d2_matgen</span><span class="p">(</span><span class="n">abc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generate a matrix that turns hkl indices into inverse crystal</span>
+<span class="sd">    plane distances for a given lattice in ABC form</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">abc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">abc</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid abc passed to hkl2d2_matgen&quot;</span><span class="p">)</span>
+
+    <span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">a2b2</span> <span class="o">=</span> <span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mf">2.0</span>
+    <span class="n">a2c2</span> <span class="o">=</span> <span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mf">2.0</span>
+    <span class="n">b2c2</span> <span class="o">=</span> <span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mf">2.0</span>
+    <span class="n">abc_prod</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+
+    <span class="n">hkl2d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="n">b2c2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">abc_prod</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="n">abc_prod</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="n">abc_prod</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="n">a2c2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mf">2.0</span><span class="p">,</span>
+                <span class="n">abc_prod</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">],</span>
+            <span class="p">[</span>
+                <span class="n">abc_prod</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="n">abc_prod</span> <span class="o">*</span> <span class="n">abc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                <span class="n">a2b2</span> <span class="o">*</span> <span class="n">sin</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">hkl2d2</span> <span class="o">/=</span> <span class="n">abc_prod</span> <span class="o">**</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cos</span><span class="p">,</span> <span class="n">cos</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">cos</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">hkl2d2</span></div>
+
+
+<div class="viewcode-block" id="inv_plane_dist"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.inv_plane_dist">[docs]</a><span class="k">def</span> <span class="nf">inv_plane_dist</span><span class="p">(</span><span class="n">hkl</span><span class="p">,</span> <span class="n">hkl2d2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate inverse planar distance for a given set of</span>
+<span class="sd">    Miller indices h, k, l.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hkl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hkl</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hkl</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid hkl passed to inv_plane_dist&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">hkl2d2</span><span class="p">,</span> <span class="n">hkl</span><span class="p">),</span> <span class="n">hkl</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="minimum_supcell"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.minimum_supcell">[docs]</a><span class="k">def</span> <span class="nf">minimum_supcell</span><span class="p">(</span><span class="n">max_r</span><span class="p">,</span> <span class="n">latt_cart</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">r_matrix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate the bounds for a supercell containing a sphere</span>
+<span class="sd">    of given radius, knowing the unit cell.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   max_r (float): radius of the sphere contained in the supercell</span>
+<span class="sd">    |   latt_cart (np.ndarray): unit cell in cartesian form</span>
+<span class="sd">    |   r_matrix (np.ndarray): matrix for the quadratic form returning</span>
+<span class="sd">    |                          r^2 for this supercell.</span>
+<span class="sd">    |                          Alternative to latt_cart, for a direct</span>
+<span class="sd">    |                          space cell would be equal to</span>
+<span class="sd">    |                          np.dot(latt_cart, latt_cart.T)</span>
+<span class="sd">    |   pbc ([bool, bool, bool]): periodic boundary conditions - if</span>
+<span class="sd">    |                             a boundary is not periodic the</span>
+<span class="sd">    |                             range returned will always be zero</span>
+<span class="sd">    |                             in that dimension</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   shape (tuple[int]):  shape of the supercell to be built.</span>
+
+<span class="sd">    | Raises:</span>
+<span class="sd">    |   ValueError: if some of the arguments are invalid</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">latt_cart</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">latt_cart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">latt_cart</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">latt_cart</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid latt_cart passed to minimum_supcell&quot;</span><span class="p">)</span>
+        <span class="n">r_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">latt_cart</span><span class="p">,</span> <span class="n">latt_cart</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">r_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">r_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">r_matrix</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r_matrix</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid r_matrix passed to minimum_supcell&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;One between latt_cart and r_matrix has to&quot;</span> <span class="s2">&quot;be present&quot;</span><span class="p">)</span>
+
+    <span class="c1"># The logic of this algorithm isn&#39;t obvious, so let&#39;s make it clearer.</span>
+    <span class="c1">#</span>
+    <span class="c1"># What we are basically looking for is the AABB bounding box of a sphere</span>
+    <span class="c1"># in absolute space.</span>
+    <span class="c1"># This becomes a rotated ellipsoid in fractional coordinates space.</span>
+    <span class="c1"># r_matrix represents a quadratic form which turns a fractional coordinate</span>
+    <span class="c1"># into a squared distance in space.</span>
+    <span class="c1"># By diagonalizing it we can calculate the transformation matrix</span>
+    <span class="c1"># which morphs a simple unit sphere into this ellipsoid through</span>
+    <span class="c1"># scaling (with the eigenvalues) and rotating (with the eigenvectors).</span>
+    <span class="c1"># We have thus that a point p in unit sphere space becomes q = M*p</span>
+    <span class="c1"># in fractional space. On the other hand, a point q in fractional space</span>
+    <span class="c1"># will be transformed into absolute space by p = M^-1*q.</span>
+    <span class="c1"># Now, the boundaries of the ellipsoids are none other but the points</span>
+    <span class="c1"># which, in regular space, have normals aligned with the axes.</span>
+    <span class="c1"># And NORMALS transform between spaces with a matrix that is the</span>
+    <span class="c1"># inverse transpose of the regular one. So the logic goes:</span>
+    <span class="c1"># - take an axis direction in fractional space (for example, [1,0,0])</span>
+    <span class="c1"># - transform it into absolute space by premultiplying (M^-1)^-1^T = M^T</span>
+    <span class="c1"># - now that we have the direction of the normal in absolute space,</span>
+    <span class="c1"># we just need to normalize it to find the point p which has that normal</span>
+    <span class="c1"># (thanks to the properties of the unit sphere)</span>
+    <span class="c1"># - then we transform back to fractional space with M and there you go,</span>
+    <span class="c1"># that&#39;s your boundary point.</span>
+    <span class="c1"># - wash, rinse, repeat for all axes directions.</span>
+    <span class="c1"># Find the maxima in each direction and you&#39;ve got your box.</span>
+
+    <span class="n">r_evals</span><span class="p">,</span> <span class="n">r_evecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">r_matrix</span><span class="p">)</span>
+
+    <span class="c1"># Unit sphere - to - ellipsoid transformation matrix</span>
+    <span class="n">utransf_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">r_evecs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r_evals</span><span class="p">)))</span>
+    <span class="c1"># To find the boundaries, we need to iterate over the three main</span>
+    <span class="c1"># directions. We do this implicitly though.</span>
+    <span class="n">qmatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+        <span class="n">utransf_matrix</span><span class="p">,</span>
+        <span class="n">max_r</span> <span class="o">*</span> <span class="p">(</span><span class="n">utransf_matrix</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">utransf_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">r_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">qmatrix</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">r_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pbc</span><span class="p">,</span> <span class="n">r_bounds</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">2</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">r_bounds</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="supcell_gridgen"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.supcell_gridgen">[docs]</a><span class="k">def</span> <span class="nf">supcell_gridgen</span><span class="p">(</span><span class="n">latt_cart</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a full linearized grid for a supercell with r_bounds</span>
+<span class="sd">    and a base unit cell in Cartesian form.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   latt_cart (np.ndarray): unit cell in cartesian form</span>
+<span class="sd">    |   shape (tuple[int]):  shape of the supercell to be built,</span>
+<span class="sd">    |                        as returned by minimum_supcell.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   neigh_i_grid (np.ndarray): supercell grid in fractional coordinates</span>
+<span class="sd">    |   neigh_grid (np.ndarray): supercell grid in cartesian coordinates</span>
+
+<span class="sd">    | Raises:</span>
+<span class="sd">    |   ValueError: if some of the arguments are invalid</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">latt_cart</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">latt_cart</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">latt_cart</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid latt_cart passed to supcell_gridgen&quot;</span><span class="p">)</span>
+
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shape</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid shape passed to supcell_gridgen&quot;</span><span class="p">)</span>
+
+    <span class="n">min_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="p">((</span><span class="n">shape</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">max_bounds</span> <span class="o">=</span> <span class="n">shape</span> <span class="o">+</span> <span class="n">min_bounds</span>
+    <span class="n">x_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">max_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">y_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">max_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">z_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">min_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">max_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="c1"># We now generate a grid of neighbours to check for contact with</span>
+    <span class="c1"># First just the supercell indicess</span>
+    <span class="n">neigh_i_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">,</span> <span class="n">z_range</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">neigh_i_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">neigh_i_grid</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="c1"># Then the actual supercell cartesian shifts</span>
+    <span class="n">neigh_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">neigh_i_grid</span><span class="p">,</span> <span class="n">latt_cart</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">neigh_i_grid</span><span class="p">,</span> <span class="n">neigh_grid</span></div>
+
+
+<div class="viewcode-block" id="minimum_periodic"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.minimum_periodic">[docs]</a><span class="k">def</span> <span class="nf">minimum_periodic</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">latt_cart</span><span class="p">,</span> <span class="n">exclude_self</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find the shortest periodic equivalent vector for a list of vectors and a</span>
+<span class="sd">    given lattice.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   v (np.ndarray): list of 3-vectors representing points or vectors to</span>
+<span class="sd">    |                   reduce to their closest periodic version</span>
+<span class="sd">    |   latt_cart (np.ndarray): unit cell in cartesian form</span>
+<span class="sd">    |   exclude_self (bool): if True, any vector that is equal to zero will be</span>
+<span class="sd">    |                        excluded, and its closest non-zero periodic</span>
+<span class="sd">    |                        version will be considered instead. Default is</span>
+<span class="sd">    |                        False</span>
+<span class="sd">    |   pbc ([bool, bool, bool]): periodic boundary conditions - if</span>
+<span class="sd">    |                             a boundary is not periodic the</span>
+<span class="sd">    |                             range returned will always be zero</span>
+<span class="sd">    |                             in that dimension</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   v_period (np.ndarray): array with the same shape as v, containing the</span>
+<span class="sd">    |                          vectors in periodic reduced form</span>
+<span class="sd">    |   v_cells (np.ndarray): array of triples of ints, corresponding to the</span>
+<span class="sd">    |                         cells from which the various periodic copies of</span>
+<span class="sd">    |                         the vectors were taken. For an unchanged vector</span>
+<span class="sd">    |                         will be all [0,0,0]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">max_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">scell_shape</span> <span class="o">=</span> <span class="n">minimum_supcell</span><span class="p">(</span><span class="n">max_r</span><span class="p">,</span> <span class="n">latt_cart</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="n">pbc</span><span class="p">)</span>
+    <span class="n">neigh_i_grid</span><span class="p">,</span> <span class="n">neigh_grid</span> <span class="o">=</span> <span class="n">supcell_gridgen</span><span class="p">(</span><span class="n">latt_cart</span><span class="p">,</span> <span class="n">scell_shape</span><span class="p">)</span>
+    <span class="n">v_period</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">neigh_grid</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">v_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v_period</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exclude_self</span><span class="p">:</span>
+        <span class="n">v_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">v_norm</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v_norm</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="n">min_copies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">v_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">v_period</span> <span class="o">=</span> <span class="n">v_period</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span> <span class="n">min_copies</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">v_period</span><span class="p">,</span> <span class="n">neigh_i_grid</span><span class="p">[</span><span class="n">min_copies</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="all_periodic"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.all_periodic">[docs]</a><span class="k">def</span> <span class="nf">all_periodic</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">latt_cart</span><span class="p">,</span> <span class="n">max_r</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">]):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find all the periodic equivalent vectors for a list of vectors and a</span>
+<span class="sd">    given lattice falling within a given length.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   v (np.ndarray): list of 3-vectors representing points or vectors to</span>
+<span class="sd">    |                   produce periodic versions of</span>
+<span class="sd">    |   latt_cart (np.ndarray): unit cell in cartesian form</span>
+<span class="sd">    |   max_r (float): maximum length of periodic copies of vectors</span>
+<span class="sd">    |   pbc ([bool, bool, bool]): periodic boundary conditions - if</span>
+<span class="sd">    |                             a boundary is not periodic the</span>
+<span class="sd">    |                             range returned will always be zero</span>
+<span class="sd">    |                             in that dimension</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   v_period (np.ndarray): array with the same shape as v, containing the</span>
+<span class="sd">    |                          vectors in periodic reduced form</span>
+<span class="sd">    |   v_index (np.ndarray): indices (referring to the original array v) of</span>
+<span class="sd">    |                         the array of which the corresponding element of</span>
+<span class="sd">    |                         v_period is a copy</span>
+<span class="sd">    |   v_cells (np.ndarray): array of triples of ints, corresponding to the</span>
+<span class="sd">    |                         cells from which the various periodic copies of</span>
+<span class="sd">    |                         the vectors were taken. For an unchanged vector</span>
+<span class="sd">    |                         will be all [0,0,0]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">scell_shape</span> <span class="o">=</span> <span class="n">minimum_supcell</span><span class="p">(</span><span class="n">max_r</span><span class="p">,</span> <span class="n">latt_cart</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="n">pbc</span><span class="p">)</span>
+    <span class="n">neigh_i_grid</span><span class="p">,</span> <span class="n">neigh_grid</span> <span class="o">=</span> <span class="n">supcell_gridgen</span><span class="p">(</span><span class="n">latt_cart</span><span class="p">,</span> <span class="n">scell_shape</span><span class="p">)</span>
+    <span class="n">v_period</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">neigh_grid</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">r_copies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v_period</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_r</span><span class="p">)</span>
+    <span class="n">v_period</span> <span class="o">=</span> <span class="n">v_period</span><span class="p">[</span><span class="n">r_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_copies</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">:]</span>
+
+    <span class="k">return</span> <span class="n">v_period</span><span class="p">,</span> <span class="n">r_copies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">neigh_i_grid</span><span class="p">[</span><span class="n">r_copies</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span></div>
+
+
+<div class="viewcode-block" id="is_string"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.is_string">[docs]</a><span class="k">def</span> <span class="nf">is_string</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Checks whether s is a string, with Python 2 and 3 compatibility&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="c1"># It must be Python 3!</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="safe_input"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.safe_input">[docs]</a><span class="k">def</span> <span class="nf">safe_input</span><span class="p">(</span><span class="n">question</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ask for user input with Python 2 and 3 compatibility&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">raw_input</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="c1"># Python 3</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="p">(</span><span class="n">question</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="safe_communicate"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.safe_communicate">[docs]</a><span class="k">def</span> <span class="nf">safe_communicate</span><span class="p">(</span><span class="n">subproc</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Executes a Popen.communicate and returns output in a way that is</span>
+<span class="sd">    compatible with Python 2 &amp; 3 keeping input and output as strings (since</span>
+<span class="sd">    Python 3 requires bytes objects otherwise)&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">subproc</span><span class="o">.</span><span class="n">universal_newlines</span><span class="p">:</span>
+        <span class="n">stdin</span> <span class="o">=</span> <span class="n">stdin</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="s2">&quot;encode&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">stdin</span>
+    <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;decode&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">,</span> <span class="n">subproc</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">stdin</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span></div>
+
+
+<span class="c1"># Inspecting arguments of a function, Python 2 and 3 way</span>
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">inspect</span><span class="p">,</span> <span class="s2">&quot;signature&quot;</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">inspect_args</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="n">fsig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">fsig</span><span class="o">.</span><span class="n">parameters</span>
+        <span class="n">nargs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">nargs_def</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">default</span> <span class="o">!=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Signature</span><span class="o">.</span><span class="n">empty</span><span class="p">])</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">nargs</span><span class="p">,</span> <span class="n">nargs_def</span><span class="p">)</span>
+
+
+<span class="k">else</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">inspect_args</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="n">argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">argspec</span><span class="o">.</span><span class="n">args</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">argspec</span><span class="o">.</span><span class="n">defaults</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">argspec</span><span class="o">.</span><span class="n">defaults</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+
+<span class="c1"># Importing a module from filename with compatibility across Python versions</span>
+
+
+<span class="k">def</span> <span class="nf">import_module</span><span class="p">(</span><span class="n">mpath</span><span class="p">):</span>
+
+    <span class="n">mname</span> <span class="o">=</span> <span class="n">seedname</span><span class="p">(</span><span class="n">mpath</span><span class="p">)</span>
+
+    <span class="c1"># Python 3.5+ version</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">importlib.util</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">mname</span><span class="p">,</span> <span class="n">mpath</span><span class="p">)</span>
+        <span class="n">foo</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">foo</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">foo</span>
+
+    <span class="c1"># Python 3.3-3.4 version</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">SourceFileLoader</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SourceFileLoader</span><span class="p">(</span><span class="n">mname</span><span class="p">,</span> <span class="n">mpath</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">()</span>
+
+    <span class="c1"># Python 2 version</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">imp</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="c1"># Ok, what the hell?</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Could not import file &quot;</span> <span class="o">+</span> <span class="n">mpath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">mname</span><span class="p">,</span> <span class="n">mpath</span><span class="p">)</span>
+
+    <span class="c1"># We should never get here, but...</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="list_distance"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.list_distance">[docs]</a><span class="k">def</span> <span class="nf">list_distance</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return an integer distance between two lists (number of differing</span>
+<span class="sd">    elements)&quot;&quot;&quot;</span>
+
+    <span class="n">ldiff</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">l2</span><span class="p">[:])</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">d</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">([</span><span class="n">ldiff</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">l1</span> <span class="k">if</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">ldiff</span><span class="p">])</span>
+    <span class="n">d</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ldiff</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+
+<div class="viewcode-block" id="swing_twist_decomp"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.swing_twist_decomp">[docs]</a><span class="k">def</span> <span class="nf">swing_twist_decomp</span><span class="p">(</span><span class="n">quat</span><span class="p">,</span> <span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Perform a Swing*Twist decomposition of a Quaternion. This splits the</span>
+<span class="sd">    quaternion in two: one containing the rotation around axis (Twist), the</span>
+<span class="sd">    other containing the rotation around a vector parallel to axis (Swing).</span>
+
+<span class="sd">    Returns two quaternions: Swing, Twist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Current rotation axis</span>
+    <span class="n">ra</span> <span class="o">=</span> <span class="n">quat</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c1"># Ensure that axis is normalised</span>
+    <span class="n">axis_norm</span> <span class="o">=</span> <span class="n">axis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="c1"># Projection of ra along the given axis</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">axis_norm</span><span class="p">)</span> <span class="o">*</span> <span class="n">axis_norm</span>
+    <span class="c1"># Create Twist</span>
+    <span class="n">qin</span> <span class="o">=</span> <span class="p">[</span><span class="n">quat</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+    <span class="n">twist</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="p">(</span><span class="n">qin</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">qin</span><span class="p">))</span>
+    <span class="c1"># And Swing</span>
+    <span class="n">swing</span> <span class="o">=</span> <span class="n">quat</span> <span class="o">*</span> <span class="n">twist</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">swing</span><span class="p">,</span> <span class="n">twist</span></div>
+
+
+<span class="c1"># ### Clebsch-Gordan and Wigner-3j symbols ###</span>
+
+
+<div class="viewcode-block" id="clebsch_gordan"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.clebsch_gordan">[docs]</a><span class="k">def</span> <span class="nf">clebsch_gordan</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clebsch-Gordan cohefficients for given quantum numbers:</span>
+<span class="sd">    j, m, j1, m1, j2, m2</span>
+
+<span class="sd">    The numbers passed can be arrays (just make sure they&#39;re the</span>
+<span class="sd">    same size).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Is it a single value?</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Safety checks</span>
+    <span class="n">jm_all</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">jm_all</span> <span class="o">=</span> <span class="n">jm_all</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">jm_all</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Inconsistent lenghts!</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not all arrays passed have the same size&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">jm_all</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">jm_all</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">jm_all</span><span class="p">[:,</span> <span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid momentum values&quot;</span><span class="p">)</span>
+
+    <span class="n">j</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">jm_all</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># Gotta do this the hard way...</span>
+    <span class="c1"># Find all valid k</span>
+
+    <span class="n">kmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">j1</span> <span class="o">+</span> <span class="n">j2</span> <span class="o">-</span> <span class="n">j</span><span class="p">,</span>  <span class="c1"># j1+j2-j-k &gt;= 0</span>
+            <span class="n">j1</span> <span class="o">-</span> <span class="n">m1</span><span class="p">,</span>  <span class="c1"># j1-m1-k &gt;= 0</span>
+            <span class="n">j2</span> <span class="o">+</span> <span class="n">m2</span><span class="p">,</span>
+        <span class="p">],</span>  <span class="c1"># j2+m2-k &gt;= 0</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">kmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">j</span> <span class="o">*</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># k &gt;= 0</span>
+            <span class="o">-</span><span class="n">j</span> <span class="o">+</span> <span class="n">j2</span> <span class="o">-</span> <span class="n">m1</span><span class="p">,</span>  <span class="c1"># j-j2+m1+k &gt;= 0</span>
+            <span class="o">-</span><span class="n">j</span> <span class="o">+</span> <span class="n">j1</span> <span class="o">+</span> <span class="n">m2</span><span class="p">,</span>
+        <span class="p">],</span>  <span class="c1"># j-j1+m2+k &gt;= 0</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ks</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">k0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">k1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">k0</span><span class="p">,</span> <span class="n">k1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kmin</span><span class="p">,</span> <span class="n">kmax</span><span class="p">)]</span>
+
+    <span class="c1"># Calculate k sum</span>
+    <span class="n">ksum</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="n">k</span>
+            <span class="o">/</span> <span class="p">(</span>
+                <span class="n">factorial</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">j2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">j</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">m1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">m2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">k</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">j2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">m1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">j1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">m2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ks</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">cg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">m</span> <span class="o">==</span> <span class="n">m1</span> <span class="o">+</span> <span class="n">m2</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">j1</span> <span class="o">-</span> <span class="n">j2</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">j1</span> <span class="o">+</span> <span class="n">j2</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j1</span> <span class="o">+</span> <span class="n">j2</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span>
+            <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j1</span> <span class="o">+</span> <span class="n">j2</span> <span class="o">+</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="n">factorial</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">m</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">m</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j1</span> <span class="o">-</span> <span class="n">m1</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j1</span> <span class="o">+</span> <span class="n">m1</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j2</span> <span class="o">-</span> <span class="n">m2</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">j2</span> <span class="o">+</span> <span class="n">m2</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="o">*</span> <span class="n">ksum</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">cg</span> <span class="o">=</span> <span class="n">cg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">cg</span></div>
+
+
+<div class="viewcode-block" id="wigner_3j"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.wigner_3j">[docs]</a><span class="k">def</span> <span class="nf">wigner_3j</span><span class="p">(</span><span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">j3</span><span class="p">,</span> <span class="n">m3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Wigner 3j symbols for given quantum numbers:</span>
+
+<span class="sd">    /                 \</span>
+<span class="sd">    | j1    j2     j3 |</span>
+<span class="sd">    | m1    m2     m3 |</span>
+<span class="sd">    \\                 /</span>
+
+<span class="sd">    The numbers passed can be arrays (just make sure they&#39;re the</span>
+<span class="sd">    same size).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Expressed as a function of Clebsch-Gordan cohefficients</span>
+    <span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">j3</span><span class="p">,</span> <span class="n">m3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">j3</span><span class="p">,</span> <span class="n">m3</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">clebsch_gordan</span><span class="p">(</span><span class="n">j3</span><span class="p">,</span> <span class="o">-</span><span class="n">m3</span><span class="p">,</span> <span class="n">j1</span><span class="p">,</span> <span class="n">m1</span><span class="p">,</span> <span class="n">j2</span><span class="p">,</span> <span class="n">m2</span><span class="p">)</span>
+        <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="p">((</span><span class="n">j1</span> <span class="o">-</span> <span class="n">j2</span> <span class="o">-</span> <span class="n">m3</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">j3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="max_distance_in_cell"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.max_distance_in_cell">[docs]</a><span class="k">def</span> <span class="nf">max_distance_in_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Maximum distance between two points achievable inside a single unit</span>
+<span class="sd">    cell.</span>
+<span class="sd">    Relies on the fact that the isosurface for equal distance in cartesian</span>
+<span class="sd">    space is an ellipsoid, meaning that the extreme has to be one of the 8</span>
+<span class="sd">    corners of the cube of side 1 in fractional space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">corners</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># Upper distance bound in cell</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">corners</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="periodic_bridson"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.periodic_bridson">[docs]</a><span class="k">def</span> <span class="nf">periodic_bridson</span><span class="p">(</span>
+    <span class="n">cell</span><span class="p">,</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">prepoints</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prepoints_cuts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxblock</span><span class="o">=</span><span class="mi">1000</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Periodic version of the Bridson algorithm for generation of Poisson</span>
+<span class="sd">    sphere distributions of points. This returns a generator.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   cell (np.ndarray): periodic cell in which to create the points.</span>
+<span class="sd">    |   rmin (float): minimum distance between each generated point.</span>
+<span class="sd">    |   max_attempts (int): maximum number of candidate neighbours generated</span>
+<span class="sd">    |                       for each point.</span>
+<span class="sd">    |   prepoints (np.ndarray or list): pre-existing points to avoid during</span>
+<span class="sd">    |                                   generation. These must be in</span>
+<span class="sd">    |                                   fractional coordinates.</span>
+<span class="sd">    |   prepoints_cuts (np.ndarray or list): custom cutoffs for each prepoint.</span>
+<span class="sd">    |                                        If not included defaults to rmin.</span>
+<span class="sd">    |   maxblock (int):     maximum size of a grid block to be processed in a</span>
+<span class="sd">    |                       single function (used to avoid excess memory use)</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   bridsonGen (generator): an iterator producing Poisson-sphere like</span>
+<span class="sd">    |                           distributed points in cell until space runs</span>
+<span class="sd">    |                           out or enough attempts fail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. Compute the necessary number of divisions for the cell&#39;s grid</span>
+    <span class="n">ubound</span> <span class="o">=</span> <span class="n">max_distance_in_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">ubound</span> <span class="o">/</span> <span class="n">rmin</span><span class="p">))</span>
+
+    <span class="c1"># 2. Mask for finding existing points that are too close</span>
+    <span class="n">grid_cell</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">/</span> <span class="n">N</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">minimum_supcell</span><span class="p">(</span><span class="n">rmin</span><span class="p">,</span> <span class="n">grid_cell</span><span class="p">)</span>
+    <span class="c1"># Is it valid?</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Value of rmin is too big for this unit cell&quot;</span><span class="p">)</span>
+    <span class="n">checkMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">],</span>
+            <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">checkMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">checkMask</span><span class="o">.</span><span class="n">T</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span>
+    <span class="c1"># 2.5 Mask for searching neighbours</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">minimum_supcell</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">rmin</span><span class="p">,</span> <span class="n">grid_cell</span><span class="p">)</span>
+    <span class="n">newMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">i</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">],</span>
+            <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">newMask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">newMask</span><span class="o">.</span><span class="n">T</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># 3. Now generate the grid</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">grid_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="c1"># 3.5 if there are prepoints, fill in the grid cells that are too close to</span>
+    <span class="c1"># begin with</span>
+    <span class="k">if</span> <span class="n">prepoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prepoints_cuts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prepoints_cuts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">prepoints</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">rmin</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prepoints_cuts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">prepoints_cuts</span><span class="p">)</span>
+        <span class="c1"># Create corner points for cells</span>
+        <span class="n">grid_origins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">cell_corners</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="o">*</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i0</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span> <span class="o">**</span> <span class="mi">3</span><span class="p">,</span> <span class="n">maxblock</span><span class="p">):</span>
+            <span class="n">go</span> <span class="o">=</span> <span class="n">grid_origins</span><span class="p">[:,</span> <span class="n">i0</span> <span class="p">:</span> <span class="n">i0</span> <span class="o">+</span> <span class="n">maxblock</span><span class="p">]</span>
+            <span class="n">grid_corners</span> <span class="o">=</span> <span class="p">(</span><span class="n">go</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">cell_corners</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">N</span>
+            <span class="n">dfx</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">prepoints</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">-</span> <span class="n">grid_corners</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">+</span> <span class="mf">0.5</span>
+            <span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">dfx</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">prepoints_cuts</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">grid</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">grid_origins</span><span class="p">[:,</span> <span class="n">i0</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">full</span><span class="p">)[</span><span class="mi">0</span><span class="p">]])]</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="c1"># 4. And the queue with a random, non-occupied grid point</span>
+    <span class="k">if</span> <span class="n">prepoints</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">free_ijk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">grid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">free_ijk</span><span class="p">[:,</span> <span class="n">Random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">free_ijk</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]]</span>
+
+    <span class="c1"># Start iterations</span>
+    <span class="k">while</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">grid</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">N</span> <span class="o">**</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># While there is still free space and queued points...</span>
+        <span class="n">iter_ijk0</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">iter_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">newMask</span> <span class="o">+</span> <span class="n">iter_ijk0</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">%</span> <span class="n">N</span>
+        <span class="n">attempts</span> <span class="o">=</span> <span class="n">max_attempts</span>
+
+        <span class="c1"># Try to generate points around the dequeued cell</span>
+        <span class="k">while</span> <span class="n">attempts</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">attempts</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">candidates</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="n">iter_mask</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">iter_mask</span><span class="p">)]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)][:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">good</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">candidates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">Random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">candidates</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">ijk</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+            <span class="c1"># Pick the point</span>
+            <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="n">ijk</span> <span class="o">+</span> <span class="n">Random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="o">/</span> <span class="n">N</span>
+            <span class="c1"># Check it</span>
+            <span class="n">near_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">checkMask</span> <span class="o">+</span> <span class="n">ijk</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">%</span> <span class="n">N</span>
+            <span class="n">near_points</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">near_mask</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">near_mask</span><span class="p">)]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)])</span>
+            <span class="n">near_points</span> <span class="o">=</span> <span class="n">grid_points</span><span class="p">[</span><span class="n">near_points</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Distances?</span>
+            <span class="k">if</span> <span class="n">near_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dfx</span> <span class="o">=</span> <span class="p">(</span><span class="n">near_points</span> <span class="o">-</span> <span class="n">fp</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dfx</span><span class="p">,</span> <span class="n">cell</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">good</span> <span class="o">=</span> <span class="ow">not</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">rmin</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">good</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># Additional check: verify against prepoints</span>
+            <span class="k">if</span> <span class="n">good</span> <span class="ow">and</span> <span class="n">prepoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dfx</span> <span class="o">=</span> <span class="p">(</span><span class="n">prepoints</span> <span class="o">-</span> <span class="n">fp</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dfx</span><span class="p">,</span> <span class="n">cell</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">good</span> <span class="o">=</span> <span class="ow">not</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="n">prepoints_cuts</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">good</span><span class="p">:</span>
+                <span class="n">grid</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ijk</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">grid_points</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">ijk</span><span class="p">)]</span> <span class="o">=</span> <span class="n">fp</span>
+                <span class="n">queue</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ijk</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">cell</span><span class="p">)</span>
+
+    <span class="c1"># So once we&#39;re here we ran out of options...</span>
+    <span class="k">return</span></div>
+
+
+<span class="c1"># Function for creating labels for molecule sites</span>
+
+
+<div class="viewcode-block" id="recursive_mol_label"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.recursive_mol_label">[docs]</a><span class="k">def</span> <span class="nf">recursive_mol_label</span><span class="p">(</span><span class="n">site_i</span><span class="p">,</span> <span class="n">mol_indices</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">elems</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a string for a given atom by traversing the molecular network</span>
+<span class="sd">    starting with it.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   site_i (int): index of the atom for which the string must be</span>
+<span class="sd">    |                 calculated</span>
+<span class="sd">    |   mol_indices ([int]): indices of all atoms belonging to the molecule</span>
+<span class="sd">    |   bonds (dict): dictionary of bonds within the molecule, containing</span>
+<span class="sd">    |                 the indices of atoms as keys and lists of all the</span>
+<span class="sd">    |                 indices of atoms they&#39;re bonded to as values.</span>
+<span class="sd">    |   elems ([str]): list of element symbols for the entire system (must</span>
+<span class="sd">    |                  be returned by ase.Atoms&#39; get_chemical_symbols, NOT</span>
+<span class="sd">    |                  follow the order the atoms appear in mol_indices)</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   recursive_label (str): a string representing the molecular network</span>
+<span class="sd">    |                          traversed starting from site i</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">site_i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mol_indices</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Molecule does not contain given atom&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">recursive_label</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">to_visit</span><span class="p">):</span>
+        <span class="c1"># Remove from to_visit</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_visit</span><span class="p">:</span>
+            <span class="n">to_visit</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">my_bonds</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">to_visit</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">my_bonds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">bonded_label</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">recursive_label</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">to_visit</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">my_bonds</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">bonded_label</span> <span class="o">=</span> <span class="p">[</span><span class="n">bl</span> <span class="k">for</span> <span class="n">bl</span> <span class="ow">in</span> <span class="n">bonded_label</span> <span class="k">if</span> <span class="n">bl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">[</span><span class="si">{1}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bonded_label</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="n">to_visit</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mol_indices</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">recursive_label</span><span class="p">(</span><span class="n">site_i</span><span class="p">,</span> <span class="n">bonds</span><span class="p">,</span> <span class="n">to_visit</span><span class="p">)</span></div>
+
+
+<span class="c1"># Utilities for bonding graphs</span>
+
+
+<span class="nd">@requireNetworkX</span><span class="p">(</span><span class="s2">&quot;nx&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_bonding_graph</span><span class="p">(</span><span class="n">bond_mat</span><span class="p">,</span> <span class="n">nx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">bond_mat</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_bonding_distance"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.get_bonding_distance">[docs]</a><span class="nd">@requireNetworkX</span><span class="p">(</span><span class="s2">&quot;nx&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_bonding_distance</span><span class="p">(</span><span class="n">bond_graph</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">nx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Distance in bonds, returns -1 if the two are not connected&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">shortest_path_length</span><span class="p">(</span><span class="n">bond_graph</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">nx</span><span class="o">.</span><span class="n">NetworkXNoPath</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">d</span></div>
+
+
+<span class="c1"># Utilities for clustering with scikit-learn</span>
+
+
+<div class="viewcode-block" id="get_sklearn_clusters"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.get_sklearn_clusters">[docs]</a><span class="nd">@requireScikitLearn</span><span class="p">(</span><span class="s2">&quot;sk&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_sklearn_clusters</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">sk</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Cluster points using given method if found in sklearn.clusters module.</span>
+<span class="sd">    Use params as a dictionary of parameters passed to the method.&quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">__import__</span><span class="p">(</span><span class="s2">&quot;sklearn.cluster&quot;</span><span class="p">)</span>  <span class="c1"># Avoids some weird ImportErrors. WTF.</span>
+        <span class="n">clustObj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="s2">&quot;cluster&quot;</span><span class="p">)</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Requested method is not present in scikit-learn&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid parameters for method </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">clustObj</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
+
+
+<span class="c1"># Symmetric analysis utilities</span>
+
+
+<div class="viewcode-block" id="compute_asymmetric_distmat"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.compute_asymmetric_distmat">[docs]</a><span class="nd">@requireSpglib</span><span class="p">(</span><span class="s2">&quot;spg&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">compute_asymmetric_distmat</span><span class="p">(</span>
+    <span class="n">struct</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">,</span>
+    <span class="n">linearized</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">return_images</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">images_centre</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">symprec</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span>
+    <span class="n">spg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a symmetric structure, compute a distance matrix for the given</span>
+<span class="sd">    fractional coordinate points which contains only the distances between</span>
+<span class="sd">    their closest symmetry equivalent sites in the asymmetric unit cell.</span>
+
+<span class="sd">    Distances are computed in *fractional coordinates* space and are not</span>
+<span class="sd">    real distances. They do not necessarily map to real space distances</span>
+<span class="sd">    either. Their purpose is merely to group points together by removing the</span>
+<span class="sd">    effects of symmetry operations.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   struct (ase.Atoms): the structure from which to extract the symmetry</span>
+<span class="sd">    |                       operations</span>
+<span class="sd">    |   points (np.ndarray): list of points, in fractional coordinates, to</span>
+<span class="sd">    |                        compute the distance matrix for</span>
+<span class="sd">    |   linearized (bool):  if True, returns only the linearised upper</span>
+<span class="sd">    |                       triangle of the distance matrix, in the format</span>
+<span class="sd">    |                       accepted by scipy.cluster.hierarchy.linkage.</span>
+<span class="sd">    |                       Default is True</span>
+<span class="sd">    |   return_images (bool): if True, return also a list of the closest</span>
+<span class="sd">    |                         images for each point. The closest</span>
+<span class="sd">    |                         symmetric image to images_centre is chosen.</span>
+<span class="sd">    |   images_centre (int or np.ndarray): centre to use to compute closest</span>
+<span class="sd">    |                                      images. If an integer, uses the</span>
+<span class="sd">    |                                      given point of that index. If a</span>
+<span class="sd">    |                                      vector, uses the given coordinates.</span>
+<span class="sd">    |                                      Should not be a high symmetry point.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   distmat (np.ndarray): distance matrix for points</span>
+<span class="sd">    |   images (np.ndarray): closest point images (only if return_images is</span>
+<span class="sd">    |                        True)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Get symmetry operations</span>
+    <span class="n">symm</span> <span class="o">=</span> <span class="n">spg</span><span class="o">.</span><span class="n">get_symmetry_dataset</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">symprec</span><span class="o">=</span><span class="n">symprec</span><span class="p">)</span>
+    <span class="n">rots</span> <span class="o">=</span> <span class="n">symm</span><span class="p">[</span><span class="s2">&quot;rotations&quot;</span><span class="p">]</span>
+    <span class="n">transls</span> <span class="o">=</span> <span class="n">symm</span><span class="p">[</span><span class="s2">&quot;translations&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">linearized</span><span class="p">:</span>
+        <span class="n">distmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">distmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+    <span class="n">all_images</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="n">transls</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">%</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">return_images</span><span class="p">:</span>
+        <span class="n">closest_images</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">images_centre</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">im0</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">images_centre</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">im0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">images_centre</span><span class="p">)</span>
+
+        <span class="c1"># Check im0</span>
+        <span class="n">im0_symm</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">im0</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="n">transls</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">im0_symm</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">im0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Images centre is a high symmetry point, results may&quot;</span> <span class="s2">&quot; be incorrect&quot;</span><span class="p">,</span>
+                <span class="ne">RuntimeWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span><span class="n">all_images</span> <span class="o">-</span> <span class="n">im0</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="n">rf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">minrf_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">rf</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">closest_images</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">minrf_i</span><span class="p">,</span> <span class="p">:,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">)]</span> <span class="o">+</span> <span class="n">im0</span>
+
+    <span class="c1"># Here we avoid full vectorisation to be safe against memory clutter.</span>
+    <span class="c1"># Though it also means it&#39;s slower...</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">all_images</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">all_images</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="p">)</span> <span class="o">%</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="n">rf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">minrf_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">rf</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">minrf</span> <span class="o">=</span> <span class="n">rf</span><span class="p">[</span><span class="n">minrf_i</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+        <span class="k">if</span> <span class="n">linearized</span><span class="p">:</span>
+            <span class="n">distmat</span><span class="p">[</span>
+                <span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">minrf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">distmat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">minrf</span>
+            <span class="n">distmat</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">distmat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">return_images</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">distmat</span><span class="p">,</span> <span class="n">closest_images</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">distmat</span></div>
+
+
+<span class="c1"># Repulsion algorithm to find the best place to add an atom</span>
+
+
+<div class="viewcode-block" id="rep_alg"><a class="viewcode-back" href="../../_autosummary/soprano.utils.html#soprano.utils.rep_alg">[docs]</a><span class="k">def</span> <span class="nf">rep_alg</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">iters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">,</span> <span class="n">simtol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Repulsion algorithm, begins with a series of vectors v, finds a new one</span>
+<span class="sd">    that is as far as possible, angle-wise, from all of them.</span>
+<span class="sd">    The process is that of treating the tips of the vectors as particles on a</span>
+<span class="sd">    sphere which repel each other. Of course, it&#39;s possible that multiple</span>
+<span class="sd">    equilibrium positions exist, which is why multiple attempts can be made,</span>
+<span class="sd">    and are judged identical or not based on a tolerance parameter</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   v (np.ndarray): list of fixed vectors to avoid</span>
+<span class="sd">    |   iters (int): number of iterations, default is 1000</span>
+<span class="sd">    |   attempts (int): number of independent attempts with randomised starts,</span>
+<span class="sd">    |                   default is 10</span>
+<span class="sd">    |   step (float): step by which the &#39;particle&#39; describing the vector will</span>
+<span class="sd">    |                 be displaced at each iteration during the search.</span>
+<span class="sd">    |                 Default is 1e-1.</span>
+<span class="sd">    |   simtol (float): tolerance based on which two attempts are considered to</span>
+<span class="sd">    |                   be effectively the same, checking if 1-v1.v2 &lt; simtol.</span>
+<span class="sd">    |                   Default is 1e-5.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   out_v ([np.ndarray]): list of unit vectors of maximal distance from</span>
+<span class="sd">    |                         the ones in v</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># First, normalise the v vectors</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="n">out_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">attempts</span><span class="p">):</span>
+
+        <span class="c1"># Random initialisation</span>
+        <span class="n">o_v</span> <span class="o">=</span> <span class="n">Random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="n">o_v</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">o_v</span><span class="p">)</span>
+
+        <span class="c1"># Iterate</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">iters</span><span class="p">):</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="n">o_v</span> <span class="o">-</span> <span class="n">v</span>
+            <span class="n">F</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">do_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">do_v</span> <span class="o">*=</span> <span class="n">step</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">do_v</span><span class="p">)</span>
+            <span class="n">o_v</span> <span class="o">+=</span> <span class="n">do_v</span>
+            <span class="n">o_v</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">o_v</span><span class="p">)</span>
+
+        <span class="c1"># Check for similarities</span>
+        <span class="n">sim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">out_v</span><span class="p">,</span> <span class="n">o_v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">sim</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">simtol</span><span class="p">):</span>
+            <span class="n">out_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">out_v</span><span class="p">,</span> <span class="n">o_v</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out_v</span></div>
+
+
+<span class="k">def</span> <span class="nf">graph_specsort</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+    <span class="c1"># Spectral sorting of a graph from its Laplacian matrix</span>
+
+    <span class="n">evals</span><span class="p">,</span> <span class="n">evecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+    <span class="c1"># Fiedler vector</span>
+    <span class="n">fied</span> <span class="o">=</span> <span class="n">evecs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Sign convention: more positive than negative components</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">evals</span><span class="p">)</span>
+    <span class="n">fied</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fied</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="k">else</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">fied</span><span class="p">)</span>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

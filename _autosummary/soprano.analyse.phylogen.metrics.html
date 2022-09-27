@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.analyse.phylogen.metrics &#8212; Soprano</title>
     
@@ -625,18 +625,116 @@ title="Print to PDF"
 <p>Utility functions to compare clusterings and evaluate similarity</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">confmat</span></code>(clust1, clust2)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.metrics.confmat" title="soprano.analyse.phylogen.metrics.confmat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confmat</span></code></a>(clust1, clust2)</p></td>
 <td><p>Calculate the confusion matrix for two clusterings of the same collection.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fowles_mallows_index</span></code>(clust1, clust2)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.metrics.fowles_mallows_index" title="soprano.analyse.phylogen.metrics.fowles_mallows_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fowles_mallows_index</span></code></a>(clust1, clust2)</p></td>
 <td><p>Calculate the Fowles-Mallows index, a measure of similarity between two clusterings defined as:</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_confmat</span></code>(clust1, clust2)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.metrics.norm_confmat" title="soprano.analyse.phylogen.metrics.norm_confmat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">norm_confmat</span></code></a>(clust1, clust2)</p></td>
 <td><p>Calculate the normalised confusion matrix for two clusterings of the same collection.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.analyse.phylogen.metrics.confmat">
+<code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.metrics.</span></code><code class="sig-name descname"><span class="pre">confmat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clust1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clust2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/metrics.html#confmat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.metrics.confmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the confusion matrix for two clusterings of the same
+collection. The confusion matrix is defined so that element i,j contains
+the number of elements that are in common between cluster i of the first
+clustering and cluster j of the second:</p>
+<p>M[i,j] = len(set(c[i]).intersection(c[j]))</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">clust1 (list): a series of clusters in the form of a list of slices,</div>
+<div class="line-block">
+<div class="line">like the second value returned by one of the clustering</div>
+<div class="line">methods in PhylogenCluster.</div>
+</div>
+<div class="line">clust2 (list): same as above.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">confmat (np.ndarray): confusion matrix for the two clusterings.</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.analyse.phylogen.metrics.fowles_mallows_index">
+<code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.metrics.</span></code><code class="sig-name descname"><span class="pre">fowles_mallows_index</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clust1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clust2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/metrics.html#fowles_mallows_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.metrics.fowles_mallows_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Fowles-Mallows index, a measure of similarity between two
+clusterings defined as:</p>
+<p>F = (WI*WII)**0.5</p>
+<p>with</p>
+<p>WI = N11/sum_k(n_k*(n_k-1)/2)
+WII = N11/sum_k(n’_k*(n’_k-1)/2)</p>
+<p>with N11 being the number of pairs of points that are in the same cluster
+in both clusterings, and n_k (n’_k) the number of elements in cluster k
+of the first (second) clustering.</p>
+<p>Ref:
+Fowlkes, E. B.; Mallows, C. L. (1 September 1983).
+“A Method for Comparing Two Hierarchical Clusterings”.
+Journal of the American Statistical Association. 78 (383): 553.
+doi:10.2307/2288117</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">clust1 (list): a series of clusters in the form of a list of slices,</div>
+<div class="line-block">
+<div class="line">like the second value returned by one of the clustering</div>
+<div class="line">methods in PhylogenCluster.</div>
+</div>
+<div class="line">clust2 (list): same as above.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">fm_ind (float): the Fowles-Mallows index</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.analyse.phylogen.metrics.norm_confmat">
+<code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.metrics.</span></code><code class="sig-name descname"><span class="pre">norm_confmat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clust1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clust2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/metrics.html#norm_confmat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.metrics.norm_confmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the normalised confusion matrix for two clusterings of the
+same collection. The confusion matrix is defined as in the docstring of
+confmat. For the normalisation, each element i,j is divided by the
+geometric mean of the sizes of cluster i of the first clustering and
+cluster j of the second:</p>
+<p>NM[i,j] = M[i,j]/(len(c[i])*len(c[j]))**0.5</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">clust1 (list): a series of clusters in the form of a list of slices,</div>
+<div class="line-block">
+<div class="line">like the second value returned by one of the clustering</div>
+<div class="line">methods in PhylogenCluster.</div>
+</div>
+<div class="line">clust2 (list): same as above.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">nconfmat (np.ndarray): normalised confusion matrix for the two</div>
+<div class="line-block">
+<div class="line">clusterings.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

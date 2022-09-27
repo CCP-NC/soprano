@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.hpc.submitter.queues &#8212; Soprano</title>
     
@@ -625,12 +625,156 @@ title="Print to PDF"
 <p>Definition of QueueInterface class.</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">QueueInterface</span></code>(sub_cmd, list_cmd, kill_cmd, …)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.hpc.submitter.queues.QueueInterface" title="soprano.hpc.submitter.queues.QueueInterface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QueueInterface</span></code></a>(sub_cmd, list_cmd, kill_cmd, …)</p></td>
 <td><p>QueueInterface object</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.hpc.submitter.queues.QueueInterface">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.queues.</span></code><code class="sig-name descname"><span class="pre">QueueInterface</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kill_cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_outre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_outre</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_user_opt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/queues.html#QueueInterface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>QueueInterface object</p>
+<p>A class meant to simplify interfacing in a basic way
+with a Queue system. Contains commands to submit to the queue, list the
+job IDs, and kill them if necessary. Will contain Regexps to parse for IDs
+and additional information as returned upon submission and listing.
+It is important that the regular expressions used employ NAMED GROUPS to
+parse the various fields. In particular, a job_id group must ALWAYS be
+present.
+The class also provides some static variables implementing standard
+interfaces for common queueing systems. These can be retrieved by using
+QueueInterface.&lt;NAME&gt;. The currently implemented names are the following:</p>
+<ul class="simple">
+<li><p>LSF (IBM’s managing system, using the command bsub)</p></li>
+<li><dl class="simple">
+<dt>GridEngine (Sun’s managing system, also available in an open version,</dt><dd><p>using the command qsub)</p>
+</dd>
+</dl>
+</li>
+<li><p>PBS (another managing system using qsub)</p></li>
+</ul>
+<p>Initialize the QueueInterface.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">sub_cmd (str): command used to submit a script to the queue</div>
+<div class="line">list_cmd (str): command used to list all queued jobs for the user</div>
+<div class="line">kill_cmd (str): command used to kill a job given its id</div>
+<div class="line">sub_outre (str): regular expression used to parse the output of</div>
+<div class="line-block">
+<div class="line">sub_cmd. Must contain at least a job_id named</div>
+<div class="line">group</div>
+</div>
+<div class="line">list_outre (str): regular expression used to parse the output of</div>
+<div class="line-block">
+<div class="line">list_cmd. Must contain at least a job_id named</div>
+<div class="line">group</div>
+</div>
+<div class="line">list_user_opt (Optional[str]): name of the option for passing a</div>
+<div class="line-block">
+<div class="line">specific user name when listing</div>
+<div class="line">jobs. For example, on LSF this is</div>
+<div class="line">-u. By default it’s None, and the</div>
+<div class="line">default of the queueing system is</div>
+<div class="line">used.</div>
+</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.kill">
+<code class="sig-name descname"><span class="pre">kill</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/queues.html#QueueInterface.kill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.kill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the job with the given ID</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">job_id (str): ID of the job to kill</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.list">
+<code class="sig-name descname"><span class="pre">list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'$USER'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/queues.html#QueueInterface.list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all jobs found in the queue</p>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">jobs (dict): a dict of jobs classified by ID containing all info</div>
+<div class="line-block">
+<div class="line">that can be matched through list_outre</div>
+</div>
+<div class="line">user (Optional[str]): user for whom jobs should be listed. Will</div>
+<div class="line-block">
+<div class="line">not have any effect if list_user_opt has not</div>
+<div class="line">been specified. Default is $USER.</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.remote_target">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">remote_target</span></code><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.remote_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>RemoteTarget if a remote Host is set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.set_remote_host">
+<code class="sig-name descname"><span class="pre">set_remote_host</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/queues.html#QueueInterface.set_remote_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.set_remote_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a remote host for use by this QueueInterface</p>
+<p>If a remote host is set, this Interface will try using the Paramiko
+library to connect to it via SSH. Check the docstring of
+soprano.hpc.submitter.utils.RemoteTarget to see what the limitations
+are for this usage.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">host (Optional[str]): host name of the remote machine to connect</div>
+<div class="line-block">
+<div class="line">to. Further information must be contained in</div>
+<div class="line">the user’s ~/.ssh/config file. If left empty</div>
+<div class="line">the remote host is UNSET and therefore the</div>
+<div class="line">interface goes back to local use.</div>
+</div>
+<div class="line">timeout (Optional[float]): connection timeout in seconds (default</div>
+<div class="line-block">
+<div class="line">is 1 second)</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.queues.QueueInterface.submit">
+<code class="sig-name descname"><span class="pre">submit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/queues.html#QueueInterface.submit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.queues.QueueInterface.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Submit a job to the queue.x</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">script (str): content of the submission script</div>
+<div class="line">cwd (Optional[str]): path to the desired working directory</div>
+<div class="line"><br /></div>
+</div>
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">job_id (str): the job ID assigned by the queue system and parsed</div>
+<div class="line-block">
+<div class="line">with sub_outre</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

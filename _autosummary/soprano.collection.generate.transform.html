@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.collection.generate.transform &#8212; Soprano</title>
     
@@ -625,12 +625,50 @@ title="Print to PDF"
 <p>Generator producing structures by repeatedly applying a transform</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformGen</span></code>(struct_0, transform[, steps])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.collection.generate.transform.transformGen" title="soprano.collection.generate.transform.transformGen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transformGen</span></code></a>(struct_0, transform[, steps])</p></td>
 <td><p>Generator function to create multiple structures with positions interpolated linearly between two extremes.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.collection.generate.transform.transformGen">
+<code class="sig-prename descclassname"><span class="pre">soprano.collection.generate.transform.</span></code><code class="sig-name descname"><span class="pre">transformGen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">struct_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/collection/generate/transform.html#transformGen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.collection.generate.transform.transformGen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator function to create multiple structures with positions
+interpolated linearly between two extremes.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">struct_0 (ase.Atoms): the starting structure</div>
+<div class="line">transform (function): the transform to apply on the given structure.</div>
+<div class="line-block">
+<div class="line">Must accept and return a structure as only</div>
+<div class="line">arguments. Instances of all transforms from the</div>
+<div class="line">soprano.properties.transform module satisfy</div>
+<div class="line">these conditions.</div>
+</div>
+<div class="line">steps (Optional[int]): number of times to apply the transform.</div>
+<div class="line-block">
+<div class="line">Default is 10</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">linspaceGenerator (generator): an iterator object that yields</div>
+<div class="line-block">
+<div class="line">structures created by linear</div>
+<div class="line">interpolation.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

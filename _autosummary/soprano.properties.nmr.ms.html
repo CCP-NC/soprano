@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.properties.nmr.ms &#8212; Soprano</title>
     
@@ -625,33 +625,878 @@ title="Print to PDF"
 <p>Implementation of AtomsProperties that relate to NMR shieldings/shifts</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSAnisotropy</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSAnisotropy" title="soprano.properties.nmr.ms.MSAnisotropy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSAnisotropy</span></code></a>([name])</p></td>
 <td><p>Produces an array containing the magnetic shielding anisotropies in a system (ppm).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSAsymmetry</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSAsymmetry" title="soprano.properties.nmr.ms.MSAsymmetry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSAsymmetry</span></code></a>([name])</p></td>
 <td><p>Produces an array containing the magnetic shielding asymmetries in a system (adimensional).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSDiagonal</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSDiagonal" title="soprano.properties.nmr.ms.MSDiagonal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSDiagonal</span></code></a>([name])</p></td>
 <td><p>Produces an array containing eigenvalues and eigenvectors for the symmetric part of each magnetic shielding tensor in the system.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSIsotropy</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSIsotropy" title="soprano.properties.nmr.ms.MSIsotropy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSIsotropy</span></code></a>([name])</p></td>
 <td><p>Produces an array containing the magnetic shielding isotropies in a system (ppm, with reference if provided).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSQuaternion</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSQuaternion" title="soprano.properties.nmr.ms.MSQuaternion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSQuaternion</span></code></a>([name])</p></td>
 <td><p>Produces a list of ase.Quaternion objects expressing the orientation of the MS tensors with respect to the cartesian axes.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSReducedAnisotropy</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSReducedAnisotropy" title="soprano.properties.nmr.ms.MSReducedAnisotropy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSReducedAnisotropy</span></code></a>([name])</p></td>
 <td><p>Produces an array containing the magnetic shielding reduced anisotropies in a system (ppm).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSSkew</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSSkew" title="soprano.properties.nmr.ms.MSSkew"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSSkew</span></code></a>([name])</p></td>
 <td><p>Produces an array containing the magnetic shielding tensor skew in a system.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSSpan</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.nmr.ms.MSSpan" title="soprano.properties.nmr.ms.MSSpan"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MSSpan</span></code></a>([name])</p></td>
 <td><p>Produces an array containing the magnetic shielding tensor span in a system (ppm).</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSAnisotropy">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSAnisotropy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSAnisotropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSAnisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing the magnetic shielding anisotropies in a
+system (ppm).
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_list (np.ndarray): list of anisotropies</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSAnisotropy.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAnisotropy.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSAnisotropy.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAnisotropy.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSAsymmetry">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSAsymmetry</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSAsymmetry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSAsymmetry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing the magnetic shielding asymmetries
+in a system (adimensional).
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_list (np.ndarray): list of asymmetries</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSAsymmetry.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAsymmetry.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSAsymmetry.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSAsymmetry.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSDiagonal">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSDiagonal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSDiagonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSDiagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing eigenvalues and eigenvectors for the
+symmetric part of each magnetic shielding tensor in the system. By default
+saves them as part of the Atoms’ arrays as well.
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">save_array (bool): if True, save the diagonalised tensors in the</div>
+<div class="line-block">
+<div class="line">Atoms object as an array. By default True.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_diag (np.ndarray): list of eigenvalues and eigenvectors</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSDiagonal.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSDiagonal.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSDiagonal.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSDiagonal.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSIsotropy">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSIsotropy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSIsotropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSIsotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing the magnetic shielding isotropies in a system
+(ppm, with reference if provided).
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">ref (float): reference frequency. If provided, the chemical shift</div>
+<div class="line-block">
+<div class="line">will be returned instead of the magnetic shielding.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_iso (np.ndarray): list of shieldings/shifts</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSIsotropy.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSIsotropy.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSIsotropy.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSIsotropy.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSQuaternion">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSQuaternion</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSQuaternion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSQuaternion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces a list of ase.Quaternion objects expressing the orientation of
+the MS tensors with respect to the cartesian axes.
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_quat (np.ndarray): list of quaternions</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSQuaternion.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSQuaternion.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSQuaternion.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSQuaternion.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSReducedAnisotropy">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSReducedAnisotropy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSReducedAnisotropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSReducedAnisotropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing the magnetic shielding reduced anisotropies
+in a system (ppm).
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_list (np.ndarray): list of reduced anisotropies</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSReducedAnisotropy.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSReducedAnisotropy.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSReducedAnisotropy.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSReducedAnisotropy.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSSkew">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSSkew</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSSkew"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing the magnetic shielding tensor skew
+in a system.
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_list (np.ndarray): list of skews</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSSkew.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSSkew.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSkew.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.nmr.ms.MSSpan">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.nmr.ms.</span></code><code class="sig-name descname"><span class="pre">MSSpan</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/nmr/ms.html#MSSpan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.nmr.ms.MSSpan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Produces an array containing the magnetic shielding tensor span
+in a system (ppm).
+Requires the Atoms object to have been loaded from a .magres file
+containing the relevant information.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">force_recalc (bool): if True, always diagonalise the tensors even if</div>
+<div class="line-block">
+<div class="line">already present.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">ms_list (np.ndarray): list of spans</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSSpan.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSpan.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.nmr.ms.MSSpan.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.nmr.ms.MSSpan.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

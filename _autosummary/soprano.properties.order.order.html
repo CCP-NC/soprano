@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.properties.order.order &#8212; Soprano</title>
     
@@ -625,12 +625,194 @@ title="Print to PDF"
 <p>Implementation of AtomsProperties that relate to bond order parameters</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BondOrder</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.order.order.BondOrder" title="soprano.properties.order.order.BondOrder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BondOrder</span></code></a>([name])</p></td>
 <td><p>Computes the order parameters defined by Steinhardt et al. [PRB 28, 784 (1983)] for an atom or group of atoms in the system.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.properties.order.order.BondOrder">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.order.order.</span></code><code class="sig-name descname"><span class="pre">BondOrder</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/order/order.html#BondOrder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.order.order.BondOrder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Computes the order parameters defined by Steinhardt et al. [PRB 28, 784
+(1983)] for an atom or group of atoms in the system. Here for each atom
+all closest periodic copies of the others are used; a sigmoidal cutoff is
+used to reduce the impact of those beyond a certain distance while keeping
+the behaviour smooth upon small fluctuations.</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">l_channels (list[int]): list of angular momentum channels to be used</div>
+<div class="line-block">
+<div class="line">for the calculation. Must be integers &gt;= 1.</div>
+<div class="line">Default is all channels 1 to 10.</div>
+</div>
+<div class="line">center_atoms (AtomSelection): AtomSelection, integer index or list of</div>
+<div class="line-block">
+<div class="line">indices of all atoms around which the</div>
+<div class="line">bond order parameters are to be computed</div>
+<div class="line">and summed over. Default is None, which</div>
+<div class="line">means all atoms of the system.</div>
+</div>
+<div class="line">environment_atoms (AtomSelection): AtomSelection, integer index or</div>
+<div class="line-block">
+<div class="line">list of indices of all atoms that</div>
+<div class="line">used as environment to compute the</div>
+<div class="line">bond order parameters. For each</div>
+<div class="line">‘center’ atom, all its links to</div>
+<div class="line">‘environment’ atoms other than</div>
+<div class="line">itself will be considered. Default</div>
+<div class="line">is None, which means all atoms of</div>
+<div class="line">the system.</div>
+</div>
+<div class="line">cutoff_radius (float): radius at which to cut the smoothing sigmoid</div>
+<div class="line-block">
+<div class="line">function, in Angstroms. Default is 2.0.</div>
+</div>
+<div class="line">cutoff_width (float): width parameter of the sigmoid, controlling the</div>
+<div class="line-block">
+<div class="line">steepness with which it falls to zero, in</div>
+<div class="line">Angstroms. Default is 0.05.</div>
+</div>
+<div class="line">compute_W (bool): whether to also compute the W parameter (third</div>
+<div class="line-block">
+<div class="line">order) besides the Q (second order).</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">bond_order_pars (dict): dictionary containing arrays with Q and, if</div>
+<div class="line-block">
+<div class="line">required, W for each l in l_channels.</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.order.order.BondOrder.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.order.order.BondOrder.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.order.order.BondOrder.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/order/order.html#BondOrder.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.order.order.BondOrder.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.order.order.BondOrder.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.order.order.BondOrder.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.properties.order.order._steinhardt_pars">
+<code class="sig-prename descclassname"><span class="pre">soprano.properties.order.order.</span></code><code class="sig-name descname"><span class="pre">_steinhardt_pars</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vecs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_W</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/order/order.html#_steinhardt_pars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.order.order._steinhardt_pars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the Steinhardt bond order parameters (Q and optionally W)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.properties.order.order._valid_triples">
+<code class="sig-prename descclassname"><span class="pre">soprano.properties.order.order.</span></code><code class="sig-name descname"><span class="pre">_valid_triples</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/order/order.html#_valid_triples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.order.order._valid_triples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Valid triples for angular momentum l for which m1 + m2 + m3 = 0</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

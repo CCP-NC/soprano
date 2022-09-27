@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.calculate.nmr.simpson &#8212; Soprano</title>
     
@@ -625,23 +625,123 @@ title="Print to PDF"
 <p>Classes and functions for interfacing with the SIMPSON spin dynamics software.</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simpson_dat</span></code>(filename)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.nmr.simpson.load_simpson_dat" title="soprano.calculate.nmr.simpson.load_simpson_dat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_simpson_dat</span></code></a>(filename)</p></td>
 <td><p>Load a SIMPSON output .dat file and return it as a numpy array.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_spinsys</span></code>(s[, isotope_list, use_ms, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.calculate.nmr.simpson.write_spinsys" title="soprano.calculate.nmr.simpson.write_spinsys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_spinsys</span></code></a>(s[, isotope_list, use_ms, …])</p></td>
 <td><p>Write a .spinsys input file for use with SIMPSON, given the details of a system.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimpsonSequence</span></code>(spinsys_source)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.nmr.simpson.SimpsonSequence" title="soprano.calculate.nmr.simpson.SimpsonSequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimpsonSequence</span></code></a>(spinsys_source)</p></td>
 <td><p>A class storing parameters and scripts for the production of a SIMPSON input file.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.calculate.nmr.simpson.SimpsonSequence">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.calculate.nmr.simpson.</span></code><code class="sig-name descname"><span class="pre">SimpsonSequence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spinsys_source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/nmr/simpson.html#SimpsonSequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.nmr.simpson.SimpsonSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class storing parameters and scripts for the production of a SIMPSON
+input file. The parameters of the simulation are stored in a dictionary
+member accessible as .pars and can be set at will.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">spinsys_source (str): path of the .spinsys file to use in the</div>
+<div class="line-block">
+<div class="line">simulation</div>
+</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.calculate.nmr.simpson.SimpsonSequence.write_input">
+<code class="sig-name descname"><span class="pre">write_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/nmr/simpson.html#SimpsonSequence.write_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.nmr.simpson.SimpsonSequence.write_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print out the .in file.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">path (str): path to save the newly created file to. If not provided,</div>
+<div class="line-block">
+<div class="line">the contents will be simply returned as a string.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.nmr.simpson.load_simpson_dat">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.nmr.simpson.</span></code><code class="sig-name descname"><span class="pre">load_simpson_dat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/nmr/simpson.html#load_simpson_dat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.nmr.simpson.load_simpson_dat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a SIMPSON output .dat file and return it as a numpy array.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.calculate.nmr.simpson.write_spinsys">
+<code class="sig-prename descclassname"><span class="pre">soprano.calculate.nmr.simpson.</span></code><code class="sig-name descname"><span class="pre">write_spinsys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isotope_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ms_iso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/nmr/simpson.html#write_spinsys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.nmr.simpson.write_spinsys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a .spinsys input file for use with SIMPSON, given the details of a
+system. This is meant to be a low-level function, used by other higher
+level interfaces in NMRCalculator.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): atomic structure containing the desired spins. All</div>
+<div class="line-block">
+<div class="line">atoms will be included - if that is not the desired</div>
+<div class="line">result, this should be accomplished by making this a</div>
+<div class="line">subset of the full structure.</div>
+</div>
+<div class="line">isotope_list ([int]): list of isotopes for each element in the system.</div>
+<div class="line-block">
+<div class="line">If left to None, default NMR-active isotopes</div>
+<div class="line">will be used.</div>
+</div>
+<div class="line">use_ms (bool): if True, include shift interactions from magnetic</div>
+<div class="line-block">
+<div class="line">shieldings.</div>
+</div>
+<div class="line">ms_iso (bool): if True, all magnetic shieldings will be made</div>
+<div class="line-block">
+<div class="line">isotropic.</div>
+</div>
+<div class="line">q_order(int): if greater than 0, include quadrupolar interactions from</div>
+<div class="line-block">
+<div class="line">Electric Field Gradients at the given order (1 or 2).</div>
+</div>
+<div class="line">dip_sel (AtomSelection): if not None, include dipolar couplings</div>
+<div class="line-block">
+<div class="line">between atoms belonging to this set.</div>
+</div>
+<div class="line">path (str): path to save the newly created file to. If not provided,</div>
+<div class="line-block">
+<div class="line">the contents will be simply returned as a string.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">file_contents (str): spinsys file in string format. Only returned if</div>
+<div class="line-block">
+<div class="line">no save path is provided.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

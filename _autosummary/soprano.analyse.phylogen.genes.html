@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.analyse.phylogen.genes &#8212; Soprano</title>
     
@@ -625,8 +625,12 @@ title="Print to PDF"
 <p>Definitions for the various genes used by PhylogenCluster</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_genefile</span></code>(gfile)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.genes.load_genefile" title="soprano.analyse.phylogen.genes.load_genefile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_genefile</span></code></a>(gfile)</p></td>
 <td><p>Load a gene file and return the (validated) list of genes contained within.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">parsegene_bond_order</span></code>(c[, s1, s2, channels, …])</p></td>
@@ -690,23 +694,140 @@ title="Print to PDF"
 </table>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gene</span></code>(name[, weight, params, parser, pair])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.genes.Gene" title="soprano.analyse.phylogen.genes.Gene"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Gene</span></code></a>(name[, weight, params, parser, pair])</p></td>
 <td><p>A description of a property, a ‘gene’, characterizing a structure, to be used with a PhylogenCluster.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeneDictionary</span></code>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.genes.GeneDictionary" title="soprano.analyse.phylogen.genes.GeneDictionary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeneDictionary</span></code></a>()</p></td>
 <td><p>Container class holding gene definitions</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Exceptions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeneError</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.analyse.phylogen.genes.GeneError" title="soprano.analyse.phylogen.genes.GeneError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GeneError</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.analyse.phylogen.genes.Gene">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></code><code class="sig-name descname"><span class="pre">Gene</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pair</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#Gene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A description of a property, a ‘gene’, characterizing a structure, to be
+used with a PhylogenCluster. A number of default genes is provided, but
+custom ones can be created as well by passing a parser. Only default genes
+can be used in a .genefile with the phylogen.py script though.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name of the gene. Must be one of the existing ones or a</div>
+<div class="line-block">
+<div class="line">custom one (in which case a parser must be provided as</div>
+<div class="line">well). Custom names can’t conflict with existing ones</div>
+</div>
+<div class="line">weight (float): weight of the gene to be applied, default is 1.0</div>
+<div class="line">params (dict): additional parameters to be passed to the gene parser</div>
+<div class="line-block">
+<div class="line">function; when not specified, defaults will be used</div>
+</div>
+<div class="line">parser (function&lt;AtomsCollection, **kwargs&gt;</div>
+<div class="line-block">
+<div class="line">=&gt; np.array): parser function to be used when defining custom</div>
+<div class="line-block">
+<div class="line">genes. Must return a two-dimensional Numpy array</div>
+<div class="line">(axis 0 for the elements of the collection,</div>
+<div class="line-block">
+<div class="line">axis 1 for the values of the gene)</div>
+</div>
+</div>
+</div>
+<div class="line">is_pair (bool): False if the gene returns a multi dimensional point</div>
+<div class="line-block">
+<div class="line">for each structure, True if it only returns pair</div>
+<div class="line">distances. Default is False</div>
+</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.analyse.phylogen.genes.Gene.evaluate">
+<code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#Gene.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the gene on a given AtomsCollection</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.analyse.phylogen.genes.Gene.is_pair">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_pair</span></code><a class="headerlink" href="#soprano.analyse.phylogen.genes.Gene.is_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the gene can only compare a pair of structures or can also
+give an absolute value for each structure individually (required for
+k-means clustering)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.analyse.phylogen.genes.GeneDictionary">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></code><code class="sig-name descname"><span class="pre">GeneDictionary</span></code><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#GeneDictionary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container class holding gene definitions</p>
+<dl class="py method">
+<dt id="soprano.analyse.phylogen.genes.GeneDictionary.get_gene">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_gene</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#GeneDictionary.get_gene"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.get_gene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the definition for a given gene</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.analyse.phylogen.genes.GeneDictionary.help">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#GeneDictionary.help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneDictionary.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an help string for a given gene</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="soprano.analyse.phylogen.genes.GeneError">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></code><code class="sig-name descname"><span class="pre">GeneError</span></code><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#GeneError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<dl class="py method">
+<dt id="soprano.analyse.phylogen.genes.GeneError.with_traceback">
+<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.analyse.phylogen.genes.GeneError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.analyse.phylogen.genes.load_genefile">
+<code class="sig-prename descclassname"><span class="pre">soprano.analyse.phylogen.genes.</span></code><code class="sig-name descname"><span class="pre">load_genefile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/analyse/phylogen/genes.html#load_genefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.analyse.phylogen.genes.load_genefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a gene file and return the (validated) list of genes contained
+within.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">gfile (file or str): file to parse</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">genelist: a list of genes parsed from the given file, ready to be</div>
+<div class="line-block">
+<div class="line">passed to a PhylogenCluster</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

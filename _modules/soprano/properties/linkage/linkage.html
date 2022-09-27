@@ -1,0 +1,1815 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.properties.linkage.linkage &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/properties/linkage/linkage.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.properties.linkage.linkage</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Implementation of AtomsProperties that relate to linkage of atoms&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ase.data</span> <span class="kn">import</span> <span class="n">atomic_numbers</span>
+<span class="kn">from</span> <span class="nn">ase.quaternions</span> <span class="kn">import</span> <span class="n">Quaternion</span>
+<span class="kn">from</span> <span class="nn">soprano.selection</span> <span class="kn">import</span> <span class="n">AtomSelection</span>
+<span class="kn">from</span> <span class="nn">soprano.properties</span> <span class="kn">import</span> <span class="n">AtomsProperty</span>
+<span class="kn">from</span> <span class="nn">soprano.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">swing_twist_decomp</span><span class="p">,</span>
+    <span class="n">is_string</span><span class="p">,</span>
+    <span class="n">graph_specsort</span><span class="p">,</span>
+    <span class="n">minimum_periodic</span><span class="p">,</span>
+    <span class="n">all_periodic</span><span class="p">,</span>
+    <span class="n">get_bonding_graph</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">soprano.data</span> <span class="kn">import</span> <span class="n">vdw_radii</span>
+
+
+<div class="viewcode-block" id="_compute_bonds"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage._compute_bonds">[docs]</a><span class="k">def</span> <span class="nf">_compute_bonds</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">vdw_set</span><span class="p">,</span> <span class="n">vdw_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">default_vdw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">vdw_custom</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;Convenience function that covers the core of bond computation&quot;&quot;&quot;</span>
+
+    <span class="c1"># First, we need the biggest Van der Waals radius</span>
+    <span class="c1"># So that we know how big the supercell needs to be</span>
+
+    <span class="c1"># Build a custom VdW set</span>
+    <span class="n">vdw_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vdw_radii</span><span class="p">[</span><span class="n">vdw_set</span><span class="p">])</span> <span class="o">*</span> <span class="n">vdw_scale</span>
+    <span class="n">vdw_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vdw_r</span><span class="p">),</span> <span class="n">default_vdw</span><span class="p">,</span> <span class="n">vdw_r</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">vdw_custom</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">vdw_r</span><span class="p">[</span><span class="n">atomic_numbers</span><span class="p">[</span><span class="n">el</span><span class="p">]]</span> <span class="o">=</span> <span class="n">r</span>
+
+    <span class="n">vdw_vals</span> <span class="o">=</span> <span class="n">vdw_r</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()]</span>
+    <span class="n">vdw_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vdw_vals</span><span class="p">)</span>
+
+    <span class="c1"># Get the interatomic pair distances</span>
+    <span class="n">atomn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">triui</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">atomn</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])[</span><span class="n">triui</span><span class="p">]</span>
+    <span class="c1"># Reduce them</span>
+    <span class="n">v</span><span class="p">,</span> <span class="n">v_i</span><span class="p">,</span> <span class="n">v_cells</span> <span class="o">=</span> <span class="n">all_periodic</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">vdw_max</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">get_pbc</span><span class="p">())</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Now distance and VdW matrices</span>
+    <span class="n">vdw_M</span> <span class="o">=</span> <span class="p">((</span><span class="n">vdw_vals</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">vdw_vals</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)[</span><span class="n">triui</span><span class="p">]</span>
+    <span class="n">link_M</span> <span class="o">=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="n">vdw_M</span><span class="p">[</span><span class="n">v_i</span><span class="p">]</span>
+    <span class="n">linked</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">link_M</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">linked</span><span class="p">,</span> <span class="n">triui</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v_i</span><span class="p">,</span> <span class="n">v_cells</span></div>
+
+
+<div class="viewcode-block" id="LinkageList"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.LinkageList">[docs]</a><span class="k">class</span> <span class="nc">LinkageList</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    LinkageList</span>
+
+<span class="sd">    Produces an array containing the atomic pair distances in a system,</span>
+<span class="sd">    reduced to their shortest periodic version and sorted min to max.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   size (int): maximum number of distances to include. If not present,</span>
+<span class="sd">    |               all of them will be included. If present, arrays will be</span>
+<span class="sd">    |               cut or padded to reach this size.</span>
+<span class="sd">    |   return_pairs (bool): if True, return the pairs of atoms to which the</span>
+<span class="sd">    |                        distances correspond, as a list of tuples of</span>
+<span class="sd">    |                        indices.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   link_list ([float]): sorted list of interatomic linkage distances</span>
+<span class="sd">    |   pair_list ([(int, int)]): only if return_pairs is True, list of pairs</span>
+<span class="sd">    |                             corresponding to the distances</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;linkage_list&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;return_pairs&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+<div class="viewcode-block" id="LinkageList.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.LinkageList.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">return_pairs</span><span class="p">):</span>
+        <span class="c1"># Get the interatomic pair distances</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">pair_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">pair_inds</span><span class="p">]</span>
+        <span class="c1"># Reduce them</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">minimum_periodic</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+        <span class="c1"># And now compile the list</span>
+        <span class="n">link_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sort_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">link_list</span><span class="p">)</span>
+        <span class="n">link_list</span> <span class="o">=</span> <span class="n">link_list</span><span class="p">[</span><span class="n">sort_i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">link_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">link_list</span> <span class="o">=</span> <span class="n">link_list</span><span class="p">[:</span><span class="n">size</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">link_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">link_list</span><span class="p">,</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">link_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">),</span>
+                    <span class="n">constant_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_pairs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">link_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">pair_inds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">sort_i</span><span class="p">],</span> <span class="n">pair_inds</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">sort_i</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="n">link_list</span><span class="p">,</span> <span class="n">pairs</span></div></div>
+
+
+<div class="viewcode-block" id="Bonds"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.Bonds">[docs]</a><span class="k">class</span> <span class="nc">Bonds</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bonds</span>
+
+<span class="sd">    Produces an array of tuples identifying all bonds existing within the</span>
+<span class="sd">    system (calculated using Van der Waals radii). The tuples are structured</span>
+<span class="sd">    as:</span>
+
+<span class="sd">    (atom_1, atom_2, atom_2_cell, bond_length)</span>
+
+<span class="sd">    with atom_1 and atom_2 being indices and atom_2_cell being an array of</span>
+<span class="sd">    integers identifying the unit cell to which atom_2 belongs with respect</span>
+<span class="sd">    to atom_1 (which is assumed to be in (0,0,0), the central cell). This is</span>
+<span class="sd">    to account for the possibility of course that the bond exists through the</span>
+<span class="sd">    periodic boundary. WARNING: the possibility of an atom bonding with</span>
+<span class="sd">    another throughout two different periodic boundaries is not accounted for.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</span>
+<span class="sd">    |                              is csd [S. Alvarez, 2013].</span>
+<span class="sd">    |   vdw_scale (float): scaling factor to apply to the base Van der Waals</span>
+<span class="sd">    |                      radii values. Values bigger than one make for more</span>
+<span class="sd">    |                      tolerant bonds.</span>
+<span class="sd">    |   default_vdw (float): default Van der Waals radius for species for</span>
+<span class="sd">    |                        whom no data is available.</span>
+<span class="sd">    |   vdw_custom (dict): a dictionary of custom Van der Waals radii to use,</span>
+<span class="sd">    |                      overriding the existing ones, expressed as</span>
+<span class="sd">    |                      {symbol: radius}.</span>
+<span class="sd">    |   return_matrix (bool): if True, also return an NxN bonding matrix for</span>
+<span class="sd">    |                         all N atoms in the system</span>
+<span class="sd">    |   save_info (bool): if True, save the found bonds (and in case matrix)</span>
+<span class="sd">    |                     as part of the Atoms object info. By default True.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   bonds([tuple]): list of bonds in the form of 3-tuples structured as</span>
+<span class="sd">    |                   explained above</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;bonds&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;vdw_set&quot;</span><span class="p">:</span> <span class="s2">&quot;csd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;default_vdw&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_custom&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;return_matrix&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;save_info&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="Bonds.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.Bonds.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">vdw_set</span><span class="p">,</span> <span class="n">vdw_scale</span><span class="p">,</span> <span class="n">default_vdw</span><span class="p">,</span> <span class="n">vdw_custom</span><span class="p">,</span> <span class="n">return_matrix</span><span class="p">,</span> <span class="n">save_info</span>
+    <span class="p">):</span>
+
+        <span class="n">linked</span><span class="p">,</span> <span class="n">triui</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v_i</span><span class="p">,</span> <span class="n">v_cells</span> <span class="o">=</span> <span class="n">_compute_bonds</span><span class="p">(</span>
+            <span class="n">s</span><span class="p">,</span> <span class="n">vdw_set</span><span class="p">,</span> <span class="n">vdw_scale</span><span class="p">,</span> <span class="n">default_vdw</span><span class="p">,</span> <span class="n">vdw_custom</span>
+        <span class="p">)</span>
+
+        <span class="n">bonds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">triui</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">v_i</span><span class="p">[</span><span class="n">linked</span><span class="p">]],</span>
+                <span class="n">triui</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">v_i</span><span class="p">[</span><span class="n">linked</span><span class="p">]],</span>
+                <span class="o">-</span><span class="n">v_cells</span><span class="p">[</span><span class="n">linked</span><span class="p">],</span>
+                <span class="n">v</span><span class="p">[</span><span class="n">linked</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Bonds</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bonds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">return_matrix</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">bonds</span><span class="p">)</span>  <span class="c1"># For Python 3 compatibility</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">bmat</span><span class="p">[</span><span class="n">triui</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">v_i</span><span class="p">[</span><span class="n">linked</span><span class="p">]],</span> <span class="n">triui</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">v_i</span><span class="p">[</span><span class="n">linked</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">bmat</span><span class="p">[</span><span class="n">triui</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">v_i</span><span class="p">[</span><span class="n">linked</span><span class="p">]],</span> <span class="n">triui</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">v_i</span><span class="p">[</span><span class="n">linked</span><span class="p">]]]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Bonds</span><span class="o">.</span><span class="n">default_name</span> <span class="o">+</span> <span class="s2">&quot;_matrix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bmat</span>
+
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">bonds</span><span class="p">),</span> <span class="n">bmat</span></div></div>
+
+
+<div class="viewcode-block" id="CoordinationHistogram"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.CoordinationHistogram">[docs]</a><span class="k">class</span> <span class="nc">CoordinationHistogram</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    CoordinationHistogram</span>
+
+<span class="sd">    Produces an histogram representing, for each pair of species present in</span>
+<span class="sd">    the system, how many atoms of species 1 have n bonds with species 2, n</span>
+<span class="sd">    being the histogram bins. The histogram is topped at a &#39;maximum</span>
+<span class="sd">    coordination&#39; parameter which is 6 by default but can be user defined;</span>
+<span class="sd">    the last bin represents all higher values (so by default &#39;6 or more&#39;).</span>
+<span class="sd">    Two species or lists of species can be given if one wants to restrict the</span>
+<span class="sd">    search; otherwise a full histogram for all pairs of species is returned.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</span>
+<span class="sd">    |                              is csd [S. Alvarez, 2013].</span>
+<span class="sd">    |   vdw_scale (float): scaling factor to apply to the base Van der Waals</span>
+<span class="sd">    |                      radii values. Values bigger than one make for more</span>
+<span class="sd">    |                      tolerant bonds.</span>
+<span class="sd">    |   default_vdw (float): default Van der Waals radius for species for</span>
+<span class="sd">    |                        whom no data is available.</span>
+<span class="sd">    |   vdw_custom (dict): a dictionary of custom Van der Waals radii to use,</span>
+<span class="sd">    |                      overriding the existing ones, expressed as</span>
+<span class="sd">    |                      {symbol: radius}.</span>
+<span class="sd">    |   species_1 (str or [str]): list of species to compute the histogram</span>
+<span class="sd">    |                             for. By default all of them.</span>
+<span class="sd">    |   species_2 (str or [str]): list of species whose coordination with</span>
+<span class="sd">    |                             species_1 should be checked. By default all</span>
+<span class="sd">    |                             of them.</span>
+<span class="sd">    |   max_coord (int): what should be the largest coordination number</span>
+<span class="sd">    |                    considered for an atom (default 6).</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   coord_hist (dict): dictionary of dictionaries indexed by species_1</span>
+<span class="sd">    |                      followed by species_2. The elements are arrays of</span>
+<span class="sd">    |                      integers constituting the histogram.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;coord_histogram&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;vdw_set&quot;</span><span class="p">:</span> <span class="s2">&quot;csd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;default_vdw&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_custom&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;species_1&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;species_2&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;max_coord&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="CoordinationHistogram.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.CoordinationHistogram.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span> <span class="n">vdw_set</span><span class="p">,</span> <span class="n">vdw_scale</span><span class="p">,</span> <span class="n">default_vdw</span><span class="p">,</span> <span class="n">vdw_custom</span><span class="p">,</span> <span class="n">species_1</span><span class="p">,</span> <span class="n">species_2</span><span class="p">,</span> <span class="n">max_coord</span>
+    <span class="p">):</span>
+
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+
+        <span class="c1"># Get the bonds</span>
+        <span class="n">bond_calc</span> <span class="o">=</span> <span class="n">Bonds</span><span class="p">(</span>
+            <span class="n">vdw_set</span><span class="o">=</span><span class="n">vdw_set</span><span class="p">,</span>
+            <span class="n">vdw_scale</span><span class="o">=</span><span class="n">vdw_scale</span><span class="p">,</span>
+            <span class="n">default_vdw</span><span class="o">=</span><span class="n">default_vdw</span><span class="p">,</span>
+            <span class="n">vdw_custom</span><span class="o">=</span><span class="n">vdw_custom</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="n">bond_calc</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="c1"># What if there are none?</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Just return</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: no bonds detected for CoordinationHistogram&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="n">bond_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">bonds</span><span class="p">))[:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">bond_elems</span> <span class="o">=</span> <span class="n">elems</span><span class="p">[</span><span class="n">bond_inds</span><span class="p">]</span>
+        <span class="n">bN</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">species_1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">species_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_string</span><span class="p">(</span><span class="n">species_1</span><span class="p">):</span>
+            <span class="n">species_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">species_1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">species_2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">species_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_string</span><span class="p">(</span><span class="n">species_2</span><span class="p">):</span>
+            <span class="n">species_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">species_2</span><span class="p">])</span>
+
+        <span class="c1"># Initialise the histogram</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">s1</span><span class="p">:</span> <span class="p">{</span><span class="n">s2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_coord</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">species_2</span><span class="p">}</span> <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">species_1</span>
+        <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">s1</span> <span class="ow">in</span> <span class="n">species_1</span><span class="p">:</span>
+            <span class="c1"># Which atoms are of species 1, and what are they bonded to?</span>
+            <span class="n">i1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bond_elems</span> <span class="o">==</span> <span class="n">s1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">b1</span> <span class="o">=</span> <span class="n">bond_inds</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span>
+            <span class="n">be1</span> <span class="o">=</span> <span class="n">bond_elems</span><span class="p">[(</span><span class="n">i1</span> <span class="o">-</span> <span class="n">bN</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">s2</span> <span class="ow">in</span> <span class="n">species_2</span><span class="p">:</span>
+                <span class="c1"># Which ones are bonded to species 2?</span>
+                <span class="n">i2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">be1</span> <span class="o">==</span> <span class="n">s2</span><span class="p">)</span>
+                <span class="n">b2</span> <span class="o">=</span> <span class="n">b1</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span>
+                <span class="n">b2</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">b2</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">hist_i</span><span class="p">,</span> <span class="n">hist_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">counts</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># Fix for numbers that are too high...</span>
+                <span class="n">hist_big</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">hist_i</span> <span class="o">&gt;</span> <span class="n">max_coord</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist_big</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># In this case find the max_coord index, if absent add it</span>
+                    <span class="n">hist_maxc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">hist_i</span> <span class="o">==</span> <span class="n">max_coord</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist_maxc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">hist_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">hist_i</span><span class="p">,</span> <span class="p">[</span><span class="n">max_coord</span><span class="p">]])</span>
+                        <span class="n">hist_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">hist_n</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                        <span class="n">hist_maxc</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">hist_n</span><span class="p">[</span><span class="n">hist_maxc</span><span class="p">]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">hist_n</span><span class="p">[</span><span class="n">hist_big</span><span class="p">])</span>
+                    <span class="c1"># Then slice away, keep only the admissible indices</span>
+                    <span class="n">hist_small</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">hist_i</span> <span class="o">&lt;=</span> <span class="n">max_coord</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">hist_i</span> <span class="o">=</span> <span class="n">hist_i</span><span class="p">[</span><span class="n">hist_small</span><span class="p">]</span>
+                    <span class="n">hist_n</span> <span class="o">=</span> <span class="n">hist_n</span><span class="p">[</span><span class="n">hist_small</span><span class="p">]</span>
+                <span class="n">hist</span><span class="p">[</span><span class="n">s1</span><span class="p">][</span><span class="n">s2</span><span class="p">][</span><span class="n">hist_i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">hist_n</span>
+
+        <span class="k">return</span> <span class="n">hist</span></div></div>
+
+
+<div class="viewcode-block" id="Molecules"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.Molecules">[docs]</a><span class="k">class</span> <span class="nc">Molecules</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Molecules</span>
+
+<span class="sd">    Produces an array containing multiple AtomSelection objects representing</span>
+<span class="sd">    molecules in the system as found by connecting atoms closer than the half</span>
+<span class="sd">    sum of their Van der Waals radii. It will return the entire unit cell if</span>
+<span class="sd">    the system can not be split in molecules at all.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</span>
+<span class="sd">    |                              is csd [S. Alvarez, 2013].</span>
+<span class="sd">    |   vdw_scale (float): scaling factor to apply to the base Van der Waals</span>
+<span class="sd">    |                      radii values. Values bigger than one make for more</span>
+<span class="sd">    |                      tolerant molecules.</span>
+<span class="sd">    |   default_vdw (float): default Van der Waals radius for species for</span>
+<span class="sd">    |                        whom no data is available.</span>
+<span class="sd">    |   vdw_custom (dict): a dictionary of custom Van der Waals radii to use,</span>
+<span class="sd">    |                      overriding the existing ones, expressed as</span>
+<span class="sd">    |                      {symbol: radius}.</span>
+<span class="sd">    |   save_info (bool): if True, save the found molecules as part of the</span>
+<span class="sd">    |                     Atoms object info. By default True.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   molecules ([AtomSelection]): list of molecules in the form of</span>
+<span class="sd">    |                                AtomSelection objects.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecules&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;vdw_set&quot;</span><span class="p">:</span> <span class="s2">&quot;csd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;default_vdw&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_custom&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;save_info&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="Molecules.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.Molecules.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">vdw_set</span><span class="p">,</span> <span class="n">vdw_scale</span><span class="p">,</span> <span class="n">default_vdw</span><span class="p">,</span> <span class="n">vdw_custom</span><span class="p">,</span> <span class="n">save_info</span><span class="p">):</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="c1"># Sanity check</span>
+        <span class="k">if</span> <span class="n">N</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># WTF?</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: impossible to calculate molecules on single-atom &quot;</span> <span class="s2">&quot;system&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Get the bonds</span>
+        <span class="n">bond_calc</span> <span class="o">=</span> <span class="n">Bonds</span><span class="p">(</span>
+            <span class="n">vdw_set</span><span class="o">=</span><span class="n">vdw_set</span><span class="p">,</span>
+            <span class="n">vdw_scale</span><span class="o">=</span><span class="n">vdw_scale</span><span class="p">,</span>
+            <span class="n">default_vdw</span><span class="o">=</span><span class="n">default_vdw</span><span class="p">,</span>
+            <span class="n">vdw_custom</span><span class="o">=</span><span class="n">vdw_custom</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="n">bond_calc</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_sets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">unsorted_atoms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">get_linked</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+            <span class="n">i_bonds</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">bonds</span><span class="p">)</span>
+            <span class="n">links</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span> <span class="k">else</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">i_bonds</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">links</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsorted_atoms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">mol_queue</span> <span class="o">=</span> <span class="p">[(</span><span class="n">unsorted_atoms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))]</span>
+            <span class="n">current_mol</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">current_mol_cells</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">current_mol_bonds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_queue</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">a1</span><span class="p">,</span> <span class="n">cell1</span> <span class="o">=</span> <span class="n">mol_queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">current_mol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+                <span class="n">current_mol_cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell1</span><span class="p">)</span>
+                <span class="n">current_mol_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+                <span class="c1"># Find linked atoms</span>
+                <span class="n">links</span> <span class="o">=</span> <span class="n">get_linked</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">l</span><span class="p">,</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">unsorted_atoms</span><span class="p">:</span>
+                        <span class="n">mol_queue</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="n">cell1</span> <span class="o">+</span> <span class="n">cl</span><span class="p">))</span>
+                        <span class="n">unsorted_atoms</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                    <span class="n">current_mol_bonds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+            <span class="n">mol_sets</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">current_mol</span><span class="p">,</span> <span class="n">current_mol_cells</span><span class="p">,</span> <span class="n">current_mol_bonds</span><span class="p">))</span>
+
+        <span class="n">mols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m_i</span><span class="p">,</span> <span class="n">m_cells</span><span class="p">,</span> <span class="n">m_bonds</span> <span class="ow">in</span> <span class="n">mol_sets</span><span class="p">:</span>
+            <span class="n">mols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AtomSelection</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">m_i</span><span class="p">))</span>
+            <span class="n">mols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="s2">&quot;cell_indices&quot;</span><span class="p">,</span> <span class="n">m_cells</span><span class="p">)</span>
+            <span class="c1"># This is necessary to guarantee shape consistency</span>
+            <span class="n">m_barr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">m_bonds</span><span class="p">),),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m_b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">m_bonds</span><span class="p">):</span>
+                <span class="n">m_barr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">m_b</span>
+            <span class="n">mols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="s2">&quot;bonds&quot;</span><span class="p">,</span> <span class="n">m_barr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">mols</span>
+
+        <span class="k">return</span> <span class="n">mols</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeNumber"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeNumber">[docs]</a><span class="k">class</span> <span class="nc">MoleculeNumber</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeNumber</span>
+
+<span class="sd">    Number of molecules detected in this system. By default will use already</span>
+<span class="sd">    existing molecules if they&#39;re present as a saved array in the system.</span>
+
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   molecule_n (int): number of molecules found</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_n&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeNumber.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeNumber.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeMass"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeMass">[docs]</a><span class="k">class</span> <span class="nc">MoleculeMass</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeMass</span>
+
+<span class="sd">    Total mass of each of the molecules detected in this system. By default</span>
+<span class="sd">    will use already existing molecules if they&#39;re present as a saved array in</span>
+<span class="sd">    the system.</span>
+
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+<span class="sd">    |   size (int): maximum number of distances to include. If not present,</span>
+<span class="sd">    |               all of them will be included. If present, arrays will be</span>
+<span class="sd">    |               cut or padded to reach this sizeber.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   molecule_m ([float]): mass of each of the molecules present, sorted.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_mass&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeMass.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeMass.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_m</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_masses</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span><span class="p">]:</span>
+            <span class="n">mol_m</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">all_m</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">indices</span><span class="p">]))</span>
+
+        <span class="n">mol_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_m</span><span class="p">)</span>
+        <span class="n">mol_m</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mol_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">mol_m</span> <span class="o">=</span> <span class="n">mol_m</span><span class="p">[:</span><span class="n">size</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mol_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">mol_m</span><span class="p">,</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">mol_m</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">),</span>
+                    <span class="n">constant_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mol_m</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeCOM"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeCOM">[docs]</a><span class="k">class</span> <span class="nc">MoleculeCOM</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeCOM</span>
+
+<span class="sd">    List of centers of mass for the molecules present in the system. By</span>
+<span class="sd">    default will use already existing molecules if they&#39;re present as a saved</span>
+<span class="sd">    array in the system.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+
+<span class="sd">    | Return:</span>
+<span class="sd">    |   mol_com (np.ndarray): list of centers of mass for the system&#39;s</span>
+<span class="sd">    |                         molecules</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_com&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeCOM.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeCOM.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_com</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_masses</span><span class="p">()</span>
+        <span class="n">all_pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span><span class="p">]:</span>
+
+            <span class="n">mol_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+            <span class="n">mol_pos</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span>
+                <span class="n">mol</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;cell_indices&quot;</span><span class="p">),</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">mol_ms</span> <span class="o">=</span> <span class="n">all_m</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+            <span class="n">mol_com</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mol_pos</span> <span class="o">*</span> <span class="n">mol_ms</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mol_ms</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_com</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeCOMLinkage"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeCOMLinkage">[docs]</a><span class="k">class</span> <span class="nc">MoleculeCOMLinkage</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeCOMLinkage</span>
+
+<span class="sd">    Linkage list - following the same criteria as the atomic one - calculated</span>
+<span class="sd">    for the centers of mass of the molecules present in the system. By default</span>
+<span class="sd">    will use already existing molecules if they&#39;re present as a saved array in</span>
+<span class="sd">    the system.</span>
+
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+<span class="sd">    |   size (int): maximum number of distances to include. If not present,</span>
+<span class="sd">    |               all of them will be included. If present, arrays will be</span>
+<span class="sd">    |               cut or padded to reach this sizeber.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   molecule_linkage ([float]): distances between all centers of mass of</span>
+<span class="sd">    |                               molecules in the system, sorted.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_com_linkage&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeCOMLinkage.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeCOMLinkage.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_com</span> <span class="o">=</span> <span class="n">MoleculeCOM</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="c1"># Safety check</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_com</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span>
+
+        <span class="c1"># Now make the linkage</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_com</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="c1"># Reduce them</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">minimum_periodic</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+        <span class="c1"># And now compile the list</span>
+        <span class="n">link_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">link_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">link_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">link_list</span> <span class="o">=</span> <span class="n">link_list</span><span class="p">[:</span><span class="n">size</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">link_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">link_list</span><span class="p">,</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">link_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">),</span>
+                    <span class="n">constant_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">link_list</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeQuaternion"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeQuaternion">[docs]</a><span class="k">class</span> <span class="nc">MoleculeQuaternion</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeQuaternion</span>
+
+<span class="sd">    A list of quaternions expressing the rotation of the molecule&#39;s intertia</span>
+<span class="sd">    tensor principal frame with respect to the cartesian axes.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   mol_quat ([ase.Quaternion]): list of quaternions</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_quaternion&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeQuaternion.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeQuaternion.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_quat</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">all_m</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_masses</span><span class="p">()</span>
+        <span class="n">all_pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span><span class="p">]:</span>
+
+            <span class="n">mol_pos</span> <span class="o">=</span> <span class="n">all_pos</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+            <span class="n">mol_pos</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span>
+                <span class="n">mol</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;cell_indices&quot;</span><span class="p">),</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">(),</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">mol_ms</span> <span class="o">=</span> <span class="n">all_m</span><span class="p">[</span><span class="n">mol</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+
+            <span class="c1"># We still need to correct the positions with the COM</span>
+            <span class="n">mol_com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mol_pos</span> <span class="o">*</span> <span class="n">mol_ms</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mol_ms</span><span class="p">)</span>
+            <span class="n">mol_pos</span> <span class="o">-=</span> <span class="n">mol_com</span>
+
+            <span class="n">tens_i</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+                <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">mol_pos</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="p">)</span>
+
+            <span class="n">tens_i</span> <span class="o">-=</span> <span class="n">mol_pos</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">mol_pos</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">tens_i</span> <span class="o">*=</span> <span class="n">mol_ms</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">tens_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">tens_i</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">evals</span><span class="p">,</span> <span class="n">evecs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="n">tens_i</span><span class="p">)</span>
+            <span class="c1"># General ordering convention: we want the component of the</span>
+            <span class="c1"># longest position to be positive along evecs_0, and the component</span>
+            <span class="c1"># of the second longest (and non-parallel) position to be positive</span>
+            <span class="c1"># along evecs_1, and the triple to be right-handed of course.</span>
+            <span class="n">mol_pos</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">mol_pos</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_pos</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">evecs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">evecs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mol_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">e1dirs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">mol_pos</span><span class="p">,</span> <span class="n">mol_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e1dirs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">evecs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">evecs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mol_pos</span><span class="p">[</span><span class="n">e1dirs</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+            <span class="n">evecs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">evecs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">evecs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">evecs</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+            <span class="c1"># Evecs must be proper</span>
+            <span class="n">evecs</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">evecs</span><span class="p">)</span>
+
+            <span class="n">quat</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="p">()</span>
+            <span class="n">quat</span> <span class="o">=</span> <span class="n">quat</span><span class="o">.</span><span class="n">from_matrix</span><span class="p">(</span><span class="n">evecs</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">mol_quat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quat</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mol_quat</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeRelativeRotation"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeRelativeRotation">[docs]</a><span class="k">class</span> <span class="nc">MoleculeRelativeRotation</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeRelativeRotation</span>
+
+<span class="sd">    A list of relative rotations between molecules. Uses the inertia tensor</span>
+<span class="sd">    eigenvectors to establish a local frame for each molecule, then uses</span>
+<span class="sd">    quaternions to define a rotational distance between molecules. It then</span>
+<span class="sd">    produces a list of geodesic distances between these quaternions.</span>
+
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+<span class="sd">    |   size (int): maximum number of distances to include. If not present,</span>
+<span class="sd">    |               all of them will be included. If present, arrays will be</span>
+<span class="sd">    |               cut or padded to reach this size.</span>
+<span class="sd">    |   twist_axis ([float]): if present, only compare the Twist component of</span>
+<span class="sd">    |                         quaternion along the given axis. The Twist/Swing</span>
+<span class="sd">    |                         decomposition splits a quaternion in a rotation</span>
+<span class="sd">    |                         around an axis and one around an orthogonal</span>
+<span class="sd">    |                         direction. Only one between this and swing_plane</span>
+<span class="sd">    |                         can be present.</span>
+<span class="sd">    |   swing_plane ([float]): if present, only compare the Swing component of</span>
+<span class="sd">    |                         quaternion along the given axis. The Twist/Swing</span>
+<span class="sd">    |                         decomposition splits a quaternion in a rotation</span>
+<span class="sd">    |                         around an axis and one around an orthogonal</span>
+<span class="sd">    |                         direction. Only one between this and twist_axis</span>
+<span class="sd">    |                         can be present.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   molecule_relrot ([float]): list of relative rotations, as quaternion</span>
+<span class="sd">    |                              distances, with the required ordering.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_rel_rotation&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;swing_plane&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;twist_axis&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeRelativeRotation.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeRelativeRotation.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">swing_plane</span><span class="p">,</span> <span class="n">twist_axis</span><span class="p">):</span>
+
+        <span class="c1"># Sanity check</span>
+        <span class="k">if</span> <span class="n">swing_plane</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">twist_axis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Only one between swing_plane and twist_axis &quot;</span>
+                <span class="s2">&quot;can be passed to MoleculeRelativeRotation&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_quat</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">.</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">MoleculeQuaternion</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">quat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mol_quat</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">swing_plane</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">mol_quat</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dummy</span> <span class="o">=</span> <span class="n">swing_twist_decomp</span><span class="p">(</span><span class="n">quat</span><span class="p">,</span> <span class="n">swing_plane</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">twist_axis</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dummy</span><span class="p">,</span> <span class="n">mol_quat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">swing_twist_decomp</span><span class="p">(</span><span class="n">quat</span><span class="p">,</span> <span class="n">twist_axis</span><span class="p">)</span>
+
+        <span class="c1"># Safety check</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_quat</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span>
+
+        <span class="c1"># Now make the linkage</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mol_quat</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tensordot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">link_list</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)])</span>
+        <span class="n">link_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">link_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">:</span>
+                <span class="n">link_list</span> <span class="o">=</span> <span class="n">link_list</span><span class="p">[:</span><span class="n">size</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">link_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">link_list</span><span class="p">,</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span> <span class="o">-</span> <span class="n">link_list</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="s2">&quot;constant&quot;</span><span class="p">),</span>
+                    <span class="n">constant_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">link_list</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MoleculeSpectralSort"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeSpectralSort">[docs]</a><span class="k">class</span> <span class="nc">MoleculeSpectralSort</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MoleculeSpectralSort</span>
+
+<span class="sd">    Reorder molecules to have their indices sorted using a spectral</span>
+<span class="sd">    sorting method based on the Fiedler vector of their bonding graph. This</span>
+<span class="sd">    sorting should be equivalent for equivalent molecules - except for the</span>
+<span class="sd">    arbitrary ordering of equivalent atoms.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the molecules even if</span>
+<span class="sd">    |                        already present.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   mol_specsort ([np.ndarray]): list of Molecules with indices sorted by</span>
+<span class="sd">                                     spectral method.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;molecule_specsort&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="MoleculeSpectralSort.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.MoleculeSpectralSort.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">mol_specsort</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">mol</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span><span class="p">]:</span>
+            <span class="c1"># Start by getting the adjacency and degree matrices</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+            <span class="n">bonds</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;bonds&quot;</span><span class="p">)</span>
+            <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+            <span class="n">D</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bonds</span><span class="p">):</span>
+                <span class="n">D</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">b</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+
+            <span class="n">L</span> <span class="o">=</span> <span class="n">D</span> <span class="o">-</span> <span class="n">A</span>
+
+            <span class="n">sort</span> <span class="o">=</span> <span class="n">graph_specsort</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+
+            <span class="n">mol</span> <span class="o">=</span> <span class="n">mol</span><span class="p">[</span><span class="n">sort</span><span class="p">]</span>
+            <span class="n">mol_specsort</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mol_specsort</span></div></div>
+
+
+<div class="viewcode-block" id="HydrogenBonds"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.HydrogenBonds">[docs]</a><span class="k">class</span> <span class="nc">HydrogenBonds</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hydrogen Bonds</span>
+
+<span class="sd">    Produces a dictionary containing the atom indices defining hydrogen bonds</span>
+<span class="sd">    detected in the system - if required, classified by type. By default only</span>
+<span class="sd">    O and N atoms are considered for hydrogen bonds (OH..O, OH..N and so on).</span>
+<span class="sd">    The type is defined as AH..B where A is the symbol of the atom directly</span>
+<span class="sd">    bonded to the proton and B the one of the hydrogen bonded one.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   vdw_set({ase, jmol, csd}): set of Van der Waals radii to use. Default</span>
+<span class="sd">    |                              is csd [S. Alvarez, 2013].</span>
+<span class="sd">    |   vdw_scale (float): scaling factor to apply to the base Van der Waals</span>
+<span class="sd">    |                      radii values. Values bigger than one make for more</span>
+<span class="sd">    |                      tolerant molecules.</span>
+<span class="sd">    |   default_vdw (float): default Van der Waals radius for species for</span>
+<span class="sd">    |                        whom no data is available.</span>
+<span class="sd">    |   hbond_elems ([str]): chemical symbols of elements considered capable</span>
+<span class="sd">    |                        of forming hydrogen bonds (by default O and N)</span>
+<span class="sd">    |   max_length (float): maximum A-B length of the hydrogen bond in</span>
+<span class="sd">    |                       Angstrom - default is 3.5 Ang</span>
+<span class="sd">    |   max_angle (float): maximum A-H/A-B angle in the hydrogen bond in</span>
+<span class="sd">    |                      degrees - default is 45 deg</span>
+<span class="sd">    |   save_info (bool): if True, save the found hydrogen bonds as part of</span>
+<span class="sd">    |                     the Atoms object info. By default True.</span>
+
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   hbondss ([dict]): list of hydrogen bonds detected</span>
+<span class="sd">    |                     in the system by type (can contain empty arrays).</span>
+<span class="sd">    |                     For each hydrogen bond we give index of the H</span>
+<span class="sd">    |                     atom, index and unit cell of the A atom (the one</span>
+<span class="sd">    |                     directly bonded), index and unit cell of the B atom</span>
+<span class="sd">    |                     (the one that&#39;s hydrogen bonded), length and angle</span>
+<span class="sd">    |                     in degrees.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;hydrogen_bonds&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;vdw_set&quot;</span><span class="p">:</span> <span class="s2">&quot;csd&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_scale&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">&quot;default_vdw&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">&quot;vdw_custom&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;hbond_elems&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;max_length&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
+        <span class="s2">&quot;max_angle&quot;</span><span class="p">:</span> <span class="mf">45.0</span><span class="p">,</span>
+        <span class="s2">&quot;save_info&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="HydrogenBonds.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.HydrogenBonds.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">,</span>
+        <span class="n">vdw_set</span><span class="p">,</span>
+        <span class="n">vdw_scale</span><span class="p">,</span>
+        <span class="n">default_vdw</span><span class="p">,</span>
+        <span class="n">vdw_custom</span><span class="p">,</span>
+        <span class="n">hbond_elems</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="p">,</span>
+        <span class="n">max_angle</span><span class="p">,</span>
+        <span class="n">save_info</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">def</span> <span class="nf">elem_inds</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span> <span class="k">if</span> <span class="n">cs</span> <span class="o">==</span> <span class="n">el</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">bname</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">H..</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+
+        <span class="c1"># Define types</span>
+        <span class="n">hbonds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">elA</span> <span class="ow">in</span> <span class="n">hbond_elems</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">elB</span> <span class="ow">in</span> <span class="n">hbond_elems</span><span class="p">:</span>
+                <span class="n">hbonds</span><span class="p">[</span><span class="n">bname</span><span class="p">(</span><span class="n">elA</span><span class="p">,</span> <span class="n">elB</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># First, grab the hydrogen atoms</span>
+        <span class="n">h_atoms</span> <span class="o">=</span> <span class="n">elem_inds</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">h_atoms</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Nothing to do</span>
+            <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">hbonds</span>
+            <span class="k">return</span> <span class="n">hbonds</span>
+
+        <span class="n">bond_atoms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">el_b</span> <span class="ow">in</span> <span class="n">hbond_elems</span><span class="p">:</span>
+            <span class="n">bond_atoms</span> <span class="o">+=</span> <span class="n">elem_inds</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">el_b</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bond_atoms</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">hbonds</span>
+            <span class="k">return</span> <span class="n">hbonds</span>
+
+        <span class="c1"># Now to pick the positions</span>
+        <span class="n">h_atoms_pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">h_atoms</span><span class="p">]</span>
+        <span class="n">bond_atoms_pos</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">bond_atoms</span><span class="p">]</span>
+        <span class="c1"># Van der Waals radii length of H-atom bonds</span>
+
+        <span class="n">vdw_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">vdw_radii</span><span class="p">[</span><span class="n">vdw_set</span><span class="p">])</span> <span class="o">*</span> <span class="n">vdw_scale</span>
+        <span class="n">vdw_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vdw_r</span><span class="p">),</span> <span class="n">default_vdw</span><span class="p">,</span> <span class="n">vdw_r</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">vdw_custom</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">vdw_r</span><span class="p">[</span><span class="n">atomic_numbers</span><span class="p">[</span><span class="n">el</span><span class="p">]]</span> <span class="o">=</span> <span class="n">r</span>
+
+        <span class="n">bonds_vdw</span> <span class="o">=</span> <span class="n">vdw_r</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">get_atomic_numbers</span><span class="p">()[</span><span class="n">bond_atoms</span><span class="p">]]</span>
+        <span class="n">bonds_vdw</span> <span class="o">=</span> <span class="p">(</span><span class="n">bonds_vdw</span> <span class="o">+</span> <span class="n">vdw_r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+        <span class="c1"># Now find the shortest and second shortest bonds for each H</span>
+        <span class="n">h_links</span> <span class="o">=</span> <span class="n">h_atoms_pos</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">bond_atoms_pos</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">h_links</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">h_links</span><span class="p">,</span> <span class="n">h_cells</span> <span class="o">=</span> <span class="n">minimum_periodic</span><span class="p">(</span><span class="n">h_links</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+        <span class="n">h_links</span> <span class="o">=</span> <span class="n">h_links</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">h_cells</span> <span class="o">=</span> <span class="n">h_cells</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">h_links_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">h_links</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Now for each hydrogen: first and second closest</span>
+        <span class="n">h_closest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">h_links_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Which ones DO actually form bonds?</span>
+        <span class="n">rngh</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">h_atoms</span><span class="p">))</span>
+        <span class="c1"># Condition one: closest atom, A, is bonded</span>
+        <span class="n">h_bonded</span> <span class="o">=</span> <span class="n">h_links_norm</span><span class="p">[</span><span class="n">rngh</span><span class="p">,</span> <span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">&lt;=</span> <span class="n">bonds_vdw</span><span class="p">[</span><span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
+        <span class="c1"># Condition two: furthest atom, B, is NOT bonded...</span>
+        <span class="n">h_bonded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span>
+            <span class="n">h_bonded</span><span class="p">,</span> <span class="n">h_links_norm</span><span class="p">[</span><span class="n">rngh</span><span class="p">,</span> <span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="n">bonds_vdw</span><span class="p">[</span><span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="p">)</span>
+        <span class="c1"># Condition three: ...but still closer to A than max_length</span>
+        <span class="n">links_ab</span> <span class="o">=</span> <span class="n">h_links</span><span class="p">[</span><span class="n">rngh</span><span class="p">,</span> <span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">-</span> <span class="n">h_links</span><span class="p">[</span><span class="n">rngh</span><span class="p">,</span> <span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">links_ab_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">links_ab</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">h_bonded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">h_bonded</span><span class="p">,</span> <span class="n">links_ab_norm</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">)</span>
+        <span class="c1"># Condition four: finally, the angle between AH and AB in A-H..B</span>
+        <span class="c1"># must be smaller than max_angle</span>
+        <span class="n">angles_abah</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">links_ab</span> <span class="o">*</span> <span class="n">h_links</span><span class="p">[</span><span class="n">rngh</span><span class="p">,</span> <span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">angles_abah</span> <span class="o">/=</span> <span class="n">links_ab_norm</span> <span class="o">*</span> <span class="n">h_links_norm</span><span class="p">[</span><span class="n">rngh</span><span class="p">,</span> <span class="n">h_closest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span>
+        <span class="n">angles_abah</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">angles_abah</span><span class="p">)</span> <span class="o">*</span> <span class="mf">180.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="n">h_bonded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">h_bonded</span><span class="p">,</span> <span class="n">angles_abah</span> <span class="o">&lt;=</span> <span class="n">max_angle</span><span class="p">)</span>
+
+        <span class="c1"># The survivors are actual h bonds!</span>
+        <span class="c1"># Now on to defining them</span>
+        <span class="n">h_bonded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">h_bonded</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">h_bonded</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">hbonds</span>
+            <span class="k">return</span> <span class="n">hbonds</span>
+
+        <span class="c1"># Moving to structure indices</span>
+
+        <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">h_bonded</span><span class="p">:</span>
+
+            <span class="n">ai</span><span class="p">,</span> <span class="n">bi</span> <span class="o">=</span> <span class="n">h_closest</span><span class="p">[</span><span class="n">h</span><span class="p">]</span>
+            <span class="n">elA</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()[</span><span class="n">bond_atoms</span><span class="p">[</span><span class="n">ai</span><span class="p">]]</span>
+            <span class="n">elB</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">()[</span><span class="n">bond_atoms</span><span class="p">[</span><span class="n">bi</span><span class="p">]]</span>
+
+            <span class="n">bond</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;H&quot;</span><span class="p">:</span> <span class="n">h_atoms</span><span class="p">[</span><span class="n">h</span><span class="p">],</span>
+                <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bond_atoms</span><span class="p">[</span><span class="n">ai</span><span class="p">],</span> <span class="n">h_cells</span><span class="p">[</span><span class="n">h</span><span class="p">,</span> <span class="n">ai</span><span class="p">]),</span>
+                <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">bond_atoms</span><span class="p">[</span><span class="n">bi</span><span class="p">],</span> <span class="n">h_cells</span><span class="p">[</span><span class="n">h</span><span class="p">,</span> <span class="n">bi</span><span class="p">]),</span>
+                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">links_ab_norm</span><span class="p">[</span><span class="n">h</span><span class="p">],</span>
+                <span class="s2">&quot;angle&quot;</span><span class="p">:</span> <span class="n">angles_abah</span><span class="p">[</span><span class="n">h</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="n">btype</span> <span class="o">=</span> <span class="n">bname</span><span class="p">(</span><span class="n">elA</span><span class="p">,</span> <span class="n">elB</span><span class="p">)</span>
+            <span class="n">hbonds</span><span class="p">[</span><span class="n">btype</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">hbonds</span>
+
+        <span class="k">return</span> <span class="n">hbonds</span></div></div>
+
+
+<div class="viewcode-block" id="HydrogenBondsNumber"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.HydrogenBondsNumber">[docs]</a><span class="k">class</span> <span class="nc">HydrogenBondsNumber</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    HydrogenBondsNumber</span>
+
+<span class="sd">    Number of hydrogen bonds detected in this system, classified by type.</span>
+<span class="sd">    By default will use already existing hydrogen bonds if they&#39;re present as</span>
+<span class="sd">    a saved array in the system.</span>
+
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the hydrogen bonds</span>
+<span class="sd">    |                        even if already present.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   hbonds_n (int): number of hydrogen bonds found</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;hydrogen_bonds_n&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+
+<div class="viewcode-block" id="HydrogenBondsNumber.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.HydrogenBondsNumber.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">hbonds</span> <span class="o">=</span> <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">hbonds</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span>
+
+        <span class="n">hbonds_n</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">hbt</span> <span class="ow">in</span> <span class="n">hbonds</span><span class="p">:</span>
+            <span class="n">hbonds_n</span><span class="p">[</span><span class="n">hbt</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hbonds</span><span class="p">[</span><span class="n">hbt</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">hbonds_n</span></div></div>
+
+
+<div class="viewcode-block" id="DihedralAngleList"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.DihedralAngleList">[docs]</a><span class="k">class</span> <span class="nc">DihedralAngleList</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DihedralAngleList</span>
+
+<span class="sd">    Produces a list of dihedral angles found in the system, identified by</span>
+<span class="sd">    looking for a bonding pattern. The amount of said angles can vary from</span>
+<span class="sd">    zero (if the pattern is not present) to an arbitrary number. They will be</span>
+<span class="sd">    returned sorted from lowest to highest. Periodic boundary conditions are</span>
+<span class="sd">    taken into account. If no pattern is provided, HCCH groups are searched by</span>
+<span class="sd">    default.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   dihedral_pattern ([str]*4): a list of four chemical symbols</span>
+<span class="sd">    |                               identifying the dihedral pattern to look</span>
+<span class="sd">    |                               for</span>
+<span class="sd">    |   bonds_params (dict): parameters to pass to the Bonds property used to</span>
+<span class="sd">    |                        compute bonds. See the Bonds docstring for</span>
+<span class="sd">    |                        details. If not provided, defaults are used</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   dihedral_angles (np.ndarray): sorted list of dihedral angles found</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;dihedral_angle_list&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dihedral_pattern&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="s2">&quot;bonds_params&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+<div class="viewcode-block" id="DihedralAngleList.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.DihedralAngleList.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">dihedral_pattern</span><span class="p">,</span> <span class="n">bonds_params</span><span class="p">):</span>
+
+        <span class="c1"># First, compute bonds</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="n">Bonds</span><span class="p">(</span><span class="o">**</span><span class="n">bonds_params</span><span class="p">)</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="n">bonds</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="c1"># Chemical symbols</span>
+        <span class="n">elems</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+
+        <span class="c1"># Build a network</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dihedral_pattern</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">elems</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">==</span> <span class="n">dp</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">bond_table</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">nodes</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)):</span>
+                <span class="n">bond_table</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+                <span class="n">bond_table</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">b</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+
+        <span class="c1"># Now prepare a series of &#39;pointers&#39; to traverse the network</span>
+        <span class="n">pointers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">elems</span> <span class="o">==</span> <span class="n">dihedral_pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">pointer_memory</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pointers</span><span class="p">]</span>
+        <span class="n">pointer_traversal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">pointers</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">dihedral_pattern</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">new_pointers</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">new_pointer_memory</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">new_pointer_traversal</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pointers</span><span class="p">):</span>
+                <span class="c1"># Is it bonded to anything with that element?</span>
+                <span class="c1"># Did we visit it already?</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bond_table</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">elems</span><span class="p">[</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">el</span> <span class="ow">and</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pointer_memory</span><span class="p">[</span><span class="n">p_i</span><span class="p">]:</span>
+                        <span class="c1"># If so, spawn new pointers and save the corresponding</span>
+                        <span class="c1"># memory of the previous path</span>
+                        <span class="n">new_pointers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">new_pointer_memory</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">pointer_memory</span><span class="p">[</span><span class="n">p_i</span><span class="p">])</span> <span class="o">+</span> <span class="p">[</span><span class="n">p</span><span class="p">])</span>
+                        <span class="n">new_pointer_traversal</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                                <span class="p">(</span><span class="n">pointer_traversal</span><span class="p">[</span><span class="n">p_i</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:])</span>
+                            <span class="p">)</span>
+                        <span class="p">)</span>
+            <span class="n">pointers</span> <span class="o">=</span> <span class="n">new_pointers</span>
+            <span class="n">pointer_memory</span> <span class="o">=</span> <span class="n">new_pointer_memory</span>
+            <span class="n">pointer_traversal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">new_pointer_traversal</span><span class="p">)</span>
+
+        <span class="c1"># Now build the dihedra array</span>
+        <span class="n">dihedra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pointer_memory</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pointers</span><span class="p">)])</span>
+
+        <span class="c1"># Symmetry check, epurate the repeated ones if needed</span>
+        <span class="n">is_symm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dihedral_pattern</span> <span class="o">==</span> <span class="n">dihedral_pattern</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">is_symm</span><span class="p">:</span>
+            <span class="n">duplicate</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dihedra</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">d2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dihedra</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]):</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">d2</span> <span class="o">==</span> <span class="n">d1</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">duplicate</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">unique</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dihedra</span><span class="p">)))</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">duplicate</span><span class="p">))</span>
+            <span class="n">dihedra</span> <span class="o">=</span> <span class="n">dihedra</span><span class="p">[</span><span class="n">unique</span><span class="p">]</span>
+            <span class="n">pointer_traversal</span> <span class="o">=</span> <span class="n">pointer_traversal</span><span class="p">[</span><span class="n">unique</span><span class="p">]</span>
+
+        <span class="c1"># If it&#39;s empty we may quit now</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dihedra</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="c1"># Cumulate traversals</span>
+        <span class="n">pointer_traversal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">pointer_traversal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Now that we have them let&#39;s find the positions</span>
+        <span class="n">posv</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="n">dihedra</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,))]</span>
+        <span class="n">posv</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">pointer_traversal</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">s</span><span class="o">.</span><span class="n">get_cell</span><span class="p">())</span>
+
+        <span class="c1"># And finally the dihedral angles</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">posv</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bxa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">links</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">links</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">bxa</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bxa</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">cxb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">links</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">links</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">cxb</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cxb</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bxa</span> <span class="o">*</span> <span class="n">cxb</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bxa</span> <span class="o">*</span> <span class="n">links</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">angles</span><span class="p">,</span> <span class="n">angles</span>
+        <span class="p">)</span>
+
+        <span class="c1"># And return!</span>
+        <span class="k">return</span> <span class="n">angles</span></div></div>
+
+
+<div class="viewcode-block" id="BondGraph"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.BondGraph">[docs]</a><span class="k">class</span> <span class="nc">BondGraph</span><span class="p">(</span><span class="n">AtomsProperty</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    BondGraph</span>
+
+<span class="sd">    Bond graph returns a networkx graph of the molecules in the structure. To</span>
+<span class="sd">    use this property you must have the networkx library installed.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   force_recalc (bool): if True, always recalculate the bond graph</span>
+<span class="sd">    |                        even if already present.</span>
+<span class="sd">    |   save_info (bool): if True, save the bond graph as part of the Atoms</span>
+<span class="sd">    |                     object info. By default True.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   graph (nx.Graph): the bond graph for the structure</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_name</span> <span class="o">=</span> <span class="s2">&quot;bond_graph&quot;</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;force_recalc&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;save_info&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="BondGraph.extract"><a class="viewcode-back" href="../../../../_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.BondGraph.extract">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="p">,</span> <span class="n">save_info</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">BondGraph</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+            <span class="n">bprop</span> <span class="o">=</span> <span class="n">Bonds</span><span class="p">(</span><span class="n">return_matrix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">bond_matrix</span> <span class="o">=</span> <span class="n">bprop</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">get_bonding_graph</span><span class="p">(</span><span class="n">bond_matrix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">BondGraph</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">save_info</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="n">BondGraph</span><span class="o">.</span><span class="n">default_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph</span>
+
+        <span class="k">return</span> <span class="n">graph</span></div></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

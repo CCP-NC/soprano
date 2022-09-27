@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.properties.map.map &#8212; Soprano</title>
     
@@ -624,15 +624,296 @@ title="Print to PDF"
 <span id="soprano-properties-map-map"></span><h1>soprano.properties.map.map<a class="headerlink" href="#module-soprano.properties.map.map" title="Permalink to this headline">¶</a></h1>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Remap</span></code>([name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.properties.map.map.Remap" title="soprano.properties.map.map.Remap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Remap</span></code></a>([name])</p></td>
 <td><p>Returns a structure remapped to the one given as reference.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapIndices</span></code>([name])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.properties.map.map.RemapIndices" title="soprano.properties.map.map.RemapIndices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapIndices</span></code></a>([name])</p></td>
 <td><p>Returns a list of the indices which will remap a given structure to the one given as reference.</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.properties.map.map.Remap">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.map.map.</span></code><code class="sig-name descname"><span class="pre">Remap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/map/map.html#Remap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.map.map.Remap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Returns a structure remapped to the one given as reference.
+Remapping means creating a one-to-one correspondence between atoms based
+on their distances (which may include the periodic boundaries).</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">reference (ase.Atoms):  Reference structure to map to. Required</div>
+<div class="line">periodic (bool):        If True, take into account periodic boundaries.</div>
+<div class="line-block">
+<div class="line">Default is True.</div>
+</div>
+<div class="line">scaled (bool):          If True, use fractional instead of absolute</div>
+<div class="line-block">
+<div class="line">coordinates. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">remap_indices ([int]):  List of indices for the structure in the order</div>
+<div class="line-block">
+<div class="line">in which they will make it map to the reference</div>
+<div class="line">best</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.map.map.Remap.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.map.map.Remap.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.map.map.Remap.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/map/map.html#Remap.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.map.map.Remap.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.map.map.Remap.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.map.map.Remap.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="soprano.properties.map.map.RemapIndices">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.properties.map.map.</span></code><code class="sig-name descname"><span class="pre">RemapIndices</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/map/map.html#RemapIndices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.map.map.RemapIndices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.properties.atomsproperty.AtomsProperty</span></code></p>
+<p>Returns a list of the indices which will remap a given structure to the
+one given as reference. Remapping means creating a one-to-one correspondence
+between atoms based on their distances (which may include the periodic
+boundaries).</p>
+<div class="line-block">
+<div class="line">Parameters:</div>
+<div class="line-block">
+<div class="line">reference (ase.Atoms):  Reference structure to map to. Required</div>
+<div class="line">periodic (bool):        If True, take into account periodic boundaries.</div>
+<div class="line-block">
+<div class="line">Default is True.</div>
+</div>
+<div class="line">scaled (bool):          If True, use fractional instead of absolute</div>
+<div class="line-block">
+<div class="line">coordinates. Default is False.</div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">remap_indices ([int]):  List of indices for the structure in the order</div>
+<div class="line-block">
+<div class="line">in which they will make it map to the reference</div>
+<div class="line">best</div>
+</div>
+</div>
+</div>
+<p>Initialize an AtomsProperty and set its parameters.
+The AtomsProperty instance can then be called with a structure as its
+only argument to get the property with the given parameters.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): a name to give to this specific instance of the</div>
+<div class="line-block">
+<div class="line">property (will be used to store it as array if</div>
+<div class="line">requested)</div>
+</div>
+<div class="line">params: named arguments specific to this type of property</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.properties.map.map.RemapIndices.__call__">
+<code class="sig-name descname"><span class="pre">__call__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.map.map.RemapIndices.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calling the AtomsProperty returns the value of the property as
+extracted with the parameters of this specific instance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the given name for this instance</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.map.map.RemapIndices.extract">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">periodic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaled</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/properties/map/map.html#RemapIndices.extract"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.properties.map.map.RemapIndices.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property with given parameters from an Atoms
+object.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms): the structure from which to extract the property</div>
+<div class="line">params: named arguments specific to this type of property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure and</div>
+<div class="line-block">
+<div class="line">parameters</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.properties.map.map.RemapIndices.get">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">store_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.properties.map.map.RemapIndices.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the given property using the default parameters
+on an Atoms object s</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">s (ase.Atoms or AtomsCollection): the structure or collection</div>
+<div class="line-block">
+<div class="line">from which to extract the</div>
+<div class="line">property</div>
+</div>
+<div class="line">store_array (bool): if s is a collection, whether to store the</div>
+<div class="line-block">
+<div class="line">resulting data as an array in the collection</div>
+<div class="line">using the default name for this property</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">property: the value of the property for the given structure or</div>
+<div class="line-block">
+<div class="line">a list of values if a collection has been passed</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

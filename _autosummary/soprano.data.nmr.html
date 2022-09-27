@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.data.nmr &#8212; Soprano</title>
     
@@ -627,18 +627,92 @@ title="Print to PDF"
 ratio and quadrupole moment.</p>
 <p class="rubric">Functions</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmr_gamma</span></code>(el[, iso])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.data.nmr.nmr_gamma" title="soprano.data.nmr.nmr_gamma"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmr_gamma</span></code></a>(el[, iso])</p></td>
 <td><p>Gyromagnetic ratio for an element</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmr_quadrupole</span></code>(el[, iso])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.data.nmr.nmr_quadrupole" title="soprano.data.nmr.nmr_quadrupole"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmr_quadrupole</span></code></a>(el[, iso])</p></td>
 <td><p>Quadrupole moment for an element</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmr_spin</span></code>(el[, iso])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.data.nmr.nmr_spin" title="soprano.data.nmr.nmr_spin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nmr_spin</span></code></a>(el[, iso])</p></td>
 <td><p>Nuclear spin for an element</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py function">
+<dt id="soprano.data.nmr._el_iso">
+<code class="sig-prename descclassname"><span class="pre">soprano.data.nmr.</span></code><code class="sig-name descname"><span class="pre">_el_iso</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sym</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/data/nmr.html#_el_iso"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.data.nmr._el_iso" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function: split isotope and element in conventional
+representation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.data.nmr.nmr_gamma">
+<code class="sig-prename descclassname"><span class="pre">soprano.data.nmr.</span></code><code class="sig-name descname"><span class="pre">nmr_gamma</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/data/nmr.html#nmr_gamma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.data.nmr.nmr_gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gyromagnetic ratio for an element</p>
+<p>Return the gyromagnetic ratio for the given element and isotope, in
+rad/(s*T)</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">el (str):   element symbol</div>
+<div class="line">iso (int):  isotope. Default is the most abundant one.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">gamma (float):  gyromagnetic ratio in rad/(s*T)</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.data.nmr.nmr_quadrupole">
+<code class="sig-prename descclassname"><span class="pre">soprano.data.nmr.</span></code><code class="sig-name descname"><span class="pre">nmr_quadrupole</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/data/nmr.html#nmr_quadrupole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.data.nmr.nmr_quadrupole" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quadrupole moment for an element</p>
+<p>Return the quadrupole moment for the given element and isotope, in
+barns</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">el (str):   element symbol</div>
+<div class="line">iso (int):  isotope. Default is the most abundant one.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">Q (float):  quadrupole moment in barns</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="soprano.data.nmr.nmr_spin">
+<code class="sig-prename descclassname"><span class="pre">soprano.data.nmr.</span></code><code class="sig-name descname"><span class="pre">nmr_spin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iso</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/data/nmr.html#nmr_spin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.data.nmr.nmr_spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Nuclear spin for an element</p>
+<p>Return the nuclear spin for the given element and isotope, in
+Bohr magnetons</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">el (str):   element symbol</div>
+<div class="line">iso (int):  isotope. Default is the most abundant one.</div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">Returns:</div>
+<div class="line-block">
+<div class="line">I (float):  nuclear spin in Bohr magnetons</div>
+</div>
+</div>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

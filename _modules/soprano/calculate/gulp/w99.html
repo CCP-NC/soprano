@@ -1,0 +1,890 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.calculate.gulp.w99 &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/calculate/gulp/w99.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.calculate.gulp.w99</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes and functions for using the W99 force field in GULP.</span>
+<span class="sd">This force field only applies to organic molecules. More information can be</span>
+<span class="sd">found in the original paper by Donald E. Williams:</span>
+
+<span class="sd">D.E. Williams,</span>
+<span class="sd">*Improved Intermolecular Force Field for Molecules Containing H, C, N, and O</span>
+<span class="sd">Atoms, with Application to Nucleoside and Peptide Crystals*  - Journal</span>
+<span class="sd">of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pkgutil</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">from</span> <span class="nn">ase.calculators.singlepoint</span> <span class="kn">import</span> <span class="n">SinglePointCalculator</span>
+<span class="kn">from</span> <span class="nn">soprano.utils</span> <span class="kn">import</span> <span class="n">safe_communicate</span>
+<span class="kn">from</span> <span class="nn">soprano.properties.linkage</span> <span class="kn">import</span> <span class="n">Molecules</span>
+<span class="kn">from</span> <span class="nn">soprano.calculate.gulp._utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_gulp_cell_definition</span><span class="p">,</span>
+    <span class="n">_gulp_parse_energy</span><span class="p">,</span>
+    <span class="n">_gulp_parse_charges</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">_w99_data</span> <span class="o">=</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;soprano&quot;</span><span class="p">,</span> <span class="s2">&quot;data/w99_parameters.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<span class="n">_w99_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">_w99_data</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="W99Error"><a class="viewcode-back" href="../../../../_autosummary/soprano.calculate.gulp.w99.html#soprano.calculate.gulp.w99.W99Error">[docs]</a><span class="k">class</span> <span class="nc">W99Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="find_w99_atomtypes"><a class="viewcode-back" href="../../../../_autosummary/soprano.calculate.gulp.w99.html#soprano.calculate.gulp.w99.find_w99_atomtypes">[docs]</a><span class="k">def</span> <span class="nf">find_w99_atomtypes</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">force_recalc</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the W99 force field atom types for a given structure.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   s (ase.Atoms): the structure to calculate the atomtypes on</span>
+<span class="sd">    |   force_recalc (bool): whether to recalculate the molecules even if</span>
+<span class="sd">    |                        already present. Default is False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># First, check that W99 even applies to this system</span>
+    <span class="n">chsyms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get_chemical_symbols</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="n">chsyms</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">])):</span>
+        <span class="k">raise</span> <span class="n">W99Error</span><span class="p">(</span>
+            <span class="s2">&quot;Invalid system for use of W99 force field&quot;</span>
+            <span class="s2">&quot; - System can only contain H, C, O and N!&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">Molecules</span><span class="o">.</span><span class="n">default_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span> <span class="ow">or</span> <span class="n">force_recalc</span><span class="p">:</span>
+        <span class="n">Molecules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="n">mols</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;molecules&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Now the types!</span>
+    <span class="n">w99types</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;XXX&quot;</span> <span class="k">for</span> <span class="n">sym</span> <span class="ow">in</span> <span class="n">chsyms</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">m_i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mols</span><span class="p">):</span>
+
+        <span class="n">inds</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;bonds&quot;</span><span class="p">)</span>
+        <span class="n">msyms</span> <span class="o">=</span> <span class="n">chsyms</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">a_mi</span><span class="p">,</span> <span class="n">a_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inds</span><span class="p">):</span>
+            <span class="c1"># What element is it?</span>
+            <span class="n">el_i</span> <span class="o">=</span> <span class="n">msyms</span><span class="p">[</span><span class="n">a_mi</span><span class="p">]</span>
+            <span class="n">bnd_i</span> <span class="o">=</span> <span class="n">bonds</span><span class="p">[</span><span class="n">a_mi</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bnd_i</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Something&#39;s wrong</span>
+                <span class="k">raise</span> <span class="n">W99Error</span><span class="p">(</span>
+                    <span class="s2">&quot;ERROR - W99 can not be applied to single&quot;</span>
+                    <span class="s2">&quot; atom molecular fragments&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">el_i</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">:</span>
+                <span class="c1"># Hydrogen case</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bnd_i</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">W99Error</span><span class="p">(</span><span class="s2">&quot;ERROR - Hydrogen with non-1 valence &quot;</span> <span class="s2">&quot;found&quot;</span><span class="p">)</span>
+                <span class="c1"># What is it bonded to?</span>
+                <span class="n">nn_el</span> <span class="o">=</span> <span class="n">chsyms</span><span class="p">[</span><span class="n">bnd_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">nn_el</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+                    <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;H_1&quot;</span>
+                <span class="k">elif</span> <span class="n">nn_el</span> <span class="o">==</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+                    <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;H_4&quot;</span>
+                <span class="k">elif</span> <span class="n">nn_el</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
+                    <span class="c1"># Alcoholic or carboxylic?</span>
+                    <span class="n">nn_mi</span> <span class="o">=</span> <span class="n">inds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bnd_i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">carbs</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">nn_mi</span><span class="p">]</span> <span class="k">if</span> <span class="n">chsyms</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">carbs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">W99Error</span><span class="p">(</span><span class="s2">&quot;ERROR - Anomalous chemical group &quot;</span> <span class="s2">&quot;found&quot;</span><span class="p">)</span>
+                    <span class="n">c_mi</span> <span class="o">=</span> <span class="n">inds</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">carbs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">oxys</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">[</span><span class="n">c_mi</span><span class="p">]</span> <span class="k">if</span> <span class="n">chsyms</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span> <span class="ow">and</span> <span class="n">b</span> <span class="o">!=</span> <span class="n">bnd_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">]</span>
+                    <span class="c1"># What is it?</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">oxys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">bonds</span><span class="p">[</span><span class="n">c_mi</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="c1"># Carboxylic!</span>
+                        <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;H_3&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Alcoholic!</span>
+                        <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;H_2&quot;</span>
+            <span class="k">elif</span> <span class="n">el_i</span> <span class="o">==</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span>
+                <span class="c1"># Carbon case</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bnd_i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;C_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">W99Error</span><span class="p">(</span><span class="s2">&quot;ERROR - Anomalous chemical group found&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">el_i</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
+                <span class="c1"># Oxygen case</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bnd_i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;O_</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">W99Error</span><span class="p">(</span><span class="s2">&quot;ERROR - Anomalous chemical group found&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">el_i</span> <span class="o">==</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+                <span class="c1"># Nitrogen case</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bnd_i</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N_1&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Count hydrogens</span>
+                    <span class="n">hydros</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bnd_i</span> <span class="k">if</span> <span class="n">chsyms</span><span class="p">[</span><span class="n">b</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;H&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hydros</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N_2&quot;</span>
+                    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">hydros</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N_3&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">w99types</span><span class="p">[</span><span class="n">a_i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;N_4&quot;</span>
+
+        <span class="n">m</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="s2">&quot;w99_types&quot;</span><span class="p">,</span> <span class="n">w99types</span><span class="p">[</span><span class="n">inds</span><span class="p">])</span>
+
+    <span class="n">s</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="s2">&quot;w99_types&quot;</span><span class="p">,</span> <span class="n">w99types</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="_w99_field_definition"><a class="viewcode-back" href="../../../../_autosummary/soprano.calculate.gulp.w99.html#soprano.calculate.gulp.w99._w99_field_definition">[docs]</a><span class="k">def</span> <span class="nf">_w99_field_definition</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">etol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Output the W99 field definition for GULP input. System must already</span>
+<span class="sd">    have w99 types calculated&quot;&quot;&quot;</span>
+
+    <span class="n">w99types</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;w99_types&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Which types are present?</span>
+    <span class="n">w99types</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">w99types</span><span class="p">))</span>
+
+    <span class="n">field_def</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># Now take care of all permutations</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">w99types</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">t2</span> <span class="ow">in</span> <span class="n">w99types</span><span class="p">[</span><span class="n">i</span><span class="p">:]:</span>
+            <span class="c1"># Calculate parameters</span>
+            <span class="k">if</span> <span class="n">t1</span> <span class="o">==</span> <span class="n">t2</span><span class="p">:</span>
+                <span class="n">A</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">_w99_data</span><span class="p">[</span><span class="n">t1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">A1</span><span class="p">,</span> <span class="n">rho1</span><span class="p">,</span> <span class="n">C1</span> <span class="o">=</span> <span class="n">_w99_data</span><span class="p">[</span><span class="n">t1</span><span class="p">]</span>
+                <span class="n">A2</span><span class="p">,</span> <span class="n">rho2</span><span class="p">,</span> <span class="n">C2</span> <span class="o">=</span> <span class="n">_w99_data</span><span class="p">[</span><span class="n">t2</span><span class="p">]</span>
+                <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">A1</span> <span class="o">*</span> <span class="n">A2</span><span class="p">)</span>
+                <span class="n">rho</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">rho1</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">rho2</span><span class="p">)</span>
+                <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">C1</span> <span class="o">*</span> <span class="n">C2</span><span class="p">)</span>
+
+            <span class="c1"># Calculate the optimal cutoff to meet the required energy</span>
+            <span class="c1"># tolerance</span>
+            <span class="n">expcut</span> <span class="o">=</span> <span class="o">-</span><span class="n">rho</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">etol</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+            <span class="n">r6cut</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="o">/</span> <span class="n">etol</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">6.0</span><span class="p">)</span>
+            <span class="n">cut</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">expcut</span><span class="p">,</span> <span class="n">r6cut</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">field_def</span> <span class="o">+=</span> <span class="s2">&quot;buck inter</span><span class="se">\n</span><span class="si">{0}</span><span class="s2"> </span><span class="si">{1}</span><span class="s2"> </span><span class="si">{2}</span><span class="s2"> </span><span class="si">{3}</span><span class="s2"> </span><span class="si">{4}</span><span class="s2"> </span><span class="si">{5}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">cut</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">field_def</span></div>
+
+
+<div class="viewcode-block" id="get_w99_energy"><a class="viewcode-back" href="../../../../_autosummary/soprano.calculate.gulp.w99.html#soprano.calculate.gulp.w99.get_w99_energy">[docs]</a><span class="k">def</span> <span class="nf">get_w99_energy</span><span class="p">(</span>
+    <span class="n">s</span><span class="p">,</span>
+    <span class="n">charge_method</span><span class="o">=</span><span class="s2">&quot;eem&quot;</span><span class="p">,</span>
+    <span class="n">Etol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">gulp_command</span><span class="o">=</span><span class="s2">&quot;gulp&quot;</span><span class="p">,</span>
+    <span class="n">gulp_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_charges</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the W99 force field energy using GULP.</span>
+
+<span class="sd">    | Parameters:</span>
+<span class="sd">    |   s (ase.Atoms): the structure to calculate the energy of</span>
+<span class="sd">    |   charge_method (Optional[str]): which method to use for atomic partial</span>
+<span class="sd">    |                                  charge calculation. Can be any of</span>
+<span class="sd">    |                                  &#39;eem&#39;, &#39;qeq&#39; and &#39;pacha&#39;.</span>
+<span class="sd">    |                                  Default is &#39;eem&#39;.</span>
+<span class="sd">    |   Etol (Optional[float]): tolerance on energy for intermolecular</span>
+<span class="sd">    |                           potential cutoffs (relative to single</span>
+<span class="sd">    |                           interaction energy). Default is 1e-6 eV.</span>
+<span class="sd">    |   gulp_command (Optional[str]): command required to call the GULP</span>
+<span class="sd">    |                                 executable.</span>
+<span class="sd">    |   gulp_path (Optional[str]): path where the GULP executable can be</span>
+<span class="sd">    |                              found. If not present, the GULP command</span>
+<span class="sd">    |                              will be invoked directly (assuming the</span>
+<span class="sd">    |                              executable is in the system PATH).</span>
+<span class="sd">    |   save_charges (Optional[bool]): whether to retrieve also the charges</span>
+<span class="sd">    |                                  and save them in the Atoms object.</span>
+<span class="sd">    |                                  False by default.</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   energy (float): the calculated energy</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sanity check</span>
+    <span class="k">if</span> <span class="n">charge_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;eem&quot;</span><span class="p">,</span> <span class="s2">&quot;qeq&quot;</span><span class="p">,</span> <span class="s2">&quot;pacha&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid charge_method passed to get_w99_energy&quot;</span><span class="p">)</span>
+
+    <span class="c1"># First, atom types</span>
+    <span class="n">find_w99_atomtypes</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="c1"># Now define the input</span>
+    <span class="n">gin</span> <span class="o">=</span> <span class="s2">&quot;molq </span><span class="si">{0}</span><span class="s2"> dipole</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">charge_method</span><span class="p">)</span>
+    <span class="n">gin</span> <span class="o">+=</span> <span class="n">_gulp_cell_definition</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">syms</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s2">&quot;w99_types&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Finally, the potential definition</span>
+    <span class="n">gin</span> <span class="o">+=</span> <span class="n">_w99_field_definition</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Etol</span><span class="p">)</span>
+
+    <span class="c1"># AND GO!</span>
+    <span class="k">if</span> <span class="n">gulp_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gulp_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">gulp_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gulp_path</span><span class="p">,</span> <span class="n">gulp_command</span><span class="p">)]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gulp_proc</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">gulp_cmd</span><span class="p">,</span>
+            <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">stdin</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">safe_communicate</span><span class="p">(</span><span class="n">gulp_proc</span><span class="p">,</span> <span class="n">gin</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;GULP not found on this system with the given &quot;</span> <span class="s2">&quot;command&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Necessary for compatibility in Python2</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Now parse the energy</span>
+    <span class="n">gulp_lines</span> <span class="o">=</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="n">_gulp_parse_energy</span><span class="p">(</span><span class="n">gulp_lines</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">E</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;ERROR - GULP run failed to return energy&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Remember it with a mock ASE calculator</span>
+    <span class="n">calc</span> <span class="o">=</span> <span class="n">SinglePointCalculator</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="n">E</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">set_calculator</span><span class="p">(</span><span class="n">calc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save_charges</span><span class="p">:</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">_gulp_parse_charges</span><span class="p">(</span><span class="n">gulp_lines</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">set_initial_charges</span><span class="p">(</span><span class="n">qs</span><span class="p">[</span><span class="s2">&quot;q&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">E</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

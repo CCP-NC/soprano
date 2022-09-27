@@ -1,0 +1,1315 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.analyse.phylogen.phylogenclust &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/analyse/phylogen/phylogenclust.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.analyse.phylogen.phylogenclust</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Phylogenetic clustering class definitions&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster</span> <span class="kn">import</span> <span class="n">hierarchy</span><span class="p">,</span> <span class="n">vq</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">distance</span> <span class="k">as</span> <span class="n">spdist</span>
+
+<span class="c1"># 2-to-3 compatibility</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pickle</span>
+<span class="c1"># Internal imports</span>
+<span class="kn">from</span> <span class="nn">soprano.utils</span> <span class="kn">import</span> <span class="n">get_sklearn_clusters</span>
+<span class="kn">from</span> <span class="nn">soprano.collection</span> <span class="kn">import</span> <span class="n">AtomsCollection</span>
+<span class="kn">from</span> <span class="nn">soprano.analyse.phylogen.genes</span> <span class="kn">import</span> <span class="n">load_genefile</span>
+<span class="kn">from</span> <span class="nn">soprano.analyse.phylogen</span> <span class="kn">import</span> <span class="n">mapping</span>
+
+
+<div class="viewcode-block" id="PhylogenCluster"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster">[docs]</a><span class="k">class</span> <span class="nc">PhylogenCluster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;PhylogenCluster</span>
+
+<span class="sd">    An object that, given an AtomsCollection and a series of &quot;genes&quot; and</span>
+<span class="sd">    weights, will build clusters out of the structures in the collection based</span>
+<span class="sd">    on their reciprocal positions as points in a multi-dimensional space</span>
+<span class="sd">    defined by those &quot;genes&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coll</span><span class="p">,</span> <span class="n">genes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">norm_dist</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the PhylogenCluster object.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   coll (AtomsCollection): an AtomsCollection containing the</span>
+<span class="sd">        |                           structures that should be classified.</span>
+<span class="sd">        |                           This will be copied and frozen for the</span>
+<span class="sd">        |                           entirety of the life of this instance;</span>
+<span class="sd">        |                           in order to operate on a modified</span>
+<span class="sd">        |                           collection, a new PhylogenCluster should</span>
+<span class="sd">        |                           be created.</span>
+<span class="sd">        |   genes (list[tuple], str, file): list of the genes that should be</span>
+<span class="sd">        |                                   loaded immediately; each gene</span>
+<span class="sd">        |                                   comes in the form of a tuple</span>
+<span class="sd">        |                                   (name (str), weight (float),</span>
+<span class="sd">        |                                   params (dict)). A path or open</span>
+<span class="sd">        |                                   file can also be passed for a</span>
+<span class="sd">        |                                   .gene file, from which the values</span>
+<span class="sd">        |                                   will be loaded.</span>
+<span class="sd">        |   norm_range (list[float?]): ranges to constrain the values of</span>
+<span class="sd">        |                              single genes in between. Default is</span>
+<span class="sd">        |                              (0, 1). A value of &quot;None&quot; in either</span>
+<span class="sd">        |                              place can be used to indicate no</span>
+<span class="sd">        |                              normalization on one or both sides.</span>
+<span class="sd">        |   norm_dist (float?): value to normalize distance genes to. These</span>
+<span class="sd">        |                       are the genes that only make sense on pairs of</span>
+<span class="sd">        |                       structures. Their minimum value is always 0.</span>
+<span class="sd">        |                       This number would become their maximum value,</span>
+<span class="sd">        |                       or can be set to None to avoid normalization.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Start by copying the collection</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coll</span><span class="p">,</span> <span class="n">AtomsCollection</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;coll must be an AtomsCollection&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">coll</span><span class="p">)</span>
+
+        <span class="c1"># Now initialize all the main fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Contains all past calculated genes</span>
+        <span class="c1"># This one stores the norm range used last time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span> <span class="o">=</span> <span class="n">norm_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normdist</span> <span class="o">=</span> <span class="n">norm_dist</span>
+        <span class="c1"># These need to be recalculated every time the genes change</span>
+        <span class="c1"># They also depend on stuff like normalization conditions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Legend of genes as assigned</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># For genes that work as points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># For genes that work as distances</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Normalised version of the above</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_norm</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Normalised version of the above</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Total distance matrix (to feed to Scipy)</span>
+
+        <span class="c1"># Now to actually add the genes</span>
+        <span class="k">if</span> <span class="n">genes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_genes</span><span class="p">(</span><span class="n">genes</span><span class="o">=</span><span class="n">genes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PhylogenCluster.set_genes"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes">[docs]</a>    <span class="k">def</span> <span class="nf">set_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">load_arrays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate, store and set a list of genes as used for clustering.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   genes (list[soprano.analyse.phylogen.Gene],</span>
+<span class="sd">        |          file, str): a list of Genes to calculate and store. A path</span>
+<span class="sd">        |                      or open file can also be passed for a .gene</span>
+<span class="sd">        |                      file, from which the values will be loaded.</span>
+<span class="sd">        |   load_arrays (bool): try loading the genes as arrays from the</span>
+<span class="sd">        |                       collection before generating them. Warning:</span>
+<span class="sd">        |                       if there are arrays named like genes but with</span>
+<span class="sd">        |                       different contents this can lead to</span>
+<span class="sd">        |                       unpredictable results.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check if it can be opened:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">load_genefile</span><span class="p">(</span><span class="n">genes</span><span class="p">)</span>
+            <span class="n">genes</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="c1"># First, check if it&#39;s already stored</span>
+            <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span><span class="p">:</span>
+                <span class="c1"># Is it the same?</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;def&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">g</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="c1"># If it&#39;s not, it needs to be calculated</span>
+            <span class="n">gene_val</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span> <span class="ow">or</span> <span class="n">g</span><span class="o">.</span><span class="n">is_pair</span>
+
+            <span class="k">if</span> <span class="n">load_arrays</span><span class="p">:</span>
+                <span class="c1"># Check if it is present</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">gene_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="c1"># And confirm that there are no NaNs inside</span>
+            <span class="k">if</span> <span class="n">gene_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">gene_val</span><span class="p">)):</span>
+                <span class="n">gene_val</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;def&quot;</span><span class="p">:</span> <span class="n">g</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">gene_val</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster._recalc"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster._recalc">[docs]</a>    <span class="k">def</span> <span class="nf">_recalc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recalculate all stored variables that depend on genes and ranges&quot;&quot;&quot;</span>
+
+        <span class="n">clen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">clen</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">clen</span><span class="p">,</span> <span class="n">clen</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="n">g_vecs_weights</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">g_mats_weights</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">:</span>
+            <span class="n">gene_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;val&quot;</span><span class="p">]</span>
+            <span class="c1"># Here we need to perform a reshaping</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">is_pair</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_val</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">gene_val</span> <span class="o">=</span> <span class="n">gene_val</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">g</span><span class="o">.</span><span class="n">is_pair</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">gene_val</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">gene_val</span> <span class="o">=</span> <span class="n">gene_val</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">gene_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gene_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="c1"># Now normalization and weights</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">is_pair</span><span class="p">:</span>
+                <span class="c1"># Append</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span><span class="p">,</span> <span class="n">gene_val</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="n">gn</span> <span class="o">=</span> <span class="n">gene_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">g_vecs_weights</span> <span class="o">+=</span> <span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gn</span><span class="p">)]</span> <span class="o">*</span> <span class="n">gn</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">gn</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Append</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span><span class="p">,</span> <span class="n">gene_val</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="n">gn</span> <span class="o">=</span> <span class="n">gene_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">g_mats_weights</span> <span class="o">+=</span> <span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gn</span><span class="p">)]</span> <span class="o">*</span> <span class="n">gn</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">gn</span><span class="p">))</span>
+
+        <span class="c1"># Now calculate the normalized versions</span>
+        <span class="n">vnorm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span> <span class="o">!=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Only maximum</span>
+                <span class="n">vnorm</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">vnorm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Only minimum</span>
+                <span class="n">vnorm</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">vnorm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">vmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amin</span><span class="p">(</span><span class="n">vnorm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">vnorm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">vspan</span> <span class="o">=</span> <span class="n">vmax</span> <span class="o">-</span> <span class="n">vmin</span>
+                <span class="c1"># Fix the risk of division by zero</span>
+                <span class="n">vspan</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">vspan</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">vspan</span><span class="p">)</span>
+                <span class="n">vnorm</span> <span class="o">=</span> <span class="p">(</span><span class="n">vnorm</span> <span class="o">-</span> <span class="n">vmin</span><span class="p">)</span> <span class="o">/</span> <span class="n">vspan</span>
+                <span class="n">vnorm</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">vnorm</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normrng</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span> <span class="o">=</span> <span class="n">vnorm</span> <span class="o">*</span> <span class="n">g_vecs_weights</span>
+
+        <span class="n">mnorm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normdist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">mnorm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">mmax</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">mmax</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">mnorm</span> <span class="o">*=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normdist</span> <span class="o">/</span> <span class="n">mmax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_norm</span> <span class="o">=</span> <span class="n">mnorm</span> <span class="o">*</span> <span class="n">g_mats_weights</span>
+
+        <span class="c1"># Distmat: start with vectors, add distances</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span>
+            <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_vectors"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the genome vectors in raw form (not normalized).</span>
+<span class="sd">        The vectors refer to genes that allow to define a specific point for</span>
+<span class="sd">        each structure.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   genome_vectors (np.ndarray): a (collection.length, gene.length)</span>
+<span class="sd">        |                                array, containing the whole extent</span>
+<span class="sd">        |                                of the gene values for each structure</span>
+<span class="sd">        |                                in the collection on each row</span>
+<span class="sd">        |   genome_legend (list[tuple]): a list of tuples containing (name,</span>
+<span class="sd">        |                                length) of the gene fragments in the</span>
+<span class="sd">        |                                array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">][:]</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_matrices"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the genome matrices in raw form (not normalized).</span>
+<span class="sd">        The matrices refer to genes that only allow to define a distance</span>
+<span class="sd">        between structures. The element at i,j represents the distance</span>
+<span class="sd">        between said structures. The matrix is symmetric and has</span>
+<span class="sd">        null diagonal.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   genome_matrix (np.ndarray): a (collection.length,</span>
+<span class="sd">        |                                collection.length, gene.length)</span>
+<span class="sd">        |                                array, containing the distances for</span>
+<span class="sd">        |                                each gene and pair of structures in</span>
+<span class="sd">        |                                row and column</span>
+<span class="sd">        |   genome_legend (list[tuple]): a list of tuples containing (name,</span>
+<span class="sd">        |                                length) of the gene fragments in the</span>
+<span class="sd">        |                                array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">1</span><span class="p">][:]</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_vectors_norm"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_vectors_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the genome vectors in normalized and weighted form.</span>
+<span class="sd">        The vectors refer to genes that allow to define a specific point for</span>
+<span class="sd">        each structure.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   genome_vectors (np.ndarray): a (collection.length, gene.length)</span>
+<span class="sd">        |                                array, containing the whole extent</span>
+<span class="sd">        |                                of the gene values for each structure</span>
+<span class="sd">        |                                in the collection on each row</span>
+<span class="sd">        |   genome_legend (list[tuple]): a list of tuples containing (name,</span>
+<span class="sd">        |                                length) of the gene fragments in the</span>
+<span class="sd">        |                                array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">][:]</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_matrices_norm"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_matrices_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the genome matrices in normalized and weighted form.</span>
+<span class="sd">        The matrices refer to genes that only allow to define a distance</span>
+<span class="sd">        between structures. The element at i,j represents the distance</span>
+<span class="sd">        between said structures. The matrix is symmetric and has</span>
+<span class="sd">        null diagonal.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   genome_matrix (np.ndarray): a (collection.length,</span>
+<span class="sd">        |                                collection.length, gene.length)</span>
+<span class="sd">        |                                array, containing the distances for</span>
+<span class="sd">        |                                each gene and pair of structures in</span>
+<span class="sd">        |                                row and column</span>
+<span class="sd">        |   genome_legend (list[tuple]): a list of tuples containing (name,</span>
+<span class="sd">        |                                length) of the gene fragments in the</span>
+<span class="sd">        |                                array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_norm</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">1</span><span class="p">][:]</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_distmat"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat">[docs]</a>    <span class="k">def</span> <span class="nf">get_distmat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the distance matrix between structures in the collection,</span>
+<span class="sd">        based on the genes currently in use.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   distmat (np.ndarray): a (collection.length, collection.length)</span>
+<span class="sd">        |                         array, containing the overall distance</span>
+<span class="sd">        |                         (the norm of all individual gene distances)</span>
+<span class="sd">        |                         between all pairs of structures.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_linkage"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage">[docs]</a>    <span class="k">def</span> <span class="nf">get_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the linkage matrix between structures in the collection,</span>
+<span class="sd">        based on the genes currently in use. Only used in hierarchical</span>
+<span class="sd">        clustering.</span>
+
+<span class="sd">        Calls scipy.cluster.hierarchy.linkage.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   method (str): clustering method to employ. Valid entries are</span>
+<span class="sd">        |                 &#39;single&#39;, &#39;complete&#39;, &#39;weighted&#39; and &#39;average&#39;.</span>
+<span class="sd">        |                 Refer to Scipy documentation for further details.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   Z (np.ndarray): linkage matrix for the structures in the</span>
+<span class="sd">        |                   collection. Refer to Scipy documentation for</span>
+<span class="sd">        |                   details about the method</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="n">cdist</span> <span class="o">=</span> <span class="n">spdist</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">cdist</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_hier_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_hier_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get multiple clusters (in the form of a list of collections) based</span>
+<span class="sd">        on the hierarchical clustering methods and the currently set genes.</span>
+
+<span class="sd">        Calls scipy.cluster.hierarchy.fcluster</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   t (float): minimum distance of separation required to consider</span>
+<span class="sd">        |              two clusters separate. This controls the number of</span>
+<span class="sd">        |              clusters: a smaller value will produce more fine</span>
+<span class="sd">        |              grained clustering. At the limit, a value smaller than</span>
+<span class="sd">        |              the distance between the two closest structures will</span>
+<span class="sd">        |              return a cluster for each structure. Remember that the</span>
+<span class="sd">        |              &#39;distances&#39; in this case refer to distances between the</span>
+<span class="sd">        |              &#39;gene&#39; values attributed to each structure. In other</span>
+<span class="sd">        |              words they are a function of the chosen genes,</span>
+<span class="sd">        |              normalization conditions and weights employed.</span>
+<span class="sd">        |              In addition, the way they are calculated depends on the</span>
+<span class="sd">        |              choice of method.</span>
+<span class="sd">        |   method (str): clustering method to employ. Valid entries are</span>
+<span class="sd">        |                 &#39;single&#39;, &#39;complete&#39;, &#39;weighted&#39; and &#39;average&#39;.</span>
+<span class="sd">        |                 Refer to Scipy documentation for further details.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   clusters (tuple(list[int],</span>
+<span class="sd">        |                   list[slices])): list of cluster index for each</span>
+<span class="sd">        |                                   structure (counting from 1) and</span>
+<span class="sd">        |                                   list of slices defining the</span>
+<span class="sd">        |                                   clusters as formed by hierarchical</span>
+<span class="sd">        |                                   algorithm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_linkage</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+        <span class="n">clusts</span> <span class="o">=</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">fcluster</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+        <span class="n">clust_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">clusts</span><span class="p">)</span>
+        <span class="n">clust_slices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">clusts</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">clust_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">clusts</span><span class="p">,</span> <span class="n">clust_slices</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_hier_tree"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree">[docs]</a>    <span class="k">def</span> <span class="nf">get_hier_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a tree data structure describing the clustering order of based</span>
+<span class="sd">        on the hierarchical clustering methods and the currently set genes.</span>
+
+<span class="sd">        Calls scipy.cluster.hierarchy.to_tree</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   method (str): clustering method to employ. Valid entries are</span>
+<span class="sd">        |                 &#39;single&#39;, &#39;complete&#39;, &#39;weighted&#39; and &#39;average&#39;.</span>
+<span class="sd">        |                 Refer to Scipy documentation for further details.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   root_node (ClusterNode): the root node of the tree. Access child</span>
+<span class="sd">        |                            members with .left and .right, while .id</span>
+<span class="sd">        |                            holds the number of the corresponding</span>
+<span class="sd">        |                            cluster. Refer to Scipy documentation for</span>
+<span class="sd">        |                            further details.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_linkage</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_max_cluster_dist"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_cluster_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the maximum possible distance between two clusters&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">([</span><span class="n">g</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_kmeans_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_kmeans_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a given number of clusters (in the form of a list of</span>
+<span class="sd">        collections) based on the k-means clustering methods</span>
+<span class="sd">        and the currently set genes.</span>
+<span class="sd">        Warning: this method only works if there are no genes that work only</span>
+<span class="sd">        with pairs of structures - as specific points, and not just distances</span>
+<span class="sd">        between them, are required for this algorithm.</span>
+
+<span class="sd">        Calls scipy.cluster.vq.kmeans</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   n (int):    the desired number of clusters.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   clusters (tuple(list[int],</span>
+<span class="sd">        |                   list[slices])): list of cluster index for each</span>
+<span class="sd">        |                                   structure (counting from 1) and</span>
+<span class="sd">        |                                   list of slices defining the</span>
+<span class="sd">        |                                   clusters as formed by k-means</span>
+<span class="sd">        |                                   algorithm.</span>
+
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Sanity check</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span><span class="p">:</span>
+            <span class="c1"># Then this method can&#39;t work!</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;k-means clustering can not be used with&quot;</span>
+                <span class="s2">&quot;presence of pair distance genes&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="n">centroids</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">vq</span><span class="o">.</span><span class="n">kmeans</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">clusts</span><span class="p">,</span> <span class="n">cdists</span> <span class="o">=</span> <span class="n">vq</span><span class="o">.</span><span class="n">vq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="p">,</span> <span class="n">centroids</span><span class="p">)</span>
+        <span class="n">clust_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">clusts</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">clust_slices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">clusts</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">clust_n</span><span class="p">)]</span>
+        <span class="n">clusts</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">clusts</span><span class="p">,</span> <span class="n">clust_slices</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_sklearn_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_sklearn_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_sklearn_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Get clusters applying any of the methods provided by the library</span>
+<span class="sd">        scikit-learn (requires a separate installation).</span>
+<span class="sd">        Warning: this method only works if there are no genes that work only</span>
+<span class="sd">        with pairs of structures - as use of pairwise clustering methods is</span>
+<span class="sd">        not implemented yet.</span>
+
+<span class="sd">        Uses the sklearn.cluster.&lt;method&gt; class</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   method (str): name of the clustering class from sklearn.clusters</span>
+<span class="sd">        |                 to use. For reference check the documentation at</span>
+<span class="sd">        |                 http://scikit-learn.org/stable/modules/clustering.html</span>
+<span class="sd">        |   params (dict): parameters to be passed to the class when</span>
+<span class="sd">        |                  initialising it. Change depending on the desired</span>
+<span class="sd">        |                  method. Check the documentation for the specific</span>
+<span class="sd">        |                  class.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   clusters (tuple(list[int],</span>
+<span class="sd">        |                   list[slices])): list of cluster index for each</span>
+<span class="sd">        |                                   structure (counting from 1) and</span>
+<span class="sd">        |                                   list of slices defining the</span>
+<span class="sd">        |                                   clusters as formed by the</span>
+<span class="sd">        |                                   requested algorithm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Sanity check</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span><span class="p">:</span>
+            <span class="c1"># Then this method can&#39;t work!</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;k-means clustering can not be used with&quot;</span>
+                <span class="s2">&quot;presence of pair distance genes&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="n">clusts</span> <span class="o">=</span> <span class="n">get_sklearn_clusters</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="n">clust_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">clusts</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">clust_slices</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">clusts</span> <span class="o">==</span> <span class="n">i</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">clust_n</span><span class="p">)]</span>
+        <span class="n">clusts</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">clusts</span><span class="p">,</span> <span class="n">clust_slices</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper method to get clusters by any available method. Depending</span>
+<span class="sd">        on the value passed as &#39;method&#39; it calls either ger_hier_clusters,</span>
+<span class="sd">        get_kmeans_clusters, or get_sklearn_clusters. Check their respective</span>
+<span class="sd">        docstrings for more detailed info.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   method (str): name of the clustering method to use. Can be &#39;hier&#39;,</span>
+<span class="sd">        |                 &#39;kmeans&#39;, or one of the methods in sklearn.clusters.</span>
+<span class="sd">        |   params (dict): parameters to be passed to the class when</span>
+<span class="sd">        |                  initialising it. Change depending on the desired</span>
+<span class="sd">        |                  method. Check the documentation for the specific</span>
+<span class="sd">        |                  class.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   clusters (tuple(list[int],</span>
+<span class="sd">        |                   list[slices])): list of cluster index for each</span>
+<span class="sd">        |                                   structure (counting from 1) and</span>
+<span class="sd">        |                                   list of slices defining the</span>
+<span class="sd">        |                                   clusters as formed by the</span>
+<span class="sd">        |                                   requested algorithm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;hier&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hier_clusters</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter t required for hierarchical&quot;</span> <span class="s2">&quot; clustering&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kmeans_clusters</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter n required for k-means&quot;</span> <span class="s2">&quot; clustering&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sklearn_clusters</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_cluster_stats"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_cluster_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute average values and standard deviation for each gene within</span>
+<span class="sd">        a given clustering.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   clusters (tuple): the clustering in tuple form, as returned by one</span>
+<span class="sd">        |                     of the get_clusters methods.</span>
+<span class="sd">        |   raw (bool): if True, return average and standard deviation of raw</span>
+<span class="sd">        |               instead of normalised gene values. Default is False.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   avgs (np.ndarray): 2D array of average values of each gene for</span>
+<span class="sd">        |                      each cluster.</span>
+<span class="sd">        |   stds (np.ndarray): 2D array of standard deviations of each gene</span>
+<span class="sd">        |                      for each cluster.</span>
+<span class="sd">        |   genome_legend (list[tuple]): a list of tuples containing (name,</span>
+<span class="sd">        |                                length) of the gene fragments in the</span>
+<span class="sd">        |                                arrays</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Sanity check</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Pair distance gene stats can not be calculated&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">raw</span><span class="p">:</span>
+            <span class="n">gv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">inds</span><span class="p">,</span> <span class="n">slices</span> <span class="o">=</span> <span class="n">clusters</span>
+
+        <span class="n">avgs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">slices</span><span class="p">),</span> <span class="n">gv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">stds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">slices</span><span class="p">),</span> <span class="n">gv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slices</span><span class="p">):</span>
+            <span class="n">avgs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">gv</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">stds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">gv</span><span class="p">[</span><span class="n">sl</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">avgs</span><span class="p">,</span> <span class="n">stds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">][:]</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.get_elbow_plot"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_elbow_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_elbow_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">param_name</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">param_range</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Returns data for an elbow plot by scanning the outcome of a given</span>
+<span class="sd">        clustering method within a range of values for a chosen parameter.</span>
+<span class="sd">        Used to determine optimal parameter values.</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   method (str): name of the clustering method to use. Can be &#39;hier&#39;,</span>
+<span class="sd">        |                 &#39;kmeans&#39;, or one of the methods in sklearn.clusters.</span>
+<span class="sd">        |                 Default is kmeans.</span>
+<span class="sd">        |   param_name (str): parameter to be scanned over. Change depending</span>
+<span class="sd">        |                     on the desired method. Check the documentation</span>
+<span class="sd">        |                     for the specific class. Default is n, number of</span>
+<span class="sd">        |                     clusters for k-means method.</span>
+<span class="sd">        |   param_range (list): values of param_name to scan over. Default is</span>
+<span class="sd">        |                       the integers from 1 to 10.</span>
+
+<span class="sd">        | Returns:</span>
+<span class="sd">        |   wss (np.ndarray): values of the &quot;Within cluster Sum of Squares&quot;</span>
+<span class="sd">        |                     (WSS) to be used on the elbow plot y axis.</span>
+<span class="sd">        |   param_range (list): range used for parameter scan, to be used on</span>
+<span class="sd">        |                       the x axis (same as passed by the user).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">wss</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">pval</span> <span class="ow">in</span> <span class="n">param_range</span><span class="p">:</span>
+            <span class="n">clusts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_clusters</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="n">param_name</span><span class="p">:</span> <span class="n">pval</span><span class="p">})</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cluster_stats</span><span class="p">(</span><span class="n">clusts</span><span class="p">)</span>
+            <span class="n">wss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wss</span><span class="p">),</span> <span class="n">param_range</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.create_mapping"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">create_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;total-principal&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return an array of 2-dimensional points representing a reduced</span>
+<span class="sd">        dimensionality mapping of the given genes using the algorithm of</span>
+<span class="sd">        choice. All algorithms are described in [W. Siedlecki et al., Patt.</span>
+<span class="sd">        Recog. vol. 21, num. 5, pp. 411 429 (1988)].</span>
+
+<span class="sd">        | Args:</span>
+<span class="sd">        |   method (str): can be one of the following algorithms:</span>
+<span class="sd">        |                     - total_principal (default)</span>
+<span class="sd">        |                     - clafic</span>
+<span class="sd">        |                     - fukunaga-koontz</span>
+<span class="sd">        |                     - optimal-discriminant</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Sanity check</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_pairgenes</span><span class="p">:</span>
+            <span class="c1"># Then this method can&#39;t work!</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;No mapping can be performed in presence of&quot;</span> <span class="s2">&quot;pair distance genes&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_recalc</span><span class="p">()</span>
+
+        <span class="n">algos</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;total-principal&quot;</span><span class="p">:</span> <span class="n">mapping</span><span class="o">.</span><span class="n">total_principal_component</span><span class="p">,</span>
+            <span class="s2">&quot;clafic&quot;</span><span class="p">:</span> <span class="n">mapping</span><span class="o">.</span><span class="n">classcond_principal_component</span><span class="p">,</span>
+            <span class="s2">&quot;fukunaga-koontz&quot;</span><span class="p">:</span> <span class="n">mapping</span><span class="o">.</span><span class="n">standard_classcond_component</span><span class="p">,</span>
+            <span class="s2">&quot;optimal-discriminant&quot;</span><span class="p">:</span> <span class="n">mapping</span><span class="o">.</span><span class="n">optimal_discriminant_plane</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">algos</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Invalid method passed to create_mapping.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="s2">&quot;Valid methods are: </span><span class="se">\n</span><span class="s2">-&quot;</span><span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">algos</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.save_collection"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection">[docs]</a>    <span class="k">def</span> <span class="nf">save_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save as pickle the collection bound to this PhylogenCluster.</span>
+<span class="sd">        The calculated genes are also stored in it as arrays for future use.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">saveC</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="p">[:]</span>
+
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span><span class="p">:</span>
+            <span class="n">saveC</span><span class="o">.</span><span class="n">set_array</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_storage</span><span class="p">[</span><span class="n">g</span><span class="p">][</span><span class="s2">&quot;val&quot;</span><span class="p">])</span>
+
+        <span class="n">saveC</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.save"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simply save a pickled copy to a given file path&quot;&quot;&quot;</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PhylogenCluster.load"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a pickled copy from a given file path&quot;&quot;&quot;</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">PhylogenCluster</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File does not contain a PhylogenCluster object&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span></div></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

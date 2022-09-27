@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>soprano.hpc.submitter.castep &#8212; Soprano</title>
     
@@ -627,12 +627,264 @@ title="Print to PDF"
 and depositing results in another.</p>
 <p class="rubric">Classes</p>
 <table class="longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CastepSubmitter</span></code>(name, queue, submit_script)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="soprano.hpc.submitter.castep.CastepSubmitter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CastepSubmitter</span></code></a>(name, queue, submit_script)</p></td>
+<td><p>Initialize the Submitter object</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py class">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.hpc.submitter.castep.</span></code><code class="sig-name descname"><span class="pre">CastepSubmitter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">submit_script</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_workdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_getfiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['*.*']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssh_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="soprano.hpc.submitter.submit.html#soprano.hpc.submitter.submit.Submitter" title="soprano.hpc.submitter.submit.Submitter"><code class="xref py py-class docutils literal notranslate"><span class="pre">soprano.hpc.submitter.submit.Submitter</span></code></a></p>
+<p>Initialize the Submitter object</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">name (str): name to be used for this Submitter (two Submitters</div>
+<div class="line-block">
+<div class="line">with the same name can’t be launched in the same</div>
+<div class="line">working directory)</div>
+</div>
+<div class="line">queue (QueueInterface): object describing the properties of the</div>
+<div class="line-block">
+<div class="line">interface to the queue system in use</div>
+</div>
+<div class="line">submit_script (str): text of the script to use when submitting a</div>
+<div class="line-block">
+<div class="line">job to the queue. All tags of the form &lt;name&gt;</div>
+<div class="line">will be replaced with the job’s name, and all</div>
+<div class="line">similar tags of the form &lt;[arg]&gt; will be</div>
+<div class="line">replaced if the argument name is present in</div>
+<div class="line">the job’s args dictionary</div>
+</div>
+<div class="line">max_jobs (Optional[int]): maximum number of jobs to submit at a</div>
+<div class="line-block">
+<div class="line">given time. Default is 4</div>
+</div>
+<div class="line">check_time (Optional[float]): time in seconds between consecutive</div>
+<div class="line-block">
+<div class="line">checks for the queue status and</div>
+<div class="line">attempts to submit new jobs. Default</div>
+<div class="line">is 10</div>
+</div>
+<div class="line">max_time (Optional[float]): time in seconds the Submitter will run</div>
+<div class="line-block">
+<div class="line">for before shutting down. If set to</div>
+<div class="line">zero the thread won’t stop until</div>
+<div class="line">killed with Submitter.stop.</div>
+</div>
+<div class="line">temp_folder (Optional[str]): where to store the temporary folders</div>
+<div class="line-block">
+<div class="line">for the calculations. By default it’s</div>
+<div class="line">the current folder.</div>
+</div>
+<div class="line">remote_workdir (Optional[str]): if present, uses a directory on a</div>
+<div class="line-block">
+<div class="line">remote machine by logging in via</div>
+<div class="line">SSH. Must be in the format</div>
+<div class="line">&lt;host&gt;:&lt;path/to/directory&gt;.</div>
+<div class="line">Host must be defined in the user’s</div>
+<div class="line">~/.ssh/config file - check the</div>
+<div class="line">docs for RemoteTarget for more</div>
+<div class="line">information. It is possible to</div>
+<div class="line">omit the colon and directory, that</div>
+<div class="line">will use the home directory of the</div>
+<div class="line">given folder; that is HEAVILY</div>
+<div class="line">DISCOURAGED though. Best practice</div>
+<div class="line">would be to create an empty</div>
+<div class="line">directory on the remote machine</div>
+<div class="line">and use that, to avoid accidental</div>
+<div class="line">overwriting/deleting of important</div>
+<div class="line">files.</div>
+</div>
+<div class="line">remote_getfiles (Optional[list(str)]): list of files to be</div>
+<div class="line-block">
+<div class="line">downloaded from the remote</div>
+<div class="line">copy of the job’s temporary</div>
+<div class="line">directory. By default, all</div>
+<div class="line">of them. Can be a list</div>
+<div class="line">using specific names,</div>
+<div class="line">wildcards etc. Filenames</div>
+<div class="line">can also use the</div>
+<div class="line">placeholder {name} to</div>
+<div class="line">signify the job name, as</div>
+<div class="line">well as any other element</div>
+<div class="line">from the arguments.</div>
+</div>
+<div class="line">ssh_timeout (Optional[float]): connection timeout in seconds</div>
+<div class="line-block">
+<div class="line">(default is 1 second)</div>
+</div>
+<div class="line">continuation (Optional[bool]): if True, when the Submitter is</div>
+<div class="line-block">
+<div class="line">stopped it will not terminate the</div>
+<div class="line">current jobs; rather, it will store</div>
+<div class="line">the list in a pickle file.</div>
+<div class="line">If the submitter is ran from the</div>
+<div class="line">same folder then it will “pick up</div>
+<div class="line">from where it left” and try</div>
+<div class="line">recovering those jobs, then</div>
+<div class="line">restart. If one wishes for</div>
+<div class="line">additional values to be saved and</div>
+<div class="line">restored, the save_state and</div>
+<div class="line">load_state methods need to be</div>
+<div class="line">defined.</div>
+</div>
+</div>
+</div>
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter._main_loop">
+<code class="sig-name descname"><span class="pre">_main_loop</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter._main_loop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main loop run as separate thread. Should not be edited when
+inheriting from the class</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter._putjob_remote">
+<code class="sig-name descname"><span class="pre">_putjob_remote</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">njob</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter._putjob_remote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy the files generated for a job to a remote work directory</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.add_signal">
+<code class="sig-name descname"><span class="pre">add_signal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.add_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a signal listener to this submitter. Unix systems only allow
+for up to TWO user-defined signals to be specified.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">command (str): command that should be used to call this signal.</div>
+<div class="line-block">
+<div class="line">This would be used as:</div>
+<div class="line">python -m soprano.hpc.submitter &lt;command&gt; &lt;file&gt;</div>
+<div class="line">and will trigger the callback’s execution</div>
+</div>
+<div class="line">callback (function&lt;self&gt; =&gt; None): method of the user defined</div>
+<div class="line-block">
+<div class="line">Submitter class to use as a callback when the</div>
+<div class="line">given signal is sent. Should accept and return</div>
+<div class="line">nothing.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.check_job">
+<code class="sig-name descname"><span class="pre">check_job</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.check_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if given job is complete or not</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.finish_job">
+<code class="sig-name descname"><span class="pre">finish_job</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter.finish_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save required output files to the output folder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.finish_run">
+<code class="sig-name descname"><span class="pre">finish_run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter.finish_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.finish_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try removing the temporary keywords directory</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.load_state">
+<code class="sig-name descname"><span class="pre">load_state</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaded</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.load_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace attributes from loaded data in dictionary form</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.next_job">
+<code class="sig-name descname"><span class="pre">next_job</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter.next_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.next_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the next job from folder_in</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.remove_signal">
+<code class="sig-name descname"><span class="pre">remove_signal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.remove_signal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a previously defined custom signal by its assigned command.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">command (str): command assigned to the signal handler to remove.</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.save_state">
+<code class="sig-name descname"><span class="pre">save_state</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary containing serialisable data to be saved from
+one run to the next</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.set_parameters">
+<code class="sig-name descname"><span class="pre">set_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">castep_command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">castep_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_extensions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['.castep']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pspot_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dryrun_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.set_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of the CASTEP Submitter</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">folder_in (str): path of the folder to extract cell files from</div>
+<div class="line">folder_out (str): path of the folder where the results will be</div>
+<div class="line-block">
+<div class="line">saved</div>
+</div>
+<div class="line">castep_command (str): command used to call the CASTEP executable</div>
+<div class="line-block">
+<div class="line">on this system</div>
+</div>
+<div class="line">castep_path (Optional[str]): folder where the CASTEP executable is</div>
+<div class="line-block">
+<div class="line">located (if not part of the system</div>
+<div class="line">PATH)</div>
+</div>
+<div class="line">pspot_files (Optional[list[str]]): additional pseudopotential</div>
+<div class="line-block">
+<div class="line">files to be copied in the input</div>
+<div class="line">temporary folders</div>
+</div>
+<div class="line">copy_extensions (Optional[list[str]]): extensions of output files</div>
+<div class="line-block">
+<div class="line">to copy to the output</div>
+<div class="line">folder (by default only</div>
+<div class="line">.castep file)</div>
+</div>
+<div class="line">dryrun_test (Optional[bool]): run a dryrun test on files before</div>
+<div class="line-block">
+<div class="line">actually running the calculation.</div>
+<div class="line">Off by default.</div>
+</div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.setup_job">
+<code class="sig-name descname"><span class="pre">setup_job</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter.setup_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.setup_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy files to temporary folder to prepare for execution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.start_run">
+<code class="sig-name descname"><span class="pre">start_run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/hpc/submitter/castep.html#CastepSubmitter.start_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.start_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Operations to perform when the daemon thread starts running</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="soprano.hpc.submitter.castep.CastepSubmitter.stop">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">stop</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.hpc.submitter.castep.CastepSubmitter.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop Submitter process from filename and name,
+return False if failed</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

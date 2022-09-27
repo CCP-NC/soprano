@@ -1,0 +1,1432 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>soprano.analyse.phylogen.genes &#8212; Soprano</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/togglebutton.js"></script>
+    <script src="../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../_static/copybutton.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
+    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script >mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">Soprano</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../intro.html">
+                    About
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../tutorials.html">
+   Tutorials
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
+     Tutorial 1 - Basic concepts: using AtomsCollection objects
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
+     Tutorial 2 - Generators, Properties and Calculators
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
+     Tutorial 3 - AtomSelection and transforms
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
+     Tutorial 4 - Clustering analysis
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
+     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
+     Tutorial 6 - Soprano for defect calculations
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../submitter.html">
+   Job Submitter
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../api.html">
+   API reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../_autosummary/soprano.html">
+     soprano
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
+       soprano.analyse
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+      <label for="toctree-checkbox-4">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
+         soprano.analyse.phylogen
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
+       soprano.calculate
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+      <label for="toctree-checkbox-5">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
+         soprano.calculate.gulp
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
+         soprano.calculate.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
+         soprano.calculate.powder
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
+         soprano.calculate.xrd
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
+       soprano.collection
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+      <label for="toctree-checkbox-6">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
+         soprano.collection.collection
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
+         soprano.collection.generate
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
+       soprano.data
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+      <label for="toctree-checkbox-7">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
+         soprano.data.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
+         soprano.data.vdw
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
+       soprano.hpc
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+      <label for="toctree-checkbox-8">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
+         soprano.hpc.submitter
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
+       soprano.measure
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
+       soprano.nmr
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
+         soprano.nmr.tensor
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
+         soprano.nmr.utils
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
+       soprano.optional
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
+       soprano.properties
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
+         soprano.properties.atomsproperty
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
+         soprano.properties.basic
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
+         soprano.properties.castep
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
+         soprano.properties.labeling
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
+         soprano.properties.linkage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
+         soprano.properties.map
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
+         soprano.properties.nmr
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
+         soprano.properties.order
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
+         soprano.properties.symmetry
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
+         soprano.properties.transform
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
+       soprano.rnd
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
+       soprano.scripts
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+      <label for="toctree-checkbox-11">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
+         soprano.scripts.msaverage
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
+         soprano.scripts.phylogen
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
+         soprano.scripts.vasp2cell
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
+       soprano.selection
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
+       soprano.utils
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../citing.html">
+   Citing Soprano
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            A Python library to crack crystals
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/CCP-NC/soprano"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/analyse/phylogen/genes.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for soprano.analyse.phylogen.genes</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
+<span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
+
+<span class="c1"># Soprano is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU Lesser General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+
+<span class="c1"># Soprano is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU Lesser General Public License for more details.</span>
+
+<span class="c1"># You should have received a copy of the GNU Lesser General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Definitions for the various genes used by PhylogenCluster&quot;&quot;&quot;</span>
+
+<span class="c1"># Python 2-to-3 compatibility code</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">soprano.selection</span> <span class="kn">import</span> <span class="n">AtomSelection</span>
+<span class="kn">from</span> <span class="nn">soprano.utils</span> <span class="kn">import</span> <span class="n">list_distance</span><span class="p">,</span> <span class="n">is_string</span><span class="p">,</span> <span class="n">compute_asymmetric_distmat</span>
+<span class="kn">from</span> <span class="nn">soprano.properties.basic</span> <span class="kn">import</span> <span class="n">LatticeCart</span><span class="p">,</span> <span class="n">LatticeABC</span><span class="p">,</span> <span class="n">CalcEnergy</span>
+<span class="kn">from</span> <span class="nn">soprano.properties.linkage</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LinkageList</span><span class="p">,</span>
+    <span class="n">MoleculeNumber</span><span class="p">,</span>
+    <span class="n">MoleculeMass</span><span class="p">,</span>
+    <span class="n">MoleculeCOMLinkage</span><span class="p">,</span>
+    <span class="n">MoleculeRelativeRotation</span><span class="p">,</span>
+    <span class="n">HydrogenBonds</span><span class="p">,</span>
+    <span class="n">HydrogenBondsNumber</span><span class="p">,</span>
+    <span class="n">CoordinationHistogram</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">soprano.properties.labeling</span> <span class="kn">import</span> <span class="n">MoleculeSites</span><span class="p">,</span> <span class="n">HydrogenBondTypes</span>
+<span class="kn">from</span> <span class="nn">soprano.properties.order</span> <span class="kn">import</span> <span class="n">BondOrder</span>
+
+
+<span class="c1"># Useful functions for parsing of complex genes</span>
+<span class="k">def</span> <span class="nf">_int_array</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[</span><span class="se">\\</span><span class="s2">s,]+&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">)])</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Could not parse line </span><span class="si">{0}</span><span class="s2">&quot;</span> <span class="s2">&quot; as [int]*</span><span class="si">{1}</span><span class="s2"> array&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_float_array</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">parser</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;[</span><span class="se">\\</span><span class="s2">s,]+&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">)])</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Could not parse line </span><span class="si">{0}</span><span class="s2">&quot;</span> <span class="s2">&quot; as [float]*</span><span class="si">{1}</span><span class="s2"> array&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="p">)</span>
+
+
+<div class="viewcode-block" id="Gene"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.Gene">[docs]</a><span class="k">class</span> <span class="nc">Gene</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Gene</span>
+
+<span class="sd">    A description of a property, a &#39;gene&#39;, characterizing a structure, to be</span>
+<span class="sd">    used with a PhylogenCluster. A number of default genes is provided, but</span>
+<span class="sd">    custom ones can be created as well by passing a parser. Only default genes</span>
+<span class="sd">    can be used in a .genefile with the phylogen.py script though.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   name (str): name of the gene. Must be one of the existing ones or a</span>
+<span class="sd">    |               custom one (in which case a parser must be provided as</span>
+<span class="sd">    |               well). Custom names can&#39;t conflict with existing ones</span>
+<span class="sd">    |   weight (float): weight of the gene to be applied, default is 1.0</span>
+<span class="sd">    |   params (dict): additional parameters to be passed to the gene parser</span>
+<span class="sd">    |                  function; when not specified, defaults will be used</span>
+<span class="sd">    |   parser (function&lt;AtomsCollection, \\*\\*kwargs&gt;</span>
+<span class="sd">    |           =&gt; np.array): parser function to be used when defining custom</span>
+<span class="sd">    |                         genes. Must return a two-dimensional Numpy array</span>
+<span class="sd">    |                         (axis 0 for the elements of the collection,</span>
+<span class="sd">    |                          axis 1 for the values of the gene)</span>
+<span class="sd">    |   is_pair (bool): False if the gene returns a multi dimensional point</span>
+<span class="sd">    |                   for each structure, True if it only returns pair</span>
+<span class="sd">    |                   distances. Default is False</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{},</span> <span class="n">parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pair</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="c1"># Is the gene default or custom?</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gdef</span> <span class="o">=</span> <span class="n">GeneDictionary</span><span class="o">.</span><span class="n">get_gene</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parser</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;A default gene of name </span><span class="si">{0}</span><span class="s2"> already exists&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">gdef</span><span class="p">[</span><span class="s2">&quot;parser&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pair</span> <span class="o">=</span> <span class="n">gdef</span><span class="p">[</span><span class="s2">&quot;pair&quot;</span><span class="p">]</span>
+            <span class="c1"># Check the validity of parameters as well</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdef</span><span class="p">[</span><span class="s2">&quot;default_params&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid parameters passed for gene </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># Custom!</span>
+            <span class="k">if</span> <span class="n">parser</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s2">&quot;A parser function is required to create&quot;</span>
+                    <span class="s2">&quot; custom gene of name </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span> <span class="o">=</span> <span class="n">parser</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pair</span> <span class="o">=</span> <span class="n">pair</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether the gene can only compare a pair of structures or can also</span>
+<span class="sd">        give an absolute value for each structure individually (required for</span>
+<span class="sd">        k-means clustering)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pair</span>
+
+<div class="viewcode-block" id="Gene.evaluate"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.Gene.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Evaluate the gene on a given AtomsCollection&quot;&quot;&quot;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parser</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># Check for various possible modes of failure</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span><span class="s2">&quot;Gene </span><span class="si">{0}</span><span class="s2"> has some or all None values&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span><span class="s2">&quot;Gene </span><span class="si">{0}</span><span class="s2"> has some or all nan values&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span>
+                <span class="s2">&quot;Gene </span><span class="si">{0}</span><span class="s2"> has values of a non-numeric type&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">val</span></div></div>
+
+
+<div class="viewcode-block" id="GeneError"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.GeneError">[docs]</a><span class="k">class</span> <span class="nc">GeneError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Gene definitions and parser functions.</span>
+
+<span class="sd">The default interface of a gene parser is:</span>
+
+<span class="sd">def generic_parser(AtomsCollection, **parameters):</span>
+<span class="sd">    return np.array [shape = (AtomsCollection.length, :)]</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_energy</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">CalcEnergy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_latt_cart</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="n">lattCartProp</span> <span class="o">=</span> <span class="n">LatticeCart</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lattCartProp</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_latt_abc</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LatticeABC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">))[:,</span> <span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_latt_ang</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">LatticeABC</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">))[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_linkage_list</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">linkl</span> <span class="o">=</span> <span class="n">LinkageList</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">linkl</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_mol_num</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">MoleculeNumber</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">))[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_mol_m</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">molm</span> <span class="o">=</span> <span class="n">MoleculeMass</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">Z</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">molm</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_mol_com</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">molc</span> <span class="o">=</span> <span class="n">MoleculeCOMLinkage</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">Z</span> <span class="o">*</span> <span class="p">(</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">molc</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_mol_rot</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">twist_axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">swing_plane</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">molr</span> <span class="o">=</span> <span class="n">MoleculeRelativeRotation</span><span class="p">(</span>
+        <span class="n">size</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">Z</span> <span class="o">*</span> <span class="p">(</span><span class="n">Z</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">twist_axis</span><span class="o">=</span><span class="n">twist_axis</span><span class="p">,</span> <span class="n">swing_plane</span><span class="o">=</span><span class="n">swing_plane</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">molr</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_hbonds_totn</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="n">hblen</span> <span class="o">=</span> <span class="n">HydrogenBondsNumber</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">sum</span><span class="p">(</span><span class="n">ld</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">for</span> <span class="n">ld</span> <span class="ow">in</span> <span class="n">hblen</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_hbonds_fprint</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="n">hblen</span> <span class="o">=</span> <span class="n">HydrogenBondsNumber</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">ld</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">ld</span><span class="o">.</span><span class="n">values</span><span class="p">())))[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">ld</span> <span class="ow">in</span> <span class="n">hblen</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_hbonds_length</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="n">hblist</span> <span class="o">=</span> <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">hbnlist</span> <span class="o">=</span> <span class="n">HydrogenBondsNumber</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="c1"># Grab the maximum number for each of these</span>
+    <span class="n">hbnmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hbnlist</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Now actually gather the lengths</span>
+    <span class="k">def</span> <span class="nf">cap_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+
+    <span class="n">hblens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">hbn</span> <span class="ow">in</span> <span class="n">hblist</span><span class="p">:</span>
+        <span class="c1"># Extract lengths, order by key</span>
+        <span class="n">hblen</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">sorted</span><span class="p">(</span><span class="n">cap_to</span><span class="p">([</span><span class="n">hb</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">hb</span> <span class="ow">in</span> <span class="n">hbn</span><span class="p">[</span><span class="n">hbs</span><span class="p">]],</span> <span class="n">hbnmax</span><span class="p">[</span><span class="n">hbs</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">hbs</span> <span class="ow">in</span> <span class="n">hbn</span>
+        <span class="p">]</span>
+        <span class="n">hblen</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">hblen</span><span class="p">))</span>
+        <span class="n">hblens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hblen</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hblens</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_hbonds_angle</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="n">hblist</span> <span class="o">=</span> <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">hbnlist</span> <span class="o">=</span> <span class="n">HydrogenBondsNumber</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="c1"># Grab the maximum number for each of these</span>
+    <span class="n">hbnmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hbnlist</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Now actually gather the lengths</span>
+    <span class="k">def</span> <span class="nf">cap_to</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+
+    <span class="n">hblens</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">hbn</span> <span class="ow">in</span> <span class="n">hblist</span><span class="p">:</span>
+        <span class="c1"># Extract lengths, order by key</span>
+        <span class="n">hblen</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">sorted</span><span class="p">(</span><span class="n">cap_to</span><span class="p">([</span><span class="n">hb</span><span class="p">[</span><span class="s2">&quot;angle&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">hb</span> <span class="ow">in</span> <span class="n">hbn</span><span class="p">[</span><span class="n">hbs</span><span class="p">]],</span> <span class="n">hbnmax</span><span class="p">[</span><span class="n">hbs</span><span class="p">]))</span> <span class="k">for</span> <span class="n">hbs</span> <span class="ow">in</span> <span class="n">hbn</span>
+        <span class="p">]</span>
+        <span class="n">hblen</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">hblen</span><span class="p">))</span>
+        <span class="n">hblens</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hblen</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hblens</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_hbonds_site_reference</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">ref</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ref</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># First, calculate molecules, molecule sites and hydrogen bonds</span>
+    <span class="n">MoleculeSites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+
+    <span class="n">MoleculeSites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="c1"># Now for the actual comparison we need to compile a list of Hbonds</span>
+    <span class="c1"># for each structure, expressed in terms of molecular sites</span>
+
+    <span class="n">reflabels</span> <span class="o">=</span> <span class="n">HydrogenBondTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+    <span class="n">hblabels</span> <span class="o">=</span> <span class="n">HydrogenBondTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="c1"># And now to actually create a comparison</span>
+    <span class="n">distL</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">hb_lab</span> <span class="ow">in</span> <span class="n">hblabels</span><span class="p">:</span>
+        <span class="n">distL</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">list_distance</span><span class="p">(</span><span class="n">hb_lab</span><span class="p">,</span> <span class="n">reflabels</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">distL</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_hbonds_site_compare</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+
+    <span class="c1"># First, calculate molecules, molecule sites and hydrogen bonds</span>
+    <span class="n">MoleculeSites</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">HydrogenBonds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="c1"># Now for the actual comparison we need to compile a list of Hbonds</span>
+    <span class="c1"># for each structure, expressed in terms of molecular sites</span>
+
+    <span class="n">hblabels</span> <span class="o">=</span> <span class="n">HydrogenBondTypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="c1"># And now to actually create a comparison</span>
+    <span class="n">distM</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">c</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">length</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">hb_i1</span><span class="p">,</span> <span class="n">hb_lab1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hblabels</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">hb_i2</span><span class="p">,</span> <span class="n">hb_lab2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hblabels</span><span class="p">[</span><span class="n">hb_i1</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">list_distance</span><span class="p">(</span><span class="n">hb_lab1</span><span class="p">,</span> <span class="n">hb_lab2</span><span class="p">)</span>
+            <span class="n">d</span> <span class="o">/=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hb_lab1</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">hb_lab2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span>
+            <span class="n">distM</span><span class="p">[</span><span class="n">hb_i1</span><span class="p">,</span> <span class="n">hb_i1</span> <span class="o">+</span> <span class="n">hb_i2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+            <span class="n">distM</span><span class="p">[</span><span class="n">hb_i1</span> <span class="o">+</span> <span class="n">hb_i2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">hb_i1</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+
+    <span class="k">return</span> <span class="n">distM</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_coord_histogram</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">s1</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="n">max_coord</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+
+    <span class="n">chist</span> <span class="o">=</span> <span class="n">CoordinationHistogram</span><span class="p">(</span><span class="n">species_1</span><span class="o">=</span><span class="n">s1</span><span class="p">,</span> <span class="n">species_2</span><span class="o">=</span><span class="n">s2</span><span class="p">,</span> <span class="n">max_coord</span><span class="o">=</span><span class="n">max_coord</span><span class="p">)</span>
+
+    <span class="n">hists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">c</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">max_coord</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chist</span><span class="p">(</span><span class="n">c</span><span class="p">)):</span>
+        <span class="n">hists</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">s1</span><span class="p">][</span><span class="n">s2</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">hists</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_bond_order</span><span class="p">(</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">s1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">s2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutoff_radius</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">cutoff_width</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;Q&quot;</span>
+<span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="s2">&quot;QW&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid mode argument for parsegene_bond_order&quot;</span><span class="p">)</span>
+
+    <span class="n">l_channels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">channels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">b_ord</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">interpret_sel</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">sel</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">sel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">is_string</span><span class="p">(</span><span class="n">sel</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">from_element</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">sel</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="s2">&quot;__call__&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">sel</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">structures</span><span class="p">:</span>
+        <span class="n">i1</span> <span class="o">=</span> <span class="n">interpret_sel</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">s1</span><span class="p">)</span>
+        <span class="n">i2</span> <span class="o">=</span> <span class="n">interpret_sel</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span>
+
+        <span class="n">bo</span> <span class="o">=</span> <span class="n">BondOrder</span><span class="p">(</span>
+            <span class="n">l_channels</span><span class="o">=</span><span class="n">l_channels</span><span class="p">,</span>
+            <span class="n">center_atoms</span><span class="o">=</span><span class="n">i1</span><span class="p">,</span>
+            <span class="n">environment_atoms</span><span class="o">=</span><span class="n">i2</span><span class="p">,</span>
+            <span class="n">cutoff_radius</span><span class="o">=</span><span class="n">cutoff_radius</span><span class="p">,</span>
+            <span class="n">cutoff_width</span><span class="o">=</span><span class="n">cutoff_width</span><span class="p">,</span>
+            <span class="n">compute_W</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;W&quot;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">bo</span> <span class="o">=</span> <span class="n">bo</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">bo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">bo</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">])</span>
+
+        <span class="n">b_ord</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bo</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b_ord</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_defect_asymmetric_fdist</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">struct</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">struct</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;defect_asymmetric_fdist gene requires a struct &quot;</span> <span class="s2">&quot;argument&quot;</span><span class="p">)</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">()[:,</span> <span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">return</span> <span class="n">compute_asymmetric_distmat</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">linearized</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">parsegene_defect_asymmetric_fpos</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">struct</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">struct</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;defect_asymmetric_fdist gene requires a struct &quot;</span> <span class="s2">&quot;argument&quot;</span><span class="p">)</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">get_scaled_positions</span><span class="p">()[:,</span> <span class="n">index</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">imgs</span> <span class="o">=</span> <span class="n">compute_asymmetric_distmat</span><span class="p">(</span><span class="n">struct</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">return_images</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">imgs</span>
+
+
+<div class="viewcode-block" id="GeneDictionary"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.GeneDictionary">[docs]</a><span class="k">class</span> <span class="nc">GeneDictionary</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Container class holding gene definitions&quot;&quot;&quot;</span>
+
+    <span class="n">_gene_dictionary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_energy</span><span class="p">,</span> <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+        <span class="s2">&quot;latt_cart&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_latt_cart</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;latt_abc_len&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_latt_abc</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;latt_abc_ang&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_latt_ang</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;linkage_list&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_linkage_list</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;molecule_number&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_mol_num</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;molecule_mass&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_mol_m</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;molecule_com_linkage&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_mol_com</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;molecule_rot_linkage&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;Z&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="s2">&quot;twist_axis&quot;</span><span class="p">:</span> <span class="n">_float_array</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+                <span class="s2">&quot;swing_plane&quot;</span><span class="p">:</span> <span class="n">_float_array</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_mol_rot</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hbonds_tot_n&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_hbonds_totn</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hbonds_fingerprint&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_hbonds_fprint</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hbonds_length&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_hbonds_length</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hbonds_angle&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_hbonds_angle</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hbonds_site_reference&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_hbonds_site_reference</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;hbonds_site_compare&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_hbonds_site_compare</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;coord_histogram&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;s1&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;s2&quot;</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;max_coord&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_coord_histogram</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;bond_order_pars&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;s1&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;s2&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;channels&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;cutoff_radius&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+                <span class="s2">&quot;cutoff_width&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;Q&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_bond_order</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;defect_asymmetric_fdist&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;struct&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_defect_asymmetric_fdist</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;defect_asymmetric_fpos&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;default_params&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;struct&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;parser&quot;</span><span class="p">:</span> <span class="n">parsegene_defect_asymmetric_fpos</span><span class="p">,</span>
+            <span class="s2">&quot;pair&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="n">_gene_help</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;energy&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        The calculated total energy of a structure. This is the value returned</span>
+<span class="s2">        by ase.Atoms.get_potential_energy().</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 1</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;latt_cart&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        The lattice parameters of a structure in Cartesian form, inline.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 9</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;latt_abc_len&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        The length of the A, B and C lattice parameters.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 3</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;latt_abc_ang&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        The angles alpha, beta and gamma defining the lattice.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 3</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;linkage_list&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        A list of the n shortest interatomic distances in the structure</span>
+<span class="s2">        (periodic boundaries are taken into account).</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            size (int): how many distances are used (default = 10)</span>
+<span class="s2">        Length: [size]</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;molecule_number&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Number of molecules found in the structure.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 1</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;molecule_mass&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Masses of each of the molecules found in the structure.</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            Z (int): expected number of molecules (default = total number of</span>
+<span class="s2">                     molecules)</span>
+<span class="s2">        Length: Z</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;molecule_com_linkage&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        A list of the n shortest intermolecular distances in the structure</span>
+<span class="s2">        (periodic boundaries are taken into account and the molecules are</span>
+<span class="s2">         considered coincident with their Center Of Mass).</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            Z (int): expected number of molecules (default = total number of</span>
+<span class="s2">                     molecules)</span>
+<span class="s2">        Length: Z*(Z-1)/2</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;molecule_rot_linkage&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        A list of the n shortest intermolecular rotational distances in the</span>
+<span class="s2">        structure (orientation is considered to be the one of the molecules&#39;</span>
+<span class="s2">        principal inertia axis system, standard 1-|q1.q2| quaternion distance</span>
+<span class="s2">        is used).</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            Z (int): expected number of molecules (default = total number of</span>
+<span class="s2">                     molecules)</span>
+<span class="s2">            twist_axis ([float]*3): if present, only compare the Twist</span>
+<span class="s2">                                    component of quaternion along the given</span>
+<span class="s2">                                    axis. The Twist/Swing decomposition splits</span>
+<span class="s2">                                    a quaternion in a rotation around an axis</span>
+<span class="s2">                                    and one around an orthogonal direction.</span>
+<span class="s2">                                    Only one between this and swing_plane can</span>
+<span class="s2">                                    be present.</span>
+<span class="s2">            swing_plane ([float]*3): if present, only compare the Swing</span>
+<span class="s2">                                     component of quaternion along the given</span>
+<span class="s2">                                     axis. The Twist/Swing decomposition</span>
+<span class="s2">                                     splits a quaternion in a rotation around</span>
+<span class="s2">                                     an axis and one around an orthogonal</span>
+<span class="s2">                                     direction. Only one between this and</span>
+<span class="s2">                                     twist_axis can be present.</span>
+<span class="s2">        Length: Z*(Z-1)/2</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hbonds_tot_n&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Total number of hydrogen bonds in the system. If the hydrogen bonds</span>
+<span class="s2">        have already been calculated, the stored data will be used.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 1</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hbonds_fingerprint&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Hydrogen bonds fingerprint, i.e. number of hydrogen bonds split by</span>
+<span class="s2">        type. By convention the ordering is alphabetical, with the types</span>
+<span class="s2">        described as AH..B (A, B replaced by the respective chemical symbols).</span>
+<span class="s2">        If the hydrogen bonds have already been calculated, the stored data</span>
+<span class="s2">        will be used.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 1</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hbonds_length&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Hydrogen bonds lengths, i.e. length of all hydrogen bonds in the</span>
+<span class="s2">        system, sorted by type and value.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: sum of maximum number of hydrogen bonds per type</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hbonds_angle&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Hydrogen bonds angles, i.e. amplitude of all hydrogen bonds angles in</span>
+<span class="s2">        the system, sorted by type and value.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: sum of maximum number of hydrogen bonds per type</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hbonds_site_reference&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Comparison between hydrogen bonds in the given systems and a reference</span>
+<span class="s2">        system, site-wise.</span>
+<span class="s2">        Works for molecular systems. Bonds are compared to see how many share</span>
+<span class="s2">        the same structure (namely, are established between equivalent sites</span>
+<span class="s2">        in equivalent molecules). The number of different bonds is given.</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            ref (ase.Atoms): reference system to compare against (default =</span>
+<span class="s2">                             first system in the collection)</span>
+<span class="s2">        Length: 1</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hbonds_site_compare&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Comparison between hydrogen bonds in two given systems, site-wise.</span>
+<span class="s2">        Works for molecular systems. Bonds are compared to see how many share</span>
+<span class="s2">        the same structure (namely, are established between equivalent sites</span>
+<span class="s2">        in equivalent molecules). The number of different bonds is treated as</span>
+<span class="s2">        a &#39;distance&#39; between pairs of systems.</span>
+
+<span class="s2">        Parameters: None</span>
+<span class="s2">        Length: 1</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;coord_histogram&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Coordination histogram for two given species s1 and s2. Gives an array</span>
+<span class="s2">        whose element of index i contains the number of atoms of species s1</span>
+<span class="s2">        that are bonded to i atoms of species s2. The parameter max_coord</span>
+<span class="s2">        controls how many bins are created; any coordination number higher</span>
+<span class="s2">        than max_coord gets bunched up in the last element. By default this</span>
+<span class="s2">        means all coordination values of 6 or more.</span>
+<span class="s2">        As an example, the s1=C, s2=H histogram for a CH3CH2CH=CHCOOH molecule</span>
+<span class="s2">        would look like: [1,2,1,1,0,0,0].</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            s1 (string): chemical symbol of species whose coordination is to</span>
+<span class="s2">                         be evaluated. By default C</span>
+<span class="s2">            s2 (string): chemical symbol of ligand species with s1. By default</span>
+<span class="s2">                         H</span>
+<span class="s2">            max_coord (int): maximum coordination number to allow in</span>
+<span class="s2">                             histogram. By default 6</span>
+<span class="s2">        Length: max_coord+1 (by default 7)</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bond_order_pars&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Steinhardt bond order parameters (based on spherical harmonics) for a</span>
+<span class="s2">        pair of species in the given system. These parameters reflect the</span>
+<span class="s2">        symmetry of the local environment for each atom by making use of</span>
+<span class="s2">        spherical harmonics. Spherical harmonic functions are computed up to</span>
+<span class="s2">        the requested angular momentum channel; higher angular momenta</span>
+<span class="s2">        correspond to more rapidly varying angular functions (and therefore</span>
+<span class="s2">        will match finer details). There are two types of parameter:</span>
+<span class="s2">        Q (second order) and W (third order). Both are invariant to rotation,</span>
+<span class="s2">        but the W are more expensive to compute and are off by default. A</span>
+<span class="s2">        sigmoidal cutoff is applied to weight atoms in the neighbourhood;</span>
+<span class="s2">        parameters for the sigmoidal function can be passed.</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            s1 (multiple types): selector for the atoms whose environment is</span>
+<span class="s2">                                 to be evaluated.</span>
+<span class="s2">                                 If an AtomSelection is used, it will define</span>
+<span class="s2">                                 the atoms.</span>
+<span class="s2">                                 If a string is used, it will be</span>
+<span class="s2">                                 interpreted as a symbol of a chemical</span>
+<span class="s2">                                 species.</span>
+<span class="s2">                                 If a callable is used, it must take an</span>
+<span class="s2">                                 ase.Atoms object as the only argument, and</span>
+<span class="s2">                                 return an AtomSelection.</span>
+<span class="s2">                                 Default is None, meaning a sum over all</span>
+<span class="s2">                                 atoms.</span>
+<span class="s2">            s2 (multiple types): selector for the atoms that contribute to the</span>
+<span class="s2">                                 environment.</span>
+<span class="s2">                                 Follows the same rules as s1.</span>
+<span class="s2">                                 Default is None, meaning a sum over all</span>
+<span class="s2">                                 atoms.</span>
+<span class="s2">            channels (int): number of angular momentum channels. More channels</span>
+<span class="s2">                            mean finer detail but higher computational cost.</span>
+<span class="s2">                            Default is 10.</span>
+<span class="s2">            cutoff_radius (float): cutoff distance for sigmoidal function.</span>
+<span class="s2">                                   Default is 2 Angstroms.</span>
+<span class="s2">            cutoff_width (float): scale over which the sigmoidal function</span>
+<span class="s2">                                  should vanish. Default is 0.05 Angstroms.</span>
+<span class="s2">            mode (str): mode to compute. Can be Q (only second order), W (only</span>
+<span class="s2">                        third order) and QW (both orders, concatenated).</span>
+<span class="s2">                        Default is Q.</span>
+
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;defect_asymmetric_fdist&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Compute a fractional coordinates distance between single atoms in the</span>
+<span class="s2">        structures accounting for all effects of symmetry operations. This</span>
+<span class="s2">        should group together atoms occupying sites that are</span>
+<span class="s2">        crystallographically equivalent. This is especially useful for defect</span>
+<span class="s2">        analysis. A pure structure must be passed as an argument to compute</span>
+<span class="s2">        the symmetry operations in the first place. An installation of spglib</span>
+<span class="s2">        is required for this computation.</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            index (int): index of the defect for which the distance matrix is</span>
+<span class="s2">                         to be computed. It must be the same for all</span>
+<span class="s2">                         structures. Default is 0</span>
+<span class="s2">            struct (ase.Atoms): pure structure from which the space group and</span>
+<span class="s2">                                symmetry operations must be computed. Default</span>
+<span class="s2">                                is None, must be provided for the calculation</span>
+<span class="s2">                                to work</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;defect_asymmetric_fpos&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        Compute an asymmetric fractional coordinates position for a single atom</span>
+<span class="s2">        in the structures accounting for all effects of symmetry operations.</span>
+<span class="s2">        This should group together atoms occupying sites that are</span>
+<span class="s2">        crystallographically equivalent. This is especially useful for defect</span>
+<span class="s2">        analysis. A pure structure must be passed as an argument to compute</span>
+<span class="s2">        the symmetry operations in the first place. An installation of spglib</span>
+<span class="s2">        is required for this computation.</span>
+
+<span class="s2">        Parameters:</span>
+<span class="s2">            index (int): index of the defect for which the distance matrix is</span>
+<span class="s2">                         to be computed. It must be the same for all</span>
+<span class="s2">                         structures. Default is 0</span>
+<span class="s2">            struct (ase.Atoms): pure structure from which the space group and</span>
+<span class="s2">                                symmetry operations must be computed. Default</span>
+<span class="s2">                                is None, must be provided for the calculation</span>
+<span class="s2">                                to work</span>
+
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+<div class="viewcode-block" id="GeneDictionary.get_gene"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.GeneDictionary.get_gene">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_gene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the definition for a given gene&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_dictionary</span><span class="p">[</span><span class="n">g</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="GeneDictionary.help"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.GeneDictionary.help">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get an help string for a given gene&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">g</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_help</span><span class="p">[</span><span class="n">g</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;List of available genes:</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gene_help</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="load_genefile"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.load_genefile">[docs]</a><span class="k">def</span> <span class="nf">load_genefile</span><span class="p">(</span><span class="n">gfile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load a gene file and return the (validated) list of genes contained</span>
+<span class="sd">    within.</span>
+
+<span class="sd">    | Args:</span>
+<span class="sd">    |   gfile (file or str): file to parse</span>
+
+<span class="sd">    | Returns:</span>
+<span class="sd">    |   genelist: a list of genes parsed from the given file, ready to be</span>
+<span class="sd">    |             passed to a PhylogenCluster</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">gfile</span><span class="p">,</span> <span class="s2">&quot;__read__&quot;</span><span class="p">):</span>
+        <span class="n">genefile</span> <span class="o">=</span> <span class="n">gfile</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">gfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">gfile</span><span class="p">)</span>
+        <span class="n">genefile</span> <span class="o">=</span> <span class="n">gfile</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">gfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">comment_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;#[^</span><span class="se">\n</span><span class="s2">]*</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">gene_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*([a-zA-Z_]+)</span><span class="se">\\</span><span class="s2">s+([0-9.]+)(?:</span><span class="se">\\</span><span class="s2">s*{([^}]+)})*&quot;</span><span class="p">)</span>
+    <span class="n">block_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">s*([a-zA-Z_]+)</span><span class="se">\\</span><span class="s2">s+([0-9.]+)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># First, remove comments</span>
+    <span class="n">genefile</span> <span class="o">=</span> <span class="n">comment_re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">genefile</span><span class="p">)</span>
+
+    <span class="c1"># Then actually get the blocks</span>
+    <span class="n">gblocks</span> <span class="o">=</span> <span class="n">gene_re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">genefile</span><span class="p">)</span>
+
+    <span class="n">genes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">gblocks</span><span class="p">:</span>
+        <span class="n">gname</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gentry</span> <span class="o">=</span> <span class="n">GeneDictionary</span><span class="o">.</span><span class="n">get_gene</span><span class="p">(</span><span class="n">gname</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is not a valid gene&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gname</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gweight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span>
+                <span class="s2">&quot;Badly formatted weight definition for gene&quot;</span> <span class="s2">&quot; </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gname</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="c1"># Does it have an argument block?</span>
+        <span class="n">gargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">block_re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">arg_parser</span> <span class="o">=</span> <span class="n">gentry</span><span class="p">[</span><span class="s2">&quot;default_params&quot;</span><span class="p">][</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span>
+                        <span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is not a valid parameter for&quot;</span> <span class="s2">&quot; </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gname</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">gargs</span><span class="p">[</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">arg_parser</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">GeneError</span><span class="p">(</span><span class="s2">&quot;Invalid value for parameter &quot;</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="n">genes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Gene</span><span class="p">(</span><span class="n">gname</span><span class="p">,</span> <span class="n">gweight</span><span class="p">,</span> <span class="n">gargs</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">genes</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By CCP-NC<br/>
+  
+      &copy; Copyright 2022.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
