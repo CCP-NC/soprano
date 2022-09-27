@@ -49,4 +49,12 @@ sphinx:
   config:
     add_module_names: True
     html_theme: "sphinx_book_theme"
+    napoleon_include_special_with_doc: True
+    napoleon_use_param: True
     autosummary_generate: True
+    autoclass_content: 'both'
+    autodoc_default_options:
+      members: True
+      inherited-members: True
+      private-members: True
+      show-inheritance: True
