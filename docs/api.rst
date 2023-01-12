@@ -6,3 +6,9 @@ API reference
    :recursive:
 
    soprano
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
