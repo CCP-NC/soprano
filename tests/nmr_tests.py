@@ -26,6 +26,7 @@ from soprano.properties.nmr import (
     EFGAsymmetry,
     EFGQuadrupolarConstant,
     EFGQuaternion,
+    EFGNQR,
     DipolarCoupling,
     DipolarDiagonal,
     DipolarTensor,
@@ -106,6 +107,22 @@ class TestNMR(unittest.TestCase):
             Vzz_raw.append(evals[np.argmax(abs(evals))])
 
         self.assertTrue(np.isclose(Vzz_p, Vzz_raw).all())
+
+        # A basic test for NQR frequencies
+        NQR = EFGNQR.get(eth)
+        non_zero_NQRs = np.where(NQR)[0]
+        # Only the O has NQR & there's only one O atom
+        self.assertTrue(len(non_zero_NQRs) == 1)
+        self.assertTrue(eth[non_zero_NQRs[0]].symbol == "O")
+        NQR_vals = [v for v in NQR[-1].values()]
+        NQR_keys = [k for k in NQR[-1].keys()]
+        # the first is 0.5 -> 1.5
+        self.assertTrue(NQR_keys[0] == 'm=0.5->1.5')
+        # the first is 1.5 -> 2.5
+        self.assertTrue(NQR_keys[1] == 'm=1.5->2.5')
+        # the ratio bewtween the two transion frequencies should 2 in this case
+        self.assertAlmostEqual(NQR_vals[1] / NQR_vals[0], 2.0)
+
 
     def test_dipolar(self):
 

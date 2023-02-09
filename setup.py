@@ -67,11 +67,13 @@ if __name__ == "__main__":
                 "soprano_submitter = " "soprano.hpc.submitter:__main__",
                 "phylogen = " "soprano.scripts.phylogen:__main__",
                 "magresaverage = " "soprano.scripts.msaverage:__main__",
+                "extract_nmr = " "soprano.scripts.extract_nmr:__main__",
+                "soprano = " "soprano.scripts.cli:soprano",
             ]
         },
         use_2to3=False,
         convert_2to3_doctests=[],
         # Requirements
-        install_requires=["numpy", "scipy", "ase"],
-        python_requires=">=3.6.*",
+        install_requires=["numpy", "scipy", "ase", "click", "click_log", "pandas"],
+        python_requires=">=3.6",
     )

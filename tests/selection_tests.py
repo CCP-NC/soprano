@@ -15,10 +15,14 @@ import unittest
 import numpy as np
 
 from ase import Atoms
+from ase.io import read
+
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 )  # noqa
+
+_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
 
 class TestSelection(unittest.TestCase):
@@ -95,6 +99,38 @@ class TestSelection(unittest.TestCase):
 
         self.assertTrue(set(s1.indices) == set([0, 1, 2, 3]))
         self.assertTrue(set(s2.indices) == set([0, 1, 2]))
+
+        # String test
+        # add cif-like labels:
+        a.set_array('labels', np.array(['H1a', 'C1', 'H1b', 'C1']))
+        s1 = AtomSelection.from_selection_string(a, "H")
+        s2 = AtomSelection.from_selection_string(a, "C")
+        s3 = AtomSelection.from_selection_string(a, "C.1")
+        s4 = AtomSelection.from_selection_string(a, "C.1-2")
+        s5 = AtomSelection.from_selection_string(a, "C.1-2,H.2")
+        s6 = AtomSelection.from_selection_string(a, "C.1,C.2")
+        s7 = AtomSelection.from_selection_string(a, "C1,H1a")
+        s8 = AtomSelection.from_selection_string(a, "C,H")
+
+        self.assertTrue(set(s1.indices) == set([0, 2]))
+        self.assertTrue(set(s2.indices) == set([1, 3]))
+        self.assertTrue(set(s3.indices) == set([1]))
+        self.assertTrue(set(s4.indices) == set([1, 3]))
+        self.assertTrue(set(s5.indices) == set([1, 2, 3]))
+        self.assertTrue(set(s6.indices) == set([1, 3]))
+        self.assertTrue(set(s7.indices) == set([0, 1, 3]))
+        self.assertTrue(set(s8.indices) == set([0, 1, 2, 3]))
+
+        # Test invalid string
+        self.assertRaises(ValueError, AtomSelection.from_selection_string, a, "C1-3")
+        self.assertRaises(ValueError, AtomSelection.from_selection_string, a, "C1.3")
+
+        # Unique atoms test
+        a = read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        Z = 4 # for this molecular crystal
+        s1 = AtomSelection.unique(a)
+        print(len(s1.indices))
+        self.assertEqual(len(s1)*Z, len(a))
 
     def test_arrays(self):
 
