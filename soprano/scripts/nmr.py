@@ -102,14 +102,14 @@ def nmr(files,
         quiet):
     """
     Extract and analyse NMR data from magres file(s).
-    
+
     Usage:
     soprano nmr seedname.magres
 
     Processes .magres file(s) containing NMR-related properties
     and prints a summary. It defaults to printing all NMR properties
-    present in the file for all the atoms. 
-    
+    present in the file for all the atoms.
+
     See the below arguments for how to extract specific information.
     """
     if quiet:
@@ -118,12 +118,12 @@ def nmr(files,
     else:
         verbose = True
         logging.basicConfig(level=logging.INFO)
-    
+
     # set pandas print precision
     pd.set_option('display.precision', precision)
     # make sure we output all rows, even if there are lots!
     pd.set_option('display.max_rows', None)
-    
+
     nfiles = len(files)
     dfs = []
     images = []
@@ -134,7 +134,7 @@ def nmr(files,
         logger.info(fname)
         logger.info(f"\nExtracting properties: {properties}")
 
-            
+
 
 
         # try to read in the file:
@@ -143,7 +143,7 @@ def nmr(files,
         except IOError:
             logger.error(f"Could not read file {fname}, skipping.")
             continue
-        
+
         # Do they actually have any magres data?
         if not any([atoms.has(k) for k in properties]):
             logger.error(f"File {fname} has no {' '.join(properties)} data to extract. Skipping.")
@@ -152,11 +152,11 @@ def nmr(files,
         # Inform user of best practice RE CIF labels
         if not has_cif_labels(atoms):
             logger.info(NO_CIF_LABEL_WARNING)
-            
+
 
         all_selections = AtomSelection.all(atoms)
         # create new array for multiplicity
-        multiplicity = np.ones(len(atoms))
+        multiplicity = np.ones(len(atoms), dtype=np.int8)
         atoms.set_array('multiplicity', multiplicity)
 
         # note we must change datatype to allow more space!
@@ -174,7 +174,7 @@ def nmr(files,
             unique_sites, unique_site_idx = np.unique(tags, return_index=True)
             logger.info(f'    This leaves {len(unique_sites)} unique sites')
             logger.info(f'    The unique site labels are: {labels[unique_site_idx]}')
-                
+
 
 
         if average_group:
@@ -184,7 +184,7 @@ def nmr(files,
                 if len(pattern) == 0:
                     logging.warn(f"No XHn groups found for pattern {average_group.split(',')[ipat]}")
                     continue
-                
+
                 logger.info(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
                 # get the indices of the atoms that matched this pattern
                 # update the tags and labels accordingly
@@ -200,7 +200,7 @@ def nmr(files,
         atoms.set_array('labels', labels)
         # update atoms tags
         atoms.set_tags(tags)
-        
+
         # select subset of atoms based on selection string
         if selection:
             logger.info(f'\nSelecting atoms based on selection string: {selection}')
@@ -209,7 +209,7 @@ def nmr(files,
         elements = atoms.get_chemical_symbols()
         isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
         species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
-        
+
         df = pd.DataFrame({
                 'indices': atoms.get_array('indices'),
                 'labels': labels,
@@ -224,7 +224,7 @@ def nmr(files,
             magresview_labels = MagresViewLabels.get(atoms)
             df.insert(2, 'MagresView_labels', magresview_labels)
 
-        # Let's add a column for the file name -- useful to keep track of 
+        # Let's add a column for the file name -- useful to keep track of
         # which file the data came from if merging multiple files.
         df['file'] = fname
         if 'ms' in properties:
@@ -254,7 +254,7 @@ def nmr(files,
                 warnings.warn('Failed to load EFG data from .magres')
                 raise
 
-        # Apply selections 
+        # Apply selections
         selection_indices = all_selections.indices
         # sort
         selection_indices.sort()
@@ -270,7 +270,7 @@ def nmr(files,
             # aggrules = dict.fromkeys(df, ['mean', 'std'])
             # for most of the columns that have objects, we just take the first one
             aggrules.update(dict.fromkeys(df.columns[df.dtypes.eq(object)], 'first'))
-            
+
             # we no longer need these two columns
             del aggrules['indices']
             del aggrules['tags']
@@ -285,15 +285,15 @@ def nmr(files,
             # apply group averaging
             grouped = df.groupby('tags')
             df = grouped.agg(aggrules).reset_index()
-            # fix the labels print formatting            
+            # fix the labels print formatting
             df['labels'] = df['labels'].apply(lambda x: ','.join(x))
             if 'MagresView_labels' in df.columns:
                 df['MagresView_labels'] = df['MagresView_labels'].apply(lambda x: ','.join(sorted(list(x))))
-            
-        
-        
 
-        
+
+
+
+
         total_explicit_sites = df['multiplicity'].sum()
         logger.info(f'\nFound {total_explicit_sites} total sites.')
         if average_group or reduce:
@@ -337,19 +337,19 @@ def nmr(files,
         else:
             logger.warn(f"No results found for {fname}.\n "
             "Try removing filters/checking the file contents.")
-            
+
     if view:
         viewimages(images)
-        
+
     if merge:
         # merge all dataframes into one
         dfs = [pd.concat(dfs, axis=0)]
     for i, df in enumerate(dfs):
         dfs[i] = sortdf(df, sortby, sort_order)
-    
+
     # write to file(s)
     print_results(dfs, output, output_format, verbose)
-        
+
 
 
 def get_ms_summary(atoms, euler_convention, references, gradients):
@@ -384,7 +384,7 @@ def get_ms_summary(atoms, euler_convention, references, gradients):
             'MS_gamma': gamma
             }
     return ms_summary
-    
+
 
 def get_efg_summary(atoms, isotopes, euler_convention):
     '''
@@ -399,7 +399,7 @@ def get_efg_summary(atoms, isotopes, euler_convention):
     # by element. When nothing is specified it defaults to the most common NMR active isotope.
     qP = EFGQuadrupolarConstant(isotopes=isotopes) # Deuterated; for the others use the default
     qC = qP(atoms)/1e6 # To MHz
-    
+
     # asymmetry
     eta = EFGAsymmetry.get(atoms)
 

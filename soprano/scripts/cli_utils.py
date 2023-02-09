@@ -83,9 +83,9 @@ UNITS = {
 # TODO: write guide for this on website...
 NO_CIF_LABEL_WARNING = '''
 ## Protip: ##
-This .magres file doesn't seem to have CIF-stlye labels.
+This .magres file doesn't seem to have CIF-style labels.
 Using these is considered a good idea, but is not required.
-You can export these automatically from a cif file using 
+You can export these automatically from a cif file using
 cif2cell. e.g. for CASTEP:
 
 cif2cell mystructure.cif --export-cif-labels -p castep
@@ -102,7 +102,7 @@ def isotope_selection(ctx, parameter, isotope_string):
     Returns:
         dict: The isotope for each element specified. Formatted as::
             {Element: Isotope}.
-    
+
     """
     if isotope_string == '':
         return {}
@@ -158,7 +158,7 @@ def get_column_list(ctx, parameter, value):
         return None
     # shortcuts for some column groups
     special_names = {
-                    'minimal': 
+                    'minimal':
                         ['MS_shielding',
                         'MS_anisotropy',
                         'EFG_quadrupolar_constant',
@@ -173,7 +173,7 @@ def get_column_list(ctx, parameter, value):
                         ['EFG_Vzz',
                         'EFG_quadrupolar_constant',
                         'EFG_asymmetry'],
-                    'MS_angles': 
+                    'MS_angles':
                         ['MS_alpha',
                         'MS_beta',
                         'MS_gamma'],
@@ -209,7 +209,7 @@ config = click.option(
                     'If not set, first checks environment variable: '
                     '``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``',
 )
-selection_help = '''Selection string of sites include. e.g. 
+selection_help = '''Selection string of sites include. e.g.
                 ``-s C`` for only and all carbon atoms,
                 ``-s C.1-3,H.1.2`` for carbons 1,2,3 and hydrogens 1 and 2,
                 ``-s C1,H1a,H1b`` for any sites with the labels C1, H1a and H1b.'''
@@ -256,7 +256,7 @@ isotopes = click.option('--isotopes',
             metavar = 'ISOTOPES',
             help='Isotopes specification (e.g. ``-i 13C`` for carbon 13 '
         '``-i 2H,15N`` for deuterium and 15N). '
-        'When nothing is specified it defaults to the most common NMR active isotope.')         
+        'When nothing is specified it defaults to the most common NMR active isotope.')
 # flag option to reduce by symmetry
 df_reduce = click.option('--reduce',
             '-r',
@@ -330,7 +330,7 @@ gradients = click.option('--gradients',
             "``--gradients H:-1,C:-0.97``. "
             "If the value is a single float, that gradient will be used for all sites (not recommended!). "
             )
-# todo: have an option to set a file/env variable for the references... 
+# todo: have an option to set a file/env variable for the references...
 # flag to include certain columns only
 df_include = click.option('--include',
             callback=get_column_list,
@@ -448,7 +448,7 @@ def viewimages(images):
     '''
     Use ASE GUI to view the images.
 
-    If they contain C and H, we'll assume it's a molecular 
+    If they contain C and H, we'll assume it's a molecular
     crystal and reload it as such.
 
     We must be careful to keep the same order of atoms.
@@ -456,7 +456,7 @@ def viewimages(images):
     for i, atoms in enumerate(images):
         # save initial order
         atoms.set_array('order_tag', np.arange(len(atoms)))
-        
+
         # check if it's a molecular crystal
         elements = set(atoms.get_chemical_symbols())
         # Rough very basic check if it's organic:
@@ -474,11 +474,13 @@ def viewimages(images):
                 temp.extend(mol.subset(atoms, use_cell_indices=True))
             # restore original order
             temp = temp[temp.get_array('order_tag').argsort()]
-            # restore original centering 
+            # restore original centering
             temp.translate(-com)
-            images[i] =temp
+            images[i] = temp
 
     aseview(images)
+
+
 def print_results(dfs, output, output_format, verbose):
     nframes = len(dfs)
     # rename columns to include units for those that have units
@@ -488,7 +490,7 @@ def print_results(dfs, output, output_format, verbose):
         for i, df in enumerate(dfs):
 
             if nframes > 1:
-                # then we want to write out 
+                # then we want to write out
                 # each dataframe to a separate file
                 # so let's prefix the filename
                 magrespath = df['file'].iloc[0]
@@ -514,7 +516,7 @@ def print_results(dfs, output, output_format, verbose):
         # if there's only one dataframe
         # but it contains output from mutliple magres files
         # then we need that file column
-        if nframes ==1 and dfs[0]['file'].nunique() > 1:
+        if nframes == 1 and dfs[0]['file'].nunique() > 1:
             # then there's only one dataframe
             # and we want the filename for each row
             click.echo(dfs[0])
@@ -525,6 +527,7 @@ def print_results(dfs, output, output_format, verbose):
                 click.echo(f"\n\nExtracted data from: {fname}")
                 df.drop('file', axis=1, inplace=True)
                 click.echo(df)
+
 
 def units_rename(colname, units_dict=UNITS):
     for key, unit in units_dict.items():
@@ -538,7 +541,7 @@ def sortdf(df, sortby, sort_order):
     ''' sort df by column, return new df'''
 
     if sortby:
-        if sortby in df.columns: 
+        if sortby in df.columns:
             ascending = sort_order == 'ascending'
             if sortby == 'labels':
                 isalpha = df[sortby].str.isalpha()
@@ -557,13 +560,12 @@ def sortdf(df, sortby, sort_order):
                     df[['_str', '_int']] = df[sortby].str.extract(r'([a-zA-Z]*)(\d*)')
                     df['_int'] = df['_int'].astype(int)
 
-                    df = df.sort_values(by=['_str', '_int'], ascending=ascending).drop(['_int', '_str'], axis=1)    
+                    df = df.sort_values(by=['_str', '_int'], ascending=ascending).drop(['_int', '_str'], axis=1)
             else:
                 df = df.sort_values(by=sortby, ascending=ascending)
         else:
             raise ValueError(f'{sortby} not found in summary columns names')
     return df
-
 
 
 def get_matching_cols(df, lst):
@@ -583,7 +585,7 @@ def get_duplicates(seq):
     tally = defaultdict(list)
     for i,item in enumerate(seq):
         tally[item].append(i)
-    return dict([(key,locs) for key,locs in tally.items() 
+    return dict([(key,locs) for key,locs in tally.items()
                             if len(locs)>1])
 def average_quaternions_by_tags(quaternions, tags):
     '''
@@ -603,8 +605,8 @@ def average_quaternions_by_tags(quaternions, tags):
 
 
 def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
-    """Find groups of atoms based on a functional group pattern. 
-    The pattern is a string such as CH3 or CH2. 
+    """Find groups of atoms based on a functional group pattern.
+    The pattern is a string such as CH3 or CH2.
     It must contain an element symbol, H and the number of H atoms
 
 
@@ -618,7 +620,7 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
     |   vdw_scale (float): scale factor for vdw radius (used for bond searching)
     """
     from soprano.properties.linkage import Bonds
-    
+
     if tags is None:
         tags = np.arange(len(atoms))
 
@@ -646,7 +648,7 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
             match = []
             if len(seen_tags)>0:
                 match = np.where((seen_tags == tags[group]).all(axis=1))[0]
-            
+
             if len(match) == 1:
                 # how to handle this?
                 groups[match[0]] += group
@@ -655,7 +657,7 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
                 groups.append(group)
             else:
                 raise ValueError(f'Found multiple matches for {group_pattern}')
-            
+
         all_groups.append(groups)
 
     return all_groups
