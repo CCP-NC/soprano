@@ -75,5 +75,5 @@ if __name__ == "__main__":
         convert_2to3_doctests=[],
         # Requirements
         install_requires=["numpy", "scipy", "ase", "click", "pandas"],
-        python_requires=">=3.6.*",
+        python_requires=">=3.6",
     )
