@@ -74,6 +74,6 @@ if __name__ == "__main__":
         use_2to3=False,
         convert_2to3_doctests=[],
         # Requirements
-        install_requires=["numpy", "scipy", "ase", "click", "pandas"],
+        install_requires=["numpy", "scipy", "ase", "click", "click_log", "pandas"],
         python_requires=">=3.6",
     )
