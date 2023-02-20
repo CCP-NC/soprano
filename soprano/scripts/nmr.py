@@ -31,6 +31,7 @@ __date__ = "July 08, 2022"
 import click
 import numpy as np
 from ase import io
+from ase import Atoms
 from ase.units import Ha, Bohr
 from soprano.properties.labeling import UniqueSites, MagresViewLabels
 from soprano.properties.nmr import *
@@ -41,6 +42,7 @@ import pandas as pd
 import warnings
 import logging
 import click_log
+from typing import List, Tuple, Dict, Union, Optional
 from soprano.scripts.cli_utils import \
                                     add_options,\
                                     NMREXTRACT_OPTIONS, \
@@ -68,8 +70,8 @@ FOOTER = '''
 
 @click_log.simple_verbosity_option(logger)
 
-@click.command()
 
+@click.command()
 # one of more files
 @click.argument('files',
                 nargs=-1,
@@ -78,7 +80,8 @@ FOOTER = '''
 
 @add_options(NMREXTRACT_OPTIONS)
 
-def nmr(files,
+def nmr(
+        files,
         selection,
         output,
         output_format,
@@ -118,6 +121,12 @@ def nmr(files,
     else:
         verbose = True
         logging.basicConfig(level=logging.INFO)
+    dfs = nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view, verbose)
+    
+    # write to file(s)
+    print_results(dfs, output, output_format, verbose)
+
+def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view, verbose):
     
     # set pandas print precision
     pd.set_option('display.precision', precision)
@@ -129,13 +138,9 @@ def nmr(files,
     images = []
     # loop over files
     for fname in files:
-
         logger.info(HEADER)
         logger.info(fname)
         logger.info(f"\nExtracting properties: {properties}")
-
-            
-
 
         # try to read in the file:
         try:
@@ -165,7 +170,6 @@ def nmr(files,
         tags = np.arange(len(atoms))
 
         if reduce:
-
             logger.info('\nTagging equivalent sites')
             # tag equivalent sites
             tags = UniqueSites.get(atoms, symprec=symprec)
@@ -176,26 +180,8 @@ def nmr(files,
             logger.info(f'    The unique site labels are: {labels[unique_site_idx]}')
                 
 
-
         if average_group:
-            XHn_groups = find_XHn_groups(atoms, average_group, tags= tags, vdw_scale=1.0)
-            for ipat, pattern in enumerate(XHn_groups):
-                # check if we found any that matched this pattern
-                if len(pattern) == 0:
-                    logging.warn(f"No XHn groups found for pattern {average_group.split(',')[ipat]}")
-                    continue
-                
-                logger.info(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
-                # get the indices of the atoms that matched this pattern
-                # update the tags and labels accordingly
-                for ig, group in enumerate(pattern):
-                    logger.info(f"    Group {ig} contains: {np.unique(labels[group])}")
-                    # fix labels here as aggregate of those in group
-                    combined_label = '--'.join(np.unique(labels[group]))
-                    # labels[group] = f'{ig}'#combined_label
-                    labels[group] = combined_label
-
-                    tags[group] = -(ipat+1)*1e5-ig
+            labels, tags = average_over_groups(average_group, atoms, labels, tags)
         # update atoms object with new labels
         atoms.set_array('labels', labels)
         # update atoms tags
@@ -206,129 +192,18 @@ def nmr(files,
             logger.info(f'\nSelecting atoms based on selection string: {selection}')
             sel_selectionstring = AtomSelection.from_selection_string(atoms, selection)
             all_selections *= sel_selectionstring
-        elements = atoms.get_chemical_symbols()
-        isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
-        species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
         
-        df = pd.DataFrame({
-                'indices': atoms.get_array('indices'),
-                'labels': labels,
-                'species':species,
-                'multiplicity': atoms.get_array('multiplicity'),
-                'tags': tags,
-                })
+        if isotopes:
+            logger.info(f'\nCustom isotopes for: {isotopes}')
 
-        # If there are no cif labels, generate and save MagresView-style labels
-        if not has_cif_labels(atoms):
-            # generate MagresView-type Labels
-            magresview_labels = MagresViewLabels.get(atoms)
-            df.insert(2, 'MagresView_labels', magresview_labels)
+        # build the dataframe
+        df = build_nmr_df(isotopes, references, gradients, reduce, average_group, combine_rule, properties, euler_convention, fname, atoms, all_selections, labels, tags)
 
-        # Let's add a column for the file name -- useful to keep track of 
-        # which file the data came from if merging multiple files.
-        df['file'] = fname
-        if 'ms' in properties:
-            try:
-                ms_summary = pd.DataFrame(get_ms_summary(atoms, euler_convention, references, gradients))
-                if not references:
-                    # drop shift column if no references are given
-                    ms_summary.drop(columns=['MS_shift'], inplace=True)
-
-                df = pd.concat([df, ms_summary], axis=1)
-            except RuntimeError:
-                warnings.warn(f'No MS data found in {fname}\n'
-                'Set argument `-p efg` if the file(s) only contains EFG data ')
-                pass
-            except:
-                warnings.warn('Failed to load MS data from .magres')
-                raise
-        if 'efg' in properties:
-            try:
-                efg_summary = pd.DataFrame(get_efg_summary(atoms, isotopes, euler_convention))
-                df = df = pd.concat([df, efg_summary], axis=1)
-            except RuntimeError:
-                warnings.warn(f'No EFG data found in {fname}\n'
-                'Set argument `-p ms` if the file(s) only contains MS data ')
-                pass
-            except:
-                warnings.warn('Failed to load EFG data from .magres')
-                raise
-
-        # Apply selections 
-        selection_indices = all_selections.indices
-        # sort
-        selection_indices.sort()
-        # extract from df
-        df = df.iloc[selection_indices]
-
-        # apply group averaging
-        if average_group or reduce:
-            # These are the rules for aggregating groups
-            # Default rule: take the mean
-            aggrules = dict.fromkeys(df, combine_rule)
-            # note we could add more things here! e.g.
-            # aggrules = dict.fromkeys(df, ['mean', 'std'])
-            # for most of the columns that have objects, we just take the first one
-            aggrules.update(dict.fromkeys(df.columns[df.dtypes.eq(object)], 'first'))
-            
-            # we no longer need these two columns
-            del aggrules['indices']
-            del aggrules['tags']
-
-            aggrules['labels'] = set
-            if 'MagresViewLabels' in df.columns:
-                aggrules['MagresView_labels'] = set
-            aggrules['multiplicity'] = 'count'
-
-            logger.info('\nAveraging over sites with the same tag')
-            logger.info(f'   We apply the following rules to each column:\n {aggrules}')
-            # apply group averaging
-            grouped = df.groupby('tags')
-            df = grouped.agg(aggrules).reset_index()
-            # fix the labels print formatting            
-            df['labels'] = df['labels'].apply(lambda x: ','.join(x))
-            if 'MagresView_labels' in df.columns:
-                df['MagresView_labels'] = df['MagresView_labels'].apply(lambda x: ','.join(sorted(list(x))))
-            
-        
-        
-
-        
-        total_explicit_sites = df['multiplicity'].sum()
-        logger.info(f'\nFound {total_explicit_sites} total sites.')
-        if average_group or reduce:
-            logger.info(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
+        # apply filters
+        df = apply_df_filtering(df, include, exclude, query)
 
 
-        if query:
-            # use pandas query to filter the dataframe
-            logger.info(f'\nFiltering dataframe using query: {query}')
-            df.query(query, inplace=True)
-            logger.info(f'-----> Filtered to {len(df)} sites.')
-
-
-        # what columns should we include/exclude?
-        essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
-        if include:
-            # what columns should we include/exclude?
-            essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
-            specified_columns = [c for c in include if c not in essential_columns]
-            logger.info(f'\nIncluding only columns containing: {specified_columns}')
-            columns_to_include =essential_columns + specified_columns
-            missing_columns = get_missing_cols(df, columns_to_include)
-            if len(missing_columns) > 0:
-                logger.warn(f'These columns specified {missing_columns}'
-                            f' do not match any in the dataframe ({df.columns})')
-            columns_to_include = get_matching_cols(df, columns_to_include)
-            df = df[columns_to_include].copy()
-        if exclude:
-            logger.info(f'\nExcluding columns: {exclude}')
-            # remove those that are already not in df
-            specified_columns = get_matching_cols(df, exclude)
-            df = df.drop(specified_columns, axis=1)
-        # drop any that have only NaN values
-        df = df.dropna(axis=1, how='all')
-
+        # if the df is not empty, append it to the list
         if len(df) > 0:
             dfs.append(df)
             images.append(atoms)
@@ -336,7 +211,7 @@ def nmr(files,
         # if the df is empty, raise warning and don't append
         else:
             logger.warn(f"No results found for {fname}.\n "
-            "Try removing filters/checking the file contents.")
+                "Try removing filters/checking the file contents.")
             
     if view:
         viewimages(images)
@@ -346,15 +221,251 @@ def nmr(files,
         dfs = [pd.concat(dfs, axis=0)]
     for i, df in enumerate(dfs):
         dfs[i] = sortdf(df, sortby, sort_order)
+    return dfs
+
+def average_over_groups(
+        average_group:str,
+        atoms:Atoms,
+        labels:Union[List, np.array],
+        tags:  Union[List, np.array]
+        )-> Tuple[np.array, np.array]:
+    '''
+    Average over groups of atoms based on the average_group string.
+    See find_XHn_groups for more details.
+
+    Args:
+        average_group (str): string of comma-separated patterns to average over. e.g. 'CH3,CH2'
+        atoms (Atoms): Atoms object
+        labels (np.array): labels array
+        tags (np.array): tags array
+
+    Returns:
+        labels (np.array): updated labels array
+        tags (np.array): updated tags array
+    '''
+    XHn_groups = find_XHn_groups(atoms, average_group, tags= tags, vdw_scale=1.0)
+    for ipat, pattern in enumerate(XHn_groups):
+        # check if we found any that matched this pattern
+        if len(pattern) == 0:
+            logging.warn(f"No XHn groups found for pattern {average_group.split(',')[ipat]}")
+            continue
+                
+        logger.info(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
+        # get the indices of the atoms that matched this pattern
+        # update the tags and labels accordingly
+        for ig, group in enumerate(pattern):
+            logger.info(f"    Group {ig} contains: {np.unique(labels[group])}")
+            # fix labels here as aggregate of those in group
+            combined_label = '--'.join(np.unique(labels[group]))
+            # labels[group] = f'{ig}'#combined_label
+            labels[group] = combined_label
+
+            tags[group] = -(ipat+1)*1e5-ig
+    return labels, tags
+
+
+
+
+
+
+
+
+def build_nmr_df(
+        isotopes,
+        references,
+        gradients,
+        reduce,
+        average_group,
+        combine_rule,
+        properties,
+        euler_convention,
+        fname,
+        atoms,
+        all_selections,
+        labels,
+        tags
+        ):
+    '''
+    Build the dataframe containing the NMR properties.
+    '''
+    elements = atoms.get_chemical_symbols()
+    isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
+    species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
     
-    # write to file(s)
-    print_results(dfs, output, output_format, verbose)
+    
+    df = pd.DataFrame({
+                'indices': atoms.get_array('indices'),
+                'labels': labels,
+                'species':species,
+                'multiplicity': atoms.get_array('multiplicity'),
+                'tags': tags,
+                })
+
+        # If there are no cif labels, generate and save MagresView-style labels
+    if not has_cif_labels(atoms):
+            # generate MagresView-type Labels
+        magresview_labels = MagresViewLabels.get(atoms)
+        df.insert(2, 'MagresView_labels', magresview_labels)
+
+        # Let's add a column for the file name -- useful to keep track of 
+        # which file the data came from if merging multiple files.
+    df['file'] = fname
+    if 'ms' in properties:
+        try:
+            ms_summary = pd.DataFrame(get_ms_summary(atoms, euler_convention, references, gradients))
+            if not references:
+                    # drop shift column if no references are given
+                ms_summary.drop(columns=['MS_shift'], inplace=True)
+
+            df = pd.concat([df, ms_summary], axis=1)
+        except RuntimeError:
+            logger.warn(f'No MS data found in {fname}\n'
+                'Set argument `-p efg` if the file(s) only contains EFG data ')
+            pass
+        except:
+            logger.warn('Failed to load MS data from .magres')
+            raise
+    if 'efg' in properties:
+        try:
+            efg_summary = pd.DataFrame(get_efg_summary(atoms, isotopes, euler_convention))
+            df = df = pd.concat([df, efg_summary], axis=1)
+        except RuntimeError:
+            logger.warn(f'No EFG data found in {fname}\n'
+                'Set argument `-p ms` if the file(s) only contains MS data ')
+            pass
+        except:
+            logger.warn('Failed to load EFG data from .magres')
+            raise
+
+    # Apply selections 
+    selection_indices = all_selections.indices
+    # sort
+    selection_indices.sort()
+    # extract from df
+    df = df.iloc[selection_indices]
+
+    # apply group averaging
+    if average_group or reduce:
+        # These are the rules for aggregating groups
+        # Default rule: take the mean
+        aggrules = get_aggrules(df, combine_rule)
+
+        logger.info('\nAveraging over sites with the same tag')
+        logger.info(f'   We apply the following rules to each column:\n {aggrules}')
+        # apply group averaging
+        grouped = df.groupby('tags')
+        df = grouped.agg(aggrules).reset_index()
+        # fix the labels print formatting            
+        df['labels'] = df['labels'].apply(lambda x: ','.join(x))
+        if 'MagresView_labels' in df.columns:
+            df['MagresView_labels'] = df['MagresView_labels'].apply(lambda x: ','.join(sorted(list(x))))
+            
+        
+    ## how many sites do we have now?
+    total_explicit_sites = df['multiplicity'].sum()
+    logger.info(f'\nFound {total_explicit_sites} total sites.')
+    if average_group or reduce:
+        logger.info(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
+
+
+    return df
+
+def get_aggrules(
+        df:pd.DataFrame,
+        combine_rule:str
+        )->dict:
+    '''
+    Returns a dictionary of aggregation rules for the dataframe
+    '''
+    aggrules = dict.fromkeys(df, combine_rule)
+    # note we could add more things here! e.g.
+    # aggrules = dict.fromkeys(df, ['mean', 'std'])
+    # for most of the columns that have objects, we just take the first one
+    aggrules.update(dict.fromkeys(df.columns[df.dtypes.eq(object)], 'first'))
+
+    # we no longer need these two columns
+    del aggrules['indices']
+    del aggrules['tags']
+
+    aggrules['labels'] = set
+    if 'MagresViewLabels' in df.columns:
+        aggrules['MagresView_labels'] = set
+    aggrules['multiplicity'] = 'count'
+    return aggrules
+
+
+
+
+def apply_df_filtering(
+                    df: pd.DataFrame,
+                    include: List,
+                    exclude: List,
+                    query: str) -> pd.DataFrame:
+    '''
+    Inlcude/exclude columns and filter the dataframe using a pandas query.
+
+    Args:
+        df (pd.DataFrame): the dataframe to filter
+        include (list): list of columns to include
+        exclude (list): list of columns to exclude
+        query (str): pandas query string to filter the dataframe
+
+    Returns:
+        pd.DataFrame: the filtered dataframe
+
+    '''
+
+    
+
+    if query:
+            # use pandas query to filter the dataframe
+        logger.info(f'\nFiltering dataframe using query: {query}')
+        df.query(query, inplace=True)
+        logger.info(f'-----> Filtered to {len(df)} sites.')
+
+
+        # what columns should we include/exclude?
+    essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
+    if include:
+            # what columns should we include/exclude?
+        essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
+        specified_columns = [c for c in include if c not in essential_columns]
+        logger.info(f'\nIncluding only columns containing: {specified_columns}')
+        columns_to_include =essential_columns + specified_columns
+        missing_columns = get_missing_cols(df, columns_to_include)
+        if len(missing_columns) > 0:
+            logger.warn(f'These columns specified {missing_columns}'
+                            f' do not match any in the dataframe ({df.columns})')
+        columns_to_include = get_matching_cols(df, columns_to_include)
+        df = df[columns_to_include].copy()
+    if exclude:
+        logger.info(f'\nExcluding columns: {exclude}')
+            # remove those that are already not in df
+        specified_columns = get_matching_cols(df, exclude)
+        df = df.drop(specified_columns, axis=1)
+    # drop any that have only NaN values
+    df = df.dropna(axis=1, how='all')
+    return df
         
 
 
-def get_ms_summary(atoms, euler_convention, references, gradients):
+def get_ms_summary(
+        atoms: Atoms,
+        euler_convention: str,
+        references: Union[dict, None] = None,
+        gradients: Union[dict, None] = None,
+        ) -> pd.DataFrame:
     '''
     For an Atoms object with ms tensor arrays, return a summary of the tensors.
+
+    Args:
+        atoms (Atoms): the Atoms object
+        euler_convention (str): the euler convention to use
+        references (dict, optional): the reference tensors. Defaults to None. e.g. {'C': 100}
+        gradients (dict, optional): the gradient tensors. Defaults to None. e.g. {'C': -1}
+
+    Returns:
+        pd.DataFrame: a dataframe with the summary of the ms tensors
     '''
     # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
     iso   = MSIsotropy.get(atoms)
@@ -386,9 +497,22 @@ def get_ms_summary(atoms, euler_convention, references, gradients):
     return ms_summary
     
 
-def get_efg_summary(atoms, isotopes, euler_convention):
+def get_efg_summary(
+        atoms: Atoms,
+        isotopes: dict,
+        euler_convention: str,
+        ) -> pd.DataFrame:
     '''
     For an Atoms object with EFG tensor arrays, return a summary of the tensors.
+
+    Args:
+        atoms (Atoms): the Atoms object
+        isotopes (dict): the isotopes to use for the quadrupolar constants
+        euler_convention (str): the euler convention to use
+
+    Returns:
+        pd.DataFrame: a dataframe with the summary of the EFG tensors
+
     '''
     Vzz   = EFGVzz.get(atoms)
     # convert Vzz from au to V/m^2
@@ -397,7 +521,7 @@ def get_efg_summary(atoms, isotopes, euler_convention):
     # For quadrupolar constants, isotopes become relevant. This means we need to create custom Property instances to
     # specify them. There are multiple ways to do so - check the docstrings for more details - but here we set them
     # by element. When nothing is specified it defaults to the most common NMR active isotope.
-    qP = EFGQuadrupolarConstant(isotopes=isotopes) # Deuterated; for the others use the default
+    qP = EFGQuadrupolarConstant(isotopes=isotopes)
     qC = qP(atoms)/1e6 # To MHz
     
     # asymmetry
