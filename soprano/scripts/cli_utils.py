@@ -34,6 +34,7 @@ import numpy as np
 from configparser import ConfigParser
 from ase.visualize import view as aseview
 from soprano.properties.linkage import Molecules
+import pandas as pd
 
 
 
@@ -41,6 +42,9 @@ from soprano.properties.linkage import Molecules
 home = os.path.expanduser('~')
 # get default soprano config file:
 DEFAULT_CFG = os.environ.get('SOPRANO_CONFIG', f'{home}/.soprano/config.ini')
+DEFAULT_MARKER_SIZE = 200
+DEFAULT_PRECISION = 4
+
 
 #callback to load config file
 def configure(ctx, param, filename):
@@ -108,6 +112,9 @@ def isotope_selection(ctx, parameter, isotope_string):
         return {}
     isotope_dict = {}
     for sym in isotope_string.split(","):
+        # make sure there are only integers and A-z in the string
+        if not re.match(r'^[A-z0-9]+$', sym):
+            raise click.BadParameter("Isotope string must be of the form '2H,15N'")
         try:
             el, isotope = _el_iso(sym)
         except Exception as e:
@@ -234,13 +241,18 @@ df_output = click.option('--output',
             '-o',
             type=click.Path(exists=False),
             default=None,
-            help='Output file name. If not specified, output is printed to stdout.')
+            help='Output file name. If not specified, output is printed to stdout.'
+            'If the output file name has a recognised extension (see ``--output-format`` for allowed values), the format is guessed from that.'
+            'The format can be overridden with the ``--output-format`` option.'
+            )
 df_output_format = click.option('--output-format',
             '-f',
             default=None,
-            type=click.Choice(['csv', 'json']),
+            type=click.Choice(['csv', 'json', 'html', 'md', 'tex', 'txt', 'tsv', 'dat']),
             help='Output file format. '
-            'If not specified, the format is guessed from output filename extension.')
+            'If not specified, the format is guessed from output filename extension.'
+            'The ``txt``, ``tsv`` and ``dat`` formats all produce tab separated files.'
+            'The ``md`` format produces a markdown table and requires an optional dependency on the tabulate package.')
 # merge output files
 df_merge = click.option('--merge',
             '-m',
@@ -358,7 +370,7 @@ df_query = click.option('--query',
             "For example ``--query 'MS_shielding > 100'``. "
             "You can combine queries with ``and`` and ``or`` etc. "
             "e.g. ``--query 'MS_shielding > 100 and MS_shielding < 180'``. "
-            "Defaults to #nofilter :).")
+            "Defaults to no filter.")
 
 # flag to view
 view = click.option('--view',
@@ -375,6 +387,108 @@ quiet = click.option('--quiet',
             is_flag=True,
             default=False,
             help="If present, log less information.")
+## plotting options
+# plot type argument
+plot_type = click.option('--plot_type',
+                '-p',
+                type=click.Choice(['2D', '1D']),
+                default='2D',
+                help='Plot type')
+# x-element
+plot_xelement = click.option('--xelement',
+                '-x',
+                'x_element',
+                type=str,
+                required = True,
+                )
+# y element
+plot_yelement = click.option('--yelement',
+                '-y',
+                'y_element',
+                type=str,
+                required = False,
+                help = 'Element to plot on the y-axis. '
+                'If not specified, but a 2D plot is requested, the x-element is used.'
+                )
+# flip x and y
+# plot_flipx = click.option('--flipx',
+#                 '-fx',
+#                 'flip_x',
+#                 is_flag=True,
+#                 default=False,
+#                 help='Flip x axis')
+# plot_flipy = click.option('--flipy',
+#                 '-fy',
+#                 'flip_y',
+#                 is_flag=True,
+#                 default=False,
+#                 help='Flip y axis')
+# # x-axis label
+# plot_xlabel = click.option('--xlabel',
+#                 type=str,
+#                 default='',
+#                 help='Custom X-axis label')
+# # y-axis label
+# plot_ylabel = click.option('--ylabel',
+#                 type=str,
+#                 default='',
+#                 help='Custom Y-axis label.')
+# x-axis range
+plot_xlims = click.option('--xlim',
+                nargs=2,
+                type=float,
+                default=None,
+                help='X-axis range. For example ``--xlim 20 100``')
+# y-axis range
+plot_ylims = click.option('--ylim',
+                nargs=2,
+                type=float,
+                default=None,
+                help='Y-axis range. For example ``--ylim 20 100``')
+# marker
+plot_marker = click.option('--marker',
+                type=str,
+                default='+',
+                help='Marker type. '
+                'For example ``--marker o``. '
+                'Accepts any matplotlib marker type.')
+# scale marker size by value
+plot_scale_marker_by = click.option('--scale-marker-by',
+                type=click.Choice(['fixed', 'distance', 'inversedistance', 'dipolar']),
+                default='fixed',
+                help='Scale marker size by chosen property. '
+                '``fixed`` means that all the markers will have the same size. '
+                '``distance`` means that the marker size will be proportional to the distance between the sites. '
+                '``inversedistance`` means that the marker size will be proportional to the inverse of the distance between the sites. '
+                '``dipolar`` means that the marker size will be proportional to the dipolar coupling between the sites. '
+                'Default is ``fixed``.'
+)
+# marker size
+plot_max_marker_size = click.option('--max-marker-size',
+               '-ms',
+               type=float,
+               default=DEFAULT_MARKER_SIZE,
+               help=f'Maximum marker size. Default is {DEFAULT_MARKER_SIZE}.')
+# show marker legend?
+plot_marker_legend = click.option('--legend/--no-legend',
+                'show_marker_legend',
+                default=True,
+                help='Show marker legend? Default is True.')
+
+# plot filename
+plot_output = click.option('--output',
+                '-o',
+                'plot_filename',
+                type=click.Path(exists=False),
+                required = False,
+                help = "Name of the plot file. "
+                "If not specified, the plot will be displayed in a window. "
+                "The file extension determines the plot type (svg or pdf recommended)."
+                )
+plot_shielding_shift = click.option('--shift/--shielding',
+                                    'shift',
+                                    default=None,
+                                    help='Plot shielding or shift. Defaults to shielding.')
 
 
 # option to select a subset of atoms
@@ -424,6 +538,32 @@ COMMON_OPTIONS = [
     symprec,
     precision,
     ]
+PLOT_SPECIFIC_OPTIONS = [
+    isotopes,
+    average_group,
+    euler,
+    references,
+    gradients,
+    select,
+    df_reduce,
+    df_combine_rule,
+    df_query,
+    plot_type,
+    plot_xelement,
+    plot_yelement,
+    # plot_flipx,
+    # plot_flipy,
+    # plot_xlabel,
+    # plot_ylabel,
+    plot_xlims,
+    plot_ylims,
+    plot_marker,
+    plot_max_marker_size,
+    plot_scale_marker_by,
+    plot_marker_legend,
+    plot_output,
+    plot_shielding_shift
+]
 
 DIP_OPTIONS = [
     isotopes,
@@ -434,6 +574,7 @@ DIP_OPTIONS = [
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
 DIPOLAR_OPTIONS = COMMON_OPTIONS + DIP_OPTIONS + DF_OPTIONS
+PLOT_OPTIONS = COMMON_OPTIONS + PLOT_SPECIFIC_OPTIONS
 # function to add options to a subcommand
 def add_options(options):
     def _add_options(func):
@@ -479,11 +620,17 @@ def viewimages(images):
             images[i] =temp
 
     aseview(images)
-def print_results(dfs, output, output_format, verbose):
+def print_results(
+        dfs,
+        output=None,
+        output_format='csv',
+        precision=DEFAULT_PRECISION,
+        verbose = True):
+    # set pandas print precision
+    pd.set_option('display.precision', precision)
+    # make sure we output all rows, even if there are lots!
+    pd.set_option('display.max_rows', None)
     nframes = len(dfs)
-    # rename columns to include units for those that have units
-    for df in dfs:
-        df.rename(columns=units_rename, inplace=True)
     if output:
         for i, df in enumerate(dfs):
 
@@ -506,6 +653,16 @@ def print_results(dfs, output, output_format, verbose):
                 df.to_csv(fname, index=True)
             elif output_format == 'json':
                 df.to_json(fname)
+            elif output_format == 'html':
+                df.to_html(fname)
+            elif output_format == 'tex':
+                df.to_latex(fname)
+            elif output_format == 'md':
+                # this requires the tabulate package
+                # I'm not sure if it's worth adding as a dependency... 
+                df.to_markdown(fname)
+            elif output_format == 'txt' or output_format == 'tsv' or output_format == 'dat':
+                df.to_csv(fname, index=True, sep='\t')
             else:
                 raise ValueError(f'Unknown output format: {output_format}')
     else:

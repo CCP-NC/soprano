@@ -53,7 +53,8 @@ from soprano.scripts.cli_utils import \
                                     print_results,\
                                     find_XHn_groups,\
                                     sortdf,\
-                                    viewimages
+                                    viewimages, \
+                                    units_rename
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger('cli')
@@ -121,19 +122,19 @@ def nmr(
     else:
         verbose = True
         logging.basicConfig(level=logging.INFO)
-    dfs = nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view, verbose)
+    dfs, images = nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view)
     
     # write to file(s)
-    print_results(dfs, output, output_format, verbose)
+    print_results(dfs, output, output_format, precision, verbose)
 
-def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view, verbose):
+def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view):
+    '''
     
-    # set pandas print precision
-    pd.set_option('display.precision', precision)
-    # make sure we output all rows, even if there are lots!
-    pd.set_option('display.max_rows', None)
+    Returns:
+        dfs (list): list of pandas DataFrames containing the extracted data.
+        images (list): list of ASE Atoms objects containing the crystal structures.
+    '''
     
-    nfiles = len(files)
     dfs = []
     images = []
     # loop over files
@@ -210,7 +211,7 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
             logger.info(FOOTER)
         # if the df is empty, raise warning and don't append
         else:
-            logger.warn(f"No results found for {fname}.\n "
+            logger.warning(f"No results found for {fname}.\n "
                 "Try removing filters/checking the file contents.")
             
     if view:
@@ -221,7 +222,10 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         dfs = [pd.concat(dfs, axis=0)]
     for i, df in enumerate(dfs):
         dfs[i] = sortdf(df, sortby, sort_order)
-    return dfs
+    # rename columns to include units for those that have units
+    for df in dfs:
+        df.rename(columns=units_rename, inplace=True)
+    return dfs, images
 
 def average_over_groups(
         average_group:str,
@@ -295,6 +299,7 @@ def build_nmr_df(
     
     df = pd.DataFrame({
                 'indices': atoms.get_array('indices'),
+                'original_index': np.arange(len(atoms)),
                 'labels': labels,
                 'species':species,
                 'multiplicity': atoms.get_array('multiplicity'),
@@ -319,22 +324,22 @@ def build_nmr_df(
 
             df = pd.concat([df, ms_summary], axis=1)
         except RuntimeError:
-            logger.warn(f'No MS data found in {fname}\n'
+            logger.warning(f'No MS data found in {fname}\n'
                 'Set argument `-p efg` if the file(s) only contains EFG data ')
             pass
         except:
-            logger.warn('Failed to load MS data from .magres')
+            logger.warning('Failed to load MS data from .magres')
             raise
     if 'efg' in properties:
         try:
             efg_summary = pd.DataFrame(get_efg_summary(atoms, isotopes, euler_convention))
             df = df = pd.concat([df, efg_summary], axis=1)
         except RuntimeError:
-            logger.warn(f'No EFG data found in {fname}\n'
+            logger.warning(f'No EFG data found in {fname}\n'
                 'Set argument `-p ms` if the file(s) only contains MS data ')
             pass
         except:
-            logger.warn('Failed to load EFG data from .magres')
+            logger.warning('Failed to load EFG data from .magres')
             raise
 
     # Apply selections 
@@ -385,6 +390,8 @@ def get_aggrules(
 
     # we no longer need these two columns
     del aggrules['indices']
+    # use 'first' for the original indices
+    aggrules['original_index'] = 'first'
     del aggrules['tags']
 
     aggrules['labels'] = set
@@ -434,7 +441,7 @@ def apply_df_filtering(
         columns_to_include =essential_columns + specified_columns
         missing_columns = get_missing_cols(df, columns_to_include)
         if len(missing_columns) > 0:
-            logger.warn(f'These columns specified {missing_columns}'
+            logger.warning(f'These columns specified {missing_columns}'
                             f' do not match any in the dataframe ({df.columns})')
         columns_to_include = get_matching_cols(df, columns_to_include)
         df = df[columns_to_include].copy()
