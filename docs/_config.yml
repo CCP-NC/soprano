@@ -46,6 +46,7 @@ sphinx:
   - 'sphinx.ext.autosummary'
   - 'sphinxcontrib.mermaid'
   - 'sphinx.ext.mathjax'
+  - 'sphinx_click'
   config:
     add_module_names: True
     html_theme: "sphinx_book_theme"

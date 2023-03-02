@@ -2,6 +2,9 @@ format: jb-article
 root: intro
 sections:
 - file: installation
+- file: cli
+  sections:
+  - file: cli-cookbook
 - file: tutorials
   sections:
   - file: tutorials/01-basic_concepts.ipynb
