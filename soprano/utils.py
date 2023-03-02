@@ -37,10 +37,44 @@ import numpy as np
 from numpy import matlib as npm # optionl subpackage of numpy
 from scipy.special import factorial
 from ase.quaternions import Quaternion
+from ase import Atoms, Atom
 from typing import List
 
 from soprano.optional import requireNetworkX, requireScikitLearn, requireSpglib
 from soprano.rnd import Random
+
+def merge_mean(T):
+    """Merge a list of arrays by taking the mean"""
+    return np.mean(T, axis=0)
+def merge_first(T):
+    """Merge a list of arrays by taking the first"""
+    return T[0]
+def merge_concatenate(T):
+    """Merge a list of arrays by concatenating them"""
+    # if T is an array of strings, join them
+    if isinstance(T[0], str):
+        unique_labels = np.unique(T)
+        return '-'.join(unique_labels)
+    else:
+        raise NotImplementedError("Concatenation of arrays of type {} not implemented".format(type(T[0])))
+def merge_sum(T):
+    """Merge a list of arrays by summing them"""
+    return np.sum(T, axis=0)
+DEFAULT_MERGING_STRATEGIES = {
+    'ms' : merge_mean,
+    'efg': merge_mean,
+    'isc': merge_mean,
+    'labels': merge_concatenate,
+    'positions': merge_mean,
+    'magmoms': merge_mean,
+    'tags': merge_first,
+    'numbers' : merge_first,
+    'momentum': merge_mean,
+    'masses': merge_first,
+    'charges': merge_first,
+    'multiplicity': merge_sum,
+}
+
 
 
 def seedname(path):
@@ -1100,3 +1134,73 @@ def graph_specsort(L):
     fied *= -1 if np.sum(fied > 0) < n / 2.0 else 1
 
     return np.argsort(fied)
+
+def merge_sites(atoms: Atoms, indices, merging_strategies={}):
+    """
+    Merge sites in a structure.
+
+    | Parameters:
+    |   atoms (ase.Atoms): structure to merge sites in
+    |   indices (list): list of lists of indices of sites to merge
+    |   merging_strategies (dict): dictionary of merging strategies for
+    |                             properties, e.g. {'positions': lambda x: x.mean(axis=0)}
+    |                             if not specified, the default strategies will be used
+    |                             (see DEFAULT_MERGING_STRATEGIES)
+
+    | Returns:
+    |   atoms (ase.Atoms): structure with sites merged
+
+    """
+    atoms_orig = atoms.copy()
+    atoms_to_merge = atoms.copy()[indices]
+
+    # let input merging strategies override the default ones
+    merging_strategies = {**DEFAULT_MERGING_STRATEGIES, **merging_strategies}
+    new_properties = {}
+    for key in atoms.arrays.keys():
+        if key not in merging_strategies.keys():
+            strategy = merge_first
+            warnings.warn(
+                'Merging strategy for {} not specified, using {}'.format(
+                    key, strategy
+                )
+            )
+        else:
+            strategy = merging_strategies[key]
+
+        if key == 'positions':
+            # apply strategy function
+            # TODO: do we need custom handling for periodic structures?
+            new_prop = strategy(atoms_to_merge.positions)
+        elif key == 'numbers':
+            new_prop = strategy(atoms_to_merge.numbers)
+        elif key == 'labels':
+            new_prop = strategy(atoms_to_merge.get_array('labels'))
+        else:
+            new_prop = strategy(atoms_to_merge.get_array(key))
+        new_properties[key] = new_prop
+
+    # Now we can delete all but the first of the old sites
+    # loop backwards to avoid index problems
+    for i in indices[1:][::-1]:
+        atoms.pop(i)
+
+    idx = indices[0]
+    atoms.positions[idx] = new_properties['positions']
+    atoms.numbers[idx] = new_properties['numbers']
+    if atoms.has('labels'):
+        labels = atoms.get_array('labels')
+        labels[idx] = new_properties['labels']
+        # first delete the old array 
+        # (this is needed to avoid a bug in ASE)
+        atoms.set_array('labels', None)
+        atoms.set_array('labels', labels, dtype='U25')
+
+    # custom arrays
+    for key in new_properties.keys():
+        if key not in ['positions', 'numbers', 'labels']:
+            arr = atoms.get_array(key)
+            arr[idx] = new_properties[key]
+            atoms.set_array(key, arr)
+    
+    return atoms
