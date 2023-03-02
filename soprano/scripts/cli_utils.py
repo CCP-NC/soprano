@@ -410,6 +410,18 @@ plot_yelement = click.option('--yelement',
                 help = 'Element to plot on the y-axis. '
                 'If not specified, but a 2D plot is requested, the x-element is used.'
                 )
+# rcut
+plot_rcut = click.option('--rcut',
+                'rcut',
+                type=float,
+                default=10,
+                help='Cutoff distance for plotting. Defaults to 10 Angstrom.')
+plot_yaxis_order = click.option('--yaxis-order',
+                'yaxis_order',
+                type=click.Choice(['1Q', '2Q']),
+                default='1Q',
+                help='Single (1Q) or double (2Q) quantum order for the y-axis. Defaults to 1Q.')
+
 # flip x and y
 # plot_flipx = click.option('--flipx',
 #                 '-fx',
@@ -551,6 +563,8 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_type,
     plot_xelement,
     plot_yelement,
+    plot_rcut,
+    plot_yaxis_order,
     # plot_flipx,
     # plot_flipy,
     # plot_xlabel,
@@ -594,30 +608,30 @@ def viewimages(images):
 
     We must be careful to keep the same order of atoms.
     '''
-    for i, atoms in enumerate(images):
-        # save initial order
-        atoms.set_array('order_tag', np.arange(len(atoms)))
+    # for i, atoms in enumerate(images):
+    #     # save initial order
+    #     atoms.set_array('order_tag', np.arange(len(atoms)))
         
-        # check if it's a molecular crystal
-        elements = set(atoms.get_chemical_symbols())
-        # Rough very basic check if it's organic:
-        if 'C' in elements and 'H' in elements:
-            # temporarily translate the atoms to the COM
-            com = atoms.cell.T.dot([0.5,0.5,0.5]) - atoms.get_center_of_mass()
-            atoms.translate(com)
-            # let's assume this is an organic molecule/crystal
-            # and try to reload the atoms object with the correct
-            # connectivity:
-            mols = Molecules.get(atoms)
-            print('Found {} molecules'.format(len(mols)))
-            temp = mols[0].subset(atoms, use_cell_indices=True)
-            for mol in mols[1:]:
-                temp.extend(mol.subset(atoms, use_cell_indices=True))
-            # restore original order
-            temp = temp[temp.get_array('order_tag').argsort()]
-            # restore original centering 
-            temp.translate(-com)
-            images[i] =temp
+    #     # check if it's a molecular crystal
+    #     elements = set(atoms.get_chemical_symbols())
+    #     # Rough very basic check if it's organic:
+    #     if 'C' in elements and 'H' in elements:
+    #         # temporarily translate the atoms to the COM
+    #         com = atoms.cell.T.dot([0.5,0.5,0.5]) - atoms.get_center_of_mass()
+    #         atoms.translate(com)
+    #         # let's assume this is an organic molecule/crystal
+    #         # and try to reload the atoms object with the correct
+    #         # connectivity:
+    #         mols = Molecules.get(atoms)
+    #         print('Found {} molecules'.format(len(mols)))
+    #         temp = mols[0].subset(atoms, use_cell_indices=True)
+    #         for mol in mols[1:]:
+    #             temp.extend(mol.subset(atoms, use_cell_indices=True))
+    #         # restore original order
+    #         temp = temp[temp.get_array('order_tag').argsort()]
+    #         # restore original centering 
+    #         temp.translate(-com)
+    #         images[i] =temp
 
     aseview(images)
 def print_results(

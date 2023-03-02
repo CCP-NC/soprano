@@ -37,7 +37,8 @@ from soprano.properties.labeling import UniqueSites, MagresViewLabels
 from soprano.properties.nmr import *
 from soprano.data.nmr import _get_isotope_list
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels
+from soprano.utils import has_cif_labels, merge_sites
+from soprano.properties.linkage import Molecules
 import pandas as pd
 import warnings
 import logging
@@ -158,6 +159,8 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         # Inform user of best practice RE CIF labels
         if not has_cif_labels(atoms):
             logger.info(NO_CIF_LABEL_WARNING)
+            # add magresview labels
+            magresview_labels = MagresViewLabels.get(atoms, store_array=True)
             
 
         all_selections = AtomSelection.all(atoms)
@@ -165,8 +168,18 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         multiplicity = np.ones(len(atoms))
         atoms.set_array('multiplicity', multiplicity)
 
+        
+        if not has_cif_labels(atoms):
+            if atoms.has('magresview_labels'):
+                labels = atoms.get_array('magresview_labels')
+            else:
+                labels = MagresViewLabels.get(atoms, store_array=True)
+        else:
+            labels = atoms.get_array('labels')
+
         # note we must change datatype to allow more space!
-        labels = atoms.get_array('labels').astype('U25')
+        labels = np.array(labels, dtype='U25')
+        
         # reduce by symmetry?
         tags = np.arange(len(atoms))
 
@@ -184,7 +197,9 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         if average_group:
             labels, tags = average_over_groups(average_group, atoms, labels, tags)
         # update atoms object with new labels
-        atoms.set_array('labels', labels)
+        # note we must change datatype to allow more space!
+        atoms.set_array('labels', None)
+        atoms.set_array('labels', labels, dtype='U25')
         # update atoms tags
         atoms.set_tags(tags)
         
@@ -203,6 +218,30 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         # apply filters
         df = apply_df_filtering(df, include, exclude, query)
 
+        # ----- atoms object manipulation -----
+        atoms = reload_as_molecular_crystal(atoms)
+
+        # now we need to apply the filters etc to the atoms object
+        # first we need to merge sites with the same tag
+        unique_tags, unique_counts = np.unique(tags,
+                                               return_counts=True)
+        # groups with more than one atom
+        multi_group_tags = unique_tags[unique_counts > 1]
+        for tag in multi_group_tags:
+            # where are these tags in the original tags?
+            tag_idx = np.where(atoms.get_tags() == tag)[0]
+            # merge the sites
+
+            atoms = merge_sites(
+                atoms,
+                tag_idx,
+                merging_strategies={
+                    'positions': lambda x: x[0],
+                    'labels': lambda x: x[0]
+                    })
+        
+        # sort by tag
+        atoms = atoms[np.argsort(atoms.get_tags())]
 
         # if the df is not empty, append it to the list
         if len(df) > 0:
@@ -227,6 +266,43 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         df.rename(columns=units_rename, inplace=True)
     return dfs, images
 
+
+def reload_as_molecular_crystal(atoms):
+        '''
+        If the atoms object is a molecular crystal, reload it with the correct
+        connectivity.
+
+        Args:
+            atoms (ASE Atoms object): the atoms object to be reloaded.
+        
+        Returns:
+            atoms (ASE Atoms object): the atoms object with the correct connectivity.
+        '''
+        # save initial order
+        atoms.set_array('order_tag', np.arange(len(atoms)))
+        # check if it's a molecular crystal
+        elements = set(atoms.get_chemical_symbols())
+        # Rough very basic check if it's organic:
+        if 'C' in elements and 'H' in elements:
+            # temporarily translate the atoms to the COM
+            com = atoms.cell.T.dot([0.5,0.5,0.5]) - atoms.get_center_of_mass()
+            atoms.translate(com)
+            # let's assume this is an organic molecule/crystal
+            # and try to reload the atoms object with the correct
+            # connectivity:
+            mols = Molecules.get(atoms)
+            if len(mols) > 1:
+                print('Found {} molecules'.format(len(mols)))
+                temp = mols[0].subset(atoms, use_cell_indices=True)
+                for mol in mols[1:]:
+                    temp.extend(mol.subset(atoms, use_cell_indices=True))
+                # restore original order
+                temp = temp[temp.get_array('order_tag').argsort()]
+                # restore original centering 
+                temp.translate(-com)
+                atoms =temp
+
+        return atoms
 def average_over_groups(
         average_group:str,
         atoms:Atoms,
@@ -308,8 +384,14 @@ def build_nmr_df(
 
         # If there are no cif labels, generate and save MagresView-style labels
     if not has_cif_labels(atoms):
+        # do we already have MagresView labels?
+        if atoms.has('magresview_labels'):
+            magresview_labels = atoms.get_array('magresview_labels')
+        else:
             # generate MagresView-type Labels
-        magresview_labels = MagresViewLabels.get(atoms)
+            magresview_labels = MagresViewLabels.get(atoms, save_asarray=True)
+        print('MagresView labels generated')
+        print(magresview_labels)
         df.insert(2, 'MagresView_labels', magresview_labels)
 
         # Let's add a column for the file name -- useful to keep track of 
