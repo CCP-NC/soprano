@@ -177,7 +177,7 @@ def dipolar(
             columns_to_include =essential_columns + specified_columns
             missing_columns = get_missing_cols(df, columns_to_include)
             if len(missing_columns) > 0:
-                logger.warn(f'These columns specified {missing_columns}'
+                logger.warning(f'These columns specified {missing_columns}'
                             f' do not match any in the dataframe ({df.columns})')
             columns_to_include = get_matching_cols(df, columns_to_include)
             df = df[columns_to_include].copy()

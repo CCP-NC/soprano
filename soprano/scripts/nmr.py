@@ -60,6 +60,7 @@ from soprano.scripts.cli_utils import \
 logging.captureWarnings(True)
 logger = logging.getLogger('cli')
 click_log.basic_config(logger)
+
 HEADER = '''
 ##########################################
 #  Extracting NMR info from magres file  #
@@ -73,6 +74,7 @@ FOOTER = '''
 @click_log.simple_verbosity_option(logger)
 
 
+
 @click.command()
 # one of more files
 @click.argument('files',
@@ -84,7 +86,7 @@ FOOTER = '''
 
 def nmr(
         files,
-        selection,
+        subset,
         output,
         output_format,
         merge,
@@ -104,7 +106,7 @@ def nmr(
         exclude,
         query,
         view,
-        quiet):
+        verbosity):
     """
     Extract and analyse NMR data from magres file(s).
     
@@ -117,18 +119,19 @@ def nmr(
     
     See the below arguments for how to extract specific information.
     """
-    if quiet:
+    if verbosity == 0:
         logging.basicConfig(level=logging.WARNING)
-        verbose = False
-    else:
-        verbose = True
+    elif verbosity == 1:
         logging.basicConfig(level=logging.INFO)
-    dfs, images = nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
+
+    dfs, images = nmr_extract(files, subset, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view)
     
     # write to file(s)
-    print_results(dfs, output, output_format, precision, verbose)
+    print_results(dfs, output, output_format, precision, verbosity > 0)
 
-def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view):
+def nmr_extract(files, subset, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view):
     '''
     
     Returns:
@@ -192,6 +195,18 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
             unique_sites, unique_site_idx = np.unique(tags, return_index=True)
             logger.info(f'    This leaves {len(unique_sites)} unique sites')
             logger.info(f'    The unique site labels are: {labels[unique_site_idx]}')
+
+            # check to make sure that all sites with the same tag have the same MSIsotropy
+            # if not, throw a warning, suggest to turn on debug logging and --no-reduce flag
+            # and then continue
+            if not check_equivalent_sites_ms(atoms, tags):
+                logger.warning('    Some sites with the same symmetry tag/CIF label have different MS isotropy values.')
+                logger.warning('    You can turn off symmetry reduction with the --no-reduce flag.')
+                logger.warning('    You can also turn on debug logging with the -vv flag.')
+                logger.warning('    If you find that the (symmetry) reduction algorithm is working incorrectly,')
+                logger.warning('    please report this to the developers.')
+                
+
                 
 
         if average_group:
@@ -204,9 +219,9 @@ def nmr_extract(files, selection, merge, isotopes, references, gradients, reduce
         atoms.set_tags(tags)
         
         # select subset of atoms based on selection string
-        if selection:
-            logger.info(f'\nSelecting atoms based on selection string: {selection}')
-            sel_selectionstring = AtomSelection.from_selection_string(atoms, selection)
+        if subset:
+            logger.info(f'\nSelecting atoms based on selection subset string: {subset}')
+            sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
             all_selections *= sel_selectionstring
         
         if isotopes:
@@ -292,7 +307,7 @@ def reload_as_molecular_crystal(atoms):
             # connectivity:
             mols = Molecules.get(atoms)
             if len(mols) > 1:
-                print('Found {} molecules'.format(len(mols)))
+                logger.debug('Found {} molecules'.format(len(mols)))
                 temp = mols[0].subset(atoms, use_cell_indices=True)
                 for mol in mols[1:]:
                     temp.extend(mol.subset(atoms, use_cell_indices=True))
@@ -652,6 +667,32 @@ def get_efg_summary(
 
 
     return efg_summary
+
+
+
+def check_equivalent_sites_ms(atoms, tags, tolerance=1e-3):
+    """
+    Check if the sites with the same tags have the same MS isotropy to within a tolerance.
+    
+    Args:
+        atoms (Atoms): the Atoms object
+        tags (list): the tags to check
+        tolerance (float, optional): the tolerance. Defaults to 1e-3.
+        
+    Returns:
+        bool: True if the sites are equivalent, False otherwise
+    
+    """
+    unique_sites, counts = np.unique(tags, return_counts=True)
+    ms = MSIsotropy.get(atoms)
+    # loop over unique sites that have more than equivalent site
+    for i in unique_sites[counts > 1]:
+        # get the indices of the equivalent sites
+        idx = np.where(tags == i)[0]
+        # check if the ms isotropy is the same to within the tolerance
+        if not np.allclose(ms[idx], ms[idx[0]], atol=tolerance):
+            return False
+    return True
 
 
 

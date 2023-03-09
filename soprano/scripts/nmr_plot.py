@@ -112,9 +112,8 @@ def plotnmr(
     euler_convention,
     references,
     gradients,
-    selection,
+    subset,
     reduce,
-    combine_rule,
     query,
     plot_type,
     x_element,
@@ -127,9 +126,13 @@ def plotnmr(
     scale_marker_by,
     max_marker_size,
     show_marker_legend,
+    show_diagonal,
+    show_grid,
+    show_connectors,
+    show_ticklabels,
     plot_filename,
-    shift,
-    quiet,
+    plot_shielding, ## force-plot the shielding even if references are given
+    verbosity,
     symprec,
     precision,
     view
@@ -146,16 +149,22 @@ def plotnmr(
     merge = True # if multiple files are given, we have to merge them
     sortby = None
     sort_order = None
+    combine_rule = 'mean'
 
 
-    # if quiet:
-    #     logging.basicConfig(level=logging.WARNING)
-    # else:
-    logger.setLevel(logging.INFO)
-    dfs, images = nmr_extract(files, selection, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view)
+    # set verbosity
+    if verbosity == 0:
+        logger.setLevel(logging.WARNING)
+    elif verbosity == 1:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.DEBUG)
+
+    dfs, images = nmr_extract(files, subset, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view)
     
     # write to file(s)
-    print_results(dfs)
+    if verbosity > 0:
+        print_results(dfs)
     if len(dfs) > 1:
         logger.warning("More than one dataframe extracted. Only plotting the first one.")
     if len(dfs) == 0:
@@ -167,15 +176,17 @@ def plotnmr(
 
 
     # if the user hasn't specified plot_shifts, then we 
-    logger.info(f'plot_shielding_shift:  {shift}')
+    shift = False
     if references:
-        if shift is None:
-            shift = True
-            logger.info("Plotting chemical shifts since references are given. "
-                        "To instead plot shielding, use the --shielding flag or do not give shift references.")
-        elif not shift:
-            logger.warning("--shielding flag is set, but references are given. "
-                           "Chemical shielding will be plotted, not shifts.")
+        shift = True
+        logger.debug("Plotting chemical shifts since references are given. "
+                    "To instead plot shielding, use the --shielding flag or do not give shift references.")
+    
+    # override the default if the user has specified plot_shielding
+    if plot_shielding is not None:
+        shift = not plot_shielding
+        logger.info("--shielding flag is set, but references are given. "
+                        "Chemical shielding will be plotted, not shifts.")
 
     if plot_type == '2D':
         if not y_element:
@@ -197,6 +208,10 @@ def plotnmr(
                 max_marker_size=max_marker_size,
                 plot_filename=plot_filename,
                 scale_marker_by=scale_marker_by,
+                show_lines = show_grid,
+                show_diagonal = show_diagonal,
+                show_connectors=show_connectors,
+                show_ticks = show_ticklabels,
                 marker_color = 'C1',
                 show_marker_legend=show_marker_legend)
         
@@ -270,6 +285,8 @@ class Plot2D:
                 max_marker_size=DEFAULT_MARKER_SIZE,
                 show_ticks=True,
                 show_lines=True,
+                show_diagonal=True,
+                show_connectors=True,
                 plot_filename=None,
                 marker_color = 'C1',
                 show_marker_legend=False
@@ -283,7 +300,6 @@ class Plot2D:
         self.plot_shifts = plot_shifts
         self.include_quadrupolar = include_quadrupolar
         self.yaxis_order = yaxis_order
-        self.xaxis_order = '1Q'
         self.xlim = xlim
         self.ylim = ylim
         self.marker = marker
@@ -291,6 +307,8 @@ class Plot2D:
         self.max_marker_size = max_marker_size
         self.show_ticks = show_ticks
         self.show_lines = show_lines
+        self.show_diagonal = show_diagonal
+        self.show_connectors = show_connectors
         self.plot_filename = plot_filename
         
         self.marker_unit = MARKER_INFO[self.scale_marker_by]['unit']
@@ -357,15 +375,16 @@ class Plot2D:
 
     def get_axis_labels(self):
         if self.plot_shifts:
-            
-            axis_label = r"$\delta_{\mathrm{%s}}$ / ppm"
+            axis_label = r"$\delta$"
         else:
-            axis_label = r"$\sigma_{\mathrm{%s}}$ / ppm"
+            axis_label = r"$\sigma$"
+        
+        self.x_axis_label = f'{self.xspecies} ' + axis_label + ' /ppm'
 
-        self.x_axis_label = f'{self.xspecies} ' + axis_label % self.xaxis_order
-        self.y_axis_label = f'{self.yspecies} ' + axis_label % self.yaxis_order
-
-
+        if self.yaxis_order == '2Q':
+            self.y_axis_label = f'{self.yspecies} ' + axis_label + r'$_{\mathrm{%s}}$' % self.yaxis_order + ' /ppm'
+        else:
+            self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
 
     def get_ticks(self):
         '''
@@ -552,7 +571,18 @@ class Plot2D:
         yvals = [self.y[pair[1]] for pair in self.pairs]
         if self.yaxis_order == '2Q':
             yvals = [x+y for x, y in zip(xvals, yvals)]
-        # make sure the marker sizes are all positive
+        
+        if self.show_connectors and self.yaxis_order == '2Q':
+            for i, pair in enumerate(self.pairs):
+                # plot line from x1 to x2 and y1 to y2 if pair[0] != pair[1]
+                if pair[0] != pair[1]:
+                    ax.plot([self.x[pair[0]], self.x[pair[1]]],
+                            [yvals[i], yvals[i]],
+                            c='0.25',
+                            lw=1,
+                            ls='-',
+                            zorder=0)
+            # make sure the marker sizes are all positive
         markersizes = np.abs(self.markersizes)
         marker_size_range = np.max(markersizes) - np.min(markersizes)
         if self.scale_marker_by != 'fixed':
@@ -585,7 +615,7 @@ class Plot2D:
         if self.ylim:
             ax.set_ylim(self.ylim)
 
-        if self.xelement == self.yelement:
+        if self.xelement == self.yelement and self.show_diagonal:
             # use self.xlim and self.ylim to draw a diagonal line
             ylims = ax.get_ylim()
             xlims = ax.get_xlim()

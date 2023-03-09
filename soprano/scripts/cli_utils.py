@@ -125,7 +125,6 @@ def keyvalue_parser(ctx, parameter, value):
     """Parse strings in the form 'C:1,H:2' into a dictionary.
         Also accept = as the separator between key and value.
         e.g. the MS shift reference and gradient strings.
-        If the value is a single float, that will returned instead of a dict.
     Args:
         ctx: click context
         parameter: click parameter
@@ -135,10 +134,6 @@ def keyvalue_parser(ctx, parameter, value):
         dict: The values for each key specified. Formatted as::
             {key: value}.
     """
-    try:
-        return float(value)
-    except ValueError:
-        pass
 
     keyvaluedict = {}
     if value != '':
@@ -216,17 +211,17 @@ config = click.option(
                     'If not set, first checks environment variable: '
                     '``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``',
 )
-selection_help = '''Selection string of sites include. e.g. 
+subset_help = '''Selection string of subset of sites include. e.g. 
                 ``-s C`` for only and all carbon atoms,
                 ``-s C.1-3,H.1.2`` for carbons 1,2,3 and hydrogens 1 and 2,
                 ``-s C1,H1a,H1b`` for any sites with the labels C1, H1a and H1b.'''
 # option to select a subset of atoms
-select = click.option('--select',
+subset = click.option('--subset',
                 '-s',
-                'selection',
+                'subset',
                 type=str,
                 default=None,
-                help=selection_help,
+                help=subset_help,
                 )
 #  what to extract/analyse
 nmrproperties = click.option('--properties',
@@ -270,16 +265,14 @@ isotopes = click.option('--isotopes',
         '``-i 2H,15N`` for deuterium and 15N). '
         'When nothing is specified it defaults to the most common NMR active isotope.')         
 # flag option to reduce by symmetry
-df_reduce = click.option('--reduce',
-            '-r',
+df_reduce = click.option('--reduce/--no-reduce',
             is_flag=True,
-            default=False,
+            default=True,
             help="Reduce the output by symmetry-equivalent sites. "
-        "The merged equivalent sites are combined according to ``--combine-rule``. "
-        "To see the rules used for each column, set ``--verbose``. "
         "If there are CIF-style labels present, then these override the symmetry-grouping in "
-        "case of a clash. "
-        "Note that this doesn't take into account magnetic symmetry!")
+        "case of a clash (though there should never be a clash...). "
+        "Note that this doesn't take into account magnetic symmetry! "
+        "Defaults to True, so use ``--no-reduce`` to turn off symmetry reduction.")
 # symprec flag
 symprec = click.option('--symprec',
             type=click.FLOAT,
@@ -303,7 +296,7 @@ df_combine_rule = click.option('--combine-rule',
         "``mean`` is the default, which averages the data. "
         "``first`` Takes the first item from each group of equivalent sites. "
         "Special handling for labels, indices, tags and multiplicity. "
-        "Set verbose to True to see what rules have been used.")
+        "Increase verbosity to see what rules have been used.")
 
 # optional argument for the precision of the output
 precision = click.option('--precision',
@@ -333,14 +326,14 @@ references = click.option('--references',
             default='',
             help="Reference shielding for each element (in ppm). "
             "The format is ``--references C:170,H:123``. "
-            "If the value is a single float, that reference will be used for all sites (not recommended!). ")
+            )
 gradients = click.option('--gradients',
             callback = keyvalue_parser,
             default='',
             help="Reference shielding gradients for each element. "
             "Defaults to -1 for all elements. Set it like this: "
             "``--gradients H:-1,C:-0.97``. "
-            "If the value is a single float, that gradient will be used for all sites (not recommended!). "
+            
             )
 # todo: have an option to set a file/env variable for the references... 
 # flag to include certain columns only
@@ -381,12 +374,14 @@ view = click.option('--view',
             "This can be used to see what sites were tagged as equivalent.")
 
 
-# quiet flag
-quiet = click.option('--quiet',
-            '-q',
-            is_flag=True,
-            default=False,
-            help="If present, log less information.")
+# verbosity flag e.g. -v -vv -vvv
+verbosity = click.option('--verbosity',
+            '-v',
+            count=True,
+            help="Increase verbosity. "
+            "Use -v for info, -vv for debug. Defaults to only showing warnings and errors.")
+
+
 ## plotting options
 # plot type argument
 plot_type = click.option('--plot_type',
@@ -421,6 +416,26 @@ plot_yaxis_order = click.option('--yaxis-order',
                 type=click.Choice(['1Q', '2Q']),
                 default='1Q',
                 help='Single (1Q) or double (2Q) quantum order for the y-axis. Defaults to 1Q.')
+plot_showdiagonal = click.option('--diag/--no-diag',
+                'show_diagonal',
+                default=True,
+                help='Plot diagonal line if the x and y elements are the same. '
+                'Defaults to True (i.e. showing the diagonal line).')
+plot_showgrid = click.option('--grid/--no-grid',
+                'show_grid',
+                default=True,
+                help='Show grid lines at the axis ticks. '
+                'Defaults to True (i.e. showing the grid lines).')
+plot_show_ticklabels = click.option('--ticklabels/--no-ticklabels',
+                'show_ticklabels',
+                default=True,
+                help='Show tick labels. '
+                'Defaults to True (i.e. showing the tick labels).')
+plot_showconnecors = click.option('--connectors/--no-connectors',
+                'show_connectors',
+                default=True,
+                help='Show horizontal connectors between points in the case of a 2Q plot. ' 
+                'Defaults to True (i.e. show connectors).')
 
 # flip x and y
 # plot_flipx = click.option('--flipx',
@@ -497,10 +512,12 @@ plot_output = click.option('--output',
                 "If not specified, the plot will be displayed in a window. "
                 "The file extension determines the plot type (svg or pdf recommended)."
                 )
-plot_shielding_shift = click.option('--shift/--shielding',
-                                    'shift',
-                                    default=None,
-                                    help='Plot shielding or shift. Defaults to shielding.')
+plot_shielding = click.option('--shielding',
+                                'plot_shielding',
+                                is_flag=True,
+                                default=None,
+                                help='Force plot shielding (even if references are present). '
+                                'Default is to plot shifts if references are given but shielding if no references given).')
 
 
 # option to select a subset of atoms
@@ -509,14 +526,14 @@ dip_selection_i = click.option('--select_i',
                 'selection_i',
                 type=str,
                 default=None,
-                help=selection_help
+                help=subset_help
                 )
 dip_selection_j = click.option('--select_j',
                 '-s_j',
                 'selection_j',
                 type=str,
                 default=None,
-                help=selection_help
+                help=subset_help
                 )
 #### Groups of CLI options
 # options that apply to pandas dataframes
@@ -540,12 +557,12 @@ NMR_OPTIONS = [
     euler,
     references,
     gradients,
-    select,
+    subset,
     ]
 
 COMMON_OPTIONS = [
     config,
-    quiet,
+    verbosity,
     view,
     symprec,
     precision,
@@ -556,9 +573,8 @@ PLOT_SPECIFIC_OPTIONS = [
     euler,
     references,
     gradients,
-    select,
+    subset,
     df_reduce,
-    df_combine_rule,
     df_query,
     plot_type,
     plot_xelement,
@@ -575,8 +591,12 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_max_marker_size,
     plot_scale_marker_by,
     plot_marker_legend,
+    plot_showdiagonal,
+    plot_showgrid,
+    plot_showconnecors,
+    plot_show_ticklabels,
     plot_output,
-    plot_shielding_shift
+    plot_shielding
 ]
 
 DIP_OPTIONS = [
