@@ -32,9 +32,22 @@ from scipy.special import fresnel
 from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.nmr.utils import _dip_constant
-from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI
+from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI, _get_isotope_list
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.selection import AtomSelection
+from soprano.properties.nmr import MSIsotropy, DipolarCoupling
+from soprano.properties.labeling import MagresViewLabels
+from soprano.utils import has_cif_labels
+import itertools
+
+import matplotlib
+import matplotlib.pyplot as plt
+
+
+import logging
+
+DEFAULT_MARKER_SIZE = 200
+
 
 _nmr_data = _get_nmr_data()
 
@@ -126,6 +139,34 @@ NMRFlags = NMRFlags(
     MAS=1 + 8 + 32,
 )
 
+
+MARKER_INFO = {
+    'distance': {
+        'label': 'Distance',
+        'unit': 'Å',
+        'fmt': '{x:.1f}'
+    },
+    'inversedistance': {
+        'label': '1/Distance',
+        'unit': r'Å$^{{-1}}$',
+        'fmt': '{x:.3f}'
+    },
+    'dipolar': {
+        'label': 'Dipolar Coupling',
+        'unit': 'kHz',
+        'fmt': '{x:.1f}'
+    },
+    'jcoupling': {
+        'label': 'J Coupling',
+        'unit': 'Hz',
+        'fmt': '{x:.1f}'
+    },
+    'fixed': {
+        'label': 'Fixed',
+        'unit': '',
+        'fmt': '{x:.1f}'
+    }
+    }
 
 class NMRCalculator(object):
 
@@ -774,3 +815,476 @@ class NMRCalculator(object):
     def B(self):
         """Static magnetic field, in Tesla"""
         return self._B
+
+
+class Plot2D:
+    '''
+    Class to handle the 2D plotting of NMR data.
+    '''
+    def __init__(self, 
+                atoms:Atoms,
+                xelement,
+                yelement,
+                references=None,
+                gradients=None,
+                pairs = None,
+                markersizes = None,
+                rcut = None,
+                isotopes={},
+                plot_shifts=None,
+                include_quadrupolar=False,
+                yaxis_order='1Q',
+                xlim=None,
+                ylim=None,
+                marker='x',
+                scale_marker_by = 'fixed',
+                max_marker_size=DEFAULT_MARKER_SIZE,
+                show_ticks=True,
+                show_lines=True,
+                show_diagonal=True,
+                show_connectors=True,
+                plot_filename=None,
+                marker_color = 'C1',
+                show_marker_legend=False,
+                logger = None,
+                ax = None # If None, will create a new figure
+                ):
+        if logger is None:
+            self.logger = logging.getLogger(__name__)
+        else:
+            self.logger = logger
+
+
+        self.atoms = atoms
+        self.xelement = xelement
+        self.yelement = yelement
+        self.references = references
+        self.gradients = gradients
+        self.pairs = pairs
+        self.markersizes = markersizes
+        self.rcut = rcut
+        self.isotopes = isotopes
+        self.plot_shifts = plot_shifts
+        self.include_quadrupolar = include_quadrupolar
+        self.yaxis_order = yaxis_order
+        self.xlim = xlim
+        self.ylim = ylim
+        self.marker = marker
+        self.scale_marker_by = scale_marker_by
+        self.max_marker_size = max_marker_size
+        self.show_ticks = show_ticks
+        self.show_lines = show_lines
+        self.show_diagonal = show_diagonal
+        self.show_connectors = show_connectors
+        self.plot_filename = plot_filename
+        self.ax = ax
+        
+        self.marker_unit = MARKER_INFO[self.scale_marker_by]['unit']
+        self.marker_label = MARKER_INFO[self.scale_marker_by]['label']
+        self.marker_fmt = MARKER_INFO[self.scale_marker_by]['fmt']
+        self.marker_color = marker_color
+        self.show_marker_legend = show_marker_legend
+
+
+        # if the user hasn't specified plot_shifts, then we 
+        if plot_shifts is not None:
+            # if the user has specified plot_shifts to be True or False, use that
+            self.plot_shifts = plot_shifts
+        else:
+            # otherwise, if references are given, plot shifts
+            if self.references:
+                self.plot_shifts = True
+                self.logger.debug("Plotting chemical shifts since references are given. ")
+            else:
+                self.plot_shifts = False
+                self.logger.debug("Plotting chemical shielding since no references are given. ")
+                
+
+    def get_2D_plot_data(self):
+        '''
+        Get the data for a 2D NMR plot from 
+        a dataframe with columns:
+        'MS_shift/ppm' or 'MS_shielding/ppm'
+        
+        If include_quadrupolar is True, then the quadrupolar
+        couplings should also be included in the df.
+        
+
+        '''
+        all_elements = self.atoms.get_chemical_symbols()
+        isotopes = _get_isotope_list(all_elements, isotopes=self.isotopes, use_q_isotopes=False)
+        if self.xelement not in all_elements:
+            raise ValueError(f'{self.xelement} not found in the file after the user-specified filters have been applied.')
+        if self.yelement not in all_elements:
+            raise ValueError(f'{self.yelement} not found in the file after the user-specified filters have been applied.')
+        self.idx_x = np.array([atom.index for atom in self.atoms if atom.symbol == self.xelement])
+        self.idx_y = np.array([atom.index for atom in self.atoms if atom.symbol == self.yelement])
+        self.xisotope = isotopes[self.idx_x[0]]
+        self.yisotope = isotopes[self.idx_y[0]]
+        self.logger.debug(f'Indices of {self.xelement} in the atoms object: {self.idx_x}')
+        self.logger.debug(f'Indices of {self.yelement} in the atoms object: {self.idx_y}')
+        species_template =  r'$\mathrm{^{%s}{%s}}$'
+        self.xspecies = species_template % (self.xisotope, self.xelement)
+        self.yspecies = species_template % (self.yisotope, self.yelement)
+        # log species
+        self.logger.debug(f'X species: {self.xspecies}')
+        self.logger.debug(f'Y species: {self.yspecies}')
+        self.get_axis_labels()
+
+        # get pairs
+        self.get_plot_pairs()
+        # marker sizes
+        self.markersizes = self.get_marker_sizes()
+
+        # actual data
+        shieldings = MSIsotropy.get(self.atoms)
+        shifts     = MSIsotropy.get(self.atoms, ref=self.references, grad=self.gradients)
+        if self.plot_shifts:
+            if self.xelement not in self.references:
+                raise ValueError(f'{self.xelement} not found in the references dictionary. Please specify a reference for both elements.')
+            if self.yelement not in self.references:
+                raise ValueError(f'{self.yelement} not found in the references dictionary. Please specify a reference for both elements.')
+            self.data = shifts
+        else:
+            self.data = shieldings
+
+        # log the x and y values
+        self.logger.debug(f'X values: {self.data[self.idx_x]}')
+        self.logger.debug(f'Y values: {self.data[self.idx_y]}')
+
+        # tick labels and ticks
+        self.get_ticks()
+
+    def get_axis_labels(self):
+        if self.plot_shifts:
+            axis_label = r"$\delta$"
+        else:
+            axis_label = r"$\sigma$"
+        
+        self.x_axis_label = f'{self.xspecies} ' + axis_label + ' /ppm'
+
+        if self.yaxis_order == '2Q':
+            self.y_axis_label = f'{self.yspecies} ' + axis_label + r'$_{\mathrm{%s}}$' % self.yaxis_order + ' /ppm'
+        else:
+            self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
+    
+    def get_labels(self):
+        if has_cif_labels(self.atoms):
+            labels = self.atoms.get_array('labels')
+        elif self.atoms.has('MagresView_labels'):
+            # we might have already generated the MV style labels
+            labels = self.atoms.get_array('MagresView_labels')
+        else:
+            self.logger.info('No labels found in the atoms object. Generating MagresView-style labels from scratch.')
+            labels = MagresViewLabels.get(self.atoms)
+            # convert to numpy array
+            labels = np.array(labels, dtype='U25')
+        return labels
+
+    def get_ticks(self):
+        '''
+        Get the tick labels and ticks for the plot
+        '''
+
+        if not self.show_ticks:
+            self.xticks = []
+            self.yticks = []
+            self.xticks_labels = []
+            self.yticks_labels = []
+            return
+        labels = self.get_labels()
+        
+        
+
+
+        
+        # custom ticks
+        self.xticks = self.data[self.idx_x]
+        self.xticks_labels = labels[self.idx_x]
+
+        if self.yaxis_order == '1Q':
+            self.yticks = self.data[self.idx_y]
+            self.yticks_labels = labels[self.idx_y]
+
+        elif self.yaxis_order == '2Q':
+            # loop over pairs
+            self.yticks = []
+            self.yticks_labels = []
+            for pair in self.pairs:
+                ticky = self.data[pair[0]] + self.data[pair[1]]
+                self.yticks.append(ticky)
+                ticky_label = f'{labels[pair[0]]} + {labels[pair[1]]}'
+                self.yticks_labels.append(ticky_label)
+
+
+    def get_plot_pairs(self):
+        '''
+        Get the pairs of x and y indices to plot
+
+        self.idx_x and self.idx_y are the indices of the x and y elements in the atoms object
+
+        This method will set the following attributes:
+        self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
+        self.pairs: a list of tuples of the form (xindex, yindex)
+
+        '''
+        # number of x and y sites
+        nx = len(self.idx_x)
+        ny = len(self.idx_y)
+        # xelement_indices = np.array([atom.index for atom in self.atoms if atom.symbol == self.xelement])
+        # yelement_indices = np.array([atom.index for atom in self.atoms if atom.symbol == self.yelement])
+        if self.pairs:
+            # if the user has specified pairs, use those
+            # get the indices within each element for each pair:
+            self.pairs_el_idx = []
+            for pair in self.pairs:
+                xidx = np.where(self.idx_x == pair[0])[0][0] # there should only be one match
+                yidx = np.where(self.idx_y == pair[1])[0][0] # there should only be one match
+                self.pairs_el_idx.append((xidx, yidx))
+        else:
+            # We need to generate the pairs ourselves
+            
+            # self.pairs is a list of tuples of the form (xindex, yindex)
+            # these are the indices within the self.x and self.y arrays
+            self.pairs_el_idx = list(itertools.product(range(nx), range(ny)))
+            # self.pairs_original_idx is a list of tuples of the form (xindex, yindex)
+            # these are the indices within the self.atoms object
+            self.pairs = list(itertools.product(self.idx_x, self.idx_y))
+            
+        # remove any pairs where the x and y indices are the same
+        # this should only be the case if xelement == yelement
+        # do we want to allow this if yaxis_order == '1Q'?
+        # self.pairs = [pair for pair in self.pairs if pair[0] != pair[1]]
+        
+        # check if any two indices in a pair are the same if marker size is not fixed
+        if self.scale_marker_by != 'fixed':
+            for pair in self.pairs:
+                if len(set(pair)) != 2:
+                    raise ValueError("""
+                    Two indices in a pair are the same but
+                    the marker size is based on distance between sites.
+                    It's unclear """)
+        
+        
+        if len(self.pairs) == 0:
+            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
+
+        self.pair_distances = np.zeros(len(self.pairs_el_idx))
+        for i, pair in enumerate(self.pairs):
+            if pair[0] == pair[1]:
+                # (rather than looking for periodic images of the same atom)
+                self.pair_distances[i] = 0.0
+            else:
+                self.pair_distances[i] = self.atoms.get_distance(*pair, mic=True)
+        
+        if self.rcut:
+            # now filter out those pairs that are too far away
+            self.logger.info(f"Filtering out pairs that are further than {self.rcut} Å apart.")
+            self.logger.info(f"Number of pairs before filtering: {len(self.pairs_el_idx)}")
+            
+            dist_mask = np.where(self.pair_distances <= self.rcut)[0]
+            self.pairs_el_idx = [self.pairs_el_idx[i] for i in dist_mask]
+            self.pairs = [self.pairs[i] for i in dist_mask]
+            self.pair_distances = self.pair_distances[dist_mask]
+            # update the idx_x and idx_y
+            self.idx_x = np.unique([pair[0] for pair in self.pairs])
+            self.idx_y = np.unique([pair[1] for pair in self.pairs])
+            if len(self.idx_x) == 0 or len(self.idx_y) == 0:
+                raise ValueError(f'No pairs found after filtering by distance. Try increasing the cutoff distance (rcut).')
+            # sort self.idx_x and self.idx_y
+            self.idx_x = np.sort(self.idx_x)
+            self.idx_y = np.sort(self.idx_y)
+            self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
+            self.logger.debug(f"Pairs remaining: {self.pairs}")
+            self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
+
+
+    def get_marker_sizes(self):
+        if self.markersizes:
+            # if user provides a list of these, use it!
+            # just check that it's the right length
+            if len(self.markersizes) != len(self.pairs_el_idx):
+                raise ValueError(f"Length of markersizes ({len(self.markersizes)}) does not match the number of pairs ({len(self.pairs_el_idx)}).")
+            return self.markersizes
+        
+        if self.scale_marker_by == 'fixed':
+            self.logger.info("Using fixed marker size.")
+            # get all unique pairs of x and y indices
+            # set the marker size to be the same for all pairs
+            markersizes = np.ones(len(self.pairs_el_idx))
+            
+        elif self.scale_marker_by == 'dipolar':
+            self.logger.info("Using dipolar coupling as marker size.")
+            self.logger.debug(f"Using custom isotopes: {self.isotopes}")
+            # DipolarCoupling.get returns a dictionary with the dipolar coupling but we oly have one element in the dictionary.
+            # We need the first element of the value of this item.
+            dip = []
+            for i, j in self.pairs:
+                if i == j:
+                    # set the dipolar coupling to zero for pairs where i == j
+                    dip.append(0)
+                else:
+                    dip.append(list(DipolarCoupling.get(self.atoms, 
+                                                        sel_i=[i],
+                                                        sel_j=[j],
+                                                        isotopes=self.isotopes).values())[0][0])
+            # convert to kHz
+            dip = np.array(dip) * 1e-3
+            markersizes = np.array(dip)
+        elif self.scale_marker_by == 'distance' or self.scale_marker_by == 'inversedistance':
+            log_message = "Using minimum image convention {isinverse}distance as marker size."
+            isinverse = ''
+
+            # now we can use ASE get_distance to get the distances for each pair
+            markersizes = self.pair_distances
+            if self.scale_marker_by == 'inversedistance':
+                markersizes = 1 / markersizes
+                isinverse = 'inverse '
+            self.logger.info(log_message.format(isinverse=isinverse))
+            
+
+        elif self.scale_marker_by == 'J':
+            self.logger.info("Using J-coupling as marker size.")
+            raise NotImplementedError("J-coupling scaling not implemented yet.")
+
+        else:
+            raise ValueError(f"Unknown scale_marker_by option: {self.scale_marker_by}")
+        
+        self.logger.debug(f"markersizes: {self.markersizes}")
+
+        #
+        # log pair with smallest and largest marker size
+        min_idx = np.argmin(np.abs(markersizes))
+        max_idx = np.argmax(np.abs(markersizes))
+        smallest_pair = self.pairs[min_idx]
+        largest_pair  = self.pairs[max_idx]
+        # labels for the smallest and largest pairs
+        labels = self.get_labels()
+        smallest_pair_labels = [labels[smallest_pair[0]], labels[smallest_pair[1]]]
+        largest_pair_labels = [labels[largest_pair[0]], labels[largest_pair[1]]]
+        self.logger.info(f"Pair with smallest (abs) {self.marker_label}: {smallest_pair_labels} ({markersizes[min_idx]:.2f})")
+        self.logger.info(f"Pair with largest (abs) {self.marker_label}: {largest_pair_labels} ({markersizes[max_idx]:.2f})")
+
+        return markersizes
+    
+    def plot(self):
+        '''
+        Plot a 2D NMR spectrum from a dataframe with columns 'MS_shift/ppm' or 'MS_shielding/ppm'
+
+        '''
+        self.logger.info("Plotting 2D NMR spectrum...")
+        self.logger.info(f"Plotting {self.xelement} vs {self.yelement}.")
+
+        # get the data
+        self.get_2D_plot_data()
+
+        # some syle
+        linealpha = 0.5
+        linecolor = '0.75'
+        linewidth = 0.5
+        linestyle = '-'
+        matplotlib.style.use('seaborn-paper')
+
+        # make the plot!
+        if self.ax:
+            ax = self.ax
+            fig = ax.get_figure()
+        else:
+            fig, ax = plt.subplots()
+
+        ax_r = ax.secondary_yaxis('right')
+        ax_t = ax.secondary_xaxis('top')
+        ax_r.tick_params(axis='y', direction='out', labelrotation=0)
+        ax_t.tick_params(axis='x', direction='out', labelrotation=90)
+
+        # set the ticks
+        ax_t.set_xticks(self.xticks)
+        ax_r.set_yticks(self.yticks)
+        # and tick labels
+        ax_r.set_yticklabels(self.yticks_labels)
+        ax_t.set_xticklabels(self.xticks_labels)
+
+
+        if self.show_lines:
+            for i, xval in enumerate(self.xticks):
+                ax.axvline(xval, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
+            for i, yval in enumerate(self.yticks):
+                ax.axhline(yval, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
+        
+        # --- plot the markers ---
+        xvals = [self.data[pair[0]] for pair in self.pairs]
+        yvals = [self.data[pair[1]] for pair in self.pairs]
+        
+        if self.yaxis_order == '2Q':
+            yvals = [x+y for x, y in zip(xvals, yvals)]
+        
+        if self.show_connectors and self.yaxis_order == '2Q' and self.xelement == self.yelement:
+            for i, pair in enumerate(self.pairs):
+                # plot line from x1 to x2 and y1 to y2 if pair[0] != pair[1]
+                if pair[0] != pair[1]:
+                    ax.plot([self.data[pair[0]], self.data[pair[1]]],
+                            [yvals[i], yvals[i]],
+                            c='0.25',
+                            lw=1,
+                            ls='-',
+                            zorder=0)
+            # make sure the marker sizes are all positive
+        markersizes = np.abs(self.markersizes)
+        marker_size_range = np.max(markersizes) - np.min(markersizes)
+        if self.scale_marker_by != 'fixed':
+            self.logger.info(f"Marker size range: {marker_size_range} {self.marker_unit}")
+        max_abs_marker = np.max(markersizes)
+        # normalise the marker sizes such that the maximum marker size is self.max_marker_size
+        markersizes = markersizes / max_abs_marker * self.max_marker_size
+        # plot the markers
+        scatter = ax.scatter(
+            xvals,
+            yvals,
+            s=markersizes,
+            marker=self.marker,
+            c=self.marker_color,
+            zorder=10)
+        
+
+        # --- plot the axis labels ---
+        ax.set_xlabel(self.x_axis_label)
+        ax.set_ylabel(self.y_axis_label)
+
+        # if shifts are plotted, invert the axes
+        if self.plot_shifts:
+            ax.invert_xaxis()
+            ax.invert_yaxis()
+
+        # other plot options
+        if self.xlim:
+            ax.set_xlim(self.xlim)
+        if self.ylim:
+            ax.set_ylim(self.ylim)
+
+        if self.xelement == self.yelement and self.show_diagonal:
+            # use self.xlim and self.ylim to draw a diagonal line
+            ylims = ax.get_ylim()
+            xlims = ax.get_xlim()
+            ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
+        
+        # add marker size legend
+        if self.scale_marker_by != 'fixed' and self.show_marker_legend:
+            # produce a legend with a cross-section of sizes from the scatter
+            kw = dict(prop="sizes", num=5, color=self.marker_color, 
+                      fmt=self.marker_fmt + f" {self.marker_unit}",
+                      func=lambda s: s*max_abs_marker / self.max_marker_size)
+            handles, labels = scatter.legend_elements(**kw)
+            ax.legend(handles, labels,
+                      loc="upper left",
+                      title=self.marker_label,
+                      fancybox=True,
+                      framealpha=0.8).set_zorder(11)
+
+
+        if self.plot_filename:
+            self.logger.debug(f"Saving to {self.plot_filename}")
+            fig.savefig(self.plot_filename)
+        else:
+            plt.show()
+
+        return fig, ax

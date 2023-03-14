@@ -42,7 +42,6 @@ import pandas as pd
 home = os.path.expanduser('~')
 # get default soprano config file:
 DEFAULT_CFG = os.environ.get('SOPRANO_CONFIG', f'{home}/.soprano/config.ini')
-DEFAULT_MARKER_SIZE = 200
 DEFAULT_PRECISION = 4
 
 

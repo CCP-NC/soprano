@@ -223,6 +223,7 @@ def nmr_extract(files, subset, merge, isotopes, references, gradients, reduce, a
             logger.info(f'\nSelecting atoms based on selection subset string: {subset}')
             sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
             all_selections *= sel_selectionstring
+            logger.debug(f'    Selected atoms: {all_selections.indices}')
         
         if isotopes:
             logger.info(f'\nCustom isotopes for: {isotopes}')
@@ -257,6 +258,9 @@ def nmr_extract(files, subset, merge, isotopes, references, gradients, reduce, a
         
         # sort by tag
         atoms = atoms[np.argsort(atoms.get_tags())]
+
+        # only keep the atoms that are in the dataframe (based on tag)
+        atoms = atoms[np.isin(atoms.get_tags(), df['tags'].values)]
 
         # if the df is not empty, append it to the list
         if len(df) > 0:
