@@ -1189,7 +1189,7 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}):
     atoms.positions[idx] = new_properties['positions']
     atoms.numbers[idx] = new_properties['numbers']
     if atoms.has('labels'):
-        labels = atoms.get_array('labels')
+        labels = atoms.get_array('labels').astype('U25')
         labels[idx] = new_properties['labels']
         # first delete the old array 
         # (this is needed to avoid a bug in ASE)

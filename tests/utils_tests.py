@@ -185,7 +185,7 @@ class TestMergeSites(unittest.TestCase):
         # check that the number of atoms is correct
         self.assertEqual(len(atoms), 7)
         # check that the CH3 group is now a single site
-        self.assertEqual(atoms.get_array('labels')[6], 'H4--H5--H6')
+        self.assertEqual(atoms.get_array('labels')[6], 'H4-H5-H6')
         # check that the ms and efg arrays are correct
         self.assertTrue(np.allclose(atoms.get_array('ms')[6], np.mean(ms[merge_indices], axis=0)))
         self.assertTrue(np.allclose(atoms.get_array('efg')[6], np.mean(efg[merge_indices], axis=0)))
@@ -196,7 +196,7 @@ class TestMergeSites(unittest.TestCase):
         # check that the number of atoms is correct
         self.assertEqual(len(atoms), 6)
         # check that the C1 and C2 sites are now a single site
-        self.assertEqual(atoms.get_array('labels')[0], 'C1--C2')
+        self.assertEqual(atoms.get_array('labels')[0], 'C1-C2')
         # check that the ms and efg arrays are correct
         self.assertTrue(np.allclose(atoms.get_array('ms')[0], np.mean(ms[merge_indices], axis=0)))
         self.assertTrue(np.allclose(atoms.get_array('efg')[0], np.mean(efg[merge_indices], axis=0)))
