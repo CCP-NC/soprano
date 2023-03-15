@@ -28,12 +28,12 @@ import click
 from collections import OrderedDict, defaultdict
 import re
 from soprano.data.nmr import _el_iso
+from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
 from soprano.utils import average_quaternions
 import os
 import numpy as np
 from configparser import ConfigParser
 from ase.visualize import view as aseview
-from soprano.properties.linkage import Molecules
 import pandas as pd
 
 

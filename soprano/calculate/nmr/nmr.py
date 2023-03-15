@@ -165,6 +165,11 @@ MARKER_INFO = {
         'label': 'Fixed',
         'unit': '',
         'fmt': '{x:.1f}'
+    },
+    'custom': {
+        'label': 'Correlation strength',
+        'unit': '',
+        'fmt': '{x:.1f}'
     }
     }
 
@@ -879,9 +884,7 @@ class Plot2D:
         self.plot_filename = plot_filename
         self.ax = ax
         
-        self.marker_unit = MARKER_INFO[self.scale_marker_by]['unit']
-        self.marker_label = MARKER_INFO[self.scale_marker_by]['label']
-        self.marker_fmt = MARKER_INFO[self.scale_marker_by]['fmt']
+        
         self.marker_color = marker_color
         self.show_marker_legend = show_marker_legend
 
@@ -1105,7 +1108,9 @@ class Plot2D:
             # just check that it's the right length
             if len(self.markersizes) != len(self.pairs_el_idx):
                 raise ValueError(f"Length of markersizes ({len(self.markersizes)}) does not match the number of pairs ({len(self.pairs_el_idx)}).")
-            return self.markersizes
+            
+            # set scale_marker_by to 'custom'
+            self.scale_marker_by = 'custom'
         
         if self.scale_marker_by == 'fixed':
             self.logger.info("Using fixed marker size.")
@@ -1146,11 +1151,17 @@ class Plot2D:
         elif self.scale_marker_by == 'J':
             self.logger.info("Using J-coupling as marker size.")
             raise NotImplementedError("J-coupling scaling not implemented yet.")
-
+        elif self.scale_marker_by == 'custom':
+            self.logger.info("Using custom marker sizes.")
+            markersizes = self.markersizes
         else:
             raise ValueError(f"Unknown scale_marker_by option: {self.scale_marker_by}")
         
         self.logger.debug(f"markersizes: {self.markersizes}")
+
+        self.marker_unit = MARKER_INFO[self.scale_marker_by]['unit']
+        self.marker_label = MARKER_INFO[self.scale_marker_by]['label']
+        self.marker_fmt = MARKER_INFO[self.scale_marker_by]['fmt']
 
         #
         # log pair with smallest and largest marker size
@@ -1268,14 +1279,13 @@ class Plot2D:
             ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
         
         # add marker size legend
-        if self.scale_marker_by != 'fixed' and self.show_marker_legend:
+        if (self.scale_marker_by != 'fixed') and self.show_marker_legend:
             # produce a legend with a cross-section of sizes from the scatter
-            kw = dict(prop="sizes", num=5, color=self.marker_color, 
+            kw = dict(prop="sizes", num='auto', color=self.marker_color, 
                       fmt=self.marker_fmt + f" {self.marker_unit}",
                       func=lambda s: s*max_abs_marker / self.max_marker_size)
             handles, labels = scatter.legend_elements(**kw)
             ax.legend(handles, labels,
-                      loc="upper left",
                       title=self.marker_label,
                       fancybox=True,
                       framealpha=0.8).set_zorder(11)
@@ -1284,7 +1294,4 @@ class Plot2D:
         if self.plot_filename:
             self.logger.debug(f"Saving to {self.plot_filename}")
             fig.savefig(self.plot_filename)
-        else:
-            plt.show()
-
         return fig, ax

@@ -169,7 +169,10 @@ def plotnmr(
                 show_marker_legend=show_marker_legend,
                 logger = logger)
         
-        plot.plot()
+        fig, ax = plot.plot()
+        # if the user doesn't give an output file name, show the plot using the default matplotlib backend
+        if not plot_filename:
+            plt.show()
     elif plot_type == '1D':
         sel = AtomSelection.all(atoms)
         element_sel = AtomSelection.from_element(atoms, x_element)
