@@ -33,6 +33,7 @@ from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.nmr.utils import _dip_constant
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI, _get_isotope_list
+from soprano.calculate.nmr.utils import optimise_annotations
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.selection import AtomSelection
 from soprano.properties.nmr import MSIsotropy, DipolarCoupling
@@ -42,6 +43,8 @@ import itertools
 
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Bbox
+
 
 
 import logging
@@ -1011,14 +1014,25 @@ class Plot2D:
 
         elif self.yaxis_order == '2Q':
             # loop over pairs
-            self.yticks = []
             self.yticks_labels = []
+            yticks = {}
             for pair in self.pairs:
                 ticky = self.data[pair[0]] + self.data[pair[1]]
-                self.yticks.append(ticky)
+                # self.yticks.append(ticky)
                 ticky_label = f'{labels[pair[0]]} + {labels[pair[1]]}'
-                self.yticks_labels.append(ticky_label)
+                # check if we have already added this tick
+                # we have to check for both e.g. (1,2) and (2,1) since we only need one
+                # for the label
+                if not(ticky_label in yticks or f'{labels[pair[1]]} + {labels[pair[0]]}' in yticks):
+                    self.yticks_labels.append(ticky_label)
+                    yticks[ticky_label] = ticky
+            # sort the ticks and labels
+            self.yticks = [yticks[label] for label in self.yticks_labels]
+            self.yticks, self.yticks_labels = zip(*sorted(zip(self.yticks, self.yticks_labels)))
 
+        # finally, sort the ticks and labels
+        self.xticks, self.xticks_labels = zip(*sorted(zip(self.xticks, self.xticks_labels)))
+        self.yticks, self.yticks_labels = zip(*sorted(zip(self.yticks, self.yticks_labels)))
 
     def get_plot_pairs(self):
         '''
@@ -1044,8 +1058,10 @@ class Plot2D:
                 xidx = np.where(self.idx_x == pair[0])[0][0] # there should only be one match
                 yidx = np.where(self.idx_y == pair[1])[0][0] # there should only be one match
                 self.pairs_el_idx.append((xidx, yidx))
+            # update self.idx_x and self.idx_y to be the indices within the self.atoms object
+            self.idx_x = np.array(self.pairs)[:,0]
+            self.idx_y = np.array(self.pairs)[:,1]
         else:
-            # We need to generate the pairs ourselves
             
             # self.pairs is a list of tuples of the form (xindex, yindex)
             # these are the indices within the self.x and self.y arrays
@@ -1053,6 +1069,7 @@ class Plot2D:
             # self.pairs_original_idx is a list of tuples of the form (xindex, yindex)
             # these are the indices within the self.atoms object
             self.pairs = list(itertools.product(self.idx_x, self.idx_y))
+
             
         # remove any pairs where the x and y indices are the same
         # this should only be the case if xelement == yelement
@@ -1177,7 +1194,7 @@ class Plot2D:
         self.logger.info(f"Pair with largest (abs) {self.marker_label}: {largest_pair_labels} ({markersizes[max_idx]:.2f})")
 
         return markersizes
-    
+
     def plot(self):
         '''
         Plot a 2D NMR spectrum from a dataframe with columns 'MS_shift/ppm' or 'MS_shielding/ppm'
@@ -1203,18 +1220,20 @@ class Plot2D:
         else:
             fig, ax = plt.subplots()
 
-        ax_r = ax.secondary_yaxis('right')
-        ax_t = ax.secondary_xaxis('top')
-        ax_r.tick_params(axis='y', direction='out', labelrotation=0)
-        ax_t.tick_params(axis='x', direction='out', labelrotation=90)
+        # ax_r = ax.secondary_yaxis('right')
+        # ax_t = ax.secondary_xaxis('top')
+        # ax_r.tick_params(axis='y', direction='out', labelrotation=0)
+        # ax_t.tick_params(axis='x', direction='out', labelrotation=90)
 
-        # set the ticks
-        ax_t.set_xticks(self.xticks)
-        ax_r.set_yticks(self.yticks)
-        # and tick labels
-        ax_r.set_yticklabels(self.yticks_labels)
-        ax_t.set_xticklabels(self.xticks_labels)
+        # # set the ticks
+        # ax_t.set_xticks(self.xticks)
+        # ax_r.set_yticks(self.yticks)
+        # # and tick labels
+        # ax_r.set_yticklabels(self.yticks_labels)
+        # ax_t.set_xticklabels(self.xticks_labels)
 
+        # convert the above to annotations instead of tick labels
+        
 
         if self.show_lines:
             for i, xval in enumerate(self.xticks):
@@ -1289,6 +1308,36 @@ class Plot2D:
                       title=self.marker_label,
                       fancybox=True,
                       framealpha=0.8).set_zorder(11)
+        
+
+        self.show_annotations = True
+        if self.show_annotations:
+            x_left, x_right = ax.get_xlim()
+            y_bottom, y_top = ax.get_ylim()
+            xticks = optimise_annotations(self.xticks, max_iters=5000, C = 0.0001, k = 0.001)
+            yticks = optimise_annotations(self.yticks, max_iters=5000, C = 0.001, k = 0.001)
+            for i, xval in enumerate(xticks):
+                ax.annotate(
+                    self.xticks_labels[i],
+                    xy=(self.xticks[i],
+                    y_top),
+                    xytext=(xval, 1.05),
+                    textcoords=('data', 'axes fraction'),
+                    ha='center',
+                    va='bottom',
+                    rotation=90,
+                    arrowprops=dict(arrowstyle="-", connectionstyle="arc,angleA=-90,armA=5,angleB=90,armB=10,rad=0", relpos=(0.5, 0.0)))
+            for i, yval in enumerate(yticks):
+                label_text = self.yticks_labels[i]
+                ax.annotate(
+                    label_text,
+                    xy=(x_right,
+                    self.yticks[i]),
+                    xytext=(1.05, yval),
+                    textcoords=('axes fraction', 'data'),
+                    ha='left',
+                    va='center',
+                    arrowprops=dict(arrowstyle="-", connectionstyle="arc,angleA=180,armA=10,angleB=0,armB=5,rad=0", relpos=(0.0, 0.5)))
 
 
         if self.plot_filename:
