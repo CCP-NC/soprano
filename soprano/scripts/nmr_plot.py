@@ -164,14 +164,17 @@ def plotnmr(
                 show_lines = show_grid,
                 show_diagonal = show_diagonal,
                 show_connectors=show_connectors,
-                show_ticks = show_ticklabels,
-                marker_color = 'C1',
+                show_labels = show_ticklabels,
+                marker_color = 'C0',
                 show_marker_legend=show_marker_legend,
                 logger = logger)
         
         fig, ax = plot.plot()
         # if the user doesn't give an output file name, show the plot using the default matplotlib backend
         if not plot_filename:
+            # set tight layout with a bit of padding
+            fig.tight_layout(pad=1.5)
+            # show figure
             plt.show()
     elif plot_type == '1D':
         sel = AtomSelection.all(atoms)

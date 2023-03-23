@@ -33,23 +33,24 @@ from collections import namedtuple
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.nmr.utils import _dip_constant
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI, _get_isotope_list
-from soprano.calculate.nmr.utils import optimise_annotations
+from soprano.calculate.nmr.utils import optimise_annotations, Peak2D, styled_plot, nmr_base_style, nmr_2D_style
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.selection import AtomSelection
 from soprano.properties.nmr import MSIsotropy, DipolarCoupling
 from soprano.properties.labeling import MagresViewLabels
 from soprano.utils import has_cif_labels
 import itertools
+import re
 
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox
 
 
 
 import logging
 
-DEFAULT_MARKER_SIZE = 200
+DEFAULT_MARKER_SIZE = 50 # Default marker size for 2D plots (max is 100)
+ANNOTATION_LINE_WIDTH = 0.5 # Line width for annotation lines
+ANNOTATION_FONT_SCALE = 0.5 # Scale factor for annotation font size wrt to plot font size
 
 
 _nmr_data = _get_nmr_data()
@@ -835,6 +836,7 @@ class Plot2D:
                 yelement,
                 references=None,
                 gradients=None,
+                peaks = None,
                 pairs = None,
                 markersizes = None,
                 rcut = None,
@@ -847,12 +849,13 @@ class Plot2D:
                 marker='x',
                 scale_marker_by = 'fixed',
                 max_marker_size=DEFAULT_MARKER_SIZE,
-                show_ticks=True,
+                show_labels=True,
+                auto_adjust_labels=True,
                 show_lines=True,
                 show_diagonal=True,
                 show_connectors=True,
                 plot_filename=None,
-                marker_color = 'C1',
+                marker_color = 'C0',
                 show_marker_legend=False,
                 logger = None,
                 ax = None # If None, will create a new figure
@@ -868,6 +871,7 @@ class Plot2D:
         self.yelement = yelement
         self.references = references
         self.gradients = gradients
+        self.peaks = peaks
         self.pairs = pairs
         self.markersizes = markersizes
         self.rcut = rcut
@@ -880,7 +884,8 @@ class Plot2D:
         self.marker = marker
         self.scale_marker_by = scale_marker_by
         self.max_marker_size = max_marker_size
-        self.show_ticks = show_ticks
+        self.show_labels = show_labels
+        self.auto_adjust_labels = auto_adjust_labels
         self.show_lines = show_lines
         self.show_diagonal = show_diagonal
         self.show_connectors = show_connectors
@@ -905,6 +910,91 @@ class Plot2D:
                 self.plot_shifts = False
                 self.logger.debug("Plotting chemical shielding since no references are given. ")
                 
+    def get_peaks(self, merge_identical=True):
+        '''
+        Get the correlation peaks.
+        '''
+        if self.peaks is None:
+            # make sure all the data is there
+            self.get_2D_plot_data()
+            labels = self.get_labels()
+            self.peaks = []
+            for ipair, pair in enumerate(self.pairs):
+                x = self.data[pair[0]]
+                y = self.data[pair[1]]
+                strength = self.markersizes[ipair]
+                xlabel = labels[pair[0]]
+                ylabel = labels[pair[1]]
+                if self.yaxis_order == '2Q':
+                    y = x + y
+                    if self.xelement == self.yelement:
+                        # then we might have both e.g. H1 + H2 and H2 + H1
+                        # let's set them both to be H1 + H2 by sorting the labels
+                        xlabel, ylabel = sorted([xlabel, ylabel])
+                    ylabel  = f'{xlabel} + {ylabel}'
+                peak = Peak2D(x = x, y = y, correlation_strength = strength, xlabel = xlabel, ylabel = ylabel)
+                self.peaks.append(peak)
+            if merge_identical:
+                self.peaks = self.merge_peaks(self.peaks)
+        return self.peaks
+    def merge_peaks(self, peaks, xtol=1e-5, ytol=1e-5, corr_tol=1e-5, ignore_correlation_strength=False):
+        '''
+        Merge peaks that are identical.
+        '''
+        # first, get the unique peaks
+        unique_peaks = []
+        unique_xlabels = {}
+        unique_ylabels = {}
+        for i, peak in enumerate(peaks):
+            if i == 0:
+                unique_peaks.append(peak)
+                unique_xlabels[peak.xlabel] = [peak.xlabel]
+                unique_ylabels[peak.ylabel] = [peak.ylabel]
+            else:
+                # check if it's identical to any of the unique peaks
+                is_identical = False
+                for unique_peak in unique_peaks:
+                    if peak.equivalent_to(
+                                    unique_peak,
+                                    xtol=xtol,
+                                    ytol=ytol,
+                                    corr_tol=corr_tol,
+                                    ignore_correlation_strength=ignore_correlation_strength):
+                        is_identical = True
+                        # update labels to include both
+                        unique_xlabels[unique_peak.xlabel].append(peak.xlabel)
+                        unique_ylabels[unique_peak.ylabel].append(peak.ylabel)
+                        
+                        break
+                if not is_identical:
+                    unique_peaks.append(peak)
+                    unique_xlabels[peak.xlabel] = [peak.xlabel]
+                    unique_ylabels[peak.ylabel] = [peak.ylabel]
+        # now, update the labels
+        #custom sort function 
+        def sort_func(x):
+            # if there are any integers, sort by those
+            # otherwise, sort by the string
+            # use regex to find integers
+            int_list = re.findall(r'\d+', x)
+            if int_list:
+                return int(int_list[0])
+            else:
+                return x
+            
+
+        for i, unique_peak in enumerate(unique_peaks):
+            xlabel_list = list(set(unique_xlabels[unique_peak.xlabel]))
+            ylabel_list = list(set(unique_ylabels[unique_peak.ylabel]))
+            # sort the labels
+            xlabel_list.sort(key=sort_func)
+            ylabel_list.sort(key=sort_func)
+            # join the labels
+            xlabel = '/'.join(xlabel_list)
+            ylabel = '/'.join(ylabel_list)
+            unique_peak.xlabel = xlabel
+            unique_peak.ylabel = ylabel
+        return unique_peaks
 
     def get_2D_plot_data(self):
         '''
@@ -958,8 +1048,6 @@ class Plot2D:
         self.logger.debug(f'X values: {self.data[self.idx_x]}')
         self.logger.debug(f'Y values: {self.data[self.idx_y]}')
 
-        # tick labels and ticks
-        self.get_ticks()
 
     def get_axis_labels(self):
         if self.plot_shifts:
@@ -987,53 +1075,98 @@ class Plot2D:
             labels = np.array(labels, dtype='U25')
         return labels
 
-    def get_ticks(self):
+    def add_annotations(self, unique=True, optimise = True):
         '''
-        Get the tick labels and ticks for the plot
+        Get the annotations for the plot
         '''
+        # annotation font size is 2/3 the general font size
+        font_size = self.ax.xaxis.label.get_fontsize() * ANNOTATION_FONT_SCALE
+        if self.peaks is None:
+            self.get_peaks()
 
-        if not self.show_ticks:
-            self.xticks = []
-            self.yticks = []
-            self.xticks_labels = []
-            self.yticks_labels = []
-            return
-        labels = self.get_labels()
+        self.annotations = []
+        xpos, ypos = np.array([[peak.x, peak.y] for peak in self.peaks]).T
+        xpos_label = xpos.copy()
+        ypos_label = ypos.copy()
+
+        xlabels = [peak.xlabel for peak in self.peaks]
+        ylabels = [peak.ylabel for peak in self.peaks]
+        self.logger.debug(f'X labels: {xlabels}')
+
+        # get the unique labels, keeping the indices
+        if unique:
+            xlabels, xidx = np.unique(xlabels, return_index=True)
+            ylabels, yidx = np.unique(ylabels, return_index=True)
+            # update the positions
+            xpos = xpos[xidx]
+            ypos = ypos[yidx]
+            xpos_label = xpos_label[xidx]
+            ypos_label = ypos_label[yidx]
+
+        self.logger.debug(f'X labels: {xlabels}')
+        self.logger.debug(f'X positions: {xpos}')
+        self.logger.debug(f'Y labels: {ylabels}')
+        self.logger.debug(f'Y positions: {ypos}')
+        if optimise:
+            # optimise the positions of the annotations to prevent overlap
+            xpos_label = optimise_annotations(xpos_label, max_iters=5000, C = 0.00005, k = 0.01, ftol=1e-5)
+            ypos_label = optimise_annotations(ypos_label, max_iters=5000, C = 0.00005, k = 0.01, ftol=1e-5)
+            self.logger.debug(f'Optimised X positions: {xpos_label}')
+            self.logger.debug(f'Optimised Y positions: {ypos_label}')
+
         
+        x_left, x_right = self.ax.get_xlim()
+        y_bottom, y_top = self.ax.get_ylim()
+        # hack to get the arm lengths correct for pdf and interactive rendering
+        if self.plot_filename is None:
+            armA = 25
+            armB = 15
+        elif self.plot_filename.endswith('.pdf'):
+            armA = 5
+            armB = 3
+        else:
+            armA = 30
+            armB = 20
+            
+        for i, xlabel in enumerate(xlabels):
+            an = self.ax.annotate(
+                xlabel,
+                xy=(xpos[i], y_top),
+                xytext=(xpos_label[i], 1.05),
+                textcoords=('data', 'axes fraction'),
+                fontsize = font_size,
+                ha='center',
+                va='bottom',
+                rotation=90,
+                arrowprops=dict(
+                    arrowstyle="-",
+                    connectionstyle=f"arc,angleA=-90,armA={armA},angleB=90,armB={armB},rad=0",
+                    relpos=(0.5, 0.0),
+                    lw=ANNOTATION_LINE_WIDTH,
+                    )
+                )
+            self.annotations.append(an)
         
+        for i, ylabel in enumerate(ylabels):
+            an = self.ax.annotate(
+                ylabel,
+                xy=(x_right, ypos[i]),
+                xytext=(1.05, ypos_label[i]),
+                textcoords=('axes fraction', 'data'),
+                fontsize = font_size,
+                ha='left',
+                va='center',
+                arrowprops=dict(
+                    arrowstyle="-",
+                    connectionstyle=f"arc,angleA=180,armA={armA},angleB=0,armB={armB},rad=0",
+                    relpos=(0.0, 0.5),
+                    lw = ANNOTATION_LINE_WIDTH,
+                    )
+                )
+            self.annotations.append(an)
 
-
-        
-        # custom ticks
-        self.xticks = self.data[self.idx_x]
-        self.xticks_labels = labels[self.idx_x]
-
-        if self.yaxis_order == '1Q':
-            self.yticks = self.data[self.idx_y]
-            self.yticks_labels = labels[self.idx_y]
-
-        elif self.yaxis_order == '2Q':
-            # loop over pairs
-            self.yticks_labels = []
-            yticks = {}
-            for pair in self.pairs:
-                ticky = self.data[pair[0]] + self.data[pair[1]]
-                # self.yticks.append(ticky)
-                ticky_label = f'{labels[pair[0]]} + {labels[pair[1]]}'
-                # check if we have already added this tick
-                # we have to check for both e.g. (1,2) and (2,1) since we only need one
-                # for the label
-                if not(ticky_label in yticks or f'{labels[pair[1]]} + {labels[pair[0]]}' in yticks):
-                    self.yticks_labels.append(ticky_label)
-                    yticks[ticky_label] = ticky
-            # sort the ticks and labels
-            self.yticks = [yticks[label] for label in self.yticks_labels]
-            self.yticks, self.yticks_labels = zip(*sorted(zip(self.yticks, self.yticks_labels)))
-
-        # finally, sort the ticks and labels
-        self.xticks, self.xticks_labels = zip(*sorted(zip(self.xticks, self.xticks_labels)))
-        self.yticks, self.yticks_labels = zip(*sorted(zip(self.yticks, self.yticks_labels)))
-
+        return self.annotations
+    
     def get_plot_pairs(self):
         '''
         Get the pairs of x and y indices to plot
@@ -1194,7 +1327,7 @@ class Plot2D:
         self.logger.info(f"Pair with largest (abs) {self.marker_label}: {largest_pair_labels} ({markersizes[max_idx]:.2f})")
 
         return markersizes
-
+    @styled_plot(nmr_base_style, nmr_2D_style)
     def plot(self):
         '''
         Plot a 2D NMR spectrum from a dataframe with columns 'MS_shift/ppm' or 'MS_shielding/ppm'
@@ -1204,14 +1337,7 @@ class Plot2D:
         self.logger.info(f"Plotting {self.xelement} vs {self.yelement}.")
 
         # get the data
-        self.get_2D_plot_data()
-
-        # some syle
-        linealpha = 0.5
-        linecolor = '0.75'
-        linewidth = 0.5
-        linestyle = '-'
-        matplotlib.style.use('seaborn-paper')
+        peaks = self.get_peaks(merge_identical=True)
 
         # make the plot!
         if self.ax:
@@ -1219,47 +1345,42 @@ class Plot2D:
             fig = ax.get_figure()
         else:
             fig, ax = plt.subplots()
+            self.fig = fig
+            self.ax = ax
 
-        # ax_r = ax.secondary_yaxis('right')
-        # ax_t = ax.secondary_xaxis('top')
-        # ax_r.tick_params(axis='y', direction='out', labelrotation=0)
-        # ax_t.tick_params(axis='x', direction='out', labelrotation=90)
-
-        # # set the ticks
-        # ax_t.set_xticks(self.xticks)
-        # ax_r.set_yticks(self.yticks)
-        # # and tick labels
-        # ax_r.set_yticklabels(self.yticks_labels)
-        # ax_t.set_xticklabels(self.xticks_labels)
-
-        # convert the above to annotations instead of tick labels
-        
 
         if self.show_lines:
+            xvals = [peak.x for peak in peaks]
+            yvals = [peak.y for peak in peaks]
+            # unique xvals within a tolerance
+            self.xticks = np.unique(np.round(xvals, 6))
+            # unique yvals within a tolerance
+            self.yticks = np.unique(np.round(yvals, 6))
+            # plot the lines
             for i, xval in enumerate(self.xticks):
-                ax.axvline(xval, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
+                ax.axvline(xval, zorder=0)#, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
             for i, yval in enumerate(self.yticks):
-                ax.axhline(yval, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
+                ax.axhline(yval, zorder=0)#, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
         
         # --- plot the markers ---
-        xvals = [self.data[pair[0]] for pair in self.pairs]
-        yvals = [self.data[pair[1]] for pair in self.pairs]
-        
-        if self.yaxis_order == '2Q':
-            yvals = [x+y for x, y in zip(xvals, yvals)]
+        xvals = [peak.x for peak in peaks]
+        yvals = [peak.y for peak in peaks]
         
         if self.show_connectors and self.yaxis_order == '2Q' and self.xelement == self.yelement:
-            for i, pair in enumerate(self.pairs):
-                # plot line from x1 to x2 and y1 to y2 if pair[0] != pair[1]
-                if pair[0] != pair[1]:
-                    ax.plot([self.data[pair[0]], self.data[pair[1]]],
-                            [yvals[i], yvals[i]],
+            y_order = np.argsort(yvals)
+            # loop over peaks and plot lines between peaks with the same y value
+            for i, idx in enumerate(y_order):
+                if np.isclose(peaks[idx].y, peaks[y_order[i-1]].y, atol=1e-6):
+                    ax.plot([peaks[idx].x, peaks[y_order[i-1]].x],
+                            [peaks[idx].y, peaks[y_order[i-1]].y],
                             c='0.25',
                             lw=1,
                             ls='-',
-                            zorder=0)
-            # make sure the marker sizes are all positive
-        markersizes = np.abs(self.markersizes)
+                            zorder=1)
+        # marker sizes based on correlation strength
+        markersizes = np.array([peak.correlation_strength for peak in peaks])
+        # make sure the marker sizes are all positive
+        markersizes = np.abs(markersizes)
         marker_size_range = np.max(markersizes) - np.min(markersizes)
         if self.scale_marker_by != 'fixed':
             self.logger.info(f"Marker size range: {marker_size_range} {self.marker_unit}")
@@ -1272,7 +1393,8 @@ class Plot2D:
             yvals,
             s=markersizes,
             marker=self.marker,
-            c=self.marker_color,
+            c=[peak.color for peak in peaks],
+            lw=1,
             zorder=10)
         
 
@@ -1310,35 +1432,9 @@ class Plot2D:
                       framealpha=0.8).set_zorder(11)
         
 
-        self.show_annotations = True
-        if self.show_annotations:
-            x_left, x_right = ax.get_xlim()
-            y_bottom, y_top = ax.get_ylim()
-            xticks = optimise_annotations(self.xticks, max_iters=5000, C = 0.0001, k = 0.001)
-            yticks = optimise_annotations(self.yticks, max_iters=5000, C = 0.001, k = 0.001)
-            for i, xval in enumerate(xticks):
-                ax.annotate(
-                    self.xticks_labels[i],
-                    xy=(self.xticks[i],
-                    y_top),
-                    xytext=(xval, 1.05),
-                    textcoords=('data', 'axes fraction'),
-                    ha='center',
-                    va='bottom',
-                    rotation=90,
-                    arrowprops=dict(arrowstyle="-", connectionstyle="arc,angleA=-90,armA=5,angleB=90,armB=10,rad=0", relpos=(0.5, 0.0)))
-            for i, yval in enumerate(yticks):
-                label_text = self.yticks_labels[i]
-                ax.annotate(
-                    label_text,
-                    xy=(x_right,
-                    self.yticks[i]),
-                    xytext=(1.05, yval),
-                    textcoords=('axes fraction', 'data'),
-                    ha='left',
-                    va='center',
-                    arrowprops=dict(arrowstyle="-", connectionstyle="arc,angleA=180,armA=10,angleB=0,armB=5,rad=0", relpos=(0.0, 0.5)))
-
+        if self.show_labels:
+            # add the annotations to the plot
+            annotations = self.add_annotations(optimise=self.auto_adjust_labels) # list of Annotation objects
 
         if self.plot_filename:
             self.logger.debug(f"Saving to {self.plot_filename}")
