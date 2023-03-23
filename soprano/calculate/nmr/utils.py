@@ -55,7 +55,7 @@ def get_force_matrix(
     off_diag_mask = np.logical_and(off_diag_mask, non_zero_displacements)
     # Fmat[off_diag_mask][non_zero_displacements] = -C * displacement_matrix[off_diag_mask][non_zero_displacements] / (np.abs(displacement_matrix[off_diag_mask][non_zero_displacements]))**3
     
-    Fmat[off_diag_mask] += C * displacement_matrix[off_diag_mask] / (np.abs(displacement_matrix[off_diag_mask]))**3
+    Fmat[off_diag_mask] += C * displacement_matrix[off_diag_mask] / (np.abs(displacement_matrix[off_diag_mask]))**4
 
     # if any off-diagonal elements are zero, then set a random force
     zero_off_diag_mask = np.logical_and(off_diag_mask, ~non_zero_displacements)
@@ -119,7 +119,8 @@ def get_energy(positions, positions_original, C, k):
     coulomb_energy = 0
     for i in range(len(positions)):
         for j in range(i+1, len(positions)):
-            coulomb_energy += C / np.abs(positions[i] - positions[j])
+            if np.abs(positions[i] - positions[j]) > 1e-8:
+                coulomb_energy += C / np.abs(positions[i] - positions[j])**2
 
     
 
@@ -209,7 +210,7 @@ class Peak2D:
 
     '''  
 
-    def __init__(self, x, y, xlabel, ylabel, correlation_strength=1, color='C0'):
+    def __init__(self, x, y, xlabel, ylabel, correlation_strength=1, color='C0', idx_x=None, idx_y=None):
         '''
         Args:
             x (float): The x coordinate of the peak
@@ -218,6 +219,8 @@ class Peak2D:
             ylabel (str): The y label for the peak
             correlation_strength (float, optional): The correlation strength of the peak. Defaults to 1.
             color (str, optional): The color of the peak. Defaults to 'C0'. Any valid matplotlib color is allowed.
+            idx_x (int, optional): The index of the site in the original structure. Defaults to None.
+            idx_y (int, optional): The index of the peak in the original structure. Defaults to None.
         '''
         self.x = x
         self.y = y
@@ -225,6 +228,8 @@ class Peak2D:
         self.xlabel = xlabel
         self.ylabel = ylabel
         self.color = color
+        self.idx_x = idx_x
+        self.idx_y = idx_y
 
     def __repr__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'

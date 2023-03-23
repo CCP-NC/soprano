@@ -831,9 +831,9 @@ class Plot2D:
     Class to handle the 2D plotting of NMR data.
     '''
     def __init__(self, 
-                atoms:Atoms,
-                xelement,
-                yelement,
+                atoms:Atoms=None,
+                xelement=None,
+                yelement=None,
                 references=None,
                 gradients=None,
                 peaks = None,
@@ -846,6 +846,8 @@ class Plot2D:
                 yaxis_order='1Q',
                 xlim=None,
                 ylim=None,
+                x_axis_label=None,
+                y_axis_label=None,
                 marker='x',
                 scale_marker_by = 'fixed',
                 max_marker_size=DEFAULT_MARKER_SIZE,
@@ -868,7 +870,7 @@ class Plot2D:
 
         self.atoms = atoms
         self.xelement = xelement
-        self.yelement = yelement
+        self.yelement = yelement if yelement is not None else xelement
         self.references = references
         self.gradients = gradients
         self.peaks = peaks
@@ -881,6 +883,8 @@ class Plot2D:
         self.yaxis_order = yaxis_order
         self.xlim = xlim
         self.ylim = ylim
+        self.x_axis_label = x_axis_label
+        self.y_axis_label = y_axis_label
         self.marker = marker
         self.scale_marker_by = scale_marker_by
         self.max_marker_size = max_marker_size
@@ -915,16 +919,20 @@ class Plot2D:
         Get the correlation peaks.
         '''
         if self.peaks is None:
+            if self.atoms is None:
+                raise ValueError("Either atoms or peaks must be given.")
             # make sure all the data is there
             self.get_2D_plot_data()
             labels = self.get_labels()
             self.peaks = []
             for ipair, pair in enumerate(self.pairs):
-                x = self.data[pair[0]]
-                y = self.data[pair[1]]
+                idx_x, idx_y = pair
+
+                x = self.data[idx_x]
+                y = self.data[idx_y]
                 strength = self.markersizes[ipair]
-                xlabel = labels[pair[0]]
-                ylabel = labels[pair[1]]
+                xlabel = labels[idx_x]
+                ylabel = labels[idx_y]
                 if self.yaxis_order == '2Q':
                     y = x + y
                     if self.xelement == self.yelement:
@@ -932,10 +940,15 @@ class Plot2D:
                         # let's set them both to be H1 + H2 by sorting the labels
                         xlabel, ylabel = sorted([xlabel, ylabel])
                     ylabel  = f'{xlabel} + {ylabel}'
-                peak = Peak2D(x = x, y = y, correlation_strength = strength, xlabel = xlabel, ylabel = ylabel)
+                peak = Peak2D(x = x, y = y, correlation_strength = strength, xlabel = xlabel, ylabel = ylabel, idx_x=idx_x, idx_y=idx_y)
                 self.peaks.append(peak)
-            if merge_identical:
-                self.peaks = self.merge_peaks(self.peaks)
+        else:
+            self.logger.debug("Custom peaks provided. ")
+
+        
+        if merge_identical:
+            self.peaks = self.merge_peaks(self.peaks)
+
         return self.peaks
     def merge_peaks(self, peaks, xtol=1e-5, ytol=1e-5, corr_tol=1e-5, ignore_correlation_strength=False):
         '''
@@ -1007,6 +1020,8 @@ class Plot2D:
         
 
         '''
+        if self.xelement is None:
+            raise ValueError("xelement must be given.")
         all_elements = self.atoms.get_chemical_symbols()
         isotopes = _get_isotope_list(all_elements, isotopes=self.isotopes, use_q_isotopes=False)
         if self.xelement not in all_elements:
@@ -1054,13 +1069,14 @@ class Plot2D:
             axis_label = r"$\delta$"
         else:
             axis_label = r"$\sigma$"
-        
-        self.x_axis_label = f'{self.xspecies} ' + axis_label + ' /ppm'
 
-        if self.yaxis_order == '2Q':
-            self.y_axis_label = f'{self.yspecies} ' + axis_label + r'$_{\mathrm{%s}}$' % self.yaxis_order + ' /ppm'
-        else:
-            self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
+        if self.x_axis_label is None:
+            self.x_axis_label = f'{self.xspecies} ' + axis_label + ' /ppm'
+        if self.y_axis_label is None:
+            if self.yaxis_order == '2Q':
+                self.y_axis_label = f'{self.yspecies} ' + axis_label + r'$_{\mathrm{%s}}$' % self.yaxis_order + ' /ppm'
+            else:
+                self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
     
     def get_labels(self):
         if has_cif_labels(self.atoms):
@@ -1091,7 +1107,6 @@ class Plot2D:
 
         xlabels = [peak.xlabel for peak in self.peaks]
         ylabels = [peak.ylabel for peak in self.peaks]
-        self.logger.debug(f'X labels: {xlabels}')
 
         # get the unique labels, keeping the indices
         if unique:
@@ -1103,14 +1118,24 @@ class Plot2D:
             xpos_label = xpos_label[xidx]
             ypos_label = ypos_label[yidx]
 
+        # we might still have some ylabels that are not the same but are at exactly the same position
+        # so we need to check for this
+        if len(ylabels) != len(np.unique(np.round(ypos,6))):
+            # randomly perturb those y positions that are the same
+            unique_ypos, idx, counts = np.unique(np.round(ypos,6), return_index=True, return_counts=True)
+            for i, count in enumerate(counts):
+                if count > 1:
+                    ypos_label[idx[i]:idx[i]+count] += np.random.uniform(-0.5, 0.5, count)
+
+
         self.logger.debug(f'X labels: {xlabels}')
         self.logger.debug(f'X positions: {xpos}')
         self.logger.debug(f'Y labels: {ylabels}')
         self.logger.debug(f'Y positions: {ypos}')
         if optimise:
             # optimise the positions of the annotations to prevent overlap
-            xpos_label = optimise_annotations(xpos_label, max_iters=5000, C = 0.00005, k = 0.01, ftol=1e-5)
-            ypos_label = optimise_annotations(ypos_label, max_iters=5000, C = 0.00005, k = 0.01, ftol=1e-5)
+            xpos_label = optimise_annotations(xpos_label, max_iters=5000, C = 5e-7, k = 0.15, ftol=1e-5)
+            ypos_label = optimise_annotations(ypos_label, max_iters=5000, C = 5e-7, k = 0.15, ftol=1e-5)
             self.logger.debug(f'Optimised X positions: {xpos_label}')
             self.logger.debug(f'Optimised Y positions: {ypos_label}')
 
@@ -1413,7 +1438,7 @@ class Plot2D:
         if self.ylim:
             ax.set_ylim(self.ylim)
 
-        if self.xelement == self.yelement and self.show_diagonal:
+        if ((self.xelement is not None) and (self.xelement == self.yelement) and self.show_diagonal):
             # use self.xlim and self.ylim to draw a diagonal line
             ylims = ax.get_ylim()
             xlims = ax.get_xlim()
