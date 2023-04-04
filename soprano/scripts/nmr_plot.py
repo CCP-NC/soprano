@@ -47,7 +47,7 @@ import itertools
 import pandas as pd
 from collections import OrderedDict
 from soprano.scripts.nmr import nmr_extract, print_results
-from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options
+from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, viewimages
 from soprano.calculate.nmr import NMRCalculator, NMRFlags, Plot2D, DEFAULT_MARKER_SIZE
 from soprano.properties.nmr import MSIsotropy
 import logging
@@ -123,8 +123,30 @@ def plotnmr(
     else:
         logger.setLevel(logging.DEBUG)
 
-    dfs, images = nmr_extract(files, subset, merge, isotopes, references, gradients, reduce, average_group, combine_rule, symprec, properties, precision, euler_convention, sortby, sort_order, include, exclude, query, view)
-    
+    dfs, images = nmr_extract(
+                    files,
+                    subset = subset,
+                    merge = merge,
+                    isotopes = isotopes,
+                    references = references,
+                    gradients = gradients,
+                    reduce = reduce,
+                    average_group = average_group,
+                    combine_rule = combine_rule,
+                    symprec = symprec,
+                    properties = properties,
+                    euler_convention = euler_convention,
+                    sortby = sortby,
+                    sort_order = sort_order,
+                    include = include,
+                    exclude = exclude,
+                    query = query,
+                    logger = logger,
+    )
+
+    if view:
+        viewimages(images)
+
     # write to file(s)
     if verbosity > 0:
         print_results(dfs)
@@ -172,9 +194,6 @@ def plotnmr(
         fig, ax = plot.plot()
         # if the user doesn't give an output file name, show the plot using the default matplotlib backend
         if not plot_filename:
-            # set tight layout with a bit of padding
-            fig.tight_layout(pad=1.5)
-            # show figure
             plt.show()
     elif plot_type == '1D':
         sel = AtomSelection.all(atoms)
