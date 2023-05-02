@@ -132,7 +132,6 @@ def nmr(
                     gradients = gradients,
                     reduce = reduce,
                     average_group = average_group,
-                    combine_rule = combine_rule,
                     symprec = symprec,
                     properties = properties,
                     euler_convention = euler_convention,
@@ -158,7 +157,12 @@ def nmr_extract(
         gradients={},
         reduce=True,
         average_group=None,
-        combine_rule='mean',
+        merging_strategies= {
+            # for the positions, just take the first one 
+            'positions': lambda x: x[0],
+            # for the labels, just take the first one
+            'labels': lambda x: x[0],
+        },
         symprec=1e-4,
         properties=['efg', 'ms'],
         euler_convention='zyz',
@@ -182,7 +186,7 @@ def nmr_extract(
                           If not provided, the gradient is assumed to be -1 for all elements.
         reduce (bool): whether to reduce to symmetry equivalent sites (using either the CIF labels or symmetry operations found using SPGLIB).
         average_group (str): comma-separated list of functional groups to average over e.g. methyl groups. e.g. "CH3" averages over H atoms in methyl groups.
-        combine_rule (str): how to combine the shielding tensors of sites with the same tag. Options are 'mean' or 'first'.
+        merging_strategies (dict): dictionary of merging strategies to use for each property. e.g. {"positions": lambda x: x[0]}.
         symprec (float): tolerance for symmetry operations. Default is 1e-4.
         properties (list): list of properties to extract. Options are 'efg', 'ms'.
         euler_convention (str): convention to use for Euler angles. Options are 'zyz' or 'zxz'.
@@ -215,6 +219,8 @@ def nmr_extract(
         # try to read in the file:
         try:
             atoms = io.read(fname)
+            # immediately try to reload as molecular crystal
+            atoms = reload_as_molecular_crystal(atoms)
         except IOError:
             logger.error(f"Could not read file {fname}, skipping.")
             continue
@@ -252,6 +258,7 @@ def nmr_extract(
             logger.info('\nTagging equivalent sites')
             # tag equivalent sites
             tags = UniqueSites.get(atoms, symprec=symprec)
+            
 
             # log the number of unique sites
             unique_sites, unique_site_idx = np.unique(tags, return_index=True)
@@ -267,18 +274,13 @@ def nmr_extract(
                 logger.warning('    You can also turn on debug logging with the -vv flag.')
                 logger.warning('    If you find that the (symmetry) reduction algorithm is working incorrectly,')
                 logger.warning('    please report this to the developers.')
-                
 
-                
+            # set tags to atoms object
+            atoms.set_tags(tags)
 
         if average_group:
-            labels, tags = average_over_groups(average_group, atoms, labels, tags)
-        # update atoms object with new labels
-        # note we must change datatype to allow more space!
-        atoms.set_array('labels', None)
-        atoms.set_array('labels', labels, dtype='U25')
-        # update atoms tags
-        atoms.set_tags(tags)
+            atoms = tag_functional_groups(average_group, atoms, vdw_scale=1.0)
+        atoms = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
         
         # select subset of atoms based on selection string
         if subset:
@@ -286,23 +288,19 @@ def nmr_extract(
             sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
             all_selections *= sel_selectionstring
             logger.debug(f'    Selected atoms: {all_selections.indices}')
-        
+            ## apply selection string to atoms object
+            atoms = all_selections.subset(atoms)
         if isotopes:
             logger.info(f'\nCustom isotopes for: {isotopes}')
-
         # build the dataframe
         df = build_nmr_df(
                 atoms,
                 fname,
-                labels=labels,
-                tags = tags,
-                reduce = reduce,
-                all_selections = all_selections,
+                labels=atoms.get_array('labels'),
+                tags = atoms.get_tags(),
                 isotopes = isotopes,
                 references = references,
                 gradients = gradients,
-                average_group = average_group,
-                combine_rule = combine_rule,
                 properties = properties,
                 euler_convention = euler_convention,
                 logger = logger,
@@ -311,30 +309,8 @@ def nmr_extract(
         df = apply_df_filtering(df, include, exclude, query)
 
         # ----- atoms object manipulation -----
-        atoms = reload_as_molecular_crystal(atoms)
-
-        # now we need to apply the filters etc to the atoms object
-        # first we need to merge sites with the same tag
-        unique_tags, unique_counts = np.unique(tags,
-                                               return_counts=True)
-        # groups with more than one atom
-        multi_group_tags = unique_tags[unique_counts > 1]
-        for tag in multi_group_tags:
-            # where are these tags in the original tags?
-            tag_idx = np.where(atoms.get_tags() == tag)[0]
-            # merge the sites
-            atoms = merge_sites(
-                atoms,
-                tag_idx,
-                merging_strategies={
-                    # for the positions, just take the first one 
-                    'positions': lambda x: x[0],
-                    # for the labels, just take the first one
-                    'labels': lambda x: x[0],
-                    })
         
-        # sort by tag
-        atoms = atoms[np.argsort(atoms.get_tags())]
+
 
         # only keep the atoms that are in the dataframe (based on tag)
         atoms = atoms[np.isin(atoms.get_tags(), df['tags'].values)]
@@ -397,12 +373,11 @@ def reload_as_molecular_crystal(atoms):
                 atoms =temp
 
         return atoms
-def average_over_groups(
+def tag_functional_groups(
         average_group:str,
         atoms:Atoms,
-        labels:Union[List, np.array],
-        tags:  Union[List, np.array]
-        )-> Tuple[np.array, np.array]:
+        vdw_scale:float=1.0,
+        )-> Atoms:
     '''
     Average over groups of atoms based on the average_group string.
     See find_XHn_groups for more details.
@@ -410,14 +385,20 @@ def average_over_groups(
     Args:
         average_group (str): string of comma-separated patterns to average over. e.g. 'CH3,CH2'
         atoms (Atoms): Atoms object
-        labels (np.array): labels array
-        tags (np.array): tags array
+        vdw_scale (float): scaling factor for the van der Waals radii. Default is 1.0.
 
     Returns:
-        labels (np.array): updated labels array
-        tags (np.array): updated tags array
+        Atoms
     '''
-    XHn_groups = find_XHn_groups(atoms, average_group, tags= tags, vdw_scale=1.0)
+    if atoms.has('tags'):
+        tags = atoms.get_tags()
+    else:
+        tags = np.arange(len(atoms))
+
+    labels = atoms.get_array('labels')
+    # make sure dtype of labels allows for enough characters
+    labels = labels.astype('U25')
+    XHn_groups = find_XHn_groups(atoms, average_group, tags= tags, vdw_scale=vdw_scale)
     for ipat, pattern in enumerate(XHn_groups):
         # check if we found any that matched this pattern
         if len(pattern) == 0:
@@ -430,15 +411,53 @@ def average_over_groups(
         for ig, group in enumerate(pattern):
             logger.debug(f"    Group {ig} contains: {np.unique(labels[group])}")
             # fix labels here as aggregate of those in group
-            combined_label = '--'.join(np.unique(labels[group]))
+            combined_label = ','.join(np.unique(labels[group]))
             # labels[group] = f'{ig}'#combined_label
             labels[group] = combined_label
 
             tags[group] = -(ipat+1)*1e5-ig
-    return labels, tags
+    # update atoms object with new labels
+    # note we must change datatype to allow more space!
+    atoms.set_array('labels', None)
+    atoms.set_array('labels', labels, dtype='U25')
+    # update atoms tags
+    atoms.set_tags(tags)
+    return atoms
 
 
+def merge_tagged_sites(atoms_in:Atoms, merging_strategies:dict = {})->Atoms:
+    '''
+    Merge sites that are tagged with the same tag.
 
+    Args:
+        atoms (Atoms): Atoms object. Must have tags.
+        merging_strategies (dict): dictionary of merging strategies. See merge_sites for more details.
+    '''
+    atoms = atoms_in.copy()
+    # if there are no tags present, return the atoms object
+    if not atoms.has('tags'):
+        return atoms
+    
+    # now we need to apply the filters etc to the atoms object
+    # first we need to merge sites with the same tag
+    unique_tags, unique_counts = np.unique(atoms.get_tags(),
+                                            return_counts=True)
+    # groups with more than one atom
+    multi_group_tags = unique_tags[unique_counts > 1]
+    for tag in multi_group_tags:
+        # where are these tags in the current tags?
+        tag_idx = np.where(atoms.get_tags() == tag)[0]
+        # merge the sites
+        atoms = merge_sites(
+            atoms,
+            tag_idx,
+            merging_strategies=merging_strategies,
+            keep_all = False)
+    
+    # sort by tag
+    atoms = atoms[np.argsort(atoms.get_tags())]
+
+    return atoms
 
 
 def build_nmr_df(
@@ -446,13 +465,9 @@ def build_nmr_df(
         fname: str,
         labels: Union[List, np.array],
         tags: Union[List, np.array],
-        reduce: bool = True,
-        all_selections: Union[None, AtomSelection] = None,
         isotopes: dict   = {},
         references: dict = {},
         gradients: dict  ={},
-        average_group: Union[None, str] = None,
-        combine_rule: str = 'mean',
         properties: List[str] = ['efg', 'ms'],
         euler_convention: str ='zyz',
         logger: logging.Logger = logging.getLogger('cli'),
@@ -465,13 +480,11 @@ def build_nmr_df(
         fname (str): the filename of the file being processed.
         labels (np.array): the labels array.
         tags (np.array): the tags array.
-        reduce (bool): whether to symmetry/label-reduce the atoms to the unique set.
         all_selections (AtomSelection): the AtomSelection object containing all selections.
         isotopes (dict): dictionary of isotopes to use for each element. e.g. {'H': 2, 'C': 13}
         references (dict): dictionary of shielding references for each element. e.g. {'H': 20.0, 'C': 100.0}
         gradients (dict): dictionary of gradients for each element. e.g. {'H': -1.0, 'C': -0.95} defaults to {} == -1 for all elements.
         average_group (str): string of comma-separated patterns to average over. e.g. 'CH3,CH2'
-        combine_rule (str): the combine rule to use when averaging sites with the same tag. Options are 'mean' or 'first'
         properties (list): list of properties to extract. e.g. ['efg', 'ms']
         euler_convention (str): the euler convention to use for the EFG tensor. Options are 'zyz' or 'zxz'
 
@@ -482,10 +495,7 @@ def build_nmr_df(
     isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
     species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
 
-    if all_selections is None:
-        all_selections = AtomSelection.all(atoms)
-    
-    
+
     df = pd.DataFrame({
                 'indices': atoms.get_array('indices'),
                 'original_index': np.arange(len(atoms)),
@@ -537,63 +547,14 @@ def build_nmr_df(
             logger.warning('Failed to load EFG data from .magres')
             raise
 
-    # Apply selections 
-    selection_indices = all_selections.indices
-    # sort
-    selection_indices.sort()
-    # extract from df
-    df = df.iloc[selection_indices]
-
-    # apply group averaging
-    if average_group or reduce:
-        # These are the rules for aggregating groups
-        # Default rule: take the mean
-        aggrules = get_aggrules(df, combine_rule)
-
-        logger.info('\nAveraging over sites with the same tag')
-        logger.debug(f'   We apply the following rules to each column:\n {aggrules}')
-        # apply group averaging
-        grouped = df.groupby('tags')
-        df = grouped.agg(aggrules).reset_index()
-        # fix the labels print formatting            
-        df['labels'] = df['labels'].apply(lambda x: ','.join(x))
-        if 'MagresView_labels' in df.columns:
-            df['MagresView_labels'] = df['MagresView_labels'].apply(lambda x: ','.join(sorted(list(x))))
-            
         
     ## how many sites do we have now?
     total_explicit_sites = df['multiplicity'].sum()
     logger.info(f'\nFound {total_explicit_sites} total sites.')
-    if average_group or reduce:
-        logger.info(f'    -> reduced to {len(df)} sites after averaging equivalent ones')
+    logger.info(f'Reduced to {len(df)} sites.')
 
 
     return df
-
-def get_aggrules(
-        df:pd.DataFrame,
-        combine_rule:str
-        )->dict:
-    '''
-    Returns a dictionary of aggregation rules for the dataframe
-    '''
-    aggrules = dict.fromkeys(df, combine_rule)
-    # note we could add more things here! e.g.
-    # aggrules = dict.fromkeys(df, ['mean', 'std'])
-    # for most of the columns that have objects, we just take the first one
-    aggrules.update(dict.fromkeys(df.columns[df.dtypes.eq(object)], 'first'))
-
-    # we no longer need these two columns
-    del aggrules['indices']
-    # use 'first' for the original indices
-    aggrules['original_index'] = 'first'
-    del aggrules['tags']
-
-    aggrules['labels'] = set
-    if 'MagresViewLabels' in df.columns:
-        aggrules['MagresView_labels'] = set
-    aggrules['multiplicity'] = 'count'
-    return aggrules
 
 
 

@@ -432,6 +432,9 @@ class MagresViewLabels(AtomsProperty):
             for i, j in enumerate(e_i):
                 mlabs[j] = "{0}_{1}".format(e, i + 1)
         if save_asarray:
+            # convert to numpy array with correct dtype
+            mlabs = np.array(mlabs, dtype="U25")
+
             s.set_array(MagresViewLabels.default_name, mlabs)
 
         return mlabs

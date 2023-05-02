@@ -54,7 +54,7 @@ def merge_concatenate(T):
     # if T is an array of strings, join them
     if isinstance(T[0], str):
         unique_labels = np.unique(T)
-        return '-'.join(unique_labels)
+        return ','.join(unique_labels)
     else:
         raise NotImplementedError("Concatenation of arrays of type {} not implemented".format(type(T[0])))
 def merge_sum(T):
@@ -62,17 +62,26 @@ def merge_sum(T):
     return np.sum(T, axis=0)
 DEFAULT_MERGING_STRATEGIES = {
     'ms' : merge_mean,
+    'ms_isotropy': merge_mean,
+    'ms_shielding': merge_mean,
+    'ms_diagonal_evals': merge_first, ## since they might be in different order ?
+    'ms_diagonal_evals_hsort': merge_first, ## since they might be in different order ?
+    'ms_diagonal_evecs': merge_first, ## since they might be in different order ?
     'efg': merge_mean,
     'isc': merge_mean,
     'labels': merge_concatenate,
     'positions': merge_mean,
     'magmoms': merge_mean,
     'tags': merge_first,
+    'indices': merge_first,
     'numbers' : merge_first,
     'momentum': merge_mean,
     'masses': merge_first,
     'charges': merge_first,
     'multiplicity': merge_sum,
+    'order_tag': merge_first,
+    'cell_indices': merge_first, # goes with positions
+    'bonds': merge_first, # does not make sense to merge bonds
 }
 
 
@@ -1135,7 +1144,7 @@ def graph_specsort(L):
 
     return np.argsort(fied)
 
-def merge_sites(atoms: Atoms, indices, merging_strategies={}):
+def merge_sites(atoms: Atoms, indices, merging_strategies={}, keep_all=False):
     """
     Merge sites in a structure.
 
@@ -1146,6 +1155,10 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}):
     |                             properties, e.g. {'positions': lambda x: x.mean(axis=0)}
     |                             if not specified, the default strategies will be used
     |                             (see DEFAULT_MERGING_STRATEGIES)
+    |   keep_all (bool): whether to keep all sites in the structure, default is False. If True, the
+    |                    merged sites will have the same properties (determined by merging_strategies)
+    |                    but will have a different index, so that they can be identified. If False, only one of the merged
+    |                    sites will be kept, and the others will be removed from the Atoms object.
 
     | Returns:
     |   atoms (ase.Atoms): structure with sites merged
@@ -1153,6 +1166,18 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}):
     """
     atoms_orig = atoms.copy()
     atoms_to_merge = atoms.copy()[indices]
+
+    # if we already have multiplicity 
+    # we must update it to reflect the merging
+    # otherwise we can just assume they all start with a multiplicity of 1
+    if atoms.has('multiplicity'):
+        multiplicity = atoms.get_array('multiplicity')
+    else:
+        multiplicity = np.ones(len(atoms), dtype=int)
+
+    # update multiplicity for merged sites depending on whether we keep all sites or not
+    if not keep_all:
+        multiplicity[indices] = np.sum(multiplicity[indices])
 
     # let input merging strategies override the default ones
     merging_strategies = {**DEFAULT_MERGING_STRATEGIES, **merging_strategies}
@@ -1180,27 +1205,46 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}):
             new_prop = strategy(atoms_to_merge.get_array(key))
         new_properties[key] = new_prop
 
-    # Now we can delete all but the first of the old sites
+    # if we are not keeping all sites, we need to delete the other ones
+    # we can delete all but the first of the old sites
     # loop backwards to avoid index problems
-    for i in indices[1:][::-1]:
-        atoms.pop(i)
+    if not keep_all:
+        for i in indices[1:][::-1]:
+            atoms.pop(i)
+            multiplicity = np.delete(multiplicity, i)
+        # update indices to reflect the fact that we have deleted all other sites
+        indices = [indices[0]]
 
-    idx = indices[0]
-    atoms.positions[idx] = new_properties['positions']
-    atoms.numbers[idx] = new_properties['numbers']
-    if atoms.has('labels'):
-        labels = atoms.get_array('labels').astype('U25')
-        labels[idx] = new_properties['labels']
-        # first delete the old array 
-        # (this is needed to avoid a bug in ASE)
-        atoms.set_array('labels', None)
-        atoms.set_array('labels', labels, dtype='U25')
 
-    # custom arrays
-    for key in new_properties.keys():
-        if key not in ['positions', 'numbers', 'labels']:
-            arr = atoms.get_array(key)
-            arr[idx] = new_properties[key]
-            atoms.set_array(key, arr)
+    # Now loop over (remaining) indices and set new properties:
+    for idx in indices:
+        atoms.positions[idx] = new_properties['positions']
+        atoms.numbers[idx] = new_properties['numbers']
+        # -- labels --#
+        if atoms.has('labels'):
+            labels = atoms.get_array('labels').astype('U25')
+            labels[idx] = new_properties['labels']
+            # first delete the old array 
+            # (this is needed to avoid a bug in ASE)
+            atoms.set_array('labels', None)
+            atoms.set_array('labels', labels, dtype='U25')
+            # also update the magresview_labels array if it exists
+            if atoms.has('magresview_labels'):
+                labels = atoms.get_array('magresview_labels').astype('U25')
+                labels[idx] = new_properties['labels']
+                # first delete the old array 
+                # (this is needed to avoid a bug in ASE)
+                atoms.set_array('magresview_labels', None)
+                atoms.set_array('magresview_labels', labels, dtype='U25')
+
+        # -- custom arrays -- #
+        for key in new_properties.keys():
+            if key not in ['positions', 'numbers', 'labels']:
+                arr = atoms.get_array(key)
+                arr[idx] = new_properties[key]
+                atoms.set_array(key, arr)
     
+    # update multiplicity
+    atoms.set_array('multiplicity', multiplicity)
+
     return atoms
