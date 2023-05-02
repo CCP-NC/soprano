@@ -232,6 +232,14 @@ def nmr_extract(
 
 
         all_selections = AtomSelection.all(atoms)
+        # select subset of atoms based on selection string
+        if subset:
+            logger.info(f'\nSelecting atoms based on selection subset string: {subset}')
+            sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
+            all_selections *= sel_selectionstring
+            logger.debug(f'    Selected atoms: {all_selections.indices}')
+            ## apply selection string to atoms object
+            atoms = all_selections.subset(atoms)
         # create new array for multiplicity
         multiplicity = np.ones(len(atoms))
         atoms.set_array('multiplicity', multiplicity)
@@ -282,14 +290,7 @@ def nmr_extract(
             atoms = tag_functional_groups(average_group, atoms, vdw_scale=1.0)
         atoms = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
         
-        # select subset of atoms based on selection string
-        if subset:
-            logger.info(f'\nSelecting atoms based on selection subset string: {subset}')
-            sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
-            all_selections *= sel_selectionstring
-            logger.debug(f'    Selected atoms: {all_selections.indices}')
-            ## apply selection string to atoms object
-            atoms = all_selections.subset(atoms)
+        
         if isotopes:
             logger.info(f'\nCustom isotopes for: {isotopes}')
         # build the dataframe
