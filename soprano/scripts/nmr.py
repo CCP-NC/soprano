@@ -221,6 +221,8 @@ def nmr_extract(
             atoms = io.read(fname)
             # immediately try to reload as molecular crystal
             atoms = reload_as_molecular_crystal(atoms)
+            # label atoms 
+            atoms = label_atoms(atoms)
         except IOError:
             logger.error(f"Could not read file {fname}, skipping.")
             continue
@@ -240,27 +242,17 @@ def nmr_extract(
             logger.debug(f'    Selected atoms: {all_selections.indices}')
             ## apply selection string to atoms object
             atoms = all_selections.subset(atoms)
+        
         # create new array for multiplicity
         multiplicity = np.ones(len(atoms))
         atoms.set_array('multiplicity', multiplicity)
 
         
-        if not has_cif_labels(atoms):
-            # Inform user of best practice RE CIF labels
-            logger.debug(NO_CIF_LABEL_WARNING)
-            
-            if atoms.has('magresview_labels'):
-                labels = atoms.get_array('magresview_labels')
-            else:
-                labels = MagresViewLabels.get(atoms, store_array=True)
-        else:
-            labels = atoms.get_array('labels')
-
-        # note we must change datatype to allow more space!
-        labels = np.array(labels, dtype='U25')
+        
         
         # reduce by symmetry?
         tags = np.arange(len(atoms))
+        labels = np.asarray(atoms.get_array('labels'), dtype='U25')
 
         if reduce:
             logger.info('\nTagging equivalent sites')
@@ -283,8 +275,8 @@ def nmr_extract(
                 logger.warning('    If you find that the (symmetry) reduction algorithm is working incorrectly,')
                 logger.warning('    please report this to the developers.')
 
-            # set tags to atoms object
-            atoms.set_tags(tags)
+        # set tags to atoms object
+        atoms.set_tags(tags)
 
         if average_group:
             atoms = tag_functional_groups(average_group, atoms, vdw_scale=1.0)
@@ -297,8 +289,6 @@ def nmr_extract(
         df = build_nmr_df(
                 atoms,
                 fname,
-                labels=atoms.get_array('labels'),
-                tags = atoms.get_tags(),
                 isotopes = isotopes,
                 references = references,
                 gradients = gradients,
@@ -374,6 +364,30 @@ def reload_as_molecular_crystal(atoms):
                 atoms =temp
 
         return atoms
+
+def label_atoms(atoms: Atoms)->Atoms:
+    if has_cif_labels(atoms):
+        return atoms
+    
+    # Inform user of best practice RE CIF labels
+    logger.debug(NO_CIF_LABEL_WARNING)
+    
+    if atoms.has('magresview_labels'):
+        labels = atoms.get_array('magresview_labels')
+    else:
+        labels = MagresViewLabels.get(atoms, store_array=True)
+    
+    # note we must change datatype to allow more space!
+    labels = np.array(labels, dtype='U25')
+
+    # remove current labels:
+    if atoms.has('labels'):
+        atoms.set_array('labels', None)
+    # add labels to atoms object
+    atoms.set_array('labels', labels)
+    return atoms
+
+
 def tag_functional_groups(
         average_group:str,
         atoms:Atoms,
@@ -400,12 +414,12 @@ def tag_functional_groups(
     # make sure dtype of labels allows for enough characters
     labels = labels.astype('U25')
     XHn_groups = find_XHn_groups(atoms, average_group, tags= tags, vdw_scale=vdw_scale)
+    logger.info(f"\nAveraging over functional groups: {average_group}")
     for ipat, pattern in enumerate(XHn_groups):
         # check if we found any that matched this pattern
         if len(pattern) == 0:
             logging.warn(f"No XHn groups found for pattern {average_group.split(',')[ipat]}")
             continue
-                
         logger.debug(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
         # get the indices of the atoms that matched this pattern
         # update the tags and labels accordingly
@@ -464,8 +478,6 @@ def merge_tagged_sites(atoms_in:Atoms, merging_strategies:dict = {})->Atoms:
 def build_nmr_df(
         atoms: Atoms,
         fname: str,
-        labels: Union[List, np.array],
-        tags: Union[List, np.array],
         isotopes: dict   = {},
         references: dict = {},
         gradients: dict  ={},
@@ -479,8 +491,6 @@ def build_nmr_df(
     Args:
         atoms (ASE Atoms object): the atoms object to be reloaded.
         fname (str): the filename of the file being processed.
-        labels (np.array): the labels array.
-        tags (np.array): the tags array.
         all_selections (AtomSelection): the AtomSelection object containing all selections.
         isotopes (dict): dictionary of isotopes to use for each element. e.g. {'H': 2, 'C': 13}
         references (dict): dictionary of shielding references for each element. e.g. {'H': 20.0, 'C': 100.0}
@@ -495,7 +505,8 @@ def build_nmr_df(
     elements = atoms.get_chemical_symbols()
     isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
     species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
-
+    labels = np.asarray(atoms.get_array('labels'), dtype='U25')
+    tags = atoms.get_tags()
 
     df = pd.DataFrame({
                 'indices': atoms.get_array('indices'),
@@ -506,20 +517,12 @@ def build_nmr_df(
                 'tags': tags,
                 })
 
-        # If there are no cif labels, generate and save MagresView-style labels
-    if not has_cif_labels(atoms):
-        # do we already have MagresView labels?
-        if atoms.has('magresview_labels'):
-            magresview_labels = atoms.get_array('magresview_labels')
-        else:
-            # generate MagresView-type Labels
-            magresview_labels = MagresViewLabels.get(atoms, save_asarray=True)
-        logger.debug('MagresView labels generated')
-        logger.debug(magresview_labels)
-        df.insert(2, 'MagresView_labels', magresview_labels)
+    # If there are MagresView-style labels, add them in
+    if atoms.has('magresview_labels'):
+        df.insert(2, 'MagresView_labels', atoms.get_array('magresview_labels'))
 
-        # Let's add a column for the file name -- useful to keep track of 
-        # which file the data came from if merging multiple files.
+    # Let's add a column for the file name -- useful to keep track of 
+    # which file the data came from if merging multiple files.
     df['file'] = fname
     if 'ms' in properties:
         try:
@@ -551,7 +554,7 @@ def build_nmr_df(
         
     ## how many sites do we have now?
     total_explicit_sites = df['multiplicity'].sum()
-    logger.info(f'\nFound {total_explicit_sites} total sites.')
+    logger.info(f'\nFound {int(total_explicit_sites)} total sites.')
     logger.info(f'Reduced to {len(df)} sites.')
 
 

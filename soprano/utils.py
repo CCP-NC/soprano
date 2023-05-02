@@ -69,6 +69,11 @@ DEFAULT_MERGING_STRATEGIES = {
     'ms_diagonal_evecs': merge_first, ## since they might be in different order ?
     'efg': merge_mean,
     'isc': merge_mean,
+    'isc_spin': merge_mean,
+    'isc_fc': merge_mean,
+    'isc_orbital_p': merge_mean,
+    'isc_orbital_d': merge_mean,
+    'isc_orbital_f': merge_mean,
     'labels': merge_concatenate,
     'positions': merge_mean,
     'magmoms': merge_mean,

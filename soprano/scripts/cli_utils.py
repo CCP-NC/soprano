@@ -264,7 +264,7 @@ isotopes = click.option('--isotopes',
         '``-i 2H,15N`` for deuterium and 15N). '
         'When nothing is specified it defaults to the most common NMR active isotope.')         
 # flag option to reduce by symmetry
-df_reduce = click.option('--reduce/--no-reduce',
+reduce = click.option('--reduce/--no-reduce',
             is_flag=True,
             default=True,
             help="Reduce the output by symmetry-equivalent sites. "
@@ -287,15 +287,6 @@ average_group = click.option('--average-group',
             "Currently only works for XHn groups such as CH3, CH2, NH2 etc. "
             "You can specify several, comma separated as in ``-g CH3,CH2,NH2``. "
             "If not specified, no averaging is performed.")
-# combine rule
-df_combine_rule = click.option('--combine-rule',
-            default='mean',
-            type=click.Choice(['mean', 'first']),
-            help="How to combine the data from equivalent sites. "
-        "``mean`` is the default, which averages the data. "
-        "``first`` Takes the first item from each group of equivalent sites. "
-        "Special handling for labels, indices, tags and multiplicity. "
-        "Increase verbosity to see what rules have been used.")
 
 # optional argument for the precision of the output
 precision = click.option('--precision',
@@ -540,8 +531,6 @@ DF_OPTIONS = [
     df_output,
     df_output_format,
     df_merge,
-    df_reduce,
-    df_combine_rule,
     df_sortby,
     df_sort_order,
     df_include,
@@ -553,6 +542,7 @@ NMR_OPTIONS = [
     nmrproperties,
     isotopes,
     average_group,
+    reduce,
     euler,
     references,
     gradients,
@@ -573,7 +563,7 @@ PLOT_SPECIFIC_OPTIONS = [
     references,
     gradients,
     subset,
-    df_reduce,
+    reduce,
     df_query,
     plot_type,
     plot_xelement,
