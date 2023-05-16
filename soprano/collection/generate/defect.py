@@ -23,7 +23,9 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import itertools
+import warnings
 import numpy as np
+from math import factorial
 from ase import Atoms
 from ase.data import atomic_numbers
 
@@ -32,7 +34,7 @@ import soprano.utils as utils
 from soprano.selection import AtomSelection
 from soprano.properties.linkage import Bonds
 from soprano.data import vdw_radii
-from soprano.rnd import Random
+from soprano.rnd import Random, random_combination
 
 
 def defectGen(
@@ -145,7 +147,14 @@ def defectGen(
             yield Atoms(defect, positions=[p], cell=cell) + struct
 
 
-def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
+def substitutionGen(
+        struct,
+        subst,
+        to_replace=None,
+        n=1,
+        accept=None,
+        max_attempts=0,
+        random = False):
     """Generator function to create multiple structures with a defect of a
     given element substituted in the existing cell. The defects will be put in
     place of the atoms passed in the to_replace selection. If none is passed,
@@ -166,6 +175,16 @@ def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
     |                      input the generated structure and a tuple of the
     |                      indices of the substituted atoms, and must return a
     |                      bool. If False, the structure will be rejected.
+    |                      Default is None, in which case all structures are
+    |                      accepted.
+    |   max_attempts (int): maximum number of attempts used to generate a
+    |                       random point. Default is 0, in which case all
+    |                       possible configurations are generated.
+    |   random (bool): if True, the order of the loop over the possible
+    |                  configurations will be randomized. Default is False.
+    |                  This is useful if limiting the number of configurations
+    |                  with max_attempts, to better sample the space of
+    |                  possible configurations.
     | Returns:
     |   defectGenerator (generator): an iterator object that yields
     |                                structures with all possible
@@ -175,10 +194,25 @@ def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
     if to_replace is None:
         to_replace = AtomSelection.all(struct)
 
+    # calculate number of possible combinations
+    # n! / r! / (n-r)!
+    Nreplacing = len(to_replace)
+    ncombs = factorial(Nreplacing) / factorial(Nreplacing - n) / factorial(n)
+    ncombs = int(ncombs)
+
+    niters = ncombs
+    if max_attempts > 0:
+        niters = min(niters, max_attempts)
+
     defconfs = itertools.combinations(to_replace.indices, n)
     elems = np.array(struct.get_chemical_symbols()).astype("<U2")
 
-    for dc in defconfs:
+    nsuccesful = 0
+    for iiter in range(ncombs):
+        if random:
+            dc = random_combination(to_replace.indices, n)
+        else:
+            dc = next(defconfs)
         dstruct = struct.copy()
         delems = elems.copy()
         delems[list(dc)] = subst
@@ -188,7 +222,11 @@ def substitutionGen(struct, subst, to_replace=None, n=1, accept=None):
             if not accept(dstruct, dc):
                 continue
 
-        yield dstruct
+        if iiter < niters:
+            nsuccesful += 1
+            yield dstruct
+        else:
+            break
 
 
 def additionGen(struct, add, to_addition=None, n=1, add_r=1.2, accept=None):

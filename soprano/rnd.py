@@ -38,3 +38,10 @@ class Random(object, metaclass=RandomType):
     @classmethod
     def reseed(cls, seed=None):
         cls._generator = RandomState(MT19937(SeedSequence(seed)))
+
+def random_combination(iterable, r):
+    "Random selection from itertools.combinations(iterable, r)"
+    pool = tuple(iterable)
+    n = len(pool)
+    indices = sorted(Random.choice(range(n), r, replace=False))
+    return tuple(pool[i] for i in indices)

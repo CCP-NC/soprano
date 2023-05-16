@@ -141,6 +141,43 @@ class TestGenerate(unittest.TestCase):
 
         self.assertTrue(holds)
 
+    def test_substitution_defect(self):
+            
+        from soprano.collection import AtomsCollection
+        from soprano.selection import AtomSelection
+        from soprano.collection.generate import substitutionGen
+        import itertools
+
+        # make an alloy
+        atoms = bulk('Al', 'fcc') * (3,3,3) # 27 Al atoms
+        # All Al-Al bonds are 2.864 Angstroms
+
+        alsel = AtomSelection.from_element(atoms, 'Al')
+
+        def _min_sep(s, subs):
+            # return true if all the subs are at least 3.0 Angstroms apart
+            for i, j in itertools.combinations(subs, 2):
+                if s.get_distance(i, j, mic=True) < 3.0:
+                    return False
+            return True
+
+        # Substitute two hydrogens at a time with chlorine, but only if neither is bonded to sulfur
+        sG = substitutionGen(atoms, 'Sn', to_replace=alsel, n=3, accept=_min_sep)
+        sColl = AtomsCollection(sG)
+
+        # Check that all the substitutions are at least 3.0 Angstroms apart
+        for s in sColl:
+            self.assertTrue(_min_sep(s, s.get_indices('Sn')))
+        
+        # check that we generate the correct number of possible configurations
+        # the total number of possible configurations is 27 choose 3
+        # (27! / (3! * (27-3)!)) = 2925
+        # but we have to remove the ones where the substitutions are too close
+        # to each other
+        # so we actually end up with 387 possible configurations:
+        self.assertEqual(len(sColl), 387)
+
+
     def test_molneigh(self):
 
         from soprano.properties.linkage import Molecules
