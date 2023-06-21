@@ -14,8 +14,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-'''CLI to plot the extracted NMR results. Note, please run the nmr command first
-with the flag -o seedname.csv to generate the csv file needed for this command.
+'''CLI to plot NMR results from .magres file(s).
 
 TODO: add stylesheets
 TODO: add dipolar/j-coupling scaling of markers
@@ -30,7 +29,7 @@ TODO: [x] when query is used, the indexing fails -- fixed
 __author__ = "J. Kane Shenton"
 __maintainer__ = "J. Kane Shenton"
 __email__ = "kane.shenton@stfc.ac.uk"
-__date__ = "July 12, 2022"
+__date__ = "May 09, 2023"
 
 
 import click
@@ -101,7 +100,7 @@ def plotnmr(
     view
         ):
     '''
-    Plot the NMR spectrum from a csv file.
+    Plot the NMR spectrum from a .magres file.
     '''
     # Hard-code a few options for nmr_extract since the user doesn't need to specify them
     properties = ['ms'] # we at least need to extract the MS
@@ -111,7 +110,7 @@ def plotnmr(
     exclude = None
     merge = True # if multiple files are given, we have to merge them
     sortby = None
-    sort_order = None
+    sort_order = 'ascending'
     combine_rule = 'mean'
 
 
@@ -132,7 +131,6 @@ def plotnmr(
                     gradients = gradients,
                     reduce = reduce,
                     average_group = average_group,
-                    combine_rule = combine_rule,
                     symprec = symprec,
                     properties = properties,
                     euler_convention = euler_convention,
@@ -196,17 +194,22 @@ def plotnmr(
         if not plot_filename:
             plt.show()
     elif plot_type == '1D':
+        shift = not plot_shielding if plot_shielding is not None else references != {}
         sel = AtomSelection.all(atoms)
         element_sel = AtomSelection.from_element(atoms, x_element)
         sel = sel * element_sel
         atoms = sel.subset(atoms)
         # get the NMR calculator
         calc = NMRCalculator(atoms)
-        use_reference = False
         if shift:
             logger.info(f"Setting references: {references}")
             calc.set_reference(ref = references[x_element], element=x_element)
             use_reference = True
+            xlabel = f"{x_element} shift (ppm)"
+        else:
+            xlabel = f"{x_element} shielding (ppm)"
+            use_reference = False
+
         if isotopes:
             calc.set_isotopes(isotopes)
         calc.set_powder(N=8)
@@ -230,8 +233,13 @@ def plotnmr(
         # plot
         fig, ax = plt.subplots()
         ax.plot(freq, spec)
-        ax.set_xlabel('Frequency (ppm)')
+
+        ax.set_xlabel(xlabel)
         ax.set_ylabel('Intensity')
+        if xlim:
+            ax.set_xlim(xlim)
+        if ylim:
+            ax.set_ylim(ylim)
         if use_reference:
             ax.invert_xaxis()
         if plot_filename:
