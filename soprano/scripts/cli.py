@@ -20,7 +20,7 @@
 __author__ = "J. Kane Shenton"
 __maintainer__ = "J. Kane Shenton"
 __email__ = "kane.shenton@stfc.ac.uk"
-__date__ = "July 04, 2022"
+__date__ = "June 21, 2023"
 
 
 import click

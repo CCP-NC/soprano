@@ -55,7 +55,8 @@ from soprano.scripts.cli_utils import \
                                     find_XHn_groups,\
                                     sortdf,\
                                     viewimages, \
-                                    units_rename
+                                    units_rename, \
+                                    apply_df_filtering
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger('cli')
@@ -296,8 +297,16 @@ def nmr_extract(
                 euler_convention = euler_convention,
                 logger = logger,
         )
+        
+        essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
         # apply filters
-        df = apply_df_filtering(df, include, exclude, query)
+        df = apply_df_filtering(
+            df,
+            include,
+            exclude,
+            query,
+            essential_columns=essential_columns,
+            logger=logger)
 
         # ----- atoms object manipulation -----
         
@@ -563,56 +572,7 @@ def build_nmr_df(
 
 
 
-def apply_df_filtering(
-                    df: pd.DataFrame,
-                    include: List,
-                    exclude: List,
-                    query: str) -> pd.DataFrame:
-    '''
-    Inlcude/exclude columns and filter the dataframe using a pandas query.
 
-    Args:
-        df (pd.DataFrame): the dataframe to filter
-        include (list): list of columns to include
-        exclude (list): list of columns to exclude
-        query (str): pandas query string to filter the dataframe
-
-    Returns:
-        pd.DataFrame: the filtered dataframe
-
-    '''
-
-    
-
-    if query:
-            # use pandas query to filter the dataframe
-        logger.info(f'\nFiltering dataframe using query: {query}')
-        df.query(query, inplace=True)
-        logger.info(f'-----> Filtered to {len(df)} sites.')
-
-
-        # what columns should we include/exclude?
-    essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
-    if include:
-            # what columns should we include/exclude?
-        essential_columns = ['labels', 'species', 'multiplicity', 'tags', 'file']
-        specified_columns = [c for c in include if c not in essential_columns]
-        logger.debug(f'\nIncluding only columns containing: {specified_columns}')
-        columns_to_include =essential_columns + specified_columns
-        missing_columns = get_missing_cols(df, columns_to_include)
-        if len(missing_columns) > 0:
-            logger.warning(f'These columns specified {missing_columns}'
-                            f' do not match any in the dataframe ({df.columns})')
-        columns_to_include = get_matching_cols(df, columns_to_include)
-        df = df[columns_to_include].copy()
-    if exclude:
-        logger.debug(f'\nExcluding columns: {exclude}')
-            # remove those that are already not in df
-        specified_columns = get_matching_cols(df, exclude)
-        df = df.drop(specified_columns, axis=1)
-    # drop any that have only NaN values
-    df = df.dropna(axis=1, how='all')
-    return df
         
 
 

@@ -35,7 +35,8 @@ import numpy as np
 from configparser import ConfigParser
 from ase.visualize import view as aseview
 import pandas as pd
-
+import logging
+from typing import List, Union
 
 
 # join home and config file
@@ -512,19 +513,40 @@ plot_shielding = click.option('--shielding',
 
 # option to select a subset of atoms
 dip_selection_i = click.option('--select_i',
-                '-s_i',
+                '-i',
                 'selection_i',
                 type=str,
                 default=None,
                 help=subset_help
                 )
 dip_selection_j = click.option('--select_j',
-                '-s_j',
+                '-j',
                 'selection_j',
                 type=str,
                 default=None,
                 help=subset_help
                 )
+dip_rss_flag = click.option('--rss',
+                'rss_flag',
+                is_flag=True,
+                default=False,
+                help='Calculate the dipolar constant Root Sum Square for each atom in a system (includes periodicity).'
+                '(As opposed to the dipolar couplings between pairs of atoms).'
+                'Default is False.'
+                )
+dip_rss_cutoff = click.option('--cutoff',
+                'rss_cutoff',
+                type=float,
+                default=5.0,
+                help='Cutoff for Dipolar constant Root Sum Square for each atom in a system (includes periodicity).'
+                ' Units are Angstroms. Default is 5.0 Angstroms.')
+dip_isonuclear = click.option('--isonuclear',
+                is_flag=True,
+                default=False,
+                help='Include only dipolar interactions between atoms of the same type.'
+                'Default is False.'
+                )
+
 #### Groups of CLI options
 # options that apply to pandas dataframes
 DF_OPTIONS = [
@@ -593,6 +615,9 @@ DIP_OPTIONS = [
     average_group,
     dip_selection_i,
     dip_selection_j,
+    dip_rss_flag,
+    dip_rss_cutoff,
+    dip_isonuclear,
     ]
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
@@ -652,7 +677,7 @@ def print_results(
     # set pandas print precision
     pd.set_option('display.precision', precision)
     # make sure we output all rows, even if there are lots!
-    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_rows', 99)
     nframes = len(dfs)
     if output:
         for i, df in enumerate(dfs):
@@ -713,6 +738,65 @@ def units_rename(colname, units_dict=UNITS):
     # if no matches found, return original name
     return colname
 
+
+def apply_df_filtering(
+                    df: pd.DataFrame,
+                    include: List,
+                    exclude: List,
+                    query: str,
+                    essential_columns: List = [],
+                    logger: Union[logging.Logger,None] = None,
+                    ) -> pd.DataFrame:
+    '''
+    Inlcude/exclude columns and filter the dataframe using a pandas query.
+
+    Args:
+        df (pd.DataFrame): the dataframe to filter
+        include (list): list of columns to include
+        exclude (list): list of columns to exclude
+        query (str): pandas query string to filter the dataframe
+        essential_columns (list): list of columns that must be included
+        logger (logging.Logger): logger to use
+
+    Returns:
+        pd.DataFrame: the filtered dataframe
+
+    '''
+
+    # if no logger specified, use the default
+    if not logger:
+        logger = logging.getLogger(__name__)
+
+    
+
+    if query:
+        # use pandas query to filter the dataframe
+        logger.info(f'\nFiltering dataframe using query: {query}')
+        df.query(query, inplace=True)
+        logger.info(f'-----> Filtered to {len(df)} sites.')
+
+
+    # what columns should we include/exclude?
+    
+    if include:
+        # what columns should we include/exclude?
+        specified_columns = [c for c in include if c not in essential_columns]
+        logger.debug(f'\nIncluding only columns containing: {specified_columns}')
+        columns_to_include =essential_columns + specified_columns
+        missing_columns = get_missing_cols(df, columns_to_include)
+        if len(missing_columns) > 0:
+            logger.warning(f'These columns specified {missing_columns}'
+                            f' do not match any in the dataframe ({df.columns})')
+        columns_to_include = get_matching_cols(df, columns_to_include)
+        df = df[columns_to_include].copy()
+    if exclude:
+        logger.debug(f'\nExcluding columns: {exclude}')
+            # remove those that are already not in df
+        specified_columns = get_matching_cols(df, exclude)
+        df = df.drop(specified_columns, axis=1)
+    # drop any that have only NaN values
+    df = df.dropna(axis=1, how='all')
+    return df
 
 def sortdf(df, sortby, sort_order):
     ''' sort df by column, return new df'''

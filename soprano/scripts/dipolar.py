@@ -49,7 +49,8 @@ from soprano.scripts.cli_utils import \
                                     print_results,\
                                     find_XHn_groups,\
                                     sortdf,\
-                                    viewimages
+                                    viewimages, \
+                                    apply_df_filtering
 HEADER = '''
 @click_log.simple_verbosity_option(logger)
 ##################################################
@@ -75,22 +76,27 @@ click_log.basic_config(logger)
                 required=True)
 
 @add_options(DIPOLAR_OPTIONS)
+
 def dipolar(
         files,
-        selection_i,
-        selection_j,
-        output,
-        output_format,
-        merge,
-        isotopes,
-        precision,
-        sortby,
-        sort_order,
-        include,
-        exclude,
-        query,
-        view,
-        quiet,
+        selection_i=None,
+        selection_j=None,
+        rss_flag=False,
+        rss_cutoff = 5.0,
+        self_coupling = False,
+        isonuclear = False,
+        output = None,
+        output_format = None,
+        merge = False,
+        isotopes={},
+        precision = 3,
+        sortby=None,
+        sort_order='ascending',
+        include=None,
+        exclude=None,
+        query=None,
+        view=False,
+        verbosity=0,
         **kwargs
         ):
     """
@@ -99,13 +105,13 @@ def dipolar(
     Usage:
     soprano dipolar seedname.{magres|cif|POSCAR|etc}
     """
-
-    if quiet:
+    if verbosity == 0:
         logging.basicConfig(level=logging.WARNING)
-        verbose = False
-    else:
-        verbose = True
+    elif verbosity == 1:
         logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.DEBUG)
+    
 
     # set pandas print precision
     pd.set_option('display.precision', precision)
@@ -140,54 +146,64 @@ def dipolar(
             logger.info(f'\nSelecting atoms based on selection string: {selection_i}')
             sel_i = AtomSelection.from_selection_string(atoms, selection_i)
         if selection_j:
+            if rss_flag:
+                raise ValueError('Cannot use --rss flag with selection_j')
             logger.info(f'\nSelecting atoms based on selection string: {selection_j}')
             sel_j = AtomSelection.from_selection_string(atoms, selection_j)
+        
+        # --- rss or pairs --- # 
+        if rss_flag:
+            df = extract_dipolar_RSS_couplings(atoms,
+                                               isotopes=isotopes,
+                                               cutoff=rss_cutoff,
+                                               isonuclear=isonuclear,
+                                               sel_i=sel_i,
+            )
+            essential_columns = [
+                'index',
+                'label',
+                'isotope',
+                'D_RSS',
+            ]
+            df = apply_df_filtering(
+                    df,
+                    include,
+                    exclude,
+                    query,
+                    essential_columns = essential_columns,
+                    logger=logger)
+        else:
+            df = extract_dipolar_couplings(atoms,
+                                        sel_i = sel_i,
+                                        sel_j = sel_j,
+                                        isotopes = isotopes,
+                                        rss_cutoff=rss_cutoff,
+                                        isonuclear=isonuclear,)
+            essential_columns = ['pair',
+                                'label_i',
+                                'label_j',
+                                'isotope_i',
+                                'isotope_i',
+                                'file',
+                                'D',
+                                'alpha',
+                                'beta']
 
+            df = apply_df_filtering(
+                df,
+                include,
+                exclude,
+                query,
+                essential_columns = essential_columns,
+                logger=logger)
+            
+            # reformat the 'v' column
+            df['v'] = df['v'].apply(lambda x: np.round(x, precision))
+        ###############################################
 
-        df = extract_dipolar_couplings(atoms,
-                                       sel_i=sel_i,
-                                       sel_j = sel_j,
-                                       isotopes = isotopes)
         # add file info
         df['file'] = fname
-
-        if query:
-        # use pandas query to filter the dataframe
-            logger.info(f'\nFiltering dataframe using query: {query}')
-            df.query(query, inplace=True)
-            logger.info(f'-----> Filtered to {len(df)} sites.')
         
-        # reformat the 'v' column
-        df['v'] = df['v'].apply(lambda x: np.round(x, precision))
-
-        # what columns should we include/exclude?
-        essential_columns = ['pair',
-                            'label_i',
-                            'label_j',
-                            'isotope_i',
-                            'isotope_i',
-                            'file',
-                            'D',
-                            'alpha',
-                            'beta']
-        if include:
-            # what columns should we include/exclude?
-            specified_columns = [c for c in include if c not in essential_columns]
-            logger.info(f'\nIncluding only columns containing: {specified_columns}')
-            columns_to_include =essential_columns + specified_columns
-            missing_columns = get_missing_cols(df, columns_to_include)
-            if len(missing_columns) > 0:
-                logger.warning(f'These columns specified {missing_columns}'
-                            f' do not match any in the dataframe ({df.columns})')
-            columns_to_include = get_matching_cols(df, columns_to_include)
-            df = df[columns_to_include].copy()
-        if exclude:
-            logger.info(f'\nExcluding columns: {exclude}')
-            # remove those that are already not in df
-            specified_columns = get_matching_cols(df, exclude)
-            df = df.drop(specified_columns, axis=1)
-        # drop any that have only NaN values
-        df = df.dropna(axis=1, how='all')
 
 
         if len(df) > 0:
@@ -206,34 +222,81 @@ def dipolar(
     for i, df in enumerate(dfs):
         dfs[i] = sortdf(df, sortby, sort_order)
     # write to file(s)
-    print_results(dfs, output, output_format, verbose)
+    print_results(dfs, output, output_format, verbosity > 0)
+
+
+def extract_dipolar_RSS_couplings(atoms, isotopes={}, cutoff=5.0, isonuclear=False, sel_i = None, **kwargs):
+    """
+    Extracts the dipolar couplings from the atoms object.
+
+    We compute the dipolar constant including all atoms within a cutoff radius. 
+    We only then filter out the atoms that are not in the selection. 
+
+    If you instead want to compute the dipolar constant only including isonuclear atoms,
+    you can set isonuclear=True.
+
+    :param atoms : ASE atoms object
+    :return: a pandas dataframe with the couplings
+    """
+
+    # subset to include in the df:
+    idx = np.arange(len(atoms))
+    if sel_i:
+        idx = sel_i.indices
+    
+    elements = atoms.get_chemical_symbols()
+    isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
+    species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
+    dip_RSS = DipolarRSS.get(atoms, isotopes=isotopes,cutoff=cutoff, isonuclear=isonuclear)
+    if atoms.has('labels'):
+        labels = atoms.get_array('labels')
+    else:
+        labels = MagresViewLabels.get(atoms, store_array=True)
+
+    
+    df = pd.DataFrame({
+        'index': [atom.index for atom in atoms],
+        'label': labels,
+        'isotope': species,
+        'D_RSS': dip_RSS,
+        })
+    
+    # filter out the atoms that are not in the selection
+    df = df[df['index'].isin(idx)]
+
+    return df
 
 
 
 
-
-
-def extract_dipolar_couplings(atoms, **kwargs):
+def extract_dipolar_couplings(atoms, isotopes={}, self_coupling=False, cutoff=5.0, isonuclear=False, sel_i=None, sel_j=None, **kwargs):
     """
     Extracts the dipolar couplings from the atoms object.
     :param atoms : ASE atoms object
     :return: a pandas dataframe with the couplings
     """
-    # isotopes
-    if 'isotopes' in kwargs:
-        isotopes = kwargs['isotopes']
-    else:
-        isotopes = None
+    
     elements = atoms.get_chemical_symbols()
     isotopelist = _get_isotope_list(elements, isotopes=isotopes, use_q_isotopes=False)
     species = [f'{iso}{el}' for el, iso in zip(elements, isotopelist)]
 
 
-    dip = DipolarCoupling.get(atoms, **kwargs)
-    if has_cif_labels(atoms):
+    dip = DipolarCoupling.get(
+        atoms,
+        isotopes=isotopes,
+        sel_i=sel_i,
+        sel_j=sel_j,
+        self_coupling=self_coupling,
+        isonuclear=isonuclear,
+        )
+    # if dip is an empty dict, return an empty dataframe
+    if len(dip) == 0:
+        return pd.DataFrame()
+    
+    if atoms.has('labels'):
         labels = atoms.get_array('labels')
     else:
-        labels = MagresViewLabels.get(atoms)
+        labels = MagresViewLabels.get(atoms, store_array=True)
 
     # transform dip into columns 
     pairs, values = zip(*sorted(dip.items()))
