@@ -51,10 +51,13 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
 
     ```soprano nmr seedname.magres -p efg --isotopes 13C,2H```
 
-* If you want to get only the unique sites in the structure, use the reduce option:
+* By default, Soprano will reduce the structure to the uniques sites (based either on CIF labels or symmetry operations. If you want to disable this, you can use the `--no-reduce` option:
 
-    ```soprano nmr seedname.magres -r```
+    ```soprano nmr seedname.magres --no-reduce```
 
+* You can construct queries that are applied to all loaded Magres files using the pandas dataframe query syntax. For example, to extract the MS data for all sites with a chemical shielding between 100 and 200 ppm *and* an asymmetry parameter greater than 0.5:
+
+    ```soprano nmr *.magres -p ms --query "100 < MS_shielding < 200 and MS_asymmetry > 0.5"```
 
 ## 2D NMR plots
 
@@ -78,10 +81,26 @@ Here are some common examples:
 
     ```soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3```
 
-* Same as above but now also reduce the system to the inequivalent sites first (e.g. those with the same CIF label or a symmetrically equivalent position):
+* By default, Soprano will reduce the system to the inequivalent sites first (e.g. those with the same CIF label or a symmetrically equivalent position). To prevent this, use the `--no-reduce` option:
 
-    ```soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 -r```
+    ```soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 --no-reduce```
 
 * Impose a distance cut-off (in Å) between pairs of sites:
 
     ```soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 -r --rcut 3.5```
+
+
+
+## Dipolar Couplings
+
+* Extract dipolar couplings between all pairs of sites:
+
+    ```soprano dipolar seedname.magres```
+
+* Extract dipolar couplings between all pairs of sites, outputting to a CSV file:
+
+    ```soprano dipolar seedname.magres -o dipolar.csv```
+
+* Extract dipolar couplings between all pairs of sites, and print out those whose absolute value is greater than 10 kHz:
+
+    ```soprano dipolar seedname.magres --query "abs(D) > 10.0"```
