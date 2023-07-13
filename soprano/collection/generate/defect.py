@@ -27,9 +27,7 @@ from ase.data import atomic_numbers
 # Internal imports
 from soprano import utils
 from soprano.data import vdw_radii
-from soprano.properties.linkage import Bonds
-from soprano.rnd import Random, random_combination
-from soprano.selection import AtomSelection
+from soprano.rnd import Random, random_combination, random_product
 
 
 def defectGen(
@@ -224,7 +222,17 @@ def substitutionGen(
             break
 
 
-def additionGen(struct, add, to_addition=None, n=1, add_r=1.2, accept=None):
+def additionGen(
+    struct,
+    add,
+    to_addition=None,
+    n=1,
+    add_r=1.2,
+    accept=None,
+    bonds = None,
+    rep_alg_kwargs={},
+    random = False,
+    max_attempts=0):
     """Generator function to create multiple structures with an atom of a
     given element added in the existing cell. The atoms will be attached to
     the atoms passed in the to_addition selection. If none is passed,
@@ -253,6 +261,20 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2, accept=None):
     |                      were added, and must return a bool. The newly added
     |                      atoms will always be the last n of the structure.
     |                      If False, the structure will be rejected.
+    |                      Default is None, in which case all structures are
+    |                      accepted.
+    |   bonds (Bonds): a Bonds object containing the bonds of the structure.
+    |                  If not present, they will be computed with default parameters. Default is None.
+    |   rep_alg_kwargs (dict): a dictionary of keyword arguments to pass to
+    |                          the repulsion algorithm. Default is {}.
+    |   random (bool): if True, the order of the loop over the possible
+    |                  configurations will be randomized. Default is False. This is crucial if 
+    |                  limiting the number of configurations with max_attempts, to better sample the space of
+    |                  possible configurations.
+    |   max_attempts (int): maximum number of attempts used to generate a
+    |                       random point. Default is 0, in which case all
+    |                       possible configurations are generated.
+
     | Returns:
     |   defectGenerator (generator): an iterator object that yields
     |                                structures with all possible additions.
@@ -262,7 +284,8 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2, accept=None):
         to_addition = AtomSelection.all(struct)
 
     # Compute bonds
-    bonds = Bonds.get(struct)
+    if bonds is None:
+        bonds = Bonds.get(struct)
 
     cell = struct.get_cell()
     pos = struct.get_positions()
@@ -290,13 +313,25 @@ def additionGen(struct, add, to_addition=None, n=1, add_r=1.2, accept=None):
             rndv /= np.linalg.norm(rndv, axis=1)[:, None]
             attach_v[i] = rndv
         else:
-            attach_v[i] = utils.rep_alg(bset)
+            this_v = utils.rep_alg(bset, **rep_alg_kwargs)
+            # print(f'Atom {i} has {len(bset)} bonds and {len(this_v)} possible attachment points')
+            attach_v[i] = this_v
+    attach_v = np.array(attach_v)
 
     addconfs = itertools.combinations(to_addition.indices, n)
 
     for ac in addconfs:
-        addpos = itertools.product(*[attach_v[i] for i in list(ac)])
+        if random:
+            addpos = random_product(*attach_v[list(ac)])
+        else:
+            addpos = itertools.product(*attach_v[list(ac)])
+
+        iiter = 1
         for ap in addpos:
+            if iiter > max_attempts > 0:
+                break
+
+            iiter += 1
             astruct = struct.copy()
             astruct += Atoms(add * n, positions=pos[list(ac)] + np.array(ap) * add_r)
 

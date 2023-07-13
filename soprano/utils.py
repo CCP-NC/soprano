@@ -1092,7 +1092,7 @@ def compute_asymmetric_distmat(
 # Repulsion algorithm to find the best place to add an atom
 
 
-def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
+def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5, random=False):
     """
     Repulsion algorithm, begins with a series of vectors v, finds a new one
     that is as far as possible, angle-wise, from all of them.
@@ -1112,6 +1112,9 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
     |   simtol (float): tolerance based on which two attempts are considered to
     |                   be effectively the same, checking if 1-v1.v2 < simtol.
     |                   Default is 1e-5.
+    |   random (bool): if True, the initialisation is randomised. Default is
+    |                  False. If False, the initialisation is done by
+    |                  sampling the unit sphere in a regular fashion `attempts` times.
 
     | Returns:
     |   out_v ([np.ndarray]): list of unit vectors of maximal distance from
@@ -1123,10 +1126,13 @@ def rep_alg(v, iters=1000, attempts=10, step=1e-1, simtol=1e-5):
 
     out_v = np.zeros((0, 3))
 
-    for a in range(attempts):
-        # Random initialisation
-        o_v = Random.random(3) - 0.5
-        o_v /= np.linalg.norm(o_v)
+    if random:
+        initial_guesses = Random.random((attempts, 3)) - 0.5
+        initial_guesses /= np.linalg.norm(initial_guesses, axis=1)[:, None]
+    else:
+        initial_guesses = regular_points_on_sphere(attempts)
+
+    for o_v in initial_guesses:
 
         # Iterate
         for i in range(iters):
@@ -1259,3 +1265,48 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}, keep_all=False):
     atoms.set_array("multiplicity", multiplicity)
 
     return atoms
+
+
+def regular_points_on_sphere(N, r=1):
+    """
+    We follow the algorithm described by Markus Deserno:
+    https://www.cmu.edu/biolphys/deserno/pdf/sphere_equi.pdf
+
+    | Parameters:
+    |   N (int): number of points
+    |   r (float): radius of the sphere (default is 1)
+
+    | Returns:
+    |   points (np.ndarray): array of shape (N, 3) containing the points. The
+    |                        actual dimension of the array might not be N, as
+    |                        the algorithm is not exact, but it will be close.
+
+    
+    """
+    n_count = 0
+    a = 4 * np.pi * r**2 / N
+    d = np.sqrt(a)
+    M_theta = int(np.round(np.pi / d))
+    d_theta = np.pi / M_theta
+    d_phi = a / d_theta
+    for m in range(M_theta):
+        theta = np.pi * (m + 0.5) / M_theta
+        M_phi = int(np.round(2 * np.pi * np.sin(theta) / d_phi))
+        for n in range(M_phi):
+            phi = 2 * np.pi * n / M_phi
+            new_v = np.array(
+                [
+                    np.sin(theta) * np.cos(phi),
+                    np.sin(theta) * np.sin(phi),
+                    np.cos(theta),
+                ]
+            )
+            # scale to radius
+            new_v *= r
+
+            if n_count == 0:
+                sphere_points = new_v
+            else:
+                sphere_points = np.vstack((sphere_points, new_v))
+            n_count += 1
+    return sphere_points

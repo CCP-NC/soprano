@@ -20,7 +20,10 @@ random.py
 Manages randomness across the board for Soprano functions
 """
 
-from numpy.random import MT19937, RandomState, SeedSequence
+from numpy.random import MT19937
+from numpy.random import RandomState, SeedSequence
+import numpy as np
+import itertools
 
 # Define a single Random Generator to use across the board in Soprano functions
 
@@ -44,3 +47,14 @@ def random_combination(iterable, r):
     n = len(pool)
     indices = sorted(Random.choice(range(n), r, replace=False))
     return tuple(pool[i] for i in indices)
+
+def random_product(*iterables, repeat=1):
+    """Random selection from itertools.product(*iterables, repeat=repeat)
+    
+    This is a very naiive implementation, that potentially wastes a lot of
+    memory. TODO: improve it.
+    
+    """
+    all_options = list(itertools.product(*iterables, repeat=repeat))
+    Random.shuffle(all_options)
+    return all_options
