@@ -29,10 +29,16 @@ from soprano.nmr.utils import (
     _skew,
     _evecs_2_quat,
     _dip_constant,
+    _matrix_to_euler,
+    _handle_euler_edge_cases,
+    _equivalent_euler,
+    _equivalent_relative_euler,
 )
 from soprano.data.nmr import _get_isotope_data
 from ase.quaternions import Quaternion
+import warnings
 
+DEGENERACY_TOLERANCE = 1e-6
 
 class NMRTensor(object):
     """NMRTensor
@@ -91,6 +97,8 @@ class NMRTensor(object):
 
         self._trace = None
 
+        self._degeneracy = None
+
         # Spherical tensor components
         self._sph = None
 
@@ -128,6 +136,25 @@ class NMRTensor(object):
     @property
     def eigenvalues(self):
         return self._evals.copy()
+    
+    @property
+    def PAS(self):
+        '''
+        Returns the principal axis system (PAS) of the tensor.
+        '''
+        return np.diag(self._evals)
+    
+    @property
+    def degeneracy(self):
+        '''
+        Returns the degeneracy of the tensor.
+        For example, a tensor with eigenvalues [1, 1, 1] has a degeneracy of 3.
+        A tensor with eigenvalues [1, 1, 2] has a degeneracy of 2.
+        A tensor with eigenvalues [1, 2, 3] has a degeneracy of 1.
+        '''
+        if self._degeneracy is None:
+            self._degeneracy = np.sum(np.abs(self._evals - self._evals[0]) < DEGENERACY_TOLERANCE)
+        return self._degeneracy
 
     @property
     def eigenvectors(self):
@@ -189,7 +216,7 @@ class NMRTensor(object):
 
         return self._sph.copy()
 
-    def euler_angles(self, convention="zyz"):
+    def euler_angles(self, convention: str = "zyz", passive: bool = False) -> np.ndarray:
         """Return Euler angles of the Principal Axis System
 
         Return Euler angles of the PAS for this tensor in the
@@ -200,8 +227,142 @@ class NMRTensor(object):
             (default: {'zyz'})
         """
 
+
+        angles = _matrix_to_euler(self.eigenvectors, convention, passive)
+
+        # warning for double degenerate tensors
+        if self.degeneracy == 2:
+            warnings.warn(
+                "Some of the Euler angles are ambiguous for degenerate tensors.\n"
+                "Care must be taken when comparing the Euler angles of degenerate tensors.\n"
+                f"Degeneracy of this tensor: {self.degeneracy} (Eigenvalues: {self.eigenvalues})"
+            )
+        angles = _handle_euler_edge_cases(
+                    angles,
+                    self.eigenvalues,
+                    self._symm,
+                    convention = convention,
+                    passive = passive
+                    )
+            
+
+        return angles
+    
+    def equivalent_euler_angles(self, convention="zyz", passive=False):
+        '''
+        Returns the equivalent Euler angles of the tensor.
+
+        Args:
+            convention {str} -- Euler angles convention to use
+            (default: {'zyz'})
+            passive {bool} -- Whether to return the passive Euler angles
+            (default: {False})
+        Returns:
+            np.array -- Euler angles in radians. 
+                        Size of the array is (4, 3) as there are 4 equivalent sets of Euler angles.
+
+
+        '''
+        euler_angles = self.euler_angles(convention, passive)
+
+        return _equivalent_euler(euler_angles, convention=convention, passive=passive)
+    
+    def rotation_to(self, other):
+        '''
+        Returns the rotation matrix that rotates the tensor to the other tensor.
+        TODO: check direction. I think this gives the rotation self to other, rather than
+        the rotation of self in the reference frame of other.
+
+        '''
+        R1 = self.eigenvectors
+        R2 = other.eigenvectors
+        R = np.linalg.inv(R1) @ R2
+        # Need to guarantee that R expresses a *proper* rotation
+        # (i.e. det(R) = 1)
+        if np.linalg.det(R) < 0:
+            R[:, 2] *= -1
+
+        return R
+    
+    def euler_to(self, other, convention="zyz", passive=False, eps = 1e-6):
+        '''
+        Returns the Euler angles that rotate the tensor to the other tensor.
+        '''
         convention = convention.lower()
-        return self.quaternion.euler_angles(convention)
+        # first make sure they're not the same!
+        if np.allclose(self.eigenvalues, other.eigenvalues):
+            # check eigenvectors are the same up to a sign
+            if np.allclose(self.eigenvectors, other.eigenvectors) or np.allclose(self.eigenvectors, -other.eigenvectors):
+                warnings.warn("The tensors are identical. Returning zero Euler angles.")
+                return np.zeros(3)
+        if self.degeneracy == 2 and other.degeneracy == 2:
+            warnings.warn(
+                "Some of the Euler angles are ambiguous for degenerate tensors.\n"
+                "Care must be taken when comparing the Euler angles of degenerate tensors.\n"
+                f"Degeneracy of tensor 1: {self.degeneracy} (Eigenvalues: {self.eigenvalues})"
+                f"Degeneracy of tensor 2: {other.degeneracy} (Eigenvalues: {other.eigenvalues})"
+            )
+            # Both are axially symmetric - need to be careful
+            Bevals = other.eigenvalues
+            # B (other) in the reference frame of A (self)
+            B_at_A = np.linalg.inv(self._symm) @ other._symm
+            # quick check if the angles are all zero:
+            if np.abs(B_at_A[1,2] + B_at_A[0,2] + B_at_A[0,1]) < eps:
+                warnings.warn("The tensors are perfectly aligned. Returning zero Euler angles.")
+                return np.zeros(3)
+            
+            if convention == 'zyz':
+                # If both are axially symmetric, then
+                alpha = 0
+                gamma = 0
+                beta = np.arcsin(np.sqrt(
+                    (B_at_A[2, 2]  - Bevals[2]) / 
+                    (Bevals[0] - Bevals[2])
+                    ))
+                beta = np.abs(beta) # we can choose the sign of beta arbitrarily
+                return np.array([alpha, beta, gamma])
+            
+            if convention == 'zxz':
+                # in this convention, it depends on the unique axis
+                # of the other tensor
+                # but the possible angles are:
+                a = np.pi / 2
+                b = np.arcsin(np.sqrt(
+                            (B_at_A[2, 2]  - Bevals[2]) / 
+                            (Bevals[0] - Bevals[2])
+                            ))
+                b = np.abs(b) # we can choose the sign arbitrarily
+                c = 0
+
+                
+                if np.abs(Bevals[0] - Bevals[1]) < 1e-6:
+                    # Unique axis is z
+                    return np.array([a, b, c]) # 90, arcsin(...), 0
+                elif np.abs(Bevals[1] - Bevals[2]) < 1e-6:
+                    # Unique axis is x
+                    return np.array([c, a, b]) # 0, 90, arcsin(...)
+                else:
+                    raise ValueError('Unexpected eigenvalue ordering for axially symmetric tensor'
+                                        'in zxz convention. Eigenvalues are: ', Bevals)
+            # if neither zyz nor zxz, warn
+            warnings.warn('Euler angles for axially symmetric tensors are only corrected for zyz and zxz conventions.'
+                            ' Returning the uncorrected Euler angles.')
+            
+        if other.degeneracy == 2 and self.degeneracy != 2:
+            # then let's swap them around, then transpose the result
+            # TODO: test this! 
+            R = other.rotation_to(self).T
+        else:
+            R = self.rotation_to(other)
+        return _matrix_to_euler(R.T, convention, passive)
+
+    def equivalent_euler_to(self, other, convention="zyz", passive=False):
+        '''
+        Returns the equivalent Euler angles that rotate the tensor to the other tensor.
+        '''
+        euler_angles = self.euler_to(other, convention, passive)
+
+        return _equivalent_relative_euler(euler_angles, convention=convention, passive=passive)
 
     @staticmethod
     def make_dipolar(

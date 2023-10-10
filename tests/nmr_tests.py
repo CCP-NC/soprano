@@ -154,7 +154,7 @@ class TestNMR(unittest.TestCase):
             self.assertTrue(np.isclose(np.sort(evals), np.sort(evalstt)).all())
             self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij], v]), 2 * d)
 
-    def test_tensor(self):
+    def test_tensor_basic(self):
 
         eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
         ms = eth.get_array("ms")
@@ -189,21 +189,238 @@ class TestNMR(unittest.TestCase):
                 ),
                 1,
             )
-
+    def test_tensor_conventions(self):
         # Let's now try various conventions
         data = np.diag([1, 2, -6])
 
         tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        # check eigenvalues are sorted correctly
         self.assertTrue(np.allclose(tc.eigenvalues, [-6, 1, 2]))
+        # and eigenvectors are sorted accordingly
+        self.assertTrue(np.allclose(tc.eigenvectors[0], [0, 1, 0]))
+        self.assertTrue(np.allclose(tc.eigenvectors[1], [0, 0, 1]))
+        self.assertTrue(np.allclose(tc.eigenvectors[2], [1, 0, 0]))
 
         td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
         self.assertTrue(np.allclose(td.eigenvalues, [2, 1, -6]))
+        self.assertTrue(np.allclose(td.eigenvectors[0], [0, 1, 0]))
+        self.assertTrue(np.allclose(td.eigenvectors[1], [1, 0, 0]))
+        self.assertTrue(np.allclose(td.eigenvectors[2], [0, 0,-1]))
 
         th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
         self.assertTrue(np.allclose(th.eigenvalues, [2, 1, -6]))
+        self.assertTrue(np.allclose(th.eigenvectors[0], [0, 1, 0]))
+        self.assertTrue(np.allclose(th.eigenvectors[1], [1, 0, 0]))
+        self.assertTrue(np.allclose(th.eigenvectors[2], [0, 0,-1]))
+
 
         tn = NMRTensor(data, NMRTensor.ORDER_NQR)
         self.assertTrue(np.allclose(tn.eigenvalues, [1, 2, -6]))
+        self.assertTrue(np.allclose(tn.eigenvectors[0], [1, 0, 0]))
+        self.assertTrue(np.allclose(tn.eigenvectors[1], [0, 1, 0]))
+        self.assertTrue(np.allclose(tn.eigenvectors[2], [0, 0, 1]))
+
+
+
+        # The span and skew should always be the same since they are defined only for the 
+        # Herzfeld-Berger convention
+        # in this case the span is 8 = 2 - (-6)
+        self.assertTrue(np.allclose([tc.span, td.span, th.span, tn.span], [8]))
+        # in this case the skew is 0.75 = 3 * (1 - (-1)) / (2 - (-6))
+        self.assertTrue(np.allclose([tc.skew, td.skew, th.skew, tn.skew], [0.75]))
+
+        # The asymmetry and (reduced) anisotropy should be the same for all the conventions
+        # since they are hard-coded (and only defined) for the Haeberlen convention
+        self.assertTrue(np.allclose([tc.asymmetry, td.asymmetry, th.asymmetry, tn.asymmetry], [0.2]))
+        self.assertTrue(np.allclose([tc.reduced_anisotropy, td.reduced_anisotropy, th.reduced_anisotropy, tn.reduced_anisotropy], [-5]))
+        self.assertTrue(np.allclose([tc.anisotropy, td.anisotropy, th.anisotropy, tn.anisotropy], [-7.5]))
+    
+    def test_tensor_euler_angles(self):
+        """
+        Test the Euler angles for the tensor class
+
+        All of the Reference Euler angles in this test have been cross-referenced with the output of
+        TensorView for MATLAB:
+        https://doi.org/10.1016/j.ssnmr.2022.101849
+
+        """
+
+        data = np.diag([1, 2, -6])
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
+        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
+        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+
+        # Where it gets tricky is the Euler angles
+        euler_c = tc.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        euler_d = td.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        euler_h = th.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        euler_n = tn.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        
+        ref_euler_c = np.array([
+                                [ 90, 90,   0],
+                                [ 90, 90, 180],
+                                [270, 90, 180],
+                                [270, 90,   0],
+                                ])
+        ref_euler_d = np.array([
+                                [ 90,   0,   0],
+                                [ 90,   0, 180],
+                                [270, 180, 180],
+                                [270, 180,   0],
+                                ])
+        ref_euler_n = np.array([
+                                [  0,   0,   0],
+                                [  0,   0, 180],
+                                [180, 180, 180],
+                                [180, 180,   0],
+                                ]) # == abs ascending = NQR
+        # in this case, the Haeberlen convention is the same as the decreasing convention
+        ref_euler_h = ref_euler_d
+        self.assertTrue(np.allclose(euler_c, ref_euler_c))
+        self.assertTrue(np.allclose(euler_d, ref_euler_d))
+        self.assertTrue(np.allclose(euler_n, ref_euler_n))
+        self.assertTrue(np.allclose(euler_h, ref_euler_h))
+
+        # Now a case without Gimbal lock
+        data = np.array([
+                    [ 1.00,  0.12,  0.13],
+                    [ 0.21,  2.00,  0.23],
+                    [ 0.31,  0.32, -6.00],
+                    ])
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
+        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
+        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        
+        # Eigenvalue ordering (make sure we're testing the right thing)
+        eigs_ref = np.array([-6.01598555, 0.97774119,  2.03824436])
+        self.assertTrue(np.allclose(tc.eigenvalues, eigs_ref[[0, 1, 2]]))
+        self.assertTrue(np.allclose(td.eigenvalues, eigs_ref[[2, 1, 0]]))
+        self.assertTrue(np.allclose(th.eigenvalues, eigs_ref[[2, 1, 0]]))
+        self.assertTrue(np.allclose(tn.eigenvalues, eigs_ref[[1, 2, 0]]))
+
+        # --- Euler ZYZ (active) convention --- #
+        euler_c = tc.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        euler_d = td.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        euler_h = th.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+        euler_n = tn.equivalent_euler_angles(convention='zyz') * 180 / np.pi
+
+        ref_euler_c = np.array([
+            [ 80.51125264,  87.80920208, 178.59212804],
+            [ 80.51125264,  87.80920208, 358.59212804],
+            [260.51125264,  92.19079792,   1.40787196],
+            [260.51125264,  92.19079792, 181.40787196],
+            ])
+        ref_euler_d = np.array([
+            [227.77364892,   2.60398404,  32.71068295],
+            [227.77364892,   2.60398404, 212.71068295],
+            [ 47.77364892, 177.39601596, 147.28931705],
+            [ 47.77364892, 177.39601596, 327.28931705],
+            ])
+        ref_euler_h = ref_euler_d # should be the same in this case
+        ref_euler_n = np.array([
+            [227.77364892,   2.60398404, 122.71068295],
+            [227.77364892,   2.60398404, 302.71068295],
+            [ 47.77364892, 177.39601596,  57.28931705],
+            [ 47.77364892, 177.39601596, 237.28931705],
+        ])
+        self.assertTrue(np.allclose(euler_c, ref_euler_c))
+        self.assertTrue(np.allclose(euler_d, ref_euler_d))
+        self.assertTrue(np.allclose(euler_n, ref_euler_n))
+        self.assertTrue(np.allclose(euler_h, ref_euler_h))
+
+        # now the passive rotations - just check the first one for each
+        euler_c = tc.euler_angles(convention='zyz', passive=True) * 180 / np.pi
+        euler_d = td.euler_angles(convention='zyz', passive=True) * 180 / np.pi
+        euler_h = th.euler_angles(convention='zyz', passive=True) * 180 / np.pi
+        euler_n = tn.euler_angles(convention='zyz', passive=True) * 180 / np.pi
+        
+        self.assertTrue(np.allclose(euler_c, np.array([[1.40787196, 87.80920208, 99.48874736]])))
+        self.assertTrue(np.allclose(euler_d, np.array([[147.28931705, 2.60398404, 312.22635108]])))
+        # Haebelen convention is the same as decreasing convention for this case
+        self.assertTrue(np.allclose(euler_h, euler_d))
+        self.assertTrue(np.allclose(euler_n, np.array([[57.28931705, 2.60398404, 312.22635108]])))
+
+        # --- ZXZ (active) convention --- #
+        euler_c = tc.euler_angles(convention='zxz', passive=False) * 180 / np.pi
+        euler_d = td.euler_angles(convention='zxz', passive=False) * 180 / np.pi
+        euler_h = th.euler_angles(convention='zxz', passive=False) * 180 / np.pi
+        euler_n = tn.euler_angles(convention='zxz', passive=False) * 180 / np.pi
+        ref_euler_c =  [170.51125264,  87.80920208,  88.59212804]
+        ref_euler_d =  [317.77364892,   2.60398404, 122.71068295]
+        ref_euler_h =  [317.77364892,   2.60398404, 122.71068295]
+        ref_euler_n =  [317.77364892,   2.60398404,  32.71068295]
+
+        self.assertTrue(np.allclose(euler_c, ref_euler_c))
+        self.assertTrue(np.allclose(euler_d, ref_euler_d))
+        self.assertTrue(np.allclose(euler_h, ref_euler_h))
+        self.assertTrue(np.allclose(euler_n, ref_euler_n))
+
+        # --- ZXZ (passive) convention --- #
+        euler_c = tc.euler_angles(convention='zxz', passive=True) * 180 / np.pi
+        euler_d = td.euler_angles(convention='zxz', passive=True) * 180 / np.pi
+        euler_h = th.euler_angles(convention='zxz', passive=True) * 180 / np.pi
+        euler_n = tn.euler_angles(convention='zxz', passive=True) * 180 / np.pi
+        ref_euler_c = [ 91.40787196,  87.80920208,   9.48874736]
+        ref_euler_d = [ 57.28931705,   2.60398404, 222.22635108]
+        ref_euler_h = [ 57.28931705,   2.60398404, 222.22635108]
+        ref_euler_n = [147.28931705,   2.60398404, 222.22635108]
+
+        self.assertTrue(np.allclose(euler_c, ref_euler_c))
+        self.assertTrue(np.allclose(euler_d, ref_euler_d))
+        self.assertTrue(np.allclose(euler_h, ref_euler_h))
+        self.assertTrue(np.allclose(euler_n, ref_euler_n))
+
+
+    def test_tensor_euler_edge_cases(self):
+        # Now a case with 3 degenerate eigenvalues (spherical tensor)
+        data = np.diag([1, 1, 1])
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive = False), np.zeros(3)))
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zxz', passive = False), np.zeros(3)))
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive = True), np.zeros(3)))
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zxz', passive = True), np.zeros(3)))
+
+        # Now a case with no degenerate eigenvalues
+        # but with Gimbal lock
+        data = np.array([
+            [1.0, 0.5, 0.0],
+            [0.5, 1.0, 0.0],
+            [0.0, 0.0, 2.0]
+        ])
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        # confirm that the eigenvalues are sorted correctly
+        self.assertTrue(np.allclose(tc.eigenvalues, [0.5, 1.5, 2.0]))
+        evecs = tc.eigenvectors
+        zyza = tc.equivalent_euler_angles(convention='ZYZ', passive = False) * 180 / np.pi
+        zxza = tc.equivalent_euler_angles(convention='zxz', passive = False) * 180 / np.pi
+        zyzp = tc.equivalent_euler_angles(convention='zyz', passive = True) * 180 / np.pi
+        zxzp = tc.equivalent_euler_angles(convention='zxz', passive = True) * 180 / np.pi
+        self.assertTrue(np.allclose(zyza[0], np.array([135, 0, 0])))
+        self.assertTrue(np.allclose(zxza[0], np.array([135, 0, 0]))) # this  one used to work, but now give [315, 0, 0]
+        self.assertTrue(np.allclose(zyzp[0], np.array([0, 0, 225])))
+        self.assertTrue(np.allclose(zxzp[0], np.array([0, 0, 225])))
+
+
+        # More symmetric tensors
+        data = np.diag([5,10,5])
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zyz')*180/np.pi, np.array([90,90,0])))
+        # TODO: this is not the same as TensorView for MATLAB, which gives [0,90,90]. soprano gives [90,90,0] - so something is 
+        # not happening correctly when passive is True - is it just for this case?
+        # self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive=True)*180/np.pi, np.array([0,90,90])))
+
+        data = np.diag([10,5,5])
+        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zyz')*180/np.pi, np.array([180,90,0])))
+        # TODO: according to TensorView for MATLAB, this should be [0,90,0] or equivalent
+        # soprano gives [90, 90, 0] - so something is not happening correctly when passive is True
+        f = tc.euler_angles(convention='zyz', passive=True)*180/np.pi
+        self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive=True)*180/np.pi, np.array([0,90,0])))
+
+        # TODO: add more tests for zxz conventions and passive rotation
+
 
     def test_diprotavg(self):
         # Test dipolar rotational averaging

@@ -34,6 +34,7 @@ from soprano.nmr.utils import (
     _evecs_2_quat,
 )
 from soprano.data.nmr import _get_isotope_data, EFG_TO_CHI
+from soprano.nmr import NMRTensor
 
 
 def _has_efg_check(f):
@@ -46,6 +47,43 @@ def _has_efg_check(f):
         return f(s, *args, **kwargs)
 
     return decorated_f
+
+
+class EFGTensor(AtomsProperty):
+    """
+    EFGTensor
+
+    Produces a list of NMRTensor objects containing the electric field
+    gradient tensors for each atom in the system.
+    Requires the Atoms object to have
+    been loaded from a .magres file containing the relevant information.
+
+    The default convention for EFG tensors is the NQR one (|Vxx| ≤ |Vyy| ≤ |Vzz|).
+    This is different from the default convention for MS tensors (Haeberlen).
+    You can change this by specifying the 'order' parameter.
+
+    Parameters:
+      order (str):  Order to use for eigenvalues/eigenvectors. Can
+                    be 'i' (ORDER_INCREASING), 'd'
+                    (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                    'n' (ORDER_NQR). Default is 'n'.
+
+    Returns:
+      efg_tensors (list): list of NMRTensor objects
+
+    """
+
+    default_name = "efg_tensors"
+    default_params = {"order": NMRTensor.ORDER_NQR}
+
+    @staticmethod
+    @_has_efg_check
+    def extract(s, order):
+        efg_tensors = [NMRTensor(efg, order=order) for efg in s.get_array("efg")]
+        return efg_tensors
+
+
+
 
 
 class EFGDiagonal(AtomsProperty):
@@ -439,25 +477,25 @@ class EFGQuaternion(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
+    The default convention for EFG tensors is the NQR one (|Vxx| ≤ |Vyy| ≤ |Vzz|).
+    This is different from the default convention for MS tensors (Haeberlen).
+    You can change this by specifying the 'order' parameter.
+
     | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    |   order (str):  Order to use for eigenvalues/eigenvectors. Can
+    |                 be 'i' (ORDER_INCREASING), 'd'
+    |                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+    |                 'n' (ORDER_NQR). Default is 'n'.
 
     | Returns:
-    |   ms_quat (np.ndarray): list of quaternions
+    |   efg_quat (list): list of quaternions
 
     """
 
     default_name = "efg_quats"
-    default_params = {"force_recalc": False}
+    default_params = {"order": NMRTensor.ORDER_NQR}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
-
-        if not s.has(EFGDiagonal.default_name + "_evecs") or force_recalc:
-            EFGDiagonal.get(s)
-
-        efg_evecs = s.get_array(EFGDiagonal.default_name + "_evecs")
-
-        return _evecs_2_quat(efg_evecs)
+    def extract(s, order):
+        return [t.quaternion for t in EFGTensor.get(s, order=order)]
