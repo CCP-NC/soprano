@@ -59,8 +59,8 @@ if __name__ == "__main__":
         ],
         keywords=["crystallography", "ccpnc", "computational chemistry"],
         packages=find_packages(),
-        # For data files. Example: 'soprano': ['data/*.json']
-        package_data={"soprano": ["data/*.json"]},
+        # For data files. Example: 'soprano': ['data/*.json'] and matplotlib style files
+        package_data={"soprano": ["data/*.json", "calculate/nmr/*.mplstyle"]},
         entry_points={
             "console_scripts": [
                 "vasp2cell = " "soprano.scripts.vasp2cell:__main__",
