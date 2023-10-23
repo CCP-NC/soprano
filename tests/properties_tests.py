@@ -150,6 +150,7 @@ class TestPropertyLoad(unittest.TestCase):
 
         from soprano.properties.linkage import (
             Bonds,
+            ElementPairs,
             Molecules,
             MoleculeNumber,
             MoleculeMass,
@@ -161,6 +162,7 @@ class TestPropertyLoad(unittest.TestCase):
         )
 
         a = read(os.path.join(_TESTDATA_DIR, "mol_crystal.cif"))
+        ethanol = read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Test bonds
         testAtoms = Atoms(
@@ -174,6 +176,35 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(testBonds[1][:2] == (2, 3))
         self.assertTrue(np.all(testBonds[0][2] == (-1, 0, 0)))
         self.assertAlmostEqual(testBonds[0][3], 2 * testBonds[1][3])
+
+        # Test element pairs
+        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=True)
+        self.assertTrue(testpairs[0] == (7, 8)) # The closest C-O pair
+        self.assertTrue(testpairs[1] == (6, 8)) # The other C-O pair
+        self.assertTrue(testdists[0] < testdists[1])
+        # there are only two C-O pairs
+        self.assertTrue(len(testdists) == 2)
+        # Test the return_pairs=False option
+        testdists = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=False)
+        self.assertTrue(len(testdists) == 2)
+        self.assertAlmostEqual(testdists[0], 1.428537, 6)
+        self.assertAlmostEqual(testdists[1], 2.448431, 6)
+
+        # what if we set the same element for both?
+        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='C', return_pairs=True)
+
+        # correctly raise exception if element not present
+        with self.assertRaises(ValueError) as context:
+            testdists, testpairs = ElementPairs.get(ethanol, element1 ='O', element2='P', return_pairs=True)
+            testdists, testpairs = ElementPairs.get(ethanol, element1 ='P', element2='O', return_pairs=True)
+
+        # Test force certain size return pairs
+        # less than total number of pairs
+        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=True, maxsize=1)
+        self.assertTrue(len(testdists) == 1)
+        # more than total number of pairs
+        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=True, maxsize=3)
+        self.assertTrue(len(testdists) == 2)
 
         # Also test coordination histogram
         coord_hist = CoordinationHistogram.get(a)
