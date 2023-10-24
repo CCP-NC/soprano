@@ -25,6 +25,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
+import warnings
 import numpy as np
 from collections import namedtuple
 from soprano.properties.nmr import (
@@ -54,7 +55,15 @@ nuclei {nuclei}
 
 
 def write_spinsys(
-    s, isotope_list=None, use_ms=False, ms_iso=False, q_order=0, dip_sel=None, path=None
+    s,
+    isotope_list=None,
+    use_ms=False,
+    ms_iso=False,
+    q_order=0,
+    dip_sel=None,
+    path=None,
+    ref={},
+    grad=-1.0,
 ):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
@@ -79,6 +88,20 @@ def write_spinsys(
     |                            between atoms belonging to this set.
     |   path (str): path to save the newly created file to. If not provided,
     |               the contents will be simply returned as a string.
+    |   ref (dict): dictionary of reference values for the calculation. This
+    |               is used to convert from raw shielding values to chemical
+    |               shifts. The dictionary should be in the form
+    |               {element: value}, where value is the reference shielding
+    |               for that element in ppm.
+    |   grad (float|dict|list): gradient to use when converting from raw
+    |                           shielding values to chemical shifts. If a
+    |                           float is provided, it will be used for all
+    |                           elements. If a dictionary is provided, it
+    |                           should be in the form {element: value}, where
+    |                           value is the gradient for that element. If a
+    |                           list is provided, it should be have one value
+    |                           per site. Defaults to a gradient of -1.0 for
+    |                           all elements.
 
     | Returns:
     |   file_contents (str): spinsys file in string format. Only returned if
@@ -105,8 +128,15 @@ def write_spinsys(
     ms_block = ""
 
     if use_ms:
-
-        msiso = MSIsotropy.get(s)
+        if not ref:
+            warnings.warn(
+                "No reference values provided for the calculation of "
+                "chemical shifts. Assuming all zero."
+                "To avoid this warning, provide a dictionary of the form "
+                "{element: value}, where value is the reference shielding "
+                "for that element in ppm."
+            )
+        msiso = MSIsotropy.get(s, ref=ref, grad=grad)
         if not ms_iso:
             msaniso = MSReducedAnisotropy.get(s)
             msasymm = MSAsymmetry.get(s)
@@ -261,7 +291,6 @@ class SimpsonSequence:
     """
 
     def __init__(self, spinsys_source):
-
         self.spinsys_source = spinsys_source
 
         self.pars = {
