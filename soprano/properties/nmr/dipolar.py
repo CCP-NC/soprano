@@ -106,8 +106,9 @@ class DipolarCoupling(AtomsProperty):
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size, isonuclear):
-
+    def extract(
+        s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size, isonuclear
+    ):
         # Selections
         if sel_i is None:
             sel_i = AtomSelection.all(s)
@@ -222,6 +223,8 @@ class DipolarTensor(AtomsProperty):
     |   rotation_axis (np.ndarray): if present, return the residual dipolar
     |                               tensors after fast averaging around the
     |                               given axis. Default is None.
+    |   isonuclear (bool): if True, only compute couplings between nuclei of
+    |                      the same element. Default is False.
 
     | Returns:
     |   dip_dict (dict): Dictionary of `NMRTensor` objects in Hz by atomic index pair.
@@ -237,6 +240,7 @@ class DipolarTensor(AtomsProperty):
         "self_coupling": False,
         "block_size": 1000,
         "rotation_axis": None,
+        "isonuclear": False,
     }
 
     @staticmethod
@@ -249,8 +253,8 @@ class DipolarTensor(AtomsProperty):
         self_coupling,
         block_size,
         rotation_axis,
+        isonuclear,
     ):
-
         dip_dict = DipolarCoupling.extract(
             s,
             sel_i=sel_i,
@@ -259,6 +263,7 @@ class DipolarTensor(AtomsProperty):
             isotope_list=isotope_list,
             self_coupling=self_coupling,
             block_size=block_size,
+            isonuclear=isonuclear,
         )
 
         # Now build the tensors
@@ -302,6 +307,8 @@ class DipolarDiagonal(AtomsProperty):
     |   block_size (int): maximum size of blocks used when processing large
     |                     chunks of pairs. Necessary to avoid memory problems
     |                     for very large systems. Default is 1000.
+    |   isonuclear (bool): if True, only compute couplings between nuclei of
+    |                      the same element. Default is False.
 
     | Returns:
     |   dip_tens_dict (dict): Dictionary of dipolar eigenvalues (in Hz) and
@@ -317,21 +324,29 @@ class DipolarDiagonal(AtomsProperty):
         "isotope_list": None,
         "self_coupling": False,
         "block_size": 1000,
+        "isonuclear": False,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size):
-
+    def extract(
+        s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size, isonuclear
+    ):
         # First, just get the values
         dip_dict = DipolarCoupling.extract(
-            s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size
+            s,
+            sel_i,
+            sel_j,
+            isotopes,
+            isotope_list,
+            self_coupling,
+            block_size,
+            isonuclear,
         )
 
         # Now build the tensors
         dip_tens_dict = {}
 
         for ij, (d, v) in dip_dict.items():
-
             evals = np.array([-d, -d, 2 * d])
             # Eigenvectors
             evecs = np.zeros((3, 3))
@@ -387,7 +402,6 @@ class DipolarRSS(AtomsProperty):
 
     @staticmethod
     def extract(s, cutoff, isonuclear, isotopes, isotope_list):
-
         # Supercell size
         scell_shape = minimum_supcell(cutoff, s.get_cell())
         _, scell = supcell_gridgen(s.get_cell(), scell_shape)
@@ -400,7 +414,6 @@ class DipolarRSS(AtomsProperty):
         dip_rss = []
 
         for i, el in enumerate(elems):
-
             # Distances?
             if not isonuclear:
                 rij = pos.copy()
@@ -419,7 +432,7 @@ class DipolarRSS(AtomsProperty):
                 pass
 
             dip = _dip_constant(Rij, gammas[i], gj)
-            dip_rss.append(np.sqrt(np.sum(dip ** 2)))
+            dip_rss.append(np.sqrt(np.sum(dip**2)))
 
         return np.array(dip_rss)
 
