@@ -23,7 +23,6 @@ sys.path.insert(
 
 class TestSymmetry(unittest.TestCase):
     def test_symdataset(self):
-
         from soprano.properties.symmetry import SymmetryDataset
 
         # Create atoms objects according to a given symmetry group, check
@@ -41,7 +40,6 @@ class TestSymmetry(unittest.TestCase):
         self.assertTrue(symdata["international"] == "P-1")
 
     def test_wyckoff(self):
-
         from soprano.properties.symmetry import WyckoffPoints
         from soprano.utils import minimum_supcell, supcell_gridgen
 
@@ -61,7 +59,7 @@ class TestSymmetry(unittest.TestCase):
 
             def field(self, r):
                 dz = (self.p - r) / self.s
-                return np.sum(np.exp(-0.5 * np.sum(dz ** 2, axis=1)))
+                return np.sum(np.exp(-0.5 * np.sum(dz**2, axis=1)))
 
         gtest = GaussField(si2)
 

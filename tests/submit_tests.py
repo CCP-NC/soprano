@@ -24,7 +24,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestSubmit(unittest.TestCase):
     def test_queueint(self):
-
         from soprano.hpc.submitter import QueueInterface
 
         # Clean up the mock queue for any eventuality
@@ -57,7 +56,6 @@ class TestSubmit(unittest.TestCase):
 
 
 if __name__ == "__main__":
-
     # For this to work we need to be sure that all files in _TESTCMD_DIR
     # are executable
     mockfiles = ["mocksub.py", "mocklist.py", "mockkill.py"]

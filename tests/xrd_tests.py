@@ -25,7 +25,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestXRDCalculator(unittest.TestCase):
     def test_func_interface(self):
-
         from soprano.calculate import xrd
 
         xr = xrd.XRDCalculator()
@@ -73,7 +72,6 @@ class TestXRDCalculator(unittest.TestCase):
             self.fail("Good function not accepted")
 
     def test_powder_peaks(self):
-
         from soprano.calculate import xrd
 
         xr = xrd.XRDCalculator()
@@ -86,7 +84,6 @@ class TestXRDCalculator(unittest.TestCase):
         self.assertTrue(len(peaks_nosym.theta2) >= len(peaks_sym.theta2))
 
     def test_lebail_fit(self):
-
         from soprano.calculate import xrd
         from soprano.calculate.xrd.xrd import XraySpectrum
 
@@ -118,7 +115,6 @@ class TestXRDCalculator(unittest.TestCase):
 
 class TestXRDRules(unittest.TestCase):
     def test_sel_rules(self):
-
         from soprano.calculate import xrd
 
         # Load the data from Colan's reference file

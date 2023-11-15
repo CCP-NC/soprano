@@ -26,14 +26,12 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestPropertyLoad(unittest.TestCase):
     def test_dummyprop(self):
-
         from soprano.properties import AtomsProperty
         from soprano.collection import AtomsCollection
 
         # Define a dummy derived property and test it
 
         class DummyProperty(AtomsProperty):
-
             default_name = "dummy"
             default_params = {"mul": 2.0}
 
@@ -67,7 +65,6 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(np.all(DummyProperty.get(c1, mul=3) == [3, 6]))
 
     def test_basicprop(self):
-
         from soprano.utils import cart2abc
         from soprano.properties.basic import LatticeCart, LatticeABC
 
@@ -83,7 +80,6 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(np.all(degLatt(a) == ans))
 
     def test_propertymap(self):
-
         from soprano.collection import AtomsCollection
         from soprano.properties.basic import NumAtoms
 
@@ -95,59 +91,68 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue((num_atoms == num_atoms_prop).all)
 
     def test_remap(self):
-
         from soprano.properties.map import RemapIndices, Remap
 
         # Create a test reference structure
-        ref = bulk('Au', cubic=True)
+        ref = bulk("Au", cubic=True)
         # label the 4 atoms a,b,c,d
-        ref.set_array('ref_labels', np.array(['a', 'b', 'c', 'd']))
-        shuffle   = [3,0,2,1]
-        unshuffle = [1,3,2,0]
+        ref.set_array("ref_labels", np.array(["a", "b", "c", "d"]))
+        shuffle = [3, 0, 2, 1]
+        unshuffle = [1, 3, 2, 0]
         # shuffle the order and store as s1 atoms object
         s1 = ref[shuffle]
 
         # Rattle the atoms a bit
         rng = np.random.default_rng(0)
-        s1.positions += (rng.random((4,3))-0.5)/10.0
+        s1.positions += (rng.random((4, 3)) - 0.5) / 10.0
 
         # Test naive remapping
-        indices = RemapIndices.extract(s1, ref, mic=False, check_species=True, tolerance=1.0)
+        indices = RemapIndices.extract(
+            s1, ref, mic=False, check_species=True, tolerance=1.0
+        )
         # indices should be those needed to 'unshuffle' s1 back to ref ordering
         self.assertTrue(all([i == j for (i, j) in zip(unshuffle, indices)]))
 
         # Test using minimum image convention instead
-        indices = RemapIndices.extract(s1, ref, mic=True, check_species=True, tolerance=1.0)
+        indices = RemapIndices.extract(
+            s1, ref, mic=True, check_species=True, tolerance=1.0
+        )
         # indices should be those needed to 'unshuffle' s1 back to ref ordering
         self.assertTrue(all([i == j for (i, j) in zip(unshuffle, indices)]))
 
         # since they're all the same, we can switch off the check_species
-        indices = RemapIndices.extract(s1, ref, mic=True, check_species=False, tolerance=1.0)
+        indices = RemapIndices.extract(
+            s1, ref, mic=True, check_species=False, tolerance=1.0
+        )
         self.assertTrue(all([i == j for (i, j) in zip(unshuffle, indices)]))
 
         # Now the remapping itself
         s2 = Remap.extract(s1, ref, mic=True, check_species=True, tolerance=1.0)
         self.assertTrue((s2.positions == s1[unshuffle].positions).all())
-        self.assertTrue((s2.get_array('ref_labels') == ref.get_array('ref_labels')).all())
+        self.assertTrue(
+            (s2.get_array("ref_labels") == ref.get_array("ref_labels")).all()
+        )
 
         # Now test that a tight tolerance catches the slight mismatch
         with self.assertRaises(Exception) as context:
-            indices = RemapIndices.extract(s1, ref, mic=True, check_species=True, tolerance=0.01)
-        self.assertTrue('are not within the tolerance distance' in str(context.exception))
+            indices = RemapIndices.extract(
+                s1, ref, mic=True, check_species=True, tolerance=0.01
+            )
+        self.assertTrue(
+            "are not within the tolerance distance" in str(context.exception)
+        )
 
         # Add in a different species almost on top of atom 0
         # and check that it fails unless check species is True
-        ref.append(Atom('H', position=ref[0].position + 0.00001))
-        s1.append( Atom('H', position=ref[1].position + 0.00001))
-        # Make sure the output 
+        ref.append(Atom("H", position=ref[0].position + 0.00001))
+        s1.append(Atom("H", position=ref[1].position + 0.00001))
+        # Make sure the output
         s2 = Remap.extract(s1, ref, mic=True, check_species=False, tolerance=5.0)
         self.assertFalse(all(ref.symbols == s2.symbols))
         s2 = Remap.extract(s1, ref, mic=True, check_species=True, tolerance=5.0)
         self.assertTrue(all(ref.symbols == s2.symbols))
 
-
     def test_linkageprops(self):
-
         from soprano.properties.linkage import (
             Bonds,
             ElementPairs,
@@ -178,32 +183,46 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertAlmostEqual(testBonds[0][3], 2 * testBonds[1][3])
 
         # Test element pairs
-        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=True)
-        self.assertTrue(testpairs[0] == (7, 8)) # The closest C-O pair
-        self.assertTrue(testpairs[1] == (6, 8)) # The other C-O pair
+        testdists, testpairs = ElementPairs.get(
+            ethanol, element1="C", element2="O", return_pairs=True
+        )
+        self.assertTrue(testpairs[0] == (7, 8))  # The closest C-O pair
+        self.assertTrue(testpairs[1] == (6, 8))  # The other C-O pair
         self.assertTrue(testdists[0] < testdists[1])
         # there are only two C-O pairs
         self.assertTrue(len(testdists) == 2)
         # Test the return_pairs=False option
-        testdists = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=False)
+        testdists = ElementPairs.get(
+            ethanol, element1="C", element2="O", return_pairs=False
+        )
         self.assertTrue(len(testdists) == 2)
         self.assertAlmostEqual(testdists[0], 1.428537, 6)
         self.assertAlmostEqual(testdists[1], 2.448431, 6)
 
         # what if we set the same element for both?
-        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='C', return_pairs=True)
+        testdists, testpairs = ElementPairs.get(
+            ethanol, element1="C", element2="C", return_pairs=True
+        )
 
         # correctly raise exception if element not present
         with self.assertRaises(ValueError) as context:
-            testdists, testpairs = ElementPairs.get(ethanol, element1 ='O', element2='P', return_pairs=True)
-            testdists, testpairs = ElementPairs.get(ethanol, element1 ='P', element2='O', return_pairs=True)
+            testdists, testpairs = ElementPairs.get(
+                ethanol, element1="O", element2="P", return_pairs=True
+            )
+            testdists, testpairs = ElementPairs.get(
+                ethanol, element1="P", element2="O", return_pairs=True
+            )
 
         # Test force certain size return pairs
         # less than total number of pairs
-        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=True, maxsize=1)
+        testdists, testpairs = ElementPairs.get(
+            ethanol, element1="C", element2="O", return_pairs=True, maxsize=1
+        )
         self.assertTrue(len(testdists) == 1)
         # more than total number of pairs
-        testdists, testpairs = ElementPairs.get(ethanol, element1 ='C', element2='O', return_pairs=True, maxsize=3)
+        testdists, testpairs = ElementPairs.get(
+            ethanol, element1="C", element2="O", return_pairs=True, maxsize=3
+        )
         self.assertTrue(len(testdists) == 2)
 
         # Also test coordination histogram
@@ -244,8 +263,11 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(hbn["OH..O"] == 0)
 
     def test_labelprops(self):
-
-        from soprano.properties.labeling import MoleculeSites, HydrogenBondTypes, UniqueSites
+        from soprano.properties.labeling import (
+            MoleculeSites,
+            HydrogenBondTypes,
+            UniqueSites,
+        )
         from collections import OrderedDict
 
         a = read(os.path.join(_TESTDATA_DIR, "nh3.cif"))
@@ -271,27 +293,27 @@ class TestPropertyLoad(unittest.TestCase):
         a = read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
         tagged_sites = UniqueSites.get(a, symprec=1e-3)
         max_tag = max(tagged_sites)
-        # Z = 4 for this molecule, so we should have 4 copies of each 
-        # site. 
+        # Z = 4 for this molecule, so we should have 4 copies of each
+        # site.
         self.assertEqual(len(tagged_sites) / len(set(tagged_sites)), 4)
-        
+
         # Now we make sure that
-        # the symmetry-unique sites that remain are those we 
+        # the symmetry-unique sites that remain are those we
         # would expect based on the existing CIF labels.
-        
+
         # get indices of unique cif labels using OrderedDict
-        unique_sites = [np.argmax(np.array(tagged_sites)==i) for i in range(max_tag+1)]
-        labels = a.get_array('labels')
+        unique_sites = [
+            np.argmax(np.array(tagged_sites) == i) for i in range(max_tag + 1)
+        ]
+        labels = a.get_array("labels")
         unique_cif_labels = list(OrderedDict.fromkeys(labels))
         # take first match of each unique cif label
-        sel_i_cif = [np.argmax(np.array(labels)==i) for i in unique_cif_labels]
+        sel_i_cif = [np.argmax(np.array(labels) == i) for i in unique_cif_labels]
         # test that they all match
         all_matched = all(np.array(unique_sites) == np.array(sel_i_cif))
         self.assertTrue(all_matched)
 
-
     def test_transformprops(self):
-
         from ase.quaternions import Quaternion
         from soprano.selection import AtomSelection
         from soprano.properties.transform import Translate, Rotate, Mirror

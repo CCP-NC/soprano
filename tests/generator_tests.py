@@ -30,7 +30,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestGenerate(unittest.TestCase):
     def test_airss(self):
-
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import airssGen
 
@@ -45,9 +44,7 @@ class TestGenerate(unittest.TestCase):
         except RuntimeError as e:
             if "Invalid output" in str(e):
                 sys.stdout = _stdout
-                print(
-                    "WARNING - AIRSS' buildcell seems to have failed to run"
-                    )
+                print("WARNING - AIRSS' buildcell seems to have failed to run")
                 return
             if "Buildcell" in str(e):
                 sys.stdout = _stdout
@@ -69,7 +66,6 @@ class TestGenerate(unittest.TestCase):
         )
 
     def test_linspace(self):
-
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import linspaceGen
 
@@ -98,7 +94,6 @@ class TestGenerate(unittest.TestCase):
         )
 
     def test_rattle(self):
-
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import rattleGen
 
@@ -119,7 +114,6 @@ class TestGenerate(unittest.TestCase):
         self.assertTrue(np.all(np.abs((rpos - pos)[:, 1, 1]) <= 0.02))
 
     def test_defect(self):
-
         from soprano.utils import minimum_periodic
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import defectGen
@@ -142,17 +136,16 @@ class TestGenerate(unittest.TestCase):
         self.assertTrue(holds)
 
     def test_substitution_defect(self):
-            
         from soprano.collection import AtomsCollection
         from soprano.selection import AtomSelection
         from soprano.collection.generate import substitutionGen
         import itertools
 
         # make an alloy
-        atoms = bulk('Al', 'fcc') * (3,3,3) # 27 Al atoms
+        atoms = bulk("Al", "fcc") * (3, 3, 3)  # 27 Al atoms
         # All Al-Al bonds are 2.864 Angstroms
 
-        alsel = AtomSelection.from_element(atoms, 'Al')
+        alsel = AtomSelection.from_element(atoms, "Al")
 
         def _min_sep(s, subs):
             # return true if all the subs are at least 3.0 Angstroms apart
@@ -178,9 +171,7 @@ class TestGenerate(unittest.TestCase):
         # so we actually end up with 387 possible configurations:
         self.assertEqual(len(sColl), 387)
 
-
     def test_molneigh(self):
-
         from soprano.properties.linkage import Molecules
         from soprano.collection.generate import molecularNeighbourhoodGen
 
@@ -203,7 +194,7 @@ class TestGenerate(unittest.TestCase):
             all_neigh[0].info["neighbourhood_info"]["molecule_distance"], 0
         )
         self.assertAlmostEqual(
-            all_neigh[1].info["neighbourhood_info"]["molecule_distance"], 3 ** 1.5
+            all_neigh[1].info["neighbourhood_info"]["molecule_distance"], 3**1.5
         )
 
         mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5, method="nearest")

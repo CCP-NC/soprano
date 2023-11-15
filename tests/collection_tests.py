@@ -27,7 +27,6 @@ _TESTSAVE_DIR = os.path.join(_TEST_DIR, "test_save")
 
 class TestCollection(unittest.TestCase):
     def test_save(self):
-
         from soprano.collection import AtomsCollection
 
         # Test saving and loading collection
@@ -44,7 +43,6 @@ class TestCollection(unittest.TestCase):
         os.remove(outf)
 
     def test_loadres(self):
-
         from soprano.collection import AtomsCollection
 
         # Load some test files and check if regular loading works
@@ -58,7 +56,6 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(testcoll.length, len(reslist))
 
     def test_arrays(self):
-
         from soprano.collection import AtomsCollection
 
         # Generate a few random structures
@@ -86,7 +83,6 @@ class TestCollection(unittest.TestCase):
         self.assertTrue(np.all(testcoll.get_array("testarr") == arr))
 
     def test_calculator(self):
-
         from ase.calculators.lj import LennardJones
         from soprano.collection import AtomsCollection
 
@@ -120,7 +116,6 @@ class TestCollection(unittest.TestCase):
         self.assertTrue(not np.isnan(energies).any())
 
     def test_sum(self):
-
         from soprano.collection import AtomsCollection
 
         # Generate a few random structures
@@ -150,7 +145,6 @@ class TestCollection(unittest.TestCase):
         self.assertTrue("".join(testcoll.get_array("joint")) == "test")
 
     def test_chunks(self):
-
         from soprano.collection import AtomsCollection
 
         full_len = 10
@@ -184,7 +178,6 @@ class TestCollection(unittest.TestCase):
         self.assertEqual(len(chunks), chunk_n)
 
     def test_sorting(self):
-
         from soprano.collection import AtomsCollection
 
         # Generate a few structures
@@ -204,7 +197,6 @@ class TestCollection(unittest.TestCase):
         self.assertTrue(np.all(testcoll.get_array("sorted") == range(struct_n, 0, -1)))
 
     def test_slices(self):
-
         from soprano.collection import AtomsCollection
 
         aselist = [Atoms("C"), Atoms("C"), Atoms("H"), Atoms("C")]
@@ -220,7 +212,6 @@ class TestCollection(unittest.TestCase):
         self.assertTrue(all([f == "H" for f in coll_b.all.get_chemical_formula()]))
 
     def test_tree(self):
-
         from soprano.collection import AtomsCollection
 
         aselist = [Atoms("C"), Atoms("H"), Atoms("N"), Atoms("O")]

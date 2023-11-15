@@ -23,7 +23,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestGenes(unittest.TestCase):
     def test_coordhist(self):
-
         from soprano.collection import AtomsCollection
         from soprano.analyse.phylogen import Gene
 

@@ -39,7 +39,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestNMR(unittest.TestCase):
     def test_shielding(self):
-
         eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Load the data calculated with MagresView
@@ -68,7 +67,6 @@ class TestNMR(unittest.TestCase):
             )
 
     def test_efg(self):
-
         eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Load the data calculated with MagresView
@@ -119,15 +117,13 @@ class TestNMR(unittest.TestCase):
         NQR_vals = [v for v in NQR[-1].values()]
         NQR_keys = [k for k in NQR[-1].keys()]
         # the first is 0.5 -> 1.5
-        self.assertTrue(NQR_keys[0] == 'm=0.5->1.5')
+        self.assertTrue(NQR_keys[0] == "m=0.5->1.5")
         # the first is 1.5 -> 2.5
-        self.assertTrue(NQR_keys[1] == 'm=1.5->2.5')
+        self.assertTrue(NQR_keys[1] == "m=1.5->2.5")
         # the ratio bewtween the two transion frequencies should 2 in this case
         self.assertAlmostEqual(NQR_vals[1] / NQR_vals[0], 2.0)
 
-
     def test_dipolar(self):
-
         eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
         # Load the data calculated with MagresView
@@ -173,8 +169,7 @@ class TestNMR(unittest.TestCase):
             self.assertTrue(np.isclose(np.sort(evals), np.sort(evalstt)).all())
             self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij].data, v]), 2 * d)
 
-    def test_tensor_basic(self):
-
+    def test_tensor(self):
         eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
         ms = eth.get_array("ms")
 
@@ -189,7 +184,6 @@ class TestNMR(unittest.TestCase):
         diag = [np.linalg.eigh((m + m.T) / 2.0) for m in ms]
 
         for i in range(len(eth)):
-
             ms_tens = NMRTensor(ms[i])
             evals, evecs = diag[i]
 
