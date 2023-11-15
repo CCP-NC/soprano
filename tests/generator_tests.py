@@ -168,8 +168,8 @@ class TestGenerate(unittest.TestCase):
 
         # Check that all the substitutions are at least 3.0 Angstroms apart
         for s in sColl:
-            self.assertTrue(_min_sep(s, [atom.index for atom in s if atom.symbol == 'Sn']))
-        
+            self.assertTrue(_min_sep(s, AtomSelection.from_element(s, "Sn").indices))
+
         # check that we generate the correct number of possible configurations
         # the total number of possible configurations is 27 choose 3
         # (27! / (3! * (27-3)!)) = 2925
