@@ -40,27 +40,29 @@ from soprano.utils import has_cif_labels
 import pandas as pd
 import logging
 import click_log
-from soprano.scripts.cli_utils import \
-                                    add_options,\
-                                    DIPOLAR_OPTIONS, \
-                                    NO_CIF_LABEL_WARNING, \
-                                    get_missing_cols,\
-                                    get_matching_cols,\
-                                    print_results,\
-                                    find_XHn_groups,\
-                                    sortdf,\
-                                    viewimages, \
-                                    apply_df_filtering
-HEADER = '''
-@click_log.simple_verbosity_option(logger)
+from soprano.scripts.cli_utils import (
+    add_options,
+    DIPOLAR_OPTIONS,
+    NO_CIF_LABEL_WARNING,
+    get_missing_cols,
+    get_matching_cols,
+    print_results,
+    find_XHn_groups,
+    sortdf,
+    viewimages,
+    apply_df_filtering,
+    units_rename,
+)
+
+HEADER = """
 ##################################################
 #  Extracting Dipolar couplingsfrom magres file  #
-'''
-FOOTER = '''
+"""
+FOOTER = """
 #  End of dipolar coupling extraction            #
 ##################################################
 
-'''
+"""
 
 
 # logging
@@ -221,6 +223,11 @@ def dipolar(
         dfs = [pd.concat(dfs, axis=0)]
     for i, df in enumerate(dfs):
         dfs[i] = sortdf(df, sortby, sort_order)
+
+    # rename columns to include units for those that have units
+    for df in dfs:
+        df.rename(columns=units_rename, inplace=True)
+
     # write to file(s)
     print_results(dfs, output, output_format, verbosity > 0)
 
