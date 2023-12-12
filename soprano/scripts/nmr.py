@@ -607,7 +607,7 @@ def get_ms_summary(
         gradients (dict, optional): the gradient tensors. Defaults to None. e.g. {'C': -1}
 
     Returns:
-        pd.DataFrame: a dataframe with the summary of the ms tensors
+        dict: a dictionary with the summary of the ms tensors
     """
     # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
     iso = MSIsotropy.get(atoms)
@@ -645,7 +645,7 @@ def get_efg_summary(
     atoms: Atoms,
     isotopes: dict,
     euler_convention: str,
-) -> pd.DataFrame:
+) -> dict:
     """
     For an Atoms object with EFG tensor arrays, return a summary of the tensors.
 
@@ -655,7 +655,7 @@ def get_efg_summary(
         euler_convention (str): the euler convention to use
 
     Returns:
-        pd.DataFrame: a dataframe with the summary of the EFG tensors
+        dict: a dictionary with the summary of the EFG tensors
 
     """
     Vzz = EFGVzz.get(atoms)
