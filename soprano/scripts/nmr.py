@@ -101,7 +101,6 @@ def nmr(
     gradients={},
     reduce=True,
     average_group=None,
-    combine_rule="mean",
     symprec=1e-4,
     properties=["efg", "ms"],
     precision=3,
@@ -332,15 +331,6 @@ def nmr_extract_atoms(
         atoms (Atoms): the (subset of the) Atoms object with the extracted data.
     """
 
-    all_selections = AtomSelection.all(atoms)
-    # select subset of atoms based on selection string
-    if subset:
-        logger.info(f"\nSelecting atoms based on selection subset string: {subset}")
-        sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
-        all_selections *= sel_selectionstring
-        logger.debug(f"    Selected atoms: {all_selections.indices}")
-        ## apply selection string to atoms object
-        atoms = all_selections.subset(atoms)
 
     # create new array for multiplicity
     multiplicity = np.ones(len(atoms))
@@ -381,6 +371,18 @@ def nmr_extract_atoms(
 
     if average_group:
         atoms = tag_functional_groups(average_group, atoms, vdw_scale=1.0)
+    
+    
+    all_selections = AtomSelection.all(atoms)
+    # select subset of atoms based on selection string
+    if subset:
+        logger.info(f"\nSelecting atoms based on selection subset string: {subset}")
+        sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
+        all_selections *= sel_selectionstring
+        logger.debug(f"    Selected atoms: {all_selections.indices}")
+        ## apply selection string to atoms object
+        atoms = all_selections.subset(atoms)
+    
     atoms = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
 
     return atoms
