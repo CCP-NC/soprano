@@ -25,7 +25,9 @@ from tempfile import NamedTemporaryFile
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 )  # noqa
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
+_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+_TESTDATA_DIR = os.path.join(_TEST_DIR, "test_data")
+_TESTSAVE_DIR = os.path.join(_TEST_DIR, "test_save")
 
 
 class TestCLI(unittest.TestCase):
@@ -95,6 +97,39 @@ class TestCLI(unittest.TestCase):
     #     invalid_option_error = "Error: no such option: -x"
     #     self.assertEqual(result.output.split('\n')[-2], invalid_option_error)
     #     self.assertEqual(result.exit_code, 2)
+
+    def test_molecules_zeolite(self):
+        # Test that the splitmols command works on a zeolite with a single molecule
+        # in the pore
+        # - i.e. it should split into two atoms objects, one for the framework and
+        # one for the molecule
+        runner = CliRunner()
+        fname = os.path.join(_TESTDATA_DIR, "ZSM-5_withH2O.cif")
+        # this will generate two output files, one for the framework and one for the molecule
+
+        option_flags = ["-o", _TESTSAVE_DIR, "-f", "cif", "--vdw-scale", "1.3"]
+        result = runner.invoke(
+            soprano, ["splitmols", fname] + option_flags, prog_name="splitmols"
+        )
+        # all went smoothly?
+        self.assertEqual(result.exit_code, 0)
+
+        # there should be a warning about the lack of CH bonds:
+        self.assertEqual(
+            result.output.split("\n")[0],
+            "warning: No C-H bonds found in the structure. Are you sure this is a molecular crystal?",
+        )
+
+        # read in expected files:
+        framework = io.read(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_0.cif"))
+        molecule = io.read(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_1.cif"))
+        # check the number of atoms in each
+        self.assertEqual(len(framework), 288)
+        self.assertEqual(len(molecule), 3)
+
+        # remove the files if they exist
+        os.remove(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_0.cif"))
+        os.remove(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_1.cif"))
 
 
 if __name__ == "__main__":

@@ -202,7 +202,10 @@ class AtomSelection(object):
 
         if use_cell_indices and subset.has("cell_indices"):
             ijk = subset.get_array("cell_indices")
-            subset.set_scaled_positions(subset.get_scaled_positions() + ijk)
+            # this can mess things up if all ijk are zero
+            # Since in this case, the effect should be nothing, let's skip it
+            if np.any(ijk):
+                subset.set_scaled_positions(subset.get_scaled_positions() + ijk)
 
         return subset
 

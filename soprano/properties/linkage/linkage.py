@@ -35,7 +35,7 @@ from soprano.utils import (
     all_periodic,
     get_bonding_graph,
 )
-from soprano.data import vdw_radii
+from soprano.data import build_custom_vdw
 
 
 def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
@@ -44,11 +44,7 @@ def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     # First, we need the biggest Van der Waals radius
     # So that we know how big the supercell needs to be
 
-    # Build a custom VdW set
-    vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
-    vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
-    for el, r in vdw_custom.items():
-        vdw_r[atomic_numbers[el]] = r
+    vdw_r = build_custom_vdw(vdw_set, vdw_scale, default_vdw, vdw_custom)
 
     vdw_vals = vdw_r[s.get_atomic_numbers()]
     vdw_max = max(vdw_vals)
@@ -1025,10 +1021,7 @@ class HydrogenBonds(AtomsProperty):
         bond_atoms_pos = s.get_positions()[bond_atoms]
         # Van der Waals radii length of H-atom bonds
 
-        vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
-        vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
-        for el, r in vdw_custom.items():
-            vdw_r[atomic_numbers[el]] = r
+        vdw_r = build_custom_vdw(vdw_set, vdw_scale, default_vdw, vdw_custom)
 
         bonds_vdw = vdw_r[s.get_atomic_numbers()[bond_atoms]]
         bonds_vdw = (bonds_vdw + vdw_r[1]) / 2.0

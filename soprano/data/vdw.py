@@ -73,3 +73,14 @@ def vdw_radius(el, vdwset="csd"):
         raise ValueError("Invalid element symbol")
 
     return vdw_radii[vdwset][Z]
+
+
+def build_custom_vdw(vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
+    """Build a custom VdW set"""
+
+    vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
+    vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
+    for el, r in vdw_custom.items():
+        vdw_r[atomic_numbers[el]] = r
+
+    return vdw_r

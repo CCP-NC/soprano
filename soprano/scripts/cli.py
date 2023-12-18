@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-'''Click command line interface for Soprano.'''
+"""Click command line interface for Soprano."""
 
 
 __author__ = "J. Kane Shenton"
@@ -24,7 +24,7 @@ __date__ = "June 21, 2023"
 
 
 import click
-from soprano.scripts import  nmr, nmr_plot, dipolar
+from soprano.scripts import nmr, nmr_plot, dipolar, molecules
 import logging
 import click_log
 # logging
@@ -40,20 +40,21 @@ A CLI tool to streamline common soprano tasks. It has various
 subcommands, each of which has its own set of options and help.
 """
 
+
 @click.group(
     name="Soprano Command Line Interface",
-    help=help_text, epilog=epilog,
-    invoke_without_command=True)
-    
-
+    help=help_text,
+    epilog=epilog,
+    invoke_without_command=True,
+)
 @click_log.simple_verbosity_option(logger)
-
 def soprano():
     pass
 
 soprano.add_command(nmr.nmr)
 soprano.add_command(nmr_plot.plotnmr)
 soprano.add_command(dipolar.dipolar)
+soprano.add_command(molecules.splitmols)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     soprano()
