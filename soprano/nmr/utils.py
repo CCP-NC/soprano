@@ -478,28 +478,28 @@ def _equivalent_relative_euler(euler_angles: np.ndarray, convention: str = "zyz"
             equiv_angles[15,:] = [np.pi + alpha, beta, np.pi + gamma]
         else:
             # --- Active ZXZ --- #
-            equiv_angles[1,:] = [alpha, beta, gamma]
-            equiv_angles[2,:] = [np.pi + alpha, np.pi - beta,2*np.pi - gamma]
-            equiv_angles[3,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[4,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[5,:] = [2*np.pi - alpha,np.pi - beta, np.pi + gamma]
-            equiv_angles[6,:] = [np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[7,:] = [np.pi - alpha, beta,2*np.pi - gamma]
-            equiv_angles[8,:] = [2*np.pi - alpha,np.pi - beta, gamma]
-            equiv_angles[9,:] = [np.pi - alpha,np.pi - beta, np.pi + gamma]
-            equiv_angles[10,:] = [2*np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[11,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
-            equiv_angles[12,:] = [np.pi - alpha,np.pi - beta, gamma]
-            equiv_angles[13,:] = [np.pi + alpha, beta, gamma]
-            equiv_angles[14,:] = [alpha,np.pi - beta,2*np.pi - gamma]
-            equiv_angles[15,:] = [alpha,np.pi - beta,np.pi - gamma]
-            equiv_angles[16,:] = [np.pi + alpha, beta,np.pi + gamma]
+            equiv_angles[0,:] = [alpha, beta, gamma]
+            equiv_angles[1,:] = [np.pi + alpha, np.pi - beta,2*np.pi - gamma]
+            equiv_angles[2,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
+            equiv_angles[3,:] = [alpha, beta, np.pi + gamma]
+            equiv_angles[4,:] = [2*np.pi - alpha,np.pi - beta, np.pi + gamma]
+            equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
+            equiv_angles[6,:] = [np.pi - alpha, beta,2*np.pi - gamma]
+            equiv_angles[7,:] = [2*np.pi - alpha,np.pi - beta, gamma]
+            equiv_angles[8,:] = [np.pi - alpha,np.pi - beta, np.pi + gamma]
+            equiv_angles[9,:] =  [2*np.pi - alpha, beta, np.pi - gamma]
+            equiv_angles[10,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
+            equiv_angles[11,:] = [np.pi - alpha,np.pi - beta, gamma]
+            equiv_angles[12,:] = [np.pi + alpha, beta, gamma]
+            equiv_angles[13,:] = [alpha,np.pi - beta,2*np.pi - gamma]
+            equiv_angles[14,:] = [alpha,np.pi - beta,np.pi - gamma]
+            equiv_angles[15,:] = [np.pi + alpha, beta,np.pi + gamma]
 
 
     # wrap any negative angles
     equiv_angles[equiv_angles < 0] = equiv_angles[equiv_angles < 0] % (2*np.pi)
-    # wrap any values > 2pi
-    equiv_angles[equiv_angles > 2*np.pi] = equiv_angles[equiv_angles > 2*np.pi] % (2*np.pi)
+    # wrap any values >= 2pi
+    equiv_angles[equiv_angles >= 2*np.pi] = equiv_angles[equiv_angles >= 2*np.pi] % (2*np.pi)
     
     
     return equiv_angles
