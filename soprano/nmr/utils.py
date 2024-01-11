@@ -175,6 +175,53 @@ def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
 
     return euler_angles
 
+def _test_euler_rotation(
+        euler_angles: np.ndarray,
+        eigenvalues: np.ndarray,
+        eigenvecs: np.ndarray,
+        convention: str = "zyz",
+        passive: bool = False,
+        eps: float=1e-6)->bool:
+    """
+    Test that the Euler angles correctly rotate the tensor.
+
+    We compare the tensor rotated by the Euler angles to that you get by
+    rotating the tensor with the rotation matrix corresponding to the Euler
+    angles. i.e. 
+
+    PAS = np.diag(eigenvalues)
+    R = Rotation.from_euler(convention, euler_angles).as_matrix()
+    A_rot = np.dot(R, np.dot(PAS, R.T))
+
+    B_rot = np.dot(eigenvecs, np.dot(PAS, eigenvecs.T))
+
+    Args:
+        euler_angles (np.ndarray): Euler angles in radians
+        eigenvalues (np.ndarray): Eigenvalues of the tensor
+        eigenvecs (np.ndarray): Eigenvectors of the tensor
+        convention (str, optional): Euler angle convention. Defaults to "zyz".
+        passive (bool, optional): Whether the angles are passive rotations. Defaults to False.
+        eps (float, optional): Tolerance for degeneracy. Defaults to 1e-6.
+
+    Returns:
+        bool: True if the Euler angles correctly rotate the tensor. False otherwise.
+    """
+
+    PAS = np.diag(eigenvalues)
+    Rot = Rotation.from_euler(convention.upper(), euler_angles)
+    if passive:
+        Rot = Rot.inv()
+    R = Rot.as_matrix()
+    A_rot = np.dot(R, np.dot(PAS, R.T))
+
+    B_rot = np.dot(eigenvecs, np.dot(PAS, np.linalg.inv(eigenvecs).T))
+
+    return np.allclose(A_rot, B_rot, atol=eps)
+
+
+
+
+
 def _handle_euler_edge_cases(
         euler_angles: np.ndarray,
         eigenvalues: np.ndarray,

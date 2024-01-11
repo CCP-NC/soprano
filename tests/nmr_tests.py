@@ -15,6 +15,7 @@ import numpy as np
 from ase import io
 from ase.quaternions import Quaternion
 from soprano.nmr.tensor import NMRTensor
+from soprano.nmr.utils import _test_euler_rotation
 from soprano.properties.nmr import (
     MSIsotropy,
     MSAnisotropy,
@@ -371,6 +372,40 @@ class TestNMR(unittest.TestCase):
         self.assertTrue(np.allclose(euler_d, ref_euler_d))
         self.assertTrue(np.allclose(euler_h, ref_euler_h))
         self.assertTrue(np.allclose(euler_n, ref_euler_n))
+
+        # Check that the tensor is rotated correctly by the Euler angles
+        self.assertTrue(_test_euler_rotation(
+            tc.euler_angles(convention='zyz', passive=False),
+            tc.eigenvalues,
+            tc.eigenvectors,
+            convention='zyz',
+            passive=False,
+        ))
+
+        self.assertTrue(_test_euler_rotation(
+            tc.euler_angles(convention='zyz', passive=True),
+            tc.eigenvalues,
+            tc.eigenvectors,
+            convention='zyz',
+            passive=True,
+        ))
+
+        self.assertTrue(_test_euler_rotation(
+            tc.euler_angles(convention='zxz', passive=False),
+            tc.eigenvalues,
+            tc.eigenvectors,
+            convention='zxz',
+            passive=False,
+        ))
+
+        self.assertTrue(_test_euler_rotation(
+            tc.euler_angles(convention='zxz', passive=True),
+            tc.eigenvalues,
+            tc.eigenvectors,
+            convention='zxz',
+            passive=True,
+        ))
+
 
 
     def test_tensor_euler_edge_cases(self):
