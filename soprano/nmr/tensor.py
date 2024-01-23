@@ -265,7 +265,7 @@ class NMRTensor(object):
         '''
         euler_angles = self.euler_angles(convention, passive)
 
-        return _equivalent_euler(euler_angles, convention=convention, passive=passive)
+        return _equivalent_euler(euler_angles, passive=passive)
     
     def rotation_to(self, other):
         '''
@@ -362,7 +362,7 @@ class NMRTensor(object):
         '''
         euler_angles = self.euler_to(other, convention, passive)
 
-        return _equivalent_relative_euler(euler_angles, convention=convention, passive=passive)
+        return _equivalent_relative_euler(euler_angles, passive=passive)
 
     @staticmethod
     def make_dipolar(

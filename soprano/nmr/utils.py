@@ -409,44 +409,31 @@ def _normalise_euler_angles(euler_angles, passive: bool = False, eps: float = 1e
     return np.array([alpha, beta, gamma])
 
 
-def _equivalent_euler(euler_angles: np.ndarray, convention: str = "zyz", passive: bool = False):
+def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False):
     """
     Find the equivalent Euler angles for a given set of Euler angles.
 
     This set should be correct for NMR tensors, according to 
     TensorView for MATLAB: https://doi.org/10.1016/j.ssnmr.2022.101849
     """
-
-    convention = convention.lower()
+    
     equiv_angles = np.zeros((4, 3))
     
     alpha, beta, gamma = euler_angles
 
     # set the first row of the array to the original Euler angles
     equiv_angles[0] = [alpha, beta, gamma]
-    if convention == "zyz":
-        # the order of these doesn't matter, but has been chosen to match 
-        # that in the TensorView for MATLAB code 
-        # (which is different to that in the corresponding paper)
-        if passive:
-            equiv_angles[1,:] = [np.pi + alpha, beta, gamma]
-            equiv_angles[2,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[3,:] = [2*np.pi - alpha, np.pi - beta,np.pi + gamma]
-        else:
-            equiv_angles[1,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[2,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[3,:] = [np.pi + alpha, np.pi - beta, 2*np.pi - gamma]
-
-    elif convention == "zxz":
-        if passive:
-            equiv_angles[1,:] = [np.pi + alpha, beta, gamma]
-            equiv_angles[2,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[3,:] = [2*np.pi - alpha, np.pi - beta,np.pi + gamma]
-        else:
-            equiv_angles[1,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[2,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[3,:] = [np.pi + alpha, np.pi - beta, 2*np.pi - gamma]
-
+    # the order of these doesn't matter, but has been chosen to match 
+    # that in the TensorView for MATLAB code 
+    # (which is different to that in the corresponding paper)
+    if passive:
+        equiv_angles[1,:] = [np.pi + alpha, beta, gamma]
+        equiv_angles[2,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
+        equiv_angles[3,:] = [2*np.pi - alpha, np.pi - beta,np.pi + gamma]
+    else:
+        equiv_angles[1,:] = [alpha, beta, np.pi + gamma]
+        equiv_angles[2,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
+        equiv_angles[3,:] = [np.pi + alpha, np.pi - beta, 2*np.pi - gamma]
 
     # now a few checks
     # wrap any negative angles
@@ -456,7 +443,7 @@ def _equivalent_euler(euler_angles: np.ndarray, convention: str = "zyz", passive
 
     return equiv_angles
 
-def _equivalent_relative_euler(euler_angles: np.ndarray, convention: str = "zyz", passive: bool = False) -> np.ndarray:
+def _equivalent_relative_euler(euler_angles: np.ndarray, passive: bool = False) -> np.ndarray:
     """
     Returns a list of 16 equivalent relative Euler angles for a given set of Euler angles that corresponds to the relative orientation of two NMR tensors.
     See TensorView for MATLAB: https://doi.org/10.1016/j.ssnmr.2022.101849
@@ -464,83 +451,43 @@ def _equivalent_relative_euler(euler_angles: np.ndarray, convention: str = "zyz"
     equiv_angles = np.zeros((16, 3))
     alpha, beta, gamma = euler_angles
 
-    convention = convention.lower()
+    if passive:
+        # --- Passive ZYZ or ZXZ --- #
+        equiv_angles[0,:] = [alpha, beta, gamma]
+        equiv_angles[1,:] = [2*np.pi - alpha, np.pi - beta, np.pi + gamma]
+        equiv_angles[2,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
+        equiv_angles[3,:] = [np.pi + alpha, beta, gamma]
+        equiv_angles[4,:] = [np.pi + alpha, np.pi - beta, 2*np.pi - gamma]
+        equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
+        equiv_angles[6,:] = [2*np.pi - alpha, beta, np.pi - gamma]
+        equiv_angles[7,:] = [alpha, np.pi - beta, 2*np.pi - gamma]
+        equiv_angles[8,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
+        equiv_angles[9,:] = [np.pi - alpha, beta, 2*np.pi - gamma]
+        equiv_angles[10,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
+        equiv_angles[11,:] = [alpha, np.pi - beta, np.pi - gamma]
+        equiv_angles[12,:] = [alpha, beta, np.pi + gamma]
+        equiv_angles[13,:] = [2*np.pi - alpha, np.pi - beta, gamma]
+        equiv_angles[14,:] = [np.pi - alpha, np.pi - beta, gamma]
+        equiv_angles[15,:] = [np.pi + alpha, beta, np.pi + gamma]
+    else:
+        # --- Active ZYZ or ZXZ--- #
+        equiv_angles[0,:] = [alpha, beta, gamma]
+        equiv_angles[1,:] = [alpha + np.pi, np.pi - beta, 2*np.pi - gamma]
+        equiv_angles[2,:] = [alpha + np.pi, np.pi - beta, np.pi - gamma]
+        equiv_angles[3,:] = [alpha, beta, np.pi + gamma]
+        equiv_angles[4,:] = [2*np.pi - alpha, np.pi - beta, np.pi + gamma]
+        equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
+        equiv_angles[6,:] = [np.pi - alpha, beta, 2*np.pi - gamma]
+        equiv_angles[7,:] = [2*np.pi - alpha, np.pi - beta, gamma]
+        equiv_angles[8,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
+        equiv_angles[9,:] = [2*np.pi - alpha, beta, np.pi - gamma]
+        equiv_angles[10,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
+        equiv_angles[11,:] = [np.pi - alpha, np.pi - beta, gamma]
+        equiv_angles[12,:] = [alpha + np.pi, beta, gamma]
+        equiv_angles[13,:] = [alpha, np.pi - beta, 2*np.pi - gamma]
+        equiv_angles[14,:] = [alpha, np.pi - beta, np.pi - gamma]
+        equiv_angles[15,:] = [alpha + np.pi, beta, np.pi + gamma]
 
-    if convention == 'zyz':
-        if passive:
-            # --- Passive ZYZ --- #
-            equiv_angles[0,:] = [alpha, beta, gamma]
-            equiv_angles[1,:] = [2*np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[2,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[3,:] = [np.pi + alpha, beta, gamma]
-            equiv_angles[4,:] = [np.pi + alpha, np.pi - beta, 2*np.pi - gamma]
-            equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[6,:] = [2*np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[7,:] = [alpha, np.pi - beta, 2*np.pi - gamma]
-            equiv_angles[8,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[9,:] = [np.pi - alpha, beta, 2*np.pi - gamma]
-            equiv_angles[10,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
-            equiv_angles[11,:] = [alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[12,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[13,:] = [2*np.pi - alpha, np.pi - beta, gamma]
-            equiv_angles[14,:] = [np.pi - alpha, np.pi - beta, gamma]
-            equiv_angles[15,:] = [np.pi + alpha, beta, np.pi + gamma]
-        else:
-            # --- Active ZYZ --- #
-            equiv_angles[0,:] = [alpha, beta, gamma]
-            equiv_angles[1,:] = [alpha + np.pi, np.pi - beta, 2*np.pi - gamma]
-            equiv_angles[2,:] = [alpha + np.pi, np.pi - beta, np.pi - gamma]
-            equiv_angles[3,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[4,:] = [2*np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[6,:] = [np.pi - alpha, beta, 2*np.pi - gamma]
-            equiv_angles[7,:] = [2*np.pi - alpha, np.pi - beta, gamma]
-            equiv_angles[8,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[9,:] = [2*np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[10,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
-            equiv_angles[11,:] = [np.pi - alpha, np.pi - beta, gamma]
-            equiv_angles[12,:] = [alpha + np.pi, beta, gamma]
-            equiv_angles[13,:] = [alpha, np.pi - beta, 2*np.pi - gamma]
-            equiv_angles[14,:] = [alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[15,:] = [alpha + np.pi, beta, np.pi + gamma]
-
-    elif convention == 'zxz':
-        if passive:
-            # --- Passive ZXZ --- #
-            equiv_angles[0,:] = [alpha,beta,gamma]
-            equiv_angles[1,:] = [2*np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[2,:] = [np.pi - alpha, np.pi - beta, np.pi + gamma]
-            equiv_angles[3,:] = [np.pi + alpha, beta, gamma]
-            equiv_angles[4,:] = [np.pi + alpha, np.pi - beta, 2*np.pi - gamma]
-            equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[6,:] = [2*np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[7,:] = [alpha, np.pi - beta, 2*np.pi - gamma]
-            equiv_angles[8,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[9,:] = [np.pi - alpha, beta, 2*np.pi - gamma]
-            equiv_angles[10,:] = [2*np.pi - alpha, beta, 2*np.pi - gamma]
-            equiv_angles[11,:] = [alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[12,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[13,:] = [2*np.pi - alpha, np.pi - beta, gamma]
-            equiv_angles[14,:] = [np.pi - alpha, np.pi - beta, gamma]
-            equiv_angles[15,:] = [np.pi + alpha, beta, np.pi + gamma]
-        else:
-            # --- Active ZXZ --- #
-            equiv_angles[0,:] = [alpha, beta, gamma]
-            equiv_angles[1,:] = [np.pi + alpha, np.pi - beta,2*np.pi - gamma]
-            equiv_angles[2,:] = [np.pi + alpha, np.pi - beta, np.pi - gamma]
-            equiv_angles[3,:] = [alpha, beta, np.pi + gamma]
-            equiv_angles[4,:] = [2*np.pi - alpha,np.pi - beta, np.pi + gamma]
-            equiv_angles[5,:] = [np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[6,:] = [np.pi - alpha, beta,2*np.pi - gamma]
-            equiv_angles[7,:] = [2*np.pi - alpha,np.pi - beta, gamma]
-            equiv_angles[8,:] = [np.pi - alpha,np.pi - beta, np.pi + gamma]
-            equiv_angles[9,:] =  [2*np.pi - alpha, beta, np.pi - gamma]
-            equiv_angles[10,:] = [2*np.pi - alpha, beta,2*np.pi - gamma]
-            equiv_angles[11,:] = [np.pi - alpha,np.pi - beta, gamma]
-            equiv_angles[12,:] = [np.pi + alpha, beta, gamma]
-            equiv_angles[13,:] = [alpha,np.pi - beta,2*np.pi - gamma]
-            equiv_angles[14,:] = [alpha,np.pi - beta,np.pi - gamma]
-            equiv_angles[15,:] = [np.pi + alpha, beta,np.pi + gamma]
 
 
     # wrap any negative angles
