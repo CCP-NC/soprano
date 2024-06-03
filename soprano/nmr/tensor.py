@@ -33,9 +33,12 @@ from soprano.nmr.utils import (
     _handle_euler_edge_cases,
     _equivalent_euler,
     _equivalent_relative_euler,
+    _test_euler_rotation,
+    _tryallanglestest
 )
 from soprano.data.nmr import _get_isotope_data
 from ase.quaternions import Quaternion
+from scipy.spatial.transform import Rotation
 import warnings
 
 DEGENERACY_TOLERANCE = 1e-6
@@ -217,14 +220,19 @@ class NMRTensor(object):
         return self._sph.copy()
 
     def euler_angles(self, convention: str = "zyz", passive: bool = False) -> np.ndarray:
-        """Return Euler angles of the Principal Axis System
+        """Euler angles of the Principal Axis System
 
         Return Euler angles of the PAS for this tensor in the
         required convention (currently supported: zyz, zxz).
 
-        Keyword Arguments:
+        Args:
             convention {str} -- Euler angles convention to use
             (default: {'zyz'})
+            passive {bool} -- Whether to return the passive Euler angles
+            (default: {False})
+
+        Returns:
+            np.ndarray -- Euler angles in radians. Size of the array is (3,)
         """
 
 
@@ -244,6 +252,41 @@ class NMRTensor(object):
                     convention = convention,
                     passive = passive
                     )
+        # finally, test that the angles give a consistent rotation
+        consistent_rotation = _test_euler_rotation(
+                                    angles,
+                                    self.eigenvalues,
+                                    self.eigenvectors,
+                                    convention,
+                                    passive)
+        if not consistent_rotation:
+            warnings.warn("The Euler angles do not give a consistent rotation. "
+                            "This is likely due to a degeneracy in the tensor. "
+                            "Care must be taken when comparing the Euler angles of degenerate tensors.")
+            
+            # Re-running the Euler angle calculation with -self.eigenvectors
+            self._evecs = -self.eigenvectors
+            angles = _matrix_to_euler(self.eigenvectors, convention, passive)
+            angles = _handle_euler_edge_cases(
+                        angles,
+                        self.eigenvalues,
+                        self._symm,
+                        convention = convention,
+                        passive = passive
+                        )
+            
+            # check again
+            consistent_rotation = _test_euler_rotation(
+                                    angles,
+                                    self.eigenvalues,
+                                    self.eigenvectors,
+                                    convention,
+                                    passive)
+            # TODO raise error if still not consistent
+            # if not consistent_rotation:
+            #     raise ValueError("The Euler angles do not give a consistent rotation. "
+            #                     "This is likely due to a degeneracy in the tensor. "
+            #                     "Care must be taken when comparing the Euler angles of degenerate tensors.")
             
 
         return angles
@@ -295,59 +338,92 @@ class NMRTensor(object):
             if np.allclose(self.eigenvectors, other.eigenvectors) or np.allclose(self.eigenvectors, -other.eigenvectors):
                 warnings.warn("The tensors are identical. Returning zero Euler angles.")
                 return np.zeros(3)
-        if self.degeneracy == 2 and other.degeneracy == 2:
+        if self.degeneracy == 2 or other.degeneracy == 2:
             warnings.warn(
                 "Some of the Euler angles are ambiguous for degenerate tensors.\n"
                 "Care must be taken when comparing the Euler angles of degenerate tensors.\n"
                 f"Degeneracy of tensor 1: {self.degeneracy} (Eigenvalues: {self.eigenvalues})"
                 f"Degeneracy of tensor 2: {other.degeneracy} (Eigenvalues: {other.eigenvalues})"
             )
-            # Both are axially symmetric - need to be careful
+            Aevals = self.eigenvalues
             Bevals = other.eigenvalues
-            # B (other) in the reference frame of A (self)
-            B_at_A = np.linalg.inv(self._symm) @ other._symm
-            # quick check if the angles are all zero:
-            if np.abs(B_at_A[1,2] + B_at_A[0,2] + B_at_A[0,1]) < eps:
-                warnings.warn("The tensors are perfectly aligned. Returning zero Euler angles.")
-                return np.zeros(3)
+            # B (other) in the reference frame of A (self) - from paper
+            # B_at_A = np.linalg.inv(self._symm) @ other._symm
             
-            if convention == 'zyz':
-                # If both are axially symmetric, then
-                alpha = 0
-                gamma = 0
-                beta = np.arcsin(np.sqrt(
-                    (B_at_A[2, 2]  - Bevals[2]) / 
-                    (Bevals[0] - Bevals[2])
-                    ))
-                beta = np.abs(beta) # we can choose the sign of beta arbitrarily
-                return np.array([alpha, beta, gamma])
-            
-            if convention == 'zxz':
-                # in this convention, it depends on the unique axis
-                # of the other tensor
-                # but the possible angles are:
-                a = np.pi / 2
-                b = np.arcsin(np.sqrt(
-                            (B_at_A[2, 2]  - Bevals[2]) / 
-                            (Bevals[0] - Bevals[2])
-                            ))
-                b = np.abs(b) # we can choose the sign arbitrarily
-                c = 0
+            # alternative from the code
+            R_A = Rotation.from_matrix(self.eigenvectors).as_matrix() # normalises the rotation matrix
+            R_B = Rotation.from_matrix(other.eigenvectors).as_matrix() # normalises the rotation matrix
+            Rrel1 = np.linalg.inv(R_B) @ R_A
+            Rrel2 = np.linalg.inv(R_A) @ R_B
 
+            B_at_A = Rrel1.dot(np.diag(Aevals).dot(np.linalg.inv(Rrel1)))
+
+            if self.degeneracy == 2 and other.degeneracy == 2:
+                # Both are axially symmetric - need to be careful
+
+                # If both are axially symmetric, then do the following:
+                # quick check if the angles are all zero:
+                if np.abs(B_at_A[1,2] + B_at_A[0,2] + B_at_A[0,1]) < eps:
+                    warnings.warn("The tensors are perfectly aligned. Returning zero Euler angles.")
+                    return np.zeros(3)
                 
-                if np.abs(Bevals[0] - Bevals[1]) < 1e-6:
-                    # Unique axis is z
-                    return np.array([a, b, c]) # 90, arcsin(...), 0
-                elif np.abs(Bevals[1] - Bevals[2]) < 1e-6:
-                    # Unique axis is x
-                    return np.array([c, a, b]) # 0, 90, arcsin(...)
-                else:
-                    raise ValueError('Unexpected eigenvalue ordering for axially symmetric tensor'
-                                        'in zxz convention. Eigenvalues are: ', Bevals)
-            # if neither zyz nor zxz, warn
-            warnings.warn('Euler angles for axially symmetric tensors are only corrected for zyz and zxz conventions.'
-                            ' Returning the uncorrected Euler angles.')
+                if convention == 'zyz':
+                    # If both are axially symmetric, then
+                    alpha = 0
+                    gamma = 0
+                    beta = np.arcsin(np.sqrt(
+                        (B_at_A[2, 2]  - Aevals[2]) / 
+                        (Aevals[0] - Aevals[2])
+                        ))
+                    beta = np.abs(beta) # we can choose the sign of beta arbitrarily
+                    return np.array([alpha, beta, gamma])
+                
+                if convention == 'zxz':
+                    # in this convention, it depends on the unique axis
+                    # of the other tensor
+                    # but the possible angles are:
+                    a = np.pi / 2
+                    b = np.arcsin(-1 * np.sqrt(
+                                (B_at_A[2, 2]  - Aevals[2]) / 
+                                (Aevals[0] - Aevals[2])
+                                ))
+                    b = np.abs(b) # we can choose the sign arbitrarily
+                    c = 0
+
+                    
+                    if np.abs(Bevals[0] - Bevals[1]) < 1e-6:
+                        # Unique axis is z
+                        return np.array([a, b, c]) # 90, arcsin(...), 0
+                    elif np.abs(Bevals[1] - Bevals[2]) < 1e-6:
+                        # Unique axis is x
+                        return np.array([c, a, b]) # 0, 90, arcsin(...)
+                    else:
+                        raise ValueError('Unexpected eigenvalue ordering for axially symmetric tensor'
+                                            'in zxz convention. Eigenvalues are: ', Bevals)
+            elif self.degeneracy == 2 and other.degeneracy == 1:
+                # If self is axially symmetric, but other isn't
+                # just get the angles from Rrel1
+                angles = _matrix_to_euler(Rrel1, convention, False) # always active here!
+                # TODO: handle edge cases
+                # TODO: test this
+                return angles
+            elif self.degeneracy == 1 and other.degeneracy == 2:
+                # If other is axially symmetric, but self isn't
+                # TODO: check if we need to re-order Rrel2 to match ordering convention chosen for other tensor
+                angles = _matrix_to_euler(Rrel2, convention, True) # always passive here!
+                # TODO: handle edge cases?
+                angles = _tryallanglestest(angles, np.diag(Aevals), np.diag(Bevals), Rrel1, convention)
+                return angles
             
+
+
+
+
+            if convention not in ["zyz", "zxz"]:
+                # if neither zyz nor zxz, warn
+                warnings.warn('Euler angles for axially symmetric tensors are only corrected for zyz and zxz conventions.'
+                                ' Returning the uncorrected Euler angles.')
+                
         if other.degeneracy == 2 and self.degeneracy != 2:
             # then let's swap them around, then transpose the result
             # TODO: test this! 

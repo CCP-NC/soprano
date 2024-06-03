@@ -21,7 +21,7 @@ import numpy as np
 import scipy.constants as cnst
 from ase.quaternions import Quaternion
 from scipy.spatial.transform import Rotation
-from typing import List, Union
+from typing import List, Union, Tuple
 
 
 
@@ -131,7 +131,8 @@ def _J_constant(Kij, gi, gj):
 
 def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
                      convention: str = "zyz",
-                     passive: bool = False) -> np.ndarray:
+                     passive: bool = False
+                     ) -> np.ndarray:
     """Convert a rotation matrix to Euler angles (in radians)
     
     We use the scipy Rotation class to do this, but we need to make sure that
@@ -139,8 +140,8 @@ def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
 
     Note that SciPy uses the convention that upper case letters are extrinsic rotations
     and lower case letters are intrinsic rotations (note this distinction
-    is not that same as active vs passive. We enforce intrinsic rotations here
-    by converting all to lower case.
+    is not that same as active vs passive. We enforce extrinsic rotations here
+    by converting all to upper case.
 
     We use an explicit keyword argument to specify passive rotations, and
     transpose the rotation matrix if necessary.
@@ -151,24 +152,25 @@ def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
                                                     if it is not already one.
                                                     (i.e. det(R) = 1)
         convention (str, optional): Euler angle convention. Defaults to "zyz".
-                                    This will be converted to lower case to enforce
-                                    intrinsic rotations.
+                                    This will be converted to upper case to enforce
+                                    extrinsic rotations.
         passive (bool, optional): Whether the angles are passive rotations. Defaults to False.
 
     Returns:
         np.ndarray: Euler angles in radians
 
     """
-    convention = convention.lower()
+    convention = convention.upper()
     R = np.array(R)
     # (Note that SciPy handles converting to proper rotation matrices)
     Rot = Rotation.from_matrix(R)
+    R = Rot.as_matrix() # just in case it was converted
     
     # If passive, we need to transpose the matrix
     if passive:
         Rot = Rot.inv()
     # Use scipy to get the euler angles
-    euler_angles = Rot.as_euler(convention.upper(), degrees=False)
+    euler_angles = Rot.as_euler(convention, degrees=False)
     # Now we need to make sure the angles are in the right range
     # for NMR
     euler_angles = _normalise_euler_angles(euler_angles, passive=passive)
@@ -212,10 +214,9 @@ def _test_euler_rotation(
     if passive:
         Rot = Rot.inv()
     R = Rot.as_matrix()
-    A_rot = np.dot(R, np.dot(PAS, R.T))
-
-    B_rot = np.dot(eigenvecs, np.dot(PAS, np.linalg.inv(eigenvecs).T))
-
+    A_rot = np.dot(R, np.dot(PAS, np.linalg.inv(R)))
+    # B_rot should just be the symmetric tensor
+    B_rot = np.linalg.multi_dot([eigenvecs, PAS, np.linalg.inv(eigenvecs)])
     return np.allclose(A_rot, B_rot, atol=eps)
 
 
@@ -343,7 +344,11 @@ def _handle_euler_edge_cases(
     return euler_angles
 
 
-def _normalise_euler_angles(euler_angles, passive: bool = False, eps: float = 1e-6):
+def _normalise_euler_angles(
+        euler_angles: np.ndarray,
+        passive: bool = False,
+        eps: float = 1e-6,
+        )-> np.ndarray:
     """
     Normalise Euler angles to standard ranges for NMR as 
     defined in: 
@@ -356,15 +361,7 @@ def _normalise_euler_angles(euler_angles, passive: bool = False, eps: float = 1e
         eps (float, optional): Tolerance for degeneracy. Defaults to 1e-6.
     
     """
-
     alpha, beta, gamma = euler_angles
-
-    # if passive:
-    #     if abs(alpha) < eps and gamma > (np.pi/2) and abs(beta) < eps:
-    #         gamma = -gamma
-    # else:
-    #     if abs(gamma) < eps and alpha > (np.pi/2) and abs(beta) < eps:
-    #         alpha = -alpha
 
     # wrap any negative angles
     alpha = alpha % (2 * np.pi)
@@ -497,3 +494,88 @@ def _equivalent_relative_euler(euler_angles: np.ndarray, passive: bool = False) 
     
     
     return equiv_angles
+
+
+def _tryallanglestest(
+        euler_angles: np.ndarray,
+        pas1: np.ndarray,
+        pasv2: np.ndarray,
+        arel1: np.ndarray,
+        convention: str,
+        eps: float = 1e-3
+        ) -> np.ndarray:
+    """
+    For relative Euler angles from tensor A to B, if B is axially symmetric,
+    we need to try all equivalent Euler angles of the symmetric tensor to
+    find the conventional one. 
+
+    Go through the 4 equivalent passive angles since we're using 
+    the trick of calculating the A relative angles in the frame of B 
+    by calculating the B relative angles in the frame of A with the *passive* convention.
+
+    Credit: function adapted from TensorView for MATLAB: https://doi.org/10.1016/j.ssnmr.2022.101849
+    """
+
+    # make copy of the input angles
+    euler_angles_out = euler_angles.copy()
+    rrel_check = Rotation.from_euler(convention.upper(), euler_angles)
+    mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
+    # Define the ways in which the angles should be updated
+    alpha, beta, gamma = euler_angles
+    updates = [
+        lambda: (alpha + np.pi, beta, gamma),
+        lambda: (2*np.pi - alpha, np.pi - beta, gamma + np.pi),
+        lambda: (np.pi-alpha, np.pi-beta, gamma + np.pi),
+    ]
+    if pasv2[0] == pasv2[1]:
+        # Iterate over the updates, updating only if the angles don't match
+        for update in updates:
+            if not np.all(np.isclose(arel1, mcheck, atol=eps)):
+                alpha_out, beta_out, gamma_out = update()
+                euler_angles_out, mcheck = _compute_rotation([alpha_out, beta_out, gamma_out], arel1, pas1, convention, 1)
+            else:
+                break # If the angles match, we're done
+
+        # If the last condition is still true, print a message
+        if not np.all(np.isclose(arel1, mcheck, atol=eps)):
+            raise 'Failed isequal check at (_tryallanglestest) please contact the developers for to help resolve this issue.'
+        
+    elif pasv2[1] == pasv2[2]:
+        # Iterate over the updates, updating only if the angles don't match
+        for update in updates:
+            if not np.all(np.isclose(arel1, mcheck, atol=eps)):
+                alpha_out, beta_out, gamma_out = update()
+                euler_angles_out, mcheck = _compute_rotation([alpha_out, beta_out, gamma_out], arel1, pas1, convention, 2)
+            else:
+                break
+
+    return euler_angles_out
+
+
+
+def _compute_rotation(euler_angles: np.ndarray,
+                      arel1: np.ndarray,
+                      pas1: np.ndarray,
+                      convention: str,
+                      rotation_type: int
+                      )-> Tuple[np.ndarray, np.ndarray]:
+    rrel_check = Rotation.from_euler(convention.upper(), euler_angles)
+    mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
+    
+    if rotation_type == 1:
+        component1 = arel1[2, 0] + arel1[2, 1]*mcheck[2, 1]/mcheck[2, 0]
+        component2 = mcheck[2, 0] + mcheck[2, 1]*mcheck[2, 1]/mcheck[2, 0]
+        component3 = arel1[2, 1] - arel1[2, 0]*mcheck[2, 1]/mcheck[2, 0]
+        component4 = mcheck[2, 0] + mcheck[2, 1]*mcheck[2, 1]/mcheck[2, 0]
+        euler_convention = "ZYZ"
+    elif rotation_type == 2:
+        component1 = arel1[2, 0] + arel1[1, 0]*mcheck[1, 0]/mcheck[2, 0]
+        component2 = mcheck[2, 0] + mcheck[1, 0]*mcheck[1, 0]/mcheck[2, 0]
+        component3 = arel1[2, 0] - arel1[1, 0]*mcheck[2, 0]/mcheck[1, 0]
+        component4 = mcheck[1, 0] + mcheck[2, 0]*mcheck[2, 0]/mcheck[1, 0]
+        euler_convention = "ZXZ"
+    
+    symrotang_check = np.arctan2(component3/component4, component1/component2)
+    symrot_check = Rotation.from_euler(euler_convention, [0, 0, symrotang_check])
+    mcheck = np.dot(np.dot(symrot_check, mcheck), np.linalg.inv(symrot_check))
+    return euler_angles, mcheck
