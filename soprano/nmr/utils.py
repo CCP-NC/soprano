@@ -518,7 +518,7 @@ def _tryallanglestest(
 
     # make copy of the input angles
     euler_angles_out = euler_angles.copy()
-    rrel_check = Rotation.from_euler(convention.upper(), euler_angles)
+    rrel_check = Rotation.from_euler(convention.upper(), euler_angles).as_matrix()
     mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
     # Define the ways in which the angles should be updated
     alpha, beta, gamma = euler_angles
@@ -527,7 +527,8 @@ def _tryallanglestest(
         lambda: (2*np.pi - alpha, np.pi - beta, gamma + np.pi),
         lambda: (np.pi-alpha, np.pi-beta, gamma + np.pi),
     ]
-    if pasv2[0] == pasv2[1]:
+    # if pasv2[0] == pasv2[1]:
+    if np.allclose(pasv2[0], pasv2[1], atol=eps):
         # Iterate over the updates, updating only if the angles don't match
         for update in updates:
             if not np.all(np.isclose(arel1, mcheck, atol=eps)):
@@ -540,7 +541,7 @@ def _tryallanglestest(
         if not np.all(np.isclose(arel1, mcheck, atol=eps)):
             raise 'Failed isequal check at (_tryallanglestest) please contact the developers for to help resolve this issue.'
         
-    elif pasv2[1] == pasv2[2]:
+    elif np.allclose(pasv2[0], pasv2[1], atol=eps):
         # Iterate over the updates, updating only if the angles don't match
         for update in updates:
             if not np.all(np.isclose(arel1, mcheck, atol=eps)):
@@ -559,7 +560,7 @@ def _compute_rotation(euler_angles: np.ndarray,
                       convention: str,
                       rotation_type: int
                       )-> Tuple[np.ndarray, np.ndarray]:
-    rrel_check = Rotation.from_euler(convention.upper(), euler_angles)
+    rrel_check = Rotation.from_euler(convention.upper(), euler_angles).as_matrix()
     mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
     
     if rotation_type == 1:
@@ -576,6 +577,6 @@ def _compute_rotation(euler_angles: np.ndarray,
         euler_convention = "ZXZ"
     
     symrotang_check = np.arctan2(component3/component4, component1/component2)
-    symrot_check = Rotation.from_euler(euler_convention, [0, 0, symrotang_check])
+    symrot_check = Rotation.from_euler(euler_convention, [0, 0, symrotang_check]).as_matrix()
     mcheck = np.dot(np.dot(symrot_check, mcheck), np.linalg.inv(symrot_check))
     return euler_angles, mcheck

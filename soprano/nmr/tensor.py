@@ -238,13 +238,6 @@ class NMRTensor(object):
 
         angles = _matrix_to_euler(self.eigenvectors, convention, passive)
 
-        # warning for double degenerate tensors
-        if self.degeneracy == 2:
-            warnings.warn(
-                "Some of the Euler angles are ambiguous for degenerate tensors.\n"
-                "Care must be taken when comparing the Euler angles of degenerate tensors.\n"
-                f"Degeneracy of this tensor: {self.degeneracy} (Eigenvalues: {self.eigenvalues})"
-            )
         angles = _handle_euler_edge_cases(
                     angles,
                     self.eigenvalues,
@@ -337,12 +330,6 @@ class NMRTensor(object):
                 warnings.warn("The tensors are identical. Returning zero Euler angles.")
                 return np.zeros(3)
         if self.degeneracy == 2 or other.degeneracy == 2:
-            warnings.warn(
-                "Some of the Euler angles are ambiguous for degenerate tensors.\n"
-                "Care must be taken when comparing the Euler angles of degenerate tensors.\n"
-                f"Degeneracy of tensor 1: {self.degeneracy} (Eigenvalues: {self.eigenvalues})"
-                f"Degeneracy of tensor 2: {other.degeneracy} (Eigenvalues: {other.eigenvalues})"
-            )
             Aevals = self.eigenvalues
             Bevals = other.eigenvalues
             # B (other) in the reference frame of A (self) - from paper
@@ -402,15 +389,31 @@ class NMRTensor(object):
                 # If self is axially symmetric, but other isn't
                 # just get the angles from Rrel1
                 angles = _matrix_to_euler(Rrel1, convention, False) # always active here!
-                # TODO: handle edge cases
-                # TODO: test this
+                angles = _handle_euler_edge_cases(
+                    angles,
+                    Aevals,
+                    self._symm,
+                    convention = convention,
+                    passive = passive
+                )
+                if passive:
+                    angles = angles[::-1]
                 return angles
             elif self.degeneracy == 1 and other.degeneracy == 2:
                 # If other is axially symmetric, but self isn't
                 # TODO: check if we need to re-order Rrel2 to match ordering convention chosen for other tensor
                 angles = _matrix_to_euler(Rrel2, convention, True) # always passive here!
-                # TODO: handle edge cases?
                 angles = _tryallanglestest(angles, np.diag(Aevals), np.diag(Bevals), Rrel1, convention)
+                angles = -1*_handle_euler_edge_cases(
+                    -1*angles[::-1],
+                    Bevals,
+                    other._symm,
+                    convention = convention,
+                    passive = passive
+                )
+                if not passive:
+                    angles= angles[::-1]
+                    
                 return angles
             
 
