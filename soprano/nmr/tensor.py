@@ -313,8 +313,6 @@ class NMRTensor(object):
     def rotation_to(self, other):
         '''
         Returns the rotation matrix that rotates the tensor to the other tensor.
-        TODO: check direction. I think this gives the rotation self to other, rather than
-        the rotation of self in the reference frame of other.
 
         '''
         R1 = self.eigenvectors
@@ -349,7 +347,7 @@ class NMRTensor(object):
             Bevals = other.eigenvalues
             # B (other) in the reference frame of A (self) - from paper
             # B_at_A = np.linalg.inv(self._symm) @ other._symm
-            
+
             # alternative from the code
             R_A = Rotation.from_matrix(self.eigenvectors).as_matrix() # normalises the rotation matrix
             R_B = Rotation.from_matrix(other.eigenvectors).as_matrix() # normalises the rotation matrix
@@ -391,10 +389,10 @@ class NMRTensor(object):
                     c = 0
 
                     
-                    if np.abs(Bevals[0] - Bevals[1]) < 1e-6:
+                    if np.abs(Bevals[0] - Bevals[1]) < eps:
                         # Unique axis is z
                         return np.array([a, b, c]) # 90, arcsin(...), 0
-                    elif np.abs(Bevals[1] - Bevals[2]) < 1e-6:
+                    elif np.abs(Bevals[1] - Bevals[2]) < eps:
                         # Unique axis is x
                         return np.array([c, a, b]) # 0, 90, arcsin(...)
                     else:
