@@ -123,7 +123,7 @@ class MSIsotropy(AtomsProperty):
     containing the relevant information.
 
     | Parameters:
-    |   ref (float): reference frequency. If provided, the chemical shift
+    |   ref (float): reference frequency in ppm. If provided, the chemical shift
     |                will be returned instead of the magnetic shielding.
 
     | Returns:
@@ -142,7 +142,7 @@ class MSIsotropy(AtomsProperty):
 
         # Referenced?
         if ref is not None:
-            ms_iso = ref - ms_iso
+            ms_iso = (ref - ms_iso) / (1-ref*1e-6)
 
         return ms_iso
 
