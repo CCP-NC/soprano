@@ -72,6 +72,6 @@ if __name__ == "__main__":
         use_2to3=False,
         convert_2to3_doctests=[],
         # Requirements
-        install_requires=["numpy", "scipy", "ase"],
-        python_requires=">=3.6",
+        install_requires=["numpy>=1.18.5,<2.0", "scipy", "ase>=3.23"],
+        python_requires=">=3.8",
     )
