@@ -32,6 +32,7 @@ from soprano.properties.nmr.ms import (
     MSSkew,
     MSQuaternion,
     MSTensor,
+    MSEuler,
 )
 from soprano.properties.nmr.efg import (
     EFGDiagonal,
@@ -44,10 +45,16 @@ from soprano.properties.nmr.efg import (
     EFGQuadrupolarConstant,
     EFGQuaternion,
     EFGTensor,
+    EFGEuler,
 )
 from soprano.properties.nmr.dipolar import (
     DipolarCoupling,
     DipolarDiagonal,
     DipolarRSS,
     DipolarTensor,
+    DipolarEuler,
+)
+from soprano.properties.nmr.isc import (
+    JCIsotropy,
+    JCDiagonal,
 )

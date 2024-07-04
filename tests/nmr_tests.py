@@ -152,9 +152,9 @@ class TestNMR(unittest.TestCase):
             self.assertTrue(np.isclose(np.dot(evecs.T, evecs), np.eye(3)).all())
 
             # Further test the full tensors
-            evalstt = np.linalg.eigh(diptens[ij])[0]
+            evalstt = np.linalg.eigh(diptens[ij].data)[0]
             self.assertTrue(np.isclose(np.sort(evals), np.sort(evalstt)).all())
-            self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij], v]), 2 * d)
+            self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij].data, v]), 2 * d)
 
     def test_tensor_basic(self):
 
@@ -507,7 +507,6 @@ class TestNMR(unittest.TestCase):
         releulers   = releulers * 180 / np.pi
         # this is in the order of TensorView for MATLAB
         # we get a slightly different ordering, but the same values
-        # TODO: check if this is a problem
         ref_eulers = np.array([
             [335.10491563,  89.95022697,  24.80660839],
             [155.10491563,  90.04977303, 335.19339161],
@@ -527,8 +526,8 @@ class TestNMR(unittest.TestCase):
             [155.10491563,  89.95022697, 204.80660839],
             ])
         # compare the arrays, allowing for different orderings
-        order_releulers =  [np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))]
-        order_ref_eulers = [np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))]
+        order_releulers =  tuple([np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))])
+        order_ref_eulers = tuple([np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))])
         self.assertTrue(np.allclose(releulers[order_releulers], ref_eulers[order_ref_eulers]))
 
 
@@ -537,7 +536,6 @@ class TestNMR(unittest.TestCase):
         releulers   = releulers * 180 / np.pi
         # this is in the order of TensorView for MATLAB
         # we get a slightly different ordering, but the same values
-        # TODO: check if this is a problem
         ref_eulers = np.array([
             [155.19339161,  89.95022697, 204.89508437],
             [204.80660839,  90.04977303,  24.89508437],
@@ -557,8 +555,8 @@ class TestNMR(unittest.TestCase):
             [335.19339161,  89.95022697,  24.89508437],
         ])
         # compare the arrays, allowing for different orderings
-        order_releulers =  [np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))]
-        order_ref_eulers = [np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))]
+        order_releulers =  tuple([np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))])
+        order_ref_eulers = tuple([np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))])
         self.assertTrue(np.allclose(releulers[order_releulers], ref_eulers[order_ref_eulers]))
             
         # relative Euler angles - ZXZ active convention
@@ -566,7 +564,6 @@ class TestNMR(unittest.TestCase):
         releulers   = releulers * 180 / np.pi
         # this is in the order of TensorView for MATLAB
         # we get a slightly different ordering, but the same values
-        # TODO: check if this is a problem
         ref_eulers = np.array([
             [ 65.10491563,  89.95022697, 114.80660839],
             [245.10491563,  90.04977303, 245.19339161],
@@ -586,8 +583,8 @@ class TestNMR(unittest.TestCase):
             [245.10491563,  89.95022697, 294.80660839],
        ])
         # compare the arrays, allowing for different orderings
-        order_releulers =  [np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))]
-        order_ref_eulers = [np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))]
+        order_releulers =  tuple([np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))])
+        order_ref_eulers = tuple([np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))])
         self.assertTrue(np.allclose(releulers[order_releulers], ref_eulers[order_ref_eulers]))
 
         # relative Euler angles - ZXZ passive convention
@@ -595,7 +592,6 @@ class TestNMR(unittest.TestCase):
         releulers   = releulers * 180 / np.pi
         # this is in the order of TensorView for MATLAB
         # we get a slightly different ordering, but the same values
-        # TODO: check if this is a problem
         ref_eulers = np.array([
             [ 65.19339161,  89.95022697, 114.89508437],
             [294.80660839,  90.04977303, 294.89508437],
@@ -615,8 +611,8 @@ class TestNMR(unittest.TestCase):
             [245.19339161,  89.95022697, 294.89508437],
         ])
         # compare the arrays, allowing for different orderings
-        order_releulers =  [np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))]
-        order_ref_eulers = [np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))]
+        order_releulers =  tuple([np.lexsort((releulers[:,2],   releulers[:,0], releulers[:,1]))])
+        order_ref_eulers = tuple([np.lexsort((ref_eulers[:,2], ref_eulers[:,0], ref_eulers[:,1]))])
         self.assertTrue(np.allclose(releulers[order_releulers], ref_eulers[order_ref_eulers]))
 
 
@@ -751,6 +747,159 @@ class TestNMR(unittest.TestCase):
         ])
         self.assertTrue(np.allclose(releulers, ref_eulers))
 
+
+        # Now let's test the case where the first tensor is axially symmetry 
+        # and the second has no symmetry
+        data1 = np.diag([1, 2, 1])
+        
+        data2 = np.array([
+                    [ 1.00,  0.12,  0.13],
+                    [ 0.21,  2.00,  0.23],
+                    [ 0.31,  0.32, -6.00],
+                    ])
+        
+        t1 = NMRTensor(data1, NMRTensor.ORDER_INCREASING)
+        t2 = NMRTensor(data2, NMRTensor.ORDER_INCREASING)
+
+        # first make sure the individual tensors give the correct Euler angles
+        euler1 = t1.euler_angles(convention='zyz', passive=False)
+        euler2 = t2.euler_angles(convention='zyz', passive=False)
+        # Note the order of the equivalent Euler angles is different from the MATLAB results
+        # but the 90, 90 0 is one of the equivalent Euler angle sets for this tensor
+        self.assertTrue(np.allclose(euler1*180/np.pi, np.array([ 90.0, 90.0, 0.0])))
+        self.assertTrue(np.allclose(euler2*180/np.pi, np.array([ 80.511,  87.809, 178.592])))
+        # now check the relative Euler angles
+       
+        # not symmetric to axially symmetric: ZYZ active
+        azyz = t2.equivalent_euler_to(t1, convention='zyz', passive=False) * 180 / np.pi
+        # Correct angle set wrt to MATLAB, albeit in a different order
+        azyz_ref = np.array([
+            [  0.,           9.73611618,  78.52514082],
+            [180.,         170.26388382, 281.47485918],
+            [180.,         170.26388382, 101.47485918],
+            [  0.,           9.73611618, 258.52514082],
+            [  0.,         170.26388382, 258.52514082],
+            [180.,           9.73611618, 101.47485918],
+            [180.,           9.73611618, 281.47485918],
+            [  0.,         170.26388382,  78.52514082],
+            [180.,         170.26388382, 258.52514082],
+            [  0.,           9.73611618, 101.47485918],
+            [  0.,           9.73611618, 281.47485918],
+            [180.,         170.26388382,  78.52514082],
+            [180.,           9.73611618,  78.52514082],
+            [  0.,         170.26388382, 281.47485918],
+            [  0.,         170.26388382, 101.47485918],
+            [180.,           9.73611618, 258.52514082],
+            ])
+        order_azyz =  tuple([np.lexsort((azyz[:,2],   azyz[:,0], azyz[:,1]))])
+        order_azyz_ref = tuple([np.lexsort((azyz_ref[:,2], azyz_ref[:,0], azyz_ref[:,1]))])
+        self.assertTrue(np.allclose(azyz[order_azyz], azyz_ref[order_azyz_ref]))
+
+        # not symmetric to axially symmetric: ZYZ passive
+        pzyz = (t2.equivalent_euler_to(t1, convention='zyz', passive=True) * 180 / np.pi)
+        # Correct angle set wrt to MATLAB, albeit in a different order
+        pzyz_ref = np.array([
+            [ 78.52514082,   9.73611618,   0.        ],
+            [281.47485918, 170.26388382, 180.        ],
+            [101.47485918, 170.26388382, 180.        ],
+            [258.52514082,   9.73611618,   0.        ],
+            [258.52514082, 170.26388382,   0.        ],
+            [101.47485918,   9.73611618, 180.        ],
+            [281.47485918,   9.73611618, 180.        ],
+            [ 78.52514082, 170.26388382,   0.        ],
+            [258.52514082, 170.26388382, 180.        ],
+            [101.47485918,   9.73611618,   0.        ],
+            [281.47485918,   9.73611618,   0.        ],
+            [ 78.52514082, 170.26388382, 180.        ],
+            [ 78.52514082,   9.73611618, 180.        ],
+            [281.47485918, 170.26388382,   0.        ],
+            [101.47485918, 170.26388382,   0.        ],
+            [258.52514082,   9.73611618, 180.        ],
+            ])
+        order_pzyz =  tuple([np.lexsort((pzyz[:,2],   pzyz[:,0], pzyz[:,1]))])
+        order_pzyz_ref = tuple([np.lexsort((pzyz_ref[:,2], pzyz_ref[:,0], pzyz_ref[:,1]))])
+        self.assertTrue(np.allclose(pzyz[order_pzyz], pzyz_ref[order_pzyz_ref]))
+
+
+
+
+        # not symmetric to axially symmetric: ZXZ active
+        azxz = (t2.equivalent_euler_to(t1, convention='zxz', passive=False) * 180 / np.pi)
+        # Correct angle set wrt to MATLAB, albeit in a different order
+        azxz_ref = np.array([
+            [  0.,           9.73611618, 348.52514082],
+            [180.,         170.26388382,  11.47485918],
+            [180.,         170.26388382, 191.47485918],
+            [  0.,           9.73611618, 168.52514082],
+            [  0.,         170.26388382, 168.52514082],
+            [180.,           9.73611618, 191.47485918],
+            [180.,           9.73611618,  11.47485918],
+            [  0.,         170.26388382, 348.52514082],
+            [180.,         170.26388382, 168.52514082],
+            [  0.,           9.73611618, 191.47485918],
+            [  0.,           9.73611618,  11.47485918],
+            [180.,         170.26388382, 348.52514082],
+            [180.,           9.73611618, 348.52514082],
+            [  0.,         170.26388382,  11.47485918],
+            [  0.,         170.26388382, 191.47485918],
+            [180.,           9.73611618 ,168.52514082]
+            ])
+        order_azxz =  tuple([np.lexsort((azxz[:,2],   azxz[:,0], azxz[:,1]))])
+        order_azxz_ref = tuple([np.lexsort((azxz_ref[:,2], azxz_ref[:,0], azxz_ref[:,1]))])
+        self.assertTrue(np.allclose(azxz[order_azxz], azxz_ref[order_azxz_ref]))
+
+        # not symmetric to axially symmetric: ZXZ passive
+        pzxz = (t2.equivalent_euler_to(t1, convention='zxz', passive=True) * 180 / np.pi)
+        # Correct angle set wrt to MATLAB, albeit in a different order
+        pzxz_ref = np.array([
+            [348.52514082,   9.73611618,   0.        ],
+            [ 11.47485918, 170.26388382, 180.        ],
+            [191.47485918, 170.26388382, 180.        ],
+            [168.52514082,   9.73611618,   0.        ],
+            [168.52514082, 170.26388382,   0.        ],
+            [191.47485918,   9.73611618, 180.        ],
+            [ 11.47485918,   9.73611618, 180.        ],
+            [348.52514082, 170.26388382,   0.        ],
+            [168.52514082, 170.26388382, 180.        ],
+            [191.47485918,   9.73611618,   0.        ],
+            [ 11.47485918,   9.73611618,   0.        ],
+            [348.52514082, 170.26388382, 180.        ],
+            [348.52514082,   9.73611618, 180.        ],
+            [ 11.47485918, 170.26388382,   0.        ],
+            [191.47485918, 170.26388382,   0.        ],
+            [168.52514082,   9.73611618, 180.        ],
+            ])
+        order_pzxz =  tuple([np.lexsort((pzxz[:,2],   pzxz[:,0], pzxz[:,1]))])
+        order_pzxz_ref = tuple([np.lexsort((pzxz_ref[:,2], pzxz_ref[:,0], pzxz_ref[:,1]))])
+        self.assertTrue(np.allclose(pzxz[order_pzxz], pzxz_ref[order_pzxz_ref]))
+
+
+
+        # axially symmetric to non-symmetric: ZYZ active
+        azyz = t1.equivalent_euler_to(t2, convention='zyz', passive=False) * 180 / np.pi
+        order_azyz =  tuple([np.lexsort((azyz[:,2],   azyz[:,0], azyz[:,1]))])
+        # active zyz from 1 to 2 should give the same results as passive 2 to 1, ignoring order of 
+        self.assertTrue(np.allclose(azyz[order_azyz], pzyz_ref[order_pzyz_ref]))
+
+        # axially symmetric to non-symmetric: ZYZ passive
+        pzyz = t1.equivalent_euler_to(t2, convention='zyz', passive=True) * 180 / np.pi
+        order_pzyz =  tuple([np.lexsort((pzyz[:,2],   pzyz[:,0], pzyz[:,1]))])
+        # passive zyz from 1 to 2 should give the same results as active 2 to 1, ignoring order of
+        self.assertTrue(np.allclose(pzyz[order_pzyz], azyz_ref[order_azyz_ref]))
+
+        # axially symmetric to non-symmetric: ZXZ active
+        azxz = t1.equivalent_euler_to(t2, convention='zxz', passive=False) * 180 / np.pi
+        order_azxz =  tuple([np.lexsort((azxz[:,2],   azxz[:,0], azxz[:,1]))])
+        # active zxz from 1 to 2 should give the same results as passive 2 to 1, ignoring order of
+        self.assertTrue(np.allclose(azxz[order_azxz], pzxz_ref[order_pzxz_ref]))
+
+        # axially symmetric to non-symmetric: ZXZ passive
+        pzxz = t1.equivalent_euler_to(t2, convention='zxz', passive=True) * 180 / np.pi
+        order_pzxz =  tuple([np.lexsort((pzxz[:,2],   pzxz[:,0], pzxz[:,1]))])
+        # passive zxz from 1 to 2 should give the same results as active 2 to 1, ignoring order of
+        self.assertTrue(np.allclose(pzxz[order_pzxz], azxz_ref[order_azxz_ref]))
+
+
     def test_diprotavg(self):
         # Test dipolar rotational averaging
 
@@ -770,7 +919,7 @@ class TestNMR(unittest.TestCase):
 
         rot_eth = AtomsCollection(transformGen(eth, rot, N))
 
-        rot_dip = [D[(0, 1)] for D in DipolarTensor.get(rot_eth, sel_i=[0], sel_j=[1])]
+        rot_dip = [D[(0, 1)].data for D in DipolarTensor.get(rot_eth, sel_i=[0], sel_j=[1])]
 
         dip_avg_num = np.average(rot_dip, axis=0)
 

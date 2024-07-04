@@ -466,6 +466,43 @@ class EFGQuadrupolarProduct(AtomsProperty):
             * (1 + (EFGAsymmetry.get(s) ** 2) / 3) ** 0.5
         )
 
+class EFGEuler(AtomsProperty):
+
+    """
+    EFGEuler
+
+    Produces an array of Euler angles in radians expressing the orientation of
+    the EFG tensors with respect to the cartesian axes for each site in the Atoms object.
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+
+    Parameters:
+        order (str):  Order to use for eigenvalues/eigenvectors. Can
+                        be 'i' (ORDER_INCREASING), 'd'
+                        (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                        'n' (ORDER_NQR). Default is 'n' for EFG tensors.
+        convention (str): 'zyz' or 'zxz' accepted - the ordering of the Euler
+                        angle rotation axes. Default is ZYZ 
+        passive (bool):  active or passive rotations. Default is active (passive=False)
+         
+
+    Returns:
+        efg_eulers (np.array): array of Euler angles in radians
+
+    """
+
+    default_name = "efg_eulers"
+    default_params = {"order": NMRTensor.ORDER_NQR,
+                      "convention": "zyz",
+                      "passive": False}
+
+    @staticmethod
+    @_has_efg_check
+    def extract(s, order, convention, passive):
+        return np.array([t.euler_angles(convention, passive=passive) for t in EFGTensor.get(s, order=order)])
+
+
 
 class EFGQuaternion(AtomsProperty):
 

@@ -317,6 +317,43 @@ class MSSkew(AtomsProperty):
         return _skew(ms_evals)
 
 
+class MSEuler(AtomsProperty):
+
+    """
+    MSEuler
+
+    Produces an array of Euler angles in radians expressing the orientation of
+    the MS tensors with respect to the cartesian axes for each site in the Atoms object.
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+
+    Parameters:
+        order (str):  Order to use for eigenvalues/eigenvectors. Can
+                        be 'i' (ORDER_INCREASING), 'd'
+                        (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                        'n' (ORDER_NQR). Default is 'h' for MS tensors.
+        convention (str): 'zyz' or 'zxz' accepted - the ordering of the Euler
+                        angle rotation axes. Default is ZYZ 
+        passive (bool):  active or passive rotations. Default is active (passive=False)
+         
+
+    Returns:
+        ms_eulers (np.array): array of Euler angles in radians
+
+    """
+
+    default_name = "ms_eulers"
+    default_params = {"order": NMRTensor.ORDER_HAEBERLEN,
+                      "convention": "zyz",
+                      "passive": False}
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, order, convention, passive):
+        return np.array([t.euler_angles(convention, passive=passive) for t in MSTensor.get(s, order=order)])
+
+
 class MSQuaternion(AtomsProperty):
 
     """
@@ -326,6 +363,9 @@ class MSQuaternion(AtomsProperty):
     the MS tensors with respect to the cartesian axes.
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
+
+    This is now deprecated in favour of an explicit Euler angle calculation
+    that better handles NMR tensors.
 
     | Parameters:
     |   order (str):  Order to use for eigenvalues/eigenvectors. Can
