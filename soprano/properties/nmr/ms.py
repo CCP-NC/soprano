@@ -32,6 +32,7 @@ from soprano.nmr.utils import (
     _skew,
     _evecs_2_quat,
 )
+from soprano.nmr import NMRTensor
 
 
 def _has_ms_check(f):
@@ -43,6 +44,34 @@ def _has_ms_check(f):
 
     return decorated_f
 
+
+class MSTensor(AtomsProperty):
+    """
+    MSTensor
+
+    Produces a list of NMRTensor objects containing the magnetic shielding
+    tensors for each atom in the system. 
+    Requires the Atoms object to have been loaded from a
+    .magres file containing the relevant information.
+
+    Parameters:
+      order (str):  Order to use for eigenvalues/eigenvectors. Can
+                    be 'i' (ORDER_INCREASING), 'd'
+                    (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                    'n' (ORDER_NQR). Default is 'i'.
+
+    Returns:
+      ms_tensors (list): list of NMRTensor objects
+
+    """
+    default_name = "ms_tensors"
+    default_params = {"order": NMRTensor.ORDER_INCREASING}
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, order):
+        ms_tensors = [NMRTensor(ms, order=order) for ms in s.get_array("ms")]
+        return ms_tensors
 
 class MSDiagonal(AtomsProperty):
 
@@ -94,7 +123,7 @@ class MSIsotropy(AtomsProperty):
     containing the relevant information.
 
     | Parameters:
-    |   ref (float): reference frequency. If provided, the chemical shift
+    |   ref (float): reference frequency in ppm. If provided, the chemical shift
     |                will be returned instead of the magnetic shielding.
 
     | Returns:
@@ -113,7 +142,7 @@ class MSIsotropy(AtomsProperty):
 
         # Referenced?
         if ref is not None:
-            ms_iso = ref - ms_iso
+            ms_iso = (ref - ms_iso) / (1-ref*1e-6)
 
         return ms_iso
 
@@ -288,6 +317,43 @@ class MSSkew(AtomsProperty):
         return _skew(ms_evals)
 
 
+class MSEuler(AtomsProperty):
+
+    """
+    MSEuler
+
+    Produces an array of Euler angles in radians expressing the orientation of
+    the MS tensors with respect to the cartesian axes for each site in the Atoms object.
+    Requires the Atoms object to have been loaded from a .magres file
+    containing the relevant information.
+
+
+    Parameters:
+        order (str):  Order to use for eigenvalues/eigenvectors. Can
+                        be 'i' (ORDER_INCREASING), 'd'
+                        (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                        'n' (ORDER_NQR). Default is 'h' for MS tensors.
+        convention (str): 'zyz' or 'zxz' accepted - the ordering of the Euler
+                        angle rotation axes. Default is ZYZ 
+        passive (bool):  active or passive rotations. Default is active (passive=False)
+         
+
+    Returns:
+        ms_eulers (np.array): array of Euler angles in radians
+
+    """
+
+    default_name = "ms_eulers"
+    default_params = {"order": NMRTensor.ORDER_HAEBERLEN,
+                      "convention": "zyz",
+                      "passive": False}
+
+    @staticmethod
+    @_has_ms_check
+    def extract(s, order, convention, passive):
+        return np.array([t.euler_angles(convention, passive=passive) for t in MSTensor.get(s, order=order)])
+
+
 class MSQuaternion(AtomsProperty):
 
     """
@@ -298,25 +364,24 @@ class MSQuaternion(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
+    This is now deprecated in favour of an explicit Euler angle calculation
+    that better handles NMR tensors.
+
     | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    |   order (str):  Order to use for eigenvalues/eigenvectors. Can
+                        be 'i' (ORDER_INCREASING), 'd'
+                        (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                        'n' (ORDER_NQR). Default is 'i'.
 
     | Returns:
-    |   ms_quat (np.ndarray): list of quaternions
+    |   ms_quat (list): list of quaternions
 
     """
 
     default_name = "ms_quats"
-    default_params = {"force_recalc": False}
+    default_params = {"order": NMRTensor.ORDER_HAEBERLEN}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc):
-
-        if not s.has(MSDiagonal.default_name + "_evecs") or force_recalc:
-            MSDiagonal.get(s)
-
-        ms_evecs = s.get_array(MSDiagonal.default_name + "_evecs")
-
-        return _evecs_2_quat(ms_evecs)
+    def extract(s, order):
+        return [t.quaternion for t in MSTensor.get(s, order=order)]

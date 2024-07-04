@@ -28,6 +28,7 @@ from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
 from soprano.nmr.utils import _dip_constant, _dip_tensor
+from soprano.nmr import NMRTensor
 from soprano.data.nmr import _get_isotope_data
 from soprano.rnd import Random
 
@@ -213,7 +214,7 @@ class DipolarTensor(AtomsProperty):
     |                               given axis. Default is None.
 
     | Returns:
-    |   dip_dict (dict): Dictionary of tensors in Hz by atomic index pair.
+    |   dip_dict (dict): Dictionary of `NMRTensor` objects in Hz by atomic index pair.
 
     """
 
@@ -253,7 +254,7 @@ class DipolarTensor(AtomsProperty):
         # Now build the tensors
         tdict = {}
         for ij, (d, r) in dip_dict.items():
-            tdict[ij] = _dip_tensor(d, r, rotation_axis)
+            tdict[ij] = NMRTensor(_dip_tensor(d, r, rotation_axis), order='i')
 
         return tdict
 
@@ -411,3 +412,100 @@ class DipolarRSS(AtomsProperty):
             dip_rss.append(np.sqrt(np.sum(dip ** 2)))
 
         return np.array(dip_rss)
+
+
+
+class DipolarEuler(AtomsProperty):
+
+    """
+    DipolarEuler
+
+    Produces a dictionary of dipole-dipole coupling tensor Euler angles for atom pairs
+    in the system. See the DipolarTensor property for details on the tensor.
+
+    Parameters:
+        sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                        for which to compute the dipolar
+                                        coupling. By default is None
+                                        (= all of them).
+        sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                        for which to compute the dipolar
+                                        coupling with the ones in sel_i. By
+                                        default is None (= same as sel_i).
+        isotopes (dict): dictionary of specific isotopes to use, by element
+                        symbol. If the isotope doesn't exist an error will
+                        be raised.
+        isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                            different atoms of the same element are supposed
+                            to be of different isotopes. Where a 'None' is
+                            present will fall back on the previous
+                            definitions. Where an isotope is present it
+                            overrides everything else.
+        self_coupling (bool): if True, include coupling of a nucleus with its
+                                own closest periodic copy. Otherwise excluded.
+                                Default is False.
+        block_size (int): maximum size of blocks used when processing large
+                            chunks of pairs. Necessary to avoid memory problems
+                            for very large systems. Default is 1000.
+        rotation_axis (np.ndarray): if present, return the residual dipolar
+                                    tensors after fast averaging around the
+                                    given axis. Default is None.
+        convention (str): 'zyz' or 'zxz' accepted - the ordering of the Euler
+                        angle rotation axes. Default is zyz 
+        passive (bool):  active or passive rotations. Default is active (passive=False)
+        degrees (bool):  return the angles in degrees. Default is False
+
+    Returns:
+        dip_dict (dict): Dictionary of tensors in Hz by atomic index pair.
+
+    """
+
+    default_name = "dip_eulers"
+    default_params = {
+        "sel_i": None,
+        "sel_j": None,
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "block_size": 1000,
+        "rotation_axis": None,
+        "convention": "zyz",
+        "passive": False,
+        "degrees": False
+    }
+
+    @staticmethod
+    def extract(
+        s,
+        sel_i,
+        sel_j,
+        isotopes,
+        isotope_list,
+        self_coupling,
+        block_size,
+        rotation_axis,
+        convention,
+        passive,
+        degrees
+    ):
+
+        dip_dict = DipolarTensor.extract(
+            s,
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            block_size=block_size,
+            rotation_axis=rotation_axis,
+        )
+
+        # Now build the euler angles dict
+        eulerdict = {}
+        for ij, T in dip_dict.items():
+            eulers = T.euler_angles(convention=convention, passive=passive)
+            if degrees:
+                eulers = np.degrees(eulers)
+            eulerdict[ij] = eulers
+
+        return eulerdict

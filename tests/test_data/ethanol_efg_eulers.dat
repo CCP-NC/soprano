@@ -1,0 +1,10 @@
+# Ethanol EFG Euler angles (alpha, beta, gamma) in degrees - from ethanol.magres file. ZYZ active convention with NQR orderings of eigenvalues. Cross-referenced with TensorView for MATLAB.
+     11.03244319      53.86885310     124.66006684
+    281.37006300      58.60389462     177.24377680
+    193.17945823      54.80749091      63.11651013
+    192.58906551      54.86121432       1.71828894
+    282.09799640      58.46767793     125.27455202
+    283.02612009      54.60580544     119.15653422
+    107.18147230      53.91168656      32.42758192
+     13.77889019      54.51695231     129.73651409
+    146.57430779      44.36396799      94.77789967

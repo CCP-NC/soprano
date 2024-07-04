@@ -161,13 +161,14 @@ class TestGenerate(unittest.TestCase):
                     return False
             return True
 
-        # Substitute two hydrogens at a time with chlorine, but only if neither is bonded to sulfur
+        # Substitute 3 Al atoms with Sn atoms subject to the constraint that
+        # all the Sn atoms are at least 3.0 Angstroms apart
         sG = substitutionGen(atoms, 'Sn', to_replace=alsel, n=3, accept=_min_sep)
         sColl = AtomsCollection(sG)
 
         # Check that all the substitutions are at least 3.0 Angstroms apart
         for s in sColl:
-            self.assertTrue(_min_sep(s, s.get_indices('Sn')))
+            self.assertTrue(_min_sep(s, [atom.index for atom in s if atom.symbol == 'Sn']))
         
         # check that we generate the correct number of possible configurations
         # the total number of possible configurations is 27 choose 3
