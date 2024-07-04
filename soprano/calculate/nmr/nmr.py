@@ -848,7 +848,7 @@ class Plot2D:
                 ylim=None,
                 x_axis_label=None,
                 y_axis_label=None,
-                marker='x',
+                marker='+',
                 scale_marker_by = 'fixed',
                 max_marker_size=DEFAULT_MARKER_SIZE,
                 show_labels=True,
@@ -940,7 +940,15 @@ class Plot2D:
                         # let's set them both to be H1 + H2 by sorting the labels
                         xlabel, ylabel = sorted([xlabel, ylabel])
                     ylabel  = f'{xlabel} + {ylabel}'
-                peak = Peak2D(x = x, y = y, correlation_strength = strength, xlabel = xlabel, ylabel = ylabel, idx_x=idx_x, idx_y=idx_y)
+                peak = Peak2D(
+                    x = x,
+                    y = y,
+                    correlation_strength = strength,
+                    xlabel = xlabel,
+                    ylabel = ylabel,
+                    idx_x=idx_x,
+                    idx_y=idx_y,
+                    color=self.marker_color)
                 self.peaks.append(peak)
         else:
             self.logger.debug("Custom peaks provided. ")

@@ -336,7 +336,7 @@ class UniqueSites(AtomsProperty):
     """
 
     default_name = "unique_sites"
-    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4}
+    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4, }
 
     @staticmethod
     def extract(s, force_recalc, save_info, symprec, override_cif = False):

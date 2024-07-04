@@ -144,14 +144,14 @@ Extracting molecules from a molecular crystal
     "--default-vdw",
     type=click.FLOAT,
     default=2.0,
-    help="Default Van der Waals radius for species for whom no data is available.",
+    help="Default Van der Waals radius for species for whom no data is available. Default is 2.0 Angstroms.",
 )
 @click.option(
     "--vdw-custom",
     type=click.STRING,
     callback=keyvalue_parser,
     default="",
-    help="A comma-separated list of custom Van der Waals radii to use, overriding the existing ones, expressed as: H:1,C:2 etc.",
+    help="A comma-separated list of custom Van der Waals radii to use, overriding the existing ones, expressed as: H:1,C:2 etc. Units are in Angstroms.",
 )
 # verbosity flag e.g. -v -vv -vvv
 @click.option(

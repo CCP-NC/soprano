@@ -338,7 +338,6 @@ def nmr_extract_atoms(
 
     # reduce by symmetry?
     tags = np.arange(len(atoms))
-    labels = np.asarray(atoms.get_array("labels"), dtype="U25")
 
     if reduce:
         logger.info("\nTagging equivalent sites")
@@ -348,23 +347,25 @@ def nmr_extract_atoms(
         # log the number of unique sites
         unique_sites, unique_site_idx = np.unique(tags, return_index=True)
         logger.debug(f"    This leaves {len(unique_sites)} unique sites")
-        logger.debug(f"    The unique site labels are: {labels[unique_site_idx]}")
+        if atoms.has("labels"):
+            labels = np.asarray(atoms.get_array("labels"), dtype="U25")
+            logger.debug(f"    The unique site labels are: {labels[unique_site_idx]}")
 
-        # check to make sure that all sites with the same tag have the same MSIsotropy
-        # if not, throw a warning, suggest to turn on debug logging and --no-reduce flag
-        # and then continue
-        if not check_equivalent_sites_ms(atoms, tags):
-            logger.warning(
-                "    Some sites with the same symmetry tag/CIF label have different MS isotropy values."
-            )
-            logger.warning(
-                "    You can turn off symmetry reduction with the --no-reduce flag."
-            )
-            logger.warning("    You can also turn on debug logging with the -vv flag.")
-            logger.warning(
-                "    If you find that the (symmetry) reduction algorithm is working incorrectly,"
-            )
-            logger.warning("    please report this to the developers.")
+    # check to make sure that all sites with the same tag have the same MSIsotropy
+    # if not, throw a warning, suggest to turn on debug logging and --no-reduce flag
+    # and then continue
+    if atoms.has("ms") and not check_equivalent_sites_ms(atoms, tags):
+        logger.warning(
+            "    Some sites with the same symmetry tag/CIF label have different MS isotropy values."
+        )
+        logger.warning(
+            "    You can turn off symmetry reduction with the --no-reduce flag."
+        )
+        logger.warning("    You can also turn on debug logging with the -vv flag.")
+        logger.warning(
+            "    If you find that the (symmetry) reduction algorithm is working incorrectly,"
+        )
+        logger.warning("    please report this to the developers.")
 
     # set tags to atoms object
     atoms.set_tags(tags)

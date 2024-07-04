@@ -25,8 +25,8 @@ from pkg_resources import resource_filename
 import matplotlib
 
 def get_force_matrix(
-            positions: np.array,
-            positions_original: np.array,
+            positions: np.ndarray,
+            positions_original: np.ndarray,
             C:float = 0.01,
             k:float = 0.00001):
     '''
@@ -67,8 +67,8 @@ def get_force_matrix(
     return Fmat
 
 def get_total_forces(
-            positions: np.array,
-            positions_original: np.array,
+            positions: np.ndarray,
+            positions_original: np.ndarray,
             C:float = 0.01,
             k:float = 0.00001):
     '''
@@ -88,8 +88,8 @@ def get_total_forces(
     return np.sum(Fmat, axis=1)
 
 def get_total_forces(
-            positions: np.array,
-            positions_original: np.array,
+            positions: np.ndarray,
+            positions_original: np.ndarray,
             C:float = 0.01,
             k:float = 0.00001):
     '''
