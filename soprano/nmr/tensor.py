@@ -70,9 +70,31 @@ class NMRTensor(object):
                                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                                 'n' (ORDER_NQR). Default is 'i'.
         """
+        self._order = None
+        self._data = None
+        self._symm = None
+        self._evals = None
+        self._evecs = None
+        self._process_data(data)
+        # The following will also sort the eigenvalues and eigenvectors
+        self.order = order
 
-        self._order = order
+        # Initialize other attributes
+        self._anisotropy = None
+        self._redaniso = None
+        self._asymmetry = None
+        self._span = None
+        self._skew = None
+        self._trace = None
+        self._degeneracy = None
+        # Spherical tensor components
+        self._sph = None
+        self._quat = None
 
+        self._incr_evals = self._evals
+        self._haeb_evals = _haeb_sort([self._evals])[0]
+
+    def _process_data(self, data):
         if len(data) == 3:
             self._data = np.array(data)
             if self._data.shape != (3, 3):
@@ -82,55 +104,32 @@ class NMRTensor(object):
         elif len(data) == 2:
             evals, evecs = data
             evecs = np.array(evecs)
-            sort_i = np.argsort(evals)
             if len(evals) != 3 or evecs.shape != (3, 3):
-                raise ValueError("Invalid eigenvalues/vectors passed to " "NMRTensor")
-            evals = evals[sort_i]
-            evecs = evecs[:, sort_i]
+                raise ValueError("Invalid eigenvalues/vectors passed to NMRTensor")
             self._symm = np.linalg.multi_dot([evecs, np.diag(evals), evecs.T])
             self._data = self._symm
-
-        self._incr_evals = evals
-        self._haeb_evals = _haeb_sort([evals])[0]
-        self._anisotropy = None
-        self._redaniso = None
-        self._asymmetry = None
-        self._span = None
-        self._skew = None
-
-        self._trace = None
-
-        self._degeneracy = None
-
-        # Spherical tensor components
-        self._sph = None
-
-        # Sort eigenvalues and eigenvectors as specified
-        if order != self.ORDER_INCREASING:
-            self._evals, sort_i = _evals_sort([evals], order, True)
-            self._evals = self._evals[0]
-            self._evecs = evecs[:, sort_i[0]]
         else:
-            # No point in fixing what ain't broken
-            self._evals = evals
-            self._evecs = evecs
+            raise ValueError("Data must be a 3x3 matrix or a pair of [evals, evecs]")
+        self._evals = evals
+        self._evecs = evecs
 
+    def _order_tensor(self, order):
+        # Sort eigenvalues and eigenvectors as specified
+        if self._order is None or self._order != order:
+            self._evals, sort_i = _evals_sort([self._evals], order, True)
+            self._evals = self._evals[0]
+            self._evecs = self._evecs[:, sort_i[0]]
         # Last eigenvector must be the cross product of the first two
-        # (apparently this is much faster than np.cross. Beats me why)
-        self._evecs[0, 2] = (
-            self._evecs[1, 0] * self._evecs[2, 1]
-            - self._evecs[2, 0] * self._evecs[1, 1]
-        )
-        self._evecs[1, 2] = (
-            self._evecs[2, 0] * self._evecs[0, 1]
-            - self._evecs[0, 0] * self._evecs[2, 1]
-        )
-        self._evecs[2, 2] = (
-            self._evecs[0, 0] * self._evecs[1, 1]
-            - self._evecs[1, 0] * self._evecs[0, 1]
-        )
+        self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
 
-        self._quat = None
+    @property
+    def order(self):
+        return self._order
+    # method to update the order of the tensor
+    @order.setter
+    def order(self, value):
+        self._order_tensor(value)
+        self._order = value
 
     @property
     def data(self):
