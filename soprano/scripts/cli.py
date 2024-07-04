@@ -24,7 +24,7 @@ __date__ = "June 21, 2023"
 
 
 import click
-from soprano.scripts import nmr, nmr_plot, dipolar, molecules
+from soprano.scripts import nmr, nmr_plot, dipolar, molecules, view
 import logging
 import click_log
 # logging
@@ -54,6 +54,7 @@ def soprano():
 soprano.add_command(nmr.nmr)
 soprano.add_command(nmr_plot.plotnmr)
 soprano.add_command(dipolar.dipolar)
+soprano.add_command(view.view)
 soprano.add_command(molecules.splitmols)
 
 if __name__ == "__main__":
