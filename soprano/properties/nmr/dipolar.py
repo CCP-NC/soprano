@@ -467,6 +467,8 @@ class DipolarEuler(AtomsProperty):
         self_coupling (bool): if True, include coupling of a nucleus with its
                                 own closest periodic copy. Otherwise excluded.
                                 Default is False.
+        isonuclear (bool): if True, only compute couplings between nuclei of
+                            the same element. Default is False.
         block_size (int): maximum size of blocks used when processing large
                             chunks of pairs. Necessary to avoid memory problems
                             for very large systems. Default is 1000.
@@ -490,6 +492,7 @@ class DipolarEuler(AtomsProperty):
         "isotopes": {},
         "isotope_list": None,
         "self_coupling": False,
+        "isonuclear": False,
         "block_size": 1000,
         "rotation_axis": None,
         "convention": "zyz",
@@ -505,6 +508,7 @@ class DipolarEuler(AtomsProperty):
         isotopes,
         isotope_list,
         self_coupling,
+        isonuclear,
         block_size,
         rotation_axis,
         convention,
@@ -519,6 +523,7 @@ class DipolarEuler(AtomsProperty):
             isotopes=isotopes,
             isotope_list=isotope_list,
             self_coupling=self_coupling,
+            isonuclear=isonuclear,
             block_size=block_size,
             rotation_axis=rotation_axis,
         )

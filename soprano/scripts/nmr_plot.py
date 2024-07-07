@@ -15,15 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """CLI to plot NMR results from .magres file(s).
-
-TODO: add stylesheets
-TODO: add dipolar/j-coupling scaling of markers
-    Basic version done, but maybe check the assumptions made when running with the reduce or average groups options...
-TODO: 1D plots -- basic simulation of 1D NMR?
-TODO: get plotting working with ./nmr.py. i.e. use that to extract the data and then plot it.
-        - Need to deal with clashing options such as -p !
-            - Solution is to hard-code some of the options for this case. 
-TODO: [x] when query is used, the indexing fails -- fixed 
+TODOs:
+- [ ] add stylesheets
+- [ ] add dipolar/j-coupling scaling of markers
+    - [ ] Basic version done, but maybe check the assumptions made when running with the reduce or average groups options...
+- [ ] 1D plots -- basic simulation of 1D NMR?
 """
 
 __author__ = "J. Kane Shenton"

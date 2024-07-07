@@ -60,7 +60,7 @@ class EFGTensor(AtomsProperty):
     Requires the Atoms object to have
     been loaded from a .magres file containing the relevant information.
 
-    The default convention for EFG tensors is the NQR one (|Vxx| ≤ |Vyy| ≤ |Vzz|).
+    The default convention for EFG tensors is the NQR one (`|Vxx| ≤ |Vyy| ≤ |Vzz|`).
     This is different from the default convention for MS tensors (Haeberlen).
     You can change this by specifying the 'order' parameter.
 
@@ -602,7 +602,7 @@ class EFGQuaternion(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    The default convention for EFG tensors is the NQR one (|Vxx| ≤ |Vyy| ≤ |Vzz|).
+    The default convention for EFG tensors is the NQR one (`|Vxx| ≤ |Vyy| ≤ |Vzz|`).
     This is different from the default convention for MS tensors (Haeberlen).
     You can change this by specifying the 'order' parameter.
 
