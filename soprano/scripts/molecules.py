@@ -260,7 +260,19 @@ def write_molecules(molecules, output_dir, format, seedname):
         # make the filename
         filename = f"{seedname}_{i:0{Nzeros}}.{format}"
         logger.info(f"Writing molecule {i} to {filename}")
-        mol.write(
+        # TODO think about what info to include in the file
+        # make a copy of the atoms object without the arrays
+        mol_temp = Atoms(
+            mol.get_chemical_symbols(),
+            positions=mol.get_positions(),
+            cell=mol.get_cell(),
+            pbc=mol.get_pbc(),
+        )
+        # include labels
+        if has_cif_labels(mol):
+            mol_temp.set_array("labels", mol.get_array("labels"))
+
+        mol_temp.write(
             os.path.join(output_dir, filename),
             # format=format,
             # TODO - maybe add some more options here?

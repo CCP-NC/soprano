@@ -123,6 +123,11 @@ def has_cif_labels(atoms):
     if not all(symbols == labels) and any(symbols == labels):
         warnings.warn("A mix of cif and non-cif-stlye labels detected.")
 
+    # If MagresView type labels, then return false
+    # if all labels have an underscore, then they are MagresView labels
+    if all("_" in label for label in labels):
+        return False
+
     return not all(symbols == labels)
 
 
