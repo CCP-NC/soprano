@@ -8,6 +8,12 @@ the tutorials are available both as online text and in the form of
 interactively on your computer. 
 They can also be run using the free cloud-based virtual machine: Binder wherever you see this symbol: <i class="fas fa-rocket"></i>
 
+
+-  [](tutorials/00-python-quickstart.ipynb)    
+    If you are new to Python, this tutorial will help you get Python
+    installed and running on your computer. It has a particular focus on
+    getting you set up to do computational materials science. 
+
 -   [](tutorials/01-basic_concepts.ipynb)    
     How to load multiple structures into a single collection, how to
     access them individually or in groups, assign data arrays to them,
