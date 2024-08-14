@@ -1,107 +1,178 @@
 
 <!DOCTYPE html>
 
-<html>
+
+<html lang="en" data-content_root="../../../../" >
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>soprano.analyse.phylogen.phylogenclust &#8212; Soprano</title>
-    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
-    
-  <link rel="stylesheet"
-    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=87e54e7c" />
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/togglebutton.js"></script>
-    <script src="../../../../_static/clipboard.min.js"></script>
-    <script src="../../../../_static/copybutton.js"></script>
-    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
-    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
-    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
-    <script async="async" src="../../../../_static/sphinx-thebe.js"></script>
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=5eb1bb1e"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script >mermaid.initialize({startOnLoad:true});</script>
-    <link rel="shortcut icon" href="../../../../_static/favicon.png"/>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/soprano/analyse/phylogen/phylogenclust';</script>
+    <link rel="icon" href="../../../../_static/favicon.png"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay overlay-navbar" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<!-- Checkboxes to toggle the in-page toc -->
-<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
-<label class="overlay overlay-pagetoc" for="__page-toc">
-    <div class="visually-hidden">Toggle in-page Table of Contents</div>
-</label>
-<!-- Headers at the top -->
-<div class="announcement header-item noprint"></div>
-<div class="header header-item noprint"></div>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-    
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
 
-    <div class="container-xl">
-      <div class="row">
-          
-<!-- Sidebar -->
-<div class="bd-sidebar noprint" id="site-navigation">
-    <div class="bd-sidebar__content">
-        <div class="bd-sidebar__top"><div class="navbar-brand-box">
-    <a class="navbar-brand text-wrap" href="../../../../index.html">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
       
-        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+      
+      
         
       
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../intro.html">
+  
+  
+  
+  
+  
+    
+    
       
-      <img src="../../../../_static/soprano_logo.svg" class="logo" alt="logo">
-      
-      
-      <h1 class="site-logo" id="site-title">Soprano</h1>
-      
-    </a>
-</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item active">
+    
+    
+    <img src="../../../../_static/soprano_logo.svg" class="logo__image only-light" alt="Soprano - Home"/>
+    <script>document.write(`<img src="../../../../_static/soprano_logo.svg" class="logo__image only-dark" alt="Soprano - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
@@ -111,466 +182,233 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="../../../../installation.html">
-   Installation
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../../../tutorials.html">
-   Tutorials
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">
-     Tutorial 1 - Basic concepts: using AtomsCollection objects
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">
-     Tutorial 2 - Generators, Properties and Calculators
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">
-     Tutorial 3 - AtomSelection and transforms
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../../../tutorials/04-clustering.html">
-     Tutorial 4 - Clustering analysis
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../../../tutorials/05-nmr.html">
-     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">
-     Tutorial 6 - Soprano for defect calculations
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../../../../submitter.html">
-   Job Submitter
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../../../api.html">
-   API reference
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../../../../_autosummary/soprano.html">
-     soprano
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">
-       soprano.analyse
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-      <label for="toctree-checkbox-4">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">
-         soprano.analyse.phylogen
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">
-       soprano.calculate
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-      <label for="toctree-checkbox-5">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">
-         soprano.calculate.gulp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">
-         soprano.calculate.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">
-         soprano.calculate.powder
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">
-         soprano.calculate.xrd
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.collection.html">
-       soprano.collection
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-      <label for="toctree-checkbox-6">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">
-         soprano.collection.collection
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">
-         soprano.collection.generate
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.data.html">
-       soprano.data
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-      <label for="toctree-checkbox-7">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">
-         soprano.data.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">
-         soprano.data.vdw
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">
-       soprano.hpc
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-      <label for="toctree-checkbox-8">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">
-         soprano.hpc.submitter
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../../../_autosummary/soprano.measure.html">
-       soprano.measure
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">
-       soprano.nmr
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-      <label for="toctree-checkbox-9">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">
-         soprano.nmr.tensor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">
-         soprano.nmr.utils
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../../../_autosummary/soprano.optional.html">
-       soprano.optional
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.properties.html">
-       soprano.properties
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-      <label for="toctree-checkbox-10">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">
-         soprano.properties.atomsproperty
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">
-         soprano.properties.basic
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">
-         soprano.properties.castep
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">
-         soprano.properties.labeling
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">
-         soprano.properties.linkage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">
-         soprano.properties.map
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">
-         soprano.properties.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">
-         soprano.properties.order
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">
-         soprano.properties.symmetry
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">
-         soprano.properties.transform
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">
-       soprano.rnd
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">
-       soprano.scripts
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">
-         soprano.scripts.msaverage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">
-         soprano.scripts.phylogen
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">
-         soprano.scripts.vasp2cell
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../../../_autosummary/soprano.selection.html">
-       soprano.selection
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../../../_autosummary/soprano.utils.html">
-       soprano.utils
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../../../../citing.html">
-   Citing Soprano
-  </a>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/01-basic_concepts.html">Tutorial 1 - Basic concepts: using AtomsCollection objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/02-generators_properties_calculators.html">Tutorial 2 - Generators, Properties and Calculators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/03-atomselection_transforms.html">Tutorial 3 - AtomSelection and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/04-clustering.html">Tutorial 4 - Clustering analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/05-nmr.html">Tutorial 5 - NMR Properties: using Soprano for working with .magres files</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/06-defect_calculations.html">Tutorial 6 - Soprano for defect calculations</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../submitter.html">Job Submitter</a></li>
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../api.html">API reference</a><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.html">soprano</a><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.analyse.html">soprano.analyse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.analyse.phylogen.html">soprano.analyse.phylogen</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.calculate.html">soprano.calculate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.calculate.gulp.html">soprano.calculate.gulp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.calculate.nmr.html">soprano.calculate.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.calculate.powder.html">soprano.calculate.powder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.calculate.xrd.html">soprano.calculate.xrd</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.collection.html">soprano.collection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.collection.collection.html">soprano.collection.collection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.collection.generate.html">soprano.collection.generate</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.data.html">soprano.data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.data.nmr.html">soprano.data.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.data.vdw.html">soprano.data.vdw</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.hpc.html">soprano.hpc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.hpc.submitter.html">soprano.hpc.submitter</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/soprano.measure.html">soprano.measure</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.nmr.html">soprano.nmr</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.nmr.tensor.html">soprano.nmr.tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.nmr.utils.html">soprano.nmr.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/soprano.optional.html">soprano.optional</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.properties.html">soprano.properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.atomsproperty.html">soprano.properties.atomsproperty</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.basic.html">soprano.properties.basic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.castep.html">soprano.properties.castep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.labeling.html">soprano.properties.labeling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.linkage.html">soprano.properties.linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.map.html">soprano.properties.map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.nmr.html">soprano.properties.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.order.html">soprano.properties.order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.symmetry.html">soprano.properties.symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.properties.transform.html">soprano.properties.transform</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/soprano.rnd.html">soprano.rnd</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../_autosummary/soprano.scripts.html">soprano.scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.scripts.msaverage.html">soprano.scripts.msaverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.scripts.phylogen.html">soprano.scripts.phylogen</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../_autosummary/soprano.scripts.vasp2cell.html">soprano.scripts.vasp2cell</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/soprano.selection.html">soprano.selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../_autosummary/soprano.utils.html">soprano.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../../citing.html">Citing Soprano</a></li>
 </ul>
 
     </div>
 </nav></div>
-        <div class="bd-sidebar__bottom">
-             <!-- To handle the deprecated key -->
-            
-            <div class="navbar_extra_footer">
-            A Python library to crack crystals
-            </div>
-            
-        </div>
     </div>
-    <div id="rtd-footer-container"></div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/analyse/phylogen/phylogenclust.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
 </div>
 
 
-          
 
 
-          
-<!-- A tiny helper pixel to detect if we've scrolled -->
-<div class="sbt-scroll-pixel-helper"></div>
-<!-- Main content -->
-<div class="col py-0 content-container">
-    
-    <div class="header-article row sticky-top noprint">
-        
-
-
-
-<div class="col py-1 d-flex header-article-main">
-    <div class="header-article__left">
-        
-        <label for="__navigation"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="right"
-title="Toggle navigation"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-bars"></i>
-  </span>
-
-</label>
-
-        
-    </div>
-    <div class="header-article__right">
 <button onclick="toggleFullScreen()"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="bottom"
-title="Fullscreen mode"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
   <i class="fas fa-expand"></i>
   </span>
 
 </button>
 
-<div class="menu-dropdown menu-dropdown-repository-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Source repositories">
-      <i class="fab fa-github"></i>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="https://github.com/CCP-NC/soprano"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Source repository"
->
-  
+`);
+</script>
 
-<span class="headerbtn__icon-container">
-  <i class="fab fa-github"></i>
-  </span>
-<span class="headerbtn__text-container">repository</span>
-</a>
 
-      </li>
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
       
-      <li>
-        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_modules/soprano/analyse/phylogen/phylogenclust.html&body=Your%20issue%20content%20here."
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Open an issue"
->
+    </div>
   
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-lightbulb"></i>
-  </span>
-<span class="headerbtn__text-container">open issue</span>
-</a>
-
-      </li>
-      
-    </ul>
-  </div>
 </div>
+</div>
+              
+              
 
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
     </div>
 </div>
 
-<!-- Table of contents -->
-<div class="col-md-3 bd-toc show noprint">
-</div>
-    </div>
-    <div class="article row">
-        <div class="col pl-md-3 pl-lg-5 content-container">
-            <!-- Table of contents that is only displayed when printing the page -->
-            <div id="jb-print-docs-body" class="onlyprint">
-                <h1></h1>
-                <!-- Table of contents -->
-                <div id="print-main-content">
-                    <div id="jb-print-toc">
-                        
-                    </div>
-                </div>
-            </div>
-            <main id="main-content" role="main">
+              
                 
-              <div>
-                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for soprano.analyse.phylogen.phylogenclust</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Soprano - a library to crack crystals! by Simone Sturniolo</span>
 <span class="c1"># Copyright (C) 2016 - Science and Technology Facility Council</span>
@@ -614,9 +452,11 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">soprano.analyse.phylogen</span> <span class="kn">import</span> <span class="n">mapping</span>
 
 
-<div class="viewcode-block" id="PhylogenCluster"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster">[docs]</a><span class="k">class</span> <span class="nc">PhylogenCluster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="PhylogenCluster">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster">[docs]</a>
+<span class="k">class</span> <span class="nc">PhylogenCluster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;PhylogenCluster</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PhylogenCluster</span>
 
 <span class="sd">    An object that, given an AtomsCollection and a series of &quot;genes&quot; and</span>
 <span class="sd">    weights, will build clusters out of the structures in the collection based</span>
@@ -625,7 +465,7 @@ title="Open an issue"
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coll</span><span class="p">,</span> <span class="n">genes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">norm_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">norm_dist</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize the PhylogenCluster object.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the PhylogenCluster object.</span>
 
 <span class="sd">        | Args:</span>
 <span class="sd">        |   coll (AtomsCollection): an AtomsCollection containing the</span>
@@ -682,8 +522,10 @@ title="Open an issue"
         <span class="k">if</span> <span class="n">genes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_genes</span><span class="p">(</span><span class="n">genes</span><span class="o">=</span><span class="n">genes</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PhylogenCluster.set_genes"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes">[docs]</a>    <span class="k">def</span> <span class="nf">set_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">load_arrays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate, store and set a list of genes as used for clustering.</span>
+<div class="viewcode-block" id="PhylogenCluster.set_genes">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.set_genes">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_genes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">genes</span><span class="p">,</span> <span class="n">load_arrays</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate, store and set a list of genes as used for clustering.</span>
 
 <span class="sd">        | Args:</span>
 <span class="sd">        |   genes (list[soprano.analyse.phylogen.Gene],</span>
@@ -733,8 +575,11 @@ title="Open an issue"
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster._recalc"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster._recalc">[docs]</a>    <span class="k">def</span> <span class="nf">_recalc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Recalculate all stored variables that depend on genes and ranges&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhylogenCluster._recalc">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster._recalc">[docs]</a>
+    <span class="k">def</span> <span class="nf">_recalc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recalculate all stored variables that depend on genes and ranges&quot;&quot;&quot;</span>
 
         <span class="n">clen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_collection</span><span class="o">.</span><span class="n">length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[]]</span>
@@ -809,8 +654,11 @@ title="Open an issue"
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_needs_recalc</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_genome_vectors"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the genome vectors in raw form (not normalized).</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_vectors">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_genome_vectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the genome vectors in raw form (not normalized).</span>
 <span class="sd">        The vectors refer to genes that allow to define a specific point for</span>
 <span class="sd">        each structure.</span>
 
@@ -829,8 +677,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">][:]</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_genome_matrices"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the genome matrices in raw form (not normalized).</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_matrices">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_genome_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the genome matrices in raw form (not normalized).</span>
 <span class="sd">        The matrices refer to genes that only allow to define a distance</span>
 <span class="sd">        between structures. The element at i,j represents the distance</span>
 <span class="sd">        between said structures. The matrix is symmetric and has</span>
@@ -852,8 +703,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_raw</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">1</span><span class="p">][:]</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_genome_vectors_norm"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_vectors_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the genome vectors in normalized and weighted form.</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_vectors_norm">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_vectors_norm">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_genome_vectors_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the genome vectors in normalized and weighted form.</span>
 <span class="sd">        The vectors refer to genes that allow to define a specific point for</span>
 <span class="sd">        each structure.</span>
 
@@ -872,8 +726,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_vectors_norm</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">][:]</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_genome_matrices_norm"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm">[docs]</a>    <span class="k">def</span> <span class="nf">get_genome_matrices_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the genome matrices in normalized and weighted form.</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_genome_matrices_norm">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_genome_matrices_norm">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_genome_matrices_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the genome matrices in normalized and weighted form.</span>
 <span class="sd">        The matrices refer to genes that only allow to define a distance</span>
 <span class="sd">        between structures. The element at i,j represents the distance</span>
 <span class="sd">        between said structures. The matrix is symmetric and has</span>
@@ -895,8 +752,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_matrices_norm</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">1</span><span class="p">][:]</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_distmat"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat">[docs]</a>    <span class="k">def</span> <span class="nf">get_distmat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the distance matrix between structures in the collection,</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_distmat">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_distmat">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_distmat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the distance matrix between structures in the collection,</span>
 <span class="sd">        based on the genes currently in use.</span>
 
 <span class="sd">        | Returns:</span>
@@ -912,8 +772,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distmat</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_linkage"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage">[docs]</a>    <span class="k">def</span> <span class="nf">get_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get the linkage matrix between structures in the collection,</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_linkage">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_linkage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_linkage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the linkage matrix between structures in the collection,</span>
 <span class="sd">        based on the genes currently in use. Only used in hierarchical</span>
 <span class="sd">        clustering.</span>
 
@@ -938,8 +801,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">cdist</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_hier_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_hier_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get multiple clusters (in the form of a list of collections) based</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_hier_clusters">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_clusters">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_hier_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get multiple clusters (in the form of a list of collections) based</span>
 <span class="sd">        on the hierarchical clustering methods and the currently set genes.</span>
 
 <span class="sd">        Calls scipy.cluster.hierarchy.fcluster</span>
@@ -981,8 +847,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">clusts</span><span class="p">,</span> <span class="n">clust_slices</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_hier_tree"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree">[docs]</a>    <span class="k">def</span> <span class="nf">get_hier_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get a tree data structure describing the clustering order of based</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_hier_tree">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_hier_tree">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_hier_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a tree data structure describing the clustering order of based</span>
 <span class="sd">        on the hierarchical clustering methods and the currently set genes.</span>
 
 <span class="sd">        Calls scipy.cluster.hierarchy.to_tree</span>
@@ -1007,13 +876,19 @@ title="Open an issue"
         <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_linkage</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">hierarchy</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_max_cluster_dist"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_cluster_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the maximum possible distance between two clusters&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_max_cluster_dist">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_max_cluster_dist">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_max_cluster_dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the maximum possible distance between two clusters&quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">([</span><span class="n">g</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genes</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_kmeans_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_kmeans_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Get a given number of clusters (in the form of a list of</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_kmeans_clusters">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_kmeans_clusters">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_kmeans_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a given number of clusters (in the form of a list of</span>
 <span class="sd">        collections) based on the k-means clustering methods</span>
 <span class="sd">        and the currently set genes.</span>
 <span class="sd">        Warning: this method only works if there are no genes that work only</span>
@@ -1055,8 +930,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">clusts</span><span class="p">,</span> <span class="n">clust_slices</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_sklearn_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_sklearn_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_sklearn_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot;Get clusters applying any of the methods provided by the library</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_sklearn_clusters">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_sklearn_clusters">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_sklearn_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get clusters applying any of the methods provided by the library</span>
 <span class="sd">        scikit-learn (requires a separate installation).</span>
 <span class="sd">        Warning: this method only works if there are no genes that work only</span>
 <span class="sd">        with pairs of structures - as use of pairwise clustering methods is</span>
@@ -1101,8 +979,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">clusts</span><span class="p">,</span> <span class="n">clust_slices</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_clusters"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_clusters">[docs]</a>    <span class="k">def</span> <span class="nf">get_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
-        <span class="sd">&quot;&quot;&quot;Wrapper method to get clusters by any available method. Depending</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_clusters">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_clusters">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_clusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrapper method to get clusters by any available method. Depending</span>
 <span class="sd">        on the value passed as &#39;method&#39; it calls either ger_hier_clusters,</span>
 <span class="sd">        get_kmeans_clusters, or get_sklearn_clusters. Check their respective</span>
 <span class="sd">        docstrings for more detailed info.</span>
@@ -1138,8 +1019,11 @@ title="Open an issue"
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sklearn_clusters</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_cluster_stats"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_cluster_stats">[docs]</a>    <span class="k">def</span> <span class="nf">get_cluster_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Compute average values and standard deviation for each gene within</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_cluster_stats">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_cluster_stats">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cluster_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusters</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute average values and standard deviation for each gene within</span>
 <span class="sd">        a given clustering.</span>
 
 <span class="sd">        | Args:</span>
@@ -1178,8 +1062,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">avgs</span><span class="p">,</span> <span class="n">stds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gene_legend</span><span class="p">[</span><span class="mi">0</span><span class="p">][:]</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.get_elbow_plot"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_elbow_plot">[docs]</a>    <span class="k">def</span> <span class="nf">get_elbow_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">param_name</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">param_range</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)):</span>
-        <span class="sd">&quot;&quot;&quot;Returns data for an elbow plot by scanning the outcome of a given</span>
+
+<div class="viewcode-block" id="PhylogenCluster.get_elbow_plot">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.get_elbow_plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_elbow_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="n">param_name</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">param_range</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns data for an elbow plot by scanning the outcome of a given</span>
 <span class="sd">        clustering method within a range of values for a chosen parameter.</span>
 <span class="sd">        Used to determine optimal parameter values.</span>
 
@@ -1210,8 +1097,11 @@ title="Open an issue"
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wss</span><span class="p">),</span> <span class="n">param_range</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.create_mapping"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping">[docs]</a>    <span class="k">def</span> <span class="nf">create_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;total-principal&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return an array of 2-dimensional points representing a reduced</span>
+
+<div class="viewcode-block" id="PhylogenCluster.create_mapping">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.create_mapping">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;total-principal&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an array of 2-dimensional points representing a reduced</span>
 <span class="sd">        dimensionality mapping of the given genes using the algorithm of</span>
 <span class="sd">        choice. All algorithms are described in [W. Siedlecki et al., Patt.</span>
 <span class="sd">        Recog. vol. 21, num. 5, pp. 411 429 (1988)].</span>
@@ -1250,8 +1140,11 @@ title="Open an issue"
                 <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">-&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">algos</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
             <span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.save_collection"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection">[docs]</a>    <span class="k">def</span> <span class="nf">save_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Save as pickle the collection bound to this PhylogenCluster.</span>
+
+<div class="viewcode-block" id="PhylogenCluster.save_collection">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save_collection">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save as pickle the collection bound to this PhylogenCluster.</span>
 <span class="sd">        The calculated genes are also stored in it as arrays for future use.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1263,53 +1156,95 @@ title="Open an issue"
 
         <span class="n">saveC</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.save"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Simply save a pickled copy to a given file path&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PhylogenCluster.save">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Simply save a pickled copy to a given file path&quot;&quot;&quot;</span>
 
         <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
         <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PhylogenCluster.load"><a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="PhylogenCluster.load">
+<a class="viewcode-back" href="../../../../_autosummary/soprano.analyse.phylogen.phylogenclust.html#soprano.analyse.phylogen.phylogenclust.PhylogenCluster.load">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load a pickled copy from a given file path&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a pickled copy from a given file path&quot;&quot;&quot;</span>
 
         <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">PhylogenCluster</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File does not contain a PhylogenCluster object&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">f</span></div></div>
+        <span class="k">return</span> <span class="n">f</span></div>
+</div>
+
 </pre></div>
 
-              </div>
+                </article>
               
-            </main>
-            <footer class="footer-article noprint">
-                
-    <!-- Previous / next buttons -->
-<div class='prev-next-area'>
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
 </div>
-            </footer>
-        </div>
-    </div>
-    <div class="footer-content row">
-        <footer class="col footer"><p>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
   
-    By CCP-NC<br/>
-  
-      &copy; Copyright 2022.<br/>
-</p>
-        </footer>
-    </div>
+  <div class="footer-item">
     
+<p class="component-author">
+By CCP-NC
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
 </div>
+          </footer>
+        
 
-
-      </div>
+      </main>
     </div>
+  </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-
+  <footer class="bd-footer">
+  </footer>
   </body>
 </html>

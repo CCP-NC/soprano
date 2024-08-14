@@ -9,6 +9,12 @@ soprano.rnd
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      random_combination
+   
    
 
    

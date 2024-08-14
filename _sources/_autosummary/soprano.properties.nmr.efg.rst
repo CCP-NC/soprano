@@ -20,12 +20,14 @@ soprano.properties.nmr.efg
       EFGAnisotropy
       EFGAsymmetry
       EFGDiagonal
+      EFGEuler
       EFGQuadrupolarConstant
       EFGQuadrupolarProduct
       EFGQuaternion
       EFGReducedAnisotropy
       EFGSkew
       EFGSpan
+      EFGTensor
       EFGVzz
    
    

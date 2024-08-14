@@ -1,110 +1,179 @@
 
 <!DOCTYPE html>
 
-<html>
+
+<html lang="en" data-content_root="../" >
+
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>soprano.calculate.xrd.xrd &#8212; Soprano</title>
-    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
-    
-  <link rel="stylesheet"
-    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/togglebutton.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
-    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
-    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
-    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5eb1bb1e"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script >mermaid.initialize({startOnLoad:true});</script>
-    <link rel="shortcut icon" href="../_static/favicon.png"/>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/soprano.calculate.xrd.xrd';</script>
+    <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="soprano.collection" href="soprano.collection.html" />
     <link rel="prev" title="soprano.calculate.xrd.sel_rules" href="soprano.calculate.xrd.sel_rules.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay overlay-navbar" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<!-- Checkboxes to toggle the in-page toc -->
-<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
-<label class="overlay overlay-pagetoc" for="__page-toc">
-    <div class="visually-hidden">Toggle in-page Table of Contents</div>
-</label>
-<!-- Headers at the top -->
-<div class="announcement header-item noprint"></div>
-<div class="header header-item noprint"></div>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-    
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
 
-    <div class="container-xl">
-      <div class="row">
-          
-<!-- Sidebar -->
-<div class="bd-sidebar noprint" id="site-navigation">
-    <div class="bd-sidebar__content">
-        <div class="bd-sidebar__top"><div class="navbar-brand-box">
-    <a class="navbar-brand text-wrap" href="../index.html">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
       
-        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
         
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+    
+    
       
-      
-      <img src="../_static/soprano_logo.svg" class="logo" alt="logo">
-      
-      
-      <h1 class="site-logo" id="site-title">Soprano</h1>
-      
-    </a>
-</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item active">
+    
+    
+    <img src="../_static/soprano_logo.svg" class="logo__image only-light" alt="Soprano - Home"/>
+    <script>document.write(`<img src="../_static/soprano_logo.svg" class="logo__image only-dark" alt="Soprano - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
@@ -114,527 +183,339 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="../installation.html">
-   Installation
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../tutorials.html">
-   Tutorials
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../tutorials/01-basic_concepts.html">
-     Tutorial 1 - Basic concepts: using AtomsCollection objects
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../tutorials/02-generators_properties_calculators.html">
-     Tutorial 2 - Generators, Properties and Calculators
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../tutorials/03-atomselection_transforms.html">
-     Tutorial 3 - AtomSelection and transforms
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../tutorials/04-clustering.html">
-     Tutorial 4 - Clustering analysis
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../tutorials/05-nmr.html">
-     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../tutorials/06-defect_calculations.html">
-     Tutorial 6 - Soprano for defect calculations
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../submitter.html">
-   Job Submitter
-  </a>
- </li>
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../api.html">
-   API reference
-  </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2 current active has-children">
-    <a class="reference internal" href="soprano.html">
-     soprano
-    </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul class="current">
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.analyse.html">
-       soprano.analyse
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-      <label for="toctree-checkbox-4">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.analyse.phylogen.html">
-         soprano.analyse.phylogen
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 current active has-children">
-      <a class="reference internal" href="soprano.calculate.html">
-       soprano.calculate
-      </a>
-      <input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-      <label for="toctree-checkbox-5">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul class="current">
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.calculate.gulp.html">
-         soprano.calculate.gulp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.calculate.nmr.html">
-         soprano.calculate.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.calculate.powder.html">
-         soprano.calculate.powder
-        </a>
-       </li>
-       <li class="toctree-l4 current active">
-        <a class="reference internal" href="soprano.calculate.xrd.html">
-         soprano.calculate.xrd
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.collection.html">
-       soprano.collection
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-      <label for="toctree-checkbox-6">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.collection.collection.html">
-         soprano.collection.collection
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.collection.generate.html">
-         soprano.collection.generate
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.data.html">
-       soprano.data
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-      <label for="toctree-checkbox-7">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.data.nmr.html">
-         soprano.data.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.data.vdw.html">
-         soprano.data.vdw
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.hpc.html">
-       soprano.hpc
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-      <label for="toctree-checkbox-8">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.hpc.submitter.html">
-         soprano.hpc.submitter
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="soprano.measure.html">
-       soprano.measure
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.nmr.html">
-       soprano.nmr
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-      <label for="toctree-checkbox-9">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.nmr.tensor.html">
-         soprano.nmr.tensor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.nmr.utils.html">
-         soprano.nmr.utils
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="soprano.optional.html">
-       soprano.optional
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.properties.html">
-       soprano.properties
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-      <label for="toctree-checkbox-10">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.atomsproperty.html">
-         soprano.properties.atomsproperty
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.basic.html">
-         soprano.properties.basic
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.castep.html">
-         soprano.properties.castep
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.labeling.html">
-         soprano.properties.labeling
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.linkage.html">
-         soprano.properties.linkage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.map.html">
-         soprano.properties.map
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.nmr.html">
-         soprano.properties.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.order.html">
-         soprano.properties.order
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.symmetry.html">
-         soprano.properties.symmetry
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.properties.transform.html">
-         soprano.properties.transform
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="soprano.rnd.html">
-       soprano.rnd
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="soprano.scripts.html">
-       soprano.scripts
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.scripts.msaverage.html">
-         soprano.scripts.msaverage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.scripts.phylogen.html">
-         soprano.scripts.phylogen
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="soprano.scripts.vasp2cell.html">
-         soprano.scripts.vasp2cell
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="soprano.selection.html">
-       soprano.selection
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="soprano.utils.html">
-       soprano.utils
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../citing.html">
-   Citing Soprano
-  </a>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/01-basic_concepts.html">Tutorial 1 - Basic concepts: using AtomsCollection objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/02-generators_properties_calculators.html">Tutorial 2 - Generators, Properties and Calculators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/03-atomselection_transforms.html">Tutorial 3 - AtomSelection and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/04-clustering.html">Tutorial 4 - Clustering analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/05-nmr.html">Tutorial 5 - NMR Properties: using Soprano for working with .magres files</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/06-defect_calculations.html">Tutorial 6 - Soprano for defect calculations</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../submitter.html">Job Submitter</a></li>
+
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="soprano.html">soprano</a><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.analyse.html">soprano.analyse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.analyse.phylogen.html">soprano.analyse.phylogen</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="soprano.calculate.html">soprano.calculate</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="soprano.calculate.gulp.html">soprano.calculate.gulp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.calculate.nmr.html">soprano.calculate.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.calculate.powder.html">soprano.calculate.powder</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="soprano.calculate.xrd.html">soprano.calculate.xrd</a></li>
+</ul><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.collection.html">soprano.collection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.collection.collection.html">soprano.collection.collection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.collection.generate.html">soprano.collection.generate</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.data.html">soprano.data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.data.nmr.html">soprano.data.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.data.vdw.html">soprano.data.vdw</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.hpc.html">soprano.hpc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.hpc.submitter.html">soprano.hpc.submitter</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.measure.html">soprano.measure</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.nmr.html">soprano.nmr</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.nmr.tensor.html">soprano.nmr.tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.nmr.utils.html">soprano.nmr.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.optional.html">soprano.optional</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.properties.html">soprano.properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.atomsproperty.html">soprano.properties.atomsproperty</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.basic.html">soprano.properties.basic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.castep.html">soprano.properties.castep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.labeling.html">soprano.properties.labeling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.linkage.html">soprano.properties.linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.map.html">soprano.properties.map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.nmr.html">soprano.properties.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.order.html">soprano.properties.order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.symmetry.html">soprano.properties.symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.properties.transform.html">soprano.properties.transform</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.rnd.html">soprano.rnd</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="soprano.scripts.html">soprano.scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="soprano.scripts.msaverage.html">soprano.scripts.msaverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.scripts.phylogen.html">soprano.scripts.phylogen</a></li>
+<li class="toctree-l4"><a class="reference internal" href="soprano.scripts.vasp2cell.html">soprano.scripts.vasp2cell</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.selection.html">soprano.selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="soprano.utils.html">soprano.utils</a></li>
+</ul><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+</ul><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing Soprano</a></li>
 </ul>
 
     </div>
 </nav></div>
-        <div class="bd-sidebar__bottom">
-             <!-- To handle the deprecated key -->
-            
-            <div class="navbar_extra_footer">
-            A Python library to crack crystals
-            </div>
-            
-        </div>
     </div>
-    <div id="rtd-footer-container"></div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_autosummary/soprano.calculate.xrd.xrd.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
 </div>
 
 
-          
-
-
-          
-<!-- A tiny helper pixel to detect if we've scrolled -->
-<div class="sbt-scroll-pixel-helper"></div>
-<!-- Main content -->
-<div class="col py-0 content-container">
-    
-    <div class="header-article row sticky-top noprint">
-        
 
 
 
-<div class="col py-1 d-flex header-article-main">
-    <div class="header-article__left">
-        
-        <label for="__navigation"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="right"
-title="Toggle navigation"
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/_autosummary/soprano.calculate.xrd.xrd.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
-  <i class="fas fa-bars"></i>
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
   </span>
-
-</label>
-
-        
-    </div>
-    <div class="header-article__right">
-<button onclick="toggleFullScreen()"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="bottom"
-title="Fullscreen mode"
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
   <i class="fas fa-expand"></i>
   </span>
 
 </button>
 
-<div class="menu-dropdown menu-dropdown-repository-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Source repositories">
-      <i class="fab fa-github"></i>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="https://github.com/CCP-NC/soprano"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Source repository"
->
-  
+`);
+</script>
 
-<span class="headerbtn__icon-container">
-  <i class="fab fa-github"></i>
-  </span>
-<span class="headerbtn__text-container">repository</span>
-</a>
 
-      </li>
-      
-      <li>
-        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2F_autosummary/soprano.calculate.xrd.xrd.html&body=Your%20issue%20content%20here."
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Open an issue"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-lightbulb"></i>
-  </span>
-<span class="headerbtn__text-container">open issue</span>
-</a>
-
-      </li>
-      
-    </ul>
-  </div>
-</div>
-
-<div class="menu-dropdown menu-dropdown-download-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Download this page">
-      <i class="fas fa-download"></i>
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="../_sources/_autosummary/soprano.calculate.xrd.xrd.rst"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Download source file"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-file"></i>
-  </span>
-<span class="headerbtn__text-container">.rst</span>
-</a>
-
-      </li>
-      
-      <li>
-        
-<button onclick="printPdf(this)"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="left"
-title="Print to PDF"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-file-pdf"></i>
-  </span>
-<span class="headerbtn__text-container">.pdf</span>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
 </button>
-
-      </li>
+</div></div>
       
-    </ul>
-  </div>
-</div>
-
     </div>
+  
 </div>
+</div>
+              
+              
 
-<!-- Table of contents -->
-<div class="col-md-3 bd-toc show noprint">
-</div>
-    </div>
-    <div class="article row">
-        <div class="col pl-md-3 pl-lg-5 content-container">
-            <!-- Table of contents that is only displayed when printing the page -->
-            <div id="jb-print-docs-body" class="onlyprint">
-                <h1>soprano.calculate.xrd.xrd</h1>
-                <!-- Table of contents -->
-                <div id="print-main-content">
-                    <div id="jb-print-toc">
-                        
-                    </div>
-                </div>
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>soprano.calculate.xrd.xrd</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
             </div>
-            <main id="main-content" role="main">
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator"><code class="docutils literal notranslate"><span class="pre">XRDCalculator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.dataset_range"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.dataset_range()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.exp_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.lebail_fit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.peak_f_args</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_func"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.peak_func</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.powder_peaks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.set_peak_func()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.spec_simul()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum"><code class="docutils literal notranslate"><span class="pre">XraySpectrum</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum._asdict"><code class="docutils literal notranslate"><span class="pre">XraySpectrum._asdict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum._make"><code class="docutils literal notranslate"><span class="pre">XraySpectrum._make()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum._replace"><code class="docutils literal notranslate"><span class="pre">XraySpectrum._replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.count"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.hkl</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.hkl_unique</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.index"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.intensity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.invd</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.lambdax</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.theta2"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.theta2</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData._asdict"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData._asdict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData._make"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData._make()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData._replace"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData._replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.count"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.index"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.intensity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.theta2</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd._Rwp_eval"><code class="docutils literal notranslate"><span class="pre">_Rwp_eval()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd._gauss_peak_default"><code class="docutils literal notranslate"><span class="pre">_gauss_peak_default()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd._leBail_rescale_I"><code class="docutils literal notranslate"><span class="pre">_leBail_rescale_I()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
                 
-              <div>
-                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="module-soprano.calculate.xrd.xrd">
-<span id="soprano-calculate-xrd-xrd"></span><h1>soprano.calculate.xrd.xrd<a class="headerlink" href="#module-soprano.calculate.xrd.xrd" title="Permalink to this headline">¶</a></h1>
+<span id="soprano-calculate-xrd-xrd"></span><h1>soprano.calculate.xrd.xrd<a class="headerlink" href="#module-soprano.calculate.xrd.xrd" title="Link to this heading">#</a></h1>
 <p>Classes and functions for simulating X-ray diffraction
 spectroscopic results from structures.</p>
 <p class="rubric">Classes</p>
-<table class="longtable table autosummary">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.xrd.xrd.XRDCalculator" title="soprano.calculate.xrd.xrd.XRDCalculator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XRDCalculator</span></code></a>([lambdax, theta2_digits, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.xrd.xrd.XRDCalculator" title="soprano.calculate.xrd.xrd.XRDCalculator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XRDCalculator</span></code></a>([lambdax, theta2_digits, ...])</p></td>
 <td><p>A class implementing methods for XRD simulations, comparisons and fittings.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="soprano.calculate.xrd.xrd.XraySpectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XraySpectrum</span></code></a>(theta2, hkl, hkl_unique, invd, …)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="soprano.calculate.xrd.xrd.XraySpectrum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XraySpectrum</span></code></a>(theta2, hkl, hkl_unique, invd, ...)</p></td>
 <td><p>Create new instance of XraySpectrum(theta2, hkl, hkl_unique, invd, intensity, lambdax)</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#soprano.calculate.xrd.xrd.XraySpectrumData" title="soprano.calculate.xrd.xrd.XraySpectrumData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XraySpectrumData</span></code></a>(theta2, intensity)</p></td>
@@ -642,9 +523,10 @@ spectroscopic results from structures.</p>
 </tr>
 </tbody>
 </table>
+</div>
 <dl class="py class">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></code><code class="sig-name descname"><span class="pre">XRDCalculator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambdax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.54056</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta2_digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_f_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">XRDCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambdax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.54056</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta2_digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_f_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class implementing methods for XRD simulations, comparisons and
 fittings.</p>
@@ -694,8 +576,8 @@ fittings.</p>
 </div>
 </div>
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.dataset_range">
-<code class="sig-name descname"><span class="pre">dataset_range</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta2_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.dataset_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.dataset_range" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.dataset_range">
+<span class="sig-name descname"><span class="pre">dataset_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta2_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.dataset_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.dataset_range" title="Link to this definition">#</a></dt>
 <dd><dl class="simple">
 <dt>Restrict the given dataset (XraySpectrum or XraySpectrumData) to</dt><dd><p>only the values that lie within a certain theta2 range.</p>
 </dd>
@@ -729,8 +611,8 @@ fittings.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset">
-<code class="sig-name descname"><span class="pre">exp_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">th2_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_axis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.exp_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset">
+<span class="sig-name descname"><span class="pre">exp_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">th2_axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">int_axis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.exp_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Build an experimental dataset as an XraySpectrumData object.</p>
 <div class="line-block">
 <div class="line">Args:</div>
@@ -757,8 +639,8 @@ fittings.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit">
-<code class="sig-name descname"><span class="pre">lebail_fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rwp_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.lebail_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit">
+<span class="sig-name descname"><span class="pre">lebail_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rwp_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.lebail_fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit" title="Link to this definition">#</a></dt>
 <dd><p>Perform a refining on an XraySpectrum object’s intensities based on
 experimental data with leBail’s method.</p>
 <div class="line-block">
@@ -807,22 +689,22 @@ experimental data with leBail’s method.</p>
 </div>
 </dd></dl>
 
-<dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">peak_f_args</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_f_args</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args" title="Link to this definition">#</a></dt>
 <dd><p>Additional arguments to be passed to peak_func</p>
 </dd></dl>
 
-<dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.peak_func">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">peak_func</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_func" title="Permalink to this definition">¶</a></dt>
+<dl class="py property">
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.peak_func">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">peak_func</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_func" title="Link to this definition">#</a></dt>
 <dd><p>The function used to build peaks in simulated spectra</p>
 <p>Should be of form peak_func(theta2, peak_position, *peak_f_args)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks">
-<code class="sig-name descname"><span class="pre">powder_peaks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt_abc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.powder_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks">
+<span class="sig-name descname"><span class="pre">powder_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">latt_abc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.powder_peaks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the peaks (without intensities) of a powder
 XRD spectrum given either an Atoms object or the lattice in ABC form
 and the spacegroup indices to apply the selection rules</p>
@@ -864,8 +746,8 @@ and the spacegroup indices to apply the selection rules</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func">
-<code class="sig-name descname"><span class="pre">set_peak_func</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_f_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.set_peak_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func">
+<span class="sig-name descname"><span class="pre">set_peak_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_f_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.set_peak_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func" title="Link to this definition">#</a></dt>
 <dd><p>Set a new peak_func for this XDRCalculator. If no new function is
 passed, reset the default Gaussian function.</p>
 <div class="line-block">
@@ -900,8 +782,8 @@ passed, reset the default Gaussian function.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XRDCalculator.spec_simul">
-<code class="sig-name descname"><span class="pre">spec_simul</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th2_axis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.spec_simul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XRDCalculator.spec_simul">
+<span class="sig-name descname"><span class="pre">spec_simul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xpeaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th2_axis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#XRDCalculator.spec_simul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul" title="Link to this definition">#</a></dt>
 <dd><p>Simulate an XRD spectrum given positions of peaks, intensities,
 baseline, and a peak function (a Gaussian by default).</p>
 <div class="line-block">
@@ -938,144 +820,144 @@ baseline, and a peak function (a Gaussian by default).</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></code><code class="sig-name descname"><span class="pre">XraySpectrum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl_unique</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">XraySpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hkl_unique</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">invd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambdax</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of XraySpectrum(theta2, hkl, hkl_unique, invd, intensity, lambdax)</p>
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum._asdict">
-<code class="sig-name descname"><span class="pre">_asdict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum._asdict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum._asdict">
+<span class="sig-name descname"><span class="pre">_asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum._asdict" title="Link to this definition">#</a></dt>
 <dd><p>Return a new dict which maps field names to their values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum._make">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">_make</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum._make" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum._make">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum._make" title="Link to this definition">#</a></dt>
 <dd><p>Make a new XraySpectrum object from a sequence or iterable</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum._replace">
-<code class="sig-name descname"><span class="pre">_replace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum._replace" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum._replace">
+<span class="sig-name descname"><span class="pre">_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum._replace" title="Link to this definition">#</a></dt>
 <dd><p>Return a new XraySpectrum object replacing specified fields with new values</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.count">
-<code class="sig-name descname"><span class="pre">count</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.count" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.count" title="Link to this definition">#</a></dt>
 <dd><p>Return number of occurrences of value.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.hkl">
-<code class="sig-name descname"><span class="pre">hkl</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.hkl">
+<span class="sig-name descname"><span class="pre">hkl</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique">
-<code class="sig-name descname"><span class="pre">hkl_unique</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique">
+<span class="sig-name descname"><span class="pre">hkl_unique</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 2</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.index">
-<code class="sig-name descname"><span class="pre">index</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.index" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.index" title="Link to this definition">#</a></dt>
 <dd><p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.intensity">
-<code class="sig-name descname"><span class="pre">intensity</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.intensity">
+<span class="sig-name descname"><span class="pre">intensity</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 4</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.invd">
-<code class="sig-name descname"><span class="pre">invd</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.invd">
+<span class="sig-name descname"><span class="pre">invd</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 3</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.lambdax">
-<code class="sig-name descname"><span class="pre">lambdax</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.lambdax">
+<span class="sig-name descname"><span class="pre">lambdax</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 5</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrum.theta2">
-<code class="sig-name descname"><span class="pre">theta2</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.theta2" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrum.theta2">
+<span class="sig-name descname"><span class="pre">theta2</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrum.theta2" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></code><code class="sig-name descname"><span class="pre">XraySpectrumData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">XraySpectrumData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Create new instance of XraySpectrumData(theta2, intensity)</p>
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData._asdict">
-<code class="sig-name descname"><span class="pre">_asdict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData._asdict" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData._asdict">
+<span class="sig-name descname"><span class="pre">_asdict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData._asdict" title="Link to this definition">#</a></dt>
 <dd><p>Return a new dict which maps field names to their values.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData._make">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">_make</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData._make" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData._make">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_make</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData._make" title="Link to this definition">#</a></dt>
 <dd><p>Make a new XraySpectrumData object from a sequence or iterable</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData._replace">
-<code class="sig-name descname"><span class="pre">_replace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData._replace" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData._replace">
+<span class="sig-name descname"><span class="pre">_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData._replace" title="Link to this definition">#</a></dt>
 <dd><p>Return a new XraySpectrumData object replacing specified fields with new values</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.count">
-<code class="sig-name descname"><span class="pre">count</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.count" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.count" title="Link to this definition">#</a></dt>
 <dd><p>Return number of occurrences of value.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.index">
-<code class="sig-name descname"><span class="pre">index</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.index" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9223372036854775807</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.index" title="Link to this definition">#</a></dt>
 <dd><p>Return first index of value.</p>
 <p>Raises ValueError if the value is not present.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.intensity">
-<code class="sig-name descname"><span class="pre">intensity</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData.intensity">
+<span class="sig-name descname"><span class="pre">intensity</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt id="soprano.calculate.xrd.xrd.XraySpectrumData.theta2">
-<code class="sig-name descname"><span class="pre">theta2</span></code><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd.XraySpectrumData.theta2">
+<span class="sig-name descname"><span class="pre">theta2</span></span><a class="headerlink" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2" title="Link to this definition">#</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
-<dt id="soprano.calculate.xrd.xrd._Rwp_eval">
-<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></code><code class="sig-name descname"><span class="pre">_Rwp_eval</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simul_int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#_Rwp_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd._Rwp_eval" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd._Rwp_eval">
+<span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">_Rwp_eval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simul_int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#_Rwp_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd._Rwp_eval" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate Rwp for use in LeBail fitting</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="soprano.calculate.xrd.xrd._gauss_peak_default">
-<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></code><code class="sig-name descname"><span class="pre">_gauss_peak_default</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#_gauss_peak_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd._gauss_peak_default" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd._gauss_peak_default">
+<span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">_gauss_peak_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#_gauss_peak_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd._gauss_peak_default" title="Link to this definition">#</a></dt>
 <dd><p>Gaussian peak function (for spectrum simulation)</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="soprano.calculate.xrd.xrd._leBail_rescale_I">
-<code class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></code><code class="sig-name descname"><span class="pre">_leBail_rescale_I</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simul_peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simul_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#_leBail_rescale_I"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd._leBail_rescale_I" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="soprano.calculate.xrd.xrd._leBail_rescale_I">
+<span class="sig-prename descclassname"><span class="pre">soprano.calculate.xrd.xrd.</span></span><span class="sig-name descname"><span class="pre">_leBail_rescale_I</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simul_peaks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simul_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/soprano/calculate/xrd/xrd.html#_leBail_rescale_I"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soprano.calculate.xrd.xrd._leBail_rescale_I" title="Link to this definition">#</a></dt>
 <dd><p>Returns rescaling factors for intensities in leBail fitting</p>
 </dd></dl>
 
@@ -1093,7 +975,7 @@ baseline, and a peak function (a Gaussian by default).</p>
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python3",
+            name: "python3",
             path: "./_autosummary"
         },
         predefinedOutput: true
@@ -1101,50 +983,140 @@ baseline, and a peak function (a Gaussian by default).</p>
     </script>
     <script>kernelName = 'python3'</script>
 
-              </div>
+                </article>
               
-            </main>
-            <footer class="footer-article noprint">
-                
-    <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="soprano.calculate.xrd.sel_rules.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">soprano.calculate.xrd.sel_rules</p>
-        </div>
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="soprano.calculate.xrd.sel_rules.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">soprano.calculate.xrd.sel_rules</p>
+      </div>
     </a>
-    <a class='right-next' id="next-link" href="soprano.collection.html" title="next page">
-    <div class="prev-next-info">
+    <a class="right-next"
+       href="soprano.collection.html"
+       title="next page">
+      <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
         <p class="prev-next-title">soprano.collection</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
-            </footer>
-        </div>
-    </div>
-    <div class="footer-content row">
-        <footer class="col footer"><p>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator"><code class="docutils literal notranslate"><span class="pre">XRDCalculator</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.dataset_range"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.dataset_range()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.exp_dataset"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.exp_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.lebail_fit"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.lebail_fit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.peak_f_args</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.peak_func"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.peak_func</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.powder_peaks"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.powder_peaks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.set_peak_func"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.set_peak_func()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XRDCalculator.spec_simul"><code class="docutils literal notranslate"><span class="pre">XRDCalculator.spec_simul()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum"><code class="docutils literal notranslate"><span class="pre">XraySpectrum</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum._asdict"><code class="docutils literal notranslate"><span class="pre">XraySpectrum._asdict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum._make"><code class="docutils literal notranslate"><span class="pre">XraySpectrum._make()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum._replace"><code class="docutils literal notranslate"><span class="pre">XraySpectrum._replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.count"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.hkl</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.hkl_unique"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.hkl_unique</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.index"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.intensity"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.intensity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.invd"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.invd</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.lambdax"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.lambdax</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrum.theta2"><code class="docutils literal notranslate"><span class="pre">XraySpectrum.theta2</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData._asdict"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData._asdict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData._make"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData._make()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData._replace"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData._replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.count"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.index"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.intensity"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.intensity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd.XraySpectrumData.theta2"><code class="docutils literal notranslate"><span class="pre">XraySpectrumData.theta2</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd._Rwp_eval"><code class="docutils literal notranslate"><span class="pre">_Rwp_eval()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd._gauss_peak_default"><code class="docutils literal notranslate"><span class="pre">_gauss_peak_default()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soprano.calculate.xrd.xrd._leBail_rescale_I"><code class="docutils literal notranslate"><span class="pre">_leBail_rescale_I()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
   
-    By CCP-NC<br/>
-  
-      &copy; Copyright 2022.<br/>
-</p>
-        </footer>
-    </div>
+  <div class="footer-item">
     
+<p class="component-author">
+By CCP-NC
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
 </div>
+          </footer>
+        
 
-
-      </div>
+      </main>
     </div>
+  </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-
+  <footer class="bd-footer">
+  </footer>
   </body>
 </html>

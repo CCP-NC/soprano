@@ -20,11 +20,13 @@ soprano.properties.nmr.ms
       MSAnisotropy
       MSAsymmetry
       MSDiagonal
+      MSEuler
       MSIsotropy
       MSQuaternion
       MSReducedAnisotropy
       MSSkew
       MSSpan
+      MSTensor
    
    
 

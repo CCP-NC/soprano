@@ -1,112 +1,181 @@
 
 <!DOCTYPE html>
 
-<html>
+
+<html lang="en" data-content_root="../" >
+
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Tutorial 5 - NMR Properties: using Soprano for working with .magres files &#8212; Soprano</title>
-    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
-    
-  <link rel="stylesheet"
-    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
-    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/togglebutton.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
-    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
-    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
-    <script async="async" src="../_static/sphinx-thebe.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]], "processRefs": false, "processEnvironments": false}})</script>
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5eb1bb1e"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script >mermaid.initialize({startOnLoad:true});</script>
-    <link rel="shortcut icon" href="../_static/favicon.png"/>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/05-nmr';</script>
+    <link rel="icon" href="../_static/favicon.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tutorial 6 - Soprano for defect calculations" href="06-defect_calculations.html" />
     <link rel="prev" title="Tutorial 4 - Clustering analysis" href="04-clustering.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay overlay-navbar" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<!-- Checkboxes to toggle the in-page toc -->
-<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
-<label class="overlay overlay-pagetoc" for="__page-toc">
-    <div class="visually-hidden">Toggle in-page Table of Contents</div>
-</label>
-<!-- Headers at the top -->
-<div class="announcement header-item noprint"></div>
-<div class="header header-item noprint"></div>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-    
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
 
-    <div class="container-xl">
-      <div class="row">
-          
-<!-- Sidebar -->
-<div class="bd-sidebar noprint" id="site-navigation">
-    <div class="bd-sidebar__content">
-        <div class="bd-sidebar__top"><div class="navbar-brand-box">
-    <a class="navbar-brand text-wrap" href="../index.html">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
       
-        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
         
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+    
+    
       
-      
-      <img src="../_static/soprano_logo.svg" class="logo" alt="logo">
-      
-      
-      <h1 class="site-logo" id="site-title">Soprano</h1>
-      
-    </a>
-</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item active">
+    
+    
+    <img src="../_static/soprano_logo.svg" class="logo__image only-light" alt="Soprano - Home"/>
+    <script>document.write(`<img src="../_static/soprano_logo.svg" class="logo__image only-dark" alt="Soprano - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
@@ -116,654 +185,319 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="current nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="../installation.html">
-   Installation
-  </a>
- </li>
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../tutorials.html">
-   Tutorials
-  </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2">
-    <a class="reference internal" href="01-basic_concepts.html">
-     Tutorial 1 - Basic concepts: using AtomsCollection objects
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="02-generators_properties_calculators.html">
-     Tutorial 2 - Generators, Properties and Calculators
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="03-atomselection_transforms.html">
-     Tutorial 3 - AtomSelection and transforms
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="04-clustering.html">
-     Tutorial 4 - Clustering analysis
-    </a>
-   </li>
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
-     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="06-defect_calculations.html">
-     Tutorial 6 - Soprano for defect calculations
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../submitter.html">
-   Job Submitter
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../api.html">
-   API reference
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../_autosummary/soprano.html">
-     soprano
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.analyse.html">
-       soprano.analyse
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-      <label for="toctree-checkbox-4">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.analyse.phylogen.html">
-         soprano.analyse.phylogen
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.calculate.html">
-       soprano.calculate
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-      <label for="toctree-checkbox-5">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.calculate.gulp.html">
-         soprano.calculate.gulp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.calculate.nmr.html">
-         soprano.calculate.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.calculate.powder.html">
-         soprano.calculate.powder
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.calculate.xrd.html">
-         soprano.calculate.xrd
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.collection.html">
-       soprano.collection
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-      <label for="toctree-checkbox-6">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.collection.collection.html">
-         soprano.collection.collection
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.collection.generate.html">
-         soprano.collection.generate
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.data.html">
-       soprano.data
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-      <label for="toctree-checkbox-7">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.data.nmr.html">
-         soprano.data.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.data.vdw.html">
-         soprano.data.vdw
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.hpc.html">
-       soprano.hpc
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-      <label for="toctree-checkbox-8">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.hpc.submitter.html">
-         soprano.hpc.submitter
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../_autosummary/soprano.measure.html">
-       soprano.measure
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.nmr.html">
-       soprano.nmr
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-      <label for="toctree-checkbox-9">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.nmr.tensor.html">
-         soprano.nmr.tensor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.nmr.utils.html">
-         soprano.nmr.utils
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../_autosummary/soprano.optional.html">
-       soprano.optional
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.properties.html">
-       soprano.properties
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-      <label for="toctree-checkbox-10">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.atomsproperty.html">
-         soprano.properties.atomsproperty
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.basic.html">
-         soprano.properties.basic
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.castep.html">
-         soprano.properties.castep
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.labeling.html">
-         soprano.properties.labeling
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.linkage.html">
-         soprano.properties.linkage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.map.html">
-         soprano.properties.map
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.nmr.html">
-         soprano.properties.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.order.html">
-         soprano.properties.order
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.symmetry.html">
-         soprano.properties.symmetry
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.properties.transform.html">
-         soprano.properties.transform
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../_autosummary/soprano.rnd.html">
-       soprano.rnd
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../_autosummary/soprano.scripts.html">
-       soprano.scripts
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.scripts.msaverage.html">
-         soprano.scripts.msaverage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.scripts.phylogen.html">
-         soprano.scripts.phylogen
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../_autosummary/soprano.scripts.vasp2cell.html">
-         soprano.scripts.vasp2cell
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../_autosummary/soprano.selection.html">
-       soprano.selection
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../_autosummary/soprano.utils.html">
-       soprano.utils
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../citing.html">
-   Citing Soprano
-  </a>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01-basic_concepts.html">Tutorial 1 - Basic concepts: using AtomsCollection objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-generators_properties_calculators.html">Tutorial 2 - Generators, Properties and Calculators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03-atomselection_transforms.html">Tutorial 3 - AtomSelection and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-clustering.html">Tutorial 4 - Clustering analysis</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Tutorial 5 - NMR Properties: using Soprano for working with .magres files</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="06-defect_calculations.html">Tutorial 6 - Soprano for defect calculations</a></li>
+</ul><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../submitter.html">Job Submitter</a></li>
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API reference</a><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../_autosummary/soprano.html">soprano</a><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.analyse.html">soprano.analyse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.analyse.phylogen.html">soprano.analyse.phylogen</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.calculate.html">soprano.calculate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.calculate.gulp.html">soprano.calculate.gulp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.calculate.nmr.html">soprano.calculate.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.calculate.powder.html">soprano.calculate.powder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.calculate.xrd.html">soprano.calculate.xrd</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.collection.html">soprano.collection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.collection.collection.html">soprano.collection.collection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.collection.generate.html">soprano.collection.generate</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.data.html">soprano.data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.data.nmr.html">soprano.data.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.data.vdw.html">soprano.data.vdw</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.hpc.html">soprano.hpc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.hpc.submitter.html">soprano.hpc.submitter</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/soprano.measure.html">soprano.measure</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.nmr.html">soprano.nmr</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.nmr.tensor.html">soprano.nmr.tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.nmr.utils.html">soprano.nmr.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/soprano.optional.html">soprano.optional</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.properties.html">soprano.properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.atomsproperty.html">soprano.properties.atomsproperty</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.basic.html">soprano.properties.basic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.castep.html">soprano.properties.castep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.labeling.html">soprano.properties.labeling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.linkage.html">soprano.properties.linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.map.html">soprano.properties.map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.nmr.html">soprano.properties.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.order.html">soprano.properties.order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.symmetry.html">soprano.properties.symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.properties.transform.html">soprano.properties.transform</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/soprano.rnd.html">soprano.rnd</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../_autosummary/soprano.scripts.html">soprano.scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.scripts.msaverage.html">soprano.scripts.msaverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.scripts.phylogen.html">soprano.scripts.phylogen</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../_autosummary/soprano.scripts.vasp2cell.html">soprano.scripts.vasp2cell</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/soprano.selection.html">soprano.selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_autosummary/soprano.utils.html">soprano.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../citing.html">Citing Soprano</a></li>
 </ul>
 
     </div>
 </nav></div>
-        <div class="bd-sidebar__bottom">
-             <!-- To handle the deprecated key -->
-            
-            <div class="navbar_extra_footer">
-            A Python library to crack crystals
-            </div>
-            
-        </div>
     </div>
-    <div id="rtd-footer-container"></div>
-</div>
-
-
-          
-
-
-          
-<!-- A tiny helper pixel to detect if we've scrolled -->
-<div class="sbt-scroll-pixel-helper"></div>
-<!-- Main content -->
-<div class="col py-0 content-container">
-    
-    <div class="header-article row sticky-top noprint">
-        
-
-
-
-<div class="col py-1 d-flex header-article-main">
-    <div class="header-article__left">
-        
-        <label for="__navigation"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="right"
-title="Toggle navigation"
->
   
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-bars"></i>
-  </span>
-
-</label>
-
-        
-    </div>
-    <div class="header-article__right">
-<div class="menu-dropdown menu-dropdown-launch-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Launch interactive content">
-      <i class="fas fa-rocket"></i>
-  </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="https://mybinder.org/v2/gh/CCP-NC/soprano/master?urlpath=tree/docs/tutorials/05-nmr.ipynb"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Launch on Binder"
->
   
-
-<span class="headerbtn__icon-container">
-  
-    <img src="../_static/images/logo_binder.svg">
-  </span>
-<span class="headerbtn__text-container">Binder</span>
-</a>
-
-      </li>
-      
-    </ul>
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2Ftutorials/05-nmr.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
 </div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/tutorials/05-nmr.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
 
 <button onclick="toggleFullScreen()"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="bottom"
-title="Fullscreen mode"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
   <i class="fas fa-expand"></i>
   </span>
 
 </button>
 
-<div class="menu-dropdown menu-dropdown-repository-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Source repositories">
-      <i class="fab fa-github"></i>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="https://github.com/CCP-NC/soprano"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Source repository"
->
-  
+`);
+</script>
 
-<span class="headerbtn__icon-container">
-  <i class="fab fa-github"></i>
-  </span>
-<span class="headerbtn__text-container">repository</span>
-</a>
 
-      </li>
-      
-      <li>
-        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2Ftutorials/05-nmr.html&body=Your%20issue%20content%20here."
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Open an issue"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-lightbulb"></i>
-  </span>
-<span class="headerbtn__text-container">open issue</span>
-</a>
-
-      </li>
-      
-    </ul>
-  </div>
-</div>
-
-<div class="menu-dropdown menu-dropdown-download-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Download this page">
-      <i class="fas fa-download"></i>
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="../_sources/tutorials/05-nmr.ipynb"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Download source file"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-file"></i>
-  </span>
-<span class="headerbtn__text-container">.ipynb</span>
-</a>
-
-      </li>
-      
-      <li>
-        
-<button onclick="printPdf(this)"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="left"
-title="Print to PDF"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-file-pdf"></i>
-  </span>
-<span class="headerbtn__text-container">.pdf</span>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
 </button>
-
-      </li>
+</div></div>
       
-    </ul>
-  </div>
-</div>
-<label for="__page-toc"
-  class="headerbtn headerbtn-page-toc"
+    </div>
   
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-list"></i>
-  </span>
-
-</label>
-
-    </div>
 </div>
-
-<!-- Table of contents -->
-<div class="col-md-3 bd-toc show noprint">
-    <div class="tocsection onthispage pt-5 pb-3">
-        <i class="fas fa-list"></i> Contents
-    </div>
-    <nav id="bd-toc-nav" aria-label="Page">
-        <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Tutorial 5 - NMR Properties: using Soprano for working with .magres files
-  </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#loading-magres-files">
-     1 - Loading magres files
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#labels-and-indices">
-     2 - Labels and indices
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#magnetic-shieldings-and-chemical-shifts">
-     3 - Magnetic shieldings and chemical shifts
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#electric-field-gradients-and-quadrupolar-couplings">
-     4 - Electric field gradients and quadrupolar couplings
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#dipolar-couplings">
-   5 - Dipolar couplings
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#j-couplings-indirect-spin-spin-coupling">
-   6 J-couplings (indirect spin-spin coupling)
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#creating-simple-spectra">
-   7 - Creating simple spectra
-  </a>
- </li>
-</ul>
-
-    </nav>
 </div>
-    </div>
-    <div class="article row">
-        <div class="col pl-md-3 pl-lg-5 content-container">
-            <!-- Table of contents that is only displayed when printing the page -->
-            <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Tutorial 5 - NMR Properties: using Soprano for working with .magres files</h1>
-                <!-- Table of contents -->
-                <div id="print-main-content">
-                    <div id="jb-print-toc">
-                        
-                        <div>
-                            <h2> Contents </h2>
-                        </div>
-                        <nav aria-label="Page">
-                            <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Tutorial 5 - NMR Properties: using Soprano for working with .magres files
-  </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#loading-magres-files">
-     1 - Loading magres files
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#labels-and-indices">
-     2 - Labels and indices
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#magnetic-shieldings-and-chemical-shifts">
-     3 - Magnetic shieldings and chemical shifts
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#electric-field-gradients-and-quadrupolar-couplings">
-     4 - Electric field gradients and quadrupolar couplings
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#dipolar-couplings">
-   5 - Dipolar couplings
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#j-couplings-indirect-spin-spin-coupling">
-   6 J-couplings (indirect spin-spin coupling)
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#creating-simple-spectra">
-   7 - Creating simple spectra
-  </a>
- </li>
-</ul>
+              
+              
 
-                        </nav>
-                    </div>
-                </div>
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Tutorial 5 - NMR Properties: using Soprano for working with .magres files</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
             </div>
-            <main id="main-content" role="main">
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Tutorial 5 - NMR Properties: using Soprano for working with .magres files</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-magres-files">1 - Loading magres files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#labels-and-indices">2 - Labels and indices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#magnetic-shieldings-and-chemical-shifts">3 - Magnetic shieldings and chemical shifts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#electric-field-gradients-and-quadrupolar-couplings">4 - Electric field gradients and quadrupolar couplings</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#dipolar-couplings">5 - Dipolar couplings</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#j-couplings-indirect-spin-spin-coupling">6 J-couplings (indirect spin-spin coupling)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-simple-spectra">7 - Creating simple spectra</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#euler-angles">8 - Euler angles</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-nmr-tensor">General NMR tensor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nmr-tensors-from-magres-data">NMR tensors from .magres data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chemical-shielding-tensors">Chemical shielding tensors</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#equivalent-euler-angles">Equivalent Euler angles</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#efg-tensors">EFG tensors</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#relative-euler-angles-between-ms-and-efg-tensors">Relative Euler angles between MS and EFG tensors</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dipolar-coupling">Dipolar Coupling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
                 
-              <div>
-                
-  <section id="tutorial-5-nmr-properties-using-soprano-for-working-with-magres-files">
-<h1>Tutorial 5 - NMR Properties: using Soprano for working with .magres files<a class="headerlink" href="#tutorial-5-nmr-properties-using-soprano-for-working-with-magres-files" title="Permalink to this headline">¶</a></h1>
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="tutorial-5-nmr-properties-using-soprano-for-working-with-magres-files">
+<h1>Tutorial 5 - NMR Properties: using Soprano for working with .magres files<a class="headerlink" href="#tutorial-5-nmr-properties-using-soprano-for-working-with-magres-files" title="Link to this heading">#</a></h1>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">_</span>
     <span class="o">/|</span><span class="n">_</span><span class="o">|</span>\   
    <span class="o">/</span> <span class="o">/</span> \ \  
@@ -798,42 +532,40 @@ title="Print to PDF"
 <span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ion</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.pyplot._IonContext at 0x7fcd840d17f0&gt;
+
+<span class="o">%</span><span class="k">reload_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
 </pre></div>
 </div>
 </div>
 </div>
 <section id="loading-magres-files">
-<h2>1 - Loading magres files<a class="headerlink" href="#loading-magres-files" title="Permalink to this headline">¶</a></h2>
+<h2>1 - Loading magres files<a class="headerlink" href="#loading-magres-files" title="Link to this heading">#</a></h2>
 <p>ASE can read the Magres file format from version 3.11.0 (~2016). If your version of ASE does not support loading Magres files, try updating it or download the bleeding edge version from GitLab:</p>
-<p><a class="reference external" href="https://gitlab.com/ase/ase">https://gitlab.com/ase/ase</a></p>
+<p><a class="gitlab reference external" href="https://gitlab.com/ase/ase">ase/ase</a></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">C2H5O</span> <span class="o">=</span> <span class="n">ase_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;tutorial_data/ethanol.magres&#39;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">C2H6O</span> <span class="o">=</span> <span class="n">ase_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;tutorial_data/ethanol.magres&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 </section>
 <section id="labels-and-indices">
-<h2>2 - Labels and indices<a class="headerlink" href="#labels-and-indices" title="Permalink to this headline">¶</a></h2>
+<h2>2 - Labels and indices<a class="headerlink" href="#labels-and-indices" title="Link to this heading">#</a></h2>
 <p>Labels and indices used in the magres file are stored in their own arrays and can be easily accessed and used to select atoms.</p>
 <p>If you use CASTEP and obtain your initial structure from a CIF file, note that you can use <code class="docutils literal notranslate"><span class="pre">cif2cell</span></code> with the <code class="docutils literal notranslate"><span class="pre">--export-cif-labels</span></code> flag to use the CIF site labels in your CASTEP .cell file. These labels will then be output in the generated .magres file.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">labels</span> <span class="o">=</span> <span class="n">C2H5O</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">)</span>
-<span class="n">indices</span> <span class="o">=</span> <span class="n">C2H5O</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s1">&#39;indices&#39;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">labels</span> <span class="o">=</span> <span class="n">C2H6O</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">)</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">C2H6O</span><span class="o">.</span><span class="n">get_array</span><span class="p">(</span><span class="s1">&#39;indices&#39;</span><span class="p">)</span>
 
 <span class="c1"># Select only the protons&#39; indices</span>
 <span class="n">H_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="s1">&#39;H&#39;</span><span class="p">)</span>
-<span class="n">H</span> <span class="o">=</span> <span class="n">C2H5O</span><span class="p">[</span><span class="n">H_i</span><span class="p">]</span>
+<span class="n">H</span> <span class="o">=</span> <span class="n">C2H6O</span><span class="p">[</span><span class="n">H_i</span><span class="p">]</span>
 <span class="c1"># Select only C2</span>
 <span class="n">C2_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">labels</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">indices</span> <span class="o">==</span> <span class="mi">2</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">C2</span> <span class="o">=</span> <span class="n">C2H5O</span><span class="p">[</span><span class="n">C2_i</span><span class="p">]</span>
+<span class="n">C2</span> <span class="o">=</span> <span class="n">C2H6O</span><span class="p">[</span><span class="n">C2_i</span><span class="p">]</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There are </span><span class="si">{0}</span><span class="s2"> hydrogen atom(s)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">H</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The C2 atom is positioned at x = </span><span class="si">{0}</span><span class="s2">, y = </span><span class="si">{1}</span><span class="s2">, z = </span><span class="si">{2}</span><span class="s2"> Ang&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">C2</span><span class="o">.</span><span class="n">get_positions</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
@@ -864,7 +596,7 @@ The C2 atom is positioned at x = -0.247915, y = 1.164107, z = 0.937396 Ang
 </div>
 </section>
 <section id="magnetic-shieldings-and-chemical-shifts">
-<h2>3 - Magnetic shieldings and chemical shifts<a class="headerlink" href="#magnetic-shieldings-and-chemical-shifts" title="Permalink to this headline">¶</a></h2>
+<h2>3 - Magnetic shieldings and chemical shifts<a class="headerlink" href="#magnetic-shieldings-and-chemical-shifts" title="Link to this heading">#</a></h2>
 <p>All the NMR tensors stored in the original .magres file are saved as arrays in the Atoms object and can be accessed directly. However, Soprano also provides a set of properties to express the tensors in the form of parameters useful to compute the spectrum.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -872,9 +604,9 @@ The C2 atom is positioned at x = -0.247915, y = 1.164107, z = 0.937396 Ang
 
 <span class="c1"># Isotropy, Anisotropy and Asymmetry (Haeberlen convention)</span>
 <span class="c1"># These return arrays of the same length as the number of atoms.</span>
-<span class="n">iso</span> <span class="o">=</span> <span class="n">MSIsotropy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
-<span class="n">aniso</span> <span class="o">=</span> <span class="n">MSAnisotropy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
-<span class="n">asymm</span> <span class="o">=</span> <span class="n">MSAsymmetry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
+<span class="n">iso</span> <span class="o">=</span> <span class="n">MSIsotropy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+<span class="n">aniso</span> <span class="o">=</span> <span class="n">MSAnisotropy</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+<span class="n">asymm</span> <span class="o">=</span> <span class="n">MSAsymmetry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Label</span><span class="se">\t</span><span class="s1">Isotropy</span><span class="se">\t</span><span class="s1">Anisotropy</span><span class="se">\t</span><span class="s1">Asymmetry&#39;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">jl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jmol_labels</span><span class="p">):</span>
@@ -900,8 +632,8 @@ O_1	268.03 ppm	-51.38 ppm	0.98
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Span and skew</span>
-<span class="n">span</span> <span class="o">=</span> <span class="n">MSSpan</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
-<span class="n">skew</span> <span class="o">=</span> <span class="n">MSSkew</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
+<span class="n">span</span> <span class="o">=</span> <span class="n">MSSpan</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+<span class="n">skew</span> <span class="o">=</span> <span class="n">MSSkew</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Label</span><span class="se">\t</span><span class="s1">  Span</span><span class="se">\t\t</span><span class="s1"> Skew&#39;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">jl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jmol_labels</span><span class="p">):</span>
@@ -929,7 +661,7 @@ O_1	 68.22 ppm	  0.01
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quaternion (orientation of the tensor with respect to the Cartesian axes)</span>
 <span class="c1"># from which we extract the Euler angles</span>
 
-<span class="n">quat</span> <span class="o">=</span> <span class="n">MSQuaternion</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
+<span class="n">quat</span> <span class="o">=</span> <span class="n">MSQuaternion</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Label</span><span class="se">\t</span><span class="s1"> alpha/deg</span><span class="se">\t</span><span class="s1">beta/deg</span><span class="se">\t</span><span class="s1">gamma/deg&#39;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">jl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jmol_labels</span><span class="p">):</span>
@@ -942,20 +674,20 @@ O_1	 68.22 ppm	  0.01
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Label	 alpha/deg	beta/deg	gamma/deg
 H_1	  -27.96	  134.66	   26.84
 H_2	  -92.66	   77.37	   86.77
-H_3	  177.96	  144.86	  -13.54
-H_4	  177.34	   96.81	  -64.85
-H_5	   53.84	  116.78	 -134.91
+H_3	  177.96	  144.86	  166.46
+H_4	  177.34	   96.81	  115.15
+H_5	  -11.98	   50.93	  234.53
 H_6	   60.93	  137.71	   25.35
-C_1	  -93.10	  132.57	  -27.03
+C_1	  -93.10	  132.57	 -207.03
 C_2	   -9.26	  125.07	 -138.63
-O_1	   66.77	  120.41	 -125.99
+O_1	   -3.05	   59.55	  234.05
 </pre></div>
 </div>
 </div>
 </div>
 </section>
 <section id="electric-field-gradients-and-quadrupolar-couplings">
-<h2>4 - Electric field gradients and quadrupolar couplings<a class="headerlink" href="#electric-field-gradients-and-quadrupolar-couplings" title="Permalink to this headline">¶</a></h2>
+<h2>4 - Electric field gradients and quadrupolar couplings<a class="headerlink" href="#electric-field-gradients-and-quadrupolar-couplings" title="Link to this heading">#</a></h2>
 <p>Similarly named properties exist for the EFG tensors - EFGSpan, EFGAnisotropy, EFGQuaternion, etc. A few more are specific (and of course there’s no EFGIsotropy, for obvious reasons).
 The most important difference is of course the introduction of the quadrupolar constant <span class="math notranslate nohighlight">\(\chi\)</span>, namely:</p>
 <p><span class="math notranslate nohighlight">\(\chi = \frac{e^2qQ}{h}\)</span></p>
@@ -964,14 +696,14 @@ The most important difference is of course the introduction of the quadrupolar c
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Vzz component, in atomic units</span>
 
-<span class="n">vzz</span> <span class="o">=</span> <span class="n">EFGVzz</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span>
+<span class="n">vzz</span> <span class="o">=</span> <span class="n">EFGVzz</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
 
 <span class="c1"># For quadrupolar constants, isotopes become relevant. This means we need to create custom Property instances to</span>
 <span class="c1"># specify them. There are multiple ways to do so - check the docstrings for more details - but here we set them</span>
 <span class="c1"># by element. When nothing is specified it defaults to the most common NMR active isotope.</span>
 
 <span class="n">qP</span> <span class="o">=</span> <span class="n">EFGQuadrupolarConstant</span><span class="p">(</span><span class="n">isotopes</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span> <span class="c1"># Deuterated; for the others use the default</span>
-<span class="n">qC</span> <span class="o">=</span> <span class="n">qP</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span><span class="o">/</span><span class="mf">1e6</span> <span class="c1"># To MHz</span>
+<span class="n">qC</span> <span class="o">=</span> <span class="n">qP</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span><span class="o">/</span><span class="mf">1e6</span> <span class="c1"># To MHz</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Label</span><span class="se">\t</span><span class="s1">Vzz</span><span class="se">\t\t</span><span class="s1">Chi&#39;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">jl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jmol_labels</span><span class="p">):</span>
@@ -994,10 +726,46 @@ O_1	-1.86 au	11.19 MHz
 </div>
 </div>
 </div>
+<p>Euler angles:</p>
+<p>The standard convention for eigenvalue ordering for EFG tensors is the “NQR” ordering, i.e. <span class="math notranslate nohighlight">\(|V_3| \geq |V_2| \geq |V_1|\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">efg_tensors</span> <span class="o">=</span> <span class="n">EFGTensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+<span class="n">eulers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span><span class="o">.</span><span class="n">euler_angles</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zyz&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">efg_tensors</span><span class="p">])</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="c1"># rad to degrees</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Label</span><span class="se">\t</span><span class="s1"> alpha (deg)</span><span class="se">\t</span><span class="s1">beta (deg)</span><span class="se">\t</span><span class="s1">gamma (deg)&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">jl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">jmol_labels</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">eulers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0}</span><span class="se">\t</span><span class="si">{1:8.2f}</span><span class="se">\t</span><span class="si">{2:8.2f}</span><span class="se">\t</span><span class="si">{3:8.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jl</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Label	 alpha (deg)	beta (deg)	gamma (deg)
+H_1	   11.03	   53.87	  124.66
+H_2	  281.37	   58.60	  177.24
+H_3	  193.18	   54.81	   63.12
+H_4	  192.59	   54.86	    1.72
+H_5	  282.10	   58.47	  125.27
+H_6	  283.03	   54.61	  119.16
+C_1	  107.18	   53.91	   32.43
+C_2	   13.78	   54.52	  129.74
+O_1	  146.57	   44.36	   94.78
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># save eulers to text file</span>
+<span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s1">&#39;eulers.txt&#39;</span><span class="p">,</span> <span class="n">eulers</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%16.8f</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
-<section id="dipolar-couplings">
-<h1>5 - Dipolar couplings<a class="headerlink" href="#dipolar-couplings" title="Permalink to this headline">¶</a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="dipolar-couplings">
+<h1>5 - Dipolar couplings<a class="headerlink" href="#dipolar-couplings" title="Link to this heading">#</a></h1>
 <p>Soprano can compute dipolar couplings between any pair of atoms, defined as:</p>
 <div class="math notranslate nohighlight">
 \[
@@ -1019,11 +787,11 @@ d_{ij} = -\frac{\mu_0\hbar\gamma_i\gamma_j}{8\pi^2r_{ij}^3}
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s say we only want the homonuclear H dipolar couplings. We first select the indices of the H atoms</span>
 <span class="kn">from</span> <span class="nn">soprano.selection</span> <span class="kn">import</span> <span class="n">AtomSelection</span>
-<span class="n">selH</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">from_element</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">)</span>
+<span class="n">selH</span> <span class="o">=</span> <span class="n">AtomSelection</span><span class="o">.</span><span class="n">from_element</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">)</span>
 
 <span class="c1"># dip is a dictionary of the form {(i,j): [dipolar_coupling, vector]}</span>
 <span class="n">dip</span> <span class="o">=</span> <span class="n">DipolarCoupling</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="n">C2H5O</span><span class="p">,</span>                 <span class="c1"># the crystal structure (ASE Atoms object)</span>
+        <span class="n">C2H6O</span><span class="p">,</span>                 <span class="c1"># the crystal structure (ASE Atoms object)</span>
         <span class="n">sel_i</span> <span class="o">=</span> <span class="n">selH</span><span class="p">,</span>          <span class="c1"># this can either be a list of indices or an AtomSelection object</span>
         <span class="n">sel_j</span> <span class="o">=</span> <span class="n">selH</span><span class="p">,</span>          <span class="c1"># this is redundant in this case, but it&#39;s good practice to specify it</span>
         <span class="n">isotopes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>   <span class="c1"># You can specify whatever isotope you want here.</span>
@@ -1062,8 +830,8 @@ H_5	H_6	     -5.39
 </div>
 </div>
 </section>
-<section id="j-couplings-indirect-spin-spin-coupling">
-<h1>6 J-couplings (indirect spin-spin coupling)<a class="headerlink" href="#j-couplings-indirect-spin-spin-coupling" title="Permalink to this headline">¶</a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="j-couplings-indirect-spin-spin-coupling">
+<h1>6 J-couplings (indirect spin-spin coupling)<a class="headerlink" href="#j-couplings-indirect-spin-spin-coupling" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://ccp-nc.github.io/soprano/_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCIsotropy"><code class="docutils literal notranslate"><span class="pre">JCIsotropy</span></code></a> produces a dictionary of J coupling isotropies for atom pairs in the system. See <a class="reference external" href="https://ccp-nc.github.io/soprano/_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCDiagonal"><code class="docutils literal notranslate"><span class="pre">JCDiagonal</span></code></a> for how reduced couplings are transformed into couplings.</p>
 <p>You can use the <code class="docutils literal notranslate"><span class="pre">tag</span></code> argument to select the J-coupling component to return.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tag</span> <span class="p">(</span><span class="nb">str</span><span class="p">):</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">J</span> <span class="n">coupling</span> <span class="n">component</span> <span class="n">to</span> <span class="k">return</span><span class="o">.</span> <span class="n">Magres</span> <span class="n">files</span>
@@ -1073,9 +841,9 @@ H_5	H_6	     -5.39
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.properties.nmr.isc</span> <span class="kn">import</span> <span class="n">JCIsotropy</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.properties.nmr</span> <span class="kn">import</span> <span class="n">JCIsotropy</span>
 <span class="n">jcoupling</span> <span class="o">=</span> <span class="n">JCIsotropy</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="n">C2H5O</span><span class="p">,</span>                 <span class="c1"># the crystal structure (ASE Atoms object)</span>
+        <span class="n">C2H6O</span><span class="p">,</span>                 <span class="c1"># the crystal structure (ASE Atoms object)</span>
         <span class="n">isotopes</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;H&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>   <span class="c1"># You can specify whatever isotopes you want here.</span>
         <span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;isc&#39;</span><span class="p">,</span>           <span class="c1"># Which J coupling component to use. &#39;isc&#39; is default. See your magres file for what has been computed.  </span>
         <span class="n">self_coupling</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="c1"># include interactions with periodic images of self?</span>
@@ -1106,8 +874,8 @@ C_2	O_1	     15.61
 </div>
 </div>
 </section>
-<section id="creating-simple-spectra">
-<h1>7 - Creating simple spectra<a class="headerlink" href="#creating-simple-spectra" title="Permalink to this headline">¶</a></h1>
+<section class="tex2jax_ignore mathjax_ignore" id="creating-simple-spectra">
+<h1>7 - Creating simple spectra<a class="headerlink" href="#creating-simple-spectra" title="Link to this heading">#</a></h1>
 <p>Besides handling NMR properties, Soprano also allows you to create simple simulations of NMR spectra. These are only computed by considering the known properties of shielding and quadrupolar interactions, which means that their accuracy is limited; they are <em>not</em> spin dynamics simulations and should be treated as such. Currently these include orientational as well as isotropic effects, up to the second order for quadrupole interactions. The limit of infinite speed MAS is included as well. They do NOT include:</p>
 <ul class="simple">
 <li><p>dipolar interactions</p></li>
@@ -1123,7 +891,7 @@ C_2	O_1	     15.61
 
 <span class="kn">from</span> <span class="nn">soprano.calculate.nmr.nmr</span> <span class="kn">import</span> <span class="n">NMRCalculator</span><span class="p">,</span> <span class="n">NMRFlags</span>
 
-<span class="n">nCalc</span> <span class="o">=</span> <span class="n">NMRCalculator</span><span class="p">(</span><span class="n">C2H5O</span><span class="p">)</span> <span class="c1"># We create the calculator here</span>
+<span class="n">nCalc</span> <span class="o">=</span> <span class="n">NMRCalculator</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span> <span class="c1"># We create the calculator here</span>
 
 <span class="c1"># Setting the Larmor frequency; default units are MHz</span>
 <span class="c1"># This is set for a specific isotope and determines the magnetic field for everything else as well</span>
@@ -1175,10 +943,10 @@ Powder orientations: 545
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fcd58dc2250&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7c5c50975a00&gt;
 </pre></div>
 </div>
-<img alt="../_images/05-nmr_21_1.png" src="../_images/05-nmr_21_1.png" />
+<img alt="../_images/0b275c3e2ebe8015f13c0f71c599bf50353d6b6760bea8c791cbc563af219460.png" src="../_images/0b275c3e2ebe8015f13c0f71c599bf50353d6b6760bea8c791cbc563af219460.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1204,10 +972,10 @@ Powder orientations: 545
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fcd5cb87bb0&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7c5c50854100&gt;
 </pre></div>
 </div>
-<img alt="../_images/05-nmr_23_1.png" src="../_images/05-nmr_23_1.png" />
+<img alt="../_images/2a9b72560c6da64c05f0a158111e6fdf64dacfd507e56f4cc3e8a7dc73fe1c74.png" src="../_images/2a9b72560c6da64c05f0a158111e6fdf64dacfd507e56f4cc3e8a7dc73fe1c74.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -1237,6 +1005,320 @@ MAS
 </div>
 </div>
 </section>
+<section class="tex2jax_ignore mathjax_ignore" id="euler-angles">
+<h1>8 - Euler angles<a class="headerlink" href="#euler-angles" title="Link to this heading">#</a></h1>
+<p>Euler angles are commonly used to describe the orientation of an NMR tensor in space. Three angles, <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> and <span class="math notranslate nohighlight">\(\gamma\)</span>, are defined as the rotations around successive axes, depending on the convention used. The most common convention in NMR is the ZYZ convention, where the rotations are performed around the <span class="math notranslate nohighlight">\(z\)</span> axis, then the <span class="math notranslate nohighlight">\(y\)</span> axis and finally the <span class="math notranslate nohighlight">\(z\)</span> axis again.</p>
+<p>Euler angles can be a major source of confusion when comparing different software packages, as the conventions can vary and the handling of ambiguous cases differs greatly. In Soprano we follow the excellent work of <a class="reference external" href="https://doi.org/10.1016/j.ssnmr.2022.101849">Svenningsson &amp; Mueller (2023)</a> in their TensorView for MATLAB package. They provide a comprehensive explanation of how to deal with edge-cases and equivalencies in relative Euler angles between NMR tensors.</p>
+<p>Some of the choices to be aware of are:</p>
+<ul class="simple">
+<li><p>The order of the rotations (ZYZ or ZXZ are supported).</p></li>
+<li><p>Active or passive: this is a choice of whether the tensor itself is rotated (active) or the reference frame is rotated (passive).</p></li>
+<li><p>The ordering of the tensor eigenvalues: the <a class="reference external" href="http://anorganik.uni-tuebingen.de/klaus/nmr/index.php?p=conventions/efg/efg#efg">standard convention</a> for EFG tensors is the “NQR” ordering, i.e. <span class="math notranslate nohighlight">\(|V_3| \geq |V_2| \geq |V_1|\)</span>, where these are the principal components of the EFG tensor. There are several conventions for ordering magnetic shielding tensor principal components. A commonly used one is “Haeberlen” ordering in which  <span class="math notranslate nohighlight">\(|\delta_{zz} - \delta_{\mathrm{iso}}| \geq |\delta_{xx} - \delta_{\mathrm{iso}}| \geq |\delta_{yy} - \delta_{\mathrm{iso}}|\)</span>, where <span class="math notranslate nohighlight">\(\delta_{zz}\)</span> etc. are the principal components of the chemical shift tensor and <span class="math notranslate nohighlight">\(\delta_{\mathrm{iso}}\)</span> is the isotropic component. Common conventions are nicely explained <a class="reference external" href="http://anorganik.uni-tuebingen.de/klaus/nmr/index.php?p=conventions/csa/csa">here</a>.</p></li>
+</ul>
+<p>As explained in the TensorView for MATLAB paper, even with these choices set, there are still ambiguities in the Euler angles. In the general case, there are four equivalent sets of Euler angles for a given tensor. For <em>relative</em> Euler angles, there are 16 equivalent sets!</p>
+<p>Soprano provides utilities to compute Euler angles, specifying your choice of rotation order, active vs passive and the tensor ordering. Soprano also allows you to calculate equivalent Euler angles to make cross-software comparisons easier.</p>
+<section id="general-nmr-tensor">
+<h2>General NMR tensor<a class="headerlink" href="#general-nmr-tensor" title="Link to this heading">#</a></h2>
+<p>Soprano provides a general <code class="docutils literal notranslate"><span class="pre">NMRTensor</span></code> class that can be used in isolation, but also some convenience methods for dealing with NMR tensors from e.g. a <code class="docutils literal notranslate"><span class="pre">.magres</span></code> file. First let’s look at the general case:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.nmr</span> <span class="kn">import</span> <span class="n">NMRTensor</span>
+
+<span class="c1"># Let&#39;s create a tensor such as (this is actually a chemical shielding tensor from the ethanol.magres file</span>
+<span class="c1"># but it can be any 3x3 tensor)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[</span><span class="mf">30.29817962</span><span class="p">,</span>  <span class="mf">1.20510693</span><span class="p">,</span>  <span class="mf">3.67274493</span><span class="p">],</span>
+    <span class="p">[</span> <span class="mf">1.96313295</span><span class="p">,</span> <span class="mf">27.57652505</span><span class="p">,</span>  <span class="mf">2.57545224</span><span class="p">],</span>
+    <span class="p">[</span> <span class="mf">4.21834132</span><span class="p">,</span>  <span class="mf">2.16271308</span><span class="p">,</span> <span class="mf">30.90315252</span><span class="p">]])</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">NMRTensor</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="c1"># Now t is an NMRTensor object. We can extract a variety of properties of this tensor </span>
+<span class="c1"># and perform updates to e.g. the tensor ordering</span>
+
+
+
+<span class="c1"># These are the ordering conventions available in Soprano:</span>
+<span class="n">orders</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;i&#39;</span><span class="p">:</span> <span class="s1">&#39;Increasing&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="s1">&#39;Decreasing&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="s1">&#39;NQR&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span> <span class="s1">&#39;Haeberlen&#39;</span><span class="p">}</span>
+<span class="c1"># We can loop over the orderings</span>
+<span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">oname</span> <span class="ow">in</span> <span class="n">orders</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="c1"># Update tensor&#39;s order </span>
+    <span class="n">t</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">o</span>
+    <span class="c1"># and print the Euler angles for each combination of {ZYZ,ZXZ} and {active, passive}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> order&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">oname</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Eigenvalues: </span><span class="si">{0:.2f}</span><span class="s2">, </span><span class="si">{1:.2f}</span><span class="s2">, </span><span class="si">{2:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZYZ (active)  α=</span><span class="si">{0:6.1f}</span><span class="s2">, β=</span><span class="si">{1:6.1f}</span><span class="s2">, γ=</span><span class="si">{2:6.1f}</span><span class="s2"> (deg)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">euler_angles</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zyz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZYZ (passive) α=</span><span class="si">{0:6.1f}</span><span class="s2">, β=</span><span class="si">{1:6.1f}</span><span class="s2">, γ=</span><span class="si">{2:6.1f}</span><span class="s2"> (deg)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">euler_angles</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zyz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZXZ (active)  α=</span><span class="si">{0:6.1f}</span><span class="s2">, β=</span><span class="si">{1:6.1f}</span><span class="s2">, γ=</span><span class="si">{2:6.1f}</span><span class="s2"> (deg)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">euler_angles</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zxz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ZXZ (passive) α=</span><span class="si">{0:6.1f}</span><span class="s2">, β=</span><span class="si">{1:6.1f}</span><span class="s2">, γ=</span><span class="si">{2:6.1f}</span><span class="s2"> (deg)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">euler_angles</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zxz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Increasing order
+Eigenvalues: 26.19, 27.04, 35.55
+ZYZ (active)  α=  28.0, β=  45.3, γ=  26.8 (deg)
+ZYZ (passive) α= 153.2, β=  45.3, γ= 152.0 (deg)
+ZXZ (active)  α= 118.0, β=  45.3, γ= 116.8 (deg)
+ZXZ (passive) α=  63.2, β=  45.3, γ=  62.0 (deg)
+
+Decreasing order
+Eigenvalues: 35.55, 27.04, 26.19
+ZYZ (active)  α= 243.7, β=  50.6, γ= 155.4 (deg)
+ZYZ (passive) α=  24.6, β=  50.6, γ= 296.3 (deg)
+ZXZ (active)  α= 333.7, β=  50.6, γ=  65.4 (deg)
+ZXZ (passive) α= 114.6, β=  50.6, γ= 206.3 (deg)
+
+NQR order
+Eigenvalues: 27.04, 26.19, 35.55
+ZYZ (active)  α=  28.0, β=  45.3, γ= 116.8 (deg)
+ZYZ (passive) α=  63.2, β=  45.3, γ= 152.0 (deg)
+ZXZ (active)  α= 118.0, β=  45.3, γ=  26.8 (deg)
+ZXZ (passive) α= 153.2, β=  45.3, γ=  62.0 (deg)
+
+Haeberlen order
+Eigenvalues: 26.19, 27.04, 35.55
+ZYZ (active)  α=  28.0, β=  45.3, γ=  26.8 (deg)
+ZYZ (passive) α= 153.2, β=  45.3, γ= 152.0 (deg)
+ZXZ (active)  α= 118.0, β=  45.3, γ= 116.8 (deg)
+ZXZ (passive) α=  63.2, β=  45.3, γ=  62.0 (deg)
+</pre></div>
+</div>
+</div>
+</div>
+<p>We have seen how to specify your choice of conventions in Soprano to calculate Euler angles. However, as discussed earlier, there are four equivalent Euler angle sets for any choice of {ZYZ,ZXZ}, {active, passive}, and ordering convention. Understanding this can be very important when comparing results from different codes.</p>
+<p>You can access equivalent Euler angles in Soprano like this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># For example, for the ZYZ, active, Haeberlen convention tensor:</span>
+<span class="n">t</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>
+<span class="n">equivalent_eulers</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">equivalent_euler_angles</span><span class="p">(</span><span class="s1">&#39;zyz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+<span class="c1"># We can print these out neatly:</span>
+<span class="k">for</span> <span class="n">eulers</span> <span class="ow">in</span> <span class="n">equivalent_eulers</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;α=</span><span class="si">{0:6.1f}</span><span class="s1">, β=</span><span class="si">{1:6.1f}</span><span class="s1">, γ=</span><span class="si">{2:6.1f}</span><span class="s1"> (deg)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">eulers</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>α=  28.0, β=  45.3, γ=  26.8 (deg)
+α=  28.0, β=  45.3, γ= 206.8 (deg)
+α= 208.0, β= 134.7, γ= 153.2 (deg)
+α= 208.0, β= 134.7, γ= 333.2 (deg)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="nmr-tensors-from-magres-data">
+<h2>NMR tensors from .magres data<a class="headerlink" href="#nmr-tensors-from-magres-data" title="Link to this heading">#</a></h2>
+<p>We saw earlier in this tutorial how magnetic shielding, EFG, dipolar coupling and J-coupling tensors could be extracted from a .magres file and analysed using Soprano. Here we explain how to access the Euler angles from these tensors and how different default orderings apply.</p>
+<section id="chemical-shielding-tensors">
+<h3>Chemical shielding tensors<a class="headerlink" href="#chemical-shielding-tensors" title="Link to this heading">#</a></h3>
+<p>If you simply want the Euler angles according to the default ordering convention in Soprano for MS tensors (Haeberlen), for all sites in your magres file you can simply do:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.properties.nmr</span> <span class="kn">import</span> <span class="n">MSEuler</span> 
+
+<span class="n">all_eulers</span> <span class="o">=</span> <span class="n">MSEuler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zyz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># NB that since these are the default settings for the MS tensors,</span>
+<span class="c1"># you can achieve the same using simply:</span>
+<span class="n">all_eulers</span><span class="o">=</span>  <span class="n">MSEuler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">all_eulers</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[[ 27.96235601  45.33901509  26.83660999]
+ [272.66415652  77.36879495  93.22520173]
+ [182.04368043  35.14497966 166.45558554]
+ [182.66142427  83.1949885  115.14989736]
+ [191.97626819  50.93125971 125.47393484]
+ [299.07186816  42.28810672  25.35033859]
+ [ 93.10412193  47.43018725 152.96615397]
+ [  9.25627104  54.93258925  41.36551806]
+ [183.04713505  59.54692522 125.9519578 ]]
+</pre></div>
+</div>
+</div>
+</div>
+<p>However, if you want to compute relative Euler angles, then you can instead first extract the <code class="docutils literal notranslate"><span class="pre">NMRTensor</span></code> objects and work directly with them. For example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get a list of NMRTensor objects with Haeberlen ordering:</span>
+<span class="n">ms_tensors</span> <span class="o">=</span> <span class="n">MSTensor</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ms_tensors</span><span class="p">)</span><span class="si">}</span><span class="s2"> tensors in the ms_tensors list&quot;</span><span class="p">)</span>
+
+<span class="c1"># To get the Euler angles (in degrees) for e.g first atom, as before you can do:</span>
+<span class="n">eulers_0</span> <span class="o">=</span> <span class="n">ms_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">euler_angles</span><span class="p">(</span><span class="s1">&#39;zyz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">eulers_0</span><span class="p">)</span>
+
+<span class="c1"># or the relative Euler angles between the first two atoms:</span>
+<span class="n">eulers_0_to_1</span> <span class="o">=</span> <span class="n">ms_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">euler_to</span><span class="p">(</span><span class="n">ms_tensors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">eulers_0_to_1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>There are 9 tensors in the ms_tensors list
+[27.96235601 45.33901509 26.83660999]
+[226.25350967  81.78516894  36.20814598]
+</pre></div>
+</div>
+</div>
+</div>
+<section id="equivalent-euler-angles">
+<h4>Equivalent Euler angles<a class="headerlink" href="#equivalent-euler-angles" title="Link to this heading">#</a></h4>
+<p>As discussed earlier, in the general case, the Euler angles that describe the rotation from one NMR tensor to another are not unique. In fact, for a given choice of conventions, there can be up to 16 equivalent Euler angle sets all correctly describing the same rotation.</p>
+<p>For example, the rotation between the MS shielding tensor of atom 0 to that of atom 1 can be described by any of:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">equivalent_eulers_0_to_1</span> <span class="o">=</span> <span class="n">ms_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">equivalent_euler_to</span><span class="p">(</span><span class="n">ms_tensors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># This is just to print them out neatly, in degrees:</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;α</span><span class="se">\t\t</span><span class="s2">β</span><span class="se">\t\t</span><span class="s2">γ (deg)&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">eulers</span> <span class="ow">in</span> <span class="n">equivalent_eulers_0_to_1</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:6.2f}</span><span class="se">\t\t</span><span class="s1"> </span><span class="si">{1:6.2f}</span><span class="se">\t\t</span><span class="s1"> </span><span class="si">{2:6.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">eulers</span><span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>α		β		γ (deg)
+226.25		  81.79		  36.21
+ 46.25		  98.21		 323.79
+ 46.25		  98.21		 143.79
+226.25		  81.79		 216.21
+133.75		  98.21		 216.21
+313.75		  81.79		 143.79
+313.75		  81.79		 323.79
+133.75		  98.21		  36.21
+313.75		  98.21		 216.21
+133.75		  81.79		 143.79
+133.75		  81.79		 323.79
+313.75		  98.21		  36.21
+ 46.25		  81.79		  36.21
+226.25		  98.21		 323.79
+226.25		  98.21		 143.79
+ 46.25		  81.79		 216.21
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="efg-tensors">
+<h3>EFG tensors<a class="headerlink" href="#efg-tensors" title="Link to this heading">#</a></h3>
+<p>The approach to accessing EFG tensor Euler angles is exactly the same, though it’s important to note that the default ordering for EFG tensors follows the NQR convention!</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.properties.nmr</span> <span class="kn">import</span> <span class="n">EFGEuler</span> 
+
+<span class="n">all_eulers</span> <span class="o">=</span> <span class="n">EFGEuler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="s1">&#39;zyz&#39;</span><span class="p">,</span> <span class="n">passive</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># NB that since these are the default settings for the EFG tensors,</span>
+<span class="c1"># you can achieve the same using simply:</span>
+<span class="n">all_eulers</span><span class="o">=</span>  <span class="n">EFGEuler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">all_eulers</span> <span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[[ 11.03244319  53.8688531  124.66006684]
+ [281.370063    58.60389462 177.2437768 ]
+ [193.17945823  54.80749091  63.11651013]
+ [192.58906551  54.86121432   1.71828894]
+ [282.0979964   58.46767793 125.27455202]
+ [283.02612009  54.60580544 119.15653422]
+ [107.1814723   53.91168656  32.42758192]
+ [ 13.77889019  54.51695231 129.73651409]
+ [146.57430779  44.36396799  94.77789967]]
+</pre></div>
+</div>
+</div>
+</div>
+<section id="relative-euler-angles-between-ms-and-efg-tensors">
+<h4>Relative Euler angles between MS and EFG tensors<a class="headerlink" href="#relative-euler-angles-between-ms-and-efg-tensors" title="Link to this heading">#</a></h4>
+<p>This follows the same pattern as before: first extracting the <code class="docutils literal notranslate"><span class="pre">NMRTensor</span></code> objects and then using the <code class="docutils literal notranslate"><span class="pre">euler_to</span></code> methods to calculate the relative Euler angles between them.</p>
+<p>For example, looking each atom, we can compute the rotation to get from its MS tensor to its EFG tensor like this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ms_tensors</span> <span class="o">=</span> <span class="n">MSTensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+<span class="n">efg_tensors</span> <span class="o">=</span> <span class="n">EFGTensor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Euler angles from the MS to EFG tensors for each atom:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;α</span><span class="se">\t\t</span><span class="s2">β</span><span class="se">\t\t</span><span class="s2">γ (deg)&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ms</span><span class="p">,</span> <span class="n">efg</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ms_tensors</span><span class="p">,</span> <span class="n">efg_tensors</span><span class="p">):</span>
+    <span class="n">eulers</span> <span class="o">=</span> <span class="n">ms</span><span class="o">.</span><span class="n">euler_to</span><span class="p">(</span><span class="n">efg</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:6.2f}</span><span class="se">\t\t</span><span class="s1"> </span><span class="si">{1:6.2f}</span><span class="se">\t\t</span><span class="s1"> </span><span class="si">{2:6.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">eulers</span><span class="o">*</span> <span class="mi">180</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Euler angles from the MS to EFG tensors for each atom:
+α		β		γ (deg)
+  4.13		  15.41		  89.09
+ 22.31		  20.41		  65.02
+ 45.14		  21.12		  39.52
+201.89		  29.77		  48.35
+318.10		  21.50		 153.58
+158.30		  17.14		 104.76
+ 22.47		  12.65		  89.11
+145.38		   3.72		 123.64
+ 56.61		  81.84		 148.84
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="dipolar-coupling">
+<h3>Dipolar Coupling<a class="headerlink" href="#dipolar-coupling" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soprano.properties.nmr</span> <span class="kn">import</span> <span class="n">DipolarTensor</span><span class="p">,</span> <span class="n">DipolarEuler</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s say we only want the dipolar couplings between the 1st and 5th atoms:</span>
+<span class="n">ij</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">dip_eulers</span> <span class="o">=</span> <span class="n">DipolarEuler</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">ij</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Euler angles for dipolar coupling between atoms</span><span class="se">\n</span><span class="si">{</span><span class="n">C2H6O</span><span class="p">[</span><span class="n">ij</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="si">}</span><span class="s2"> and </span><span class="se">\n</span><span class="si">{</span><span class="n">C2H6O</span><span class="p">[</span><span class="n">ij</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">dip_eulers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Now let&#39;s get the dipolar tensor for the same pair of atoms</span>
+<span class="n">dip_tensor</span> <span class="o">=</span> <span class="n">DipolarTensor</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">C2H6O</span><span class="p">)[</span><span class="n">ij</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dipolar tensor for dipolar coupling between atoms</span><span class="se">\n</span><span class="si">{</span><span class="n">C2H6O</span><span class="p">[</span><span class="n">ij</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="si">}</span><span class="s2"> and </span><span class="se">\n</span><span class="si">{</span><span class="n">C2H6O</span><span class="p">[</span><span class="n">ij</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">dip_tensor</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Euler angles for dipolar coupling between atoms
+Atom(&#39;H&#39;, [0.182454, -0.924201, 0.559623], index=1) and 
+Atom(&#39;H&#39;, [1.060671, 0.677653, 2.297066], index=5):
+ [290.88190746  55.73597807 146.49950036]
+
+Dipolar tensor for dipolar coupling between atoms
+Atom(&#39;H&#39;, [0.182454, -0.924201, 0.559623], index=1) and 
+Atom(&#39;H&#39;, [1.060671, 0.677653, 2.297066], index=5):
+ [[ 4767.38285578 -4977.5711161  -5398.89783505]
+ [-4977.5711161  -1582.67354243 -9847.50476553]
+ [-5398.89783505 -9847.50476553 -3184.70931334]]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
 
     <script type="text/x-thebe-config">
     {
@@ -1250,7 +1332,7 @@ MAS
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python3",
+            name: "python3",
             path: "./tutorials"
         },
         predefinedOutput: true
@@ -1258,50 +1340,129 @@ MAS
     </script>
     <script>kernelName = 'python3'</script>
 
-              </div>
+                </article>
               
-            </main>
-            <footer class="footer-article noprint">
-                
-    <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="04-clustering.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Tutorial 4 - Clustering analysis</p>
-        </div>
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="04-clustering.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tutorial 4 - Clustering analysis</p>
+      </div>
     </a>
-    <a class='right-next' id="next-link" href="06-defect_calculations.html" title="next page">
-    <div class="prev-next-info">
+    <a class="right-next"
+       href="06-defect_calculations.html"
+       title="next page">
+      <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
         <p class="prev-next-title">Tutorial 6 - Soprano for defect calculations</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
-            </footer>
-        </div>
-    </div>
-    <div class="footer-content row">
-        <footer class="col footer"><p>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Tutorial 5 - NMR Properties: using Soprano for working with .magres files</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-magres-files">1 - Loading magres files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#labels-and-indices">2 - Labels and indices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#magnetic-shieldings-and-chemical-shifts">3 - Magnetic shieldings and chemical shifts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#electric-field-gradients-and-quadrupolar-couplings">4 - Electric field gradients and quadrupolar couplings</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#dipolar-couplings">5 - Dipolar couplings</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#j-couplings-indirect-spin-spin-coupling">6 J-couplings (indirect spin-spin coupling)</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-simple-spectra">7 - Creating simple spectra</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#euler-angles">8 - Euler angles</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-nmr-tensor">General NMR tensor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nmr-tensors-from-magres-data">NMR tensors from .magres data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chemical-shielding-tensors">Chemical shielding tensors</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#equivalent-euler-angles">Equivalent Euler angles</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#efg-tensors">EFG tensors</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#relative-euler-angles-between-ms-and-efg-tensors">Relative Euler angles between MS and EFG tensors</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dipolar-coupling">Dipolar Coupling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
   
-    By CCP-NC<br/>
-  
-      &copy; Copyright 2022.<br/>
-</p>
-        </footer>
-    </div>
+  <div class="footer-item">
     
+<p class="component-author">
+By CCP-NC
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
 </div>
+          </footer>
+        
 
-
-      </div>
+      </main>
     </div>
+  </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-
+  <footer class="bd-footer">
+  </footer>
   </body>
 </html>

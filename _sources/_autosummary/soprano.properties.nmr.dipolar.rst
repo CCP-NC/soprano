@@ -19,6 +19,7 @@ soprano.properties.nmr.dipolar
    
       DipolarCoupling
       DipolarDiagonal
+      DipolarEuler
       DipolarRSS
       DipolarTensor
    

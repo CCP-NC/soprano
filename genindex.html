@@ -1,107 +1,178 @@
 
 <!DOCTYPE html>
 
-<html>
+
+<html lang="en" data-content_root="./" >
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Index &#8212; Soprano</title>
-    
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
 
-    
-  <link rel="stylesheet"
-    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
-    <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
-    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/togglebutton.js"></script>
-    <script src="_static/clipboard.min.js"></script>
-    <script src="_static/copybutton.js"></script>
-    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
-    <script >var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
-    <script >const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
-const thebe_selector = ".thebe,.cell"
-const thebe_selector_input = "pre"
-const thebe_selector_output = ".output, .cell_output"
-</script>
-    <script async="async" src="_static/sphinx-thebe.js"></script>
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=5eb1bb1e"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script >mermaid.initialize({startOnLoad:true});</script>
-    <link rel="shortcut icon" href="_static/favicon.png"/>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="icon" href="_static/favicon.png"/>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay overlay-navbar" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<!-- Checkboxes to toggle the in-page toc -->
-<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
-<label class="overlay overlay-pagetoc" for="__page-toc">
-    <div class="visually-hidden">Toggle in-page Table of Contents</div>
-</label>
-<!-- Headers at the top -->
-<div class="announcement header-item noprint"></div>
-<div class="header header-item noprint"></div>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
-    
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
 
-    <div class="container-xl">
-      <div class="row">
-          
-<!-- Sidebar -->
-<div class="bd-sidebar noprint" id="site-navigation">
-    <div class="bd-sidebar__content">
-        <div class="bd-sidebar__top"><div class="navbar-brand-box">
-    <a class="navbar-brand text-wrap" href="index.html">
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
       
-        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+      
+      
         
       
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+    
+    
       
-      <img src="_static/soprano_logo.svg" class="logo" alt="logo">
-      
-      
-      <h1 class="site-logo" id="site-title">Soprano</h1>
-      
-    </a>
-</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item active">
+    
+    
+    <img src="_static/soprano_logo.svg" class="logo__image only-light" alt="Soprano - Home"/>
+    <script>document.write(`<img src="_static/soprano_logo.svg" class="logo__image only-dark" alt="Soprano - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
@@ -111,466 +182,233 @@ const thebe_selector_output = ".output, .cell_output"
             </li>
         </ul>
         <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="installation.html">
-   Installation
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="tutorials.html">
-   Tutorials
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="tutorials/01-basic_concepts.html">
-     Tutorial 1 - Basic concepts: using AtomsCollection objects
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="tutorials/02-generators_properties_calculators.html">
-     Tutorial 2 - Generators, Properties and Calculators
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="tutorials/03-atomselection_transforms.html">
-     Tutorial 3 - AtomSelection and transforms
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="tutorials/04-clustering.html">
-     Tutorial 4 - Clustering analysis
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="tutorials/05-nmr.html">
-     Tutorial 5 - NMR Properties: using Soprano for working with .magres files
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="tutorials/06-defect_calculations.html">
-     Tutorial 6 - Soprano for defect calculations
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="submitter.html">
-   Job Submitter
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="api.html">
-   API reference
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="_autosummary/soprano.html">
-     soprano
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.analyse.html">
-       soprano.analyse
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-      <label for="toctree-checkbox-4">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.analyse.phylogen.html">
-         soprano.analyse.phylogen
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.calculate.html">
-       soprano.calculate
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-      <label for="toctree-checkbox-5">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.calculate.gulp.html">
-         soprano.calculate.gulp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.calculate.nmr.html">
-         soprano.calculate.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.calculate.powder.html">
-         soprano.calculate.powder
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.calculate.xrd.html">
-         soprano.calculate.xrd
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.collection.html">
-       soprano.collection
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-      <label for="toctree-checkbox-6">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.collection.collection.html">
-         soprano.collection.collection
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.collection.generate.html">
-         soprano.collection.generate
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.data.html">
-       soprano.data
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-      <label for="toctree-checkbox-7">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.data.nmr.html">
-         soprano.data.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.data.vdw.html">
-         soprano.data.vdw
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.hpc.html">
-       soprano.hpc
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-      <label for="toctree-checkbox-8">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.hpc.submitter.html">
-         soprano.hpc.submitter
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="_autosummary/soprano.measure.html">
-       soprano.measure
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.nmr.html">
-       soprano.nmr
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-      <label for="toctree-checkbox-9">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.nmr.tensor.html">
-         soprano.nmr.tensor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.nmr.utils.html">
-         soprano.nmr.utils
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="_autosummary/soprano.optional.html">
-       soprano.optional
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.properties.html">
-       soprano.properties
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-      <label for="toctree-checkbox-10">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.atomsproperty.html">
-         soprano.properties.atomsproperty
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.basic.html">
-         soprano.properties.basic
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.castep.html">
-         soprano.properties.castep
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.labeling.html">
-         soprano.properties.labeling
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.linkage.html">
-         soprano.properties.linkage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.map.html">
-         soprano.properties.map
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.nmr.html">
-         soprano.properties.nmr
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.order.html">
-         soprano.properties.order
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.symmetry.html">
-         soprano.properties.symmetry
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.properties.transform.html">
-         soprano.properties.transform
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="_autosummary/soprano.rnd.html">
-       soprano.rnd
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="_autosummary/soprano.scripts.html">
-       soprano.scripts
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.scripts.msaverage.html">
-         soprano.scripts.msaverage
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.scripts.phylogen.html">
-         soprano.scripts.phylogen
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="_autosummary/soprano.scripts.vasp2cell.html">
-         soprano.scripts.vasp2cell
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="_autosummary/soprano.selection.html">
-       soprano.selection
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="_autosummary/soprano.utils.html">
-       soprano.utils
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="citing.html">
-   Citing Soprano
-  </a>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/01-basic_concepts.html">Tutorial 1 - Basic concepts: using AtomsCollection objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/02-generators_properties_calculators.html">Tutorial 2 - Generators, Properties and Calculators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/03-atomselection_transforms.html">Tutorial 3 - AtomSelection and transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/04-clustering.html">Tutorial 4 - Clustering analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/05-nmr.html">Tutorial 5 - NMR Properties: using Soprano for working with .magres files</a></li>
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="tutorials/06-defect_calculations.html">Tutorial 6 - Soprano for defect calculations</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="submitter.html">Job Submitter</a></li>
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="api.html">API reference</a><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/soprano.html">soprano</a><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.analyse.html">soprano.analyse</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.analyse.phylogen.html">soprano.analyse.phylogen</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.calculate.html">soprano.calculate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.calculate.gulp.html">soprano.calculate.gulp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.calculate.nmr.html">soprano.calculate.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.calculate.powder.html">soprano.calculate.powder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.calculate.xrd.html">soprano.calculate.xrd</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.collection.html">soprano.collection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.collection.collection.html">soprano.collection.collection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.collection.generate.html">soprano.collection.generate</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.data.html">soprano.data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.data.nmr.html">soprano.data.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.data.vdw.html">soprano.data.vdw</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.hpc.html">soprano.hpc</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.hpc.submitter.html">soprano.hpc.submitter</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/soprano.measure.html">soprano.measure</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.nmr.html">soprano.nmr</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.nmr.tensor.html">soprano.nmr.tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.nmr.utils.html">soprano.nmr.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/soprano.optional.html">soprano.optional</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.properties.html">soprano.properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.atomsproperty.html">soprano.properties.atomsproperty</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.basic.html">soprano.properties.basic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.castep.html">soprano.properties.castep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.labeling.html">soprano.properties.labeling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.linkage.html">soprano.properties.linkage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.map.html">soprano.properties.map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.nmr.html">soprano.properties.nmr</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.order.html">soprano.properties.order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.symmetry.html">soprano.properties.symmetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.properties.transform.html">soprano.properties.transform</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/soprano.rnd.html">soprano.rnd</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="_autosummary/soprano.scripts.html">soprano.scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.scripts.msaverage.html">soprano.scripts.msaverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.scripts.phylogen.html">soprano.scripts.phylogen</a></li>
+<li class="toctree-l4"><a class="reference internal" href="_autosummary/soprano.scripts.vasp2cell.html">soprano.scripts.vasp2cell</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/soprano.selection.html">soprano.selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/soprano.utils.html">soprano.utils</a></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+</ul><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary>
+</details></li>
+
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Soprano</a></li>
 </ul>
 
     </div>
 </nav></div>
-        <div class="bd-sidebar__bottom">
-             <!-- To handle the deprecated key -->
-            
-            <div class="navbar_extra_footer">
-            A Python library to crack crystals
-            </div>
-            
-        </div>
     </div>
-    <div id="rtd-footer-container"></div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2Fgenindex.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
 </div>
 
 
-          
 
 
-          
-<!-- A tiny helper pixel to detect if we've scrolled -->
-<div class="sbt-scroll-pixel-helper"></div>
-<!-- Main content -->
-<div class="col py-0 content-container">
-    
-    <div class="header-article row sticky-top noprint">
-        
-
-
-
-<div class="col py-1 d-flex header-article-main">
-    <div class="header-article__left">
-        
-        <label for="__navigation"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="right"
-title="Toggle navigation"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-bars"></i>
-  </span>
-
-</label>
-
-        
-    </div>
-    <div class="header-article__right">
 <button onclick="toggleFullScreen()"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="bottom"
-title="Fullscreen mode"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
   <i class="fas fa-expand"></i>
   </span>
 
 </button>
 
-<div class="menu-dropdown menu-dropdown-repository-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Source repositories">
-      <i class="fab fa-github"></i>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="https://github.com/CCP-NC/soprano"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Source repository"
->
-  
+`);
+</script>
 
-<span class="headerbtn__icon-container">
-  <i class="fab fa-github"></i>
-  </span>
-<span class="headerbtn__text-container">repository</span>
-</a>
 
-      </li>
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
       
-      <li>
-        <a href="https://github.com/CCP-NC/soprano/issues/new?title=Issue%20on%20page%20%2Fgenindex.html&body=Your%20issue%20content%20here."
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Open an issue"
->
+    </div>
   
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-lightbulb"></i>
-  </span>
-<span class="headerbtn__text-container">open issue</span>
-</a>
-
-      </li>
-      
-    </ul>
-  </div>
 </div>
+</div>
+              
+              
 
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
     </div>
 </div>
 
-<!-- Table of contents -->
-<div class="col-md-3 bd-toc show noprint">
-</div>
-    </div>
-    <div class="article row">
-        <div class="col pl-md-3 pl-lg-5 content-container">
-            <!-- Table of contents that is only displayed when printing the page -->
-            <div id="jb-print-docs-body" class="onlyprint">
-                <h1></h1>
-                <!-- Table of contents -->
-                <div id="print-main-content">
-                    <div id="jb-print-toc">
-                        
-                    </div>
-                </div>
-            </div>
-            <main id="main-content" role="main">
+              
                 
-              <div>
-                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
 
 <h1 id="index">Index</h1>
 
@@ -663,6 +501,8 @@ title="Open an issue"
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarDiagonal.__call__">(soprano.properties.nmr.dipolar.DipolarDiagonal method)</a>
 </li>
+        <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarEuler.__call__">(soprano.properties.nmr.dipolar.DipolarEuler method)</a>
+</li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarRSS.__call__">(soprano.properties.nmr.dipolar.DipolarRSS method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarTensor.__call__">(soprano.properties.nmr.dipolar.DipolarTensor method)</a>
@@ -672,6 +512,8 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGAsymmetry.__call__">(soprano.properties.nmr.efg.EFGAsymmetry method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGDiagonal.__call__">(soprano.properties.nmr.efg.EFGDiagonal method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGEuler.__call__">(soprano.properties.nmr.efg.EFGEuler method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuadrupolarConstant.__call__">(soprano.properties.nmr.efg.EFGQuadrupolarConstant method)</a>
 </li>
@@ -684,6 +526,8 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSkew.__call__">(soprano.properties.nmr.efg.EFGSkew method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSpan.__call__">(soprano.properties.nmr.efg.EFGSpan method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGTensor.__call__">(soprano.properties.nmr.efg.EFGTensor method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGVzz.__call__">(soprano.properties.nmr.efg.EFGVzz method)</a>
 </li>
@@ -711,6 +555,8 @@ title="Open an issue"
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSDiagonal.__call__">(soprano.properties.nmr.ms.MSDiagonal method)</a>
 </li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSEuler.__call__">(soprano.properties.nmr.ms.MSEuler method)</a>
+</li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSIsotropy.__call__">(soprano.properties.nmr.ms.MSIsotropy method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSQuaternion.__call__">(soprano.properties.nmr.ms.MSQuaternion method)</a>
@@ -720,6 +566,8 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSkew.__call__">(soprano.properties.nmr.ms.MSSkew method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSpan.__call__">(soprano.properties.nmr.ms.MSSpan method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSTensor.__call__">(soprano.properties.nmr.ms.MSTensor method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.order.order.html#soprano.properties.order.order.BondOrder.__call__">(soprano.properties.order.order.BondOrder method)</a>
 </li>
@@ -770,6 +618,10 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.hpc.submitter.utils.html#soprano.hpc.submitter.utils._ensure_open_sftp">_ensure_open_sftp() (in module soprano.hpc.submitter.utils)</a>
 </li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._equivalent_euler">_equivalent_euler() (in module soprano.nmr.utils)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._equivalent_relative_euler">_equivalent_relative_euler() (in module soprano.nmr.utils)</a>
+</li>
       <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._evals_sort">_evals_sort() (in module soprano.nmr.utils)</a>
 </li>
       <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._evecs_2_quat">_evecs_2_quat() (in module soprano.nmr.utils)</a>
@@ -779,6 +631,8 @@ title="Open an issue"
       <li><a href="_autosummary/soprano.properties.symmetry.utils.html#soprano.properties.symmetry.utils._find_wyckoff_points">_find_wyckoff_points() (in module soprano.properties.symmetry.utils)</a>
 </li>
       <li><a href="_autosummary/soprano.calculate.xrd.xrd.html#soprano.calculate.xrd.xrd._gauss_peak_default">_gauss_peak_default() (in module soprano.calculate.xrd.xrd)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._handle_euler_edge_cases">_handle_euler_edge_cases() (in module soprano.nmr.utils)</a>
 </li>
       <li><a href="_autosummary/soprano.selection.html#soprano.selection.AtomSelection._hash">_hash() (soprano.selection.AtomSelection method)</a>
 </li>
@@ -806,6 +660,10 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.symmetry.symmetry.html#soprano.properties.symmetry.symmetry.WyckoffPoint._make">(soprano.properties.symmetry.symmetry.WyckoffPoint class method)</a>
 </li>
       </ul></li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._matrix_to_euler">_matrix_to_euler() (in module soprano.nmr.utils)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._normalise_euler_angles">_normalise_euler_angles() (in module soprano.nmr.utils)</a>
+</li>
       <li><a href="_autosummary/soprano.hpc.submitter.castep.html#soprano.hpc.submitter.castep.CastepSubmitter._putjob_remote">_putjob_remote() (soprano.hpc.submitter.castep.CastepSubmitter method)</a>
 
       <ul>
@@ -829,6 +687,10 @@ title="Open an issue"
       <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._span">_span() (in module soprano.nmr.utils)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.order.order.html#soprano.properties.order.order._steinhardt_pars">_steinhardt_pars() (in module soprano.properties.order.order)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._test_euler_rotation">_test_euler_rotation() (in module soprano.nmr.utils)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.utils.html#soprano.nmr.utils._tryallanglestest">_tryallanglestest() (in module soprano.nmr.utils)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.order.order.html#soprano.properties.order.order._valid_triples">_valid_triples() (in module soprano.properties.order.order)</a>
 </li>
@@ -870,7 +732,7 @@ title="Open an issue"
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/soprano.calculate.nmr.nmr.html#soprano.calculate.nmr.nmr.NMRCalculator.B">B() (soprano.calculate.nmr.nmr.NMRCalculator property)</a>
+      <li><a href="_autosummary/soprano.calculate.nmr.nmr.html#soprano.calculate.nmr.nmr.NMRCalculator.B">B (soprano.calculate.nmr.nmr.NMRCalculator property)</a>
 </li>
       <li><a href="_autosummary/soprano.measure.html#soprano.measure.bondDistance">bondDistance() (in module soprano.measure)</a>
 </li>
@@ -918,7 +780,7 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.analyse.phylogen.metrics.html#soprano.analyse.phylogen.metrics.confmat">confmat() (in module soprano.analyse.phylogen.metrics)</a>
 </li>
-      <li><a href="_autosummary/soprano.hpc.submitter.utils.html#soprano.hpc.submitter.utils.RemoteTarget.context">context() (soprano.hpc.submitter.utils.RemoteTarget property)</a>
+      <li><a href="_autosummary/soprano.hpc.submitter.utils.html#soprano.hpc.submitter.utils.RemoteTarget.context">context (soprano.hpc.submitter.utils.RemoteTarget property)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.CoordinationHistogram">CoordinationHistogram (class in soprano.properties.linkage.linkage)</a>
 </li>
@@ -944,6 +806,8 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.collection.generate.defect.html#soprano.collection.generate.defect.defectGen">defectGen() (in module soprano.collection.generate.defect)</a>
 </li>
+      <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.degeneracy">degeneracy (soprano.nmr.tensor.NMRTensor property)</a>
+</li>
       <li><a href="_autosummary/soprano.properties.linkage.linkage.html#soprano.properties.linkage.linkage.DihedralAngleList">DihedralAngleList (class in soprano.properties.linkage.linkage)</a>
 </li>
   </ul></td>
@@ -951,6 +815,8 @@ title="Open an issue"
       <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarCoupling">DipolarCoupling (class in soprano.properties.nmr.dipolar)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarDiagonal">DipolarDiagonal (class in soprano.properties.nmr.dipolar)</a>
+</li>
+      <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarEuler">DipolarEuler (class in soprano.properties.nmr.dipolar)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarRSS">DipolarRSS (class in soprano.properties.nmr.dipolar)</a>
 </li>
@@ -970,6 +836,8 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGDiagonal">EFGDiagonal (class in soprano.properties.nmr.efg)</a>
 </li>
+      <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGEuler">EFGEuler (class in soprano.properties.nmr.efg)</a>
+</li>
       <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuadrupolarConstant">EFGQuadrupolarConstant (class in soprano.properties.nmr.efg)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuadrupolarProduct">EFGQuadrupolarProduct (class in soprano.properties.nmr.efg)</a>
@@ -982,11 +850,19 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSpan">EFGSpan (class in soprano.properties.nmr.efg)</a>
 </li>
+      <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGTensor">EFGTensor (class in soprano.properties.nmr.efg)</a>
+</li>
       <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGVzz">EFGVzz (class in soprano.properties.nmr.efg)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.equivalent_euler_angles">equivalent_euler_angles() (soprano.nmr.tensor.NMRTensor method)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.equivalent_euler_to">equivalent_euler_to() (soprano.nmr.tensor.NMRTensor method)</a>
 </li>
       <li><a href="_autosummary/soprano.measure.html#soprano.measure.euclideanDistance">euclideanDistance() (in module soprano.measure)</a>
 </li>
       <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.euler_angles">euler_angles() (soprano.nmr.tensor.NMRTensor method)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.euler_to">euler_to() (soprano.nmr.tensor.NMRTensor method)</a>
 </li>
       <li><a href="_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.Gene.evaluate">evaluate() (soprano.analyse.phylogen.genes.Gene method)</a>
 </li>
@@ -1049,15 +925,85 @@ title="Open an issue"
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarDiagonal.extract">(soprano.properties.nmr.dipolar.DipolarDiagonal static method)</a>
 </li>
+        <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarEuler.extract">(soprano.properties.nmr.dipolar.DipolarEuler static method)</a>
+</li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarRSS.extract">(soprano.properties.nmr.dipolar.DipolarRSS static method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarTensor.extract">(soprano.properties.nmr.dipolar.DipolarTensor static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGAnisotropy.extract">(soprano.properties.nmr.efg.EFGAnisotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGAsymmetry.extract">(soprano.properties.nmr.efg.EFGAsymmetry static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGDiagonal.extract">(soprano.properties.nmr.efg.EFGDiagonal static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGEuler.extract">(soprano.properties.nmr.efg.EFGEuler static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuadrupolarConstant.extract">(soprano.properties.nmr.efg.EFGQuadrupolarConstant static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuadrupolarProduct.extract">(soprano.properties.nmr.efg.EFGQuadrupolarProduct static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuaternion.extract">(soprano.properties.nmr.efg.EFGQuaternion static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGReducedAnisotropy.extract">(soprano.properties.nmr.efg.EFGReducedAnisotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSkew.extract">(soprano.properties.nmr.efg.EFGSkew static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSpan.extract">(soprano.properties.nmr.efg.EFGSpan static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGTensor.extract">(soprano.properties.nmr.efg.EFGTensor static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGVzz.extract">(soprano.properties.nmr.efg.EFGVzz static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.ISCDiagonal.extract">(soprano.properties.nmr.isc.ISCDiagonal static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCAnisotropy.extract">(soprano.properties.nmr.isc.JCAnisotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCAsymmetry.extract">(soprano.properties.nmr.isc.JCAsymmetry static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCDiagonal.extract">(soprano.properties.nmr.isc.JCDiagonal static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCIsotropy.extract">(soprano.properties.nmr.isc.JCIsotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCQuaternion.extract">(soprano.properties.nmr.isc.JCQuaternion static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCReducedAnisotropy.extract">(soprano.properties.nmr.isc.JCReducedAnisotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCSkew.extract">(soprano.properties.nmr.isc.JCSkew static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.isc.html#soprano.properties.nmr.isc.JCSpan.extract">(soprano.properties.nmr.isc.JCSpan static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSAnisotropy.extract">(soprano.properties.nmr.ms.MSAnisotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSAsymmetry.extract">(soprano.properties.nmr.ms.MSAsymmetry static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSDiagonal.extract">(soprano.properties.nmr.ms.MSDiagonal static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSEuler.extract">(soprano.properties.nmr.ms.MSEuler static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSIsotropy.extract">(soprano.properties.nmr.ms.MSIsotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSQuaternion.extract">(soprano.properties.nmr.ms.MSQuaternion static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSReducedAnisotropy.extract">(soprano.properties.nmr.ms.MSReducedAnisotropy static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSkew.extract">(soprano.properties.nmr.ms.MSSkew static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSpan.extract">(soprano.properties.nmr.ms.MSSpan static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSTensor.extract">(soprano.properties.nmr.ms.MSTensor static method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.order.order.html#soprano.properties.order.order.BondOrder.extract">(soprano.properties.order.order.BondOrder static method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.symmetry.symmetry.html#soprano.properties.symmetry.symmetry.SymmetryDataset.extract">(soprano.properties.symmetry.symmetry.SymmetryDataset static method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.symmetry.symmetry.html#soprano.properties.symmetry.symmetry.WyckoffPoints.extract">(soprano.properties.symmetry.symmetry.WyckoffPoints static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.transform.transform.html#soprano.properties.transform.transform.Mirror.extract">(soprano.properties.transform.transform.Mirror static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.transform.transform.html#soprano.properties.transform.transform.Rotate.extract">(soprano.properties.transform.transform.Rotate static method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.transform.transform.html#soprano.properties.transform.transform.Translate.extract">(soprano.properties.transform.transform.Translate static method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -1169,6 +1115,8 @@ title="Open an issue"
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarDiagonal.get">(soprano.properties.nmr.dipolar.DipolarDiagonal class method)</a>
 </li>
+        <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarEuler.get">(soprano.properties.nmr.dipolar.DipolarEuler class method)</a>
+</li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarRSS.get">(soprano.properties.nmr.dipolar.DipolarRSS class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.dipolar.html#soprano.properties.nmr.dipolar.DipolarTensor.get">(soprano.properties.nmr.dipolar.DipolarTensor class method)</a>
@@ -1178,6 +1126,8 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGAsymmetry.get">(soprano.properties.nmr.efg.EFGAsymmetry class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGDiagonal.get">(soprano.properties.nmr.efg.EFGDiagonal class method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGEuler.get">(soprano.properties.nmr.efg.EFGEuler class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGQuadrupolarConstant.get">(soprano.properties.nmr.efg.EFGQuadrupolarConstant class method)</a>
 </li>
@@ -1190,6 +1140,8 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSkew.get">(soprano.properties.nmr.efg.EFGSkew class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGSpan.get">(soprano.properties.nmr.efg.EFGSpan class method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGTensor.get">(soprano.properties.nmr.efg.EFGTensor class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.efg.html#soprano.properties.nmr.efg.EFGVzz.get">(soprano.properties.nmr.efg.EFGVzz class method)</a>
 </li>
@@ -1217,6 +1169,8 @@ title="Open an issue"
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSDiagonal.get">(soprano.properties.nmr.ms.MSDiagonal class method)</a>
 </li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSEuler.get">(soprano.properties.nmr.ms.MSEuler class method)</a>
+</li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSIsotropy.get">(soprano.properties.nmr.ms.MSIsotropy class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSQuaternion.get">(soprano.properties.nmr.ms.MSQuaternion class method)</a>
@@ -1226,6 +1180,8 @@ title="Open an issue"
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSkew.get">(soprano.properties.nmr.ms.MSSkew class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSpan.get">(soprano.properties.nmr.ms.MSSpan class method)</a>
+</li>
+        <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSTensor.get">(soprano.properties.nmr.ms.MSTensor class method)</a>
 </li>
         <li><a href="_autosummary/soprano.properties.order.order.html#soprano.properties.order.order.BondOrder.get">(soprano.properties.order.order.BondOrder class method)</a>
 </li>
@@ -1350,7 +1306,7 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.calculate.xrd.xrd.html#soprano.calculate.xrd.xrd.XraySpectrum.invd">invd (soprano.calculate.xrd.xrd.XraySpectrum attribute)</a>
 </li>
-      <li><a href="_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.Gene.is_pair">is_pair() (soprano.analyse.phylogen.genes.Gene property)</a>
+      <li><a href="_autosummary/soprano.analyse.phylogen.genes.html#soprano.analyse.phylogen.genes.Gene.is_pair">is_pair (soprano.analyse.phylogen.genes.Gene property)</a>
 </li>
       <li><a href="_autosummary/soprano.utils.html#soprano.utils.is_string">is_string() (in module soprano.utils)</a>
 </li>
@@ -1645,6 +1601,8 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSDiagonal">MSDiagonal (class in soprano.properties.nmr.ms)</a>
 </li>
+      <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSEuler">MSEuler (class in soprano.properties.nmr.ms)</a>
+</li>
       <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSIsotropy">MSIsotropy (class in soprano.properties.nmr.ms)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSQuaternion">MSQuaternion (class in soprano.properties.nmr.ms)</a>
@@ -1654,6 +1612,8 @@ title="Open an issue"
       <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSkew">MSSkew (class in soprano.properties.nmr.ms)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSSpan">MSSpan (class in soprano.properties.nmr.ms)</a>
+</li>
+      <li><a href="_autosummary/soprano.properties.nmr.ms.html#soprano.properties.nmr.ms.MSTensor">MSTensor (class in soprano.properties.nmr.ms)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1697,9 +1657,11 @@ title="Open an issue"
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="_autosummary/soprano.calculate.xrd.xrd.html#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args">peak_f_args() (soprano.calculate.xrd.xrd.XRDCalculator property)</a>
+      <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.PAS">PAS (soprano.nmr.tensor.NMRTensor property)</a>
 </li>
-      <li><a href="_autosummary/soprano.calculate.xrd.xrd.html#soprano.calculate.xrd.xrd.XRDCalculator.peak_func">peak_func() (soprano.calculate.xrd.xrd.XRDCalculator property)</a>
+      <li><a href="_autosummary/soprano.calculate.xrd.xrd.html#soprano.calculate.xrd.xrd.XRDCalculator.peak_f_args">peak_f_args (soprano.calculate.xrd.xrd.XRDCalculator property)</a>
+</li>
+      <li><a href="_autosummary/soprano.calculate.xrd.xrd.html#soprano.calculate.xrd.xrd.XRDCalculator.peak_func">peak_func (soprano.calculate.xrd.xrd.XRDCalculator property)</a>
 </li>
       <li><a href="_autosummary/soprano.utils.html#soprano.utils.periodic_bridson">periodic_bridson() (in module soprano.utils)</a>
 </li>
@@ -1727,6 +1689,8 @@ title="Open an issue"
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/soprano.rnd.html#soprano.rnd.random_combination">random_combination() (in module soprano.rnd)</a>
+</li>
       <li><a href="_autosummary/soprano.collection.generate.rattle.html#soprano.collection.generate.rattle.rattleGen">rattleGen() (in module soprano.collection.generate.rattle)</a>
 </li>
       <li><a href="_autosummary/soprano.utils.html#soprano.utils.recursive_mol_label">recursive_mol_label() (in module soprano.utils)</a>
@@ -1735,7 +1699,7 @@ title="Open an issue"
 </li>
       <li><a href="_autosummary/soprano.properties.map.map.html#soprano.properties.map.map.RemapIndices">RemapIndices (class in soprano.properties.map.map)</a>
 </li>
-      <li><a href="_autosummary/soprano.hpc.submitter.debug.debugqueue.html#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.remote_target">remote_target() (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface property)</a>
+      <li><a href="_autosummary/soprano.hpc.submitter.debug.debugqueue.html#soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface.remote_target">remote_target (soprano.hpc.submitter.debug.debugqueue.DebugQueueInterface property)</a>
 
       <ul>
         <li><a href="_autosummary/soprano.hpc.submitter.queues.html#soprano.hpc.submitter.queues.QueueInterface.remote_target">(soprano.hpc.submitter.queues.QueueInterface property)</a>
@@ -1758,6 +1722,8 @@ title="Open an issue"
       <li><a href="_autosummary/soprano.utils.html#soprano.utils.replace_folder">replace_folder() (in module soprano.utils)</a>
 </li>
       <li><a href="_autosummary/soprano.properties.transform.transform.html#soprano.properties.transform.transform.Rotate">Rotate (class in soprano.properties.transform.transform)</a>
+</li>
+      <li><a href="_autosummary/soprano.nmr.tensor.html#soprano.nmr.tensor.NMRTensor.rotation_to">rotation_to() (soprano.nmr.tensor.NMRTensor method)</a>
 </li>
       <li><a href="_autosummary/soprano.collection.collection.html#soprano.collection.collection.AtomsCollection.run_calculators">run_calculators() (soprano.collection.collection.AtomsCollection method)</a>
 </li>
@@ -2500,36 +2466,70 @@ title="Open an issue"
 
 
 
-              </div>
+                </article>
               
-            </main>
-            <footer class="footer-article noprint">
-                
-    <!-- Previous / next buttons -->
-<div class='prev-next-area'>
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
 </div>
-            </footer>
-        </div>
-    </div>
-    <div class="footer-content row">
-        <footer class="col footer"><p>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
   
-    By CCP-NC<br/>
-  
-      &copy; Copyright 2022.<br/>
-</p>
-        </footer>
-    </div>
+  <div class="footer-item">
     
+<p class="component-author">
+By CCP-NC
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
 </div>
+          </footer>
+        
 
-
-      </div>
+      </main>
     </div>
+  </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
-
+  <footer class="bd-footer">
+  </footer>
   </body>
 </html>
