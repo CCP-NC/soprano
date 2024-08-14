@@ -1,0 +1,57 @@
+Traceback (most recent call last):
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/nbclient/client.py", line 1204, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/nbclient/util.py", line 84, in wrapped
+    return just_run(coro(*args, **kwargs))
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/nbclient/util.py", line 62, in just_run
+    return loop.run_until_complete(coro)
+  File "/home/jks/miniconda3/lib/python3.9/asyncio/base_events.py", line 647, in run_until_complete
+    return future.result()
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/nbclient/client.py", line 663, in async_execute
+    await self.async_execute_cell(
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/nbclient/client.py", line 965, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/home/jks/miniconda3/lib/python3.9/site-packages/nbclient/client.py", line 862, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+# We try additioning hydrogen to ethylene
+eth = molecule('C2H4')
+
+csel = AtomSelection.from_element(eth, 'C')
+aG = additionGen(eth, 'H', to_addition=csel, add_r=1.0)
+
+aColl = AtomsCollection(aG)
+
+# Should generate four structures: 2 carbon atoms x 2 possible directions (above and below the plane of the molecule)
+print('{0} structures generated'.format(len(aColl)))
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mValueError[0m                                Traceback (most recent call last)
+Cell [0;32mIn [6], line 7[0m
+[1;32m      4[0m csel [38;5;241m=[39m AtomSelection[38;5;241m.[39mfrom_element(eth, [38;5;124m'[39m[38;5;124mC[39m[38;5;124m'[39m)
+[1;32m      5[0m aG [38;5;241m=[39m additionGen(eth, [38;5;124m'[39m[38;5;124mH[39m[38;5;124m'[39m, to_addition[38;5;241m=[39mcsel, add_r[38;5;241m=[39m[38;5;241m1.0[39m)
+[0;32m----> 7[0m aColl [38;5;241m=[39m [43mAtomsCollection[49m[43m([49m[43maG[49m[43m)[49m
+[1;32m      9[0m [38;5;66;03m# Should generate four structures: 2 carbon atoms x 2 possible directions (above and below the plane of the molecule)[39;00m
+[1;32m     10[0m [38;5;28mprint[39m([38;5;124m'[39m[38;5;132;01m{0}[39;00m[38;5;124m structures generated[39m[38;5;124m'[39m[38;5;241m.[39mformat([38;5;28mlen[39m(aColl)))
+
+File [0;32m~/coding/soprano/soprano/collection/collection.py:161[0m, in [0;36mAtomsCollection.__init__[0;34m(self, structures, info, cell_reduce, progress, suppress_ase_warnings)[0m
+[1;32m    159[0m     iter_structs [38;5;241m=[39m structures
+[1;32m    160[0m     structures [38;5;241m=[39m []
+[0;32m--> 161[0m     [38;5;28;01mfor[39;00m s [38;5;129;01min[39;00m iter_structs:
+[1;32m    162[0m         structures[38;5;241m.[39mappend(s)
+[1;32m    164[0m [38;5;28;01mif[39;00m progress:
+
+File [0;32m~/coding/soprano/soprano/collection/generate/defect.py:299[0m, in [0;36madditionGen[0;34m(struct, add, to_addition, n, add_r, accept)[0m
+[1;32m    297[0m     [38;5;28;01melse[39;00m:
+[1;32m    298[0m         attach_v[i] [38;5;241m=[39m utils[38;5;241m.[39mrep_alg(bset)
+[0;32m--> 299[0m attach_v [38;5;241m=[39m [43mnp[49m[38;5;241;43m.[39;49m[43marray[49m[43m([49m[43mattach_v[49m[43m)[49m
+[1;32m    301[0m addconfs [38;5;241m=[39m itertools[38;5;241m.[39mcombinations(to_addition[38;5;241m.[39mindices, n)
+[1;32m    303[0m [38;5;28;01mfor[39;00m ac [38;5;129;01min[39;00m addconfs:
+
+[0;31mValueError[0m: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (6,) + inhomogeneous part.
+ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (6,) + inhomogeneous part.
+
