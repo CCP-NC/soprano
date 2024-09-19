@@ -39,7 +39,7 @@ from ase.visualize import view as aseview
 from ase import Atoms
 import pandas as pd
 import logging
-from typing import List, Union
+from typing import List, Optional
 
 
 # join home and config file
@@ -779,7 +779,7 @@ def apply_df_filtering(
     exclude: List,
     query: str,
     essential_columns: List = [],
-    logger: Union[logging.Logger, None] = None,
+    logger: Optional[logging.Logger] = None,
 ) -> pd.DataFrame:
     """
     Inlcude/exclude columns and filter the dataframe using a pandas query.

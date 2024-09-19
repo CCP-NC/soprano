@@ -44,7 +44,7 @@ import pandas as pd
 import warnings
 import logging
 import click_log
-from typing import List, Tuple, Dict, Union, Optional
+from typing import List, Optional
 from soprano.scripts.cli_utils import (
     add_options,
     NMREXTRACT_OPTIONS,
@@ -605,8 +605,8 @@ def build_nmr_df(
 def get_ms_summary(
     atoms: Atoms,
     euler_convention: str,
-    references: Union[dict, None] = None,
-    gradients: Union[dict, None] = None,
+    references: Optional[dict] = None,
+    gradients: Optional[dict] = None,
 ) -> pd.DataFrame:
     """
     For an Atoms object with ms tensor arrays, return a summary of the tensors.

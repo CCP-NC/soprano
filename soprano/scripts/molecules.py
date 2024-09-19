@@ -25,7 +25,6 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "Dec. 13, 2023"
 
 
-from typing import List, Union
 import click
 import numpy as np
 import os
