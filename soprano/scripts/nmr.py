@@ -76,7 +76,7 @@ FOOTER = """
 
 MS_MINIMAL_COLUMNS = ["MS_shielding", "MS_anisotropy"]
 EFG_MINIMAL_COLUMNS = ["EFG_quadrupolar_constant", "EFG_asymmetry",]
-nmr_column_aliases = {
+NMR_COLUMN_ALIASES = {
     "minimal" : MS_MINIMAL_COLUMNS + EFG_MINIMAL_COLUMNS,
     "ms": MS_MINIMAL_COLUMNS,
     "efg": EFG_MINIMAL_COLUMNS,
@@ -244,6 +244,11 @@ def nmr_extract_multi(
             **kwargs,
         )
 
+        if atoms is None:
+            # This can happen for example if the given magres file has no
+            # atoms that match the selection string
+            continue
+
         # build the dataframe
         df = build_nmr_df(
             atoms,
@@ -267,16 +272,16 @@ def nmr_extract_multi(
         # apply filters
         df = apply_df_filtering(
             df,
-            expand_aliases(include, nmr_column_aliases),
+            expand_aliases(include, NMR_COLUMN_ALIASES),
             exclude,
             query,
-            essential_columns=nmr_column_aliases["essential"],
+            essential_columns=NMR_COLUMN_ALIASES["essential"],
             logger=logger,
         )
 
         # ----- atoms object manipulation -----
         # only keep the atoms that are in the dataframe (based on tag)
-        atoms = atoms[np.isin(atoms.get_tags(), df["tags"].values)]
+        atoms = atoms[np.isin(atoms.get_tags(), np.array(df["tags"].values))]
 
         # if the df is not empty, append it to the list
         if len(df) > 0:
@@ -333,7 +338,7 @@ def nmr_extract_atoms(
 
 
     # create new array for multiplicity
-    multiplicity = np.ones(len(atoms))
+    multiplicity = np.ones(len(atoms), dtype=int)
     atoms.set_array("multiplicity", multiplicity)
 
     # reduce by symmetry?
@@ -378,8 +383,13 @@ def nmr_extract_atoms(
     # select subset of atoms based on selection string
     if subset:
         logger.info(f"\nSelecting atoms based on selection subset string: {subset}")
-        sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
-        all_selections *= sel_selectionstring
+        try:
+            sel_selectionstring = AtomSelection.from_selection_string(atoms, subset)
+            all_selections *= sel_selectionstring
+        except ValueError as e:
+            logger.error(f"Could not select atoms based on selection string: {e}")
+            return
+
         logger.debug(f"    Selected atoms: {all_selections.indices}")
         ## apply selection string to atoms object
         atoms = all_selections.subset(atoms)
