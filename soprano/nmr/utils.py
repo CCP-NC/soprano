@@ -352,13 +352,16 @@ def _normalise_euler_angles(
     """
     Normalise Euler angles to standard ranges for NMR as 
     defined in: 
-    TensorView for MATLAB:
-    https://doi.org/10.1016/j.ssnmr.2022.101849
+    TensorView for MATLAB :cite:p:`Svenningsson2023`
 
     Args:
         euler_angles (np.ndarray): Euler angles in radians
         passive (bool, optional): Whether the angles are passive rotations. Defaults to False.
         eps (float, optional): Tolerance for degeneracy. Defaults to 1e-6.
+
+
+
+    .. footbibliography::
     
     """
     alpha, beta, gamma = euler_angles
@@ -411,7 +414,7 @@ def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False):
     Find the equivalent Euler angles for a given set of Euler angles.
 
     This set should be correct for NMR tensors, according to 
-    TensorView for MATLAB: https://doi.org/10.1016/j.ssnmr.2022.101849
+    TensorView for MATLAB: :cite:p:`Svenningsson2023`
     """
     
     equiv_angles = np.zeros((4, 3))
@@ -443,7 +446,7 @@ def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False):
 def _equivalent_relative_euler(euler_angles: np.ndarray, passive: bool = False) -> np.ndarray:
     """
     Returns a list of 16 equivalent relative Euler angles for a given set of Euler angles that corresponds to the relative orientation of two NMR tensors.
-    See TensorView for MATLAB: https://doi.org/10.1016/j.ssnmr.2022.101849
+    See TensorView for MATLAB: :cite:p:`Svenningsson2023`
     """
     equiv_angles = np.zeros((16, 3))
     alpha, beta, gamma = euler_angles
@@ -513,7 +516,7 @@ def _tryallanglestest(
     the trick of calculating the A relative angles in the frame of B 
     by calculating the B relative angles in the frame of A with the *passive* convention.
 
-    Credit: function adapted from TensorView for MATLAB: https://doi.org/10.1016/j.ssnmr.2022.101849
+    Credit: function adapted from TensorView for MATLAB: :cite:p:`Svenningsson2023`
     """
 
     # make copy of the input angles

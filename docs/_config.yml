@@ -23,8 +23,8 @@ latex:
 
 # Information about where the book exists on the web
 repository:
-  url: https://github.com/CCP-NC/soprano  # Online location of your book
-  path_to_book: docs  # Optional path to your book, relative to the repository root
+  url: https://github.com/jkshenton/soprano  # Online location of your book
+  # path_to_book: docs  # Optional path to your book, relative to the repository root
   branch: master  # Which branch of the repository should be used when creating links (optional)
 
 # Add GitHub buttons to your book
@@ -38,6 +38,10 @@ html:
   # google_analytics_id       : ""  # A GA id that can be used to track book views.
   # announcement              : "" # A banner announcement at the top of the site.
 
+launch_buttons:
+  colab_url: "https://colab.research.google.com"
+  binderhub_url: "https://mybinder.org" 
+
 sphinx:
   extra_extensions:
   - 'sphinx.ext.autodoc'
@@ -47,6 +51,7 @@ sphinx:
   - 'sphinxcontrib.mermaid'
   - 'sphinx.ext.mathjax'
   - 'sphinx_click'
+  - 'sphinxcontrib.bibtex'
   config:
     add_module_names: True
     html_theme: "sphinx_book_theme"
@@ -59,3 +64,4 @@ sphinx:
       inherited-members: True
       private-members: True
       show-inheritance: True
+    bibtex_bibfiles: ['references.bib']
