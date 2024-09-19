@@ -25,6 +25,7 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "Dec. 13, 2023"
 
 
+from typing import List, Union
 import click
 import numpy as np
 import os
@@ -57,6 +58,25 @@ Extracting molecules from a molecular crystal
 ###############################################
 """
 
+def validate_cell(ctx, param, value):
+    if value is not None:
+        parts = value.split()
+        num_parts = len(parts)
+        if num_parts not in (1, 3, 6, 9):
+            raise click.BadParameter("Cell must have 1, 3, 6, or 9 values.")
+        try:
+            # Convert all parts to floats
+            parts = np.array([float(part) for part in parts])
+        except ValueError:
+            raise click.BadParameter("All cell values must be valid floats.")
+        # If num_parts is 9, reshape to 3x3 matrix
+        if num_parts == 9:
+            parts = parts.reshape((3, 3))
+        if num_parts == 1:
+            parts = np.eye(3) * parts[0]
+        return parts
+    return value
+
 # options for the command line
 # TODO - later maybe move to the cli_utils file
 
@@ -74,7 +94,7 @@ Extracting molecules from a molecular crystal
 @click.option(
     "--output-dir",
     "-o",
-    type=click.Path(exists=True),
+    type=click.Path(),
     default=".",
     help="Output directory for the extracted molecules.",
 )
@@ -94,17 +114,21 @@ Extracting molecules from a molecular crystal
 # redefine unit cell
 @click.option(
     "--cell",
-    nargs=9,
-    type=click.FLOAT,
+    type=click.STRING,
+    callback=validate_cell,
     default=None,
-    help="Redefined unit cell for the extracted molecules."
-    "This should be provided as nine numbers, corresponding to the unit cell matrix."
-    "For example, for a cubic cell of length 10.0 Angstroms, this would be:"
-    "10.0 0.0 0.0 0.0 10.0 0.0 0.0 0.0 10.0",
+    help="Redefined unit cell for the extracted molecules. Use double-quotes to pass this option in. "
+    "For example: ```--cell \"10.0 10.0 15.0\"```. "
+    "This can be provides as a single float (-> a cubic cell is created with that lattice constant) or "
+    "as three floats (`a b c` -> an orthorhombic cell is created with the given side lengths) or "
+    "as six floats (`a b c alpha beta gamma`) or "
+    "as nine floats (`a11 a12 a13 a21 a22 a23 a31 a32 a33`) for the full unit cell matrix. "
+    "Units are in Angstroms."
 )
 # center molecules in the cell
 @click.option(
     "--center",
+    "--centre", # British spelling allowed too...
     "-c",
     is_flag=True,
     help="Center the extracted molecules in the unit cell.",
@@ -132,7 +156,7 @@ Extracting molecules from a molecular crystal
     "--vdw-set",
     type=click.Choice(["ase", "jmol", "csd"]),
     default="csd",
-    help="Set of Van der Waals radii to use. Default is csd [S. Alvarez, 2013].",
+    help="Set of Van der Waals radii to use. Default is csd S. Alvarez, 2013 (`<https://doi.org/10.1039/C3DT50599E>`_).",
 )
 @click.option(
     "--vdw-scale",
@@ -245,6 +269,8 @@ def splitmols(
     if seedname is None:
         seedname = os.path.splitext(os.path.basename(filename))[0]
     if not no_write:
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         write_molecules(molecules, output_dir, format, seedname)
 
 
@@ -288,15 +314,22 @@ def extract_molecules(atoms, use_cell_indices, **kwargs):
     return molecules
 
 
-def redefine_unit_cell(atoms: Atoms, cell, center=False, vacuum=None):
+def redefine_unit_cell(atoms: Atoms,
+                       cell: np.ndarray, 
+                       center=False,
+                       vacuum=None):
     """
     Redefine the unit cell of the structure.
     If center is True, the structure is centered in the cell.
     (Centers the atoms in the unit cell, so there is the same
         amount of vacuum on all sides.)
+    If vacuum is not None, a minimum vacuum is enforced.
+    cell can be a single float (-> a cubic cell is created with that lattice constant) or
+    as three floats (`a b c` -> an orthorhombic cell is created with the given side lengths) or
+    as six floats (`a b c alpha beta gamma`) or
+    a 3x3 np.array defining the full unit cell.
     """
     if cell is not None:
-        cell = np.array(cell).reshape((3, 3))
         atoms.set_cell(cell)
         atoms.set_pbc(True)
 
