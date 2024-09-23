@@ -53,11 +53,13 @@ def _get_nmr_data():
             "wrong with this installation of Soprano"
         )
 
-def _get_isotope_list(elems, isotopes={}, isotope_list=None, use_q_isotopes=False):
+def _get_isotope_list(elems, isotopes=None, isotope_list=None, use_q_isotopes=False):
     '''
     elems can be a single element string or a list of elements
     returns the isotope number for each element elems
     '''
+    if isotopes is None:
+        isotopes = {}
     if isinstance(elems, str):
         elems = [elems]  # It's a single element
 
