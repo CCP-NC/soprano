@@ -22,7 +22,9 @@ import numpy as np
 from scipy.optimize import minimize
 from functools import wraps
 from pkg_resources import resource_filename
+from dataclasses import dataclass
 import matplotlib
+from typing import List, Tuple, Optional
 
 def get_force_matrix(
             positions: np.ndarray,
@@ -198,6 +200,9 @@ def optimise_annotations(positions, max_iters=10000, C=0.01, k=0.00001, ftol = 1
     positions = positions[inverted_order]
     return positions
 
+
+
+@dataclass
 class Peak2D:
     '''
     Class to hold peak data. This is used to store the peak data for a correlation peak in a 2D NMR spectrum.
@@ -209,32 +214,16 @@ class Peak2D:
     - the color of the peak
 
     '''  
-
-    def __init__(self, x, y, xlabel, ylabel, correlation_strength=1, color='C0', idx_x=None, idx_y=None):
-        '''
-        Args:
-            x (float): The x coordinate of the peak
-            y (float): The y coordinate of the peak
-            xlabel (str): The x label for the peak
-            ylabel (str): The y label for the peak
-            correlation_strength (float, optional): The correlation strength of the peak. Defaults to 1.
-            color (str, optional): The color of the peak. Defaults to 'C0'. Any valid matplotlib color is allowed.
-            idx_x (int, optional): The index of the site in the original structure. Defaults to None.
-            idx_y (int, optional): The index of the peak in the original structure. Defaults to None.
-        '''
-        self.x = x
-        self.y = y
-        self.correlation_strength = correlation_strength
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.color = color
-        self.idx_x = idx_x
-        self.idx_y = idx_y
+    x: float
+    y: float
+    xlabel: str
+    ylabel: str
+    correlation_strength: float = 1
+    color: str = 'C0'
+    idx_x: int = None
+    idx_y: int = None
 
     def __repr__(self):
-        return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
-    
-    def __str__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
     
     def equivalent_to(self, other, xtol=0.005, ytol=0.005, corr_tol=0.1, ignore_correlation_strength=False):
@@ -242,7 +231,7 @@ class Peak2D:
         Check if two peaks are equivalent. We compare the x and y coordinates and the correlation strength.
 
         Args:
-            other (Peak): The other peak to compare to
+            other (Peak2D): The other peak to compare to
             xtol (float, optional): The tolerance for the x coordinate. Defaults to 0.005.
             ytol (float, optional): The tolerance for the y coordinate. Defaults to 0.005.
             corr_tol (float, optional): The tolerance for the correlation strength. Defaults to 0.1.
@@ -263,6 +252,105 @@ class Peak2D:
         
 
 
+def lorentzian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
+    """
+    Calculate the Lorentzian broadening function.
+
+    .. math::
+        f(x, y) = \\frac{1}{((x - x_0) / w_x)^2 + ((y - y_0) / w_y)^2 + 1}
+
+    where :math:`w_x` and :math:`w_y` are the broadening factors in the x and y directions, respectively. These
+    correspond to the half-width at half-maximum (HWHM) of the Lorentzian function.
+
+    Args:
+        X (np.ndarray): Array of x values.
+        x0 (float): x-coordinate of the peak.
+        Y (np.ndarray): Array of y values.
+        y0 (float): y-coordinate of the peak.
+        x_broadening (float): Broadening factor in the x direction.
+        y_broadening (float): Broadening factor in the y direction.
+
+    Returns:
+        np.ndarray: Array of intensity values.
+    """
+    return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
+
+def gaussian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
+    """
+    Calculate the Gaussian broadening function.
+
+    .. math::
+        f(x, y) = \\exp\\left(-\\frac{(x - x_0)^2}{2 w_x^2} - \\frac{(y - y_0)^2}{2 w_y^2}\\right)
+
+    where :math:`w_x` and :math:`w_y` are the broadening factors in the x and y directions, respectively. These
+    correspond to the standard deviation of the Gaussian function.
+
+    Args:
+        X (np.ndarray): Array of x values.
+        x0 (float): x-coordinate of the peak.
+        Y (np.ndarray): Array of y values.
+        y0 (float): y-coordinate of the peak.
+        x_broadening (float): Broadening factor in the x direction.
+        y_broadening (float): Broadening factor in the y direction.
+
+    Returns:
+        np.ndarray: Array of intensity values.
+    """
+    return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
+
+def generate_contour_map(
+    peaks: List[Peak2D], 
+    grid_size: int = 100, 
+    broadening: str = 'lorentzian', 
+    x_broadening: float = 1.0, 
+    y_broadening: float = 1.0, 
+    xlims: Optional[Tuple[float, float]] = None, 
+    ylims: Optional[Tuple[float, float]] = None
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Generate a contour map based on the provided peaks and broadening parameters.
+
+    Args:
+        peaks (List[Peak2D]): List of Peak2D objects containing x, y coordinates and correlation strength.
+        grid_size (int, optional): Size of the grid for the contour map. Default is 100.
+        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'lorentzian'.
+        x_broadening (float, optional): Broadening factor in the x direction. Default is 1.0.
+        y_broadening (float, optional): Broadening factor in the y direction. Default is 1.0.
+        xlims (Optional[Tuple[float, float]], optional): Limits for the x-axis. Default is None.
+        ylims (Optional[Tuple[float, float]], optional): Limits for the y-axis. Default is None.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: Meshgrid arrays X, Y and the intensity grid Z.
+    """
+    # Create a grid of x, y values
+    if xlims is None:
+        x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
+    else:
+        x_min, x_max = xlims
+    if ylims is None:
+        y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
+    else:
+        y_min, y_max = ylims
+    
+    # Create a grid of x, y values, broadening the grid by 5 times the broadening factor
+    x = np.linspace(x_min - 5 * x_broadening, x_max + 5 * x_broadening, grid_size)
+    y = np.linspace(y_min - 5 * y_broadening, y_max + 5 * y_broadening, grid_size)
+    X, Y = np.meshgrid(x, y)
+
+    # Initialize the intensity grid
+    Z = np.zeros_like(X)
+
+    # Apply broadening for each peak, adding to the intensity grid
+    for peak in peaks:
+        x0, y0, strength = peak.x, peak.y, peak.correlation_strength
+        if broadening == 'lorentzian':
+            Z += strength * lorentzian(X, x0, Y, y0, x_broadening, y_broadening)
+        elif broadening == 'gaussian':
+            Z += strength * gaussian(X, x0, Y, y0, x_broadening, y_broadening)
+        else:
+            raise ValueError(f'Unknown broadening function: {broadening}')
+    
+    return X, Y, Z
 
 
 
