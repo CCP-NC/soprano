@@ -206,6 +206,8 @@ class JCDiagonal(AtomsProperty):
 
         jc_dict = {}
         for sp in sel_pairs:
+            # sort sp if necessary
+            sp = tuple(sorted(sp))
             try:
                 i = all_pairs.index(sp)
             except ValueError:
