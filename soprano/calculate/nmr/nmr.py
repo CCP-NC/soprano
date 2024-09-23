@@ -840,7 +840,7 @@ class Plot2D:
                 pairs = None,
                 markersizes = None,
                 rcut = None,
-                isotopes={},
+                isotopes=None,
                 plot_shifts=None,
                 include_quadrupolar=False,
                 yaxis_order='1Q',
@@ -877,7 +877,7 @@ class Plot2D:
         self.pairs = pairs
         self.markersizes = markersizes
         self.rcut = rcut
-        self.isotopes = isotopes
+        self.isotopes = isotopes if isotopes is not None else {}
         self.plot_shifts = plot_shifts
         self.include_quadrupolar = include_quadrupolar
         self.yaxis_order = yaxis_order
