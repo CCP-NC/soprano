@@ -25,6 +25,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from dataclasses import dataclass
 import re
 from typing import Dict, Iterable, List, Optional, Tuple, Union
 import numpy as np
@@ -35,7 +36,7 @@ from soprano.properties.nmr.isc import JCIsotropy
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.nmr.utils import _dip_constant
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI, _get_isotope_list
-from soprano.calculate.nmr.utils import generate_contour_map, Peak2D, styled_plot, nmr_base_style, nmr_2D_style, get_atom_labels
+from soprano.calculate.nmr.utils import calculate_distances, extract_indices, filter_pairs_by_distance, generate_contour_map, Peak2D, generate_peaks, get_pair_dipolar_couplings, get_pair_j_couplings, merge_peaks, prepare_species_labels, process_pairs, sort_peaks, styled_plot, nmr_base_style, nmr_2D_style, get_atom_labels, validate_elements
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.selection import AtomSelection
 from soprano.properties.nmr import MSIsotropy, DipolarCoupling
@@ -832,107 +833,68 @@ class NMRCalculator(object):
         return self._B
 
 
-class Plot2D:
+class NMRData2D:
     '''
-    Class to handle the 2D plotting of NMR data.
-    
-    TODO: split this into a peak generator and a plotter
-
+    Class to hold and extract 2D NMR data.
     '''
     def __init__(self, 
-                atoms:Atoms,
-                xelement=None,
-                yelement=None,
-                references=None,
-                gradients=None,
-                peaks = None,
-                pairs = None,
-                markersizes = None,
-                rcut = None,
-                isotopes=None,
-                plot_shifts=None,
-                include_quadrupolar=False,
-                yaxis_order='1Q',
-                xlim=None,
-                ylim=None,
-                x_axis_label=None,
-                y_axis_label=None,
-                marker='+',
-                scale_marker_by = 'fixed',
-                max_marker_size=DEFAULT_MARKER_SIZE,
-                show_labels=True,
-                auto_adjust_labels=True,
-                show_lines=True,
-                show_diagonal=True,
-                show_connectors=True,
-                plot_filename=None,
-                marker_color = 'C0',
-                show_marker_legend=False,
-                logger = None,
-                ax = None # If None, will create a new figure,
+                atoms: Atoms,
+                xelement: str,
+                yelement: Optional[str] = None,
+                references: Optional[dict[str, float]] = None,
+                gradients: Optional[dict[str, float]] = None,
+                peaks: Optional[List[Peak2D]] = None,
+                pairs: Optional[List[Tuple[int, int]]] = None,
+                correlation_strengths: Optional[List[float]] = None,
+                correlation_strength_metric: Optional[str] = None, # 'fixed','distance', 'dipolar', 'jcoupling'
+                rcut: Optional[float] = None,
+                isotopes: Optional[dict[str, int]] = None,
+                is_shift: Optional[bool] = None,
+                include_quadrupolar: bool = False,
+                yaxis_order: str = '1Q',
+                x_axis_label: Optional[str] = None,
+                y_axis_label: Optional[str] = None,
                 ):
-        if logger is None:
-            self.logger = logging.getLogger(__name__)
-        else:
-            self.logger = logger
-
 
         self.atoms = atoms
         self.xelement = xelement
+        # if yelement is not provided, set it to xelement
         self.yelement = yelement if yelement is not None else xelement
         self.references = references
         self.gradients = gradients
         self.peaks = peaks
         self.pairs = pairs
-        self.markersizes = markersizes
+        # Either provide correlation strengths or calculate them based on the metric
+        # If both are provided, the provided values will be used
+        if correlation_strengths and correlation_strength_metric:
+            self.logger.warning("Both correlation_strengths and correlation_strength_metric are provided. Using correlation_strengths.")
+            correlation_strength_metric = 'custom'
+
+        # If neither are provided, set the metric to 'fixed'
+        if correlation_strengths is None and correlation_strength_metric is None:
+            correlation_strength_metric = 'fixed'
+
+        self.correlation_strengths = correlation_strengths
+        self.correlation_strength_metric = correlation_strength_metric
+        
         self.rcut = rcut
         self.isotopes = isotopes if isotopes is not None else {}
-        self.plot_shifts = plot_shifts
+        # is_shift is a boolean.  If undefined, it will be set to True if references are provided, False otherwise
+        #  If defined, it will be used as is
+        self.is_shift = is_shift if is_shift is not None else (self.references is not None)
         self.include_quadrupolar = include_quadrupolar
         self.yaxis_order = yaxis_order
-        self.xlim = xlim
-        self.ylim = ylim
+        self.logger = logging.getLogger(__name__)
+
+        self.correlation_unit = MARKER_INFO[self.correlation_strength_metric]['unit']
+        self.correlation_label = MARKER_INFO[self.correlation_strength_metric]['label']
+        self.correlation_fmt = MARKER_INFO[self.correlation_strength_metric]['fmt']
+
         self.x_axis_label = x_axis_label
         self.y_axis_label = y_axis_label
-        self.marker = marker
-        self.scale_marker_by = scale_marker_by
-        self.max_marker_size = max_marker_size
-        self.show_labels = show_labels
-        self.auto_adjust_labels = auto_adjust_labels
-        self.show_lines = show_lines
-        self.show_diagonal = show_diagonal
-        self.show_connectors = show_connectors
-        self.plot_filename = plot_filename
-        self.ax = ax
-        
-        
-        self.marker_color = marker_color
-        self.show_marker_legend = show_marker_legend
 
-        # if the user hasn't specified plot_shifts, then we 
-        # check if references are given for each element
-        if plot_shifts is None:
-            # otherwise, if references are given, plot shifts
-            if self.references:
-                self.plot_shifts = True
-                self.logger.debug("Plotting chemical shifts since references are given. ")
-            else:
-                self.plot_shifts = False
-                self.logger.debug("Plotting chemical shielding since no references are given. ")
-        else:
-            # if the user has specified plot_shifts to be True or False, use that
-            self.plot_shifts = plot_shifts
-
-        # Make sure we have references for all the elements if we're doing shifts
-        if plot_shifts and references and (xelement not in references or yelement not in references):
-            missing_element = xelement if xelement not in references else yelement
-            raise ValueError(f'{missing_element} not found in the references dictionary ({references}). '
-                                'Please specify a reference for the elements you want to plot.')
-        if not plot_shifts:
-            #  we can safely set the references and gradients to None
-            self.references = None
-            self.gradients = None
-            self.logger.debug("Plotting chemical *shielding*. ")
+        # run the main method to extract the data
+        self.get_peaks()
 
     def get_peaks(self, merge_identical=True, should_sort_peaks=True):
         '''
@@ -951,10 +913,10 @@ class Plot2D:
             raise ValueError("Either atoms or peaks must be given.")
         
         # make sure all the data is there
-        self.get_2D_plot_data()
+        self.extract_data()
         labels = get_atom_labels(self.atoms, self.logger)
 
-        self.peaks = generate_peaks(self.data, self.pairs, labels, self.markersizes, self.yaxis_order, self.xelement, self.yelement)
+        self.peaks = generate_peaks(self.data, self.pairs, labels, self.correlation_strengths, self.yaxis_order, self.xelement, self.yelement)
 
         if merge_identical:
             self.peaks = merge_peaks(self.peaks)
@@ -964,11 +926,7 @@ class Plot2D:
 
         return self.peaks
 
-
-    def get_2D_plot_data(self):
-        if self.xelement is None:
-            raise ValueError("xelement must be given.")
-        
+    def extract_data(self):
         validate_elements(self.atoms, self.xelement, self.yelement)
         self.idx_x, self.idx_y = extract_indices(self.atoms, self.xelement, self.yelement)
         isotopes = _get_isotope_list(self.atoms.get_chemical_symbols(), isotopes=self.isotopes, use_q_isotopes=False)
@@ -978,16 +936,14 @@ class Plot2D:
         self.yspecies = prepare_species_labels(self.yisotope, self.yelement)
         
         self.get_axis_labels()
-        self.get_plot_pairs()
-
-        self.marker_unit = MARKER_INFO[self.scale_marker_by]['unit']
-        self.marker_label = MARKER_INFO[self.scale_marker_by]['label']
-        self.marker_fmt = MARKER_INFO[self.scale_marker_by]['fmt']
-        self.markersizes = self.get_marker_sizes()
+        self.get_pairs()
+        if self.correlation_strength_metric is None:
+            raise ValueError("correlation_strength_metric is not defined. Please provide a value for this parameter.")
+        
+        
+        self.correlation_strengths = self.get_correlation_strengths()
         
         self.data = MSIsotropy.get(self.atoms, ref=self.references, grad=self.gradients)
-        if self.data is None:
-            raise ValueError("No data found for the selected elements. ")
         self.logger.debug(f'Indices of xelement in the atoms object: {self.idx_x}')
         self.logger.debug(f'Indices of yelement in the atoms object: {self.idx_y}')
         self.logger.debug(f'X species: {self.xspecies}')
@@ -996,8 +952,82 @@ class Plot2D:
         self.logger.debug(f'Y values: {self.data[self.idx_y]}')
 
 
+    def get_correlation_strengths(self):
+        if self.pairs is None:
+            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
+        
+        if self.correlation_strength_metric == 'custom':
+            self.logger.info("Using custom correlation strengths.")
+
+            # make sure correlation_strengths is a list or an array
+            if not isinstance(self.correlation_strengths, (list, np.ndarray)):
+                raise TypeError("correlation_strengths must be a list or an array.")
+
+            # if user provides a list of these, use it!
+            # just check that it's the right length
+            if len(self.correlation_strengths) != len(self.pairs_el_idx):
+                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({len(self.pairs_el_idx)}).")
+        
+        elif self.correlation_strength_metric == 'fixed':
+            self.logger.info("Using fixed correlation strength.")
+            # get all unique pairs of x and y indices
+            # set the correlation strength to be the same for all pairs
+            correlation_strengths = np.ones(len(self.pairs_el_idx))
+            
+        elif self.correlation_strength_metric == 'dipolar':
+            self.logger.info("Using dipolar coupling as correlation strength.")
+            if self.isotopes:
+                self.logger.debug(f"Using custom isotopes: {self.isotopes}")
+            correlation_strengths = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
+        elif self.correlation_strength_metric == 'distance' or self.correlation_strength_metric == 'inversedistance':
+            log_message = "Using minimum image convention {isinverse}distance as correlation strength."
+            isinverse = ''
+
+            # now we can use ASE get_distance to get the distances for each pair
+            correlation_strengths = self.pair_distances
+            if self.correlation_strength_metric == 'inversedistance':
+                correlation_strengths = 1 / correlation_strengths
+                isinverse = 'inverse '
+            self.logger.info(log_message.format(isinverse=isinverse))
+            
+
+        elif self.correlation_strength_metric == 'jcoupling':
+            self.logger.info("Using J-coupling as correlation strength.")
+            correlation_strengths = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
+        elif self.correlation_strength_metric == 'custom':
+            self.logger.info("Using custom correlation strengths.")
+            correlation_strengths = self.correlation_strengths
+        else:
+            raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
+        
+        # Make sure correlation_strengths is an array
+        correlation_strengths = np.array(correlation_strengths)
+        
+        self.logger.debug(f"correlation_strengths : {correlation_strengths}")
+        # Log pair with smallest and largest correlation strength
+        min_idx = np.argmin(np.abs(correlation_strengths))
+        max_idx = np.argmax(np.abs(correlation_strengths))
+        smallest_pair = self.pairs[min_idx]
+        largest_pair = self.pairs[max_idx]
+
+        # Labels for the smallest and largest pairs
+        labels = get_atom_labels(self.atoms, self.logger)
+        smallest_pair_labels = [labels[smallest_pair[0]], labels[smallest_pair[1]]]
+        largest_pair_labels = [labels[largest_pair[0]], labels[largest_pair[1]]]
+
+        self.logger.info(
+            f"Pair with smallest (abs) {self.correlation_label}: "
+            f"{smallest_pair_labels} ({correlation_strengths[min_idx]:.2f})"
+        )
+        self.logger.info(
+            f"Pair with largest (abs) {self.correlation_label}: "
+            f"{largest_pair_labels} ({correlation_strengths[max_idx]:.2f})"
+        )
+
+        return correlation_strengths
+    
     def get_axis_labels(self):
-        if self.plot_shifts:
+        if self.is_shift:
             axis_label = r"$\delta$"
         else:
             axis_label = r"$\sigma$"
@@ -1010,9 +1040,297 @@ class Plot2D:
             else:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
     
-    
 
-    def add_annotations(self, unique=True, optimise = True, labels_offset = 0.10):
+    def get_pairs(self):
+        '''
+        Get the pairs of x and y indices to plot
+
+        self.idx_x and self.idx_y are the indices of the x and y elements in the atoms object
+
+        This method will set the following attributes:
+        self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
+        self.pairs: a list of tuples of the form (xindex, yindex)
+        '''
+        # Process pairs
+        self.pairs, self.pairs_el_idx, self.idx_x, self.idx_y = process_pairs(self.idx_x, self.idx_y, self.pairs)
+
+        # Check for invalid pairs if correlation_strength_metric is not fixed
+        if self.correlation_strength_metric != 'fixed':
+            for pair in self.pairs:
+                if len(set(pair)) != 2:
+                    raise ValueError("""
+                    Two indices in a pair are the same but
+                    the correlation_strength_metric is based on distance between sites.
+                    It's unclear """)
+
+        if len(self.pairs) == 0:
+            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
+
+        # Calculate distances
+        # if pair_distances is not already calculated, calculate it
+        if not hasattr(self, 'pair_distances'):
+            self.pair_distances = calculate_distances(self.pairs, self.atoms)
+
+
+        # Filter pairs by distance if rcut is specified
+        if self.rcut:
+            self.logger.info(f"Filtering out pairs that are further than {self.rcut} Å apart.")
+            self.logger.info(f"Number of pairs before filtering: {len(self.pairs_el_idx)}")
+
+            self.pairs, self.pairs_el_idx, self.pair_distances, self.idx_x, self.idx_y = filter_pairs_by_distance(
+                self.pairs, self.pairs_el_idx, self.pair_distances, self.rcut)
+            
+            self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
+            self.logger.debug(f"Pairs remaining: {self.pairs}")
+            self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
+
+
+        
+
+@dataclass
+class PlotSettings:
+    xlim: Optional[Tuple[float, float]] = None
+    ylim: Optional[Tuple[float, float]] = None
+    x_axis_label: Optional[str] = None
+    y_axis_label: Optional[str] = None
+    plot_filename: Optional[str] = None
+    show_markers: bool = True
+    marker: str = '+'
+    marker_linewidth: float = 0.5
+    max_marker_size: int = 10
+    show_labels: bool = True
+    auto_adjust_labels: bool = True
+    show_lines: bool = True
+    show_diagonal: bool = True
+    show_connectors: bool = True
+    marker_color: str = 'C0'
+    show_legend: bool = False
+    ax: Optional[object] = None
+    show_heatmap: bool = False
+    show_contour: bool = False
+    x_broadening: Optional[float] = None
+    y_broadening: Optional[float] = None
+    broadening_type: str = 'gaussian' # 'gaussian', 'lorentzian'
+    broadening_grid_size: int = 100
+    colormap: str = 'bone_r'
+    contour_color: str = 'C1'
+    contour_linewidth: float = 0.2
+    # To specify the contour levels, either provide a list of values or a integer number of contours between min and max
+    contour_levels: Union[Iterable[float], int] = 10
+
+
+class NMRPlot2D:
+    '''
+    Class to plot 2D NMR data.
+    '''
+    DEFAULT_MARKER_SIZE = 10  # Example default value
+
+    def __init__(self, 
+                nmr_data: NMRData2D,
+                plot_settings: Optional[PlotSettings] = None):
+
+        self.nmr_data = nmr_data
+        # store the data as numpy arrays for plotting
+        npeaks = len(self.nmr_data.peaks)   
+        self.x = np.zeros(npeaks)
+        self.y = np.zeros(npeaks)
+        self.sizes = np.zeros(npeaks)
+
+        for i, peak in enumerate(self.nmr_data.peaks):
+            self.x[i] = peak.x
+            self.y[i] = peak.y
+            self.sizes[i] = peak.correlation_strength
+
+        
+        # Use default plot settings if none are provided
+        if plot_settings is None:
+            plot_settings = PlotSettings()
+        self.plot_settings = plot_settings
+
+        self._initialize_plot_settings()
+
+        # Set up the logger
+        self.logger = logging.getLogger(__name__)
+
+    def _initialize_plot_settings(self):
+        for key, value in self.plot_settings.__dict__.items():
+            setattr(self, key, value)
+
+    @styled_plot(nmr_base_style, nmr_2D_style)
+    def plot(self):
+        #  Create a new figure and axis if not provided
+        if self.ax:
+            self.fig = self.ax.get_figure()
+        else:
+            self.fig, self.ax = plt.subplots()
+
+
+        # --- plot lines at peak locations ---
+        if self.plot_settings.show_lines:
+            self._plot_axlines()
+
+        # --- scatter plot of peaks ---
+        if self.plot_settings.show_markers:
+            self._plot_markers()
+
+        
+        # --- connectors if required ---
+        if self.plot_settings.show_connectors:
+            self._plot_connectors()
+
+        # --- plot the axis labels ---
+        # Use the x and y axis labels from the plot settings if provided, otherwise use the labels from the NMR data
+        x_axis_label = self.plot_settings.x_axis_label if self.plot_settings.x_axis_label else self.nmr_data.x_axis_label
+        y_axis_label = self.plot_settings.y_axis_label if self.plot_settings.y_axis_label else self.nmr_data.y_axis_label
+        self.ax.set_xlabel(x_axis_label)
+        self.ax.set_ylabel(y_axis_label)
+
+
+        # other plot options
+        if self.plot_settings.xlim:
+            xlim = self.plot_settings.xlim
+            # we handle the inverting of the axes later
+            # so we just need to make sure the limits are in the right order here
+            self.plot_settings.xlim = (min(xlim), max(xlim))
+            self.ax.set_xlim(self.plot_settings.xlim)
+
+        if self.plot_settings.ylim:
+            ylim = self.plot_settings.ylim
+            # we handle the inverting of the axes later
+            # so we just need to make sure the limits are in the right order here
+            self.plot_settings.ylim = (min(ylim), max(ylim))
+            self.ax.set_ylim(self.plot_settings.ylim)
+
+        # if shifts are plotted, invert the axes
+        if self.nmr_data.is_shift:
+            self.ax.invert_xaxis()
+            self.ax.invert_yaxis()
+        
+        # --- plot the diagonal line ---
+        if self.plot_settings.show_diagonal and (self.nmr_data.xelement == self.nmr_data.yelement):
+            # use self.xlim and self.ylim to draw a diagonal line
+            ylims = self.ax.get_ylim()
+            xlims = self.ax.get_xlim()
+            self.ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
+
+        # --- heatmap of peaks ---
+        if self.plot_settings.show_heatmap:
+            self._plot_heatmap()
+
+        # --- plot the site annotations ---
+        if self.plot_settings.show_labels:
+            self._plot_annotations(optimise=self.plot_settings.auto_adjust_labels)
+
+
+        # Display or save the plot
+        self.fig.tight_layout()
+
+        if self.plot_settings.plot_filename:
+            plt.savefig(self.plot_settings.plot_filename, dpi=300, bbox_inches='tight')
+        else:
+            plt.show()
+        return self.fig, self.ax
+    def _plot_axlines(self):
+        #  we don't want to plot identical lines multiple times
+        xticks = np.unique(np.round(self.x, 6))
+        yticks = np.unique(np.round(self.y, 6))
+        # Plot lines at the peak locations
+        for x in xticks:
+            self.ax.axvline(x, zorder=0)
+        for y in yticks:
+            self.ax.axhline(y, zorder=0)
+
+
+    def _plot_heatmap(self):
+        xlims = self.ax.get_xlim()
+        ylims = self.ax.get_ylim()
+        if self.plot_settings.x_broadening is None:
+            # set the broadening to 5% of the range
+            self.plot_settings.x_broadening = 0.05 * abs(xlims[1] - xlims[0])
+        if self.plot_settings.y_broadening is None:
+            # set the broadening to 5% of the range
+            self.plot_settings.y_broadening = 0.05 * abs(ylims[1] - ylims[0])
+        
+        X, Y, Z = generate_contour_map(
+                    self.nmr_data.peaks,
+                    grid_size = self.plot_settings.broadening_grid_size,
+                    broadening = self.plot_settings.broadening_type,
+                    x_broadening=self.plot_settings.x_broadening,
+                    y_broadening=self.plot_settings.y_broadening,
+                    xlims = self.plot_settings.xlim,
+                    ylims = self.plot_settings.ylim)
+        
+        # Plot the heatmap
+        cs = self.ax.contourf(X, Y, Z, cmap=self.plot_settings.colormap, zorder=-1, levels=50)
+
+        # # Add a colorbar
+        # if self.is_gridspec:
+        #     cbar_ax = self.fig.add_subplot(self.ax.get_gridspec()[:, 1])
+        #     # remove the axis splines etc
+        #     # cbar_ax.axis('off')
+        # else:
+        #     cbar_ax = self.ax
+
+        # self.fig.colorbar(cs, cax=cbar_ax, orientation='vertical', label='Intensity')
+        if isinstance(self.plot_settings.contour_levels, (int, float)):
+            self.plot_settings.contour_levels = np.linspace(Z.min(), Z.max(), self.plot_settings.contour_levels)
+
+        # Add contour lines
+        if self.plot_settings.show_contour:
+            self.ax.contour(
+                cs,
+                colors=self.plot_settings.contour_color,
+                linewidths=self.plot_settings.contour_linewidth,
+                levels=self.plot_settings.contour_levels
+                )
+
+    def _plot_connectors(self):
+        if self.plot_settings.show_connectors and self.nmr_data.yaxis_order == '2Q' and self.nmr_data.xelement == self.nmr_data.yelement:
+            x = self.x
+            y = self.y
+            y_order = np.argsort(y)
+            # loop over peaks and plot lines between peaks with the same y value
+            for i, idx in enumerate(y_order):
+                if np.isclose(y[idx], y[y_order[i-1]], atol=1e-6):
+                    self.ax.plot([x[idx], x[y_order[i-1]]],
+                            [y[idx], y[y_order[i-1]]],
+                            c='0.25',
+                            lw=1,
+                            ls='-',
+                            zorder=1)
+    
+    def _plot_markers(self):      
+        self.sizes = self._normalize_marker_sizes(self.sizes)
+        color = self.plot_settings.marker_color
+        scatter = self.ax.scatter(
+                        self.x,
+                        self.y,
+                        s=self.sizes,
+                        c=color,
+                        marker=self.plot_settings.marker,
+                        linewidths=self.plot_settings.marker_linewidth,
+                        zorder=10)
+        if self.plot_settings.show_legend and self.nmr_data.correlation_strength_metric != 'fixed':
+            # produce a legend with a cross-section of sizes from the scatter
+            kw = dict(prop="sizes", num='auto', color=color, 
+                      fmt=self.nmr_data.correlation_fmt + f" {self.nmr_data.correlation_unit}",
+                      func=lambda s: s*np.abs(self.sizes).max() / self.plot_settings.max_marker_size)
+            handles, labels = scatter.legend_elements(**kw) # type: ignore
+            self.ax.legend(handles, labels,
+                      title=self.nmr_data.correlation_label,
+                      fancybox=True,
+                      framealpha=0.8).set_zorder(11)
+            
+    def _normalize_marker_sizes(self, sizes):
+        # Normalize the marker sizes, making sure all sizes are positive
+        sizes = np.abs(sizes)
+        marker_size_range = np.max(sizes) - np.min(sizes)
+        self.logger.info(f"Marker size range: {marker_size_range} {self.nmr_data.correlation_unit}")
+        max_abs_marker = np.max(sizes)
+        # Normalize the marker sizes such that the maximum marker size is self.plot_settings.max_marker_size
+        return sizes / max_abs_marker * self.plot_settings.max_marker_size
+            
+    def _plot_annotations(self, unique=True, optimise = True, labels_offset = 0.10):
         '''
         Get the annotations for the plot
         '''
@@ -1021,18 +1339,12 @@ class Plot2D:
         # annotation font size is 2/3 the general font size
         font_size = self.ax.xaxis.label.get_fontsize() * ANNOTATION_FONT_SCALE # type: ignore
 
-        if self.peaks is None:
-            self.get_peaks()
-        
-        if self.peaks is None:
-            raise ValueError("Peaks data is not available.")
-        
-        xpos, ypos = np.array([[peak.x, peak.y] for peak in self.peaks]).T
+        xpos, ypos = self.x, self.y
         xpos_label = xpos.copy()
         ypos_label = ypos.copy()
 
-        xlabels = [peak.xlabel for peak in self.peaks]
-        ylabels = [peak.ylabel for peak in self.peaks]
+        xlabels = [peak.xlabel for peak in self.nmr_data.peaks] # type: ignore
+        ylabels = [peak.ylabel for peak in self.nmr_data.peaks] # type: ignore
 
         # get the unique labels, keeping the indices
         if unique:
@@ -1061,10 +1373,10 @@ class Plot2D:
 
         # TODO make a dynamical way to set the armA and armB value
         # based on the plot size
-        if self.plot_filename is None:
+        if self.plot_settings.plot_filename is None:
             armA = 15
             armB = 15
-        elif self.plot_filename.endswith('.pdf'):
+        elif self.plot_settings.plot_filename.endswith('.pdf'):
             armA = 3
             armB = 5
         else:
@@ -1077,9 +1389,9 @@ class Plot2D:
             an = self.ax.annotate(
                 xlabel,
                 xy=(xpos[i], 1.0),  # Position of the annotation
-                xycoords=('data', 'axes fraction'),  # Coordinate system for the annotation
+                xycoords=('data', 'axes fraction'),  # Coordinate system for the annotation # type: ignore
                 xytext=(xpos_label[i], 1+labels_offset),  # Position of the text
-                textcoords=('data', 'axes fraction'),  # Coordinate system for the text
+                textcoords=('data', 'axes fraction'),  # Coordinate system for the text # type: ignore
                 fontsize=font_size,  # Font size of the text
                 ha='center',  # Horizontal alignment
                 va='bottom',  # Vertical alignment
@@ -1115,9 +1427,9 @@ class Plot2D:
             an = self.ax.annotate(
                 ylabel,
                 xy=(1.0, ypos[i]),  # Position of the annotation
-                xycoords=('axes fraction', 'data'),  # Coordinate system for the annotation
+                xycoords=('axes fraction', 'data'),  # Coordinate system for the annotation # type: ignore
                 xytext=(1+labels_offset, ypos_label[i]),  # Position of the text
-                textcoords=('axes fraction', 'data'),  # Coordinate system for the text
+                textcoords=('axes fraction', 'data'),  # Coordinate system for the text # type: ignore
                 fontsize=font_size,  # Font size of the text
                 ha='left',  # Horizontal alignment
                 va='center',  # Vertical alignment
@@ -1145,581 +1457,3 @@ class Plot2D:
                 max_move=1,
             )
         self.annotations += texts  # Add the adjusted texts to the annotations
-
-    def get_plot_pairs(self):
-        '''
-        Get the pairs of x and y indices to plot
-
-        self.idx_x and self.idx_y are the indices of the x and y elements in the atoms object
-
-        This method will set the following attributes:
-        self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
-        self.pairs: a list of tuples of the form (xindex, yindex)
-        '''
-        # Process pairs
-        self.pairs, self.pairs_el_idx, self.idx_x, self.idx_y = process_pairs(self.idx_x, self.idx_y, self.pairs)
-
-        # Check for invalid pairs if marker size is not fixed
-        if self.scale_marker_by != 'fixed':
-            for pair in self.pairs:
-                if len(set(pair)) != 2:
-                    raise ValueError("""
-                    Two indices in a pair are the same but
-                    the marker size is based on distance between sites.
-                    It's unclear """)
-
-        if len(self.pairs) == 0:
-            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
-
-        # Calculate distances
-        self.pair_distances = calculate_distances(self.pairs, self.atoms)
-
-        # Filter pairs by distance if rcut is specified
-        if self.rcut:
-            self.logger.info(f"Filtering out pairs that are further than {self.rcut} Å apart.")
-            self.logger.info(f"Number of pairs before filtering: {len(self.pairs_el_idx)}")
-
-            self.pairs, self.pairs_el_idx, self.pair_distances, self.idx_x, self.idx_y = filter_pairs_by_distance(
-                self.pairs, self.pairs_el_idx, self.pair_distances, self.rcut)
-            
-            self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
-            self.logger.debug(f"Pairs remaining: {self.pairs}")
-            self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
-
-
-    def get_marker_sizes(self):
-        if self.markersizes:
-            # if user provides a list of these, use it!
-            # just check that it's the right length
-            if len(self.markersizes) != len(self.pairs_el_idx):
-                raise ValueError(f"Length of markersizes ({len(self.markersizes)}) does not match the number of pairs ({len(self.pairs_el_idx)}).")
-            
-            # set scale_marker_by to 'custom'
-            self.scale_marker_by = 'custom'
-        
-        if self.scale_marker_by == 'fixed':
-            self.logger.info("Using fixed marker size.")
-            # get all unique pairs of x and y indices
-            # set the marker size to be the same for all pairs
-            markersizes = np.ones(len(self.pairs_el_idx))
-            
-        elif self.scale_marker_by == 'dipolar':
-            self.logger.info("Using dipolar coupling as marker size.")
-            if self.isotopes:
-                self.logger.debug(f"Using custom isotopes: {self.isotopes}")
-            markersizes = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
-        elif self.scale_marker_by == 'distance' or self.scale_marker_by == 'inversedistance':
-            log_message = "Using minimum image convention {isinverse}distance as marker size."
-            isinverse = ''
-
-            # now we can use ASE get_distance to get the distances for each pair
-            markersizes = self.pair_distances
-            if self.scale_marker_by == 'inversedistance':
-                markersizes = 1 / markersizes
-                isinverse = 'inverse '
-            self.logger.info(log_message.format(isinverse=isinverse))
-            
-
-        elif self.scale_marker_by == 'jcoupling':
-            self.logger.info("Using J-coupling as marker size.")
-            markersizes = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
-        elif self.scale_marker_by == 'custom':
-            self.logger.info("Using custom marker sizes.")
-            markersizes = self.markersizes
-        else:
-            raise ValueError(f"Unknown scale_marker_by option: {self.scale_marker_by}")
-        
-        # Make sure markersizes is an array
-        markersizes = np.array(markersizes)
-        
-        self.logger.debug(f"markersizes: {markersizes}")
-        #
-        # Log pair with smallest and largest marker size
-        min_idx = np.argmin(np.abs(markersizes))
-        max_idx = np.argmax(np.abs(markersizes))
-        smallest_pair = self.pairs[min_idx]
-        largest_pair = self.pairs[max_idx]
-
-        # Labels for the smallest and largest pairs
-        labels = get_atom_labels(self.atoms, self.logger)
-        smallest_pair_labels = [labels[smallest_pair[0]], labels[smallest_pair[1]]]
-        largest_pair_labels = [labels[largest_pair[0]], labels[largest_pair[1]]]
-
-        self.logger.info(
-            f"Pair with smallest (abs) {self.marker_label}: "
-            f"{smallest_pair_labels} ({markersizes[min_idx]:.2f})"
-        )
-        self.logger.info(
-            f"Pair with largest (abs) {self.marker_label}: "
-            f"{largest_pair_labels} ({markersizes[max_idx]:.2f})"
-        )
-
-        return markersizes
-    @styled_plot(nmr_base_style, nmr_2D_style)
-    def plot(self):
-        '''
-        Plot a 2D NMR spectrum from a dataframe with columns 'MS_shift/ppm' or 'MS_shielding/ppm'
-
-        '''
-        self.logger.info("Plotting 2D NMR spectrum...")
-        self.logger.info(f"Plotting {self.xelement} vs {self.yelement}.")
-
-        # get the data
-        peaks = self.peaks
-        if peaks is None:
-            peaks = self.get_peaks(merge_identical=True)
-
-        # make the plot!
-        if self.ax:
-            ax = self.ax
-            fig = ax.get_figure()
-        else:
-            fig, ax = plt.subplots()
-            self.fig = fig
-            self.ax = ax
-
-
-        if self.show_lines:
-            xvals = [peak.x for peak in peaks]
-            yvals = [peak.y for peak in peaks]
-            # unique xvals within a tolerance
-            self.xticks = np.unique(np.round(xvals, 6))
-            # unique yvals within a tolerance
-            self.yticks = np.unique(np.round(yvals, 6))
-            # plot the lines
-            for i, xval in enumerate(self.xticks):
-                ax.axvline(xval, zorder=0)
-            for i, yval in enumerate(self.yticks):
-                ax.axhline(yval, zorder=0)
-        
-        # --- plot the markers ---
-        xvals = [peak.x for peak in peaks]
-        yvals = [peak.y for peak in peaks]
-        
-        if self.show_connectors and self.yaxis_order == '2Q' and self.xelement == self.yelement:
-            y_order = np.argsort(yvals)
-            # loop over peaks and plot lines between peaks with the same y value
-            for i, idx in enumerate(y_order):
-                if np.isclose(peaks[idx].y, peaks[y_order[i-1]].y, atol=1e-6):
-                    ax.plot([peaks[idx].x, peaks[y_order[i-1]].x],
-                            [peaks[idx].y, peaks[y_order[i-1]].y],
-                            c='0.25',
-                            lw=1,
-                            ls='-',
-                            zorder=1)
-        # marker sizes based on correlation strength
-        markersizes = np.array([peak.correlation_strength for peak in peaks])
-        # make sure the marker sizes are all positive
-        markersizes = np.abs(markersizes)
-        marker_size_range = np.max(markersizes) - np.min(markersizes)
-        if self.scale_marker_by != 'fixed':
-            self.logger.info(f"Marker size range: {marker_size_range} {self.marker_unit}")
-        max_abs_marker = np.max(markersizes)
-        # normalise the marker sizes such that the maximum marker size is self.max_marker_size
-        markersizes = markersizes / max_abs_marker * self.max_marker_size
-        # plot the markers
-        scatter = ax.scatter(
-            xvals,
-            yvals,
-            s=markersizes,
-            marker=self.marker,
-            c=[peak.color for peak in peaks],
-            lw=1,
-            zorder=10)
-        
-
-        # --- plot the axis labels ---
-        ax.set_xlabel(self.x_axis_label)
-        ax.set_ylabel(self.y_axis_label)
-
-        # if shifts are plotted, invert the axes
-        if self.plot_shifts:
-            ax.invert_xaxis()
-            ax.invert_yaxis()
-
-        # other plot options
-        if self.xlim:
-            ax.set_xlim(self.xlim)
-        if self.ylim:
-            ax.set_ylim(self.ylim)
-
-        if ((self.xelement is not None) and (self.xelement == self.yelement) and self.show_diagonal):
-            # use self.xlim and self.ylim to draw a diagonal line
-            ylims = ax.get_ylim()
-            xlims = ax.get_xlim()
-            ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
-        
-        # add marker size legend
-        if (self.scale_marker_by != 'fixed') and self.show_marker_legend:
-            # produce a legend with a cross-section of sizes from the scatter
-            kw = dict(prop="sizes", num='auto', color=self.marker_color, 
-                      fmt=self.marker_fmt + f" {self.marker_unit}",
-                      func=lambda s: s*max_abs_marker / self.max_marker_size)
-            handles, labels = scatter.legend_elements(**kw)
-            ax.legend(handles, labels,
-                      title=self.marker_label,
-                      fancybox=True,
-                      framealpha=0.8).set_zorder(11)
-        
-
-        if self.show_labels:
-            # add the annotations to the plot
-            self.add_annotations(optimise=self.auto_adjust_labels) # list of Annotation objects
-
-        # Adjust the plot to make sure everything fits
-        fig.tight_layout()
-
-        if self.plot_filename:
-            self.logger.debug(f"Saving to {self.plot_filename}")
-            fig.savefig(self.plot_filename, dpi=300, bbox_inches='tight')
-        return fig, ax
-    
-def prepare_species_labels(isotope, element):
-    species_template = r'$\mathrm{^{%s}{%s}}$'
-    return species_template % (isotope, element)
-
-
-def extract_indices(atoms, xelement, yelement):
-    idx_x = np.array([atom.index for atom in atoms if atom.symbol == xelement])
-    idx_y = np.array([atom.index for atom in atoms if atom.symbol == yelement])
-    
-    return idx_x, idx_y
-
-
-def validate_elements(atoms, xelement, yelement):
-    all_elements = atoms.get_chemical_symbols()
-    if xelement not in all_elements:
-        raise ValueError(f'{xelement} not found in the file after the user-specified filters have been applied.')
-    if yelement not in all_elements:
-        raise ValueError(f'{yelement} not found in the file after the user-specified filters have been applied.')
-    
-
-def generate_peaks(
-    data: List[float],
-    pairs: Iterable[Tuple[int, int]],
-    labels: List[str],
-    markersizes: Union[List[float], float],
-    yaxis_order: str,
-    xelement: str,
-    yelement: str,
-) -> List[Peak2D]:
-    """
-    Generate peaks for the NMR data.
-
-    Args:
-        data (List[float]): The NMR data.
-        pairs (Iterable[Tuple[int, int]]): Pairs of indices for the peaks.
-        labels (List[str]): Labels for the peaks.
-        markersizes (Union[List[float], float]): Marker sizes for the peaks.
-        yaxis_order (str): Order of the y-axis.
-        xelement (str): Element symbol for the x-axis.
-        yelement (str): Element symbol for the y-axis.
-
-    Returns:
-        List[Peak2D]: List of generated peaks.
-    """
-    peaks = []
-    is_single_marker = isinstance(markersizes, float)
-    for ipair, (idx_x, idx_y) in enumerate(pairs):
-
-        x = data[idx_x]
-        y = data[idx_y]
-        strength = markersizes if is_single_marker else markersizes[ipair]
-        xlabel = labels[idx_x]
-        ylabel = labels[idx_y]
-
-        if yaxis_order == '2Q':
-            y += x
-            if xelement == yelement:
-                # then we might have both e.g. H1 + H2 and H2 + H1
-                # let's set them both to be H1 + H2 by sorting the labels
-                xlabel, ylabel = sorted([xlabel, ylabel])
-            ylabel = f'{xlabel} + {ylabel}'
-        peak = Peak2D(
-            x=x,
-            y=y,
-            correlation_strength=strength,
-            xlabel=xlabel,
-            ylabel=ylabel,
-            idx_x=idx_x,
-            idx_y=idx_y)
-        peaks.append(peak)
-    return peaks
-
-def merge_peaks(
-    peaks: Iterable[Peak2D],
-    xtol: float = 1e-5,
-    ytol: float = 1e-5,
-    corr_tol: float = 1e-5,
-    ignore_correlation_strength: bool = False
-) -> List[Peak2D]:
-    """
-    Merge peaks that are identical.
-
-    Args:
-        peaks (Iterable[Peak2D]): List of peaks to merge.
-        xtol (float): Tolerance for x-axis comparison.
-        ytol (float): Tolerance for y-axis comparison.
-        corr_tol (float): Tolerance for correlation strength comparison.
-        ignore_correlation_strength (bool): Whether to ignore correlation strength in comparison.
-
-    Returns:
-        List[Peak2D]: List of unique merged peaks.
-    """
-    # first, get the unique peaks
-    unique_peaks = []
-    unique_xlabels: Dict[str, List[str]] = {}
-    unique_ylabels: Dict[str, List[str]] = {}
-    
-    peak_map: Dict[Tuple[float, float, float], Peak2D] = {}
-    
-    for peak in peaks:
-        key = (
-            int(peak.x / xtol),
-            int(peak.y / ytol),
-            int(peak.correlation_strength / corr_tol) if not ignore_correlation_strength else 0
-        )
-        if key in peak_map:
-            unique_peak = peak_map[key]
-            unique_xlabels[unique_peak.xlabel].add(peak.xlabel)
-            unique_ylabels[unique_peak.ylabel].add(peak.ylabel)
-        else:
-            unique_peaks.append(peak)
-            peak_map[key] = peak
-            unique_xlabels[peak.xlabel] = {peak.xlabel}
-            unique_ylabels[peak.ylabel] = {peak.ylabel}
-
-    def sort_func(x: str) -> Union[int, str]:
-        int_list = re.findall(r'\d+', x)
-        return int(int_list[0]) if int_list else x
-
-    for unique_peak in unique_peaks:
-        xlabel_list = sorted(unique_xlabels[unique_peak.xlabel], key=sort_func)
-        ylabel_list = sorted(unique_ylabels[unique_peak.ylabel], key=sort_func)
-        unique_peak.xlabel = '/'.join(xlabel_list)
-        unique_peak.ylabel = '/'.join(ylabel_list)
-
-    return unique_peaks
-
-def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) -> List[Peak2D]:
-    '''
-    Sort the peaks in the order of increasing x and y values
-    '''
-    if priority == 'x':
-        peaks = sorted(peaks, key=lambda x: (x.x, x.y), reverse=reverse)
-    elif priority == 'y':
-        peaks = sorted(peaks, key=lambda x: (x.y, x.x), reverse=reverse)
-    else:
-        raise ValueError(f"Unknown priority: {priority}")
-    return peaks
-
-
-def get_pair_dipolar_couplings(
-        atoms: Atoms,
-        pairs: Iterable[Tuple[int, int]],
-        isotopes: Optional[dict[str, int]] = None,
-        unit: str = 'kHz'
-    ) -> List[float]:
-    """
-    Get the dipolar couplings for a list of pairs of atoms.
-    For pairs where i == j, the dipolar coupling is set to zero.
-    
-    Parameters
-    ----------
-    atoms : ASE Atoms object
-        The atoms object that contains the atoms.
-    pairs : list of tuples
-        List of pairs of atom indices.
-    isotopes : dict, optional
-    
-    Returns
-    -------
-    dipolar_couplings : list of float
-        List of dipolar couplings for the pairs.
-    """
-    if isotopes is None:
-        isotopes = {}
-
-    # Define conversion factors
-    conversion_factors = {
-        'Hz': 1.0,
-        'kHz': 1e-3,
-        'MHz': 1e-6
-    }
-
-    if unit not in conversion_factors:
-        raise ValueError(f"Unsupported unit: {unit}. Supported units are: {', '.join(conversion_factors.keys())}")
-
-    conversion_factor = conversion_factors[unit]
-
-    dipolar_couplings = []
-    # This is an explicit loop because we need to get the J coupling for each pair
-    # - these might not be the same as the set of pairs that we would get by combining indices
-    #   {i} and {j} from the pairs list
-    for i, j in pairs:
-        if i == j:
-            # set the dipolar coupling to zero for pairs where i == j
-            dipolar_couplings.append(0)
-        else:
-            coupling = list(DipolarCoupling.get(atoms, sel_i=[i], sel_j=[j], isotopes=isotopes).values())[0][0]
-            dipolar_couplings.append(coupling * conversion_factor)
-
-    
-    return dipolar_couplings
-
-def get_pair_j_couplings(
-        atoms: Atoms,
-        pairs: Iterable[Tuple[int, int]],
-        isotopes: Optional[dict[str, int]] = None,
-        unit: str = 'Hz',
-        tag: str = 'isc'
-    ) -> List[float]:
-    """
-    Get the J couplings for a list of pairs of atoms.
-    For pairs where i == j, the J coupling is set to zero.
-
-    Parameters
-    ----------
-    atoms : ASE Atoms object
-        The atoms object that contains the atoms.
-    pairs : list of tuples
-        List of pairs of atom indices.
-    isotopes : dict, optional
-        Dictionary of isotopes for the atoms.
-    unit : str, optional
-        Unit of the J coupling. Default is 'Hz'.
-    tag : str, optional
-        Name of the J coupling component to return. Default is 'isc'. Magres files
-        usually contain isc, isc_spin, isc_fc, isc_orbital_p and isc_orbital_d.
-
-    Returns
-    -------
-    j_couplings : list of float
-        List of J couplings for the pairs.
-    """
-    if isotopes is None:
-        isotopes = {}
-
-    # Define conversion factors
-    conversion_factors = {
-        'Hz': 1.0,
-        'kHz': 1e-3,
-        'MHz': 1e-6
-    }
-
-    if unit not in conversion_factors:
-        raise ValueError(f"Unsupported unit: {unit}. Supported units are: {', '.join(conversion_factors.keys())}")
-
-    conversion_factor = conversion_factors[unit]
-
-    j_couplings = []
-    # This is an explicit loop because we need to get the J coupling for each pair
-    # - these might not be the same as the set of pairs that we would get by combining indices
-    #   {i} and {j} from the pairs list
-    for i, j in pairs:
-        if i == j:
-            # set the J coupling to zero for pairs where i == j
-            j_couplings.append(0)
-        else:
-            coupling = list(JCIsotropy.get(atoms, sel_i=[i], sel_j=[j], tag=tag, isotopes=isotopes).values())[0]
-            j_couplings.append(coupling * conversion_factor)
-
-    return j_couplings
-
-
-
-def process_pairs(
-    idx_x: np.ndarray, 
-    idx_y: np.ndarray, 
-    pairs: Optional[List[Tuple[int, int]]]
-) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]], np.ndarray, np.ndarray]:
-    """
-    Process pairs of indices and update element indices.
-
-    Args:
-        idx_x (np.ndarray): Array of x element indices.
-        idx_y (np.ndarray): Array of y element indices.
-        pairs (Optional[List[Tuple[int, int]]]): List of tuples representing pairs of indices, or None.
-
-    Returns:
-        Tuple[List[Tuple[int, int]], List[Tuple[int, int]], np.ndarray, np.ndarray]:
-            - List of pairs of indices.
-            - List of pairs of element indices.
-            - Updated array of x element indices.
-            - Updated array of y element indices.
-    """
-    if pairs:
-        pairs_el_idx = []
-        for pair in pairs:
-            xidx = np.where(idx_x == pair[0])[0][0]  # there should only be one match
-            yidx = np.where(idx_y == pair[1])[0][0]  # there should only be one match
-            pairs_el_idx.append((xidx, yidx))
-    else:
-        pairs_el_idx = list(itertools.product(range(len(idx_x)), range(len(idx_y))))
-        pairs = list(itertools.product(idx_x, idx_y))
-    
-    # Update the indices
-    idx_x = np.array(pairs)[:, 0]
-    idx_y = np.array(pairs)[:, 1]
-    return pairs, pairs_el_idx, idx_x, idx_y
-
-def calculate_distances(pairs: List[Tuple[int, int]], atoms: Atoms) -> np.ndarray:
-    """
-    Calculate the distances between pairs of atoms.
-
-    Args:
-        pairs (List[Tuple[int, int]]): List of tuples representing pairs of atom indices.
-        atoms (Atoms): Atoms object that provides the get_distance method.
-
-    Returns:
-        np.ndarray: Array of distances corresponding to the pairs.
-    """
-    pair_distances = np.zeros(len(pairs))
-    for i, pair in enumerate(pairs):
-        if pair[0] == pair[1]:
-            pair_distances[i] = 0.0
-        else:
-            pair_distances[i] = atoms.get_distance(*pair, mic=True)
-    return pair_distances
-
-
-def filter_pairs_by_distance(
-    pairs: List[Tuple[int, int]], 
-    pairs_el_idx: List[Tuple[int, int]], 
-    pair_distances: np.ndarray, 
-    rcut: float
-) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]], np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Filters pairs of indices based on a cutoff distance.
-
-    Args:
-        pairs (List[Tuple[int, int]]): List of tuples representing pairs of indices.
-        pairs_el_idx (List[Tuple[int, int]]): List of tuples representing pairs of element indices.
-        pair_distances (np.ndarray): Array of distances corresponding to the pairs.
-        rcut (float): Cutoff distance for filtering pairs.
-
-    Returns:
-        Tuple[List[Tuple[int, int]], List[Tuple[int, int]], np.ndarray, np.ndarray, np.ndarray]:
-            - Filtered list of pairs.
-            - Filtered list of element index pairs.
-            - Filtered array of pair distances.
-            - Unique sorted array of x indices.
-            - Unique sorted array of y indices.
-
-    Raises:
-        ValueError: If no pairs are found after filtering by distance.
-    """
-    dist_mask = np.where(pair_distances <= rcut)[0]
-    pairs_el_idx = [pairs_el_idx[i] for i in dist_mask]
-    pairs = [pairs[i] for i in dist_mask]
-    pair_distances = pair_distances[dist_mask]
-
-    idx_x = np.unique([pair[0] for pair in pairs])
-    idx_y = np.unique([pair[1] for pair in pairs])
-    if len(idx_x) == 0 or len(idx_y) == 0:
-        raise ValueError(f'No pairs found after filtering by distance. Try increasing the cutoff distance (rcut).')
-
-    idx_x = np.sort(idx_x)
-    idx_y = np.sort(idx_y)
-
-    return pairs, pairs_el_idx, pair_distances, idx_x, idx_y

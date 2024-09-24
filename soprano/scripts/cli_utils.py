@@ -497,19 +497,36 @@ plot_ylims = click.option(
     default=None,
     help="Y-axis range. For example ``--ylim 20 100``",
 )
+plot_show_markers = click.option(
+    "--markers/--no-markers",
+    "show_markers",
+    default=True,
+    help="Show markers? Default is True.",
+)
+
 # marker
 plot_marker = click.option(
-    "--marker",
+    "--marker-symbol",
     type=str,
     default="+",
     help="Marker type. "
-    "For example ``--marker o``. "
+    "For example ``--marker-symbol o``. "
     "Accepts any matplotlib marker type.",
 )
+
+# marker color
+plot_marker_color = click.option(
+    "--marker-color",
+    "marker_color",
+    type=str,
+    default='C0',
+    help="Marker color. Default is 'C0'.",
+)
+
 # scale marker size by value
 plot_scale_marker_by = click.option(
     "--scale-marker-by",
-    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar"]),
+    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "jcoupling"]),
     default="fixed",
     help="Scale marker size by chosen property. "
     "``fixed`` means that all the markers will have the same size. "
@@ -526,13 +543,92 @@ plot_max_marker_size = click.option(
     default=DEFAULT_MARKER_SIZE,
     help=f"Maximum marker size. Default is {DEFAULT_MARKER_SIZE}.",
 )
+
+# marker-line width
+plot_marker_linewidth = click.option(
+    "--marker-linewidth",
+    type=float,
+    default=0.5,
+    help="Marker linewidth. Default is 0.5.",
+)
+
 # show marker legend?
 plot_marker_legend = click.option(
     "--legend/--no-legend",
     "show_marker_legend",
-    default=True,
+    default=False,
     help="Show marker legend? Default is True.",
 )
+# show heatmap?
+plot_show_heatmap = click.option(
+    "--heatmap/--no-heatmap",
+    "show_heatmap",
+    default=False,
+    help="Show heatmap? Default is False.",
+)
+
+# x broadening - None means default to 5% of the range. Otherwise float in ppm
+plot_xbroadening = click.option(
+    "--xbroadening",
+    type=float,
+    default=None,
+    help="Broadening of the x-axis in ppm. "
+    "Defaults to 5% of the range. "
+    "Set to 0 to turn off broadening.",
+)
+
+# y broadening - None means default to 5% of the range. Otherwise float in ppm
+plot_ybroadening = click.option(
+    "--ybroadening",
+    type=float,
+    default=None,
+    help="Broadening of the y-axis in ppm. "
+    "Defaults to 5% of the range. "
+    "Set to 0 to turn off broadening.",
+)
+
+# colour map
+plot_colormap = click.option(
+    "--colormap",
+    "-cmap",
+    type=str,
+    default="bone",
+    help="Colour map for the heatmap. Default is 'bone'. "
+    "See https://matplotlib.org/stable/tutorials/colors/colormaps.html for more options. "
+    "Try adding '_r' to the end of the colormap name to reverse it.",
+)
+# show contour?
+plot_show_contour = click.option(
+    "--contour/--no-contour",
+    "show_contour",
+    default=False,
+    help="Show contour? Default is False.",
+)
+
+# contour levels
+plot_contour_levels = click.option(
+    "--contour-levels",
+    type=int,
+    default=10,
+    help="Number of contour levels. Default is 10.",
+)
+
+# contour color
+plot_contour_color = click.option(
+    "--contour-color",
+    type=str,
+    default="C1",
+    help="Contour color. Default is 'C1'.",
+)
+
+# contour linewidth
+plot_contour_linewidth = click.option(
+    "--contour-linewidth",
+    type=float,
+    default=0.2,
+    help="Contour linewidth. Default is 0.5.",
+)
+
 
 # plot filename
 plot_output = click.option(
@@ -639,14 +735,25 @@ PLOT_SPECIFIC_OPTIONS = [
     # plot_ylabel,
     plot_xlims,
     plot_ylims,
+    plot_show_markers,
     plot_marker,
     plot_max_marker_size,
+    plot_marker_linewidth,
     plot_scale_marker_by,
+    plot_marker_color,
     plot_marker_legend,
     plot_showdiagonal,
     plot_showgrid,
     plot_showconnecors,
     plot_show_ticklabels,
+    plot_show_heatmap,
+    plot_xbroadening,
+    plot_ybroadening,
+    plot_colormap,
+    plot_show_contour,
+    plot_contour_levels,
+    plot_contour_color,
+    plot_contour_linewidth,
     plot_output,
     plot_shielding,
 ]

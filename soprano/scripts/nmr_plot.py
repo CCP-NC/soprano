@@ -36,6 +36,7 @@ import re
 from ase import Atoms
 from ase.visualize import view as aseview
 from ase.units import Ha, Bohr
+from soprano.calculate.nmr.nmr import NMRData2D, NMRPlot2D, PlotSettings
 from soprano.properties.nmr import *
 from soprano.selection import AtomSelection
 import itertools
@@ -43,7 +44,7 @@ import pandas as pd
 from collections import OrderedDict
 from soprano.scripts.nmr import nmr_extract_multi, print_results
 from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, viewimages
-from soprano.calculate.nmr import NMRCalculator, NMRFlags, Plot2D, DEFAULT_MARKER_SIZE
+from soprano.calculate.nmr import NMRCalculator, NMRFlags, DEFAULT_MARKER_SIZE
 from soprano.properties.nmr import MSIsotropy
 import logging
 
@@ -76,14 +77,25 @@ def plotnmr(
     rcut,
     xlim,
     ylim,
-    marker,
+    show_markers,
+    marker_symbol,
     scale_marker_by,
     max_marker_size,
+    marker_color,
+    marker_linewidth,
     show_marker_legend,
     show_diagonal,
     show_grid,
     show_connectors,
     show_ticklabels,
+    show_heatmap,
+    xbroadening,
+    ybroadening,
+    colormap,
+    show_contour,
+    contour_levels,
+    contour_color,
+    contour_linewidth,
     plot_filename,
     plot_shielding,  ## force-plot the shielding even if references are given
     verbosity,
@@ -154,33 +166,55 @@ def plotnmr(
 
         shift = not plot_shielding if plot_shielding is not None else references != {}
 
-        plot = Plot2D(
-            atoms,
+        # Create NMRData2D instance
+        nmr_data = NMRData2D(
+            atoms=atoms,
             xelement=x_element,
             yelement=y_element,
             rcut=rcut,
             references=references,
             gradients=gradients,
             isotopes=isotopes,
-            plot_shifts=shift,
+            is_shift=shift,
             include_quadrupolar=False,
             yaxis_order=yaxis_order,
+            correlation_strength_metric=scale_marker_by,
+        )
+        
+        # Define plot settings
+        plot_settings = PlotSettings(
             xlim=xlim,
             ylim=ylim,
-            marker=marker,
+            show_markers=show_markers,
+            marker=marker_symbol,
             max_marker_size=max_marker_size,
+            marker_linewidth=marker_linewidth,
             plot_filename=plot_filename,
-            scale_marker_by=scale_marker_by,
             show_lines=show_grid,
             show_diagonal=show_diagonal,
             show_connectors=show_connectors,
             show_labels=show_ticklabels,
-            marker_color="C0",
-            show_marker_legend=show_marker_legend,
-            logger=logger,
-        )
+            show_heatmap=show_heatmap,
+            show_contour=show_contour,
+            colormap=colormap,
+            marker_color=marker_color,
+            show_legend=show_marker_legend,
+            contour_levels=contour_levels,
+            contour_color=contour_color,
+            contour_linewidth=contour_linewidth,
+            x_broadening=xbroadening,
+            y_broadening=ybroadening,
 
-        fig, ax = plot.plot()
+        )
+        
+        # Create NMRPlot2D instance
+        nmr_plot = NMRPlot2D(
+            nmr_data=nmr_data,
+            plot_settings=plot_settings,
+        )
+        
+        # Generate the plot
+        fig, ax = nmr_plot.plot()
         # if the user doesn't give an output file name, show the plot using the default matplotlib backend
         if not plot_filename:
             plt.show()
