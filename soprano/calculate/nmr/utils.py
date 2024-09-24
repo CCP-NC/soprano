@@ -18,6 +18,8 @@
 Helper functions for NMR calculations and plotting
 """
 
+import logging
+from ase import Atoms
 import numpy as np
 from scipy.optimize import minimize
 from functools import wraps
@@ -25,6 +27,9 @@ from pkg_resources import resource_filename
 from dataclasses import dataclass
 import matplotlib
 from typing import List, Tuple, Optional
+
+from soprano.properties.labeling.labeling import MagresViewLabels
+from soprano.utils import has_cif_labels
 
 def get_force_matrix(
             positions: np.ndarray,
@@ -212,6 +217,7 @@ class Peak2D:
     - the correlation strength
     - the x and y labels for the peak
     - the color of the peak
+    - the index of the x and y labels in the list of all labels
 
     '''  
     x: float
@@ -220,8 +226,8 @@ class Peak2D:
     ylabel: str
     correlation_strength: float = 1
     color: str = 'C0'
-    idx_x: int = None
-    idx_y: int = None
+    idx_x: Optional[int] = None
+    idx_y: Optional[int] = None
 
     def __repr__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
@@ -301,7 +307,7 @@ def gaussian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: f
 def generate_contour_map(
     peaks: List[Peak2D], 
     grid_size: int = 100, 
-    broadening: str = 'lorentzian', 
+    broadening: str = 'gaussian', 
     x_broadening: float = 1.0, 
     y_broadening: float = 1.0, 
     xlims: Optional[Tuple[float, float]] = None, 
@@ -322,6 +328,7 @@ def generate_contour_map(
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]: Meshgrid arrays X, Y and the intensity grid Z.
     """
+    broadening = broadening.lower()
     # Create a grid of x, y values
     if xlims is None:
         x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
@@ -397,3 +404,31 @@ def styled_plot(*style_sheets):
         return wrapper
 
     return decorator
+
+
+def get_atom_labels(atoms: Atoms, logger: Optional[logging.Logger] = None) -> np.ndarray:
+    """
+    Get the labels for the atoms in the Atoms object. If the labels are not present, they will be generated
+    using the MagresViewLabels class.
+
+    Args:
+        atoms (ase.Atoms): Atoms object.
+        logger (Optional[logging.Logger], optional): Logger object. Default is None.
+
+    Returns:
+        np.ndarray: Array of labels.
+    """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+
+    if has_cif_labels(atoms):
+        labels = atoms.get_array('labels')
+    elif atoms.has('MagresView_labels'):
+        # we might have already generated the MV style labels
+        labels = atoms.get_array('MagresView_labels')
+    else:
+        logger.info('No labels found in the atoms object. Generating MagresView-style labels from scratch.')
+        labels = MagresViewLabels.get(atoms)
+        # convert to numpy array
+        labels = np.array(labels, dtype='U25')
+    return labels

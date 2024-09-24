@@ -35,12 +35,11 @@ from soprano.properties.nmr.isc import JCIsotropy
 from soprano.utils import minimum_supcell, supcell_gridgen
 from soprano.nmr.utils import _dip_constant
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI, _get_isotope_list
-from soprano.calculate.nmr.utils import optimise_annotations, Peak2D, styled_plot, nmr_base_style, nmr_2D_style
+from soprano.calculate.nmr.utils import generate_contour_map, Peak2D, styled_plot, nmr_base_style, nmr_2D_style, get_atom_labels
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.selection import AtomSelection
 from soprano.properties.nmr import MSIsotropy, DipolarCoupling
 from soprano.properties.labeling import MagresViewLabels
-from soprano.utils import has_cif_labels
 import itertools
 import re
 
@@ -953,9 +952,9 @@ class Plot2D:
         
         # make sure all the data is there
         self.get_2D_plot_data()
-        labels = self.get_labels()
+        labels = get_atom_labels(self.atoms, self.logger)
 
-        self.peaks = generate_peaks(self.data, self.pairs, labels, self.markersizes, self.yaxis_order, self.xelement, self.yelement, self.marker_color)
+        self.peaks = generate_peaks(self.data, self.pairs, labels, self.markersizes, self.yaxis_order, self.xelement, self.yelement)
 
         if merge_identical:
             self.peaks = merge_peaks(self.peaks)
@@ -1011,18 +1010,7 @@ class Plot2D:
             else:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
     
-    def get_labels(self):
-        if has_cif_labels(self.atoms):
-            labels = self.atoms.get_array('labels')
-        elif self.atoms.has('MagresView_labels'):
-            # we might have already generated the MV style labels
-            labels = self.atoms.get_array('MagresView_labels')
-        else:
-            self.logger.info('No labels found in the atoms object. Generating MagresView-style labels from scratch.')
-            labels = MagresViewLabels.get(self.atoms)
-            # convert to numpy array
-            labels = np.array(labels, dtype='U25')
-        return labels
+    
 
     def add_annotations(self, unique=True, optimise = True, labels_offset = 0.10):
         '''
@@ -1253,7 +1241,7 @@ class Plot2D:
         largest_pair = self.pairs[max_idx]
 
         # Labels for the smallest and largest pairs
-        labels = self.get_labels()
+        labels = get_atom_labels(self.atoms, self.logger)
         smallest_pair_labels = [labels[smallest_pair[0]], labels[smallest_pair[1]]]
         largest_pair_labels = [labels[largest_pair[0]], labels[largest_pair[1]]]
 
@@ -1300,9 +1288,9 @@ class Plot2D:
             self.yticks = np.unique(np.round(yvals, 6))
             # plot the lines
             for i, xval in enumerate(self.xticks):
-                ax.axvline(xval, zorder=0)#, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
+                ax.axvline(xval, zorder=0)
             for i, yval in enumerate(self.yticks):
-                ax.axhline(yval, zorder=0)#, ls=linestyle, alpha= linealpha, lw=linewidth, c=linecolor)
+                ax.axhline(yval, zorder=0)
         
         # --- plot the markers ---
         xvals = [peak.x for peak in peaks]
@@ -1414,7 +1402,6 @@ def generate_peaks(
     yaxis_order: str,
     xelement: str,
     yelement: str,
-    marker_color: str
 ) -> List[Peak2D]:
     """
     Generate peaks for the NMR data.
@@ -1427,7 +1414,6 @@ def generate_peaks(
         yaxis_order (str): Order of the y-axis.
         xelement (str): Element symbol for the x-axis.
         yelement (str): Element symbol for the y-axis.
-        marker_color (str): Color of the markers.
 
     Returns:
         List[Peak2D]: List of generated peaks.
@@ -1456,8 +1442,7 @@ def generate_peaks(
             xlabel=xlabel,
             ylabel=ylabel,
             idx_x=idx_x,
-            idx_y=idx_y,
-            color=marker_color)
+            idx_y=idx_y)
         peaks.append(peak)
     return peaks
 
@@ -1678,13 +1663,13 @@ def process_pairs(
     idx_y = np.array(pairs)[:, 1]
     return pairs, pairs_el_idx, idx_x, idx_y
 
-def calculate_distances(pairs: List[Tuple[int, int]], atoms) -> np.ndarray:
+def calculate_distances(pairs: List[Tuple[int, int]], atoms: Atoms) -> np.ndarray:
     """
     Calculate the distances between pairs of atoms.
 
     Args:
         pairs (List[Tuple[int, int]]): List of tuples representing pairs of atom indices.
-        atoms: Atoms object that provides the get_distance method.
+        atoms (Atoms): Atoms object that provides the get_distance method.
 
     Returns:
         np.ndarray: Array of distances corresponding to the pairs.
