@@ -143,7 +143,7 @@ def nmr_gamma(el, iso=None):
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], "gamma", isotopes=isotopes)
+    return _get_isotope_data([el], "gamma", isotopes=isotopes)[0]
 
 
 def nmr_spin(el, iso=None):
@@ -164,25 +164,25 @@ def nmr_spin(el, iso=None):
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], "I", isotopes=isotopes)
+    return _get_isotope_data([el], "I", isotopes=isotopes)[0]
 
 
 def nmr_quadrupole(el, iso=None):
     """Quadrupole moment for an element
 
     Return the quadrupole moment for the given element and isotope, in
-    barns
+    millibarn
 
     | Args:
     |   el (str):   element symbol
     |   iso (int):  isotope. Default is the most abundant one.
 
     | Returns:
-    |   Q (float):  quadrupole moment in  millibarns
+    |   Q (float):  quadrupole moment in  millibarn
     """
 
     isotopes = {}
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], "Q", isotopes=isotopes)
+    return _get_isotope_data([el], "Q", isotopes=isotopes)[0]
