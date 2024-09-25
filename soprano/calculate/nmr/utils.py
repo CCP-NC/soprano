@@ -567,6 +567,7 @@ def merge_peaks(
 def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) -> List[Peak2D]:
     '''
     Sort the peaks in the order of increasing x and y values
+    TODO: This doesn't work in some cases. Investigate why.
     '''
     if priority == 'x':
         peaks = sorted(peaks, key=lambda x: (x.x, x.y), reverse=reverse)

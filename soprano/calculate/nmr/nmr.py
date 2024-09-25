@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 from dataclasses import dataclass
 import re
 from typing import Dict, Iterable, List, Optional, Tuple, Union
+from matplotlib.axes import Axes
 import numpy as np
 from ase import Atoms
 from scipy.special import fresnel
@@ -52,8 +53,8 @@ import logging
 
 DEFAULT_MARKER_SIZE = 50 # Default marker size for 2D plots (max is 100)
 ANNOTATION_LINE_WIDTH = 0.15 # Line width for annotation lines
-ANNOTATION_FONT_SCALE = 0.3333 # Scale factor for annotation font size wrt to plot font size
-
+ANNOTATION_FONT_SCALE = 0.5 # Scale factor for annotation font size wrt to plot font size
+DEFAULT_MAX_NUM_LEGEND_ELEMENTS = 6 # Default maximum number of elements to show in the legend in 2D plots
 
 _nmr_data = _get_nmr_data()
 
@@ -838,15 +839,15 @@ class NMRData2D:
     Class to hold and extract 2D NMR data.
     '''
     def __init__(self, 
-                atoms: Atoms,
-                xelement: str,
+                atoms: Optional[Atoms] = None,
+                xelement: Optional[str] = None,
                 yelement: Optional[str] = None,
                 references: Optional[dict[str, float]] = None,
                 gradients: Optional[dict[str, float]] = None,
                 peaks: Optional[List[Peak2D]] = None,
                 pairs: Optional[List[Tuple[int, int]]] = None,
                 correlation_strengths: Optional[List[float]] = None,
-                correlation_strength_metric: Optional[str] = None, # 'fixed','distance', 'dipolar', 'jcoupling'
+                correlation_strength_metric: Optional[str] = None, # 'fixed','distance', 'dipolar', 'jcoupling', 'inversedistance', 'custom'
                 rcut: Optional[float] = None,
                 isotopes: Optional[dict[str, int]] = None,
                 is_shift: Optional[bool] = None,
@@ -864,11 +865,19 @@ class NMRData2D:
         self.gradients = gradients
         self.peaks = peaks
         self.pairs = pairs
+
+        # if neither atoms nor peaks are provided, raise an error
+        if self.atoms is None and self.peaks is None:
+            raise ValueError("Either atoms or peaks must be given.")
+
+
         # Either provide correlation strengths or calculate them based on the metric
         # If both are provided, the provided values will be used
-        if correlation_strengths and correlation_strength_metric:
-            self.logger.warning("Both correlation_strengths and correlation_strength_metric are provided. Using correlation_strengths.")
+        if correlation_strengths:
+            if correlation_strength_metric:
+                self.logger.warning("Both correlation_strengths and correlation_strength_metric are provided. Using correlation_strengths.")
             correlation_strength_metric = 'custom'
+
 
         # If neither are provided, set the metric to 'fixed'
         if correlation_strengths is None and correlation_strength_metric is None:
@@ -896,7 +905,7 @@ class NMRData2D:
         # run the main method to extract the data
         self.get_peaks()
 
-    def get_peaks(self, merge_identical=True, should_sort_peaks=True):
+    def get_peaks(self, merge_identical=True, should_sort_peaks=False):
         '''
         Get the correlation peaks.
 
@@ -967,7 +976,8 @@ class NMRData2D:
             # just check that it's the right length
             if len(self.correlation_strengths) != len(self.pairs_el_idx):
                 raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({len(self.pairs_el_idx)}).")
-        
+            correlation_strengths = self.correlation_strengths
+
         elif self.correlation_strength_metric == 'fixed':
             self.logger.info("Using fixed correlation strength.")
             # get all unique pairs of x and y indices
@@ -1100,18 +1110,20 @@ class PlotSettings:
     max_marker_size: int = 10
     show_labels: bool = True
     auto_adjust_labels: bool = True
+    label_fontsize: Optional[int] = None
     show_lines: bool = True
     show_diagonal: bool = True
     show_connectors: bool = True
-    marker_color: str = 'C0'
+    marker_color: Optional[str] = None
     show_legend: bool = False
-    ax: Optional[object] = None
+    num_legend_elements: Optional[int] = None
     show_heatmap: bool = False
+    heatmap_levels: Union[int, Iterable[float]] = 20
     show_contour: bool = False
     x_broadening: Optional[float] = None
     y_broadening: Optional[float] = None
     broadening_type: str = 'gaussian' # 'gaussian', 'lorentzian'
-    broadening_grid_size: int = 100
+    heatmap_grid_size: int = 150
     colormap: str = 'bone_r'
     contour_color: str = 'C1'
     contour_linewidth: float = 0.2
@@ -1123,8 +1135,6 @@ class NMRPlot2D:
     '''
     Class to plot 2D NMR data.
     '''
-    DEFAULT_MARKER_SIZE = 10  # Example default value
-
     def __init__(self, 
                 nmr_data: NMRData2D,
                 plot_settings: Optional[PlotSettings] = None):
@@ -1151,18 +1161,43 @@ class NMRPlot2D:
 
         # Set up the logger
         self.logger = logging.getLogger(__name__)
+        # If not set, set number of legend elements to
+        # minimum of number of peaks and 5
+        if self.plot_settings.num_legend_elements is None:
+            self.plot_settings.num_legend_elements = min(npeaks, DEFAULT_MAX_NUM_LEGEND_ELEMENTS)
 
     def _initialize_plot_settings(self):
         for key, value in self.plot_settings.__dict__.items():
             setattr(self, key, value)
 
     @styled_plot(nmr_base_style, nmr_2D_style)
-    def plot(self):
+    def plot(self, ax:Optional[Axes] = None):
+        '''
+        Plot the 2D NMR data.
+
+        Parameters
+        ----------
+        ax : Optional[Axes], optional
+            The axes to plot the data on. If not provided, a new figure and axis will be created.
+
+        Returns
+        -------
+        fig : Figure
+            The figure object
+        ax : Axes
+            The axis object
+        '''
+
         #  Create a new figure and axis if not provided
-        if self.ax:
-            self.fig = self.ax.get_figure()
+        if ax is None:
+            fig, ax = plt.subplots()
+        elif isinstance(ax, Axes):
+            fig = ax.get_figure()
         else:
-            self.fig, self.ax = plt.subplots()
+            raise TypeError("ax must be an Axes object or None.")
+
+        self.ax = ax
+        self.fig = fig
 
 
         # --- plot lines at peak locations ---
@@ -1207,15 +1242,22 @@ class NMRPlot2D:
             self.ax.invert_yaxis()
         
         # --- plot the diagonal line ---
-        if self.plot_settings.show_diagonal and (self.nmr_data.xelement == self.nmr_data.yelement):
+        xelem_same_as_yelem = self.nmr_data.xelement == self.nmr_data.yelement and self.nmr_data.xelement is not None
+        if xelem_same_as_yelem and self.plot_settings.show_diagonal:
             # use self.xlim and self.ylim to draw a diagonal line
             ylims = self.ax.get_ylim()
             xlims = self.ax.get_xlim()
             self.ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
 
+        if self.plot_settings.show_heatmap or self.plot_settings.show_contour:
+            X, Y, Z = self._get_contour_data()
+            
         # --- heatmap of peaks ---
         if self.plot_settings.show_heatmap:
-            self._plot_heatmap()
+            self._plot_heatmap(X, Y, Z)
+
+        if self.plot_settings.show_contour:
+            self._plot_contour(X, Y, Z)
 
         # --- plot the site annotations ---
         if self.plot_settings.show_labels:
@@ -1226,10 +1268,9 @@ class NMRPlot2D:
         self.fig.tight_layout()
 
         if self.plot_settings.plot_filename:
-            plt.savefig(self.plot_settings.plot_filename, dpi=300, bbox_inches='tight')
-        else:
-            plt.show()
-        return self.fig, self.ax
+            self.fig.savefig(self.plot_settings.plot_filename, dpi=300, bbox_inches='tight')
+
+        return self.fig, ax
     def _plot_axlines(self):
         #  we don't want to plot identical lines multiple times
         xticks = np.unique(np.round(self.x, 6))
@@ -1240,8 +1281,7 @@ class NMRPlot2D:
         for y in yticks:
             self.ax.axhline(y, zorder=0)
 
-
-    def _plot_heatmap(self):
+    def _get_contour_data(self):
         xlims = self.ax.get_xlim()
         ylims = self.ax.get_ylim()
         if self.plot_settings.x_broadening is None:
@@ -1253,32 +1293,29 @@ class NMRPlot2D:
         
         X, Y, Z = generate_contour_map(
                     self.nmr_data.peaks,
-                    grid_size = self.plot_settings.broadening_grid_size,
+                    grid_size = self.plot_settings.heatmap_grid_size,
                     broadening = self.plot_settings.broadening_type,
                     x_broadening=self.plot_settings.x_broadening,
                     y_broadening=self.plot_settings.y_broadening,
                     xlims = self.plot_settings.xlim,
                     ylims = self.plot_settings.ylim)
-        
+        return X, Y, Z
+
+    def _plot_heatmap(self, X, Y, Z):
         # Plot the heatmap
-        cs = self.ax.contourf(X, Y, Z, cmap=self.plot_settings.colormap, zorder=-1, levels=50)
+        if isinstance(self.plot_settings.heatmap_levels, int):
+            self.plot_settings.heatmap_levels = np.linspace(Z.min(), Z.max(), self.plot_settings.heatmap_levels)
+        cs = self.ax.contourf(X, Y, Z, cmap=self.plot_settings.colormap, zorder=-1, levels=self.plot_settings.heatmap_levels)
 
-        # # Add a colorbar
-        # if self.is_gridspec:
-        #     cbar_ax = self.fig.add_subplot(self.ax.get_gridspec()[:, 1])
-        #     # remove the axis splines etc
-        #     # cbar_ax.axis('off')
-        # else:
-        #     cbar_ax = self.ax
-
-        # self.fig.colorbar(cs, cax=cbar_ax, orientation='vertical', label='Intensity')
+    def _plot_contour(self, X, Y, Z):
+        # fig.colorbar(cs, cax=cbar_ax, orientation='vertical', label='Intensity')
         if isinstance(self.plot_settings.contour_levels, (int, float)):
             self.plot_settings.contour_levels = np.linspace(Z.min(), Z.max(), self.plot_settings.contour_levels)
 
         # Add contour lines
         if self.plot_settings.show_contour:
             self.ax.contour(
-                cs,
+                X, Y, Z,
                 colors=self.plot_settings.contour_color,
                 linewidths=self.plot_settings.contour_linewidth,
                 levels=self.plot_settings.contour_levels
@@ -1295,31 +1332,39 @@ class NMRPlot2D:
                     self.ax.plot([x[idx], x[y_order[i-1]]],
                             [y[idx], y[y_order[i-1]]],
                             c='0.25',
-                            lw=1,
+                            lw=0.75,
                             ls='-',
                             zorder=1)
     
     def _plot_markers(self):      
-        self.sizes = self._normalize_marker_sizes(self.sizes)
-        color = self.plot_settings.marker_color
+        if self.plot_settings.marker_color is None:
+            # use peak colors
+            color = [peak.color for peak in self.nmr_data.peaks]
+            # if all colors are the same, use unique color
+            if len(set(color)) == 1:
+                color = color[0]
+
+        else:
+            color = self.plot_settings.marker_color
+
         scatter = self.ax.scatter(
                         self.x,
                         self.y,
-                        s=self.sizes,
+                        s=self._normalize_marker_sizes(self.sizes),
                         c=color,
                         marker=self.plot_settings.marker,
                         linewidths=self.plot_settings.marker_linewidth,
                         zorder=10)
-        if self.plot_settings.show_legend and self.nmr_data.correlation_strength_metric != 'fixed':
+        if self.plot_settings.show_legend:
             # produce a legend with a cross-section of sizes from the scatter
-            kw = dict(prop="sizes", num='auto', color=color, 
+            kw = dict(prop="sizes", num=self.plot_settings.num_legend_elements, color=color, 
                       fmt=self.nmr_data.correlation_fmt + f" {self.nmr_data.correlation_unit}",
                       func=lambda s: s*np.abs(self.sizes).max() / self.plot_settings.max_marker_size)
             handles, labels = scatter.legend_elements(**kw) # type: ignore
             self.ax.legend(handles, labels,
                       title=self.nmr_data.correlation_label,
                       fancybox=True,
-                      framealpha=0.8).set_zorder(11)
+                      framealpha=0.8).set_zorder(12)
             
     def _normalize_marker_sizes(self, sizes):
         # Normalize the marker sizes, making sure all sizes are positive
@@ -1336,8 +1381,10 @@ class NMRPlot2D:
         '''
         self.annotations = []
 
-        # annotation font size is 2/3 the general font size
-        font_size = self.ax.xaxis.label.get_fontsize() * ANNOTATION_FONT_SCALE # type: ignore
+        # scale general font size by ANNOTATION_FONT_SCALE unless plot settings are provided
+        font_size = self.plot_settings.label_fontsize
+        if font_size is None:
+            font_size = self.ax.xaxis.label.get_fontsize() * ANNOTATION_FONT_SCALE # type: ignore
 
         xpos, ypos = self.x, self.y
         xpos_label = xpos.copy()
