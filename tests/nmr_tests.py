@@ -64,7 +64,7 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(asymm[i], vals[3])
             self.assertAlmostEqual(span[i], max(vals[4:7]) - min(vals[4:7]))
             self.assertAlmostEqual(
-                skew[i], 3 * (sorted(vals[4:7])[1] - iso[i]) / span[i]
+                skew[i], 3 * (iso[i] - sorted(vals[4:7])[1]) / span[i]
             )
 
     def test_efg(self):
@@ -269,8 +269,8 @@ class TestNMR(unittest.TestCase):
         # Herzfeld-Berger convention
         # in this case the span is 8 = 2 - (-6)
         self.assertTrue(np.allclose([tc.span, td.span, th.span, tn.span], [8]))
-        # in this case the skew is 0.75 = 3 * (1 - (-1)) / (2 - (-6))
-        self.assertTrue(np.allclose([tc.skew, td.skew, th.skew, tn.skew], [0.75]))
+        # in this case the skew is -0.75 = 3 * (-1 - 1) / (2 - (-6))
+        self.assertTrue(np.allclose([tc.skew, td.skew, th.skew, tn.skew], [-0.75]))
 
         # The asymmetry and (reduced) anisotropy should be the same for all the conventions
         # since they are hard-coded (and only defined) for the Haeberlen convention

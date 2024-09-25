@@ -82,11 +82,19 @@ def _span(evals):
 
 
 def _skew(evals):
-    """Calculate skew"""
+    """Calculate skew
+
+    .. math::
+        \\kappa = 3 (\\sigma_{iso} - \\sigma_{22}) / \\Omega
+
+    where :math:`\\Omega` is the span of the tensor.
+
+    Note that for chemical shift tensors (:math:`\\delta`), the sign is reversed.
+    """
 
     span = _span(evals)
     span = np.where(span == 0, np.inf, span)
-    return 3 * (np.median(evals, axis=1) - np.average(evals, axis=1)) / span
+    return 3 * (np.average(evals, axis=1) - np.median(evals, axis=1)) / span
 
 
 def _evecs_2_quat(evecs):
