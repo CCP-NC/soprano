@@ -26,6 +26,7 @@ from soprano.properties.nmr import (
     EFGVzz,
     EFGAsymmetry,
     EFGQuadrupolarConstant,
+    EFGQuadrupolarProduct,
     EFGQuaternion,
     EFGNQR,
     EFGTensor,
@@ -202,6 +203,35 @@ class TestNMR(unittest.TestCase):
                 ),
                 1,
             )
+            # Spherical representation tests
+            # Calculate the spherical representation
+            sph_repr = ms_tens.spherical_repr
+
+            # Isotropic part
+            isotropic = np.eye(3) * np.trace(ms_tens._data) / 3
+
+            # Anti-symmetric part
+            antisymmetric = (ms_tens._data - ms_tens._data.T) / 2.0
+
+            # Symmetric part - isotropic part
+            symmetric = (ms_tens._data + ms_tens._data.T) / 2.0 - isotropic
+
+            # Check isotropic part
+            np.testing.assert_array_almost_equal(sph_repr[0], isotropic)
+
+            # Check antisymmetric part
+            np.testing.assert_array_almost_equal(sph_repr[1], antisymmetric)
+            # should be traceless
+            self.assertAlmostEqual(np.trace(sph_repr[1]), 0)
+
+            # Check symmetric part
+            np.testing.assert_array_almost_equal(sph_repr[2], symmetric)
+            # should be traceless
+            self.assertAlmostEqual(np.trace(sph_repr[2]), 0)
+
+            # Check that the sum of the parts equals the original tensor
+            np.testing.assert_array_almost_equal(sph_repr[0] + sph_repr[1] + sph_repr[2], ms_tens._data)
+
     def test_tensor_conventions(self):
         # Let's now try various conventions
         data = np.diag([1, 2, -6])

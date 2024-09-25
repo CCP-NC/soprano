@@ -36,7 +36,7 @@ from soprano.nmr.utils import (
     _test_euler_rotation,
     _tryallanglestest
 )
-from soprano.data.nmr import _get_isotope_data
+from soprano.data.nmr import EFG_TO_CHI, _get_isotope_data, nmr_gamma, nmr_quadrupole, nmr_spin
 from ase.quaternions import Quaternion
 from scipy.spatial.transform import Rotation
 import warnings
@@ -121,6 +121,12 @@ class NMRTensor(object):
             self._evecs = self._evecs[:, sort_i[0]]
         # Last eigenvector must be the cross product of the first two
         self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
+
+        # For any property that depends on the eigenvalue order, reset it
+        self._anisotropy = None
+        self._redaniso = None
+        self._asymmetry = None
+        self._quat = None
 
     @property
     def order(self):
@@ -210,15 +216,47 @@ class NMRTensor(object):
 
     @property
     def spherical_repr(self):
+        """
+        Spherical representation of the tensor
+
+        Returns a 3x3x3 array containing the isotropic, antisymmetric and
+        symmetric parts of the tensor. The isotropic part is the average of
+        the trace of the tensor, the antisymmetric part is the difference
+        between the tensor and its transpose divided by 2, and the symmetric
+        part is the sum of the tensor and its transpose divided by 2 minus
+        the isotropic part. This construction is such that the sum of the
+        components is equal to the original tensor.
+
+        .. math::
+            \\sigma = \\sigma_{iso} + \\sigma_{A} + \\sigma_{S}
+
+        where
+
+        .. math::
+            \\sigma_{iso} = \\frac{1}{3} \\text{Tr}(\\sigma) \\mathbf{I}
+                
+            \\sigma_{A} = \\frac{1}{2} (\\sigma - \\sigma^T)
+
+            \\sigma_{S} = \\frac{1}{2} (\\sigma + \\sigma^T) - \\sigma_{iso}
+
+        Returns:
+            np.ndarray -- 3x3x3 array containing the isotropic, antisymmetric
+            and symmetric parts of the tensor
+        
+        """
         if self._sph is None:
             self._sph = np.zeros((3, 3, 3))
+            # Isotropic part
             self._sph[0] = np.eye(3) * self.trace / 3
+            # Anti-symmetric part
             self._sph[1] = (self._data - self._data.T) / 2.0
-            self._sph[2] = self._symm - self._sph0
+            # Symmetric part - isotropic part
+            self._sph[2] = self._symm - self._sph[0]
+            # _sph[0] + _sph[1] + _sph[2] == _data
 
         return self._sph.copy()
 
-    def euler_angles(self, convention: str = "zyz", passive: bool = False) -> np.ndarray:
+    def euler_angles(self, convention: str = "zyz", passive: bool = False, degrees=False) -> np.ndarray:
         """Euler angles of the Principal Axis System
 
         Return Euler angles of the PAS for this tensor in the
@@ -280,6 +318,8 @@ class NMRTensor(object):
             #                     "This is likely due to a degeneracy in the tensor. "
             #                     "Care must be taken when comparing the Euler angles of degenerate tensors.")
             
+        if degrees:
+            angles = np.degrees(angles)
 
         return angles
     
