@@ -14,7 +14,7 @@ import unittest
 import numpy as np
 from ase import io
 from ase.quaternions import Quaternion
-from soprano.nmr.tensor import NMRTensor
+from soprano.nmr.tensor import ElectricFieldGradient, NMRTensor, MagneticShielding
 from soprano.nmr.utils import _test_euler_rotation
 from soprano.properties.nmr import (
     MSIsotropy,
@@ -185,7 +185,7 @@ class TestNMR(unittest.TestCase):
         diag = [np.linalg.eigh((m + m.T) / 2.0) for m in ms]
 
         for i in range(len(eth)):
-            ms_tens = NMRTensor(ms[i])
+            ms_tens = NMRTensor(ms[i], order=NMRTensor.ORDER_HAEBERLEN)
             evals, evecs = diag[i]
 
             self.assertAlmostEqual(iso[i], ms_tens.isotropy)
@@ -195,7 +195,7 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(span[i], ms_tens.span)
             self.assertAlmostEqual(skew[i], ms_tens.skew)
 
-            self.assertTrue(np.isclose(evals, ms_tens.eigenvalues).all())
+            self.assertTrue(np.isclose(evals, sorted(ms_tens.eigenvalues)).all())
             self.assertAlmostEqual(
                 np.dot(
                     np.cross(ms_tens.eigenvectors[:, 0], ms_tens.eigenvectors[:, 1]),
@@ -972,6 +972,149 @@ class TestNMR(unittest.TestCase):
         # Test eigenvectors
         evecs = dip_tens.eigenvectors
         self.assertTrue(np.allclose(np.dot(evecs.T, evecs), np.eye(3)))
+
+class TestMagneticShielding(unittest.TestCase):
+
+    def setUp(self):
+        # Setup a sample tensor for testing
+        evals = np.array([1.0, 2.0, -6.0])
+        evecs = np.eye(3)
+        self.tensor = MagneticShielding([evals, evecs], species='2H', reference=0)
+
+    def test_initialization(self):
+        # Test if the object is initialized correctly
+        self.assertIsInstance(self.tensor, MagneticShielding)
+        self.assertIsInstance(self.tensor, NMRTensor)
+
+        # Test if the order is correct
+        self.assertEqual(self.tensor.order, NMRTensor.ORDER_HAEBERLEN)
+
+        # Test if the species and isotope are set correctly
+        self.assertEqual(self.tensor.species, '2H')
+        self.assertEqual(self.tensor.element, 'H')
+
+    def test_properties(self):
+        # Should be sorted according to Haeberlen convention by default
+        np.testing.assert_array_equal(self.tensor.eigenvalues, np.array([2.0, 1.0, -6.0]))
+        # 'x' and 'y' swapped and 'z' is negative since we ensure a right-handed coordinate system
+        np.testing.assert_array_equal(self.tensor.eigenvectors, np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]]))
+
+        # shift = -isotropy in this case (reference = 0)
+        self.assertAlmostEqual(self.tensor.shift, -self.tensor.isotropy)
+        np.testing.assert_array_equal(self.tensor.shift_tensor.data, -self.tensor.data)
+
+        # update the reference and gradient
+        self.tensor.reference = 10.0
+        self.tensor.gradient = -2.0
+        self.assertAlmostEqual(self.tensor.shift, 10 + (-2.0 * self.tensor.isotropy) / (1 + 10e-6))
+
+
+
+    def test_haeberlen_values(self):
+        haeb = self.tensor.haeberlen_values
+        self.assertAlmostEqual(haeb.sigma_iso, -1.0)
+        self.assertAlmostEqual(haeb.sigma, -5.0)
+        self.assertAlmostEqual(haeb.delta, -7.5)
+        self.assertAlmostEqual(haeb.eta, 0.2)
+
+    def test_herzfeldberger_values(self):
+        herz = self.tensor.herzfeldberger_values
+        self.assertAlmostEqual(herz.sigma_iso, -1.0)
+        self.assertAlmostEqual(herz.omega, 8.0) # span
+        self.assertAlmostEqual(herz.kappa, -0.75) # skew
+
+    def test_iupac_values(self):
+        iupac = self.tensor.iupac_values
+        self.assertAlmostEqual(iupac.sigma_iso, -1.0)
+        self.assertAlmostEqual(iupac.sigma_11, -6.0)
+        self.assertAlmostEqual(iupac.sigma_22,  1.0)
+        self.assertAlmostEqual(iupac.sigma_33,  2.0)
+    
+    def test_maryland_values(self):
+        mary = self.tensor.maryland_values
+        # should be equivalent to the herzfeld-berger values
+        herz = self.tensor.herzfeldberger_values
+        self.assertAlmostEqual(mary.sigma_iso, herz.sigma_iso)
+        self.assertAlmostEqual(mary.omega, herz.omega)
+        self.assertAlmostEqual(mary.kappa, herz.kappa)
+
+    def test_mehring_values(self):
+        mehr = self.tensor.mehring_values
+        # should be equivalent to the iupac values
+        iupac = self.tensor.iupac_values
+        self.assertAlmostEqual(mehr.sigma_iso, iupac.sigma_iso)
+        self.assertAlmostEqual(mehr.sigma_11, iupac.sigma_11)
+        self.assertAlmostEqual(mehr.sigma_22, iupac.sigma_22)
+        self.assertAlmostEqual(mehr.sigma_33, iupac.sigma_33)
+
+class TestElectricFieldGradient(unittest.TestCase):
+    
+    def setUp(self):
+        # Setup a sample tensor for
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self.atoms = atoms
+        data =atoms.get_array('efg')[0] # First atom is an H
+        
+        self.tensor = ElectricFieldGradient(data, species='2H')
+
+    def test_initialization(self):
+        # Test if the object is initialized correctly
+        self.assertIsInstance(self.tensor, ElectricFieldGradient)
+        self.assertIsInstance(self.tensor, NMRTensor)
+
+        # Test if the species and isotope are set correctly
+        self.assertEqual(self.tensor.species, '2H')
+        self.assertEqual(self.tensor.element, 'H')
+
+    def test_properties(self):
+        # Quadruoplar moment
+        self.assertAlmostEqual(self.tensor.quadrupole_moment, 2.86, places=2) # in milibarns
+        # Because of lack of precision in the quadrupolar moment, the Cq value is imprecise
+        # We only ask for 2 decimal places of precision in kHz
+        self.assertAlmostEqual(self.tensor.Cq *1e-3, 193809.07262337 * 1e-3, places=2)
+        self.assertAlmostEqual(self.tensor.eta, 0.01819691)
+
+        # For 2H, I = 1
+        self.assertEqual(self.tensor.spin, 1)
+        # nu_Q = 3 * Cq / 2I(2I-1)
+        self.assertAlmostEqual(self.tensor.nuq, 3/2 * self.tensor.Cq)
+        # For 2H, gamma = 41066279.1 rad/T/s
+        self.assertAlmostEqual(self.tensor.gamma, 41066279.1)
+
+
+        # Quadrupolar product
+        method1 = EFGQuadrupolarProduct.get(self.atoms, isotopes={'H': 2})[0]
+        method2 = self.tensor.Pq
+        manual = self.tensor.Cq * (1 + self.tensor.eta ** 2 / 3)**0.5
+        self.assertAlmostEqual(method1, method2)
+        self.assertAlmostEqual(method1, manual)
+
+
+    def test_larmor_frequency(self):
+        # Test the larmor frequency method
+        Bext = 10.0
+        gamma = self.tensor.gamma
+        expected_nu_larmor = gamma * Bext / (2 * np.pi) # in Hz
+        nu_larmor = self.tensor.get_larmor_frequency(Bext)
+        self.assertAlmostEqual(nu_larmor, expected_nu_larmor)
+
+
+    def test_quadrupolar_perturbation(self):
+        # Test the quadrupolar_perturbation method
+        Bext = 10.0  # Example external magnetic field in Tesla
+        expected_nu_larmor = self.tensor.get_larmor_frequency(Bext)
+        expected_spin = self.tensor.spin
+        expected_nuq = self.tensor.nuq
+        expected_a = (expected_nuq**2 / expected_nu_larmor) * (expected_spin * (expected_spin + 1) - 3/2)
+
+        result = self.tensor.get_quadrupolar_perturbation(Bext)
+        self.assertAlmostEqual(result, expected_a)
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

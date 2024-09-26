@@ -33,7 +33,7 @@ from soprano.nmr.utils import (
     _skew,
     _evecs_2_quat,
 )
-from soprano.nmr import NMRTensor
+from soprano.nmr import MagneticShielding
 
 
 def _has_ms_check(f):
@@ -50,7 +50,7 @@ class MSTensor(AtomsProperty):
     """
     MSTensor
 
-    Produces a list of NMRTensor objects containing the magnetic shielding
+    Produces a list of MagneticShielding objects containing the magnetic shielding
     tensors for each atom in the system. 
     Requires the Atoms object to have been loaded from a
     .magres file containing the relevant information.
@@ -62,16 +62,17 @@ class MSTensor(AtomsProperty):
                     'n' (ORDER_NQR). Default is 'i'.
 
     Returns:
-      ms_tensors (list): list of NMRTensor objects
+      ms_tensors (list): list of MagneticShielding objects
 
     """
     default_name = "ms_tensors"
-    default_params = {"order": NMRTensor.ORDER_INCREASING}
+    default_params = {"order": MagneticShielding.ORDER_INCREASING}
 
     @staticmethod
     @_has_ms_check
     def extract(s, order):
-        ms_tensors = [NMRTensor(ms, order=order) for ms in s.get_array("ms")]
+        ms_tensors = [MagneticShielding(ms, species=symbol, order=order)
+                        for ms, symbol in zip(s.get_array("ms"), s.get_chemical_symbols())]
         return ms_tensors
 
 class MSDiagonal(AtomsProperty):
@@ -137,7 +138,7 @@ class MSShielding(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, save_array):
+    def extract(s, save_array) -> np.ndarray:
 
         ms_shielding = np.trace(s.get_array("ms"), axis1=1, axis2=2) / 3.0
 
@@ -180,7 +181,7 @@ class MSShift(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array):
+    def extract(s, ref, grad, save_array)-> np.ndarray:
         # make sure we have some references set!
         if not ref:
             raise ValueError("No reference provided for chemical shifts")
@@ -307,7 +308,7 @@ class MSIsotropy(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array):
+    def extract(s, ref, grad, save_array) -> np.ndarray:
         
         if ref:
             # the user wants to use the chemical shift
@@ -345,7 +346,7 @@ class MSAnisotropy(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc)-> np.ndarray:
 
         if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
@@ -379,7 +380,7 @@ class MSReducedAnisotropy(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc)-> np.ndarray:
 
         if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
@@ -413,7 +414,7 @@ class MSAsymmetry(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc)-> np.ndarray:
 
         if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
             MSDiagonal.get(s)
@@ -518,7 +519,7 @@ class MSEuler(AtomsProperty):
     """
 
     default_name = "ms_eulers"
-    default_params = {"order": NMRTensor.ORDER_HAEBERLEN,
+    default_params = {"order": MagneticShielding.ORDER_HAEBERLEN,
                       "convention": "zyz",
                       "passive": False}
 
@@ -553,7 +554,7 @@ class MSQuaternion(AtomsProperty):
     """
 
     default_name = "ms_quats"
-    default_params = {"order": NMRTensor.ORDER_HAEBERLEN}
+    default_params = {"order": MagneticShielding.ORDER_HAEBERLEN}
 
     @staticmethod
     @_has_ms_check

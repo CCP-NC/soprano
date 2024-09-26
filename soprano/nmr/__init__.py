@@ -20,4 +20,4 @@ useful and specialised classes are found in soprano.properties.nmr and
 in soprano.calculate.nmr
 """
 
-from soprano.nmr.tensor import NMRTensor
+from soprano.nmr.tensor import NMRTensor, MagneticShielding, ElectricFieldGradient
