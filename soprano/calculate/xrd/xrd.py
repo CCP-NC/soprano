@@ -32,6 +32,7 @@ from collections import namedtuple
 # Internal imports
 from soprano import utils
 from soprano.calculate.xrd import sel_rules as xrdsel
+from ase.utils import atoms_to_spglib_cell
 
 try:
     try:
@@ -212,7 +213,7 @@ class XRDCalculator(object):
             # Define the lattice
             latt_abc = utils.cart2abc(atoms.get_cell())
             # And the symmetry
-            symm_data = spglib.get_symmetry_dataset(atoms)
+            symm_data = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms))
             h = int(symm_data["hall_number"])
             try:
                 sel_rule = xrdsel.get_sel_rule_from_hall(h)

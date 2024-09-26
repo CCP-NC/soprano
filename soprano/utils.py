@@ -38,6 +38,7 @@ from numpy import matlib as npm  # optionl subpackage of numpy
 from scipy.special import factorial
 from ase.quaternions import Quaternion
 from ase import Atoms, Atom
+from ase.utils import atoms_to_spglib_cell
 from typing import List
 
 from soprano.optional import requireNetworkX, requireScikitLearn, requireSpglib
@@ -1040,7 +1041,7 @@ def compute_asymmetric_distmat(
     N = points.shape[0]
 
     # Get symmetry operations
-    symm = spg.get_symmetry_dataset(struct, symprec=symprec)
+    symm = spg.get_symmetry_dataset(atoms_to_spglib_cell(struct), symprec=symprec)
     rots = symm["rotations"]
     transls = symm["translations"]
 

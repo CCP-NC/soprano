@@ -26,15 +26,13 @@ from __future__ import unicode_literals
 import numpy as np
 from scipy.linalg import null_space
 from soprano.optional import requireSpglib
+from ase.utils import atoms_to_spglib_cell
 
 
 @requireSpglib("spglib")
 def _get_symmetry_dataset(s, symprec, spglib=None):
-    lattice = s.get_cell()
-    positions = s.get_scaled_positions()
-    numbers = s.get_atomic_numbers()
     symdata = spglib.get_symmetry_dataset(
-        (lattice, positions, numbers), symprec=symprec
+        atoms_to_spglib_cell(s), symprec=symprec
     )
     return symdata
 
