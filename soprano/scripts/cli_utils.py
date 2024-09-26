@@ -854,22 +854,18 @@ def print_results(
             else:
                 raise ValueError(f"Unknown output format: {output_format}")
     else:
-        # We write to stdout
-
-        # if there's only one dataframe
-        # but it contains output from mutliple magres files
-        # then we need that file column
-        if nframes == 1 and dfs[0]["file"].nunique() > 1:
-            # then there's only one dataframe
-            # and we want the filename for each row
-            click.echo(dfs[0])
-        else:
-            # we can drop the file column
-            for df in dfs:
+        for df in dfs:
+            # Replace NaN values with "-" for display purposes
+            display_df = df.replace(pd.NaT, "-").replace(pd.NA, "-").fillna("-")
+            
+            if nframes == 1 and df["file"].nunique() > 1:
+                click.echo(display_df)
+            else:
                 fname = df["file"].iloc[0]
                 click.echo(f"\n\nExtracted data from: {fname}")
-                df.drop("file", axis=1, inplace=True)
-                click.echo(df)
+                # Drop the 'file' column for display
+                display_df.drop("file", axis=1, inplace=True)
+                click.echo(display_df)
 
 
 def units_rename(colname, units_dict=UNITS):
