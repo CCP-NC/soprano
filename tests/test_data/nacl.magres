@@ -1,0 +1,585 @@
+#$magres-abinitio-v1.0
+# See http://www.ccpnc.ac.uk/pmwiki.php/CCPNC/Fileformat for format definition and code samples and libraries
+[calculation]
+calc_code CASTEP
+calc_code_version  24.1
+calc_code_hgversion 483d12ca7  default  Wed Jun 14 16:27:51 2023 +0100              
+calc_code_platform linux_x86_64_gfortran10                                         
+calc_name nacl
+calc_comment                                                                                 
+calc_xcfunctional PBE 
+calc_cutoffenergy    489.80495189 eV
+calc_pspot Na 2|1.3|14|16|18|20U:30:21(qc=7)
+calc_pspot Cl 3|1.8|5|6|7|30:31:32
+calc_kpoint_mp_grid 2 2 2
+calc_kpoint_mp_offset       0.00000000      0.00000000      0.00000000
+[/calculation]
+[atoms]
+units lattice Angstrom
+lattice           5.6399999999999935E+00          0.0000000000000000E+00          0.0000000000000000E+00          0.0000000000000000E+00          5.6399999999999935E+00          0.0000000000000000E+00          0.0000000000000000E+00          0.0000000000000000E+00          5.6399999999999935E+00
+units atom Angstrom
+symmetry x,y,z
+symmetry -x,-y,-z
+symmetry -y,x,z
+symmetry y,-x,-z
+symmetry -x,-y,z
+symmetry x,y,-z
+symmetry y,-x,z
+symmetry -y,x,-z
+symmetry x,-y,-z
+symmetry -x,y,z
+symmetry -y,-x,-z
+symmetry y,x,z
+symmetry -x,y,-z
+symmetry x,-y,z
+symmetry y,x,-z
+symmetry -y,-x,z
+symmetry z,x,y
+symmetry -z,-x,-y
+symmetry z,-y,x
+symmetry -z,y,-x
+symmetry z,-x,-y
+symmetry -z,x,y
+symmetry z,y,-x
+symmetry -z,-y,x
+symmetry -z,x,-y
+symmetry z,-x,y
+symmetry -z,-y,-x
+symmetry z,y,x
+symmetry -z,-x,y
+symmetry z,x,-y
+symmetry -z,y,x
+symmetry z,-y,-x
+symmetry y,z,x
+symmetry -y,-z,-x
+symmetry x,z,-y
+symmetry -x,-z,y
+symmetry -y,z,-x
+symmetry y,-z,x
+symmetry -x,z,y
+symmetry x,-z,-y
+symmetry -y,-z,x
+symmetry y,z,-x
+symmetry -x,-z,-y
+symmetry x,z,y
+symmetry y,-z,-x
+symmetry -y,z,x
+symmetry x,-z,y
+symmetry -x,z,-y
+symmetry x+1/2,y+1/2,z
+symmetry -x+1/2,-y+1/2,-z
+symmetry -y+1/2,x+1/2,z
+symmetry y+1/2,-x+1/2,-z
+symmetry -x+1/2,-y+1/2,z
+symmetry x+1/2,y+1/2,-z
+symmetry y+1/2,-x+1/2,z
+symmetry -y+1/2,x+1/2,-z
+symmetry x+1/2,-y+1/2,-z
+symmetry -x+1/2,y+1/2,z
+symmetry -y+1/2,-x+1/2,-z
+symmetry y+1/2,x+1/2,z
+symmetry -x+1/2,y+1/2,-z
+symmetry x+1/2,-y+1/2,z
+symmetry y+1/2,x+1/2,-z
+symmetry -y+1/2,-x+1/2,z
+symmetry z+1/2,x+1/2,y
+symmetry -z+1/2,-x+1/2,-y
+symmetry z+1/2,-y+1/2,x
+symmetry -z+1/2,y+1/2,-x
+symmetry z+1/2,-x+1/2,-y
+symmetry -z+1/2,x+1/2,y
+symmetry z+1/2,y+1/2,-x
+symmetry -z+1/2,-y+1/2,x
+symmetry -z+1/2,x+1/2,-y
+symmetry z+1/2,-x+1/2,y
+symmetry -z+1/2,-y+1/2,-x
+symmetry z+1/2,y+1/2,x
+symmetry -z+1/2,-x+1/2,y
+symmetry z+1/2,x+1/2,-y
+symmetry -z+1/2,y+1/2,x
+symmetry z+1/2,-y+1/2,-x
+symmetry y+1/2,z+1/2,x
+symmetry -y+1/2,-z+1/2,-x
+symmetry x+1/2,z+1/2,-y
+symmetry -x+1/2,-z+1/2,y
+symmetry -y+1/2,z+1/2,-x
+symmetry y+1/2,-z+1/2,x
+symmetry -x+1/2,z+1/2,y
+symmetry x+1/2,-z+1/2,-y
+symmetry -y+1/2,-z+1/2,x
+symmetry y+1/2,z+1/2,-x
+symmetry -x+1/2,-z+1/2,-y
+symmetry x+1/2,z+1/2,y
+symmetry y+1/2,-z+1/2,-x
+symmetry -y+1/2,z+1/2,x
+symmetry x+1/2,-z+1/2,y
+symmetry -x+1/2,z+1/2,-y
+symmetry x+1/2,y,z+1/2
+symmetry -x+1/2,-y,-z+1/2
+symmetry -y+1/2,x,z+1/2
+symmetry y+1/2,-x,-z+1/2
+symmetry -x+1/2,-y,z+1/2
+symmetry x+1/2,y,-z+1/2
+symmetry y+1/2,-x,z+1/2
+symmetry -y+1/2,x,-z+1/2
+symmetry x+1/2,-y,-z+1/2
+symmetry -x+1/2,y,z+1/2
+symmetry -y+1/2,-x,-z+1/2
+symmetry y+1/2,x,z+1/2
+symmetry -x+1/2,y,-z+1/2
+symmetry x+1/2,-y,z+1/2
+symmetry y+1/2,x,-z+1/2
+symmetry -y+1/2,-x,z+1/2
+symmetry z+1/2,x,y+1/2
+symmetry -z+1/2,-x,-y+1/2
+symmetry z+1/2,-y,x+1/2
+symmetry -z+1/2,y,-x+1/2
+symmetry z+1/2,-x,-y+1/2
+symmetry -z+1/2,x,y+1/2
+symmetry z+1/2,y,-x+1/2
+symmetry -z+1/2,-y,x+1/2
+symmetry -z+1/2,x,-y+1/2
+symmetry z+1/2,-x,y+1/2
+symmetry -z+1/2,-y,-x+1/2
+symmetry z+1/2,y,x+1/2
+symmetry -z+1/2,-x,y+1/2
+symmetry z+1/2,x,-y+1/2
+symmetry -z+1/2,y,x+1/2
+symmetry z+1/2,-y,-x+1/2
+symmetry y+1/2,z,x+1/2
+symmetry -y+1/2,-z,-x+1/2
+symmetry x+1/2,z,-y+1/2
+symmetry -x+1/2,-z,y+1/2
+symmetry -y+1/2,z,-x+1/2
+symmetry y+1/2,-z,x+1/2
+symmetry -x+1/2,z,y+1/2
+symmetry x+1/2,-z,-y+1/2
+symmetry -y+1/2,-z,x+1/2
+symmetry y+1/2,z,-x+1/2
+symmetry -x+1/2,-z,-y+1/2
+symmetry x+1/2,z,y+1/2
+symmetry y+1/2,-z,-x+1/2
+symmetry -y+1/2,z,x+1/2
+symmetry x+1/2,-z,y+1/2
+symmetry -x+1/2,z,-y+1/2
+symmetry x,y+1/2,z+1/2
+symmetry -x,-y+1/2,-z+1/2
+symmetry -y,x+1/2,z+1/2
+symmetry y,-x+1/2,-z+1/2
+symmetry -x,-y+1/2,z+1/2
+symmetry x,y+1/2,-z+1/2
+symmetry y,-x+1/2,z+1/2
+symmetry -y,x+1/2,-z+1/2
+symmetry x,-y+1/2,-z+1/2
+symmetry -x,y+1/2,z+1/2
+symmetry -y,-x+1/2,-z+1/2
+symmetry y,x+1/2,z+1/2
+symmetry -x,y+1/2,-z+1/2
+symmetry x,-y+1/2,z+1/2
+symmetry y,x+1/2,-z+1/2
+symmetry -y,-x+1/2,z+1/2
+symmetry z,x+1/2,y+1/2
+symmetry -z,-x+1/2,-y+1/2
+symmetry z,-y+1/2,x+1/2
+symmetry -z,y+1/2,-x+1/2
+symmetry z,-x+1/2,-y+1/2
+symmetry -z,x+1/2,y+1/2
+symmetry z,y+1/2,-x+1/2
+symmetry -z,-y+1/2,x+1/2
+symmetry -z,x+1/2,-y+1/2
+symmetry z,-x+1/2,y+1/2
+symmetry -z,-y+1/2,-x+1/2
+symmetry z,y+1/2,x+1/2
+symmetry -z,-x+1/2,y+1/2
+symmetry z,x+1/2,-y+1/2
+symmetry -z,y+1/2,x+1/2
+symmetry z,-y+1/2,-x+1/2
+symmetry y,z+1/2,x+1/2
+symmetry -y,-z+1/2,-x+1/2
+symmetry x,z+1/2,-y+1/2
+symmetry -x,-z+1/2,y+1/2
+symmetry -y,z+1/2,-x+1/2
+symmetry y,-z+1/2,x+1/2
+symmetry -x,z+1/2,y+1/2
+symmetry x,-z+1/2,-y+1/2
+symmetry -y,-z+1/2,x+1/2
+symmetry y,z+1/2,-x+1/2
+symmetry -x,-z+1/2,-y+1/2
+symmetry x,z+1/2,y+1/2
+symmetry y,-z+1/2,-x+1/2
+symmetry -y,z+1/2,x+1/2
+symmetry x,-z+1/2,y+1/2
+symmetry -x,z+1/2,-y+1/2
+atom Na      Na   1          0.0000000000000000E+00          0.0000000000000000E+00          0.0000000000000000E+00
+atom Na      Na   2          0.0000000000000000E+00          2.8199999999999967E+00          2.8199999999999967E+00
+atom Na      Na   3          2.8199999999999967E+00          0.0000000000000000E+00          2.8199999999999967E+00
+atom Na      Na   4          2.8199999999999967E+00          2.8199999999999967E+00          0.0000000000000000E+00
+atom Cl      Cl   1          2.8199999999999967E+00          0.0000000000000000E+00          0.0000000000000000E+00
+atom Cl      Cl   2          2.8199999999999967E+00          2.8199999999999967E+00          2.8199999999999967E+00
+atom Cl      Cl   3          0.0000000000000000E+00          0.0000000000000000E+00          2.8199999999999967E+00
+atom Cl      Cl   4          0.0000000000000000E+00          2.8199999999999967E+00          0.0000000000000000E+00
+[/atoms]
+[magres]
+units ms ppm
+ms Na    1          4.3381922948278310E+02          0.0000000000000000E+00          1.7290499824291022E-17          0.0000000000000000E+00          4.3381922948278310E+02          2.3139199330072943E-17          8.2723765246303653E-17         -3.7482796575615241E-17          4.3381922948278304E+02
+ms Na    2          4.3381922948278276E+02          0.0000000000000000E+00         -1.3426448993992942E-17          0.0000000000000000E+00          4.3381922948278293E+02          1.5486273755669351E-17         -1.0058560332565821E-17         -2.2041628471661427E-17          4.3381922948278242E+02
+ms Na    3          4.3381922948278293E+02          0.0000000000000000E+00         -5.8035938540663781E-18          0.0000000000000000E+00          4.3381922948278282E+02          1.5320886366045697E-17          1.4884865066128792E-17         -2.2207015861285081E-17          4.3381922948278242E+02
+ms Na    4          4.3381922948278270E+02          0.0000000000000000E+00         -1.4508984635165946E-17          0.0000000000000000E+00          4.3381922948278270E+02         -2.3169269764549972E-17          6.1794742850292260E-18         -1.4508984635165946E-17          4.3381922948278299E+02
+ms Cl    1          9.9908456738907273E+02          0.0000000000000000E+00         -6.2351045888117284E-16          0.0000000000000000E+00          9.9908456738907239E+02          1.6926647567118986E-16         -6.0811439642893459E-16         -4.0038783506162604E-16          9.9908456738907228E+02
+ms Cl    2          9.9908456738907262E+02          0.0000000000000000E+00         -8.2377955249817845E-16          0.0000000000000000E+00          9.9908456738907262E+02         -1.5426132886715296E-17          3.8481135000252563E-16         -4.5421391277550595E-16          9.9908456738907273E+02
+ms Cl    3          9.9908456738907239E+02          0.0000000000000000E+00         -2.7718926500924284E-16          0.0000000000000000E+00          9.9908456738907239E+02          2.8470687362849986E-16         -2.3100107765252804E-16         -1.5516344190146377E-17          9.9908456738907273E+02
+ms Cl    4          9.9908456738907228E+02          0.0000000000000000E+00         -1.6162858531402478E-16          0.0000000000000000E+00          9.9908456738907273E+02          6.3878623959550305E-16         -1.0774236673119084E-16          3.8475120913357155E-16          9.9908456738907228E+02
+units efg au
+efg Na    1         -2.5169861990827056E-15         -8.4715442854938393E-17          4.3062559537827385E-16         -8.4715442854938393E-17         -1.6865263225550557E-14         -5.0326323865437340E-15          4.3062559537827385E-16         -5.0326323865437340E-15         -3.4074315433875107E-14
+efg Na    2         -2.5172437571393687E-15         -8.4232785682987002E-17          4.1003878650845965E-16         -8.4232785682987002E-17         -1.6754329441578338E-14         -5.5877433119295662E-15          4.1003878650845965E-16         -5.5877433119295662E-15         -3.3851274651026735E-14
+efg Na    3         -2.2938778996754604E-15          1.6309720106928332E-16          3.6767055017398358E-16          1.6309720106928332E-16         -1.6755842984134209E-14         -5.5875074572289253E-15          3.6767055017398358E-16         -5.5875074572289253E-15         -3.4073560314540025E-14
+efg Na    4         -2.2938778347966890E-15          6.4357695293599652E-17          3.3501263710327915E-16          6.4357695293599652E-17         -1.6753647604250926E-14         -5.6987016859385597E-15          3.3501263710327915E-16         -5.6987016859385597E-15         -3.4075104372629805E-14
+efg Cl    1          4.2405327377394234E-15         -3.6649676046483040E-16         -5.3294671483099021E-16         -3.6649676046483040E-16          4.3473011284852790E-15         -5.3518929628346341E-15         -5.3294671483099021E-16         -5.3518929628346341E-15         -7.2825988117669923E-15
+efg Cl    2          4.2377163612743752E-15         -3.5629311712120704E-16         -5.4690018702219616E-16         -3.5629311712120704E-16          4.3464452563922933E-15         -5.4632036455607518E-15         -5.4690018702219616E-16         -5.4632036455607518E-15         -7.2826110313495423E-15
+efg Cl    3          4.2368997618399004E-15         -1.0168472403285778E-16         -1.3325530166073266E-16         -1.0168472403285778E-16          4.3469642133824746E-15         -5.4076751757051316E-15         -1.3325530166073266E-16         -5.4076751757051316E-15         -7.2810142612197671E-15
+efg Cl    4          4.1269238793617197E-15         -9.2851541310077404E-17         -1.4702108875704544E-16         -9.2851541310077404E-17          4.3498354331860496E-15         -5.5192934682544803E-15         -1.4702108875704544E-16         -5.5192934682544803E-15         -7.0607182893261349E-15
+[/magres]
+[magres_old]
+============
+Atom: Na       1
+============
+Na       1 Coordinates      0.000    0.000    0.000   A
+
+TOTAL Shielding Tensor
+
+             433.8192      0.0000      0.0000
+               0.0000    433.8192      0.0000
+               0.0000     -0.0000    433.8192
+
+Na       1 Eigenvalue  sigma_xx     433.8192 (ppm)
+Na       1 Eigenvector sigma_xx       0.0000      0.0000      1.0000
+Na       1 Eigenvalue  sigma_yy     433.8192 (ppm)
+Na       1 Eigenvector sigma_yy      -0.6839     -0.7295     -0.0000
+Na       1 Eigenvalue  sigma_zz     433.8192 (ppm)
+Na       1 Eigenvector sigma_zz       0.7295     -0.6839      0.0000
+
+Na       1 Isotropic:      433.8192 (ppm)
+Na       1 Anisotropy:       0.0000 (ppm)
+Na       1 Asymmetry:     N/A
+
+============
+Atom: Na       2
+============
+Na       2 Coordinates      0.000    2.820    2.820   A
+
+TOTAL Shielding Tensor
+
+             433.8192      0.0000     -0.0000
+               0.0000    433.8192      0.0000
+              -0.0000     -0.0000    433.8192
+
+Na       2 Eigenvalue  sigma_xx     433.8192 (ppm)
+Na       2 Eigenvector sigma_xx       0.0000      0.0000      1.0000
+Na       2 Eigenvalue  sigma_yy     433.8192 (ppm)
+Na       2 Eigenvector sigma_yy       0.9448     -0.3277      0.0000
+Na       2 Eigenvalue  sigma_zz     433.8192 (ppm)
+Na       2 Eigenvector sigma_zz       0.3277      0.9448     -0.0000
+
+Na       2 Isotropic:      433.8192 (ppm)
+Na       2 Anisotropy:       0.0000 (ppm)
+Na       2 Asymmetry:     N/A
+
+============
+Atom: Na       3
+============
+Na       3 Coordinates      2.820    0.000    2.820   A
+
+TOTAL Shielding Tensor
+
+             433.8192      0.0000     -0.0000
+               0.0000    433.8192      0.0000
+               0.0000     -0.0000    433.8192
+
+Na       3 Eigenvalue  sigma_xx     433.8192 (ppm)
+Na       3 Eigenvector sigma_xx       0.9907      0.1362      0.0000
+Na       3 Eigenvalue  sigma_yy     433.8192 (ppm)
+Na       3 Eigenvector sigma_yy       0.1362     -0.9907      0.0000
+Na       3 Eigenvalue  sigma_zz     433.8192 (ppm)
+Na       3 Eigenvector sigma_zz       0.0000      0.0000      1.0000
+
+Na       3 Isotropic:      433.8192 (ppm)
+Na       3 Anisotropy:      -0.0000 (ppm)
+Na       3 Asymmetry:     N/A
+
+============
+Atom: Na       4
+============
+Na       4 Coordinates      2.820    2.820    0.000   A
+
+TOTAL Shielding Tensor
+
+             433.8192      0.0000     -0.0000
+               0.0000    433.8192     -0.0000
+               0.0000     -0.0000    433.8192
+
+Na       4 Eigenvalue  sigma_xx     433.8192 (ppm)
+Na       4 Eigenvector sigma_xx       0.9764     -0.2159      0.0000
+Na       4 Eigenvalue  sigma_yy     433.8192 (ppm)
+Na       4 Eigenvector sigma_yy      -0.2159     -0.9764      0.0000
+Na       4 Eigenvalue  sigma_zz     433.8192 (ppm)
+Na       4 Eigenvector sigma_zz       0.0000      0.0000      1.0000
+
+Na       4 Isotropic:      433.8192 (ppm)
+Na       4 Anisotropy:       0.0000 (ppm)
+Na       4 Asymmetry:     N/A
+
+============
+Atom: Cl       1
+============
+Cl       1 Coordinates      2.820    0.000    0.000   A
+
+TOTAL Shielding Tensor
+
+             999.0846      0.0000     -0.0000
+               0.0000    999.0846      0.0000
+              -0.0000     -0.0000    999.0846
+
+Cl       1 Eigenvalue  sigma_xx     999.0846 (ppm)
+Cl       1 Eigenvector sigma_xx       0.0000      0.0000      1.0000
+Cl       1 Eigenvalue  sigma_yy     999.0846 (ppm)
+Cl       1 Eigenvector sigma_yy      -0.6183      0.7860      0.0000
+Cl       1 Eigenvalue  sigma_zz     999.0846 (ppm)
+Cl       1 Eigenvector sigma_zz      -0.7860     -0.6183      0.0000
+
+Cl       1 Isotropic:      999.0846 (ppm)
+Cl       1 Anisotropy:       0.0000 (ppm)
+Cl       1 Asymmetry:     N/A
+
+============
+Atom: Cl       2
+============
+Cl       2 Coordinates      2.820    2.820    2.820   A
+
+TOTAL Shielding Tensor
+
+             999.0846      0.0000     -0.0000
+               0.0000    999.0846     -0.0000
+               0.0000     -0.0000    999.0846
+
+Cl       2 Eigenvalue  sigma_xx     999.0846 (ppm)
+Cl       2 Eigenvector sigma_xx       0.0000      0.0000      1.0000
+Cl       2 Eigenvalue  sigma_yy     999.0846 (ppm)
+Cl       2 Eigenvector sigma_yy      -0.8983      0.4394      0.0000
+Cl       2 Eigenvalue  sigma_zz     999.0846 (ppm)
+Cl       2 Eigenvector sigma_zz       0.4394      0.8983     -0.0000
+
+Cl       2 Isotropic:      999.0846 (ppm)
+Cl       2 Anisotropy:      -0.0000 (ppm)
+Cl       2 Asymmetry:     N/A
+
+============
+Atom: Cl       3
+============
+Cl       3 Coordinates      0.000    0.000    2.820   A
+
+TOTAL Shielding Tensor
+
+             999.0846      0.0000     -0.0000
+               0.0000    999.0846      0.0000
+              -0.0000     -0.0000    999.0846
+
+Cl       3 Eigenvalue  sigma_xx     999.0846 (ppm)
+Cl       3 Eigenvector sigma_xx       0.4681      0.8837      0.0000
+Cl       3 Eigenvalue  sigma_yy     999.0846 (ppm)
+Cl       3 Eigenvector sigma_yy       0.8837     -0.4681      0.0000
+Cl       3 Eigenvalue  sigma_zz     999.0846 (ppm)
+Cl       3 Eigenvector sigma_zz       0.0000      0.0000      1.0000
+
+Cl       3 Isotropic:      999.0846 (ppm)
+Cl       3 Anisotropy:       0.0000 (ppm)
+Cl       3 Asymmetry:     N/A
+
+============
+Atom: Cl       4
+============
+Cl       4 Coordinates      0.000    2.820    0.000   A
+
+TOTAL Shielding Tensor
+
+             999.0846      0.0000     -0.0000
+               0.0000    999.0846      0.0000
+              -0.0000      0.0000    999.0846
+
+Cl       4 Eigenvalue  sigma_xx     999.0846 (ppm)
+Cl       4 Eigenvector sigma_xx      -0.0382     -0.9993      0.0000
+Cl       4 Eigenvalue  sigma_yy     999.0846 (ppm)
+Cl       4 Eigenvector sigma_yy       0.0000      0.0000      1.0000
+Cl       4 Eigenvalue  sigma_zz     999.0846 (ppm)
+Cl       4 Eigenvector sigma_zz      -0.9993      0.0382     -0.0000
+
+Cl       4 Isotropic:      999.0846 (ppm)
+Cl       4 Anisotropy:      -0.0000 (ppm)
+Cl       4 Asymmetry:     N/A
+
+==========================================================================
+  Using the following values of the electric quadrupole moment            
+  Na     Isotope  23             Q =    0.1040 Barn
+  Cl     Isotope  35             Q =   -0.0817 Barn
+==========================================================================
+
+============
+Atom: Na       1
+============
+Na       1 Coordinates      0.000    0.000    0.000   A
+
+TOTAL tensor
+
+              -0.0000     -0.0000      0.0000
+              -0.0000     -0.0000     -0.0000
+               0.0000     -0.0000     -0.0000
+
+Na       1 Eigenvalue  V_xx      -0.0000      
+Na       1 Eigenvector V_xx       0.9998     -0.0113      0.0154
+Na       1 Eigenvalue  V_yy      -0.0000      
+Na       1 Eigenvector V_yy       0.0150      0.9652     -0.2612
+Na       1 Eigenvalue  V_zz      -0.0000      
+Na       1 Eigenvector V_zz      -0.0120      0.2614      0.9652
+
+Na       1 Cq:       -0.0000 (MHz)
+Na       1 Eta: N/A
+============
+Atom: Na       2
+============
+Na       2 Coordinates      0.000    2.820    2.820   A
+
+TOTAL tensor
+
+              -0.0000     -0.0000      0.0000
+              -0.0000     -0.0000     -0.0000
+               0.0000     -0.0000     -0.0000
+
+Na       2 Eigenvalue  V_xx      -0.0000      
+Na       2 Eigenvector V_xx       0.9998     -0.0119      0.0152
+Na       2 Eigenvalue  V_yy      -0.0000      
+Na       2 Eigenvector V_yy       0.0157      0.9584     -0.2851
+Na       2 Eigenvalue  V_zz      -0.0000      
+Na       2 Eigenvector V_zz      -0.0112      0.2853      0.9584
+
+Na       2 Cq:       -0.0000 (MHz)
+Na       2 Eta: N/A
+============
+Atom: Na       3
+============
+Na       3 Coordinates      2.820    0.000    2.820   A
+
+TOTAL tensor
+
+              -0.0000      0.0000      0.0000
+               0.0000     -0.0000     -0.0000
+               0.0000     -0.0000     -0.0000
+
+Na       3 Eigenvalue  V_xx      -0.0000      
+Na       3 Eigenvector V_xx       0.9999      0.0073      0.0103
+Na       3 Eigenvalue  V_yy      -0.0000      
+Na       3 Eigenvector V_yy      -0.0041      0.9592     -0.2827
+Na       3 Eigenvalue  V_zz      -0.0000      
+Na       3 Eigenvector V_zz      -0.0119      0.2826      0.9592
+
+Na       3 Cq:       -0.0000 (MHz)
+Na       3 Eta: N/A
+============
+Atom: Na       4
+============
+Na       4 Coordinates      2.820    2.820    0.000   A
+
+TOTAL tensor
+
+              -0.0000      0.0000      0.0000
+               0.0000     -0.0000     -0.0000
+               0.0000     -0.0000     -0.0000
+
+Na       4 Eigenvalue  V_xx      -0.0000      
+Na       4 Eigenvector V_xx       0.9999      0.0003      0.0105
+Na       4 Eigenvalue  V_yy      -0.0000      
+Na       4 Eigenvector V_yy       0.0027      0.9580     -0.2869
+Na       4 Eigenvalue  V_zz      -0.0000      
+Na       4 Eigenvector V_zz      -0.0101      0.2869      0.9579
+
+Na       4 Cq:       -0.0000 (MHz)
+Na       4 Eta: N/A
+============
+Atom: Cl       1
+============
+Cl       1 Coordinates      2.820    0.000    0.000   A
+
+TOTAL tensor
+
+               0.0000     -0.0000     -0.0000
+              -0.0000      0.0000     -0.0000
+              -0.0000     -0.0000     -0.0000
+
+Cl       1 Eigenvalue  V_xx       0.0000      
+Cl       1 Eigenvector V_xx       0.9966      0.0463     -0.0675
+Cl       1 Eigenvalue  V_yy       0.0000      
+Cl       1 Eigenvector V_yy      -0.0676      0.9305     -0.3601
+Cl       1 Eigenvalue  V_zz      -0.0000      
+Cl       1 Eigenvector V_zz       0.0461      0.3635      0.9305
+
+Cl       1 Cq:        0.0000 (MHz)
+Cl       1 Eta: N/A
+============
+Atom: Cl       2
+============
+Cl       2 Coordinates      2.820    2.820    2.820   A
+
+TOTAL tensor
+
+               0.0000     -0.0000     -0.0000
+              -0.0000      0.0000     -0.0000
+              -0.0000     -0.0000     -0.0000
+
+Cl       2 Eigenvalue  V_xx       0.0000      
+Cl       2 Eigenvector V_xx       0.9973      0.0364     -0.0645
+Cl       2 Eigenvalue  V_yy       0.0000      
+Cl       2 Eigenvector V_yy      -0.0575      0.9290     -0.3655
+Cl       2 Eigenvalue  V_zz      -0.0000      
+Cl       2 Eigenvector V_zz       0.0466      0.3682      0.9286
+
+Cl       2 Cq:        0.0000 (MHz)
+Cl       2 Eta: N/A
+============
+Atom: Cl       3
+============
+Cl       3 Coordinates      0.000    0.000    2.820   A
+
+TOTAL tensor
+
+               0.0000     -0.0000     -0.0000
+              -0.0000      0.0000     -0.0000
+              -0.0000     -0.0000     -0.0000
+
+Cl       3 Eigenvalue  V_xx       0.0000      
+Cl       3 Eigenvector V_xx       0.9997      0.0148     -0.0185
+Cl       3 Eigenvalue  V_yy       0.0000      
+Cl       3 Eigenvector V_yy      -0.0205      0.9305     -0.3656
+Cl       3 Eigenvalue  V_zz      -0.0000      
+Cl       3 Eigenvector V_zz       0.0118      0.3659      0.9306
+
+Cl       3 Cq:        0.0000 (MHz)
+Cl       3 Eta: N/A
+============
+Atom: Cl       4
+============
+Cl       4 Coordinates      0.000    2.820    0.000   A
+
+TOTAL tensor
+
+               0.0000     -0.0000     -0.0000
+              -0.0000      0.0000     -0.0000
+              -0.0000     -0.0000     -0.0000
+
+Cl       4 Eigenvalue  V_xx       0.0000      
+Cl       4 Eigenvector V_xx       0.9998      0.0069     -0.0165
+Cl       4 Eigenvalue  V_yy       0.0000      
+Cl       4 Eigenvector V_yy      -0.0126      0.9270     -0.3749
+Cl       4 Eigenvalue  V_zz      -0.0000      
+Cl       4 Eigenvector V_zz       0.0127      0.3750      0.9269
+
+Cl       4 Cq:        0.0000 (MHz)
+Cl       4 Eta: N/A
+[/magres_old]
