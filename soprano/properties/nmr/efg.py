@@ -23,6 +23,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 from collections import defaultdict
+from typing import List
 
 import numpy as np
 from soprano.properties import AtomsProperty
@@ -35,8 +36,8 @@ from soprano.nmr.utils import (
     _evecs_2_quat,
     _frange,
 )
-from soprano.data.nmr import _get_isotope_data, EFG_TO_CHI
-from soprano.nmr import NMRTensor
+from soprano.data.nmr import _get_isotope_data, EFG_TO_CHI, _get_isotope_list
+from soprano.nmr import ElectricFieldGradient
 
 
 def _has_efg_check(f):
@@ -55,7 +56,7 @@ class EFGTensor(AtomsProperty):
     """
     EFGTensor
 
-    Produces a list of NMRTensor objects containing the electric field
+    Produces a list of ElectricFieldGradient objects containing the electric field
     gradient tensors for each atom in the system.
     Requires the Atoms object to have
     been loaded from a .magres file containing the relevant information.
@@ -65,23 +66,54 @@ class EFGTensor(AtomsProperty):
     You can change this by specifying the 'order' parameter.
 
     Parameters:
-      order (str):  Order to use for eigenvalues/eigenvectors. Can
+        order (str):  Order to use for eigenvalues/eigenvectors. Can
                     be 'i' (ORDER_INCREASING), 'd'
                     (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                     'n' (ORDER_NQR). Default is 'n'.
+        use_q_isotopes (bool): if True, always use the most common quadrupole
+                             active isotope for each element, if there is
+                             one.
+        isotopes (dict): dictionary of specific isotopes to use, by element
+                         symbol. If the isotope doesn't exist an error will
+                          be raised. Overrides use_q_isotopes.
+        isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
 
     Returns:
-      efg_tensors (list): list of NMRTensor objects
+      efg_tensors (list): list of ElectricFieldGradient objects
 
     """
 
     default_name = "efg_tensors"
-    default_params = {"order": NMRTensor.ORDER_NQR}
+    default_params = {
+        "order": ElectricFieldGradient.ORDER_NQR,
+        "use_q_isotopes": False,
+        "isotopes": {},
+        "isotope_list": None,
+                      }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, order):
-        efg_tensors = [NMRTensor(efg, order=order) for efg in s.get_array("efg")]
+    def extract(s, order, use_q_isotopes, isotopes, isotope_list) -> List[ElectricFieldGradient]:
+        
+        # First thing, build the isotope dictionary
+        elems = s.get_chemical_symbols()
+
+        # Is isotope list valid?
+        if isotope_list is not None and len(isotope_list) != len(elems):
+            print("WARNING - invalid isotope_list, ignoring")
+            isotope_list = None
+        
+        # Get the isotope list given the parameters
+        isotopelist = _get_isotope_list(elems, isotopes=isotopes, isotope_list=isotope_list, use_q_isotopes=use_q_isotopes)
+        # convert list of numbers to isotope symbols
+        isotopelist = [f"{iso}{elem}" for iso, elem in zip(isotopelist, elems)]
+
+        efg_tensors = [ElectricFieldGradient(efg, species, order=order) for efg, species in zip(s.get_array("efg"), isotopelist)]
         return efg_tensors
 
 
@@ -99,12 +131,12 @@ class EFGDiagonal(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   save_array (bool): if True, save the diagonalised tensors in the
-    |                      Atoms object as an array. By default True.
+    Parameters:
+      save_array (bool): if True, save the diagonalised tensors in the
+                         Atoms object as an array. By default True.
 
-    | Returns:
-    |   efg_diag (np.ndarray): list of eigenvalues and eigenvectors
+    Returns:
+      efg_diag (np.ndarray): list of eigenvalues and eigenvectors
 
     """
 
@@ -139,12 +171,12 @@ class EFGVzz(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
 
-    | Returns:
-    |   efg_list (np.ndarray): list of Vzz values
+    Returns:
+      efg_list (np.ndarray): list of Vzz values
     """
 
     default_name = "efg_vzz"
@@ -172,12 +204,12 @@ class EFGAnisotropy(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
 
-    | Returns:
-    |   efg_list (np.ndarray): list of anisotropies
+    Returns:
+      efg_list (np.ndarray): list of anisotropies
 
     """
 
@@ -206,12 +238,12 @@ class EFGReducedAnisotropy(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
 
-    | Returns:
-    |   efg_list (np.ndarray): list of reduced anisotropies
+    Returns:
+      efg_list (np.ndarray): list of reduced anisotropies
 
     """
 
@@ -240,12 +272,12 @@ class EFGAsymmetry(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
 
-    | Returns:
-    |   efg_list (np.ndarray): list of asymmetries
+    Returns:
+      efg_list (np.ndarray): list of asymmetries
 
     """
 
@@ -274,12 +306,12 @@ class EFGSpan(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
 
-    | Returns:
-    |   efg_list (np.ndarray): list of spans
+    Returns:
+      efg_list (np.ndarray): list of spans
 
     """
 
@@ -308,12 +340,12 @@ class EFGSkew(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
 
-    | Returns:
-    |   efg_list (np.ndarray): list of skews
+    Returns:
+      efg_list (np.ndarray): list of skews
 
     """
 
@@ -352,24 +384,24 @@ class EFGQuadrupolarConstant(AtomsProperty):
     multiplied by 2*pi. This is, for example, exactly the value required as
     input in Simpson's SPINSYS section.
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
-    |   use_q_isotopes (bool): if True, always use the most common quadrupole
-    |                          active isotope for each element, if there is
-    |                          one.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised. Overrides use_q_isotopes.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
+      use_q_isotopes (bool): if True, always use the most common quadrupole
+                             active isotope for each element, if there is
+                             one.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised. Overrides use_q_isotopes.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
 
-    | Returns:
-    |   q_list (np.ndarray): list of quadrupole constants in Hz
+    Returns:
+      q_list (np.ndarray): list of quadrupole constants in Hz
 
     """
 
@@ -423,24 +455,24 @@ class EFGNQR(AtomsProperty):
     TODO: double-check convention
     TODO: better data structure for the output?
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
-    |   use_q_isotopes (bool): if True, always use the most common quadrupole
-    |                          active isotope for each element, if there is
-    |                          one.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised. Overrides use_q_isotopes.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
+      use_q_isotopes (bool): if True, always use the most common quadrupole
+                             active isotope for each element, if there is
+                             one.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised. Overrides use_q_isotopes.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
 
-    | Returns:
-    |   q_list (list): list of dictionaries of the possible NQR frequencies in Hz
+    Returns:
+      q_list (list): list of dictionaries of the possible NQR frequencies in Hz
                         The keys of the dictionary are the possible m->m+1 values
                         For example: "m=1->2" for non-quadrupole active nuclei
                         the corresponding element will be an empty dictionary.
@@ -499,26 +531,26 @@ class EFGQuadrupolarProduct(AtomsProperty):
 
     .. math::
 
-        \\P_Q = C_Q (1+frac{\\eta_Q^2}{3})
+        \\P_Q = C_Q (1+frac{\\eta_Q^2}{3})^{1/2}
 
-    | Parameters:
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present.
-    |   use_q_isotopes (bool): if True, always use the most common quadrupole
-    |                          active isotope for each element, if there is
-    |                          one.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised. Overrides use_q_isotopes.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
+    Parameters:
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present.
+      use_q_isotopes (bool): if True, always use the most common quadrupole
+                             active isotope for each element, if there is
+                             one.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised. Overrides use_q_isotopes.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
 
-    | Returns:
-    |   Pq_list (np.ndarray): list of quadrupole products in Hz (units of Cq)
+    Returns:
+      Pq_list (np.ndarray): list of quadrupole products in Hz (units of Cq)
 
     """
 
@@ -581,7 +613,7 @@ class EFGEuler(AtomsProperty):
     """
 
     default_name = "efg_eulers"
-    default_params = {"order": NMRTensor.ORDER_NQR,
+    default_params = {"order": ElectricFieldGradient.ORDER_NQR,
                       "convention": "zyz",
                       "passive": False}
 
@@ -606,19 +638,19 @@ class EFGQuaternion(AtomsProperty):
     This is different from the default convention for MS tensors (Haeberlen).
     You can change this by specifying the 'order' parameter.
 
-    | Parameters:
-    |   order (str):  Order to use for eigenvalues/eigenvectors. Can
-    |                 be 'i' (ORDER_INCREASING), 'd'
-    |                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-    |                 'n' (ORDER_NQR). Default is 'n'.
+    Parameters:
+      order (str):  Order to use for eigenvalues/eigenvectors. Can
+                    be 'i' (ORDER_INCREASING), 'd'
+                    (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                    'n' (ORDER_NQR). Default is 'n'.
 
-    | Returns:
-    |   efg_quat (list): list of quaternions
+    Returns:
+      efg_quat (list): list of quaternions
 
     """
 
     default_name = "efg_quats"
-    default_params = {"order": NMRTensor.ORDER_NQR}
+    default_params = {"order": ElectricFieldGradient.ORDER_NQR}
 
     @staticmethod
     @_has_efg_check
