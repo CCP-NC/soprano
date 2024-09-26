@@ -30,61 +30,61 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
 * Extract a full summary for multiple files, merging into one table:
 
     ```bash
-    soprano nmr *.magres --merge
+    soprano nmr --merge *.magres
     ```
 
 * Extract just the MS data:
 
     ```bash
-    soprano nmr seedname.magres -p ms
+    soprano nmr -p ms seedname.magres
     ```
 
 * Extract just the MS data for Carbon:
 
     ```bash
-    soprano nmr seedname.magres -p ms -s C
+    soprano nmr -p ms -s C seedname.magres
     ```
 
 * Or just the first 4 Carbon atoms:
 
     ```bash
-    soprano nmr seedname.magres -p ms -s C.1-4
+    soprano nmr -p ms -s C.1-4 seedname.magres
     ```
 
 * Extract just the MS data for Carbon and Nitrogen:
 
     ```bash
-    soprano nmr seedname.magres -p ms -s C,N
+    soprano nmr -p ms -s C,N seedname.magres
     ```
 
 * Extract just MS data for the sites with label H1a:
 
     ```bash
-    soprano nmr seedname.magres -p ms -s H1a
+    soprano nmr -p ms -s H1a seedname.magres
     ```
 
 * Set chemical shift references and gradients (non-specified references are set to zero and non-specified gradients are set to -1):
 
     ```bash
-    soprano nmr seedname.magres -p ms --references C:170,H:100 --gradients C:-1,H:-0.95
+    soprano nmr -p ms --references C:170,H:100 --gradients C:-1,H:-0.95 seedname.magres
     ```
 
 * Set custom isotope
 
     ```bash
-    soprano nmr seedname.magres -p efg --isotopes 13C,2H
+    soprano nmr -p efg --isotopes 13C,2H seedname.magres
     ```
 
 * By default, Soprano will reduce the structure to the uniques sites (based either on CIF labels or symmetry operations. If you want to disable this, you can use the `--no-reduce` option:
 
     ```bash
-    soprano nmr seedname.magres --no-reduce
+    soprano nmr --no-reduce seedname.magres
     ```
 
 * You can construct queries that are applied to all loaded magres files using the pandas dataframe query syntax. For example, to extract the MS data for all H sites with a chemical shielding between 100 and 200 ppm *and* an asymmetry parameter greater than 0.5:
 
     ```bash
-    soprano nmr *.magres -s H --query "10 < MS_shielding < 30 and MS_asymmetry > 0.5"
+    soprano nmr -s H --query "10 < MS_shielding < 30 and MS_asymmetry > 0.5" *.magres 
     ```
 
 ## 2D NMR plots
@@ -96,37 +96,61 @@ Here are some common examples:
 * Plot proton-proton correlation spectrum:
 
     ```bash
-    soprano plotnmr seedname.magres -p 2D -x H -y H
+    soprano plotnmr -p 2D -x H -y H seedname.magres
     ```
 
 * Plot C-H correlation spectrum with marker sizes proportional to the dipolar coupling strength. Plot the chemical shift rather than shielding by supplying reference values:
 
     ```bash
-    soprano plotnmr seedname.magres -x C -y H --scale-marker-by dipolar --references C:180,H:30
+    soprano plotnmr -x C -y H --scale-marker-by dipolar --references C:180,H:30 seedname.magres
+    ```
+
+* As previous, but plot a heatmap and contour lines in addition to the markers:
+
+    ```bash
+    soprano plotnmr -x C -y H --scale-marker-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
     ```
 
 * Plot the H-H double quantum correlation spectrum:
 
     ```bash
-    soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q seedname.magres
     ```
 
 * As previous, but averaging over dynamic CH3 and NH3 sites:
 
     ```bash
-    soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 seedname.magres
     ```
 
 * By default, Soprano will reduce the system to the inequivalent sites first (e.g. those with the same CIF label or a symmetrically equivalent position). To prevent this, use the `--no-reduce` option:
 
     ```bash
-    soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 --no-reduce
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 --no-reduce seedname.magres
     ```
 
 * Impose a distance cut-off (in Å) between pairs of sites:
 
     ```bash
-    soprano plotnmr seedname.magres -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 -r --rcut 3.5
+    soprano plotnmr -p 2D -x C -y H --rcut 1.5 seedname.magres
+    ```
+
+* Combining several of these options:
+
+    ```bash
+    soprano plotnmr -p 2D -x C -y H \
+            -g CH3 \
+            --rcut 1.5 \
+            --scale-marker-by dipolar \
+            --no-markers \
+            --references C:180,H:30 \
+            --heatmap \
+            --colormap "viridis" \
+            --contour \
+            --contour-levels 15 \
+            --contour-color "black" \
+            --contour-linewidth 0.5 \
+            seedname.magres
     ```
 
 
@@ -148,7 +172,7 @@ Here are some common examples:
 * Extract dipolar couplings between all pairs of sites, and print out those whose absolute value is greater than 10 kHz:
 
     ```bash
-    soprano dipolar seedname.magres --query "abs(D) > 10.0"
+    soprano dipolar --query "abs(D) > 10.0" seedname.magres
     ```
 
 
