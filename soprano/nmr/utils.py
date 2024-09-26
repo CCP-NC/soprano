@@ -23,6 +23,7 @@ import scipy.constants as cnst
 from ase.quaternions import Quaternion
 from scipy.spatial.transform import Rotation
 from typing import List, Union, Tuple
+import re
 
 
 
@@ -30,15 +31,44 @@ from typing import List, Union, Tuple
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
 
 
-def _evals_sort(evals, convention="c", return_indices=False):
+def _split_species(species: str) -> Tuple[int, str]:
+        """
+        Validate the species string and extract the isotope number and element.
+
+        Args:
+            species (str): The species string to validate. e.g. '13C' or '1H'.
+
+        Returns:
+            tuple: A tuple containing the isotope number (int), and element symbol (str, such as 'C' or 'H').
+        """
+        match = re.match(r"^(\d+)([A-Za-z]+)$", species)
+        if not match:
+            raise ValueError(f"{species} must be an isotope symbol such as '13C' or '1H'")
+        isotope_number, element = match.groups()
+        return int(isotope_number), element
+
+
+def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """Sort a list of eigenvalue triplets by varios conventions"""
     evals = np.array(evals)
     iso = np.average(evals, axis=1)
 
     if convention in ("i", "d"):
         to_sort = evals
-    elif convention in ("h", "n"):
+    elif convention == "h":
         to_sort = np.abs(evals - iso[:, None])
+    elif convention == "n":
+        # Although iso should be zero for NQR (EFG tensors are traceless),
+        # we should really just sort by the absolute values of the eigenvalues
+        
+        # We can warn the user if the isotropic value is not zero
+        if np.any(np.abs(iso) > 1e-12):
+            warnings.warn("Isotropic value(s) are not zero but NQR order is requested.\n"
+                "If you're dealing with an EFG tensor, "
+                "then check it carefully since these should be traceless.\n"
+                "Sorting by absolute values.\n"
+                )
+        to_sort = np.abs(evals)
 
     sort_i = np.argsort(to_sort, axis=1)
     if convention == "d":
@@ -76,7 +106,15 @@ def _asymmetry(haeb_evals):
 
 
 def _span(evals):
-    """Calculate span"""
+    """Calculate span
+    
+    .. math::
+        \\Omega = \\sigma_{33} - \\sigma_{11}
+
+    where :math:`\\sigma_{33}` is the largest, and :math:`\\sigma_{11}` is the
+    smallest eigenvalue.
+    
+    """
 
     return np.amax(evals, axis=-1) - np.amin(evals, axis=-1)
 
