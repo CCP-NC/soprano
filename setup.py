@@ -72,8 +72,29 @@ if __name__ == "__main__":
             ]
         },
         use_2to3=False,
-        convert_2to3_doctests=[],
-        # Requirements
-        install_requires=["numpy>=1.18.5,<2.0", "scipy", "ase>=3.22", "spglib>=2.4", "click", "pandas", "click_log"],
-        python_requires=">=3.8",
+        install_requires=[
+            "numpy>=1.18.5,<2.0", 
+            "scipy", 
+            "ase>=3.22,!=3.23", # 3.23 has a broken magres reader
+            "spglib>=2.4", 
+            "click", 
+            "pandas", 
+            "click_log",
+            "adjustText",
+        ],
+        python_requires=">=3.9",
+        extras_require={
+            "docs": [
+                "jupyter-book~=1.0.2",
+                "sphinx-click",
+                "sphinxcontrib-bibtex",
+                "sphinxcontrib-mermaid"
+            ],
+            "dev": [
+                "pytest", 
+                "black", 
+                "flake8", 
+                "pre-commit"
+            ],
+        },
     )

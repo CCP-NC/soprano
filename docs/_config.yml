@@ -64,4 +64,7 @@ sphinx:
       inherited-members: True
       private-members: True
       show-inheritance: True
+    # Automatically include type hints in the descriptions
+    autodoc_typehints: 'description'  # Or 'both' if you want them in both the signature and description
+
     bibtex_bibfiles: ['references.bib']
