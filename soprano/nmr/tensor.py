@@ -574,6 +574,26 @@ class NMRTensor(object):
         D = [evals, evecs]
 
         return NMRTensor(D)
+    
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the tensor
+        """
+        return f"NMRTensor(data={self.data})"
+    
+    def __str__(self) -> str:
+        """
+        Return a string representation of the tensor. Nicely print out the 3x3 matrix (data), the conventions, and the derived properties.
+        """
+        return f"NMRTensor with data: \n{self.data}\n\n" + \
+                f"Isotropy: {self.isotropy:.5f}\n" + \
+                f"Anisotropy: {self.anisotropy:.5f}\n" + \
+                f"Asymmetry: {self.asymmetry:.5f}\n" + \
+                f"Span: {self.span:.5f}\n" + \
+                f"Skew: {self.skew:.5f}\n" + \
+                f"Eigenvalues: {self.eigenvalues}\n" + \
+                f"Eigenvectors: \n{self.eigenvectors}\n" + \
+                f"Euler angles (deg): {self.euler_angles(degrees=True)}\n"
 
 
 class MagneticShielding(NMRTensor):
