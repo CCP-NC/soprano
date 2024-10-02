@@ -767,7 +767,7 @@ class MoleculeQuaternion(AtomsProperty):
             mol_pos = sorted(mol_pos, key=lambda x: -np.linalg.norm(x))
             if len(mol_pos) > 1:
                 evecs[0] *= np.sign(np.dot(evecs[0], mol_pos[0]))
-            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos, mol_pos[0])) > 0)[0]
+            e1dirs = np.where(np.atleast_1d(np.linalg.norm(np.cross(mol_pos, mol_pos[0])) > 0))[0]
             if len(e1dirs) > 0:
                 evecs[1] *= np.sign(np.dot(evecs[1], mol_pos[e1dirs[0]]))
             evecs[2] *= np.sign(np.dot(evecs[2], np.cross(evecs[0], evecs[1])))
