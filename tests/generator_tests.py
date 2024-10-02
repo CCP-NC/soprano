@@ -3,22 +3,18 @@
 Test code for the collection Generators
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
 from ase import Atoms
 from ase.build import bulk, molecule
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 try:
     from cStringIO import StringIO
@@ -114,9 +110,9 @@ class TestGenerate(unittest.TestCase):
         self.assertTrue(np.all(np.abs((rpos - pos)[:, 1, 1]) <= 0.02))
 
     def test_defect(self):
-        from soprano.utils import minimum_periodic
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import defectGen
+        from soprano.utils import minimum_periodic
 
         si2 = bulk("Si")
 
@@ -136,10 +132,11 @@ class TestGenerate(unittest.TestCase):
         self.assertTrue(holds)
 
     def test_substitution_defect(self):
-        from soprano.collection import AtomsCollection
-        from soprano.selection import AtomSelection
-        from soprano.collection.generate import substitutionGen
         import itertools
+
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import substitutionGen
+        from soprano.selection import AtomSelection
 
         # make an alloy
         atoms = bulk("Al", "fcc") * (3, 3, 3)  # 27 Al atoms
@@ -172,8 +169,8 @@ class TestGenerate(unittest.TestCase):
         self.assertEqual(len(sColl), 387)
 
     def test_molneigh(self):
-        from soprano.properties.linkage import Molecules
         from soprano.collection.generate import molecularNeighbourhoodGen
+        from soprano.properties.linkage import Molecules
 
         metmol = molecule("CH4")
 

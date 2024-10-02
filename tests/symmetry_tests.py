@@ -3,22 +3,18 @@
 Test code for the utils.py functions
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
 from ase import Atoms
 from ase.build import bulk
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 
 class TestSymmetry(unittest.TestCase):
@@ -37,7 +33,7 @@ class TestSymmetry(unittest.TestCase):
 
         symdata = SymmetryDataset.get(symmA)
 
-        self.assertTrue(symdata["international"] == "P-1")
+        self.assertTrue(symdata.international == "P-1")
 
     def test_wyckoff(self):
         from soprano.properties.symmetry import WyckoffPoints
@@ -47,7 +43,7 @@ class TestSymmetry(unittest.TestCase):
         wpoints = WyckoffPoints.get(si2)
 
         # Try a generic function with the same symmetry as the lattice
-        class GaussField(object):
+        class GaussField:
             def __init__(self, a, sigma=2.0, rcut=10):
                 shape = minimum_supcell(rcut, a.get_cell())
                 igrid, grid = supcell_gridgen(a.get_cell(), shape)

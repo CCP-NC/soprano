@@ -18,14 +18,10 @@
 Methods used to spawn or kill multiple daemons on a cluster machine.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import sys
 import shutil
+import sys
+
 from soprano.utils import import_module
 
 # Spawn a Submitter instance from a given module
@@ -43,5 +39,5 @@ except Exception as e:
         except OSError:
             pass  # Whatever, it was deleted already I guess
     subm.log(
-        "Submitter crashed following error:" "\n{0}:\n\t{1}".format(type(e).__name__, e)
+        "Submitter crashed following error:" f"\n{type(e).__name__}:\n\t{e}"
     )

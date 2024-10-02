@@ -19,37 +19,46 @@ Classes and functions for simulating approximated NMR spectroscopic results
 from structures.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-from dataclasses import dataclass
-import re
-from typing import Dict, Iterable, List, Optional, Tuple, Union
-from matplotlib.axes import Axes
-import numpy as np
-from ase import Atoms
-from scipy.special import fresnel
-from collections import namedtuple
-from soprano.properties.nmr.isc import JCIsotropy
-from soprano.utils import minimum_supcell, supcell_gridgen
-from soprano.nmr.utils import _dip_constant
-from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso, EFG_TO_CHI, _get_isotope_list
-from soprano.calculate.nmr.utils import calculate_distances, extract_indices, filter_pairs_by_distance, generate_contour_map, Peak2D, generate_peaks, get_pair_dipolar_couplings, get_pair_j_couplings, merge_peaks, prepare_species_labels, process_pairs, sort_peaks, styled_plot, nmr_base_style, nmr_2D_style, get_atom_labels, validate_elements
-from soprano.calculate.powder.triavg import TriAvg
-from soprano.selection import AtomSelection
-from soprano.properties.nmr import MSIsotropy, DipolarCoupling
-from soprano.properties.labeling import MagresViewLabels
-import itertools
-import re
-
-import matplotlib.pyplot as plt
-from adjustText import adjust_text
-
 
 import logging
+import re
+from collections import namedtuple
+from collections.abc import Iterable
+from dataclasses import dataclass
+from typing import List, Optional, Tuple, Union
+
+import matplotlib.pyplot as plt
+import numpy as np
+from adjustText import adjust_text
+from ase import Atoms
+from matplotlib.axes import Axes
+from scipy.special import fresnel
+
+from soprano.calculate.nmr.utils import (
+    Peak2D,
+    calculate_distances,
+    extract_indices,
+    filter_pairs_by_distance,
+    generate_contour_map,
+    generate_peaks,
+    get_atom_labels,
+    get_pair_dipolar_couplings,
+    get_pair_j_couplings,
+    merge_peaks,
+    nmr_2D_style,
+    nmr_base_style,
+    prepare_species_labels,
+    process_pairs,
+    sort_peaks,
+    styled_plot,
+    validate_elements,
+)
+from soprano.calculate.powder.triavg import TriAvg
+from soprano.data.nmr import EFG_TO_CHI, _el_iso, _get_isotope_data, _get_isotope_list, _get_nmr_data
+from soprano.nmr.utils import _dip_constant
+from soprano.properties.nmr import MSIsotropy
+from soprano.selection import AtomSelection
+from soprano.utils import minimum_supcell, supcell_gridgen
 
 DEFAULT_MARKER_SIZE = 50 # Default marker size for 2D plots (max is 100)
 ANNOTATION_LINE_WIDTH = 0.15 # Line width for annotation lines
@@ -180,7 +189,7 @@ MARKER_INFO = {
     }
     }
 
-class NMRCalculator(object):
+class NMRCalculator:
 
     """NMRCalculator
 
@@ -360,7 +369,7 @@ class NMRCalculator(object):
                 if iso_name not in _nmr_data[self._elems[i]]:
                     raise ValueError(
                         "Invalid isotope "
-                        "{0} for element {1}".format(iso_name, self._elems[i])
+                        f"{iso_name} for element {self._elems[i]}"
                     )
             elif iso is None:
                 iso_name = str(_nmr_data[self._elems[i]]["iso"])
@@ -372,7 +381,7 @@ class NMRCalculator(object):
                 if el != self._elems[i]:
                     raise ValueError(
                         "Invalid element in isotope array - "
-                        "{0} in place of {1}".format(el, self._elems[i])
+                        f"{el} in place of {self._elems[i]}"
                     )
 
             iso_clean.append(iso_name)
@@ -561,7 +570,7 @@ class NMRCalculator(object):
             ref = self._references[el][iso]
         except KeyError:
             ref = 0.0
-        
+
         # Default to using reference if it's not zero
         if use_reference is None:
             use_reference = ref != 0.0
@@ -838,7 +847,7 @@ class NMRData2D:
     '''
     Class to hold and extract 2D NMR data.
     '''
-    def __init__(self, 
+    def __init__(self,
                 atoms: Optional[Atoms] = None,
                 xelement: Optional[str] = None,
                 yelement: Optional[str] = None,
@@ -885,7 +894,7 @@ class NMRData2D:
 
         self.correlation_strengths = correlation_strengths
         self.correlation_strength_metric = correlation_strength_metric
-        
+
         self.rcut = rcut
         self.isotopes = isotopes if isotopes is not None else {}
         # is_shift is a boolean.  If undefined, it will be set to True if references are provided, False otherwise
@@ -913,14 +922,14 @@ class NMRData2D:
         If they don't exist, we make sure the required data is available 
         and then generate the peaks and merge if desired.
         '''
-        
+
         if self.peaks is not None:
             self.logger.debug("Custom peaks provided. ")
             return self.peaks
-        
+
         if self.atoms is None:
             raise ValueError("Either atoms or peaks must be given.")
-        
+
         # make sure all the data is there
         self.extract_data()
         labels = get_atom_labels(self.atoms, self.logger)
@@ -943,15 +952,15 @@ class NMRData2D:
         self.yisotope = isotopes[self.idx_y[0]]
         self.xspecies = prepare_species_labels(self.xisotope, self.xelement)
         self.yspecies = prepare_species_labels(self.yisotope, self.yelement)
-        
+
         self.get_axis_labels()
         self.get_pairs()
         if self.correlation_strength_metric is None:
             raise ValueError("correlation_strength_metric is not defined. Please provide a value for this parameter.")
-        
-        
+
+
         self.correlation_strengths = self.get_correlation_strengths()
-        
+
         self.data = MSIsotropy.get(self.atoms, ref=self.references, grad=self.gradients)
         self.logger.debug(f'Indices of xelement in the atoms object: {self.idx_x}')
         self.logger.debug(f'Indices of yelement in the atoms object: {self.idx_y}')
@@ -964,7 +973,7 @@ class NMRData2D:
     def get_correlation_strengths(self):
         if self.pairs is None:
             raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
-        
+
         if self.correlation_strength_metric == 'custom':
             self.logger.info("Using custom correlation strengths.")
 
@@ -983,7 +992,7 @@ class NMRData2D:
             # get all unique pairs of x and y indices
             # set the correlation strength to be the same for all pairs
             correlation_strengths = np.ones(len(self.pairs_el_idx))
-            
+
         elif self.correlation_strength_metric == 'dipolar':
             self.logger.info("Using dipolar coupling as correlation strength.")
             if self.isotopes:
@@ -999,7 +1008,7 @@ class NMRData2D:
                 correlation_strengths = 1 / correlation_strengths
                 isinverse = 'inverse '
             self.logger.info(log_message.format(isinverse=isinverse))
-            
+
 
         elif self.correlation_strength_metric == 'jcoupling':
             self.logger.info("Using J-coupling as correlation strength.")
@@ -1009,10 +1018,10 @@ class NMRData2D:
             correlation_strengths = self.correlation_strengths
         else:
             raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
-        
+
         # Make sure correlation_strengths is an array
         correlation_strengths = np.array(correlation_strengths)
-        
+
         self.logger.debug(f"correlation_strengths : {correlation_strengths}")
         # Log pair with smallest and largest correlation strength
         min_idx = np.argmin(np.abs(correlation_strengths))
@@ -1035,7 +1044,7 @@ class NMRData2D:
         )
 
         return correlation_strengths
-    
+
     def get_axis_labels(self):
         if self.is_shift:
             axis_label = r"$\delta$"
@@ -1049,7 +1058,7 @@ class NMRData2D:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + r'$_{\mathrm{%s}}$' % self.yaxis_order + ' /ppm'
             else:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
-    
+
 
     def get_pairs(self):
         '''
@@ -1089,13 +1098,13 @@ class NMRData2D:
 
             self.pairs, self.pairs_el_idx, self.pair_distances, self.idx_x, self.idx_y = filter_pairs_by_distance(
                 self.pairs, self.pairs_el_idx, self.pair_distances, self.rcut)
-            
+
             self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
             self.logger.debug(f"Pairs remaining: {self.pairs}")
             self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
 
 
-        
+
 
 @dataclass
 class PlotSettings:
@@ -1135,13 +1144,13 @@ class NMRPlot2D:
     '''
     Class to plot 2D NMR data.
     '''
-    def __init__(self, 
+    def __init__(self,
                 nmr_data: NMRData2D,
                 plot_settings: Optional[PlotSettings] = None):
 
         self.nmr_data = nmr_data
         # store the data as numpy arrays for plotting
-        npeaks = len(self.nmr_data.peaks)   
+        npeaks = len(self.nmr_data.peaks)
         self.x = np.zeros(npeaks)
         self.y = np.zeros(npeaks)
         self.sizes = np.zeros(npeaks)
@@ -1151,7 +1160,7 @@ class NMRPlot2D:
             self.y[i] = peak.y
             self.sizes[i] = peak.correlation_strength
 
-        
+
         # Use default plot settings if none are provided
         if plot_settings is None:
             plot_settings = PlotSettings()
@@ -1208,7 +1217,7 @@ class NMRPlot2D:
         if self.plot_settings.show_markers:
             self._plot_markers()
 
-        
+
         # --- connectors if required ---
         if self.plot_settings.show_connectors:
             self._plot_connectors()
@@ -1240,7 +1249,7 @@ class NMRPlot2D:
         if self.nmr_data.is_shift:
             self.ax.invert_xaxis()
             self.ax.invert_yaxis()
-        
+
         # --- plot the diagonal line ---
         xelem_same_as_yelem = self.nmr_data.xelement == self.nmr_data.yelement and self.nmr_data.xelement is not None
         if xelem_same_as_yelem and self.plot_settings.show_diagonal:
@@ -1251,7 +1260,7 @@ class NMRPlot2D:
 
         if self.plot_settings.show_heatmap or self.plot_settings.show_contour:
             X, Y, Z = self._get_contour_data()
-            
+
         # --- heatmap of peaks ---
         if self.plot_settings.show_heatmap:
             self._plot_heatmap(X, Y, Z)
@@ -1290,7 +1299,7 @@ class NMRPlot2D:
         if self.plot_settings.y_broadening is None:
             # set the broadening to 5% of the range
             self.plot_settings.y_broadening = 0.05 * abs(ylims[1] - ylims[0])
-        
+
         X, Y, Z = generate_contour_map(
                     self.nmr_data.peaks,
                     grid_size = self.plot_settings.heatmap_grid_size,
@@ -1335,8 +1344,8 @@ class NMRPlot2D:
                             lw=0.75,
                             ls='-',
                             zorder=1)
-    
-    def _plot_markers(self):      
+
+    def _plot_markers(self):
         if self.plot_settings.marker_color is None:
             # use peak colors
             color = [peak.color for peak in self.nmr_data.peaks]
@@ -1357,7 +1366,7 @@ class NMRPlot2D:
                         zorder=10)
         if self.plot_settings.show_legend:
             # produce a legend with a cross-section of sizes from the scatter
-            kw = dict(prop="sizes", num=self.plot_settings.num_legend_elements, color=color, 
+            kw = dict(prop="sizes", num=self.plot_settings.num_legend_elements, color=color,
                       fmt=self.nmr_data.correlation_fmt + f" {self.nmr_data.correlation_unit}",
                       func=lambda s: s*np.abs(self.sizes).max() / self.plot_settings.max_marker_size)
             handles, labels = scatter.legend_elements(**kw) # type: ignore
@@ -1365,7 +1374,7 @@ class NMRPlot2D:
                       title=self.nmr_data.correlation_label,
                       fancybox=True,
                       framealpha=0.8).set_zorder(12)
-            
+
     def _normalize_marker_sizes(self, sizes):
         # Normalize the marker sizes, making sure all sizes are positive
         sizes = np.abs(sizes)
@@ -1374,7 +1383,7 @@ class NMRPlot2D:
         max_abs_marker = np.max(sizes)
         # Normalize the marker sizes such that the maximum marker size is self.plot_settings.max_marker_size
         return sizes / max_abs_marker * self.plot_settings.max_marker_size
-            
+
     def _plot_annotations(self, unique=True, optimise = True, labels_offset = 0.10):
         '''
         Get the annotations for the plot
@@ -1429,7 +1438,7 @@ class NMRPlot2D:
         else:
             armA = 20
             armB = 30
-        
+
         ######## Create x labels at the top axis ##########
         texts = []
         for i, xlabel in enumerate(xlabels):
@@ -1453,7 +1462,7 @@ class NMRPlot2D:
                 ),
             )
             texts.append(an)  # Add the annotation to the list
-        
+
         if optimise:
             # Adjust the text annotations to avoid overlap
             adjust_text(
@@ -1467,7 +1476,7 @@ class NMRPlot2D:
                 max_move=2,
             )
         self.annotations += texts  # Add the adjusted texts to the annotations
-        
+
         ######## Create y labels at the right axis ##########
         texts = []
         for i, ylabel in enumerate(ylabels):

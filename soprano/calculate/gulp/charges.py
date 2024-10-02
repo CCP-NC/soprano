@@ -19,17 +19,14 @@ Get charges using GULP
 
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
-import numpy as np
 import subprocess as sp
-from soprano.utils import safe_communicate
+
+import numpy as np
+
 from soprano.calculate.gulp._utils import _gulp_cell_definition, _gulp_parse_charges
+from soprano.utils import safe_communicate
 
 
 def get_gulp_charges(
@@ -63,7 +60,7 @@ def get_gulp_charges(
         raise ValueError("Invalid charge_method passed to get_gulp_charges")
 
     # Now define the input
-    gin = "{0}\n".format(charge_method)
+    gin = f"{charge_method}\n"
     gin += _gulp_cell_definition(s)
 
     # AND GO!

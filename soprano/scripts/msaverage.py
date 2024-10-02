@@ -16,17 +16,13 @@
 
 """ A script to compute averages of NMR tensors over CH3 and NH3 groups"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 
-import numpy as np
 import argparse as ap
 
+import numpy as np
 from ase import io
+
 from soprano.properties.linkage import Bonds
 
 
@@ -80,13 +76,13 @@ def __main__():
     for f in args.input_files:
         try:
             a = io.read(f)
-        except IOError:
-            print("File {0} not found, skipping".format(f))
+        except OSError:
+            print(f"File {f} not found, skipping")
             continue
 
         # Do they have magres data?
         if not any([a.has(k) for k in args.avg]):
-            print("File {0} has no data to average, skipping".format(f))
+            print(f"File {f} has no data to average, skipping")
             continue
 
         # Find what to average
@@ -113,4 +109,4 @@ def __main__():
                 arr[h3] = np.average(arr[h3], axis=0)
             avg_a.set_array(k, arr)
 
-        io.write("{0}_{1}".format(args.prefix, f), avg_a)
+        io.write(f"{args.prefix}_{f}", avg_a)

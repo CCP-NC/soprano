@@ -26,25 +26,22 @@ of Computational Chemistry, Vol. 22, No. 11, 1154-1166 (2001)
 
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import os
 import json
+import os
 import pkgutil
-import numpy as np
 import subprocess as sp
+
+import numpy as np
 from ase.calculators.singlepoint import SinglePointCalculator
-from soprano.utils import safe_communicate
-from soprano.properties.linkage import Molecules
+
 from soprano.calculate.gulp._utils import (
     _gulp_cell_definition,
-    _gulp_parse_energy,
     _gulp_parse_charges,
+    _gulp_parse_energy,
 )
+from soprano.properties.linkage import Molecules
+from soprano.utils import safe_communicate
 
 _w99_data = pkgutil.get_data("soprano", "data/w99_parameters.json").decode("utf-8")
 _w99_data = json.loads(_w99_data)
@@ -127,14 +124,14 @@ def find_w99_atomtypes(s, force_recalc=False):
                 # Carbon case
                 val = len(bnd_i)
                 if val > 1 and val < 5:
-                    w99types[a_i] = "C_{0}".format(val)
+                    w99types[a_i] = f"C_{val}"
                 else:
                     raise W99Error("ERROR - Anomalous chemical group found")
             elif el_i == "O":
                 # Oxygen case
                 val = len(bnd_i)
                 if val > 0 and val < 3:
-                    w99types[a_i] = "O_{0}".format(val)
+                    w99types[a_i] = f"O_{val}"
                 else:
                     raise W99Error("ERROR - Anomalous chemical group found")
             elif el_i == "N":
@@ -185,9 +182,7 @@ def _w99_field_definition(s, etol):
             expcut = -rho * np.log(etol / abs(A))
             r6cut = (abs(C) / etol) ** (1.0 / 6.0)
             cut = max(expcut, r6cut, 0)
-            field_def += "buck inter\n{0} {1} {2} {3} {4} {5}\n".format(
-                t1, t2, A, rho, C, cut
-            )
+            field_def += f"buck inter\n{t1} {t2} {A} {rho} {C} {cut}\n"
 
     return field_def
 
@@ -234,7 +229,7 @@ def get_w99_energy(
     find_w99_atomtypes(s)
 
     # Now define the input
-    gin = "molq {0} dipole\n".format(charge_method)
+    gin = f"molq {charge_method} dipole\n"
     gin += _gulp_cell_definition(s, syms=s.get_array("w99_types"))
 
     # Finally, the potential definition
@@ -272,7 +267,7 @@ def get_w99_energy(
 
     # Remember it with a mock ASE calculator
     calc = SinglePointCalculator(s, energy=E)
-    s.set_calculator(calc)
+    s.calc = calc
 
     if save_charges:
         qs = _gulp_parse_charges(gulp_lines)

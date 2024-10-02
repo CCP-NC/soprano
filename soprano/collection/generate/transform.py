@@ -16,11 +16,6 @@
 
 """Generator producing structures by repeatedly applying a transform"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from ase import Atoms
 
@@ -47,7 +42,7 @@ def transformGen(struct_0, transform, steps=10):
     """
 
     # Sanity check
-    if not hasattr(transform, "__call__"):
+    if not callable(transform):
         raise ValueError("Invalid transform function passed to transformGen")
 
     rootname = struct_0.info["name"] if "name" in struct_0.info else "transf"
@@ -58,6 +53,6 @@ def transformGen(struct_0, transform, steps=10):
         struct = transform(struct)
         if type(struct) is not Atoms:
             raise RuntimeError("Invalid return value from transform")
-        struct.info["name"] = "{0}_{1}".format(rootname, i)
+        struct.info["name"] = f"{rootname}_{i}"
 
         yield struct

@@ -16,20 +16,16 @@
 
 """Bindings for AIRSS Buildcell program for random structure generation"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import os
 import copy
 import hashlib
+import os
 import subprocess as sp
+
 from ase import io as ase_io
 
 # Internal imports
-from soprano.utils import seedname, safe_communicate
+from soprano.utils import safe_communicate, seedname
 
 # Python 2-to-3 compatibility
 try:
@@ -129,13 +125,13 @@ def airssGen(
         except Exception:
             # If ANYTHING happens, let's consider that stdout might be wrong
             raise RuntimeError(
-                (
-                    "Invalid output from buildcell:\nstdout:\n{0}" "\nstderr:\n{1}"
-                ).format(stdout, stderr)
+
+                    f"Invalid output from buildcell:\nstdout:\n{stdout}" f"\nstderr:\n{stderr}"
+
             )
         if clone_calc:
             newcell.calc = copy.deepcopy(calc)
         # Generate it a name, function of its properties
         postfix = hashlib.md5(str(newcell.get_positions()).encode()).hexdigest()
-        newcell.info["name"] = "{0}_{1}".format(basename, postfix)
+        newcell.info["name"] = f"{basename}_{postfix}"
         yield newcell

@@ -16,25 +16,20 @@
 
 """Generator producing structures with a randomly positioned point defect"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import itertools
-import warnings
-import numpy as np
 from math import factorial
+
+import numpy as np
 from ase import Atoms
 from ase.data import atomic_numbers
 
 # Internal imports
-import soprano.utils as utils
-from soprano.selection import AtomSelection
-from soprano.properties.linkage import Bonds
+from soprano import utils
 from soprano.data import vdw_radii
+from soprano.properties.linkage import Bonds
 from soprano.rnd import Random, random_combination
+from soprano.selection import AtomSelection
 
 
 def defectGen(

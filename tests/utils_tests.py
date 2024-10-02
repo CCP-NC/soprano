@@ -3,20 +3,16 @@
 Test code for the utils.py functions
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 
 class TestOthers(unittest.TestCase):
@@ -26,8 +22,9 @@ class TestOthers(unittest.TestCase):
         self.assertEqual(seedname("a/b/seed.txt"), "seed")
 
     def test_swing_twist(self):
-        from soprano.utils import swing_twist_decomp
         from ase.quaternions import Quaternion
+
+        from soprano.utils import swing_twist_decomp
 
         test_n = 10
 
@@ -101,7 +98,7 @@ class TestLatticeMethods(unittest.TestCase):
 
 class TestSupercellMethods(unittest.TestCase):
     def test_min_supcell(self):
-        from soprano.utils import supcell_gridgen, minimum_supcell
+        from soprano.utils import minimum_supcell, supcell_gridgen
 
         # Here the test consists of trying to do things our way,
         # then the brutal way, and see if they give the same answers
@@ -155,8 +152,9 @@ class TestSupercellMethods(unittest.TestCase):
 # test the merging of sites
 class TestMergeSites(unittest.TestCase):
     def test_merge_sites(self):
-        from soprano.utils import merge_sites
         from ase.build import molecule
+
+        from soprano.utils import merge_sites
 
         # define a structure (let's use ethanol)
         atoms = molecule("CH3CH2OH", vacuum=10, pbc=True)  # ethanol

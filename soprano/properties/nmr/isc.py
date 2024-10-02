@@ -17,26 +17,21 @@
 """Implementation of AtomsProperties that relate to NMR J
 couplings"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from soprano.properties import AtomsProperty
-from soprano.selection import AtomSelection
-from soprano.nmr.utils import (
-    _haeb_sort,
-    _anisotropy,
-    _asymmetry,
-    _span,
-    _skew,
-    _evecs_2_quat,
-    _J_constant,
-)
 
 from soprano.data.nmr import _get_isotope_data
+from soprano.nmr.utils import (
+    _anisotropy,
+    _asymmetry,
+    _evecs_2_quat,
+    _haeb_sort,
+    _J_constant,
+    _skew,
+    _span,
+)
+from soprano.properties import AtomsProperty
+from soprano.selection import AtomSelection
 
 
 def _has_isc_check(f):
@@ -45,7 +40,7 @@ def _has_isc_check(f):
         tag = kwargs.get("tag", "isc")
         if not (s.has(tag)):
             raise RuntimeError(
-                "No J coupling data for tag {0}".format(tag) + " found in this system"
+                f"No J coupling data for tag {tag}" + " found in this system"
             )
         return f(s, *args, **kwargs)
 

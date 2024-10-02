@@ -28,16 +28,13 @@ Pages 220-239, ISSN 1090-7807,
 https://doi.org/10.1006/jmre.1998.1427.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+import warnings
 
 import numpy as np
-import warnings
-from scipy.special import legendre
 from scipy.optimize import minimize
+from scipy.special import legendre
+
 from soprano.calculate.powder.zcw import ZCW
 
 

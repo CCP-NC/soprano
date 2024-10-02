@@ -30,35 +30,35 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "July 08, 2022"
 
 
-import click
-import numpy as np
-from ase import io
-from ase import Atoms
-from ase.units import Ha, Bohr
-from soprano.properties.labeling import UniqueSites, MagresViewLabels
-from soprano.properties.nmr import *
-from soprano.data.nmr import _get_isotope_list
-from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels, merge_sites
-import pandas as pd
-import warnings
 import logging
-import click_log
 from typing import List, Optional
+
+import click
+import click_log
+import numpy as np
+import pandas as pd
+from ase import Atoms, io
+from ase.units import Bohr, Ha
+
+from soprano.data.nmr import _get_isotope_list
+from soprano.properties.labeling import MagresViewLabels, UniqueSites
+from soprano.properties.nmr import *
 from soprano.scripts.cli_utils import (
-    add_options,
     NMREXTRACT_OPTIONS,
     NO_CIF_LABEL_WARNING,
-    average_quaternions_by_tags,
-    print_results,
-    find_XHn_groups,
-    expand_aliases,
-    sortdf,
-    viewimages,
-    units_rename,
+    add_options,
     apply_df_filtering,
+    average_quaternions_by_tags,
+    expand_aliases,
+    find_XHn_groups,
+    print_results,
     reload_as_molecular_crystal,
+    sortdf,
+    units_rename,
+    viewimages,
 )
+from soprano.selection import AtomSelection
+from soprano.utils import has_cif_labels, merge_sites
 
 # logging
 logging.captureWarnings(True)
@@ -227,7 +227,7 @@ def nmr_extract_multi(
             atoms = reload_as_molecular_crystal(atoms)
             # label atoms
             atoms = label_atoms(atoms)
-        except IOError:
+        except OSError:
             logger.error(f"Could not read file {fname}, skipping.")
             return
 
@@ -377,8 +377,8 @@ def nmr_extract_atoms(
 
     if average_group:
         atoms = tag_functional_groups(average_group, atoms, vdw_scale=1.0)
-    
-    
+
+
     all_selections = AtomSelection.all(atoms)
     # select subset of atoms based on selection string
     if subset:
@@ -393,7 +393,7 @@ def nmr_extract_atoms(
         logger.debug(f"    Selected atoms: {all_selections.indices}")
         ## apply selection string to atoms object
         atoms = all_selections.subset(atoms)
-    
+
     atoms = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
 
     return atoms
@@ -452,7 +452,7 @@ def tag_functional_groups(
     for ipat, pattern in enumerate(XHn_groups):
         # check if we found any that matched this pattern
         if len(pattern) == 0:
-            logging.warn(
+            logging.warning(
                 f"No XHn groups found for pattern {average_group.split(',')[ipat]}"
             )
             continue
@@ -574,7 +574,6 @@ def build_nmr_df(
                 f"No MS data found in {fname}\n"
                 "Set argument `-p efg` if the file(s) only contains EFG data "
             )
-            pass
         except:
             logger.warning("Failed to load MS data from .magres")
             raise
@@ -589,7 +588,6 @@ def build_nmr_df(
                 f"No EFG data found in {fname}\n"
                 "Set argument `-p ms` if the file(s) only contains MS data "
             )
-            pass
         except:
             logger.warning("Failed to load EFG data from .magres")
             raise

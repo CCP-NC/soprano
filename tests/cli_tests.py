@@ -3,33 +3,25 @@
 Test code for the Command Line Interface for Soprano
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
+import io
+import logging
 import os
 import sys
-import glob
 import unittest
-import re
-import numpy as np
-import pandas as pd
+from logging.handlers import MemoryHandler
+from tempfile import NamedTemporaryFile
+from unittest.mock import patch
 
+import pandas as pd
 from ase.io import read
 from click.testing import CliRunner
-from soprano.scripts.cli import soprano, nmr
-from tempfile import NamedTemporaryFile
-import logging
-from logging.handlers import MemoryHandler
-from unittest.mock import patch
-import io
 
+from soprano.scripts.cli import soprano
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 _TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 _TESTDATA_DIR = os.path.join(_TEST_DIR, "test_data")
 _TESTSAVE_DIR = os.path.join(_TEST_DIR, "test_save")
@@ -59,7 +51,7 @@ class TestCLI(unittest.TestCase):
         fname_data = os.path.join(_TESTDATA_DIR, "ethanol_ms.dat")
 
         ref_df = pd.read_csv(
-            fname_data, sep="\s+|\t", lineterminator="\n", skiprows=7, engine="python"
+            fname_data, sep="\\s+|\t", lineterminator="\n", skiprows=7, engine="python"
         )
         nsites = len(ref_df)
 

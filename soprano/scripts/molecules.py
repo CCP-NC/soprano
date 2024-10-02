@@ -25,26 +25,25 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "Dec. 13, 2023"
 
 
-import click
-import numpy as np
-import os
-from ase import io
-from ase import Atoms
-from ase.data import atomic_numbers
-from soprano.properties.labeling import MagresViewLabels
-from soprano.properties.linkage import Molecules
-from soprano.utils import has_cif_labels
-from soprano.data import build_custom_vdw
-
 import logging
+import os
+
+import click
 import click_log
+import numpy as np
+from ase import Atoms, io
+from ase.data import atomic_numbers
+
+from soprano.data import build_custom_vdw
+from soprano.properties.linkage import Molecules
 from soprano.scripts.cli_utils import (
     add_options,
+    has_CH_bonds,
     keyvalue_parser,
     view,
     viewimages,
-    has_CH_bonds,
 )
+from soprano.utils import has_cif_labels
 
 # logging
 logging.captureWarnings(True)
@@ -227,11 +226,11 @@ def splitmols(
             "No C-H bonds found in the structure. Are you sure this is a molecular crystal?"
         )
 
-    # log the chosen vdW radii 
+    # log the chosen vdW radii
     vdw_r = build_custom_vdw(vdw_set, vdw_scale, default_vdw, vdw_custom)
     elements = list(set(atoms.get_chemical_symbols()))
     logger.debug(f"Elements in the structure: {elements}")
-    logger.debug(f"Using Van der Waals radii for the bond search:")
+    logger.debug("Using Van der Waals radii for the bond search:")
     for el in elements:
         logger.debug(f"{el}: {vdw_r[atomic_numbers[el]]}")
 
@@ -250,12 +249,12 @@ def splitmols(
         err_msg = "No molecules found in the structure"
         logger.error(err_msg)
         raise RuntimeError(err_msg)
-    
+
     # log
     logger.info(f"Found {Nmols} molecules")
     for i, mol in enumerate(molecules):
         logger.debug(f"Molecule {i}: {mol.get_chemical_formula()}")
-        
+
     # redefine unit cell if required
     for i in range(Nmols):
         molecules[i] = redefine_unit_cell(molecules[i], cell, center, vacuum)
@@ -314,7 +313,7 @@ def extract_molecules(atoms, use_cell_indices, **kwargs):
 
 
 def redefine_unit_cell(atoms: Atoms,
-                       cell: np.ndarray, 
+                       cell: np.ndarray,
                        center=False,
                        vacuum=None):
     """

@@ -4,6 +4,7 @@ Test code for the random generator
 """
 
 import unittest
+
 from soprano.rnd import Random
 
 

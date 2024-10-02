@@ -21,22 +21,18 @@ A basic "rolling" submitter for Castep calculations, grabbing from one folder
 and depositing results in another.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import os
-import sys
 import glob
+import os
 import shutil
-import tempfile
 import subprocess as sp
+import sys
+import tempfile
 
-from soprano.utils import seedname, safe_communicate
-from soprano.hpc.submitter import Submitter
 from ase.calculators.castep import create_castep_keywords
+
+from soprano.hpc.submitter.submit import Submitter
+from soprano.utils import safe_communicate, seedname
 
 
 class CastepSubmitter(Submitter):
@@ -101,7 +97,7 @@ class CastepSubmitter(Submitter):
     def start_run(self):
         # Initialize the CASTEP keywords file in a dedicated temporary folder
         self.kwdir = tempfile.mkdtemp()
-        self.log("Creating CASTEP keywords in folder " "{0}\n".format(self.kwdir))
+        self.log("Creating CASTEP keywords in folder " f"{self.kwdir}\n")
         # Avoid the annoying print out to screen!
         _stdout, sys.stdout = sys.stdout, self._log
         create_castep_keywords(
@@ -120,7 +116,7 @@ class CastepSubmitter(Submitter):
 
         cfile = cfile_list[0]
         name = seedname(cfile)
-        self.log("Starting job {0}\n".format(name))
+        self.log(f"Starting job {name}\n")
         files = [cfile]
         # Check if .param file is available too
         if os.path.isfile(os.path.join(self.folder_in, name + ".param")):
@@ -140,7 +136,7 @@ class CastepSubmitter(Submitter):
 
         success = True
 
-        self.log("Copying files for job {0}\n".format(name))
+        self.log(f"Copying files for job {name}\n")
 
         # Perform dryrun test if required
         if self.drun:
@@ -155,7 +151,7 @@ class CastepSubmitter(Submitter):
             # When it's finished...
             try:
                 castfile = open(os.path.join(folder, name + ".castep"))
-            except IOError:
+            except OSError:
                 return False
             # Does the file contain the required lines?
             drline1 = "|       DRYRUN finished ...                       |"
@@ -190,7 +186,7 @@ class CastepSubmitter(Submitter):
         except OSError:
             self.log(
                 "Could not delete temporary castep_keywords.py"
-                "directory at {0}".format(self.kwdir)
+                f"directory at {self.kwdir}"
             )
         sys.path.remove(self.kwdir)
 

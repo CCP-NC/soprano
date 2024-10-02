@@ -21,9 +21,10 @@ Data on NMR relevant properties of elements and isotopes - spin, gyromagnetic
 ratio and quadrupole moment.
 """
 
-import re
 import json
 import pkgutil
+import re
+
 import numpy as np
 import scipy.constants as cnst
 
@@ -39,7 +40,7 @@ EFG_TO_CHI = (
 try:
     _nmr_data = pkgutil.get_data("soprano", "data/nmrdata.json").decode("utf-8")
     _nmr_data = json.loads(_nmr_data)
-except IOError:
+except OSError:
     _nmr_data = None
 
 
@@ -70,7 +71,7 @@ def _get_isotope_list(elems, isotopes=None, isotope_list=None, use_q_isotopes=Fa
 
         if e not in nmr_data:
             # Non-existing element
-            raise RuntimeError("No NMR data on element {0}".format(e))
+            raise RuntimeError(f"No NMR data on element {e}")
 
         iso = nmr_data[e]["iso"]
         if use_q_isotopes and nmr_data[e]["Q_iso"] is not None:
@@ -84,7 +85,7 @@ def _get_isotope_list(elems, isotopes=None, isotope_list=None, use_q_isotopes=Fa
 
 def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes=False):
     isotopelist = _get_isotope_list(elems, isotopes=isotopes, isotope_list=isotope_list, use_q_isotopes=use_q_isotopes)
-    
+
     data = np.zeros(len(elems))
     nmr_data = _get_nmr_data()
 
@@ -94,9 +95,9 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes
             data[i] = nmr_data[el][str(iso)][key]
         except KeyError:
             raise RuntimeError(
-                "Data {0} does not exist for isotope {1} of "
-                "element {2}.\n"
-                "Edit the file soprano/data/nmrdata.json to add custom isotopes.".format(key, iso, el)
+                f"Data {key} does not exist for isotope {iso} of "
+                f"element {el}.\n"
+                "Edit the file soprano/data/nmrdata.json to add custom isotopes."
             )
 
     return data
@@ -120,7 +121,7 @@ def _el_iso(sym):
     iso = str(nmr_data[el]["iso"]) if match[0][0] == "" else match[0][0]
 
     if iso not in nmr_data[el]:
-        raise ValueError("No data on isotope {0} for element {1}".format(iso, el))
+        raise ValueError(f"No data on isotope {iso} for element {el}")
 
     return el, iso
 

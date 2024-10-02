@@ -3,20 +3,15 @@
 Test code for NMR calculations - i.e. in the calculate/nmr directory
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import unittest
-from unittest.mock import MagicMock
-from ase import Atoms
+from typing import List, Tuple
+
 import numpy as np
-from soprano.calculate.nmr.nmr import merge_peaks, Peak2D, get_pair_dipolar_couplings
-from typing import List, Tuple, Optional
 from ase.build import bulk
+
+from soprano.calculate.nmr.nmr import Peak2D, get_pair_dipolar_couplings, merge_peaks
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -87,7 +82,7 @@ class TestGetPairDipolarCouplings(unittest.TestCase):
         self.assertTrue(np.allclose(dipolar_couplings, self.reference_dipolar_couplings))
 
     def test_dipolar_couplings_no_isotopes(self):
-        # Same as before since those were the default isotopes... 
+        # Same as before since those were the default isotopes...
         dipolar_couplings = get_pair_dipolar_couplings(self.atoms, self.pairs)
         self.assertTrue(np.allclose(dipolar_couplings, self.reference_dipolar_couplings))
 

@@ -3,22 +3,17 @@
 Test code for the PhylogenCluster and Gene classes
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
-import numpy as np
 
+import numpy as np
 from ase import Atoms
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 # from soprano.collection import AtomsCollection
 # from soprano.analyse.phylogen import PhylogenCluster, Gene, load_genefile
 
@@ -27,8 +22,8 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestPhylogen(unittest.TestCase):
     def test_instantiate(self):
+        from soprano.analyse.phylogen import Gene, PhylogenCluster
         from soprano.collection import AtomsCollection
-        from soprano.analyse.phylogen import PhylogenCluster, Gene
 
         c1 = AtomsCollection([Atoms("C")])
         g1 = Gene("latt_abc_len", 1.0, {})
@@ -43,8 +38,8 @@ class TestPhylogen(unittest.TestCase):
         self.assertRaises(ValueError, Gene, "latt_abc_len", 1.0, {"wrong": True})
 
     def test_gene(self):
+        from soprano.analyse.phylogen import Gene, PhylogenCluster
         from soprano.collection import AtomsCollection
-        from soprano.analyse.phylogen import PhylogenCluster, Gene
 
         c1 = AtomsCollection(
             [
@@ -62,8 +57,8 @@ class TestPhylogen(unittest.TestCase):
         self.assertTrue(np.allclose(graw[0], [0.15, 0.2, 0.35]))
 
     def test_customgene(self):
-        from soprano.collection import AtomsCollection
         from soprano.analyse.phylogen import Gene
+        from soprano.collection import AtomsCollection
 
         c1 = AtomsCollection(
             [Atoms("C", positions=[[i / 5.0, 0, 0]]) for i in range(5)]
@@ -80,8 +75,8 @@ class TestPhylogen(unittest.TestCase):
         self.assertTrue(np.all(g1.evaluate(c1) == [i / 5.0 for i in range(5)]))
 
     def test_loadgene(self):
+        from soprano.analyse.phylogen import Gene, PhylogenCluster, load_genefile
         from soprano.collection import AtomsCollection
-        from soprano.analyse.phylogen import PhylogenCluster, Gene, load_genefile
 
         gfpath = os.path.join(_TESTDATA_DIR, "testfile.gene")
 
@@ -99,8 +94,8 @@ class TestPhylogen(unittest.TestCase):
         self.assertTrue(isinstance(p1, PhylogenCluster))
 
     def test_loadarray(self):
+        from soprano.analyse.phylogen import Gene, PhylogenCluster
         from soprano.collection import AtomsCollection
-        from soprano.analyse.phylogen import PhylogenCluster, Gene
 
         g0 = Gene("latt_abc_len", 1.0, {})
 
@@ -113,8 +108,8 @@ class TestPhylogen(unittest.TestCase):
         self.assertTrue(np.all(p1.get_genome_vectors()[0] == [[1], [2]]))
 
     def test_cluster(self):
+        from soprano.analyse.phylogen import Gene, PhylogenCluster
         from soprano.collection import AtomsCollection
-        from soprano.analyse.phylogen import PhylogenCluster, Gene
 
         a1 = Atoms(cell=[1, 1, 1], info={"name": "a1"})
         a2 = Atoms(cell=[1, 1, 2], info={"name": "a2"})

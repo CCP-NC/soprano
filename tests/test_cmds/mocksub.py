@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
-import time
 import pickle
+import time
+
 import numpy as np
 
 # A "mock" queue submission system to test how well QueueInterface works
@@ -29,7 +25,7 @@ except EOFError:
 
 try:
     joblist = pickle.load(open(os.path.join(mydir, "queue.pkl"), "rb"))
-except IOError:
+except OSError:
     joblist = {}
 
 # Well, add a job with the name of the script's first word
@@ -45,6 +41,6 @@ joblist[rnd_id] = {"name": jobname, "end": time.time() + joblength}
 if len(fline_spl) > 2:
     joblist[rnd_id]["path"] = fline_spl[2]
 
-print("Job <{0}> submitted".format(rnd_id))
+print(f"Job <{rnd_id}> submitted")
 
 pickle.dump(joblist, open(os.path.join(mydir, "queue.pkl"), "wb"))

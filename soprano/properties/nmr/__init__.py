@@ -19,44 +19,42 @@ Module containing AtomsProperties that relate to NMR properties of a system.
 Some of these are valid only for Atoms objects loaded from a .magres file.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
-from soprano.properties.nmr.ms import (
-    MSDiagonal,
-    MSIsotropy,
-    MSAnisotropy,
-    MSReducedAnisotropy,
-    MSAsymmetry,
-    MSSpan,
-    MSSkew,
-    MSQuaternion,
-    MSTensor,
-    MSEuler,
-)
-from soprano.properties.nmr.efg import (
-    EFGDiagonal,
-    EFGVzz,
-    EFGAnisotropy,
-    EFGReducedAnisotropy,
-    EFGAsymmetry,
-    EFGSpan,
-    EFGSkew,
-    EFGQuadrupolarConstant,
-    EFGQuadrupolarProduct,
-    EFGQuaternion,
-    EFGNQR,
-    EFGTensor,
-    EFGEuler,
-)
 from soprano.properties.nmr.dipolar import (
     DipolarCoupling,
     DipolarDiagonal,
+    DipolarEuler,
     DipolarRSS,
     DipolarTensor,
-    DipolarEuler,
+)
+from soprano.properties.nmr.efg import (
+    EFGNQR,
+    EFGAnisotropy,
+    EFGAsymmetry,
+    EFGDiagonal,
+    EFGEuler,
+    EFGQuadrupolarConstant,
+    EFGQuadrupolarProduct,
+    EFGQuaternion,
+    EFGReducedAnisotropy,
+    EFGSkew,
+    EFGSpan,
+    EFGTensor,
+    EFGVzz,
 )
 from soprano.properties.nmr.isc import (
-    JCIsotropy,
     JCDiagonal,
+    JCIsotropy,
+)
+from soprano.properties.nmr.ms import (
+    MSAnisotropy,
+    MSAsymmetry,
+    MSDiagonal,
+    MSEuler,
+    MSIsotropy,
+    MSQuaternion,
+    MSReducedAnisotropy,
+    MSSkew,
+    MSSpan,
+    MSTensor,
 )

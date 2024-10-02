@@ -28,28 +28,20 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "May 09, 2023"
 
 
-import click
-import click_log
-
-import numpy as np
-import re
-from ase import Atoms
-from ase.visualize import view as aseview
-from ase.units import Ha, Bohr
-from soprano.calculate.nmr.nmr import NMRData2D, NMRPlot2D, PlotSettings
-from soprano.properties.nmr import *
-from soprano.selection import AtomSelection
-import itertools
-import pandas as pd
-from collections import OrderedDict
-from soprano.scripts.nmr import nmr_extract_multi, print_results
-from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, viewimages
-from soprano.calculate.nmr import NMRCalculator, NMRFlags, DEFAULT_MARKER_SIZE
-from soprano.properties.nmr import MSIsotropy
 import logging
 
+import click
+import click_log
 import matplotlib.pyplot as plt
+import numpy as np
 
+from soprano.calculate.nmr import NMRCalculator
+from soprano.calculate.nmr.nmr import NMRData2D, NMRPlot2D, PlotSettings
+from soprano.properties.nmr import *
+from soprano.properties.nmr import MSIsotropy
+from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, viewimages
+from soprano.scripts.nmr import nmr_extract_multi, print_results
+from soprano.selection import AtomSelection
 
 # logging
 logging.captureWarnings(True)
@@ -180,7 +172,7 @@ def plotnmr(
             yaxis_order=yaxis_order,
             correlation_strength_metric=scale_marker_by,
         )
-        
+
         # Define plot settings
         plot_settings = PlotSettings(
             xlim=xlim,
@@ -206,13 +198,13 @@ def plotnmr(
             y_broadening=ybroadening,
 
         )
-        
+
         # Create NMRPlot2D instance
         nmr_plot = NMRPlot2D(
             nmr_data=nmr_data,
             plot_settings=plot_settings,
         )
-        
+
         # Generate the plot
         fig, ax = nmr_plot.plot()
         # if the user doesn't give an output file name, show the plot using the default matplotlib backend

@@ -16,26 +16,21 @@
 
 """Implementation of AtomsProperties that relate to linkage of atoms"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from ase.data import atomic_numbers
 from ase.quaternions import Quaternion
-from soprano.selection import AtomSelection
+
+from soprano.data import build_custom_vdw
 from soprano.properties import AtomsProperty
+from soprano.selection import AtomSelection
 from soprano.utils import (
-    swing_twist_decomp,
-    is_string,
-    graph_specsort,
-    minimum_periodic,
     all_periodic,
     get_bonding_graph,
+    graph_specsort,
+    is_string,
+    minimum_periodic,
+    swing_twist_decomp,
 )
-from soprano.data import build_custom_vdw
 
 
 def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
@@ -112,7 +107,7 @@ class LinkageList(AtomsProperty):
                 link_list = np.pad(
                     link_list,
                     (0, size - link_list.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -168,7 +163,7 @@ class ElementPairs(AtomsProperty):
         idx_1 = np.where(symbols == element1)[0]
         idx_2 = np.where(symbols == element2)[0]
 
-        # Get the interatomic pair distances from all 
+        # Get the interatomic pair distances from all
         # of idx_1 to all of idx_2
         v = s.get_positions()
         v = v[idx_1, None, :] - v[None, idx_2, :]
@@ -587,7 +582,7 @@ class MoleculeMass(AtomsProperty):
                 mol_m = np.pad(
                     mol_m,
                     (0, size - mol_m.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -699,7 +694,7 @@ class MoleculeCOMLinkage(AtomsProperty):
                 link_list = np.pad(
                     link_list,
                     (0, size - link_list.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -863,7 +858,7 @@ class MoleculeRelativeRotation(AtomsProperty):
                 link_list = np.pad(
                     link_list,
                     (0, size - link_list.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -991,7 +986,7 @@ class HydrogenBonds(AtomsProperty):
             return [i for i, cs in enumerate(s.get_chemical_symbols()) if cs == el]
 
         def bname(A, B):
-            return "{0}H..{1}".format(A, B)
+            return f"{A}H..{B}"
 
         # Define types
         hbonds = {}

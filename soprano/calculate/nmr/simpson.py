@@ -18,27 +18,24 @@
 Classes and functions for interfacing with the SIMPSON spin dynamics software.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import re
 import warnings
-import numpy as np
 from collections import namedtuple
-from soprano.properties.nmr import (
-    MSIsotropy,
-    MSReducedAnisotropy,
-    MSAsymmetry,
-    MSQuaternion,
-    EFGQuadrupolarConstant,
-    EFGAsymmetry,
-    EFGQuaternion,
-    DipolarCoupling,
-)
+
+import numpy as np
+
 from soprano.data.nmr import _get_nmr_data
+from soprano.properties.nmr import (
+    DipolarCoupling,
+    EFGAsymmetry,
+    EFGQuadrupolarConstant,
+    EFGQuaternion,
+    MSAsymmetry,
+    MSIsotropy,
+    MSQuaternion,
+    MSReducedAnisotropy,
+)
 
 _spinsys_template = """spinsys {{
 {header}
@@ -182,9 +179,7 @@ def write_spinsys(
                 * 180
                 / np.pi
             )
-            dip_block += ("dipole {0} {1} {2} {3}" " {4} 0.0\n").format(
-                i + 1, j + 1, d * 2 * np.pi, a, b
-            )
+            dip_block += (f"dipole {i + 1} {j + 1} {d * 2 * np.pi} {a}" f" {b} 0.0\n")
 
     out_file = _spinsys_template.format(
         header=header, ms=ms_block, efg=efg_block, dipolar=dip_block
@@ -355,12 +350,12 @@ class SimpsonSequence:
 
         """
 
-        outf = "source {0}\n\n".format(self.spinsys_source)
+        outf = f"source {self.spinsys_source}\n\n"
 
         # Write out par block
         outf += "par {\n"
         for p, val in self.pars.items():
-            outf += "\t{0} {1}\n".format(p, val)
+            outf += f"\t{p} {val}\n"
         outf += "}\n\n"
 
         # Write out pulseq

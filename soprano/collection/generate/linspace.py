@@ -19,7 +19,7 @@
 import numpy as np
 
 # Internal imports
-import soprano.utils as utils
+from soprano import utils
 
 
 def linspaceGen(struct_0, struct_1, steps=10, periodic=False):
@@ -71,6 +71,6 @@ def linspaceGen(struct_0, struct_1, steps=10, periodic=False):
         pos = pos0 * (1 - t) + pos1 * t
         struct = struct_0.copy()
         struct.set_positions(pos)
-        struct.info["name"] = "{0}_{1}".format(rootname, i)
+        struct.info["name"] = f"{rootname}_{i}"
 
         yield struct

@@ -25,8 +25,6 @@ It needs to be installed on your system to use any of the functionality
 provided here.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
-from soprano.calculate.gulp.w99 import get_w99_energy, W99Error
 from soprano.calculate.gulp.charges import get_gulp_charges
+from soprano.calculate.gulp.w99 import W99Error, get_w99_energy

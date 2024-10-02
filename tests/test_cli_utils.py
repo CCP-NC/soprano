@@ -3,24 +3,20 @@
 Test code for CLI utilities
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import unittest
+
 import numpy as np
-from ase import io, Atoms
-from ase.visualize import view
-from soprano.scripts.nmr import (
-    tag_functional_groups,
-    merge_tagged_sites,
-)
+from ase import Atoms, io
+
 from soprano.scripts.molecules import (
     extract_molecules,
     redefine_unit_cell,
+)
+from soprano.scripts.nmr import (
+    merge_tagged_sites,
+    tag_functional_groups,
 )
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")

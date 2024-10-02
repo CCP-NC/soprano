@@ -23,24 +23,24 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "August 10, 2022"
 
 
-import click
-from collections import OrderedDict, defaultdict
-import re
-from soprano.data.nmr import _el_iso
-from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
-from soprano.utils import average_quaternions
-from soprano.properties.linkage import ElementPairs, Molecules
-
-
-import os
-import numpy as np
-from configparser import ConfigParser
-from ase.visualize import view as aseview
-from ase import Atoms
-import pandas as pd
 import logging
+import os
+import re
+from collections import OrderedDict, defaultdict
+from configparser import ConfigParser
 from typing import List, Optional
 
+import click
+import numpy as np
+import pandas as pd
+from ase import Atoms
+from ase.visualize import view as aseview
+
+from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
+from soprano.calculate.nmr.simpson import SimpsonTemplates
+from soprano.data.nmr import _el_iso
+from soprano.properties.linkage import ElementPairs, Molecules
+from soprano.utils import average_quaternions
 
 # join home and config file
 home = os.path.expanduser("~")
@@ -335,7 +335,7 @@ gradients = click.option(
     "Defaults to -1 for all elements. Set it like this: "
     "``--gradients H:-1,C:-0.97``. ",
 )
-# todo: have an option to set a file/env variable for the references...
+# TODO: have an option to set a file/env variable for the references...
 # flag to include certain columns only
 df_include = click.option(
     "--include",
@@ -766,7 +766,7 @@ DIP_OPTIONS = [
     dip_rss_flag,
     dip_rss_cutoff,
     dip_isonuclear,
-    ]
+]
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
 DIPOLAR_OPTIONS = COMMON_OPTIONS + DIP_OPTIONS + DF_OPTIONS
@@ -814,7 +814,7 @@ def print_results(
     # set pandas print precision
     pd.set_option("display.precision", precision)
     # make sure we output all rows, even if there are lots!
-    pd.set_option("display.max_rows", 99)
+    pd.set_option("display.max_rows", 999)
     nframes = len(dfs)
     if output:
         for i, df in enumerate(dfs):
@@ -857,7 +857,7 @@ def print_results(
         for df in dfs:
             # Replace NaN values with "-" for display purposes
             display_df = df.replace(pd.NaT, "-").replace(pd.NA, "-").fillna("-")
-            
+
             if nframes == 1 and df["file"].nunique() > 1:
                 click.echo(display_df)
             else:

@@ -22,24 +22,19 @@ category. Many of these handle common operations involving periodicity,
 conversions between different representations etc.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
+import inspect
 import os
 import sys
-from contextlib import contextmanager
-import inspect
 import warnings
-import numpy as np
-from numpy import matlib as npm  # optionl subpackage of numpy
-from scipy.special import factorial
-from ase.quaternions import Quaternion
-from ase import Atoms, Atom
-from ase.utils import atoms_to_spglib_cell
+from contextlib import contextmanager
 from typing import List
+
+import numpy as np
+from ase import Atoms
+from ase.quaternions import Quaternion
+from ase.utils import atoms_to_spglib_cell
+from scipy.special import factorial
 
 from soprano.optional import requireNetworkX, requireScikitLearn, requireSpglib
 from soprano.rnd import Random
@@ -63,7 +58,7 @@ def merge_concatenate(T):
         return ",".join(unique_labels)
     else:
         raise NotImplementedError(
-            "Concatenation of arrays of type {} not implemented".format(type(T[0]))
+            f"Concatenation of arrays of type {type(T[0])} not implemented"
         )
 
 
@@ -152,7 +147,7 @@ def progbar(i, i_max, bar_len=20, spinner=True, spin_rate=3.0):
     perc = i / float(i_max) * bar_len
     bar = "[{0}]".format("".join([block[i < perc] for i in range(bar_len)]))
     if spinner:
-        bar += " {0}".format(spin[int(perc * spin_rate) % len(spin)])
+        bar += f" {spin[int(perc * spin_rate) % len(spin)]}"
 
     return bar
 
@@ -176,9 +171,7 @@ def silence_stdio(silence_stdout=True, silence_stderr=True):
 
 def customize_warnings():
     def customwarning(msg, category, filename, lineno, line=None):
-        outmsg = ("\033[93m \033[1m WARNING: \033[0m {0} " "({1}, line: {2})\n").format(
-            msg, filename, lineno
-        )
+        outmsg = (f"\033[93m \033[1m WARNING: \033[0m {msg} " f"({filename}, line: {lineno})\n")
         return outmsg
 
     warnings.formatwarning = customwarning
@@ -627,9 +620,9 @@ def average_quaternions(quats: List[Quaternion]) -> Quaternion:
     # Number of quaternions to average
     M = Q.shape[0]
     assert M > 0, "No quaternions to average"
-    A = npm.zeros(shape=(4, 4))
+    A = np.zeros(shape=(4, 4))
 
-    for i in range(0, M):
+    for i in range(M):
         q = Q[i, :]
         # multiply q with its transposed version q' and add A
         A = np.outer(q, q) + A
@@ -902,7 +895,6 @@ def periodic_bridson(
                 yield np.dot(fp, cell)
 
     # So once we're here we ran out of options...
-    return
 
 
 # Function for creating labels for molecule sites
@@ -945,7 +937,7 @@ def recursive_mol_label(site_i, mol_indices, bonds, elems):
             bonded_label = [bl for bl in bonded_label if bl is not None]
             return "{0}[{1}]".format(elems[i], ",".join(bonded_label))
         else:
-            return "{0}".format(elems[i])
+            return f"{elems[i]}"
 
     to_visit = list(mol_indices)
 
@@ -981,11 +973,11 @@ def get_sklearn_clusters(points, method, params, sk=None):
 
     try:
         __import__("sklearn.cluster")  # Avoids some weird ImportErrors. WTF.
-        clustObj = getattr(sk, "cluster").__dict__[method](**params)
+        clustObj = sk.cluster.__dict__[method](**params)
     except KeyError:
         raise ValueError("Requested method is not present in scikit-learn")
     except TypeError:
-        raise ValueError("Invalid parameters for method {0}".format(method))
+        raise ValueError(f"Invalid parameters for method {method}")
 
     return clustObj.fit_predict(points)
 
@@ -1070,7 +1062,7 @@ def compute_asymmetric_distmat(
         df = (all_images - im0[None, :, None] + 0.5) % 1 - 0.5
         rf = np.linalg.norm(df, axis=1)
         minrf_i = np.argmin(rf, axis=0)
-        closest_images = df[minrf_i, :, range(0, N)] + im0
+        closest_images = df[minrf_i, :, range(N)] + im0
 
     # Here we avoid full vectorisation to be safe against memory clutter.
     # Though it also means it's slower...
@@ -1208,7 +1200,7 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}, keep_all=False):
         if key not in merging_strategies.keys():
             strategy = merge_first
             warnings.warn(
-                "Merging strategy for {} not specified, using {}".format(key, strategy)
+                f"Merging strategy for {key} not specified, using {strategy}"
             )
         else:
             strategy = merging_strategies[key]
@@ -1257,7 +1249,7 @@ def merge_sites(atoms: Atoms, indices, merging_strategies={}, keep_all=False):
                 atoms.set_array("magresview_labels", labels, dtype="U25")
 
         # -- custom arrays -- #
-        for key in new_properties.keys():
+        for key in new_properties:
             if key not in ["positions", "numbers", "labels"]:
                 arr = atoms.get_array(key)
                 arr[idx] = new_properties[key]

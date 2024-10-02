@@ -16,15 +16,11 @@
 
 """Implementation of some basic AtomsProperty classes"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from soprano.utils import cart2abc
+
 from soprano.properties import AtomsProperty
+from soprano.utils import cart2abc
 
 
 class LatticeCart(AtomsProperty):

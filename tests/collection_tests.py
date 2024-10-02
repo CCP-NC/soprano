@@ -3,22 +3,18 @@
 Test code for the AtomsCollection class
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
+import glob
 import os
 import sys
-import glob
 import unittest
+
 import numpy as np
-from ase import io, Atoms
+from ase import Atoms, io
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 _TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 _TESTDATA_DIR = os.path.join(_TEST_DIR, "test_data")
@@ -84,6 +80,7 @@ class TestCollection(unittest.TestCase):
 
     def test_calculator(self):
         from ase.calculators.lj import LennardJones
+
         from soprano.collection import AtomsCollection
 
         # Generate a few random structures

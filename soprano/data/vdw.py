@@ -29,6 +29,7 @@ Available sets:
 
 import json
 import pkgutil
+
 import numpy as np
 from ase.data import atomic_numbers
 from ase.data.vdw import vdw_radii as _vdw_radii_ase
@@ -36,7 +37,7 @@ from ase.data.vdw import vdw_radii as _vdw_radii_ase
 
 def _load_vdw(name):
 
-    _vdw_data = pkgutil.get_data("soprano", "data/vdw_{0}.json".format(name)).decode(
+    _vdw_data = pkgutil.get_data("soprano", f"data/vdw_{name}.json").decode(
         "utf-8"
     )
     _vdw_radii = np.array(json.loads(_vdw_data))

@@ -17,27 +17,22 @@
 """Implementation of AtomsProperties that relate to NMR electric field
 gradients"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 from collections import defaultdict
 from typing import List
 
 import numpy as np
-from soprano.properties import AtomsProperty
+
+from soprano.data.nmr import EFG_TO_CHI, _get_isotope_data, _get_isotope_list
+from soprano.nmr import ElectricFieldGradient
 from soprano.nmr.utils import (
-    _haeb_sort,
     _anisotropy,
     _asymmetry,
-    _span,
-    _skew,
-    _evecs_2_quat,
     _frange,
+    _haeb_sort,
+    _skew,
+    _span,
 )
-from soprano.data.nmr import _get_isotope_data, EFG_TO_CHI, _get_isotope_list
-from soprano.nmr import ElectricFieldGradient
+from soprano.properties import AtomsProperty
 
 
 def _has_efg_check(f):
@@ -99,7 +94,7 @@ class EFGTensor(AtomsProperty):
     @staticmethod
     @_has_efg_check
     def extract(s, order, use_q_isotopes, isotopes, isotope_list) -> List[ElectricFieldGradient]:
-        
+
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
 
@@ -107,7 +102,7 @@ class EFGTensor(AtomsProperty):
         if isotope_list is not None and len(isotope_list) != len(elems):
             print("WARNING - invalid isotope_list, ignoring")
             isotope_list = None
-        
+
         # Get the isotope list given the parameters
         isotopelist = _get_isotope_list(elems, isotopes=isotopes, isotope_list=isotope_list, use_q_isotopes=use_q_isotopes)
         # convert list of numbers to isotope symbols
@@ -148,7 +143,7 @@ class EFGDiagonal(AtomsProperty):
     def extract(s, save_array):
 
         efg_diag = [np.linalg.eigh((efg + efg.T) / 2.0) for efg in s.get_array("efg")]
-        efg_evals, efg_evecs = [np.array(a) for a in zip(*efg_diag)]
+        efg_evals, efg_evecs = (np.array(a) for a in zip(*efg_diag))
 
         if save_array:
             s.set_array(EFGDiagonal.default_name + "_evals", efg_evals)
@@ -516,7 +511,7 @@ class EFGNQR(AtomsProperty):
                 fq = 3 * A * (2 * m + 1) * np.sqrt(1 + eta_list[i] ** 2 / 3)
                 nqr[i][key] = fq
 
-        
+
         return nqr
 
 class EFGQuadrupolarProduct(AtomsProperty):

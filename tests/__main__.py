@@ -1,10 +1,10 @@
 """Run all tests in this folder"""
 
-import time
-import os
-import sys
 import glob
+import os
 import subprocess as sp
+import sys
+import time
 
 tests_py = glob.glob(os.path.join(os.path.dirname(__file__), "*tests.py"))
 failed = []
@@ -14,7 +14,7 @@ for t in tests_py:
         failed += [t]
 
 print("All tests completed")
-print("Time spent: {0: .3f} s".format(time.time() - t0))
+print(f"Time spent: {time.time() - t0: .3f} s")
 if len(failed) > 0:
     sys.stdout.write("The following tests failed:\n\t")
     print("\n\t".join(failed))

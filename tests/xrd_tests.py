@@ -3,20 +3,16 @@
 Test code for the calculate.xrd module
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 # from soprano.calculate import xrd
 # from soprano.calculate.xrd.xrd import XraySpectrum, XraySpectrumData
 
@@ -121,7 +117,7 @@ class TestXRDRules(unittest.TestCase):
         ref_file_ends = ["mono"]
 
         for e in ref_file_ends:
-            fname = os.path.join(_TESTDATA_DIR, "xrd_sel_test_{0}.txt".format(e))
+            fname = os.path.join(_TESTDATA_DIR, f"xrd_sel_test_{e}.txt")
             refdata = np.loadtxt(fname)
 
             n_o_pair = (0, 0)

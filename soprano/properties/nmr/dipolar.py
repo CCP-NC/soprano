@@ -17,20 +17,16 @@
 """Implementation of AtomsProperties that relate to NMR dipole-dipole
 couplings"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
-from soprano.properties import AtomsProperty
-from soprano.selection import AtomSelection
-from soprano.nmr.utils import _dip_constant, _dip_tensor
-from soprano.nmr import NMRTensor
+
 from soprano.data.nmr import _get_isotope_data
+from soprano.nmr import NMRTensor
+from soprano.nmr.utils import _dip_constant, _dip_tensor
+from soprano.properties import AtomsProperty
 from soprano.rnd import Random
+from soprano.selection import AtomSelection
+from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 
 
 class DipolarCoupling(AtomsProperty):

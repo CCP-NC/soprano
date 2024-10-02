@@ -3,24 +3,18 @@
 Test code for AtomSelection
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
-import numpy as np
 
+import numpy as np
 from ase import Atoms
 from ase.io import read
 
-
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -157,8 +151,8 @@ class TestSelection(unittest.TestCase):
         self.assertTrue(np.allclose(a2.get_positions()[-1], [-1, 3, 3]))
 
     def test_mapsel(self):
-        from soprano.selection import AtomSelection
         from soprano.collection import AtomsCollection
+        from soprano.selection import AtomSelection
 
         el_list = "HHHCCHCHCH"
         coll = AtomsCollection([Atoms(el) for el in el_list])

@@ -23,10 +23,12 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "June 21, 2023"
 
 
-import click
-from soprano.scripts import nmr, nmr_plot, dipolar, molecules, view
 import logging
+
+import click
 import click_log
+
+from soprano.scripts import dipolar, molecules, nmr, nmr_plot, view
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger(__name__)

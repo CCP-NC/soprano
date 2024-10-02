@@ -18,19 +18,14 @@
 Definition of a fake QueueInterface class, useful for debugging Submitters.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
-import time
 
 import subprocess as sp
+import time
 from threading import Thread
-from soprano.utils import safe_communicate
+
 from soprano.hpc.submitter.queues import QueueInterface
 from soprano.rnd import Random
+from soprano.utils import safe_communicate
 
 
 class DebugQueueInterface(QueueInterface):

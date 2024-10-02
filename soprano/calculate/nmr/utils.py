@@ -21,19 +21,22 @@ Helper functions for NMR calculations and plotting
 import itertools
 import logging
 import re
-from ase import Atoms
-import numpy as np
-from scipy.optimize import minimize
-from functools import wraps
-from pkg_resources import resource_filename
+from collections.abc import Iterable
 from dataclasses import dataclass
-import matplotlib
-from typing import Dict, Iterable, List, Tuple, Optional, Union
+from functools import wraps
+from importlib.resources import files
+from typing import Dict, List, Optional, Tuple, Union
+
+import matplotlib.pyplot as plt
+import numpy as np
+from ase import Atoms
+from scipy.optimize import minimize
 
 from soprano.properties.labeling.labeling import MagresViewLabels
 from soprano.properties.nmr.dipolar import DipolarCoupling
 from soprano.properties.nmr.isc import JCIsotropy
 from soprano.utils import has_cif_labels
+
 
 def get_force_matrix(
             positions: np.ndarray,
@@ -65,7 +68,7 @@ def get_force_matrix(
     non_zero_displacements = np.abs(displacement_matrix) > 1e-8
     off_diag_mask = np.logical_and(off_diag_mask, non_zero_displacements)
     # Fmat[off_diag_mask][non_zero_displacements] = -C * displacement_matrix[off_diag_mask][non_zero_displacements] / (np.abs(displacement_matrix[off_diag_mask][non_zero_displacements]))**3
-    
+
     Fmat[off_diag_mask] += C * displacement_matrix[off_diag_mask] / (np.abs(displacement_matrix[off_diag_mask]))**4
 
     # if any off-diagonal elements are zero, then set a random force
@@ -133,7 +136,7 @@ def get_energy(positions, positions_original, C, k):
             if np.abs(positions[i] - positions[j]) > 1e-8:
                 coulomb_energy += C / np.abs(positions[i] - positions[j])**2
 
-    
+
 
     spring_energy = 0.5 * k * np.sum((positions - positions_original)**2)
     # print(f'coulomb_energy: {coulomb_energy}, spring_energy: {spring_energy}')
@@ -167,7 +170,7 @@ def optimise_annotations(positions, max_iters=10000, C=0.01, k=0.00001, ftol = 1
     # invert order
     inverted_order = np.argsort(order)
 
-    # sort positions 
+    # sort positions
     positions = positions[order]
     ## deep copy of the sorted positions
     positions_original = positions.copy()
@@ -196,7 +199,7 @@ def optimise_annotations(positions, max_iters=10000, C=0.01, k=0.00001, ftol = 1
             ]
         )
     new_pos_frac = res.x
-    
+
     # convert back to original range
     new_pos = new_pos_frac * original_range + min_pos
     positions = new_pos
@@ -223,7 +226,7 @@ class Peak2D:
     - the color of the peak
     - the index of the x and y labels in the list of all labels
 
-    '''  
+    '''
     x: float
     y: float
     xlabel: str
@@ -235,7 +238,7 @@ class Peak2D:
 
     def __repr__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
-    
+
     def equivalent_to(self, other, xtol=0.005, ytol=0.005, corr_tol=0.1, ignore_correlation_strength=False):
         '''
         Check if two peaks are equivalent. We compare the x and y coordinates and the correlation strength.
@@ -251,7 +254,7 @@ class Peak2D:
         '''
         x_match = np.abs(self.x - other.x) < xtol
         y_match = np.abs(self.y - other.y) < ytol
-        
+
         if ignore_correlation_strength:
             corr_match = True
         else:
@@ -259,7 +262,7 @@ class Peak2D:
 
         return x_match and y_match and corr_match
 
-        
+
 
 
 def lorentzian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
@@ -309,12 +312,12 @@ def gaussian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: f
     return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
 
 def generate_contour_map(
-    peaks: List[Peak2D], 
-    grid_size: int = 100, 
-    broadening: str = 'gaussian', 
-    x_broadening: float = 1.0, 
-    y_broadening: float = 1.0, 
-    xlims: Optional[Tuple[float, float]] = None, 
+    peaks: List[Peak2D],
+    grid_size: int = 100,
+    broadening: str = 'gaussian',
+    x_broadening: float = 1.0,
+    y_broadening: float = 1.0,
+    xlims: Optional[Tuple[float, float]] = None,
     ylims: Optional[Tuple[float, float]] = None
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -342,7 +345,7 @@ def generate_contour_map(
         y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
     else:
         y_min, y_max = ylims
-    
+
     # Create a grid of x, y values, broadening the grid by 5 times the broadening factor
     x = np.linspace(x_min - 5 * x_broadening, x_max + 5 * x_broadening, grid_size)
     y = np.linspace(y_min - 5 * y_broadening, y_max + 5 * y_broadening, grid_size)
@@ -360,7 +363,7 @@ def generate_contour_map(
             Z += strength * gaussian(X, x0, Y, y0, x_broadening, y_broadening)
         else:
             raise ValueError(f'Unknown broadening function: {broadening}')
-    
+
     return X, Y, Z
 
 
@@ -369,8 +372,8 @@ def generate_contour_map(
 
 
 
-nmr_base_style = resource_filename("soprano.calculate.nmr", "soprano_nmr_base.mplstyle")
-nmr_2D_style   = resource_filename("soprano.calculate.nmr", "soprano_nmr_2D.mplstyle")
+nmr_base_style = str(files("soprano.calculate.nmr").joinpath("soprano_nmr_base.mplstyle"))
+nmr_2D_style = str(files("soprano.calculate.nmr").joinpath("soprano_nmr_2D.mplstyle"))
 
 def styled_plot(*style_sheets):
     """Return a decorator that will apply matplotlib style sheets to a plot.
@@ -402,7 +405,7 @@ def styled_plot(*style_sheets):
             if fonts is not None:
                 list_style += [{"font.family": "sans-serif", "font.sans-serif": fonts}]
 
-            matplotlib.pyplot.style.use(list_style)
+            plt.style.use(list_style)
             return get_plot(*args, **kwargs)
 
         return wrapper
@@ -445,7 +448,7 @@ def prepare_species_labels(isotope, element):
 def extract_indices(atoms, xelement, yelement):
     idx_x = np.array([atom.index for atom in atoms if atom.symbol == xelement])
     idx_y = np.array([atom.index for atom in atoms if atom.symbol == yelement])
-    
+
     return idx_x, idx_y
 
 
@@ -455,7 +458,7 @@ def validate_elements(atoms, xelement, yelement):
         raise ValueError(f'{xelement} not found in the file after the user-specified filters have been applied.')
     if yelement not in all_elements:
         raise ValueError(f'{yelement} not found in the file after the user-specified filters have been applied.')
-    
+
 
 def generate_peaks(
     data: List[float],
@@ -531,11 +534,11 @@ def merge_peaks(
     """
     # first, get the unique peaks
     unique_peaks = []
-    unique_xlabels: Dict[str, List[str]] = {}
-    unique_ylabels: Dict[str, List[str]] = {}
-    
+    unique_xlabels: Dict[str, Set[str]] = {}
+    unique_ylabels: Dict[str, Set[str]] = {}
+
     peak_map: Dict[Tuple[float, float, float], Peak2D] = {}
-    
+
     for peak in peaks:
         key = (
             int(peak.x / xtol),
@@ -628,7 +631,7 @@ def get_pair_dipolar_couplings(
             coupling = list(DipolarCoupling.get(atoms, sel_i=[i], sel_j=[j], isotopes=isotopes).values())[0][0]
             dipolar_couplings.append(coupling * conversion_factor)
 
-    
+
     return dipolar_couplings
 
 def get_pair_j_couplings(
@@ -693,8 +696,8 @@ def get_pair_j_couplings(
 
 
 def process_pairs(
-    idx_x: np.ndarray, 
-    idx_y: np.ndarray, 
+    idx_x: np.ndarray,
+    idx_y: np.ndarray,
     pairs: Optional[List[Tuple[int, int]]]
 ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]], np.ndarray, np.ndarray]:
     """
@@ -721,7 +724,7 @@ def process_pairs(
     else:
         pairs_el_idx = list(itertools.product(range(len(idx_x)), range(len(idx_y))))
         pairs = list(itertools.product(idx_x, idx_y))
-    
+
     # Update the indices
     idx_x = np.array(pairs)[:, 0]
     idx_y = np.array(pairs)[:, 1]
@@ -748,9 +751,9 @@ def calculate_distances(pairs: List[Tuple[int, int]], atoms: Atoms) -> np.ndarra
 
 
 def filter_pairs_by_distance(
-    pairs: List[Tuple[int, int]], 
-    pairs_el_idx: List[Tuple[int, int]], 
-    pair_distances: np.ndarray, 
+    pairs: List[Tuple[int, int]],
+    pairs_el_idx: List[Tuple[int, int]],
+    pair_distances: np.ndarray,
     rcut: float
 ) -> Tuple[List[Tuple[int, int]], List[Tuple[int, int]], np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -781,7 +784,7 @@ def filter_pairs_by_distance(
     idx_x = np.unique([pair[0] for pair in pairs])
     idx_y = np.unique([pair[1] for pair in pairs])
     if len(idx_x) == 0 or len(idx_y) == 0:
-        raise ValueError(f'No pairs found after filtering by distance. Try increasing the cutoff distance (rcut).')
+        raise ValueError('No pairs found after filtering by distance. Try increasing the cutoff distance (rcut).')
 
     idx_x = np.sort(idx_x)
     idx_y = np.sort(idx_y)

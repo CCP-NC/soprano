@@ -33,21 +33,20 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "Nov 15, 2023"
 
 
+import logging
+
 import click
 import click_log
-
-import numpy as np
-import re
 from ase import Atoms
 from ase.io import read
-from soprano.scripts.nmr import nmr_extract_atoms
+
 from soprano.scripts.cli_utils import (
+    VIEW_OPTIONS,
     add_options,
     reload_as_molecular_crystal,
-    VIEW_OPTIONS,
     viewimages,
 )
-import logging
+from soprano.scripts.nmr import nmr_extract_atoms
 
 # logging
 logging.captureWarnings(True)

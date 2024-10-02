@@ -15,13 +15,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import numpy as np
-from scipy.optimize import linear_sum_assignment
-from soprano.utils import minimum_periodic
-from soprano.properties import AtomsProperty
-from ase.geometry import get_distances
 import warnings
 
+import numpy as np
+from ase.geometry import get_distances
+from scipy.optimize import linear_sum_assignment
+
+from soprano.properties import AtomsProperty
 
 
 class RemapIndices(AtomsProperty):
@@ -54,17 +54,17 @@ class RemapIndices(AtomsProperty):
 
     default_name = "remap_indices"
     default_params= {
-        "reference": None, 
+        "reference": None,
         "mic": True,
         "check_species": True,
         "tolerance": 0.1}
 
-    
+
 
 
     @staticmethod
     def extract(s, reference, mic, check_species, tolerance):
-        
+
         # First, are these even compatible structures?
         f1 = s.get_chemical_formula()
         f2 = reference.get_chemical_formula()
@@ -90,7 +90,7 @@ class RemapIndices(AtomsProperty):
             # Start by computing the distance matrix
             p1 = reference[r_species_group].positions
             p2 = s[s_species_group].positions
-            
+
             # use the minimum image convention
             if mic:
                 pbc = reference.get_pbc()
@@ -111,7 +111,7 @@ class RemapIndices(AtomsProperty):
                 raise ValueError(f'Atoms with indices: {bad_indices} are not within the tolerance distance of another atom')
             # append species-specific assignment
             assignments.append([s_species_group[i] for i in col_ind])
-            
+
         # flatten the list of assignments
         new_indices = [item for sublist in assignments for item in sublist]
         # fix the species-sublisted order -> global order
@@ -149,7 +149,7 @@ class Remap(AtomsProperty):
 
     default_name = "remap"
     default_params = {
-        "reference": None, 
+        "reference": None,
         "mic": True,
         "check_species": True,
         "tolerance": 0.1}

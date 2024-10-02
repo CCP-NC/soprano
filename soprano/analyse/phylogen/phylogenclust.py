@@ -16,14 +16,10 @@
 
 """Phylogenetic clustering class definitions"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import copy
 import warnings
+
 import numpy as np
 from scipy.cluster import hierarchy, vq
 from scipy.spatial import distance as spdist
@@ -34,13 +30,13 @@ try:
 except ImportError:
     import pickle
 # Internal imports
-from soprano.utils import get_sklearn_clusters
-from soprano.collection import AtomsCollection
-from soprano.analyse.phylogen.genes import load_genefile
 from soprano.analyse.phylogen import mapping
+from soprano.analyse.phylogen.genes import load_genefile
+from soprano.collection import AtomsCollection
+from soprano.utils import get_sklearn_clusters
 
 
-class PhylogenCluster(object):
+class PhylogenCluster:
 
     """PhylogenCluster
 

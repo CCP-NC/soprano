@@ -3,28 +3,24 @@
 Test code for various types of Genes
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
-import ase
 import unittest
+
+import ase
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
 
 class TestGenes(unittest.TestCase):
     def test_coordhist(self):
-        from soprano.collection import AtomsCollection
         from soprano.analyse.phylogen import Gene
+        from soprano.collection import AtomsCollection
 
         ala = ase.io.read(os.path.join(_TESTDATA_DIR, "mol_crystal.cif"))
         nh3 = ase.io.read(os.path.join(_TESTDATA_DIR, "nh3.cif"))

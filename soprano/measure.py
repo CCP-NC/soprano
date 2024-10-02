@@ -20,16 +20,11 @@ Contains utility functions for measuring distances and other quantities at
 the level of a single ase.Atoms object.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
 
 from soprano.properties.linkage import Bonds
-from soprano.utils import minimum_periodic, get_bonding_graph, get_bonding_distance
+from soprano.utils import get_bonding_distance, get_bonding_graph, minimum_periodic
 
 
 def euclideanDistance(s, i, j, periodic=True):

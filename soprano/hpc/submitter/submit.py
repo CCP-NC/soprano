@@ -20,28 +20,24 @@ Definition of Submitter class
 Base class for all Submitters to inherit from.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
-import time
 import pickle
 import shutil
 import signal
-import tempfile
-import numpy as np
 import subprocess as sp
+import tempfile
+import time
 from datetime import datetime
 from socket import timeout as TimeoutError
 
+import numpy as np
+
+from soprano.hpc.submitter.queues import QueueInterface
 from soprano.utils import is_string, safe_communicate
-from soprano.hpc.submitter import QueueInterface
 
 
-class Submitter(object):
+class Submitter:
 
     """Submitter object
 
@@ -201,12 +197,11 @@ class Submitter(object):
         # Remote directory?
         if remote_workdir is None:
             self.host = None
+        elif ":" in remote_workdir:
+            self.host, self.hostdir = remote_workdir.split(":", 1)
         else:
-            if ":" in remote_workdir:
-                self.host, self.hostdir = remote_workdir.split(":", 1)
-            else:
-                self.host = remote_workdir
-                self.hostdir = ""
+            self.host = remote_workdir
+            self.hostdir = ""
 
         self.remote_getfiles = remote_getfiles
 
@@ -219,7 +214,6 @@ class Submitter(object):
         no arguments, but in specific implementations it will be used to
         add more variables without overriding __init__."""
 
-        pass
 
     def add_signal(self, command, callback):
         """Add a signal listener to this submitter. Unix systems only allow
@@ -273,7 +267,7 @@ class Submitter(object):
     def start(self):
 
         self._log = open(self.name + ".log", "w")
-        self.log("Starting run on {0}\n".format(datetime.now()))
+        self.log(f"Starting run on {datetime.now()}\n")
 
         self._jobs = {}
         self._waiting_jobs = []  # Jobs created but not yet submitted
@@ -311,7 +305,7 @@ class Submitter(object):
         self.start_run()
         self._main_loop()
         self.finish_run()
-        self.log("Run finished on {0}\n".format(datetime.now()))
+        self.log(f"Run finished on {datetime.now()}\n")
         self._log.close()
 
     def _catch_signal(self, signum, frame):
@@ -389,7 +383,7 @@ class Submitter(object):
                 # Replace the rest of the tags
                 for tag in njob["args"]:
                     job_script = job_script.replace(
-                        "<{0}>".format(tag), str(njob["args"][tag])
+                        f"<{tag}>", str(njob["args"][tag])
                     )
                 job_script = job_script.replace("<folder>", njob["folder"])
 
@@ -427,7 +421,7 @@ class Submitter(object):
                             "increasing the ssh_timeout argument.\n"
                         )
                         continue
-                self.log("Job {0} completed\n".format((cjob["name"])))
+                self.log("Job {0} completed\n".format(cjob["name"]))
                 self.finish_job(**cjob)
                 # Remove the temporary directory
                 shutil.rmtree(cjob["folder"])
@@ -483,7 +477,7 @@ class Submitter(object):
         self.log("Saving data for future runs...\n")
         try:
             pickle.dump(savedata, open(self._pklname, "w"))
-        except IOError:
+        except OSError:
             self.log("Saving failed\n")
 
     def _load(self):
@@ -493,7 +487,7 @@ class Submitter(object):
         self.log("Loading data from past runs...\n")
         try:
             loaddata = pickle.load(open(self._pklname))
-        except IOError:
+        except OSError:
             self.log("Loading failed\n")
             return
 
@@ -529,15 +523,12 @@ class Submitter(object):
         relevant output files should be copied from 'folder' to their final
         destination as the temporary folder itself will be deleted immediately
         after"""
-        pass
 
     def start_run(self):
         """Operations to perform when the daemon thread starts running"""
-        pass
 
     def finish_run(self):
         """Operations to perform after the daemon thread stops running"""
-        pass
 
     def log(self, logtxt):
         self._log.write(logtxt)

@@ -3,31 +3,27 @@
 Test code for the AtomsProperty class and its children
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
-from ase import Atoms, Atom
+from ase import Atom, Atoms
 from ase.build import bulk
 from ase.io import read
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
 
 class TestPropertyLoad(unittest.TestCase):
     def test_dummyprop(self):
-        from soprano.properties import AtomsProperty
         from soprano.collection import AtomsCollection
+        from soprano.properties import AtomsProperty
 
         # Define a dummy derived property and test it
 
@@ -65,8 +61,8 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(np.all(DummyProperty.get(c1, mul=3) == [3, 6]))
 
     def test_basicprop(self):
+        from soprano.properties.basic import LatticeABC, LatticeCart
         from soprano.utils import cart2abc
-        from soprano.properties.basic import LatticeCart, LatticeABC
 
         cell = np.array([[1, 0, 0], [0, 2, 0], [0, 0.5, 3.0]])
         a = Atoms(cell=cell)
@@ -91,7 +87,7 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue((num_atoms == num_atoms_prop).all)
 
     def test_remap(self):
-        from soprano.properties.map import RemapIndices, Remap
+        from soprano.properties.map import Remap, RemapIndices
 
         # Create a test reference structure
         ref = bulk("Au", cubic=True)
@@ -155,15 +151,15 @@ class TestPropertyLoad(unittest.TestCase):
     def test_linkageprops(self):
         from soprano.properties.linkage import (
             Bonds,
-            ElementPairs,
-            Molecules,
-            MoleculeNumber,
-            MoleculeMass,
-            MoleculeCOMLinkage,
-            MoleculeSpectralSort,
             CoordinationHistogram,
+            ElementPairs,
             HydrogenBonds,
             HydrogenBondsNumber,
+            MoleculeCOMLinkage,
+            MoleculeMass,
+            MoleculeNumber,
+            Molecules,
+            MoleculeSpectralSort,
         )
 
         a = read(os.path.join(_TESTDATA_DIR, "mol_crystal.cif"))
@@ -263,12 +259,13 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(hbn["OH..O"] == 0)
 
     def test_labelprops(self):
+        from collections import OrderedDict
+
         from soprano.properties.labeling import (
-            MoleculeSites,
             HydrogenBondTypes,
+            MoleculeSites,
             UniqueSites,
         )
-        from collections import OrderedDict
 
         a = read(os.path.join(_TESTDATA_DIR, "nh3.cif"))
 
@@ -315,8 +312,9 @@ class TestPropertyLoad(unittest.TestCase):
 
     def test_transformprops(self):
         from ase.quaternions import Quaternion
+
+        from soprano.properties.transform import Mirror, Rotate, Translate
         from soprano.selection import AtomSelection
-        from soprano.properties.transform import Translate, Rotate, Mirror
 
         a = Atoms("CH", positions=[[0, 0, 0], [0.5, 0, 0]])
 

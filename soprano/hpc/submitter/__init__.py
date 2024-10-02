@@ -47,9 +47,7 @@ Submitters have a 'name' property and will save a <name>.log file in which any
 output from their run can be stored.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
+from soprano.hpc.submitter.castep import CastepSubmitter
 from soprano.hpc.submitter.queues import QueueInterface
 from soprano.hpc.submitter.submit import Submitter
-from soprano.hpc.submitter.castep import CastepSubmitter

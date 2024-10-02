@@ -21,19 +21,15 @@ It handles multiple Atoms ASE objects and mirrors in this sense the structure
 of the Atoms object itself.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import os
-import sys
-import ase
 import glob
-import shutil
 import inspect
+import os
+import shutil
+import sys
 import warnings
+
+import ase
 import numpy as np
 
 # 2-to-3 compatibility
@@ -46,12 +42,13 @@ except ImportError:
 from ase import io as ase_io
 from ase.build import niggli_reduce
 from ase.calculators.singlepoint import SinglePointCalculator
+
 from soprano import utils
 
 utils.customize_warnings()
 
 
-class _AllCaller(object):
+class _AllCaller:
 
     """_AllCaller class.
 
@@ -83,7 +80,7 @@ class _AllCaller(object):
         if hasattr(self._class, name):
             attr = getattr(self._class, name)
             # Is it a function?
-            if not hasattr(attr, "__call__"):
+            if not callable(attr):
                 return np.array([getattr(x, name) for x in self._all])
 
             def iterfunc(*args, **kwargs):
@@ -95,9 +92,7 @@ class _AllCaller(object):
             return np.array([getattr(x, name) for x in self._all])
         else:
             raise AttributeError(
-                ("Not all '{0}' objects have attribute" " '{1}'").format(
-                    self._class.__name__, name
-                )
+                f"Not all '{self._class.__name__}' objects have attribute" f" '{name}'"
             )
 
     def map(self, f, *args, **kwargs):
@@ -105,7 +100,7 @@ class _AllCaller(object):
         results."""
 
         # First, check the signature
-        if not hasattr(f, "__call__"):
+        if not callable(f):
             raise TypeError("Only functions can be mapped")
 
         nargs, nargs_def = utils.inspect_args(f)
@@ -115,7 +110,7 @@ class _AllCaller(object):
         return [f(x, *args, **kwargs) for x in self._all]
 
 
-class AtomsCollection(object):
+class AtomsCollection:
 
     """AtomsCollection object.
 
@@ -167,7 +162,7 @@ class AtomsCollection(object):
         for s_i, struct in enumerate(structures):
             if progress:
                 # Progress bar
-                sys.stdout.write("\rLoading: {0}".format(utils.progbar(s_i + 1, s_n)))
+                sys.stdout.write(f"\rLoading: {utils.progbar(s_i + 1, s_n)}")
             # Is it an Atoms object?
             if type(struct) is ase.Atoms:
                 self.structures.append(ase.Atoms(struct))
@@ -189,7 +184,7 @@ class AtomsCollection(object):
                 raise TypeError(
                     "Structures must be Atoms objects or valid "
                     "file names,"
-                    " not {0}".format(type(struct).__name__)
+                    f" not {type(struct).__name__}"
                 )
             if cell_reduce:
                 # Here we must keep the energy if it was present
@@ -206,7 +201,7 @@ class AtomsCollection(object):
                     self.structures[-1].set_calculator(_calc)
 
         if progress:
-            sys.stdout.write("\nLoaded {0} structures\n".format(s_n))
+            sys.stdout.write(f"\nLoaded {s_n} structures\n")
 
         self._all = _AllCaller(self.structures, ase.Atoms)
 
@@ -214,7 +209,7 @@ class AtomsCollection(object):
 
         # Now assign the info
         if type(info) is not dict:
-            raise TypeError("Info must be dict," " not {0}".format(type(info).__name__))
+            raise TypeError("Info must be dict," f" not {type(info).__name__}")
         else:
             self.info = info.copy()
 
@@ -225,7 +220,7 @@ class AtomsCollection(object):
             raise TypeError(
                 "'AtomsCollection' does not support operator +"
                 " with object of type"
-                " '{0}'".format(type(other).__name__)
+                f" '{type(other).__name__}'"
             )
 
         # Create a common collection, join arrays where present, copy all info
@@ -343,7 +338,7 @@ class AtomsCollection(object):
         a = np.array(a, dtype)
         if a.shape == ():
             a = a.item()
-            if hasattr(a, "__call__"):
+            if callable(a):
                 # It's a function
                 a = np.array(self.all.map(a, **args), dtype)
             else:
@@ -362,12 +357,11 @@ class AtomsCollection(object):
                 targ_shape = (self.length,) + shape
             if a.shape != targ_shape:
                 raise ValueError("Array of invalid shape passed to new_array")
-        else:
-            if a.shape[0] != self.length:
-                raise ValueError(
-                    "Array passed to new_array should be"
-                    " as long as the number of structures"
-                )
+        elif a.shape[0] != self.length:
+            raise ValueError(
+                "Array passed to new_array should be"
+                " as long as the number of structures"
+            )
 
         # And finally, assign
         self._arrays[name] = a
@@ -386,7 +380,7 @@ class AtomsCollection(object):
         """
 
         if name not in self._arrays:
-            raise ValueError("Array '{0}' does not exist".format(name))
+            raise ValueError(f"Array '{name}' does not exist")
         else:
             return np.array(self._arrays[name], copy=copy)
 
@@ -410,9 +404,9 @@ class AtomsCollection(object):
         """
 
         # First, a check
-        from ase.calculators.general import Calculator as gCalculator
         from ase.calculators.calculator import Calculator as cCalculator
         from ase.calculators.calculator import FileIOCalculator as ioCalculator
+        from ase.calculators.general import Calculator as gCalculator
 
         if (
             (gCalculator not in calctype.__bases__)
@@ -431,12 +425,12 @@ class AtomsCollection(object):
                 if "name" in s.info:
                     label = s.info["name"]
                 else:
-                    label = "struct_{0}".format(i)
+                    label = f"struct_{i}"
             else:
                 label = labels[i]
             calc = calctype(atoms=s, label=str(label), **params)
             # To make sure...
-            s.set_calculator(calc)
+            s.calc = calc
 
     def run_calculators(self, properties=None, system_changes=None):
         """Run all previously set ASE calculators.
@@ -519,7 +513,7 @@ class AtomsCollection(object):
 
         # First, check that we do have the array
         if not self.has(name):
-            raise ValueError("Array '{0}' does not exist".format(name))
+            raise ValueError(f"Array '{name}' does not exist")
 
         arr_names = list(self._arrays.keys())
         data_block = zip(self.structures, *[self._arrays[n] for n in arr_names])
@@ -629,7 +623,7 @@ class AtomsCollection(object):
         try:
             with open(os.path.join(path, ".collection"), "rb") as f:
                 coll = pickle.load(f)
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             return 2  # No or invalid .collection file found
 
         # Check if the directories match
@@ -702,7 +696,7 @@ class AtomsCollection(object):
         def ow_ask(path):
             return (
                 utils.safe_input(
-                    ("Folder {0} exists, " "overwrite (y/n)?").format(path)
+                    f"Folder {path} exists, " "overwrite (y/n)?"
                 ).lower()
                 == "y"
             )
@@ -715,23 +709,22 @@ class AtomsCollection(object):
                     perm = ow_ask(path)
                 else:
                     perm = True
+            elif safety_check >= 2:
+                raise OSError(
+
+                        f"Trying to overwrite folder {path} which did"
+                        f" not pass check_tree control (result {check})"
+                        " with safety_check level "
+                        f"{safety_check}"
+
+                )
+            elif safety_check == 1:
+                perm = ow_ask(path)
             else:
-                if safety_check >= 2:
-                    raise IOError(
-                        (
-                            "Trying to overwrite folder {0} which did"
-                            " not pass check_tree control (result {1})"
-                            " with safety_check level "
-                            "{2}"
-                        ).format(path, check, safety_check)
-                    )
-                elif safety_check == 1:
-                    perm = ow_ask(path)
-                else:
-                    perm = True
+                perm = True
 
             if not perm:
-                print("Can not overwrite folder {0}, skipping...".format(path))
+                print(f"Can not overwrite folder {path}, skipping...")
 
             shutil.rmtree(path)
 
@@ -740,13 +733,13 @@ class AtomsCollection(object):
 
         # Format type?
         is_ext = utils.is_string(save_format)
-        is_func = hasattr(save_format, "__call__")
+        is_func = callable(save_format)
         if not (is_ext or is_func):
             raise ValueError("Invalid save_format passed to save_tree")
 
         dirlist = []
         for i, s in enumerate(self.structures):
-            sname = s.info.get("name", "{0}_{1}".format(name_root, i + 1))
+            sname = s.info.get("name", f"{name_root}_{i + 1}")
             fold = os.path.join(path, sname)
             try:
                 os.mkdir(fold)
@@ -825,15 +818,15 @@ class AtomsCollection(object):
         check = AtomsCollection.check_tree(path)
 
         if check == -1:
-            raise IOError("Folder {0} does not exist".format(path))
+            raise OSError(f"Folder {path} does not exist")
 
         dirlist = []
         if check < 2:
             with open(os.path.join(path, ".collection"), "rb") as f:
                 coll = pickle.load(f)
             if check == 1 and safety_check == 3:
-                raise IOError(
-                    ("Folder {0} is not a valid collection " "tree").format(path)
+                raise OSError(
+                    f"Folder {path} is not a valid collection " "tree"
                 )
             if safety_check >= 2:
                 dirlist = coll["dirlist"]
@@ -845,8 +838,8 @@ class AtomsCollection(object):
                 ]
         else:
             if safety_check > 0:
-                raise IOError(
-                    ("Folder {0} is not a valid collection " "tree").format(path)
+                raise OSError(
+                    f"Folder {path} is not a valid collection " "tree"
                 )
             dirlist = [
                 os.path.relpath(d, path)
@@ -856,7 +849,7 @@ class AtomsCollection(object):
 
         # Format type?
         is_ext = utils.is_string(load_format)
-        is_func = hasattr(load_format, "__call__")
+        is_func = callable(load_format)
         if not (is_ext or is_func):
             raise ValueError("Invalid load_format passed to load_tree")
 
@@ -886,17 +879,15 @@ class AtomsCollection(object):
         if percentage_failed > 0:
 
             if percentage_failed == 100:
-                raise IOError(
-                    "{0:.2f}% of structures could not be loaded.".format(
-                        percentage_failed
-                    )
+                raise OSError(
+                    f"{percentage_failed:.2f}% of structures could not be loaded."
                 )
                 return
             elif not tolerant:
-                raise IOError(
-                    "{0:.2f}% of structures could not be loaded. Set"
+                raise OSError(
+                    f"{percentage_failed:.2f}% of structures could not be loaded. Set"
                     " tolerant to True if you would still"
-                    " like to load the remaining structures.".format(percentage_failed)
+                    " like to load the remaining structures."
                 )
                 return
             else:
@@ -904,9 +895,7 @@ class AtomsCollection(object):
                 info["percentage_loaded"] = percentage_success
 
                 warnings.warn(
-                    "{0:.2f}% of structures could not be loaded.".format(
-                        percentage_failed
-                    )
+                    f"{percentage_failed:.2f}% of structures could not be loaded."
                 )
         else:
             print("100% of structures loaded successfully.")

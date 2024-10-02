@@ -16,19 +16,16 @@
 
 """Implementation of AtomsProperties that relate to labeling of systems"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+import warnings
 
 import numpy as np
-from soprano.properties import AtomsProperty
-from soprano.selection import AtomSelection
-from soprano.utils import recursive_mol_label, has_cif_labels
-from soprano.properties.linkage import Molecules, HydrogenBonds, Bonds
 from ase.spacegroup import get_spacegroup
-import warnings
+
+from soprano.properties import AtomsProperty
+from soprano.properties.linkage import Bonds, HydrogenBonds, Molecules
+from soprano.selection import AtomSelection
+from soprano.utils import has_cif_labels, recursive_mol_label
 
 
 class SiteLabels(AtomsProperty):
@@ -158,9 +155,7 @@ class MoleculeSites(AtomsProperty):
                     elem_sites[elems[a]] = [s_i]
                 elif s_i not in elem_sites[elems[a]]:
                     elem_sites[elems[a]].append(s_i)
-                sites[a] = "{0}_{1}".format(
-                    elems[a], elem_sites[elems[a]].index(s_i) + 1
-                )
+                sites[a] = f"{elems[a]}_{elem_sites[elems[a]].index(s_i) + 1}"
 
             site_dict["sites"] = sites
             mol_sites.append(site_dict)
@@ -351,7 +346,7 @@ class UniqueSites(AtomsProperty):
 
 
         # -- check to make sure that no two elements have the same tag --#
-        # unique elements 
+        # unique elements
         elems = set(s.get_chemical_symbols())
         # indices for each element
         element_indices = [AtomSelection.from_element(s, el).indices for el in elems]
@@ -366,7 +361,6 @@ class UniqueSites(AtomsProperty):
         # CIF label-based reduction
         #-------------------------------------------------------------------#
         if has_cif_labels(s):
-            from collections import OrderedDict
             ciflabels = s.get_array('labels')
             _, unique_cif_inds, unique_cif_tags = np.unique(ciflabels, return_index=True, return_inverse=True)
             # sort
@@ -374,7 +368,7 @@ class UniqueSites(AtomsProperty):
             unique_cif_labels = ciflabels[unique_cif_inds]
             unique_cif_tags = unique_cif_tags[unique_cif_inds]
             cif_tags = np.array([np.where(lab == unique_cif_labels)[0][0] for lab in ciflabels])
-            
+
             offset = max(tags) - max(cif_tags)
             if len(uniqueinds) != len(unique_cif_tags) or set(tags) != set(cif_tags):
                 all_matched = False
@@ -386,7 +380,7 @@ class UniqueSites(AtomsProperty):
                 "Manually check that the symmetry reduction is working as expected."
                 f"\nThe mismatched sites are: {ciflabels[mismatch_locations]} at {mismatch_locations}"
                 )
-                
+
                 if not override_cif:
                     warnings.warn(
                         "\nProceeding with the CIF label reduction rather than the symmetry reduction.")
@@ -430,7 +424,7 @@ class MagresViewLabels(AtomsProperty):
         for e in elems:
             e_i = np.where(symbs == e)[0]
             for i, j in enumerate(e_i):
-                mlabs[j] = "{0}_{1}".format(e, i + 1)
+                mlabs[j] = f"{e}_{i + 1}"
         if save_asarray:
             # convert to numpy array with correct dtype
             mlabs = np.array(mlabs, dtype="U25")

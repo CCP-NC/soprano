@@ -3,15 +3,12 @@
 Test code for data retrieval
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import unittest
+
 from ase.data import vdw_radii as vdw_radii_ase
-from soprano.data import vdw_radius, nmr_gamma, nmr_spin, nmr_quadrupole
+
+from soprano.data import nmr_gamma, nmr_quadrupole, nmr_spin, vdw_radius
 
 
 class TestData(unittest.TestCase):

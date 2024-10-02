@@ -29,31 +29,30 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "August 10, 2022"
 
 
+import logging
+
 import click
+import click_log
 import numpy as np
+import pandas as pd
 from ase import io
+
+from soprano.data.nmr import _get_isotope_list
 from soprano.properties.labeling import MagresViewLabels
 from soprano.properties.nmr import *
-from soprano.data.nmr import _get_isotope_list
-from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels
-import pandas as pd
-import logging
-import click_log
 from soprano.scripts.cli_utils import (
-    add_options,
     DIPOLAR_OPTIONS,
     NO_CIF_LABEL_WARNING,
-    get_missing_cols,
-    get_matching_cols,
-    print_results,
-    find_XHn_groups,
-    expand_aliases,
-    sortdf,
-    viewimages,
+    add_options,
     apply_df_filtering,
+    expand_aliases,
+    print_results,
+    sortdf,
     units_rename,
+    viewimages,
 )
+from soprano.selection import AtomSelection
+from soprano.utils import has_cif_labels
 
 HEADER = """
 ##################################################
@@ -155,7 +154,7 @@ def dipolar(
         # try to read in the file:
         try:
             atoms = io.read(fname)
-        except IOError:
+        except OSError:
             logger.error(f"Could not read file {fname}, skipping.")
             continue
 

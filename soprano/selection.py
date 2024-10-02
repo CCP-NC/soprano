@@ -22,22 +22,17 @@ namely a group of selected atoms for a given structure,
 and methods to build it.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import copy
 import hashlib
-import warnings
 import operator
-import numpy as np
 import re
-from collections import defaultdict, OrderedDict
+import warnings
+from collections import OrderedDict, defaultdict
 
+import numpy as np
 
-from soprano.utils import minimum_supcell, supcell_gridgen, customize_warnings
+from soprano.utils import customize_warnings, minimum_supcell, supcell_gridgen
 
 customize_warnings()
 
@@ -61,7 +56,7 @@ def _operator_checks(opfunc):
     return decorated_opfunc
 
 
-class AtomSelection(object):
+class AtomSelection:
 
     """AtomSelection object.
 
@@ -290,11 +285,11 @@ class AtomSelection(object):
                 # Do they conflict?
                 if not np.all(arr1 == arr2):
                     print(
-                        (
-                            "WARNING - conflicting arrays of name {0} found"
+
+                            f"WARNING - conflicting arrays of name {k} found"
                             " will be removed during intersection"
                             " operation"
-                        ).format(k)
+
                     )
                     continue
 
@@ -369,7 +364,7 @@ class AtomSelection(object):
         def has_period(selection_string):
             return bool(re.search(r'\.', selection_string))
 
-        selection = defaultdict(lambda: [])
+        selection = defaultdict(list)
         for split in selection_string.split(","):
             # split into element and sites
             sites = re.split('([a-zA-Z]+)', split)[1:]
@@ -381,13 +376,13 @@ class AtomSelection(object):
             # get the indices of each element in the atoms object
             element_indices = AtomSelection.from_element(atoms, el).indices
             # make sure the chosen element is present!
-            if not el in atoms.symbols:
+            if el not in atoms.symbols:
                 raise ValueError(
-                    "Element {0} not present in the atoms object".format(el)
+                    f"Element {el} not present in the atoms object"
                 )
             # make sure the spitting worked as expected
             sites = sites[0]
-            
+
             # if empty string -> select all element indices
             if sites == '':
                 selection[el] = element_indices
@@ -414,7 +409,7 @@ class AtomSelection(object):
                 # switch to python indexing:
                 el_indices = np.array(el_indices) - 1
                 selection[el].extend(element_indices[el_indices])
-        
+
             else:
                 # must be a cif-style label!
                 # sites is of the form 'C1'
@@ -433,11 +428,11 @@ class AtomSelection(object):
                 if len(indices) == 0:
                     # raise error if no atoms with this label found
                     raise ValueError(
-                        "No atoms with label {0} found in the atoms object".format(split)
+                        f"No atoms with label {split} found in the atoms object"
                     )
-                    
+
                 selection[el].extend(indices)
-        
+
         # flatten and remove any duplicate indices
         # (this way preserves the order. From python 3.7 onwards, we can use standard dictionaries)
         sel_i = list(OrderedDict.fromkeys([idx for el in selection for idx in selection[el]]))
@@ -634,7 +629,7 @@ class AtomSelection(object):
         max_tag = max(sitetags)
         sel_i = [np.argmax(np.array(sitetags)==i) for i in range(max_tag+1)]
         # Now we make sure that, for structures with cif labels
-        # the symmetry-unique sites that remain are those we 
+        # the symmetry-unique sites that remain are those we
         # would expect based on the existing CIF labels.
         if has_cif_labels(atoms):
             ciflabels = atoms.get_array('labels')
@@ -654,5 +649,5 @@ class AtomSelection(object):
                 sel_i = sel_i_cif
 
         sel = AtomSelection(atoms, sel_i)
-        
+
         return sel

@@ -16,17 +16,13 @@
 
 """Implementation of AtomsProperties that relate to bond order parameters"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
 from scipy.special import sph_harm
-from soprano.utils import wigner_3j, minimum_periodic
+
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
+from soprano.utils import minimum_periodic, wigner_3j
 
 
 def _valid_triples(l):

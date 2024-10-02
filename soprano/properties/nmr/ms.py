@@ -16,24 +16,20 @@
 
 """Implementation of AtomsProperties that relate to NMR shieldings/shifts"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+import warnings
 
 import numpy as np
-import warnings
-from soprano.properties import AtomsProperty
+
+from soprano.nmr import MagneticShielding
 from soprano.nmr.utils import (
-    _haeb_sort,
     _anisotropy,
     _asymmetry,
-    _span,
+    _haeb_sort,
     _skew,
-    _evecs_2_quat,
+    _span,
 )
-from soprano.nmr import MagneticShielding
+from soprano.properties import AtomsProperty
 
 
 def _has_ms_check(f):
@@ -103,7 +99,7 @@ class MSDiagonal(AtomsProperty):
     def extract(s, save_array):
 
         ms_diag = [np.linalg.eigh((ms + ms.T) / 2.0) for ms in s.get_array("ms")]
-        ms_evals, ms_evecs = [np.array(a) for a in zip(*ms_diag)]
+        ms_evals, ms_evecs = (np.array(a) for a in zip(*ms_diag))
 
         if save_array:
             s.set_array(MSDiagonal.default_name + "_evals", ms_evals)
@@ -143,7 +139,7 @@ class MSShielding(AtomsProperty):
         ms_shielding = np.trace(s.get_array("ms"), axis1=1, axis2=2) / 3.0
 
         if save_array:
-            # Save the isotropic shieldings 
+            # Save the isotropic shieldings
             s.set_array(MSShielding.default_name, ms_shielding)
 
         return ms_shielding
@@ -189,9 +185,9 @@ class MSShift(AtomsProperty):
 
         # get shieldings
         ms_shieldings = MSShielding.get(s)
-        
+
         symbols = np.array(s.get_chemical_symbols())
-        
+
         # --- REFERENCES --- #
         # array to store the reference for each site
         # defaults to zeros
@@ -228,7 +224,7 @@ class MSShift(AtomsProperty):
             raise ValueError("Reference must be a dictionary element: reference"
                                 " or a float or a list of"
                                 " floats")
-        
+
         # --- GRADIENTS --- #
         # default gradient of -1 for each site
         gradients = -1 * np.ones(len(s))
@@ -309,7 +305,7 @@ class MSIsotropy(AtomsProperty):
     @staticmethod
     @_has_ms_check
     def extract(s, ref, grad, save_array) -> np.ndarray:
-        
+
         if ref:
             # the user wants to use the chemical shift
             ms_iso =  MSShift.extract(s, ref, grad, save_array)
@@ -320,7 +316,7 @@ class MSIsotropy(AtomsProperty):
         if save_array:
             # Save the isotropic shifts
             s.set_array(MSIsotropy.default_name, ms_iso)
-        return ms_iso    
+        return ms_iso
 
 class MSAnisotropy(AtomsProperty):
 

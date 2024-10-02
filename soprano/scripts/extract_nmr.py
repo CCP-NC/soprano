@@ -19,33 +19,25 @@
 # TODO:
 # - Add support for more properties
 # - Add selection by X
-#    - got sumo-style atom selection down. What else would be good to implement now? 
+#    - got sumo-style atom selection down. What else would be good to implement now?
 #  ~~Add support for custom isotopes~~
 # - ~~Add function to symmetry-reduce the output -- merge symmetry-equivalent sites~~
 #    - e.g. get asymmetric unit cell for molecular crystals
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
+
+import argparse as ap
+import os
+import re
+import sys
+import warnings
 
 import numpy as np
-import argparse as ap
-import re
-import os
-import sys
 from ase import io
-from ase.spacegroup import get_spacegroup
+
 from soprano.properties.labeling import UniqueSites
-from soprano.properties.linkage import Bonds
 from soprano.properties.nmr import *
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels
-from collections import OrderedDict
-
-import warnings
 
 __author__ = "J. Kane Shenton"
 __maintainer__ = "J. Kane Shenton"
@@ -126,7 +118,7 @@ def __main__():
         "-a",
         "--average",
         action="store_true",
-        help=("Average over symmetry-equivalent sites. "    
+        help=("Average over symmetry-equivalent sites. "
         "Note that this doesn't take into account magnetic symmetry!"),
     )
     # add option to set the symprec
@@ -169,8 +161,8 @@ def __main__():
         help="Euler angle convention (default: zyz). Can be either 'zyz' or 'zxz'",
     )
 
-    ## output csv? default False 
-    parser.add_argument('--csv',    action='store_true', 
+    ## output csv? default False
+    parser.add_argument('--csv',    action='store_true',
         help="output data to a CSV file for each .magres file"
         "(default: False)")
     parser.add_argument('--no-csv', action='store_false')
@@ -184,7 +176,7 @@ def __main__():
     properties = [p.lower() for p in args.properties]
 
 
-    # how many files are to be summarised? 
+    # how many files are to be summarised?
     nfiles = len(args.input_files)
 
     # label precision
@@ -202,20 +194,20 @@ def __main__():
 
 
         MS_HEADER  = '\n'+'\n'.join([
-            '#'+155*'-'+'#', 
+            '#'+155*'-'+'#',
             '# {:^153} #'.format(f'Magnetic Shielding:  {f}') ,
             '#'+155*'-'+'#'])
 
         EFG_HEADER = '\n'+'\n'.join([
-            '#'+155*'-'+'#', 
+            '#'+155*'-'+'#',
             '# {:^153} #'.format(f'Electric Field Gradient:  {f}') ,
             '#'+155*'-'+'#'])
 
         # try to read in the file:
         try:
             atoms = io.read(f)
-        except IOError:
-            print("File {0} not found, skipping".format(f))
+        except OSError:
+            print(f"File {f} not found, skipping")
             continue
 
 
@@ -240,7 +232,7 @@ def __main__():
                 multiplicities[g] = group_multiplicities[i]
             atoms.set_array('multiplicities', multiplicities)
             # average properties within each group
-            if args.average: 
+            if args.average:
                 for p in properties:
                     arr = atoms.get_array(p)
                     for group in groups:
@@ -262,8 +254,8 @@ def __main__():
             sel_selectionstring = AtomSelection.from_selection_string(atoms, args.select)
             atoms = sel_selectionstring.subset(atoms)
 
-        # Note we could have combined selections as in Tutorial 3, but then 
-        # we lose the nice ordering of the atoms so better to apply selections successively...        
+        # Note we could have combined selections as in Tutorial 3, but then
+        # we lose the nice ordering of the atoms so better to apply selections successively...
 
         # Obtain labels for subset atoms:
         indices = atoms.get_array('indices')
@@ -295,16 +287,16 @@ def __main__():
                 if not args.quiet:
                     if not args.csv:
                         summary += [MS_HEADER.format(fname=f)]
-                    table_headers = ['Label', 
+                    table_headers = ['Label',
                                      'Index',
-                                     'Isotropy/ppm', 
-                                     'Anisotropy/ppm', 
-                                     'Red.anisotropy/ppm', 
-                                     'Asymmetry', 
-                                     'Span/ppm', 
-                                     'Skew', 
-                                     'alpha/deg', 
-                                     'beta/deg', 
+                                     'Isotropy/ppm',
+                                     'Anisotropy/ppm',
+                                     'Red.anisotropy/ppm',
+                                     'Asymmetry',
+                                     'Span/ppm',
+                                     'Skew',
+                                     'alpha/deg',
+                                     'beta/deg',
                                      'gamma/deg']
                     summary += [f'{sep}'.join([f'{lab:<9}' for lab in table_headers])]
                 for i, jl in enumerate(labels):
@@ -318,7 +310,7 @@ def __main__():
                     if args.quiet:
                         # add file path to end if in quiet mode
                         summary += [f]
-                # output ms summary 
+                # output ms summary
                 if args.csv:
                     fileout = 'MS_' + basename.replace('.magres', '.csv')
                     prefix = args.prefix
@@ -332,18 +324,17 @@ def __main__():
             except KeyError:
                 warnings.warn(f'No MS data found in {f}\n'
                 'Set argument `-p efg` if the file(s) only contains EFG data ')
-                pass
             except:
                 warnings.warn('Failed to load MS data from .magres')
                 raise
-                
+
         # end ms
 
         # --- EFG --- #
         if 'efg' in properties:
             # list to hold the summary for this file
             summary = []
-            
+
             try:
 
                 vzz = EFGVzz.get(atoms)
@@ -374,7 +365,7 @@ def __main__():
                     if args.quiet:
                         # add file path to end if in quiet mode
                         summary[-1] += f'  {f}'
-                # output EFG summary 
+                # output EFG summary
                 if args.csv:
                     fileout = 'EFG_' + basename.replace('.magres', '.csv')
                     prefix = args.prefix
@@ -388,11 +379,10 @@ def __main__():
             except KeyError:
                 warnings.warn(f'No EFG data found in {f}\n'
                 'Set argument `-p ms` if the file(s) only contains MS data ')
-                pass
             except:
                 warnings.warn(f'Failed to load EFG data from .magres, {f}')
                 raise
-        
+
         # end EFG section
         ###############
 

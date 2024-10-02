@@ -19,34 +19,35 @@ Contains the NMRTensor class, simplifying the process of diagonalisation of an
 NMR tensor as well as its representation in multiple conventions
 """
 
-import numpy as np
-from soprano.nmr.utils import (
-    _evals_sort,
-    _haeb_sort,
-    _anisotropy,
-    _asymmetry,
-    _span,
-    _skew,
-    _evecs_2_quat,
-    _dip_constant,
-    _matrix_to_euler,
-    _handle_euler_edge_cases,
-    _equivalent_euler,
-    _equivalent_relative_euler,
-    _test_euler_rotation,
-    _tryallanglestest,
-    _split_species
-)
-from soprano.data.nmr import EFG_TO_CHI, _get_isotope_data, nmr_gamma, nmr_quadrupole, nmr_spin
-from ase.quaternions import Quaternion
-from scipy.spatial.transform import Rotation
+import warnings
 from typing import NamedTuple, Optional, Tuple, Union
 
-import warnings
+import numpy as np
+from ase.quaternions import Quaternion
+from scipy.spatial.transform import Rotation
+
+from soprano.data.nmr import EFG_TO_CHI, _get_isotope_data, nmr_gamma, nmr_quadrupole, nmr_spin
+from soprano.nmr.utils import (
+    _anisotropy,
+    _asymmetry,
+    _dip_constant,
+    _equivalent_euler,
+    _equivalent_relative_euler,
+    _evals_sort,
+    _evecs_2_quat,
+    _haeb_sort,
+    _handle_euler_edge_cases,
+    _matrix_to_euler,
+    _skew,
+    _span,
+    _split_species,
+    _test_euler_rotation,
+    _tryallanglestest,
+)
 
 DEGENERACY_TOLERANCE = 1e-6
 
-class NMRTensor(object):
+class NMRTensor:
     """NMRTensor
 
     Class containing an NMR tensor, useful to access all its most important
@@ -149,14 +150,14 @@ class NMRTensor(object):
     @property
     def eigenvalues(self):
         return self._evals.copy()
-    
+
     @property
     def PAS(self):
         '''
         Returns the principal axis system (PAS) of the tensor.
         '''
         return np.diag(self._evals)
-    
+
     @property
     def degeneracy(self):
         '''
@@ -298,7 +299,7 @@ class NMRTensor(object):
             warnings.warn("The Euler angles do not give a consistent rotation. "
                             "This is likely due to a degeneracy in the tensor. "
                             "Care must be taken when comparing the Euler angles of degenerate tensors.")
-            
+
             # Re-running the Euler angle calculation with -self.eigenvectors
             self._evecs = -self.eigenvectors
             angles = _matrix_to_euler(self.eigenvectors, convention, passive)
@@ -309,7 +310,7 @@ class NMRTensor(object):
                         convention = convention,
                         passive = passive
                         )
-            
+
             # check again
             consistent_rotation = _test_euler_rotation(
                                     angles,
@@ -322,12 +323,12 @@ class NMRTensor(object):
             #     raise ValueError("The Euler angles do not give a consistent rotation. "
             #                     "This is likely due to a degeneracy in the tensor. "
             #                     "Care must be taken when comparing the Euler angles of degenerate tensors.")
-            
+
         if degrees:
             angles = np.degrees(angles)
 
         return angles
-    
+
     def equivalent_euler_angles(self, convention="zyz", passive=False):
         '''
         Returns the equivalent Euler angles of the tensor.
@@ -346,7 +347,7 @@ class NMRTensor(object):
         euler_angles = self.euler_angles(convention, passive)
 
         return _equivalent_euler(euler_angles, passive=passive)
-    
+
     def rotation_to(self, other):
         '''
         Returns the rotation matrix that rotates the tensor to the other tensor.
@@ -361,7 +362,7 @@ class NMRTensor(object):
             R[:, 2] *= -1
 
         return R
-    
+
     def euler_to(self, other, convention="zyz", passive=False, eps = 1e-6):
         '''
         Returns the Euler angles that rotate the tensor to the other tensor.
@@ -395,31 +396,31 @@ class NMRTensor(object):
                 if np.abs(B_at_A[1,2] + B_at_A[0,2] + B_at_A[0,1]) < eps:
                     warnings.warn("The tensors are perfectly aligned. Returning zero Euler angles.")
                     return np.zeros(3)
-                
+
                 if convention == 'zyz':
                     # If both are axially symmetric, then
                     alpha = 0
                     gamma = 0
                     beta = np.arcsin(np.sqrt(
-                        (B_at_A[2, 2]  - Aevals[2]) / 
+                        (B_at_A[2, 2]  - Aevals[2]) /
                         (Aevals[0] - Aevals[2])
                         ))
                     beta = np.abs(beta) # we can choose the sign of beta arbitrarily
                     return np.array([alpha, beta, gamma])
-                
+
                 if convention == 'zxz':
                     # in this convention, it depends on the unique axis
                     # of the other tensor
                     # but the possible angles are:
                     a = np.pi / 2
                     b = np.arcsin(-1 * np.sqrt(
-                                (B_at_A[2, 2]  - Aevals[2]) / 
+                                (B_at_A[2, 2]  - Aevals[2]) /
                                 (Aevals[0] - Aevals[2])
                                 ))
                     b = np.abs(b) # we can choose the sign arbitrarily
                     c = 0
 
-                    
+
                     if np.abs(Bevals[0] - Bevals[1]) < eps:
                         # Unique axis is z
                         return np.array([a, b, c]) # 90, arcsin(...), 0
@@ -457,9 +458,9 @@ class NMRTensor(object):
                 )
                 if not passive:
                     angles= angles[::-1]
-                    
+
                 return angles
-            
+
 
 
 
@@ -468,10 +469,10 @@ class NMRTensor(object):
                 # if neither zyz nor zxz, warn
                 warnings.warn('Euler angles for axially symmetric tensors are only corrected for zyz and zxz conventions.'
                                 ' Returning the uncorrected Euler angles.')
-                
+
         if other.degeneracy == 2 and self.degeneracy != 2:
             # then let's swap them around, then transpose the result
-            # TODO: test this! 
+            # TODO: test this!
             R = other.rotation_to(self).T
         else:
             R = self.rotation_to(other)
@@ -574,13 +575,13 @@ class NMRTensor(object):
         D = [evals, evecs]
 
         return NMRTensor(D)
-    
+
     def __repr__(self) -> str:
         """
         Return a string representation of the tensor
         """
         return f"NMRTensor(data={self.data})"
-    
+
     def __str__(self) -> str:
         """
         Return a string representation of the tensor. Nicely print out the 3x3 matrix (data), the conventions, and the derived properties.
@@ -664,7 +665,6 @@ class MagneticShielding(NMRTensor):
                     f"  kappa (skew):     {self.kappa:.5f}")
     class MarylandNotation(HerzfeldBergerNotation):
         """The same as the Herzfeld-Berger notation."""
-        pass
 
     class HaeberlenNotation(NamedTuple):
         """
@@ -699,7 +699,6 @@ class MagneticShielding(NMRTensor):
         """
         Mehring convention :cite:p:`Mehring1983` is equivalent to the IUPAC convention.
         """
-        pass
 
 
     def __init__(self,
@@ -740,7 +739,7 @@ class MagneticShielding(NMRTensor):
         self.reference = reference
         self.gradient = gradient
         self.mstag = tag
-        
+
     @property
     def element(self):
         '''
@@ -750,7 +749,7 @@ class MagneticShielding(NMRTensor):
         1H -> H
         '''
         return self.species.strip('1234567890')
-    
+
     @property
     def shift(self):
         '''
@@ -760,7 +759,7 @@ class MagneticShielding(NMRTensor):
         '''
         if self.reference is None:
             raise ValueError('Reference chemical shift not set for this tensor.')
-        
+
         return self.reference + (self.gradient * self.isotropy) / (1 + self.reference * 1e-6)
 
     @property
@@ -789,7 +788,7 @@ class MagneticShielding(NMRTensor):
         # sort the eigenvalues in increasing order
         sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
         return self.MehringNotation(sigma_iso, sigma_11, sigma_22, sigma_33)
-    
+
     @property
     def iupac_values(self):
         """The magnetic shielding tensor in IUPAC Notation."""
@@ -812,14 +811,14 @@ class MagneticShielding(NMRTensor):
         omega = self.span
         kappa = self.skew
         return self.HerzfeldBergerNotation(sigma_iso, omega, kappa)
-    
+
     # Set/update the reference chemical shift
     def set_reference(self, reference: float):
         '''
         Set the reference chemical shift for this tensor.
         '''
         self.reference = reference
-    
+
     # Set/update the gradient
     def set_gradient(self, gradient: float):
         '''
@@ -836,7 +835,7 @@ class MagneticShielding(NMRTensor):
         s += str(np.array2string(self.data, precision=5, separator=",", suppress_small=True)) + "\n"
         s += str(self.haeberlen_values)
         return s
-    
+
 
 class ElectricFieldGradient(NMRTensor):
     """ElectricFieldGradient
@@ -887,7 +886,7 @@ class ElectricFieldGradient(NMRTensor):
         self.species = species
         isotope_number, element = _split_species(species)
         self.element = element
-        
+
         # Nuclear spin in Bohr magnetons
         self.spin = nmr_spin(element, iso=isotope_number)
 
@@ -898,21 +897,21 @@ class ElectricFieldGradient(NMRTensor):
         self.gamma = gamma or nmr_gamma(element, iso=isotope_number)
 
 
-    
+
     @property
     def eta(self):
         '''
         Returns the asymmetry parameter of the tensor.
         '''
         return self.asymmetry
-    
+
     @property
     def zeta(self):
         '''
         Returns the reduced anisotropy of the tensor.
         '''
         return self.reduced_anisotropy
-    
+
     @property
     def Vzz(self):
         '''
@@ -929,7 +928,7 @@ class ElectricFieldGradient(NMRTensor):
                             "Returning the largest abs. eigenvalue following NQR convention.")
             # sort them in NQR order
             return _evals_sort(self.eigenvalues, convention=self.ORDER_NQR)[2]
-        
+
     @property
     def Cq(self) -> float:
         '''
@@ -954,7 +953,7 @@ class ElectricFieldGradient(NMRTensor):
         '''
 
         return EFG_TO_CHI * self.quadrupole_moment * self.Vzz
-    
+
     @property
     def Pq(self) -> float:
         '''
@@ -968,7 +967,7 @@ class ElectricFieldGradient(NMRTensor):
             float: Quadrupolar product value in Hz.
         '''
         return self.Cq * (1 + self.eta ** 2 / 3)**0.5
-    
+
     @property
     def nuq(self) -> float:
         '''
@@ -1030,7 +1029,7 @@ class ElectricFieldGradient(NMRTensor):
         nuq = self.nuq
         a = (nuq**2 / nu_larmor) * (spin*(spin+1) - 3/2)
         return a
-    
+
     def get_MAS_full_max_linewidth(self, Bext):
         '''
         Returns the MAS full maximum line width (Hz) of the central transition.
@@ -1062,7 +1061,7 @@ class ElectricFieldGradient(NMRTensor):
     #     Defined as:
 
     #     .. math::
-            
+
     #             \\nu_{c.g.} = \\nu_{0} - \\frac{1}{30} a (1 + \\eta^{\\frac{2}{3}})
 
     #     Args:

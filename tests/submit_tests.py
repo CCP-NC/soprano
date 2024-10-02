@@ -3,20 +3,15 @@
 Test code for QueueInterface and Submitters
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
-import sys
 import stat
+import sys
 import unittest
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 _TESTCMD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_cmds")
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
