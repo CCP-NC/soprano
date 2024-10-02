@@ -27,7 +27,7 @@ from ase.quaternions import Quaternion
 from scipy.spatial.transform import Rotation
 
 # Left here for backwards compatibility
-
+from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
 
 def _split_species(species: str) -> Tuple[int, str]:
         """
