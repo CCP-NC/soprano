@@ -30,8 +30,8 @@ jobs:
       - name: Build release distributions
         run: |
           # Seems to work for Soprano:
-          python -m pip install build
-          python -m build
+          python -m pip install hatch
+          hatch build
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
@@ -52,8 +52,8 @@ jobs:
     # Dedicated environments with protections for publishing are strongly recommended.
     environment:
       name: pypi
-      # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
-      # url: https://pypi.org/p/YOURPROJECT
+      # include PyPI project URL in the deployment status:
+      url: https://pypi.org/project/Soprano
 
     steps:
       - name: Retrieve release distributions

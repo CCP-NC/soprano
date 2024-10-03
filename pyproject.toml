@@ -11,6 +11,7 @@ license = "LGPL-3.0-or-later"
 requires-python = ">=3.9"
 authors = [
     { name = "Simone Sturniolo", email = "simone.sturniolo@stfc.ac.uk" },
+    { name = "J. Kane Shenton", email = "kane.shenton@stfc.ac.uk" },
 ]
 keywords = [
     "ccpnc",
