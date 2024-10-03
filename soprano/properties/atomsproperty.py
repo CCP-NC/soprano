@@ -20,16 +20,11 @@ Definition of AtomsProperty class.
 A generic template class that specific Properties will inherit from.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from soprano.collection import AtomsCollection
 
 
-class AtomsProperty(object):
+class AtomsProperty:
 
     default_name = "generic_property"
     default_params = {}
@@ -57,7 +52,7 @@ class AtomsProperty(object):
             if p not in self.params:
                 raise ValueError(
                     "Invalid argument passed to"
-                    " '{0}'".format(self.__class__.__name__)
+                    f" '{self.__class__.__name__}'"
                 )
             else:
                 self.params[p] = params[p]
@@ -113,7 +108,6 @@ class AtomsProperty(object):
         # Do something specific to get the property of interest
         # Then return the value
 
-        pass
 
     def __call__(self, s, store_array=False):
         """Calling the AtomsProperty returns the value of the property as

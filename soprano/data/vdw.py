@@ -29,6 +29,7 @@ Available sets:
 
 import json
 import pkgutil
+
 import numpy as np
 from ase.data import atomic_numbers
 from ase.data.vdw import vdw_radii as _vdw_radii_ase
@@ -36,7 +37,7 @@ from ase.data.vdw import vdw_radii as _vdw_radii_ase
 
 def _load_vdw(name):
 
-    _vdw_data = pkgutil.get_data("soprano", "data/vdw_{0}.json".format(name)).decode(
+    _vdw_data = pkgutil.get_data("soprano", f"data/vdw_{name}.json").decode(
         "utf-8"
     )
     _vdw_radii = np.array(json.loads(_vdw_data))
@@ -73,3 +74,14 @@ def vdw_radius(el, vdwset="csd"):
         raise ValueError("Invalid element symbol")
 
     return vdw_radii[vdwset][Z]
+
+
+def build_custom_vdw(vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
+    """Build a custom VdW set"""
+
+    vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
+    vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
+    for el, r in vdw_custom.items():
+        vdw_r[atomic_numbers[el]] = r
+
+    return vdw_r

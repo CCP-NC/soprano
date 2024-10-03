@@ -113,3 +113,6 @@ venv.bak/
 # Test stuff
 tests/test_save/*
 tests/*.pkl
+
+# Temporary files from tutorial notebooks
+tutorials/_temp_output/*

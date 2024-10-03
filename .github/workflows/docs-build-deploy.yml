@@ -34,9 +34,8 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
+    - name: Install Hatch
+      run: pip install hatch
 
     # (optional) Cache your executed notebooks between runs
     # if you have config:
@@ -51,7 +50,7 @@ jobs:
     # Build the book
     - name: Build the book
       run: |
-        jupyter-book build docs
+        hatch run docs:build
 
     # Upload the book's HTML as an artifact
     - name: Upload artifact

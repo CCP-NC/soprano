@@ -18,9 +18,7 @@
 Classes and functions for powder averaging schemes
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
-from soprano.calculate.powder.zcw import ZCW
 from soprano.calculate.powder.shrewd import SHREWD
 from soprano.calculate.powder.triavg import TriAvg
+from soprano.calculate.powder.zcw import ZCW

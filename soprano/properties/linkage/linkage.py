@@ -16,26 +16,21 @@
 
 """Implementation of AtomsProperties that relate to linkage of atoms"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from ase.data import atomic_numbers
 from ase.quaternions import Quaternion
-from soprano.selection import AtomSelection
+
+from soprano.data import build_custom_vdw
 from soprano.properties import AtomsProperty
+from soprano.selection import AtomSelection
 from soprano.utils import (
-    swing_twist_decomp,
-    is_string,
-    graph_specsort,
-    minimum_periodic,
     all_periodic,
     get_bonding_graph,
+    graph_specsort,
+    is_string,
+    minimum_periodic,
+    swing_twist_decomp,
 )
-from soprano.data import vdw_radii
 
 
 def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
@@ -44,11 +39,7 @@ def _compute_bonds(s, vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
     # First, we need the biggest Van der Waals radius
     # So that we know how big the supercell needs to be
 
-    # Build a custom VdW set
-    vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
-    vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
-    for el, r in vdw_custom.items():
-        vdw_r[atomic_numbers[el]] = r
+    vdw_r = build_custom_vdw(vdw_set, vdw_scale, default_vdw, vdw_custom)
 
     vdw_vals = vdw_r[s.get_atomic_numbers()]
     vdw_max = max(vdw_vals)
@@ -116,7 +107,7 @@ class LinkageList(AtomsProperty):
                 link_list = np.pad(
                     link_list,
                     (0, size - link_list.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -126,6 +117,86 @@ class LinkageList(AtomsProperty):
             pairs = list(zip(pair_inds[0][sort_i], pair_inds[1][sort_i]))
             return link_list, pairs
 
+class ElementPairs(AtomsProperty):
+    """
+    ElementPairs
+
+    Produces an array containing the atomic pair distances in a system,
+    reduced to their shortest periodic version and sorted min to max.
+
+    This is a modified version of LinkageList that operates only on 
+    the subset of atoms that are of the specified elements.
+    The pair_list will therefore always have element 1 in the first index
+    and element 2 in the second index of each tuple.
+
+    Parameters:
+      element1 (str): first element to consider
+      element2 (str): second element to consider
+      maxsize (int): maximum number of distances to include. If not present,
+                  all of them will be included. If present, arrays will be
+                  cut reach this size. If the number of pairs is less than
+                    maxsize, only those pairs will be returned. This is different to 
+                    the behaviour of LinkageList.
+      rcut (float): maximum distance to consider (in Angstroms). If rcut is <= 0,
+                    no cutoff is applied.
+      return_pairs (bool): if True, return the pairs of atoms to which the
+                           distances correspond, as a list of tuples of
+                           indices.
+
+    Returns:
+      link_list ([float]): sorted list of interatomic linkage distances
+      pair_list ([(int, int)]): only if return_pairs is True, list of pairs
+                                corresponding to the distances
+
+    """
+
+    default_name = "element_pairs"
+    default_params = {"rcut": 0, "maxsize": 0, "return_pairs": False}
+
+    @staticmethod
+    def extract(s, element1, element2, rcut, maxsize, return_pairs):
+        symbols = np.array(s.get_chemical_symbols())
+        if element1 not in symbols:
+            raise ValueError(f"Element {element1} not in system")
+        if element2 not in symbols:
+            raise ValueError(f"Element {element2} not in system")
+        idx_1 = np.where(symbols == element1)[0]
+        idx_2 = np.where(symbols == element2)[0]
+
+        # Get the interatomic pair distances from all
+        # of idx_1 to all of idx_2
+        v = s.get_positions()
+        v = v[idx_1, None, :] - v[None, idx_2, :]
+        v = v.reshape(-1, 3)
+        pair_inds = np.array(np.meshgrid(idx_1, idx_2)).T.reshape(-1,2).T
+        # Reduce them
+        v, _ = minimum_periodic(v, s.get_cell())
+        # And now compile the list
+        link_list = np.linalg.norm(v, axis=-1)
+        sort_i = np.argsort(link_list)
+        link_list = link_list[sort_i]
+        # Sort the pair_inds in the same way
+        pair_inds = pair_inds[:, sort_i]
+
+        # apply cutoff if requested
+        if rcut > 0:
+            included_inds = np.where(link_list <= rcut)[0]
+            link_list = link_list[included_inds]
+            # update pair_inds
+            pair_inds = pair_inds[:, included_inds]
+
+
+        if maxsize > 0:
+            if link_list.shape[0] >= maxsize:
+                link_list = link_list[:maxsize]
+                # update pair_inds
+                pair_inds = pair_inds[:, :maxsize]
+        if not return_pairs:
+            return link_list
+        else:
+            # convert pair_inds to a list of tuples
+            pairs = list(zip(pair_inds[0], pair_inds[1]))
+            return link_list, pairs
 
 class Bonds(AtomsProperty):
 
@@ -511,7 +582,7 @@ class MoleculeMass(AtomsProperty):
                 mol_m = np.pad(
                     mol_m,
                     (0, size - mol_m.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -623,7 +694,7 @@ class MoleculeCOMLinkage(AtomsProperty):
                 link_list = np.pad(
                     link_list,
                     (0, size - link_list.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -691,7 +762,7 @@ class MoleculeQuaternion(AtomsProperty):
             mol_pos = sorted(mol_pos, key=lambda x: -np.linalg.norm(x))
             if len(mol_pos) > 1:
                 evecs[0] *= np.sign(np.dot(evecs[0], mol_pos[0]))
-            e1dirs = np.where(np.linalg.norm(np.cross(mol_pos, mol_pos[0])) > 0)[0]
+            e1dirs = np.where(np.atleast_1d(np.linalg.norm(np.cross(mol_pos, mol_pos[0])) > 0))[0]
             if len(e1dirs) > 0:
                 evecs[1] *= np.sign(np.dot(evecs[1], mol_pos[e1dirs[0]]))
             evecs[2] *= np.sign(np.dot(evecs[2], np.cross(evecs[0], evecs[1])))
@@ -787,7 +858,7 @@ class MoleculeRelativeRotation(AtomsProperty):
                 link_list = np.pad(
                     link_list,
                     (0, size - link_list.shape[0]),
-                    mode=str("constant"),
+                    mode="constant",
                     constant_values=np.inf,
                 )
 
@@ -915,7 +986,7 @@ class HydrogenBonds(AtomsProperty):
             return [i for i, cs in enumerate(s.get_chemical_symbols()) if cs == el]
 
         def bname(A, B):
-            return "{0}H..{1}".format(A, B)
+            return f"{A}H..{B}"
 
         # Define types
         hbonds = {}
@@ -945,10 +1016,7 @@ class HydrogenBonds(AtomsProperty):
         bond_atoms_pos = s.get_positions()[bond_atoms]
         # Van der Waals radii length of H-atom bonds
 
-        vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
-        vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
-        for el, r in vdw_custom.items():
-            vdw_r[atomic_numbers[el]] = r
+        vdw_r = build_custom_vdw(vdw_set, vdw_scale, default_vdw, vdw_custom)
 
         bonds_vdw = vdw_r[s.get_atomic_numbers()[bond_atoms]]
         bonds_vdw = (bonds_vdw + vdw_r[1]) / 2.0

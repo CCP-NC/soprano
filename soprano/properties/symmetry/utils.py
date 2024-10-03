@@ -16,25 +16,19 @@
 
 """Utility functions for symmetry calculations"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 
 import numpy as np
+from ase.utils import atoms_to_spglib_cell
 from scipy.linalg import null_space
+
 from soprano.optional import requireSpglib
 
 
 @requireSpglib("spglib")
 def _get_symmetry_dataset(s, symprec, spglib=None):
-    lattice = s.get_cell()
-    positions = s.get_scaled_positions()
-    numbers = s.get_atomic_numbers()
     symdata = spglib.get_symmetry_dataset(
-        (lattice, positions, numbers), symprec=symprec
+        atoms_to_spglib_cell(s), symprec=symprec
     )
     return symdata
 
@@ -60,11 +54,10 @@ def _loci_intersect(l1, l2):
                 return (1, l1[1])
             else:
                 return (0, None)
+        elif abs(d) > 1e-5:
+            return (0, None)
         else:
-            if abs(d) > 1e-5:
-                return (0, None)
-            else:
-                return (1, l1[1])
+            return (1, l1[1])
     elif l1[0] == 2:
         # l2 has to be a plane too
         v = np.cross(l1[1], l2[1])
@@ -78,10 +71,10 @@ def _find_wyckoff_points(a, symprec=1e-5):
     definite in them."""
 
     dset = _get_symmetry_dataset(a, symprec)
-    hno = dset["hall_number"]
+    hno = dset.hall_number
 
     # First, check the standard cell
-    stdcell = dset["std_lattice"]
+    stdcell = dset.std_lattice
     # And the transformation properties
     icell = np.linalg.inv(stdcell)
     ic2 = np.dot(icell.T, icell)
@@ -93,7 +86,7 @@ def _find_wyckoff_points(a, symprec=1e-5):
     # Operations in the non-transformed frame
     R, T = _get_symmetry_ops(hno)
     # Transformation
-    P, o = dset["transformation_matrix"], dset["origin_shift"]
+    P, o = dset.transformation_matrix, dset.origin_shift
     iP = np.linalg.inv(P)
 
     # Operations in the transformed frame

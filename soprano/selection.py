@@ -22,19 +22,17 @@ namely a group of selected atoms for a given structure,
 and methods to build it.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import copy
 import hashlib
-import warnings
 import operator
+import re
+import warnings
+from collections import OrderedDict, defaultdict
+
 import numpy as np
 
-from soprano.utils import minimum_supcell, supcell_gridgen, customize_warnings
+from soprano.utils import customize_warnings, minimum_supcell, supcell_gridgen
 
 customize_warnings()
 
@@ -58,7 +56,7 @@ def _operator_checks(opfunc):
     return decorated_opfunc
 
 
-class AtomSelection(object):
+class AtomSelection:
 
     """AtomSelection object.
 
@@ -199,7 +197,10 @@ class AtomSelection(object):
 
         if use_cell_indices and subset.has("cell_indices"):
             ijk = subset.get_array("cell_indices")
-            subset.set_scaled_positions(subset.get_scaled_positions() + ijk)
+            # this can mess things up if all ijk are zero
+            # Since in this case, the effect should be nothing, let's skip it
+            if np.any(ijk):
+                subset.set_scaled_positions(subset.get_scaled_positions() + ijk)
 
         return subset
 
@@ -284,11 +285,11 @@ class AtomSelection(object):
                 # Do they conflict?
                 if not np.all(arr1 == arr2):
                     print(
-                        (
-                            "WARNING - conflicting arrays of name {0} found"
+
+                            f"WARNING - conflicting arrays of name {k} found"
                             " will be removed during intersection"
                             " operation"
-                        ).format(k)
+
                     )
                     continue
 
@@ -332,6 +333,110 @@ class AtomSelection(object):
 
         sel_i = np.where(np.array(atoms.get_chemical_symbols()) == element)[0]
 
+        return AtomSelection(atoms, sel_i)
+    @staticmethod
+    def from_selection_string(atoms, selection_string):
+        """Generate a selection for the given Atoms object based on a standardised 
+        string format.
+        (Useful to parse command-line-arguments.)
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   selection_string (str): string specifying a subset of atoms. See example below.
+
+        | Returns:
+        |   selection (AtomSelection)
+
+
+        Examples of selection_string: 
+        'Si' - select all Si atoms
+        'Si.1' - select the first Si atom
+        'Si.1-3' - select the first three Si atoms
+        'Si.1-3,5' - select the first three and fifth Si atoms
+        'C.1,H.2' - select the first carbon and second hydrogen atoms
+        'C1' - select the atom with 'C1' label, regardles of where it appears. 
+        'C1,C3a' - select the atoms with 'C1' and 'C3a' labels, regardles of where they appear. 
+        """
+        def has_numbers(selection_string):
+            return bool(re.search(r'\d', selection_string))
+        def has_hyphen(selection_string):
+            return bool(re.search(r'-', selection_string))
+        def has_period(selection_string):
+            return bool(re.search(r'\.', selection_string))
+
+        selection = defaultdict(list)
+        for split in selection_string.split(","):
+            # split into element and sites
+            sites = re.split('([a-zA-Z]+)', split)[1:]
+            el = sites.pop(0)
+            # make sure no numbers left in el
+            if has_numbers(el):
+                raise ValueError("Problem parsing selection string: " + selection_string
+                                 + " - wasn't expect more numbers in " + el)
+            # get the indices of each element in the atoms object
+            element_indices = AtomSelection.from_element(atoms, el).indices
+            # make sure the chosen element is present!
+            if el not in atoms.symbols:
+                raise ValueError(
+                    f"Element {el} not present in the atoms object"
+                )
+            # make sure the spitting worked as expected
+            sites = sites[0]
+
+            # if empty string -> select all element indices
+            if sites == '':
+                selection[el] = element_indices
+                continue
+
+            # if starts with period -> regular index
+            if sites[0] == '.':
+                # split on '.'
+                sites = sites[1:].split(".")
+                el_indices = []
+                for site in sites:
+                    # if it has a hyphen:
+                    if has_hyphen(site):
+                        site = site.split("-")
+                        el_indices+=range(int(site[0]), int(site[1]) + 1)
+                    else:
+                        el_indices.append(int(site))
+                # if zero in el_indices -> throw error
+                if 0 in el_indices:
+                    raise ValueError(
+                        "WARNING - zero in selection string, please use 1-indexing"
+                        " during selection operation. Always double-check if selection matches your expectations!"
+                    )
+                # switch to python indexing:
+                el_indices = np.array(el_indices) - 1
+                selection[el].extend(element_indices[el_indices])
+
+            else:
+                # must be a cif-style label!
+                # sites is of the form 'C1'
+                if has_hyphen(sites):
+                    raise ValueError(
+                        "Error - hyphen in selection string while using cif labels."
+                        "Use explicit comma-separated string intead. e.g. '-s C1,C2'"
+                    )
+                if has_period(sites):
+                    raise ValueError(
+                        "Error - period in selection string while using cif labels"
+                        "Use explicit comma-separated string intead. e.g. '-s C1,C2'"
+                    )
+                # use 'split' as the label to look for:
+                indices = np.where(atoms.get_array('labels') == split)[0]
+                if len(indices) == 0:
+                    # raise error if no atoms with this label found
+                    raise ValueError(
+                        f"No atoms with label {split} found in the atoms object"
+                    )
+
+                selection[el].extend(indices)
+
+        # flatten and remove any duplicate indices
+        # (this way preserves the order. From python 3.7 onwards, we can use standard dictionaries)
+        sel_i = list(OrderedDict.fromkeys([idx for el in selection for idx in selection[el]]))
+        # Return the selection
         return AtomSelection(atoms, sel_i)
 
     @staticmethod
@@ -500,3 +605,49 @@ class AtomSelection(object):
         sel_i = np.where(op(arr, value))[0]
 
         return AtomSelection(atoms, sel_i)
+
+
+    @staticmethod
+    def unique(atoms, symprec=1e-4):
+        """Generate a selection for the given Atoms object containing
+        only the symmetry-unique atoms.
+
+        We use the spacegroup as found by spglib to determine the symmetry
+        operations and then use these to tag the equivalent atoms.
+
+        | Args:
+        |   atoms (ase.Atoms): Atoms object on which to perform selection
+        |   sympres (float): tolerance for symmetry equivalence
+        | Returns:
+        |   selection (AtomSelection)
+
+        """
+        from soprano.properties.labeling import UniqueSites
+        from soprano.utils import has_cif_labels
+
+        sitetags = UniqueSites.get(atoms)
+        max_tag = max(sitetags)
+        sel_i = [np.argmax(np.array(sitetags)==i) for i in range(max_tag+1)]
+        # Now we make sure that, for structures with cif labels
+        # the symmetry-unique sites that remain are those we
+        # would expect based on the existing CIF labels.
+        if has_cif_labels(atoms):
+            ciflabels = atoms.get_array('labels')
+            # get indices of unique cif labels using OrderedDict
+            unique_cif_labels = list(OrderedDict.fromkeys(ciflabels))
+            # take first match of each unique cif label
+            sel_i_cif = [np.argmax(np.array(ciflabels)==i) for i in unique_cif_labels]
+            # test that they all match otherwise raise warning
+            if len(sel_i_cif) != len(unique_cif_labels):
+                all_matched = False
+            else:
+                all_matched = all(np.array(sel_i) == np.array(sel_i_cif))
+            if not all_matched:
+                warnings.warn("The symmetry-reduced sites don't match the CIF labels!"
+                "Manually check that the symmetry reduction is working as expected."
+                "Proceeding with the CIF label reduction rather than the symmetry reduction.")
+                sel_i = sel_i_cif
+
+        sel = AtomSelection(atoms, sel_i)
+
+        return sel

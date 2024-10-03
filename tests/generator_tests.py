@@ -3,22 +3,18 @@
 Test code for the collection Generators
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
 from ase import Atoms
 from ase.build import bulk, molecule
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 
 try:
     from cStringIO import StringIO
@@ -30,7 +26,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestGenerate(unittest.TestCase):
     def test_airss(self):
-
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import airssGen
 
@@ -45,9 +40,7 @@ class TestGenerate(unittest.TestCase):
         except RuntimeError as e:
             if "Invalid output" in str(e):
                 sys.stdout = _stdout
-                print(
-                    "WARNING - AIRSS' buildcell seems to have failed to run"
-                    )
+                print("WARNING - AIRSS' buildcell seems to have failed to run")
                 return
             if "Buildcell" in str(e):
                 sys.stdout = _stdout
@@ -69,7 +62,6 @@ class TestGenerate(unittest.TestCase):
         )
 
     def test_linspace(self):
-
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import linspaceGen
 
@@ -98,7 +90,6 @@ class TestGenerate(unittest.TestCase):
         )
 
     def test_rattle(self):
-
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import rattleGen
 
@@ -119,10 +110,9 @@ class TestGenerate(unittest.TestCase):
         self.assertTrue(np.all(np.abs((rpos - pos)[:, 1, 1]) <= 0.02))
 
     def test_defect(self):
-
-        from soprano.utils import minimum_periodic
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import defectGen
+        from soprano.utils import minimum_periodic
 
         si2 = bulk("Si")
 
@@ -142,17 +132,17 @@ class TestGenerate(unittest.TestCase):
         self.assertTrue(holds)
 
     def test_substitution_defect(self):
-            
-        from soprano.collection import AtomsCollection
-        from soprano.selection import AtomSelection
-        from soprano.collection.generate import substitutionGen
         import itertools
 
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import substitutionGen
+        from soprano.selection import AtomSelection
+
         # make an alloy
-        atoms = bulk('Al', 'fcc') * (3,3,3) # 27 Al atoms
+        atoms = bulk("Al", "fcc") * (3, 3, 3)  # 27 Al atoms
         # All Al-Al bonds are 2.864 Angstroms
 
-        alsel = AtomSelection.from_element(atoms, 'Al')
+        alsel = AtomSelection.from_element(atoms, "Al")
 
         def _min_sep(s, subs):
             # return true if all the subs are at least 3.0 Angstroms apart
@@ -168,8 +158,8 @@ class TestGenerate(unittest.TestCase):
 
         # Check that all the substitutions are at least 3.0 Angstroms apart
         for s in sColl:
-            self.assertTrue(_min_sep(s, [atom.index for atom in s if atom.symbol == 'Sn']))
-        
+            self.assertTrue(_min_sep(s, AtomSelection.from_element(s, "Sn").indices))
+
         # check that we generate the correct number of possible configurations
         # the total number of possible configurations is 27 choose 3
         # (27! / (3! * (27-3)!)) = 2925
@@ -178,11 +168,9 @@ class TestGenerate(unittest.TestCase):
         # so we actually end up with 387 possible configurations:
         self.assertEqual(len(sColl), 387)
 
-
     def test_molneigh(self):
-
-        from soprano.properties.linkage import Molecules
         from soprano.collection.generate import molecularNeighbourhoodGen
+        from soprano.properties.linkage import Molecules
 
         metmol = molecule("CH4")
 
@@ -203,7 +191,7 @@ class TestGenerate(unittest.TestCase):
             all_neigh[0].info["neighbourhood_info"]["molecule_distance"], 0
         )
         self.assertAlmostEqual(
-            all_neigh[1].info["neighbourhood_info"]["molecule_distance"], 3 ** 1.5
+            all_neigh[1].info["neighbourhood_info"]["molecule_distance"], 3**1.5
         )
 
         mnGen = molecularNeighbourhoodGen(cellmol, mols, max_R=5, method="nearest")

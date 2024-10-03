@@ -21,8 +21,6 @@ passing the path of the .castep file as a parameter and actually parsing its
 contents.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
 from soprano.properties.castep.castep import (
     CastepEnthalpy,

@@ -18,20 +18,15 @@
 Definition of QueueInterface class.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import re
 import subprocess as sp
 
-from soprano.utils import safe_communicate
 from soprano.hpc.submitter.utils import RemoteTarget
+from soprano.utils import safe_communicate
 
 
-class QueueInterface(object):
+class QueueInterface:
 
     """QueueInterface object
 
@@ -146,7 +141,7 @@ class QueueInterface(object):
         if match is None:
             raise RuntimeError(
                 "Submission of job has failed with output:\n"
-                "\tSTDOUT: {0}\n\tSTDERR: {1}".format(stdout, stderr)
+                f"\tSTDOUT: {stdout}\n\tSTDERR: {stderr}"
             )
         else:
             return match.groupdict()["job_id"]
@@ -166,7 +161,7 @@ class QueueInterface(object):
 
         cmd = self.list_cmd
         if self.list_user_opt is not None:
-            cmd += " {0} {1}".format(self.list_user_opt, user)
+            cmd += f" {self.list_user_opt} {user}"
 
         if self._rTarg is None:
             subproc = sp.Popen(cmd.split(), stdout=sp.PIPE, stderr=sp.PIPE)
@@ -203,7 +198,7 @@ class QueueInterface(object):
             stdout, stderr = safe_communicate(subproc)
         else:
             with self._rTarg.context as rTarg:
-                stdout, stderr = rTarg.run_cmd(self.kill_cmd + " {0}".format(job_id))
+                stdout, stderr = rTarg.run_cmd(self.kill_cmd + f" {job_id}")
 
     @property
     def remote_target(self):

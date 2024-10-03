@@ -17,26 +17,21 @@
 """Implementation of AtomsProperties that relate to NMR J
 couplings"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from soprano.properties import AtomsProperty
-from soprano.selection import AtomSelection
-from soprano.nmr.utils import (
-    _haeb_sort,
-    _anisotropy,
-    _asymmetry,
-    _span,
-    _skew,
-    _evecs_2_quat,
-    _J_constant,
-)
 
 from soprano.data.nmr import _get_isotope_data
+from soprano.nmr.utils import (
+    _anisotropy,
+    _asymmetry,
+    _evecs_2_quat,
+    _haeb_sort,
+    _J_constant,
+    _skew,
+    _span,
+)
+from soprano.properties import AtomsProperty
+from soprano.selection import AtomSelection
 
 
 def _has_isc_check(f):
@@ -45,7 +40,7 @@ def _has_isc_check(f):
         tag = kwargs.get("tag", "isc")
         if not (s.has(tag)):
             raise RuntimeError(
-                "No J coupling data for tag {0}".format(tag) + " found in this system"
+                f"No J coupling data for tag {tag}" + " found in this system"
             )
         return f(s, *args, **kwargs)
 
@@ -63,16 +58,16 @@ class ISCDiagonal(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   save_info (bool): if True, save the diagonalised tensors in the
-    |                     Atoms object as info. By default True.
+    Parameters:
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      save_info (bool): if True, save the diagonalised tensors in the
+                        Atoms object as info. By default True.
 
-    | Returns:
-    |   isc_diag (dict): dictionary of eigenvalues and eigenvectors by atom
-    |                    index pairs (lower index first)
+    Returns:
+      isc_diag (dict): dictionary of eigenvalues and eigenvectors by atom
+                       index pairs (lower index first)
 
     """
 
@@ -119,10 +114,10 @@ class JCDiagonal(AtomsProperty):
 
     .. math::
 
-        J_{ij} = 10^19\\frac{h\\gamma_i\\gamma_j}{4\\pi^2}K
+        J_{ij} = 10^{19}\\frac{h\\gamma_i\\gamma_j}{4\\pi^2}K
 
     where the gammas represent the gyromagnetic ratios of the nuclei and K is
-    the J coupling reduced tensor found in a .magres file, in 10^19.T^2.J^-1.
+    the J coupling reduced tensor found in a .magres file, in :math:`10^{19} T^2 J^{-1}`.
 
 
     Parameters:
@@ -206,6 +201,8 @@ class JCDiagonal(AtomsProperty):
 
         jc_dict = {}
         for sp in sel_pairs:
+            # sort sp if necessary
+            sp = tuple(sorted(sp))
             try:
                 i = all_pairs.index(sp)
             except ValueError:
@@ -227,34 +224,34 @@ class JCIsotropy(AtomsProperty):
     into couplings.
 
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
+    Returns:
+      dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
@@ -302,34 +299,34 @@ class JCAnisotropy(AtomsProperty):
     into couplings.
 
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
+    Returns:
+      dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
@@ -378,34 +375,34 @@ class JCReducedAnisotropy(AtomsProperty):
     into couplings.
 
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
+    Returns:
+      dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
@@ -454,34 +451,34 @@ class JCAsymmetry(AtomsProperty):
     into couplings.
 
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
+    Returns:
+      dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
@@ -530,34 +527,34 @@ class JCSpan(AtomsProperty):
     into couplings.
 
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
+    Returns:
+      dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
@@ -606,34 +603,34 @@ class JCSkew(AtomsProperty):
     into couplings.
 
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
+    Returns:
+      dip_dict (dict): Dictionary of couplings by atomic index pair, in Hz.
 
     """
 
@@ -683,34 +680,34 @@ class JCQuaternion(AtomsProperty):
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to return the J
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   tag (str): name of the J coupling component to return. Magres files
-    |              usually contain isc, isc_spin, isc_fc, isc_orbital_p and
-    |              isc_orbital_d. Default is isc.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with
-    |                         itself. Otherwise excluded. Default is False.
-    |   force_recalc (bool): if True, always diagonalise the tensors even if
-    |                        already present. Default is False.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to return the J
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      tag (str): name of the J coupling component to return. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with
+                            itself. Otherwise excluded. Default is False.
+      force_recalc (bool): if True, always diagonalise the tensors even if
+                           already present. Default is False.
 
-    | Returns:
-    |   quat_dict (dict): Dictionary of coupling quaternions by atomic index pair, in Hz.
+    Returns:
+      quat_dict (dict): Dictionary of coupling quaternions by atomic index pair, in Hz.
 
     """
 

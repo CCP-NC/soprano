@@ -16,30 +16,27 @@
 
 """Definitions for the various genes used by PhylogenCluster"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import re
 import itertools
+import re
+
 import numpy as np
-from soprano.selection import AtomSelection
-from soprano.utils import list_distance, is_string, compute_asymmetric_distmat
-from soprano.properties.basic import LatticeCart, LatticeABC, CalcEnergy
+
+from soprano.properties.basic import CalcEnergy, LatticeABC, LatticeCart
+from soprano.properties.labeling import HydrogenBondTypes, MoleculeSites
 from soprano.properties.linkage import (
-    LinkageList,
-    MoleculeNumber,
-    MoleculeMass,
-    MoleculeCOMLinkage,
-    MoleculeRelativeRotation,
+    CoordinationHistogram,
     HydrogenBonds,
     HydrogenBondsNumber,
-    CoordinationHistogram,
+    LinkageList,
+    MoleculeCOMLinkage,
+    MoleculeMass,
+    MoleculeNumber,
+    MoleculeRelativeRotation,
 )
-from soprano.properties.labeling import MoleculeSites, HydrogenBondTypes
 from soprano.properties.order import BondOrder
+from soprano.selection import AtomSelection
+from soprano.utils import compute_asymmetric_distmat, is_string, list_distance
 
 
 # Useful functions for parsing of complex genes
@@ -49,7 +46,7 @@ def _int_array(size=0):
             return np.array([int(x) for x in re.split("[\\s,]+", s, size)])
         except Exception:
             raise RuntimeError(
-                ("Could not parse line {0}" " as [int]*{1} array").format(s, size)
+                f"Could not parse line {s}" f" as [int]*{size} array"
             )
 
 
@@ -59,11 +56,11 @@ def _float_array(size=0):
             return np.array([float(x) for x in re.split("[\\s,]+", s, size)])
         except Exception:
             raise RuntimeError(
-                ("Could not parse line {0}" " as [float]*{1} array").format(s, size)
+                f"Could not parse line {s}" f" as [float]*{size} array"
             )
 
 
-class Gene(object):
+class Gene:
 
     """Gene
 
@@ -97,19 +94,19 @@ class Gene(object):
             gdef = GeneDictionary.get_gene(name)
             if parser is not None:
                 raise ValueError(
-                    "A default gene of name {0} already exists".format(name)
+                    f"A default gene of name {name} already exists"
                 )
             self._parser = gdef["parser"]
             self._pair = gdef["pair"]
             # Check the validity of parameters as well
             if any([p not in gdef["default_params"] for p in params]):
-                raise ValueError("Invalid parameters passed for gene {0}".format(name))
+                raise ValueError(f"Invalid parameters passed for gene {name}")
         except KeyError:
             # Custom!
             if parser is None:
                 raise RuntimeError(
                     "A parser function is required to create"
-                    " custom gene of name {0}".format(name)
+                    f" custom gene of name {name}"
                 )
             self._parser = parser
             self._pair = pair
@@ -142,14 +139,14 @@ class Gene(object):
 
         # Check for various possible modes of failure
         if val is None or None in val:
-            raise GeneError("Gene {0} has some or all None values".format(self.name))
+            raise GeneError(f"Gene {self.name} has some or all None values")
 
         try:
             if np.any(np.isnan(val)):
-                raise GeneError("Gene {0} has some or all nan values".format(self.name))
+                raise GeneError(f"Gene {self.name} has some or all nan values")
         except TypeError:
             raise GeneError(
-                "Gene {0} has values of a non-numeric type".format(self.name)
+                f"Gene {self.name} has values of a non-numeric type"
             )
 
         return val
@@ -346,7 +343,7 @@ def parsegene_bond_order(
             return AtomSelection.all(s)
         elif is_string(sel):
             return AtomSelection.from_element(s, sel)
-        elif hasattr(sel, "__call__"):
+        elif callable(sel):
             return sel(s)
 
     for s in c.structures:
@@ -389,7 +386,7 @@ def parsegene_defect_asymmetric_fpos(c, index=0, struct=None):
     return imgs
 
 
-class GeneDictionary(object):
+class GeneDictionary:
 
     """Container class holding gene definitions"""
 
@@ -794,12 +791,12 @@ def load_genefile(gfile):
         try:
             gentry = GeneDictionary.get_gene(gname)
         except Exception:
-            raise GeneError("{0} is not a valid gene".format(gname))
+            raise GeneError(f"{gname} is not a valid gene")
         try:
             gweight = float(g[1])
         except Exception:
             raise GeneError(
-                "Badly formatted weight definition for gene" " {0}".format(gname)
+                "Badly formatted weight definition for gene" f" {gname}"
             )
         # Does it have an argument block?
         gargs = {}
@@ -809,14 +806,12 @@ def load_genefile(gfile):
                     arg_parser = gentry["default_params"][arg[0]]
                 except Exception:
                     raise GeneError(
-                        ("{0} is not a valid parameter for" " {1}").format(
-                            arg[0], gname
-                        )
+                        f"{arg[0]} is not a valid parameter for" f" {gname}"
                     )
                 try:
                     gargs[arg[0]] = arg_parser(arg[1])
                 except Exception:
-                    raise GeneError("Invalid value for parameter " "{0}".format(arg[0]))
+                    raise GeneError("Invalid value for parameter " f"{arg[0]}")
 
         genes.append(Gene(gname, gweight, gargs))
 

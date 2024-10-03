@@ -20,14 +20,9 @@ powder.py
 Generic powder averaging scheme class for inheritance
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 
-class PowderScheme(object):
+class PowderScheme:
     def __init__(self, mode):
 
         if mode not in ("sphere", "hemisphere", "octant"):

@@ -24,13 +24,9 @@ Edén, M. (2003), Computer simulations in solid‐state NMR. III. Powder averagi
 Concepts Magn. Reson., 18A: 24-55. doi:10.1002/cmr.a.10065
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
+
 from soprano.calculate.powder.powder import PowderScheme
 
 

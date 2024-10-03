@@ -18,19 +18,16 @@
 """ A script that allows to run a phylogenetic analysis as a command-line
 tool"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import os
-import json
-import numpy as np
 import argparse as ap
+import json
+import os
+
+import numpy as np
+
+from soprano.analyse.phylogen import PhylogenCluster, load_genefile
 from soprano.collection import AtomsCollection
 from soprano.properties.basic import CalcEnergy
-from soprano.analyse.phylogen import PhylogenCluster, load_genefile
 
 try:
     import matplotlib.pyplot as plt
@@ -46,7 +43,7 @@ def genomes2png(aC, pC, outf, dpi=90):
     genomes, legend = pC.get_genome_vectors_norm()
     h, w = genomes.shape
     # Now build the labels
-    xlabels = ["{0}_{1}".format(l[0], i + 1) for l in legend for i in range(l[1])]
+    xlabels = [f"{l[0]}_{i + 1}" for l in legend for i in range(l[1])]
     ylabels = aC.all.map(lambda s: s.info["name"])
     # Calculate the size
     figw = w * 90.0 + 200.0
@@ -237,7 +234,7 @@ def __main__():
             header = ("Structure\t" "{0}\n").format(
                 "\t".join(
                     [
-                        "\t".join(["{0}_{1}".format(l[0], i + 1) for i in range(l[1])])
+                        "\t".join([f"{l[0]}_{i + 1}" for i in range(l[1])])
                         for l in legend
                     ]
                 )

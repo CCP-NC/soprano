@@ -17,17 +17,13 @@
 """Implementation of AtomsProperties that transform the instance in some
 way"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
 from ase.quaternions import Quaternion
-from soprano.utils import minimum_periodic
+
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
+from soprano.utils import minimum_periodic
 
 
 def _transform_sel_check(extrfunc):

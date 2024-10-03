@@ -16,15 +16,10 @@
 
 """2D mapping algorithms"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from scipy.cluster import vq
 from scipy import linalg
+from scipy.cluster import vq
 
 
 def _check_dimensionality(mapfunc):

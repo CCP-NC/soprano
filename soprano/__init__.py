@@ -35,9 +35,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
 # Version definition
-__version__ = "0.8.14"
+__version__ = "0.9.2"
 __release__ = "beta (Boggess)"

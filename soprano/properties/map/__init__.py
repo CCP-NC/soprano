@@ -19,4 +19,4 @@ Module containing AtomProperties that help with remapping Atoms objects
 based on similarity with other Atoms objects etc.
 """
 
-from soprano.properties.map.map import RemapIndices, Remap
+from soprano.properties.map.map import Remap, RemapIndices

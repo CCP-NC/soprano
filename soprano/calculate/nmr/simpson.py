@@ -18,26 +18,24 @@
 Classes and functions for interfacing with the SIMPSON spin dynamics software.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import re
-import numpy as np
+import warnings
 from collections import namedtuple
-from soprano.properties.nmr import (
-    MSIsotropy,
-    MSReducedAnisotropy,
-    MSAsymmetry,
-    MSQuaternion,
-    EFGQuadrupolarConstant,
-    EFGAsymmetry,
-    EFGQuaternion,
-    DipolarCoupling,
-)
+
+import numpy as np
+
 from soprano.data.nmr import _get_nmr_data
+from soprano.properties.nmr import (
+    DipolarCoupling,
+    EFGAsymmetry,
+    EFGQuadrupolarConstant,
+    EFGQuaternion,
+    MSAsymmetry,
+    MSIsotropy,
+    MSQuaternion,
+    MSReducedAnisotropy,
+)
 
 _spinsys_template = """spinsys {{
 {header}
@@ -54,7 +52,15 @@ nuclei {nuclei}
 
 
 def write_spinsys(
-    s, isotope_list=None, use_ms=False, ms_iso=False, q_order=0, dip_sel=None, path=None
+    s,
+    isotope_list=None,
+    use_ms=False,
+    ms_iso=False,
+    q_order=0,
+    dip_sel=None,
+    path=None,
+    ref={},
+    grad=-1.0,
 ):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
@@ -79,6 +85,20 @@ def write_spinsys(
     |                            between atoms belonging to this set.
     |   path (str): path to save the newly created file to. If not provided,
     |               the contents will be simply returned as a string.
+    |   ref (dict): dictionary of reference values for the calculation. This
+    |               is used to convert from raw shielding values to chemical
+    |               shifts. The dictionary should be in the form
+    |               {element: value}, where value is the reference shielding
+    |               for that element in ppm.
+    |   grad (float|dict|list): gradient to use when converting from raw
+    |                           shielding values to chemical shifts. If a
+    |                           float is provided, it will be used for all
+    |                           elements. If a dictionary is provided, it
+    |                           should be in the form {element: value}, where
+    |                           value is the gradient for that element. If a
+    |                           list is provided, it should be have one value
+    |                           per site. Defaults to a gradient of -1.0 for
+    |                           all elements.
 
     | Returns:
     |   file_contents (str): spinsys file in string format. Only returned if
@@ -105,8 +125,15 @@ def write_spinsys(
     ms_block = ""
 
     if use_ms:
-
-        msiso = MSIsotropy.get(s)
+        if not ref:
+            warnings.warn(
+                "No reference values provided for the calculation of "
+                "chemical shifts. Assuming all zero."
+                "To avoid this warning, provide a dictionary of the form "
+                "{element: value}, where value is the reference shielding "
+                "for that element in ppm."
+            )
+        msiso = MSIsotropy.get(s, ref=ref, grad=grad)
         if not ms_iso:
             msaniso = MSReducedAnisotropy.get(s)
             msasymm = MSAsymmetry.get(s)
@@ -152,9 +179,7 @@ def write_spinsys(
                 * 180
                 / np.pi
             )
-            dip_block += ("dipole {0} {1} {2} {3}" " {4} 0.0\n").format(
-                i + 1, j + 1, d * 2 * np.pi, a, b
-            )
+            dip_block += (f"dipole {i + 1} {j + 1} {d * 2 * np.pi} {a}" f" {b} 0.0\n")
 
     out_file = _spinsys_template.format(
         header=header, ms=ms_block, efg=efg_block, dipolar=dip_block
@@ -261,7 +286,6 @@ class SimpsonSequence:
     """
 
     def __init__(self, spinsys_source):
-
         self.spinsys_source = spinsys_source
 
         self.pars = {
@@ -326,12 +350,12 @@ class SimpsonSequence:
 
         """
 
-        outf = "source {0}\n\n".format(self.spinsys_source)
+        outf = f"source {self.spinsys_source}\n\n"
 
         # Write out par block
         outf += "par {\n"
         for p, val in self.pars.items():
-            outf += "\t{0} {1}\n".format(p, val)
+            outf += f"\t{p} {val}\n"
         outf += "}\n\n"
 
         # Write out pulseq

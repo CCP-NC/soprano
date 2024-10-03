@@ -1,0 +1,9 @@
+figure.figsize: 3.5, 3.5 # for reference, a single column is usually 3.5" 
+font.size : 8
+
+lines.linewidth: 0.2
+lines.linestyle: -
+lines.color: "0.75"
+
+legend.fontsize: smaller
+legend.title_fontsize: small

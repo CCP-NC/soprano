@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Soprano"
+dynamic = ["version"]
+description = "A Python library to crack crystals"
+readme = "README.md"
+license = "LGPL-3.0-or-later"
+requires-python = ">=3.9"
+authors = [
+    { name = "Simone Sturniolo", email = "simone.sturniolo@stfc.ac.uk" },
+    { name = "J. Kane Shenton", email = "kane.shenton@stfc.ac.uk" },
+]
+keywords = [
+    "ccpnc",
+    "computational chemistry",
+    "crystallography",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "adjustText",
+    "ase>=3.22,!=3.23",
+    "bottleneck>=1.3.6",
+    "click",
+    "click_log",
+    "matplotlib",
+    "numpy>=1.18.5,<2.0",
+    "pandas>=2.0",
+    "scipy",
+    "spglib>=2.4",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pre-commit",
+    "pytest",
+]
+docs = [
+    "jupyter-book~=1.0.2",
+    "sphinx-click", # For click command documentation
+    "sphinxcontrib-bibtex", # For bibtex support
+    "sphinxcontrib-mermaid", # For mermaid diagrams
+]
+
+[project.scripts]
+extract_nmr = "soprano.scripts.extract_nmr:__main__"
+magresaverage = "soprano.scripts.msaverage:__main__"
+phylogen = "soprano.scripts.phylogen:__main__"
+soprano = "soprano.scripts.cli:soprano"
+soprano_submitter = "soprano.hpc.submitter:__main__"
+vasp2cell = "soprano.scripts.vasp2cell:__main__"
+
+[project.urls]
+Homepage = "https://ccp-nc.github.io/soprano/"
+
+[tool.hatch.version]
+path = "soprano/__init__.py"
+
+[tool.hatch.build]
+include = [
+    "soprano/**",             # Includes everything in the soprano/ directory
+    "soprano/data/*.json",    # Explicitly include your data files
+    "soprano/calculate/nmr/*.mplstyle"  # Include specific subfolders/files
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/soprano",
+]
+
+[tool.hatch.envs.default]
+installer = "uv"
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+[tool.hatch.envs.docs.scripts]
+build = "jupyter-book build docs"
+serve = "python -m http.server -d docs/_build/html {args}"
+
+[tool.hatch.envs.dev]
+features = ["dev"]
+
+
+
+

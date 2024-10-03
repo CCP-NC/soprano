@@ -19,15 +19,12 @@ Classes and functions for simulating X-ray diffraction
 spectroscopic results from structures.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import copy
-import numpy as np
 from collections import namedtuple
+
+import numpy as np
+from ase.utils import atoms_to_spglib_cell
 
 # Internal imports
 from soprano import utils
@@ -51,7 +48,7 @@ XraySpectrum = namedtuple(
 XraySpectrumData = namedtuple("XraySpectrumData", ("theta2", "intensity"))
 
 
-class XRDCalculator(object):
+class XRDCalculator:
 
     """A class implementing methods for XRD simulations, comparisons and
     fittings.
@@ -212,7 +209,7 @@ class XRDCalculator(object):
             # Define the lattice
             latt_abc = utils.cart2abc(atoms.get_cell())
             # And the symmetry
-            symm_data = spglib.get_symmetry_dataset(atoms)
+            symm_data = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms))
             h = int(symm_data["hall_number"])
             try:
                 sel_rule = xrdsel.get_sel_rule_from_hall(h)

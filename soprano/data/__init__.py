@@ -18,8 +18,6 @@
 Module containing tabulated data
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
-from soprano.data.vdw import vdw_radii, vdw_radius
-from soprano.data.nmr import nmr_spin, nmr_quadrupole, nmr_gamma
+from soprano.data.nmr import nmr_gamma, nmr_quadrupole, nmr_spin
+from soprano.data.vdw import build_custom_vdw, vdw_radii, vdw_radius

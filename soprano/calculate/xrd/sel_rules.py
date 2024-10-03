@@ -19,11 +19,6 @@ Providing an interface to selection rules for XRD peaks and various
 spacegroups.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import json
 import pkgutil
@@ -33,13 +28,13 @@ try:
         "utf-8"
     )
     xrd_sel_rules = json.loads(_xrd_seldata)
-except IOError:
+except OSError:
     xrd_sel_rules = None
 
 try:
     _halldata = pkgutil.get_data("soprano", "data/hall_2_no.json").decode("utf-8")
     hall_2_no = json.loads(_halldata)
-except IOError:
+except OSError:
     hall_2_no = None
 
 
@@ -99,19 +94,16 @@ def get_sel_rule_from_international(n, o="all"):
     if o not in xrd_sel_rules[n]:
         if "all" in xrd_sel_rules[n]:
             o = "all"
-        else:
-            if o != "all":
-                raise ValueError(
-                    """Invalid o passed to
+        elif o != "all":
+            raise ValueError(
+                """Invalid o passed to
                                     get_sel_rule_from_international"""
-                )
-            else:
-                raise ValueError(
-                    """An option o must be specified for
-                                    n = {0}""".format(
-                        n
-                    )
-                )
+            )
+        else:
+            raise ValueError(
+                f"""An option o must be specified for
+                                    n = {n}"""
+            )
 
     xrd_rule_instr = compile(xrd_sel_rules[n][o], "<string>", "eval")
 

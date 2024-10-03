@@ -16,18 +16,15 @@
 
 """Implementation of AtomProperties that relate to symmetry"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+
+from collections import namedtuple
 
 import numpy as np
-from collections import namedtuple
+
 from soprano.properties import AtomsProperty
 from soprano.properties.symmetry.utils import (
-    _get_symmetry_dataset,
     _find_wyckoff_points,
+    _get_symmetry_dataset,
 )
 
 WyckoffPoint = namedtuple("WyckoffPoint", ["fpos", "pos", "operations", "hessian"])

@@ -17,20 +17,16 @@
 """Implementation of AtomsProperties that relate to NMR dipole-dipole
 couplings"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import numpy as np
-from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
-from soprano.properties import AtomsProperty
-from soprano.selection import AtomSelection
-from soprano.nmr.utils import _dip_constant, _dip_tensor
-from soprano.nmr import NMRTensor
+
 from soprano.data.nmr import _get_isotope_data
+from soprano.nmr import NMRTensor
+from soprano.nmr.utils import _dip_constant, _dip_tensor
+from soprano.properties import AtomsProperty
 from soprano.rnd import Random
+from soprano.selection import AtomSelection
+from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
 
 
 class DipolarCoupling(AtomsProperty):
@@ -61,34 +57,36 @@ class DipolarCoupling(AtomsProperty):
     where the z-axis is aligned with :math:`r_{ij}` and the other two can be any
     directions in the orthogonal plane.
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to compute the dipolar
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to compute the dipolar
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with its
-    |                         own closest periodic copy. Otherwise excluded.
-    |                         Default is False.
-    |   block_size (int): maximum size of blocks used when processing large
-    |                     chunks of pairs. Necessary to avoid memory problems
-    |                     for very large systems. Default is 1000.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with its
+                            own closest periodic copy. Otherwise excluded.
+                            Default is False.
+      block_size (int): maximum size of blocks used when processing large
+                        chunks of pairs. Necessary to avoid memory problems
+                        for very large systems. Default is 1000.
+      isonuclear (bool): if True, only compute couplings between nuclei of
+                         the same element. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
-    |                    pointing from i to j, by atomic index pair.
+    Returns:
+      dip_dict (dict): Dictionary of couplings in Hz and r_{ij} versors,
+                       pointing from i to j, by atomic index pair.
 
     """
 
@@ -100,11 +98,13 @@ class DipolarCoupling(AtomsProperty):
         "isotope_list": None,
         "self_coupling": False,
         "block_size": 1000,
+        "isonuclear": False,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size):
-
+    def extract(
+        s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size, isonuclear
+    ):
         # Selections
         if sel_i is None:
             sel_i = AtomSelection.all(s)
@@ -126,6 +126,9 @@ class DipolarCoupling(AtomsProperty):
         if not self_coupling:
             pairs = [p for p in pairs if p[0] != p[1]]
 
+        if isonuclear:
+            pairs = [p for p in pairs if elems[p[0]] == elems[p[1]]]
+
         pairs = np.array(pairs).T
         # Need to sort them and remove any duplicates, also take i < j as
         # convention
@@ -137,6 +140,10 @@ class DipolarCoupling(AtomsProperty):
 
         d_ij = np.zeros((0,))
         v_ij = np.zeros((0, 3))
+
+        # check if empty
+        if pairs.shape[0] == 0:
+            return {}
 
         npairs = pairs.shape[1]
 
@@ -185,36 +192,38 @@ class DipolarTensor(AtomsProperty):
     where :math:`\\hat{r}_{ij} = r_{ij}/|r_{ij}|` and the Kronecker product is
     used.
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to compute the dipolar
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to compute the dipolar
-    |                                   coupling with the ones in sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with its
-    |                         own closest periodic copy. Otherwise excluded.
-    |                         Default is False.
-    |   block_size (int): maximum size of blocks used when processing large
-    |                     chunks of pairs. Necessary to avoid memory problems
-    |                     for very large systems. Default is 1000.
-    |   rotation_axis (np.ndarray): if present, return the residual dipolar
-    |                               tensors after fast averaging around the
-    |                               given axis. Default is None.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with its
+                            own closest periodic copy. Otherwise excluded.
+                            Default is False.
+      block_size (int): maximum size of blocks used when processing large
+                        chunks of pairs. Necessary to avoid memory problems
+                        for very large systems. Default is 1000.
+      rotation_axis (np.ndarray): if present, return the residual dipolar
+                                  tensors after fast averaging around the
+                                  given axis. Default is None.
+      isonuclear (bool): if True, only compute couplings between nuclei of
+                         the same element. Default is False.
 
-    | Returns:
-    |   dip_dict (dict): Dictionary of `NMRTensor` objects in Hz by atomic index pair.
+    Returns:
+      dip_dict (dict): Dictionary of `NMRTensor` objects in Hz by atomic index pair.
 
     """
 
@@ -227,6 +236,7 @@ class DipolarTensor(AtomsProperty):
         "self_coupling": False,
         "block_size": 1000,
         "rotation_axis": None,
+        "isonuclear": False,
     }
 
     @staticmethod
@@ -239,8 +249,8 @@ class DipolarTensor(AtomsProperty):
         self_coupling,
         block_size,
         rotation_axis,
+        isonuclear,
     ):
-
         dip_dict = DipolarCoupling.extract(
             s,
             sel_i=sel_i,
@@ -249,12 +259,13 @@ class DipolarTensor(AtomsProperty):
             isotope_list=isotope_list,
             self_coupling=self_coupling,
             block_size=block_size,
+            isonuclear=isonuclear,
         )
 
         # Now build the tensors
         tdict = {}
         for ij, (d, r) in dip_dict.items():
-            tdict[ij] = NMRTensor(_dip_tensor(d, r, rotation_axis), order='i')
+            tdict[ij] = NMRTensor(_dip_tensor(d, r, rotation_axis), order='n')
 
         return tdict
 
@@ -268,34 +279,36 @@ class DipolarDiagonal(AtomsProperty):
     eigenvectors for atom pairs in the system. For each pair, the closest
     periodic copy will be considered.
 
-    | Parameters:
-    |   sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to compute the dipolar
-    |                                   coupling. By default is None
-    |                                   (= all of them).
-    |   sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-    |                                   for which to compute the dipolar
-    |                                   coupling with the ones i sel_i. By
-    |                                   default is None (= same as sel_i).
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
-    |   self_coupling (bool): if True, include coupling of a nucleus with its
-    |                         own closest periodic copy. Otherwise excluded.
-    |                         Default is False.
-    |   block_size (int): maximum size of blocks used when processing large
-    |                     chunks of pairs. Necessary to avoid memory problems
-    |                     for very large systems. Default is 1000.
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling with the ones i sel_i. By
+                                      default is None (= same as sel_i).
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with its
+                            own closest periodic copy. Otherwise excluded.
+                            Default is False.
+      block_size (int): maximum size of blocks used when processing large
+                        chunks of pairs. Necessary to avoid memory problems
+                        for very large systems. Default is 1000.
+      isonuclear (bool): if True, only compute couplings between nuclei of
+                         the same element. Default is False.
 
-    | Returns:
-    |   dip_tens_dict (dict): Dictionary of dipolar eigenvalues (in Hz) and
-    |                         eigenvectors, by atomic index pair.
+    Returns:
+      dip_tens_dict (dict): Dictionary of dipolar eigenvalues (in Hz) and
+                            eigenvectors, by atomic index pair.
 
     """
 
@@ -307,21 +320,29 @@ class DipolarDiagonal(AtomsProperty):
         "isotope_list": None,
         "self_coupling": False,
         "block_size": 1000,
+        "isonuclear": False,
     }
 
     @staticmethod
-    def extract(s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size):
-
+    def extract(
+        s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size, isonuclear
+    ):
         # First, just get the values
         dip_dict = DipolarCoupling.extract(
-            s, sel_i, sel_j, isotopes, isotope_list, self_coupling, block_size
+            s,
+            sel_i,
+            sel_j,
+            isotopes,
+            isotope_list,
+            self_coupling,
+            block_size,
+            isonuclear,
         )
 
         # Now build the tensors
         dip_tens_dict = {}
 
         for ij, (d, v) in dip_dict.items():
-
             evals = np.array([-d, -d, 2 * d])
             # Eigenvectors
             evecs = np.zeros((3, 3))
@@ -347,23 +368,23 @@ class DipolarRSS(AtomsProperty):
     Compute the Dipolar constant Root Sum Square for each atom in a system,
     including periodicity, within a cutoff.
 
-    | Parameters:
-    |   cutoff (float): cutoff radius in Angstroms at which the sum stops. By
-    |                   default 5 Ang.
-    |   isonuclear (bool): if True, only nuclei of the same species will be
-    |                      considered. By default is False.
-    |   isotopes (dict): dictionary of specific isotopes to use, by element
-    |                    symbol. If the isotope doesn't exist an error will
-    |                    be raised.
-    |   isotope_list (list): list of isotopes, atom-by-atom. To be used if
-    |                        different atoms of the same element are supposed
-    |                        to be of different isotopes. Where a 'None' is
-    |                        present will fall back on the previous
-    |                        definitions. Where an isotope is present it
-    |                        overrides everything else.
+    Parameters:
+      cutoff (float): cutoff radius in Angstroms at which the sum stops. By
+                      default 5 Ang.
+      isonuclear (bool): if True, only nuclei of the same species will be
+                         considered. By default is False.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
 
-    | Returns:
-    |   dip_rss (np.ndarray): dipolar constant RSS for each atom in the system
+    Returns:
+      dip_rss (np.ndarray): dipolar constant RSS for each atom in the system
 
     """
 
@@ -377,7 +398,6 @@ class DipolarRSS(AtomsProperty):
 
     @staticmethod
     def extract(s, cutoff, isonuclear, isotopes, isotope_list):
-
         # Supercell size
         scell_shape = minimum_supcell(cutoff, s.get_cell())
         _, scell = supcell_gridgen(s.get_cell(), scell_shape)
@@ -390,7 +410,6 @@ class DipolarRSS(AtomsProperty):
         dip_rss = []
 
         for i, el in enumerate(elems):
-
             # Distances?
             if not isonuclear:
                 rij = pos.copy()
@@ -409,7 +428,7 @@ class DipolarRSS(AtomsProperty):
                 pass
 
             dip = _dip_constant(Rij, gammas[i], gj)
-            dip_rss.append(np.sqrt(np.sum(dip ** 2)))
+            dip_rss.append(np.sqrt(np.sum(dip**2)))
 
         return np.array(dip_rss)
 
@@ -444,6 +463,8 @@ class DipolarEuler(AtomsProperty):
         self_coupling (bool): if True, include coupling of a nucleus with its
                                 own closest periodic copy. Otherwise excluded.
                                 Default is False.
+        isonuclear (bool): if True, only compute couplings between nuclei of
+                            the same element. Default is False.
         block_size (int): maximum size of blocks used when processing large
                             chunks of pairs. Necessary to avoid memory problems
                             for very large systems. Default is 1000.
@@ -467,6 +488,7 @@ class DipolarEuler(AtomsProperty):
         "isotopes": {},
         "isotope_list": None,
         "self_coupling": False,
+        "isonuclear": False,
         "block_size": 1000,
         "rotation_axis": None,
         "convention": "zyz",
@@ -482,6 +504,7 @@ class DipolarEuler(AtomsProperty):
         isotopes,
         isotope_list,
         self_coupling,
+        isonuclear,
         block_size,
         rotation_axis,
         convention,
@@ -496,6 +519,7 @@ class DipolarEuler(AtomsProperty):
             isotopes=isotopes,
             isotope_list=isotope_list,
             self_coupling=self_coupling,
+            isonuclear=isonuclear,
             block_size=block_size,
             rotation_axis=rotation_axis,
         )
@@ -503,9 +527,7 @@ class DipolarEuler(AtomsProperty):
         # Now build the euler angles dict
         eulerdict = {}
         for ij, T in dip_dict.items():
-            eulers = T.euler_angles(convention=convention, passive=passive)
-            if degrees:
-                eulers = np.degrees(eulers)
+            eulers = T.euler_angles(convention=convention, passive=passive, degrees=degrees)
             eulerdict[ij] = eulers
 
         return eulerdict

@@ -17,14 +17,10 @@
 """ A very simple script to convert from all ASE-accepted formats to CASTEP's
 .cell format"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
-import os
 import argparse as ap
+import os
+
 from ase import io
 
 
@@ -50,7 +46,7 @@ def __main__():
         for ft in _inpfiles:
             try:
                 a = io.read(os.path.join(inpf, ft))
-            except IOError as e:
+            except OSError as e:
                 if "Could not determine chemical symbols" in str(e):
                     # Wrong header format!
                     print(
@@ -65,7 +61,7 @@ def __main__():
         if a is None:
             print(
                 "No valid structure files found in folder "
-                "{0}\nSkipping...".format(inpf)
+                f"{inpf}\nSkipping..."
             )
             continue
 

@@ -21,9 +21,10 @@ Data on NMR relevant properties of elements and isotopes - spin, gyromagnetic
 ratio and quadrupole moment.
 """
 
-import re
 import json
 import pkgutil
+import re
+
 import numpy as np
 import scipy.constants as cnst
 
@@ -39,7 +40,7 @@ EFG_TO_CHI = (
 try:
     _nmr_data = pkgutil.get_data("soprano", "data/nmrdata.json").decode("utf-8")
     _nmr_data = json.loads(_nmr_data)
-except IOError:
+except OSError:
     _nmr_data = None
 
 
@@ -53,20 +54,24 @@ def _get_nmr_data():
             "wrong with this installation of Soprano"
         )
 
-
-def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes=False):
-
+def _get_isotope_list(elems, isotopes=None, isotope_list=None, use_q_isotopes=False):
+    '''
+    elems can be a single element string or a list of elements
+    returns the isotope number for each element elems
+    '''
+    if isotopes is None:
+        isotopes = {}
     if isinstance(elems, str):
         elems = [elems]  # It's a single element
 
-    data = np.zeros(len(elems))
+    isotopelist = np.zeros(len(elems), dtype=int)
     nmr_data = _get_nmr_data()
 
     for i, e in enumerate(elems):
 
         if e not in nmr_data:
             # Non-existing element
-            raise RuntimeError("No NMR data on element {0}".format(e))
+            raise RuntimeError(f"No NMR data on element {e}")
 
         iso = nmr_data[e]["iso"]
         if use_q_isotopes and nmr_data[e]["Q_iso"] is not None:
@@ -75,13 +80,24 @@ def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes
             iso = isotopes[e]
         if isotope_list is not None and isotope_list[i] is not None:
             iso = isotope_list[i]
+        isotopelist[i] = iso
+    return isotopelist
 
+def _get_isotope_data(elems, key, isotopes={}, isotope_list=None, use_q_isotopes=False):
+    isotopelist = _get_isotope_list(elems, isotopes=isotopes, isotope_list=isotope_list, use_q_isotopes=use_q_isotopes)
+
+    data = np.zeros(len(elems))
+    nmr_data = _get_nmr_data()
+
+    for i, iso in enumerate(isotopelist):
+        el = elems[i]
         try:
-            data[i] = nmr_data[e][str(iso)][key]
+            data[i] = nmr_data[el][str(iso)][key]
         except KeyError:
             raise RuntimeError(
-                "Data {0} does not exist for isotope {1} of "
-                "element {2}".format(key, iso, e)
+                f"Data {key} does not exist for isotope {iso} of "
+                f"element {el}.\n"
+                "Edit the file soprano/data/nmrdata.json to add custom isotopes."
             )
 
     return data
@@ -105,7 +121,7 @@ def _el_iso(sym):
     iso = str(nmr_data[el]["iso"]) if match[0][0] == "" else match[0][0]
 
     if iso not in nmr_data[el]:
-        raise ValueError("No data on isotope {0} for element {1}".format(iso, el))
+        raise ValueError(f"No data on isotope {iso} for element {el}")
 
     return el, iso
 
@@ -128,7 +144,7 @@ def nmr_gamma(el, iso=None):
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], "gamma", isotopes=isotopes)
+    return _get_isotope_data([el], "gamma", isotopes=isotopes)[0]
 
 
 def nmr_spin(el, iso=None):
@@ -149,25 +165,25 @@ def nmr_spin(el, iso=None):
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], "I", isotopes=isotopes)
+    return _get_isotope_data([el], "I", isotopes=isotopes)[0]
 
 
 def nmr_quadrupole(el, iso=None):
     """Quadrupole moment for an element
 
     Return the quadrupole moment for the given element and isotope, in
-    barns
+    millibarn
 
     | Args:
     |   el (str):   element symbol
     |   iso (int):  isotope. Default is the most abundant one.
 
     | Returns:
-    |   Q (float):  quadrupole moment in barns
+    |   Q (float):  quadrupole moment in  millibarn
     """
 
     isotopes = {}
     if iso is not None:
         isotopes[el] = iso
 
-    return _get_isotope_data([el], "Q", isotopes=isotopes)
+    return _get_isotope_data([el], "Q", isotopes=isotopes)[0]

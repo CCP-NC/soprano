@@ -3,20 +3,16 @@
 Test code for the calculate.xrd module
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
 import sys
 import unittest
+
 import numpy as np
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
-)  # noqa
+)
 # from soprano.calculate import xrd
 # from soprano.calculate.xrd.xrd import XraySpectrum, XraySpectrumData
 
@@ -25,7 +21,6 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 class TestXRDCalculator(unittest.TestCase):
     def test_func_interface(self):
-
         from soprano.calculate import xrd
 
         xr = xrd.XRDCalculator()
@@ -73,7 +68,6 @@ class TestXRDCalculator(unittest.TestCase):
             self.fail("Good function not accepted")
 
     def test_powder_peaks(self):
-
         from soprano.calculate import xrd
 
         xr = xrd.XRDCalculator()
@@ -86,7 +80,6 @@ class TestXRDCalculator(unittest.TestCase):
         self.assertTrue(len(peaks_nosym.theta2) >= len(peaks_sym.theta2))
 
     def test_lebail_fit(self):
-
         from soprano.calculate import xrd
         from soprano.calculate.xrd.xrd import XraySpectrum
 
@@ -118,14 +111,13 @@ class TestXRDCalculator(unittest.TestCase):
 
 class TestXRDRules(unittest.TestCase):
     def test_sel_rules(self):
-
         from soprano.calculate import xrd
 
         # Load the data from Colan's reference file
         ref_file_ends = ["mono"]
 
         for e in ref_file_ends:
-            fname = os.path.join(_TESTDATA_DIR, "xrd_sel_test_{0}.txt".format(e))
+            fname = os.path.join(_TESTDATA_DIR, f"xrd_sel_test_{e}.txt")
             refdata = np.loadtxt(fname)
 
             n_o_pair = (0, 0)

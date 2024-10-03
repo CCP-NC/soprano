@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 import os
-import sys
 import pickle
+import sys
 
 kill_id = sys.argv[1]
 mydir = os.path.dirname(os.path.realpath(__file__))
@@ -17,13 +12,13 @@ try:
     joblist = pickle.load(qfile)
     qfile.close()
     if kill_id not in joblist:
-        raise IOError()
-except IOError:
-    sys.exit("Job <{0}> not found".format(kill_id))
+        raise OSError
+except OSError:
+    sys.exit(f"Job <{kill_id}> not found")
 
 # If it's in joblist, delete it
 del joblist[kill_id]
-print("Job <{0}> has been terminated".format(kill_id))
+print(f"Job <{kill_id}> has been terminated")
 
 if len(joblist) > 0:
     pickle.dump(joblist, open(os.path.join(mydir, "queue.pkl"), "wb"))

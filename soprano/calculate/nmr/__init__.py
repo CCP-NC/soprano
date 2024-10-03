@@ -19,7 +19,5 @@ Classes and functions for simulating NMR spectroscopic results from
 structures with simplified algorithms.
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
 
-from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
+from soprano.calculate.nmr.nmr import DEFAULT_MARKER_SIZE, NMRCalculator, NMRData2D, NMRFlags, NMRPlot2D, PlotSettings

@@ -16,21 +16,17 @@
 
 """Convenience util used to start/stop submitter processes"""
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 
 def submitter_handler():
 
-    import os
-    import sys
     import argparse as ap
+    import os
     import subprocess as sp
-    from soprano.utils import import_module
+    import sys
+
     from soprano.hpc.submitter import Submitter
+    from soprano.utils import import_module
 
     # First of all, check that we are on Linux, this only works there
     if sys.platform not in ("linux", "linux2"):
@@ -98,16 +94,14 @@ def submitter_handler():
     }
 
     if len(subms) == 0:
-        sys.exit("No Submitter instance found in " "{0}".format(args.submitter_file))
+        sys.exit("No Submitter instance found in " f"{args.submitter_file}")
     elif len(subms) > 1 and args.n is None:
         sys.exit(
-            "Too many Submitter instances found in " "{0}".format(args.submitter_file)
+            "Too many Submitter instances found in " f"{args.submitter_file}"
         )
     elif args.n is not None and args.n not in subms:
         sys.exit(
-            ("Submitter of name {0} " "not found in {1}").format(
-                args.n, args.submitter_file
-            )
+            f"Submitter of name {args.n} " f"not found in {args.submitter_file}"
         )
     # We're fine!
     if args.n is not None:
@@ -134,7 +128,7 @@ def submitter_handler():
         sp.Popen(cmd)
         print(
             "Submitter "
-            "{0} from file {1} started".format(submitter_name, args.submitter_file)
+            f"{submitter_name} from file {args.submitter_file} started"
         )
     elif args.action[0] == "stop":
         # PKILL the process
@@ -142,7 +136,7 @@ def submitter_handler():
         if succ:
             print(
                 "Submitter "
-                "{0} from file {1} stopped".format(submitter_name, args.submitter_file)
+                f"{submitter_name} from file {args.submitter_file} stopped"
             )
         else:
             print("The requested submitter is not running")
@@ -162,7 +156,7 @@ def submitter_handler():
                 os.kill(s[3], signum)
                 break
     else:
-        print("Unknown action {0}".format(args.action[0]))
+        print(f"Unknown action {args.action[0]}")
 
 
 submitter_handler()

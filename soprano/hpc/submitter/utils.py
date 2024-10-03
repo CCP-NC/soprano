@@ -18,23 +18,19 @@
 Utilities for remote submission, especially using Paramiko for SSH
 """
 
-# Python 2-to-3 compatibility code
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 try:
     import paramiko as pmk
 except ImportError:
     pmk = None
-import os
-import glob
 import fnmatch
+import glob
+import os
+
 from soprano.utils import is_string
 
 
-class RemoteTarget(object):
+class RemoteTarget:
 
     """RemoteTarget object
 
@@ -70,7 +66,7 @@ class RemoteTarget(object):
         config.parse(open(os.path.expanduser("~/.ssh/config")))
 
         if host not in config.get_hostnames():
-            raise ValueError("Host " "{0} not found in ~/.ssh/config".format(host))
+            raise ValueError("Host " f"{host} not found in ~/.ssh/config")
 
         hostdata = config.lookup(host)
         self._connect_args = {"hostname": hostdata["hostname"], "timeout": timeout}
@@ -109,7 +105,7 @@ def _ensure_open_sftp(f):
     return sftp_checked
 
 
-class RemoteTargetContext(object):
+class RemoteTargetContext:
 
     """RemoteTargetContext object
 
@@ -151,7 +147,7 @@ class RemoteTargetContext(object):
         """
 
         if cwd is not None:
-            cmd = "cd {0}; ".format(cwd) + cmd
+            cmd = f"cd {cwd}; " + cmd
 
         (_stdin, _stdout, _stderr) = self._client.exec_command(
             cmd, timeout=self._connect_args["timeout"]
