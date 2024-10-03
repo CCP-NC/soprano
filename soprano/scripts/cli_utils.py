@@ -48,6 +48,13 @@ home = os.path.expanduser("~")
 DEFAULT_CFG = os.environ.get("SOPRANO_CONFIG", f"{home}/.soprano/config.ini")
 DEFAULT_PRECISION = 4
 
+VALID_DF_OUTPUT_EXTENSIONS = ["csv", "json", "html", "md", "tex", "txt", "tsv", "dat", "xls", "xlsx"]
+
+# Custom validator for file extension
+def validate_df_output_extension(ctx, param, value):
+    if not any(value.endswith(ext) for ext in VALID_DF_OUTPUT_EXTENSIONS):
+        raise click.BadParameter(f"Invalid file extension for '{value}'. Allowed extensions are: {', '.join(VALID_DF_OUTPUT_EXTENSIONS)}")
+    return value
 
 # callback to load config file
 def configure(ctx, param, filename):
@@ -223,8 +230,9 @@ nmrproperties = click.option(
 df_output = click.option(
     "--output",
     "-o",
-    type=click.Path(exists=False),
+    type=click.Path(exists=False, writable=True, dir_okay=False),
     default=None,
+    callback=validate_df_output_extension,
     help="Output file name. If not specified, output is printed to stdout."
     "If the output file name has a recognised extension (see ``--output-format`` for allowed values), the format is guessed from that."
     "The format can be overridden with the ``--output-format`` option.",
@@ -233,9 +241,10 @@ df_output_format = click.option(
     "--output-format",
     "-f",
     default=None,
-    type=click.Choice(["csv", "json", "html", "md", "tex", "txt", "tsv", "dat"]),
+    type=click.Choice(VALID_DF_OUTPUT_EXTENSIONS),
     help="Output file format. "
     "If not specified, the format is guessed from output filename extension."
+    "If specified, it overrides the output filename extension."
     "The ``txt``, ``tsv`` and ``dat`` formats all produce tab separated files."
     "The ``md`` format produces a markdown table and requires an optional dependency on the tabulate package.",
 )
@@ -635,7 +644,7 @@ plot_output = click.option(
     "--output",
     "-o",
     "plot_filename",
-    type=click.Path(exists=False),
+    type=click.Path(exists=False, dir_okay=False, writable=True),
     required=False,
     help="Name of the plot file. "
     "If not specified, the plot will be displayed in a window. "
@@ -851,6 +860,8 @@ def print_results(
                 or output_format == "dat"
             ):
                 df.to_csv(fname, index=True, sep="\t")
+            elif output_format == "xls" or output_format == "xlsx":
+                df.to_excel(fname, index=True)
             else:
                 raise ValueError(f"Unknown output format: {output_format}")
     else:
