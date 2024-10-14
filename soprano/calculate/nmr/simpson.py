@@ -61,6 +61,7 @@ def write_spinsys(
     path=None,
     ref={},
     grad=-1.0,
+    obs_nuc=None,
 ):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
@@ -99,7 +100,8 @@ def write_spinsys(
     |                           list is provided, it should be have one value
     |                           per site. Defaults to a gradient of -1.0 for
     |                           all elements.
-
+    |   obs_nuc (str) : specify the nucleus to be observed, e.g. 1H.  
+    
     | Returns:
     |   file_contents (str): spinsys file in string format. Only returned if
     |                        no save path is provided.
@@ -115,6 +117,18 @@ def write_spinsys(
         isotope_list = [int(nmr_data[n]["iso"]) for n in nuclei]
 
     nuclei = [str(i) + n for i, n in zip(isotope_list, nuclei)]
+
+    # Ensure obs_nuc appears first in channels
+    if obs_nuc is not None:
+        # Check if obs_nuc is in nuclei
+        if obs_nuc not in nuclei:
+            raise ValueError(
+                f"{obs_nuc} not found in the list of nuclei"
+            )
+        else:
+            channels = [obs_nuc] + [n for n in sorted(set(nuclei)) if n != obs_nuc]
+    else:
+        channels = sorted(set(nuclei))
 
     # Build header
     header = _header_template.format(
