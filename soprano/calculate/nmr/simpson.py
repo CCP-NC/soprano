@@ -132,7 +132,7 @@ def write_spinsys(
 
     # Build header
     header = _header_template.format(
-        channels=" ".join(set(nuclei)), nuclei=" ".join(nuclei)
+        channels=" ".join(channels), nuclei=" ".join(nuclei)
     )
 
     # Build MS block
