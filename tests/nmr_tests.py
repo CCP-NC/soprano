@@ -13,7 +13,7 @@ from ase.quaternions import Quaternion
 import pytest
 
 
-from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor
+from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor, TensorConvention
 from soprano.nmr.utils import _test_euler_rotation
 from soprano.properties.nmr import (
     EFGNQR,
@@ -216,7 +216,7 @@ class TestNMR(unittest.TestCase):
         diag = [np.linalg.eigh((m + m.T) / 2.0) for m in ms]
 
         for i in range(len(eth)):
-            ms_tens = NMRTensor(ms[i], order=NMRTensor.ORDER_HAEBERLEN)
+            ms_tens = NMRTensor(ms[i], order=TensorConvention.Haeberlen)
             evals, evecs = diag[i]
 
             self.assertAlmostEqual(iso[i], ms_tens.isotropy)
@@ -267,7 +267,7 @@ class TestNMR(unittest.TestCase):
         # Let's now try various conventions
         data = np.diag([1, 2, -6])
 
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         # check eigenvalues are sorted correctly
         self.assertTrue(np.allclose(tc.eigenvalues, [-6, 1, 2]))
         # and eigenvectors are sorted accordingly
@@ -275,20 +275,20 @@ class TestNMR(unittest.TestCase):
         self.assertTrue(np.allclose(tc.eigenvectors[1], [0, 0, 1]))
         self.assertTrue(np.allclose(tc.eigenvectors[2], [1, 0, 0]))
 
-        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
+        td = NMRTensor(data, TensorConvention.Decreasing)
         self.assertTrue(np.allclose(td.eigenvalues, [2, 1, -6]))
         self.assertTrue(np.allclose(td.eigenvectors[0], [0, 1, 0]))
         self.assertTrue(np.allclose(td.eigenvectors[1], [1, 0, 0]))
         self.assertTrue(np.allclose(td.eigenvectors[2], [0, 0,-1]))
 
-        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
+        th = NMRTensor(data, TensorConvention.Haeberlen)
         self.assertTrue(np.allclose(th.eigenvalues, [2, 1, -6]))
         self.assertTrue(np.allclose(th.eigenvectors[0], [0, 1, 0]))
         self.assertTrue(np.allclose(th.eigenvectors[1], [1, 0, 0]))
         self.assertTrue(np.allclose(th.eigenvectors[2], [0, 0,-1]))
 
 
-        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        tn = NMRTensor(data, TensorConvention.NQR)
         self.assertTrue(np.allclose(tn.eigenvalues, [1, 2, -6]))
         self.assertTrue(np.allclose(tn.eigenvectors[0], [1, 0, 0]))
         self.assertTrue(np.allclose(tn.eigenvectors[1], [0, 1, 0]))
@@ -320,10 +320,10 @@ class TestNMR(unittest.TestCase):
         """
 
         data = np.diag([1, 2, -6])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
-        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
-        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
-        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        tc = NMRTensor(data, TensorConvention.Increasing)
+        td = NMRTensor(data, TensorConvention.Decreasing)
+        th = NMRTensor(data, TensorConvention.Haeberlen)
+        tn = NMRTensor(data, TensorConvention.NQR)
 
         # First let's make sure that the calculation of Euler angles fails correctly
         # for conventions other than zyz and zxz
@@ -371,10 +371,10 @@ class TestNMR(unittest.TestCase):
                     [ 0.21,  2.00,  0.23],
                     [ 0.31,  0.32, -6.00],
                     ])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
-        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
-        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
-        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        tc = NMRTensor(data, TensorConvention.Increasing)
+        td = NMRTensor(data, TensorConvention.Decreasing)
+        th = NMRTensor(data, TensorConvention.Haeberlen)
+        tn = NMRTensor(data, TensorConvention.NQR)
 
         # Eigenvalue ordering (make sure we're testing the right thing)
         eigs_ref = np.array([-6.01598555, 0.97774119,  2.03824436])
@@ -493,7 +493,7 @@ class TestNMR(unittest.TestCase):
     def test_tensor_euler_edge_cases(self):
         # Now a case with 3 degenerate eigenvalues (spherical tensor)
         data = np.diag([1, 1, 1])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         with pytest.warns(UserWarning, match="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles."):
             self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive = False), np.zeros(3)))
             self.assertTrue(np.allclose(tc.euler_angles(convention='zxz', passive = False), np.zeros(3)))
@@ -507,7 +507,7 @@ class TestNMR(unittest.TestCase):
             [0.5, 1.0, 0.0],
             [0.0, 0.0, 2.0]
         ])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         # confirm that the eigenvalues are sorted correctly
         self.assertTrue(np.allclose(tc.eigenvalues, [0.5, 1.5, 2.0]))
         evecs = tc.eigenvectors
@@ -526,7 +526,7 @@ class TestNMR(unittest.TestCase):
 
         # More symmetric tensors
         data = np.diag([5,10,5])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         eulers = tc.euler_angles(convention='zyz')*180/np.pi
 
         self.assertTrue(np.allclose(eulers, np.array([90,90,0])))
@@ -535,7 +535,7 @@ class TestNMR(unittest.TestCase):
         # self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive=True)*180/np.pi, np.array([0,90,90])))
 
         data = np.diag([10,5,5])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         self.assertTrue(np.allclose(tc.euler_angles(convention='zyz')*180/np.pi, np.array([180,90,0])))
         # TODO: according to TensorView for MATLAB, this should be [0,90,0] or equivalent
         # soprano gives [90, 90, 0] - so something is not happening correctly when passive is True
@@ -550,12 +550,12 @@ class TestNMR(unittest.TestCase):
 
         # Make sure if the tensors are the same, we get no rotations
         # - in the case of spherical tensors
-        t1 = NMRTensor(np.diag([1, 1, 1]), NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(np.diag([1, 1, 1]), TensorConvention.Increasing)
         with pytest.warns(UserWarning, match="The tensors are identical. Returning zero Euler angles."):
             releulers = t1.euler_to(t1, convention='zyz', passive=False)
             self.assertTrue(np.allclose(releulers, np.zeros((1,3))))
         # - and in the case of tensors with no degenerate eigenvalues
-        t1 = NMRTensor(np.diag([1, 2, -6]), NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(np.diag([1, 2, -6]), TensorConvention.Increasing)
         with pytest.warns(UserWarning, match="The tensors are identical. Returning zero Euler angles."):
             releulers = t1.euler_to(t1, convention='zyz', passive=False)
             self.assertTrue(np.allclose(releulers, np.zeros((1,3))))
@@ -567,14 +567,14 @@ class TestNMR(unittest.TestCase):
         [-65.5206,   -23.0881,  -25.2372],
         [ -9.5073,   -28.2399,   56.2779],
         ]) # probably an MS tensor
-        t1 = NMRTensor(ala_example_1, order=NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(ala_example_1, order=TensorConvention.Increasing)
 
         ala_example_2  = np.array([
             [-0.7806, 0.7215, 0.2987],
             [0.7215, 1.3736, 0.9829],
             [0.2987, 0.9829, -0.5929]
             ]) # probably an EFG tensor
-        t2 = NMRTensor(ala_example_2, order=NMRTensor.ORDER_INCREASING)
+        t2 = NMRTensor(ala_example_2, order=TensorConvention.Increasing)
         # first make sure the individual tensors give the correct Euler angles
         euler1 = t1.euler_angles(convention='zyz', passive=False)
         euler2 = t2.euler_angles(convention='zyz', passive=False)
@@ -837,8 +837,8 @@ class TestNMR(unittest.TestCase):
                     [ 0.31,  0.32, -6.00],
                     ])
 
-        t1 = NMRTensor(data1, NMRTensor.ORDER_INCREASING)
-        t2 = NMRTensor(data2, NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(data1, TensorConvention.Increasing)
+        t2 = NMRTensor(data2, TensorConvention.Increasing)
 
         # first make sure the individual tensors give the correct Euler angles
         euler1 = t1.euler_angles(convention='zyz', passive=False)
@@ -1369,7 +1369,7 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertIsInstance(self.tensor, NMRTensor)
 
         # Test if the order is correct
-        self.assertEqual(self.tensor.order, NMRTensor.ORDER_HAEBERLEN)
+        self.assertEqual(self.tensor.order, TensorConvention.Haeberlen)
 
         # Test if the species and isotope are set correctly
         self.assertEqual(self.tensor.species, '2H')
