@@ -50,11 +50,31 @@ DEFAULT_PRECISION = 4
 
 VALID_DF_OUTPUT_EXTENSIONS = ["csv", "json", "html", "md", "tex", "txt", "tsv", "dat", "xls", "xlsx"]
 
-# Custom validator for file extension
-def validate_df_output_extension(ctx, param, value):
-    if not any(value.endswith(ext) for ext in VALID_DF_OUTPUT_EXTENSIONS):
-        raise click.BadParameter(f"Invalid file extension for '{value}'. Allowed extensions are: {', '.join(VALID_DF_OUTPUT_EXTENSIONS)}")
-    return value
+
+import os
+
+def _validate_df_output_extension(output_filename: str, output_format: Optional[str] = None) -> str:
+    """Validate the output filename extension.
+    Args:
+        output_filename (str): The output filename.
+        output_format (str): The output format.
+    Returns:
+        str: The output filename.
+    Raises:
+        click.UsageError: If the output format is not valid.
+    """
+    if output_format is None:
+        # infer the output format from the filename extension
+        _, ext = os.path.splitext(output_filename)
+        inferred_format = ext[1:]
+        output_format = inferred_format
+    # check if the output format is valid
+    if output_format not in VALID_DF_OUTPUT_EXTENSIONS:
+        raise click.UsageError(
+            f"Output format must be one of {VALID_DF_OUTPUT_EXTENSIONS}. "
+            f"Got: {ext[1:]} (inferred from filename: {output_filename})."
+        )
+    return output_format
 
 # callback to load config file
 def configure(ctx, param, filename):
@@ -232,7 +252,6 @@ df_output = click.option(
     "-o",
     type=click.Path(exists=False, writable=True, dir_okay=False),
     default=None,
-    callback=validate_df_output_extension,
     help="Output file name. If not specified, output is printed to stdout."
     "If the output file name has a recognised extension (see ``--output-format`` for allowed values), the format is guessed from that."
     "The format can be overridden with the ``--output-format`` option.",
@@ -696,8 +715,8 @@ dip_isonuclear = click.option(
 #### Groups of CLI options
 # options that apply to pandas dataframes
 DF_OPTIONS = [
-    df_output,
     df_output_format,
+    df_output,
     df_merge,
     df_sortby,
     df_sort_order,
@@ -826,6 +845,7 @@ def print_results(
     pd.set_option("display.max_rows", 999)
     nframes = len(dfs)
     if output:
+        output_format = _validate_df_output_extension(output, output_format)
         for i, df in enumerate(dfs):
             if nframes > 1:
                 # then we want to write out
@@ -838,9 +858,6 @@ def print_results(
             fname = prefix + output
             if verbose:
                 click.echo(f"Writing output to {fname}")
-            if not output_format:
-                # try to guess format from extension
-                output_format = os.path.splitext(fname)[1][1:]
 
             if output_format == "csv":
                 df.to_csv(fname, index=True)
