@@ -21,7 +21,8 @@ NMR tensor as well as its representation in multiple conventions
 
 import warnings
 from collections import defaultdict
-from typing import Any, NamedTuple, Optional, TypeVar, Union
+from enum import Enum
+from typing import Any, NamedTuple, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 from ase.quaternions import Quaternion
@@ -50,6 +51,31 @@ from soprano.nmr.utils import (
 
 DEGENERACY_TOLERANCE = 1e-6
 
+class TensorConvention(str, Enum):
+    Haeberlen = "h"
+    Increasing = "i"
+    Decreasing = "d"
+    NQR = "n"
+
+    @classmethod
+    def from_input(cls, input_str: str) -> 'TensorConvention':
+        normalized = input_str.lower().strip()
+        conversion_map = {
+            'h': cls.Haeberlen,
+            'haeberlen': cls.Haeberlen,
+            'i': cls.Increasing,
+            'increasing': cls.Increasing,
+            'd': cls.Decreasing,
+            'decreasing': cls.Decreasing,
+            'n': cls.NQR,
+            'nqr': cls.NQR
+        }
+        
+        try:
+            return conversion_map[normalized]
+        except KeyError:
+            raise ValueError(f"Invalid convention: {input_str}")
+
 T = TypeVar("T", bound="NMRTensor")
 
 class NMRTensor(NDArrayOperatorsMixin):
@@ -59,10 +85,10 @@ class NMRTensor(NDArrayOperatorsMixin):
     properties and representations.
     """
 
-    ORDER_INCREASING = "i"
-    ORDER_DECREASING = "d"
-    ORDER_HAEBERLEN = "h"
-    ORDER_NQR = "n"
+    ORDER_INCREASING = TensorConvention.Increasing
+    ORDER_DECREASING = TensorConvention.Decreasing
+    ORDER_HAEBERLEN = TensorConvention.Haeberlen
+    ORDER_NQR = TensorConvention.NQR
 
     def __init__(self,
                  data: Union[np.ndarray, tuple[np.ndarray, np.ndarray]],
