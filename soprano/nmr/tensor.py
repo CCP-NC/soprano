@@ -633,6 +633,43 @@ class NMRTensor(NDArrayOperatorsMixin):
         Required for NDArrayOperatorsMixin.
         """
         return np.asarray(self._data, dtype=dtype)
+    def __eq__(self, other: 'NMRTensor') -> bool:
+        """
+        Check if two NMRTensor objects are equal.
+        
+        NMRTensors are considered equal if they have:
+        - The same order convention
+        - Equivalent eigenvalues (within numerical precision)
+        - Equivalent eigenvectors (within numerical precision)
+        
+        Parameters:
+        other (NMRTensor): Another NMRTensor object to compare against
+        
+        Returns:
+        bool: True if tensors are equivalent, False otherwise
+        """
+        # Quick type and identity checks
+        if not isinstance(other, NMRTensor):
+            return False
+        
+        # Check order convention
+        if self.order != other.order:
+            return False
+        
+        # Check eigenvalues
+        # Use numpy's allclose to handle floating-point comparison
+        if not np.allclose(self.eigenvalues, other.eigenvalues, rtol=1e-05, atol=1e-08):
+            return False
+        
+        # Check eigenvectors
+        # TODO verify if this is the best way to compare eigenvectors
+        # Eigenvectors can have opposite signs and still represent the same tensor
+        # So we check if the absolute values of eigenvectors are close
+        for our_evec, other_evec in zip(self.eigenvectors.T, other.eigenvectors.T):
+            if not (np.allclose(np.abs(our_evec), np.abs(other_evec), rtol=1e-05, atol=1e-08)):
+                return False
+        
+        return True
 
     @property
     def _initialisation_params(self):
@@ -900,17 +937,29 @@ class NMRTensor(NDArrayOperatorsMixin):
         # Generic case for higher dimensions
         return average_along_axis().tolist()
 
-    def __eq__(self, other):
-        """
-        Check if tensor equals another tensor or array
-        """
-        if isinstance(other, NMRTensor):
-            return np.allclose(self.data, other.data)
-        elif isinstance(other, np.ndarray) and other.shape == (3, 3):
-            return np.allclose(self.data, other)
-        else:
-            return False
 
+    def __hash__(self) -> int:
+        """
+        Generate a hash for the NMRTensor object.
+        
+        This allows NMRTensor objects to be used in sets and as dictionary keys.
+        
+        Returns:
+        int: A hash value for the NMRTensor object
+        """
+
+        def array_to_hashable(arr):
+            if arr is None:
+                return None
+            # Round to avoid floating-point precision issues
+            return tuple(np.round(arr.flatten(), decimals=8))
+        
+        # Hash components
+        return hash((
+            self.order,
+            array_to_hashable(self.eigenvalues),
+            array_to_hashable(self.eigenvectors),
+        ))
 
 
 class MagneticShielding(NMRTensor):
@@ -924,12 +973,91 @@ class MagneticShielding(NMRTensor):
     NamedTuple and also :cite:p:`Harris2008`
 
     """
+    default_order = TensorConvention.Haeberlen
+
+    def __init__(self,
+        data: Union[np.ndarray, Tuple[np.ndarray, np.ndarray]],
+        species: str,
+        order:str = default_order,
+        reference:Optional[float]=None,
+        gradient: float=-1.0,
+        tag = None):
+        """
+        Initialise the MSTensor
+
+        Create an MSTensor object from a 3x3 matrix.
+
+        Arguments:
+            species (str):      Element or isotope symbol of the atom the tensor refers to. e.g 'H', 'C', '13C'
+            data (np.ndarray or tuple):  3x3 matrix containing the tensor, or
+                                         pair [evals, evecs] for the symmetric
+                                         part alone.
+            order (str):        Order to use for eigenvalues/eigenvectors. Can
+                                be 'i' (ORDER_INCREASING), 'd'
+                                (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+                                'n' (ORDER_NQR). Default is 'h' for MS tensors.
+            reference (float):  Reference chemical shift for the tensor. If set,
+                                the isotropic chemical shift can be calculated.
+                                Defaults to None.
+            gradient (float):   Gradient for the magnetic shielding to shift conversion.
+                                Defaults to -1.0.
+            tag (str):          Optional tag to identify the tensor. In a magres file, this would be the
+                                'ms_sometag' though for most magres file ms is not decomposed into contributions and the tag
+                                is simply 'ms'. By default, this is None.
+
+
+        """
+        super().__init__(data, order=order)
+        self.species = species
+        self.reference = reference
+        self.gradient = gradient
+        self.mstag = tag
+
+    # Override isotropy, anisotropies and skew definitions to
+    # include the reference and gradient if is_shift is True
+    @property
+    def isotropy(self):
+        if self.is_shift:
+            iso = self.shift
+        else:
+            iso = super().isotropy
+        return iso
+    
+    @property
+    def anisotropy(self):
+        anisotropy = super().anisotropy
+        if self.is_shift:
+            # Swap sign
+            anisotropy *= -1.0
+        return anisotropy
+    
+    @property
+    def reduced_anisotropy(self):
+        redaniso = super().reduced_anisotropy
+        if self.is_shift:
+            # Swap sign
+            redaniso *= -1.0
+        return redaniso
+    
+    @property
+    def skew(self):
+        """
+        The absolute value of the skew parameter is 
+        not dependent on the referencing but the sign is.
+        
+        TODO: is this still the case if the gradient is not -1 ? 
+        """
+        skew = super().skew
+        if self.is_shift:
+            # Swap sign
+            skew *= -1.0
+        return skew
 
     # Define some NamedTuples for the different representations
     # of the tensor. See here for a description of the different
     # representations:
     # http://anorganik.uni-tuebingen.de/klaus/nmr/index.php?p=conventions/csa/csa
-    class IUPACNotaion(NamedTuple):
+    class IUPACShielding(NamedTuple):
         """
         IUPAC convention :cite:p:`Mason1993` (equivalent to the Mehring convention :cite:p:`Mehring1983`). 
         Follows the high frequency-positive order.
@@ -952,14 +1080,35 @@ class MagneticShielding(NMRTensor):
         sigma_33: float
 
         def __str__(self):
-            return (f"IUPACNotaion/MehringNotation:\n"
+            return (f"IUPACShielding/MehringNotation:\n"
                     f"  sigma_11:  {self.sigma_11:.5f}\n"
                     f"  sigma_22:  {self.sigma_22:.5f}\n"
                     f"  sigma_33:  {self.sigma_33:.5f}\n"
                     f"  sigma_iso: {self.sigma_iso:.5f}")
+        
+    class IUPACShift(NamedTuple):
+        """
+        The same as the IUPACShielding, but for chemical shifts. i.e. sigma -> delta.
+        Therefore:
+
+        .. math::
+            \\delta_{33} \\leq \\delta_{22} \\leq \\delta_{11}
+
+        """
+        delta_iso: float
+        delta_11: float
+        delta_22: float
+        delta_33: float
+
+        def __str__(self):
+            return (f"IUPACShift:\n"
+                    f"  delta_11:  {self.delta_11:.5f}\n"
+                    f"  delta_22:  {self.delta_22:.5f}\n"
+                    f"  delta_33:  {self.delta_33:.5f}\n"
+                    f"  delta_iso: {self.delta_iso:.5f}")
 
     # Herzfeld-Berger Notation
-    class HerzfeldBergerNotation(NamedTuple):
+    class HerzfeldBergerShielding(NamedTuple):
         """
         Herzfeld-Berger convention :cite:p:`Herzfeld1980` uses the following parameters:
 
@@ -973,14 +1122,35 @@ class MagneticShielding(NMRTensor):
         kappa: float
 
         def __str__(self):
-            return (f"HerzfeldBergerNotation/MarylandNotation:\n"
+            return (f"HerzfeldBergerShielding/MarylandShielding:\n"
                     f"  sigma_iso (isotropy): {self.sigma_iso:.5f}\n"
                     f"  omega (span):     {self.omega:.5f}\n"
                     f"  kappa (skew):     {self.kappa:.5f}")
-    class MarylandNotation(HerzfeldBergerNotation):
-        """The same as the Herzfeld-Berger notation."""
 
-    class HaeberlenNotation(NamedTuple):
+    class HerzfeldBergerShift(NamedTuple):
+        """
+        The same as the Herzfeld-BergerShielding, but for chemical shifts. i.e. sigma -> delta.
+        Therefore:
+
+        .. math::
+            \\delta_{33} - \\delta_{11} = \\Omega
+
+        """
+        delta_iso: float
+        omega: float
+        kappa: float
+
+        def __str__(self):
+            return (f"HerzfeldBergerShift/MarylandShift:\n"
+                    f"  delta_iso (isotropic shift): {self.delta_iso:.5f}\n"
+                    f"  omega (span):     {self.omega:.5f}\n"
+                    f"  kappa (skew):     {self.kappa:.5f}")
+    
+    
+
+
+
+    class HaeberlenShielding(NamedTuple):
         """
         Haeberlen convention :cite:p:`Haeberlen1976` follows this ordering:
         
@@ -1003,56 +1173,48 @@ class MagneticShielding(NMRTensor):
         eta: float
 
         def __str__(self):
-            return (f"HaeberlenNotation:\n"
+            return (f"HaeberlenShielding:\n"
                     f"  sigma_iso (isotropy): {self.sigma_iso:.5f}\n"
                     f"  sigma (reduced anisotropy): {self.sigma:.5f}\n"
                     f"  delta (anisotropy): {self.delta:.5f}\n"
                     f"  eta (asymmetry): {self.eta:.5f}")
 
-    class MehringNotation(IUPACNotaion):
+    class HaeberlenShift(NamedTuple):
+        """
+        The same as the HaeberlenShielding, but for chemical shifts. i.e. sigma -> delta.
+        Therefore:
+
+        .. math::
+            |\\delta_{zz} - \\delta_{iso} | \\geq |\\delta_{xx} - \\delta_{iso} | \\geq |\\delta_{yy} - \\delta_{iso} |
+
+        """
+        delta_iso: float
+        delta: float
+        anisotropy: float
+        asymmetry: float
+
+        def __str__(self):
+            return (f"HaeberlenShift:\n"
+                    f"  delta_iso (isotropic shift): {self.delta_iso:.5f}\n"
+                    f"  delta (reduced anisotropy): {self.delta:.5f}\n"
+                    f"  anisotropy: {self.anisotropy:.5f}\n"
+                    f"  asymmetry: {self.asymmetry:.5f}")
+
+    class MehringShielding(IUPACShielding):
         """
         Mehring convention :cite:p:`Mehring1983` is equivalent to the IUPAC convention.
         """
-
-
-    def __init__(self,
-        data: Union[np.ndarray, tuple[np.ndarray, np.ndarray]],
-        species: str,
-        order:str = NMRTensor.ORDER_HAEBERLEN,
-        reference:Optional[float]=None,
-        gradient: float=-1.0,
-        tag = None):
+    class MehringShift(IUPACShift):
         """
-        Initialise the MSTensor
-
-        Create an MSTensor object from a 3x3 matrix.
-
-        Arguments:
-            species (str):      Element or isotope symbol of the atom the tensor refers to. e.g 'H', 'C', '13C'
-            data (np.ndarray or tuple):  3x3 matrix containing the tensor, or
-                                         pair [evals, evecs] for the symmetric
-                                         part alone.
-            order (str):        Order to use for eigenvalues/eigenvectors. Can
-                                be 'i' (ORDER_INCREASING), 'd'
-                                (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-                                'n' (ORDER_NQR). Default is 'h' for MS tensors.
-            references (dict):  Dictionary of references for the magnetic shielding 
-                                to chemical shift conversion. Keys are element symbols,
-                                values are the reference chemical shift in ppm.
-            gradients (dict):   Dictionary of gradients for the magnetic shielding
-                                tensor. Keys are element symbols, values are the
-                                gradient. Any unspecified gradients will be set to -1.
-            tag (str):          Optional tag to identify the tensor. In a magres file, this would be the
-                                'ms_sometag' though for most magres file ms is not decomposed into contributions and the tag
-                                is simply 'ms'. By default, this is None.
-
-
+        The same as the MehringShielding, but for chemical shifts. i.e. sigma -> delta.
         """
-        super().__init__(data, order=order)
-        self.species = species
-        self.reference = reference
-        self.gradient = gradient
-        self.mstag = tag
+    class MarylandShielding(HerzfeldBergerShielding):
+        """The same as the Herzfeld-Berger notation."""
+
+    class MarylandShift(HerzfeldBergerShift):
+        """The same as the Herzfeld-BergerShift."""
+
+
 
     @property
     def element(self):
@@ -1074,7 +1236,8 @@ class MagneticShielding(NMRTensor):
         if self.reference is None:
             raise ValueError('Reference chemical shift not set for this tensor.')
 
-        return self.reference + (self.gradient * self.isotropy) / (1 + self.reference * 1e-6)
+        iso = self.trace / 3
+        return (self.reference + self.gradient * iso) / (1 - self.reference * 1e-6)
 
     @property
     def shift_tensor(self):
@@ -1083,48 +1246,82 @@ class MagneticShielding(NMRTensor):
         '''
         if self.reference is None:
             raise ValueError('Reference chemical shift not set for this tensor.')
-        shift_data = self.reference + (self.gradient * self.data) / (1 + self.reference * 1e-6)
+        ref_tensor = np.eye(3) * self.reference
+        shift_data = (ref_tensor + self.gradient * self.data) / (1 - ref_tensor * 1e-6)
         return MagneticShielding(shift_data, self.species, order=self.order, reference=self.reference, gradient=self.gradient)
 
     @property
     def haeberlen_values(self):
-        """The magnetic shielding tensor in Haeberlen Notation."""
-        sigma_iso = self.isotropy
+        """The magnetic shielding/shift tensor in Haeberlen Notation."""
+        iso   = self.isotropy
         sigma = self.reduced_anisotropy
         delta = self.anisotropy
-        eta = self.asymmetry
-        return self.HaeberlenNotation(sigma_iso, sigma, delta, eta)
+        eta   = self.asymmetry
+
+        if self.is_shift:
+            return self.HaeberlenShift(iso, sigma, delta, eta)
+        else:
+            return self.HaeberlenShielding(iso, sigma, delta, eta)
 
     @property
     def mehring_values(self):
         """The magnetic shielding tensor in Mehring Notation."""
-        sigma_iso = self.isotropy
-        # sort the eigenvalues in increasing order
-        sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
-        return self.MehringNotation(sigma_iso, sigma_11, sigma_22, sigma_33)
+        if self.is_shift:
+            delta_iso = self.shift
+            shifted_tensor = self.shift_tensor
+            shifted_tensor.order = TensorConvention.Decreasing
+            delta_11, delta_22, delta_33 = shifted_tensor.eigenvalues
+            return self.MehringShift(delta_iso, delta_11, delta_22, delta_33)
+        else:
+            sigma_iso = self.isotropy
+            # sort the eigenvalues in increasing order
+            sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
+            return self.MehringShielding(sigma_iso, sigma_11, sigma_22, sigma_33)
+
 
     @property
     def iupac_values(self):
         """The magnetic shielding tensor in IUPAC Notation."""
-        sigma_iso = self.isotropy
-        # sort the eigenvalues in increasing order
-        sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
-        return self.IUPACNotaion(sigma_iso, sigma_11, sigma_22, sigma_33)
+        iso = self.isotropy
+        if self.is_shift:
+            delta_iso = self.shift
+            shifted_tensor = self.shift_tensor
+            shifted_tensor.order = TensorConvention.Decreasing
+            delta_11, delta_22, delta_33 = shifted_tensor.eigenvalues
+            return self.IUPACShift(delta_iso, delta_11, delta_22, delta_33)
+        else:
+            sigma_iso = self.isotropy
+            # sort the eigenvalues in increasing order
+            sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
+            return self.IUPACShielding(sigma_iso, sigma_11, sigma_22, sigma_33)
 
     @property
     def maryland_values(self):
-        """The magnetic shielding tensor in Maryland Notation."""
-        sigma_iso = self.isotropy
+        """The shielding/shift tensor in Maryland Notation."""
+        iso = self.shift if self.is_shift else self.isotropy
+        # omega and kappa should be the same for the shielding and shift
+        # !TODO check if this is correct
         omega = self.span
         kappa = self.skew
-        return self.MarylandNotation(sigma_iso, omega, kappa)
+
+        if self.is_shift:
+            return self.MarylandShift(iso, omega, kappa)
+        else:
+            return self.MarylandShielding(iso, omega, kappa)
+    
     @property
     def herzfeldberger_values(self):
-        """The magnetic shielding tensor in Herzfeld-Berger Notation."""
-        sigma_iso = self.isotropy
+        """The shielding/shift tensor in Herzfeld-Berger Notation."""
+        iso = self.shift if self.is_shift else self.isotropy
+        # omega and kappa should be the same for the shielding and shift
+        # !TODO check if this is correct
         omega = self.span
         kappa = self.skew
-        return self.HerzfeldBergerNotation(sigma_iso, omega, kappa)
+
+        if self.is_shift:
+            return self.HerzfeldBergerShift(iso, omega, kappa)
+        else:
+            return self.HerzfeldBergerShielding(iso, omega, kappa)
 
     # Set/update the reference chemical shift
     def set_reference(self, reference: float):
@@ -1141,6 +1338,13 @@ class MagneticShielding(NMRTensor):
         self.gradient = gradient
 
     @property
+    def is_shift(self):
+        '''
+        Returns True if we have a reference set -> we want the chemical shift, False otherwise.
+        '''
+        return self.reference is not None
+
+    @property
     def _initialisation_params(self):
         """
         Return the parameters used for initialisation of the tensor.
@@ -1153,6 +1357,7 @@ class MagneticShielding(NMRTensor):
             'tag': self.mstag
         }
 
+
     def __str__(self):
         """
         Neatly formatted string representation of the tensor and Haeberlen description.
@@ -1162,6 +1367,28 @@ class MagneticShielding(NMRTensor):
         s += str(np.array2string(self.data, precision=5, separator=",", suppress_small=True)) + "\n"
         s += str(self.haeberlen_values)
         return s
+    
+    def __eq__(self, other: 'MagneticShielding') -> bool:
+        # First, check if it's a MagneticShielding object
+        if not isinstance(other, MagneticShielding):
+            return False
+        
+        # Use parent class equality for tensor comparison
+        if not super().__eq__(other):
+            return False
+        
+        # Compare additional MagneticShielding-specific attributes
+        # Species comparison is optional and can be modified as needed
+        return self.species == other.species
+
+    def __hash__(self) -> int:
+        # Combine parent class hash with species
+        return hash((
+            super().__hash__(),
+            self.species
+        ))
+
+
 
 class ElectricFieldGradient(NMRTensor):
     """ElectricFieldGradient
@@ -1183,11 +1410,12 @@ class ElectricFieldGradient(NMRTensor):
     Note that some conventions use the reduced anisotropy ( :math:`\\zeta` ) instead of the asymmetry parameter.
 
     """
+    default_order = TensorConvention.NQR
 
     def __init__(self,
                 data: Union[np.ndarray, tuple[np.ndarray, np.ndarray]],
                 species: str,
-                order: str=NMRTensor.ORDER_NQR,
+                order: str=default_order,
                 quadrupole_moment:Optional[float] = None,
                 gamma:Optional[float] = None):
         """
@@ -1312,6 +1540,8 @@ class ElectricFieldGradient(NMRTensor):
         Returns:
             float: Quadrupolar frequency value in Hz.
         '''
+        if self.spin == 0 or self.spin == 0.5:
+            raise ValueError("Nuclear spin is {self.spin}. Quadrupolar frequency is not defined.")
         return 3 * self.Cq / (2 * self.spin * (2 * self.spin - 1))
 
     def get_larmor_frequency(self, Bext):
@@ -1449,6 +1679,42 @@ class ElectricFieldGradient(NMRTensor):
             'gamma': self.gamma
         }
 
+    def __str__(self):
+        """
+        Neatly formatted string representation of the tensor and essential parameters.
+        """
+        s =  f"Electric Field Gradient Tensor for {self.species}:\n"
+        # 3x3 tensor representation neatly formatted with 5 decimal places
+        s += str(np.array2string(self.data, precision=5, separator=",", suppress_small=True)) + "\n"
+        s += f"Quadrupole moment: {self.quadrupole_moment} barns\n"
+        s += f"Nuclear spin: {self.spin}\n"
+        if self.Cq == 0:
+            s += "This site is not quadrupole active.\n"
+        else:
+            s += f"Quadrupolar constant: {self.Cq} Hz\n"
+            s += f"Quadrupolar product: {self.Pq} Hz\n"
+            s += f"Quadrupolar frequency: {self.nuq} Hz\n"
+        return s
+    
+    def __eq__(self, other: 'ElectricFieldGradient') -> bool:
+        # First, check if it's a ElectricFieldGradient object
+        if not isinstance(other, ElectricFieldGradient):
+            return False
+        
+        # Use parent class equality for tensor comparison
+        if not super().__eq__(other):
+            return False
+        
+        # Compare additional MagneticShielding-specific attributes
+        # Species comparison is optional and can be modified as needed
+        return self.species == other.species
+
+    def __hash__(self) -> int:
+        # Combine parent class hash with species
+        return hash((
+            super().__hash__(),
+            self.species
+        ))
 
 
 def contains_nmr_tensors(values):
@@ -1460,3 +1726,4 @@ def contains_nmr_tensors(values):
             elif isinstance(values[0], (list, np.ndarray)):
                 return contains_nmr_tensors(values[0])
     return False
+

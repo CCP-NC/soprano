@@ -20,7 +20,7 @@ useful and specialised classes are found in soprano.properties.nmr and
 in soprano.calculate.nmr
 """
 
-from soprano.nmr.coupling import Coupling
+from soprano.nmr.coupling import Coupling, DipolarCoupling
 from soprano.nmr.site import Site
 from soprano.nmr.spin_system import SpinSystem
 from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor

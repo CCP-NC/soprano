@@ -19,7 +19,7 @@
 
 import re
 import warnings
-from typing import List, Tuple, Union
+from typing import Union, Optional
 
 import numpy as np
 import scipy.constants as cnst
@@ -29,7 +29,7 @@ from scipy.spatial.transform import Rotation
 # Left here for backwards compatibility
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
 
-def _split_species(species: str) -> Tuple[int, str]:
+def _split_species(species: str) -> tuple[int, str]:
         """
         Validate the species string and extract the isotope number and element.
 
@@ -46,7 +46,7 @@ def _split_species(species: str) -> Tuple[int, str]:
         return int(isotope_number), element
 
 
-def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
     """Sort a list of eigenvalue triplets by varios conventions"""
     evals = np.array(evals)
     iso = np.average(evals, axis=1)
@@ -60,7 +60,7 @@ def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray
         # we should really just sort by the absolute values of the eigenvalues
 
         # We can warn the user if the isotropic value is not zero
-        if np.any(np.abs(iso) > 1e-10):
+        if np.any(np.abs(iso) > 1e-6):
             warnings.warn("Isotropic value(s) are not zero but NQR order is requested.\n"
                 "If you're dealing with an EFG tensor, "
                 "then check it carefully since these should be traceless.\n"
@@ -176,7 +176,7 @@ def _J_constant(Kij, gi, gj):
 
     return cnst.h * gi * gj * Kij / (4 * np.pi ** 2) * 1e19
 
-def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
+def _matrix_to_euler(R:Union[list[list[float]], np.ndarray],
                      convention: str = "zyz",
                      passive: bool = False
                      ) -> np.ndarray:
@@ -194,7 +194,7 @@ def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
     transpose the rotation matrix if necessary.
 
     Args:
-        R (Union[List[List[float]], np.ndarray]): Rotation matrix. Note that SciPy
+        R (Union[list[list[float]], np.ndarray]): Rotation matrix. Note that SciPy
                                                     will convert this to a proper rotation matrix
                                                     if it is not already one.
                                                     (i.e. det(R) = 1)
@@ -603,7 +603,7 @@ def _compute_rotation(euler_angles: np.ndarray,
                       pas1: np.ndarray,
                       convention: str,
                       rotation_type: int
-                      )-> Tuple[np.ndarray, np.ndarray]:
+                      )-> tuple[np.ndarray, np.ndarray]:
     rrel_check = Rotation.from_euler(convention.upper(), euler_angles).as_matrix()
     mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
 
@@ -667,3 +667,73 @@ def _get_tensor_array(s, tensor_tag):
     
     tensors = s.get_array(tensor_tag)
     return _ensure_tensor_format(tensors)
+
+
+    
+    
+
+def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], elements: list[str]) -> list[float]:
+    """
+    Convert gradients input to a list with one value per element in elements.
+
+    Parameters:
+    gradients (Union[float, dict[str, float], list[float]]): The gradients input, which can be a float, a dictionary, or a list.
+    elements (list[str]): The list of elements.
+
+    Returns:
+    Optional[list[Optional[float]]]: A list of gradients corresponding to the elements, or None if gradients is None.
+
+    Raises:
+    ValueError: If the gradients input is not a float, dictionary, or list, or if the length of the gradients list does not match the length of elements.
+    """
+    DEFAULT_GRADIENT = -1.0
+    if isinstance(gradients, float):
+        return [gradients] * len(elements)
+    elif isinstance(gradients, dict):
+        return [gradients.get(el, DEFAULT_GRADIENT) for el in elements]
+    elif isinstance(gradients, list):
+        if len(gradients) == len(elements):
+            return gradients
+        else:
+            raise ValueError(
+                "Mismatch between number of sites and number of gradients given."
+            )
+    else:
+        raise ValueError(
+            "gradients must be either a float, a dictionary, or a list of gradients"
+        )
+
+def _references_to_list(references: Union[None, dict[str, float], list[float]], elements: list[str]) -> list[Union[float, None]]:
+    """
+    Convert references input to a list with one value per element in elements.
+
+    Parameters:
+    references (Union[None, dict[str, float], list[float]]): The references input, which can be None, a dictionary, or a list.
+    elements (list[str]): The list of elements.
+
+    Returns:
+    Optional[list[Optional[float]]]: A list of references corresponding to the elements, or None if references is None.
+
+    Raises:
+    ValueError: If the references input is not None, a dictionary, or a list, or if the length of the references list does not match the length of elements.
+    """
+    if references is None:
+        return [None] * len(elements)
+    elif isinstance(references, dict):
+        if not all(el in references for el in elements):
+            raise ValueError(
+                "Mismatch between sites and references given."
+                f"Missing elements: {set(elements) - set(references.keys())}"
+            )
+        return [references[el] for el in elements]
+    elif isinstance(references, list):
+        if len(references) == len(elements):
+            return references # type: ignore
+        else:
+            raise ValueError(
+                "Mismatch between number of sites and number of references given."
+            )
+    else:
+        raise ValueError(
+            "references must be either None, a dictionary, or a list of references"
+        )

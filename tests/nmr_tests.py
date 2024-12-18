@@ -1361,7 +1361,16 @@ class TestMagneticShielding(unittest.TestCase):
         # Setup a sample tensor for testing
         evals = np.array([1.0, 2.0, -6.0])
         evecs = np.eye(3)
-        self.tensor = MagneticShielding([evals, evecs], species='2H', reference=0)
+        self.tensor = MagneticShielding([evals, evecs], species='2H')
+        self.ref = 170.0 # Reference shielding
+        self.tensor_ref= MagneticShielding([evals, evecs], species='2H', reference=self.ref)
+
+        self.ref_shielding_iso = -1.0
+        self.ref_delta = (self.ref - self.ref_shielding_iso) / (1 - self.ref*1e-6)
+
+        # TODO: check these values
+        self.ref_omega = 8.0
+        self.ref_kappa = -0.75
 
     def test_initialization(self):
         # Test if the object is initialized correctly
@@ -1382,26 +1391,43 @@ class TestMagneticShielding(unittest.TestCase):
         np.testing.assert_array_equal(self.tensor.eigenvectors, np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]]))
 
         # shift = -isotropy in this case (reference = 0)
-        self.assertAlmostEqual(self.tensor.shift, -self.tensor.isotropy)
-        np.testing.assert_array_equal(self.tensor.shift_tensor.data, -self.tensor.data)
+        manual_shift = (self.ref - self.tensor.isotropy) / (1 - self.ref*1e-6)
+        ref_tensor = np.eye(3) * self.ref
+        manual_shift_tensor = (ref_tensor - self.tensor.data) / (1 - ref_tensor*1e-6)
+        self.assertAlmostEqual(self.tensor_ref.shift, manual_shift)
+        np.testing.assert_array_equal(self.tensor_ref.shift_tensor.data, manual_shift_tensor)
 
         # update the reference and gradient
+        shielding_iso = self.tensor.isotropy
         self.tensor.reference = 10.0
         self.tensor.gradient = -2.0
-        self.assertAlmostEqual(self.tensor.shift, 10 + (-2.0 * self.tensor.isotropy) / (1 + 10e-6))
+        self.assertAlmostEqual(self.tensor.shift, (10 + -2.0 * shielding_iso) / (1 - 10e-6))
 
     def test_haeberlen_values(self):
         haeb = self.tensor.haeberlen_values
-        self.assertAlmostEqual(haeb.sigma_iso, -1.0)
+        self.assertAlmostEqual(haeb.sigma_iso, self.ref_shielding_iso)
         self.assertAlmostEqual(haeb.sigma, -5.0)
         self.assertAlmostEqual(haeb.delta, -7.5)
         self.assertAlmostEqual(haeb.eta, 0.2)
 
+        haebr = self.tensor_ref.haeberlen_values
+        print(haebr,self.tensor_ref.iupac_values, self.tensor_ref.herzfeldberger_values)
+        self.assertAlmostEqual(haebr.delta_iso, self.ref_delta)
+        # TODO: should these be the same as for the shielding tensor?
+        # self.assertAlmostEqual(haebr.sigma, -5.0)
+        # self.assertAlmostEqual(haebr.delta, -7.5)
+        # self.assertAlmostEqual(haebr.eta, 0.2)
+
     def test_herzfeldberger_values(self):
         herz = self.tensor.herzfeldberger_values
-        self.assertAlmostEqual(herz.sigma_iso, -1.0)
+        self.assertAlmostEqual(herz.sigma_iso, self.ref_shielding_iso)
         self.assertAlmostEqual(herz.omega, 8.0) # span
         self.assertAlmostEqual(herz.kappa, -0.75) # skew
+
+        haebr = self.tensor_ref.herzfeldberger_values
+        self.assertAlmostEqual(haebr.delta_iso, self.ref_delta)
+        self.assertAlmostEqual(haebr.omega, 8.0) # span
+        self.assertAlmostEqual(haebr.kappa, 0.75) # skew
 
     def test_iupac_values(self):
         iupac = self.tensor.iupac_values
@@ -1410,6 +1436,15 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertAlmostEqual(iupac.sigma_22,  1.0)
         self.assertAlmostEqual(iupac.sigma_33,  2.0)
 
+        iupacr = self.tensor_ref.iupac_values
+        delta11 = (self.ref - iupac.sigma_11) / (1 - self.ref*1e-6)
+        delta22 = (self.ref - iupac.sigma_22) / (1 - self.ref*1e-6)
+        delta33 = (self.ref - iupac.sigma_33) / (1 - self.ref*1e-6)
+        self.assertAlmostEqual(iupacr.delta_iso, self.ref_delta)
+        self.assertAlmostEqual(iupacr.delta_11, delta11)
+        self.assertAlmostEqual(iupacr.delta_22, delta22)
+        self.assertAlmostEqual(iupacr.delta_33, delta33)
+
     def test_maryland_values(self):
         mary = self.tensor.maryland_values
         # should be equivalent to the herzfeld-berger values
@@ -1417,6 +1452,7 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertAlmostEqual(mary.sigma_iso, herz.sigma_iso)
         self.assertAlmostEqual(mary.omega, herz.omega)
         self.assertAlmostEqual(mary.kappa, herz.kappa)
+
 
     def test_mehring_values(self):
         mehr = self.tensor.mehring_values
@@ -1522,13 +1558,22 @@ class TestElectricFieldGradient(unittest.TestCase):
         result = self.tensor.get_quadrupolar_perturbation(Bext)
         self.assertAlmostEqual(result, expected_a)
 
+    def test_equality_comparison(self):
+        # Test the equality comparison method
+        data = self.tensor.data
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertTrue(self.tensor == tensor)
+        # Change a value in the tensor
+        data[0, 0] += 1e-6
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertFalse(self.tensor == tensor)
     def test_array_ufunc(self):
         # Test array ufunc operations
         tensor2 = ElectricFieldGradient([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H')
         result = self.tensor + tensor2
         self.assertIsInstance(result, ElectricFieldGradient)
         np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
-
+        
     def test_parameter_consistency_warnings(self):
         """Test that warnings are issued when operating on tensors with different parameters."""
         # Create base tensor with known parameters
@@ -1561,6 +1606,16 @@ class TestElectricFieldGradient(unittest.TestCase):
         with self.assertRaises(ValueError, msg="Should raise error for different orders"):
             ElectricFieldGradient._check_compatible([efg1, efg2_order])
 
+    def test_hash(self):
+        # Test the hash method
+        data = self.tensor.data
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertEqual(hash(self.tensor), hash(tensor))
+        # Change a value in the tensor
+        data[0, 0] += 1e-6
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertNotEqual(hash(self.tensor), hash(tensor))
+
 class TestMSMeanProperties(unittest.TestCase):
     def setUp(self):
         """Set up a test collection with predictable MS values."""
@@ -1573,6 +1628,7 @@ class TestMSMeanProperties(unittest.TestCase):
         sel = AtomSelection.from_element(eth_justH, 'H')
         self.eth_justH = sel.subset(eth_justH)
         self.justH_indices = sel.indices
+
 
         
         # Create a second structure with scaled MS values
