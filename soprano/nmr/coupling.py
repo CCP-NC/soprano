@@ -43,46 +43,13 @@ from soprano.nmr.utils import (
 
 
 class Coupling(BaseModel, ABC):
-    """
-    Class to represent a generic coupling tensor between two sites.
-    """
-
-    site_i: int = Field(
-        ...,
-        description="The index of the first site in the coupling",
-    )
-    site_j: int = Field(
-        ...,
-        description="The index of the second site in the coupling",
-    )
-    species1: str = Field(
-        ...,
-        description="The chemical or isotope symbol of the first site",
-    )
-    species2: str = Field(
-        ...,
-        description="The chemical or isotope symbol of the second site",
-    )
-    tensor: NMRTensor = Field(
-        ...,
-        description="The coupling tensor",
-    )
-    tag: Optional[str] = Field(
-        default=None,
-        description="A tag to identify the coupling tensor",
-    )
-    euler_convention: Literal["zyz", "zxz"] = Field(
-        default="zyz",
-        description="The convention used for the Euler angles",
-    )
-    euler_passive: bool = Field(
-        default=False,
-        description="Whether the Euler angles are passive",
-    )
-    euler_degrees: bool = Field(
-        default=False,
-        description="Whether the Euler angles are in degrees. Default is radians (False)",
-    )
+    site_i: int = Field(description="Index of first site")
+    site_j: int = Field(description="Index of second site")
+    species1: str = Field(description="Chemical/isotope symbol of first site. e.g. '13C'")
+    species2: str = Field(description="Chemical/isotope symbol of second site. e.g. '1H'")
+    tensor: NMRTensor = Field(description="The coupling tensor between the two sites")
+    type: Literal["J", "D"] = Field(description="The type of coupling (J-coupling or dipolar coupling etc.)")
+    tag: Optional[str] = Field(default=None, description="A tag to identify the coupling tensor")
 
     gamma1: Optional[float] = Field(
         default=None,
@@ -93,36 +60,26 @@ class Coupling(BaseModel, ABC):
         description="The gyromagnetic ratio of the second site. If not provided, it is looked up in the nmrdata.json file for the specified species",
     )
 
+    model_config = ConfigDict(
+        validate_assignment=True,
+        arbitrary_types_allowed=True,
+        )
+
     @model_validator(mode="after")
     def set_default_gammas(self):
-        """
-        Set the default values for the gyromagnetic ratios for each species if not provided.
-        """
-        if self.gamma1 is None:
-            iso1, element1 = _split_species(self.species1)
-            self.gamma1 = nmr_gamma(element1, iso=iso1)
-        if self.gamma2 is None:
-            iso2, element2 = _split_species(self.species2)
-            self.gamma2 = nmr_gamma(element2, iso=iso2)
+        if not self.gamma1:
+            iso, el = _split_species(self.species1)
+            self.gamma1 = nmr_gamma(el, iso=iso)
+        if not self.gamma2:
+            iso, el = _split_species(self.species2)
+            self.gamma2 = nmr_gamma(el, iso=iso)
         return self
 
-    @staticmethod
-    def validate_species(species: str) -> str:
-        try:
-            isotope_number, element = _split_species(species)
-        except ValueError as e:
-            raise ValueError(f"Error processing species ('{species}'): {e}")
+    @field_validator("species1", "species2")
+    @classmethod
+    def validate_species(cls, species):
+        _split_species(species)
         return species
-
-    @field_validator("species1")
-    def check_species1(cls, species1):
-        return cls.validate_species(species1)
-
-    @field_validator("species2")
-    def check_species2(cls, species2):
-        return cls.validate_species(species2)
-
-    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     @property
     def is_self_coupling(self):
@@ -130,30 +87,49 @@ class Coupling(BaseModel, ABC):
 
     @property
     def element_symbols(self):
-        el_i = _split_species(self.species1)[1]
-        el_j = _split_species(self.species2)[1]
-        return el_i, el_j
+        return tuple(_split_species(species)[1] for species in [self.species1, self.species2])
 
     @property
     def isotope_numbers(self):
-        iso_i = _split_species(self.species1)[0]
-        iso_j = _split_species(self.species2)[0]
-        return iso_i, iso_j
+        return tuple(_split_species(species)[0] for species in [self.species1, self.species2])
 
     @property
     @abstractmethod
     def coupling_constant(self):
-        raise NotImplementedError
+        pass
 
-    @property
+    def euler_angles(self, **kwargs):
+        return self.tensor.euler_angles(**kwargs)
+    
+    def copy(self, deep: bool = True, **kwargs) -> 'Coupling':
+        """
+        Create a copy of the Coupling object.
+        
+        This method overrides the deprecated copy method with model_copy.
+        
+        Parameters:
+        -----------
+        deep : bool, optional
+            If True, performs a deep copy of nested objects. 
+            Default is True to ensure all nested objects are properly copied.
+        **kwargs : dict
+            Additional keyword arguments to pass to model_copy
+        
+        Returns:
+        --------
+        Coupling
+            A new Coupling object that is a copy of the current object
+        
+        Notes:
+        ------
+        Deprecation warning for the original copy method is automatically 
+        handled by Pydantic.
+        """
+        return self.model_copy(deep=deep, **kwargs)
+    
     @abstractmethod
-    def euler_angles(
-        self,
-        convention: Optional[str] = None,
-        passive: Optional[bool] = None,
-        degrees: Optional[bool] = None,
-    ) -> np.ndarray:
-        raise NotImplementedError
+    def to_mrsimulator(self):
+        pass
 
 
 # end class Coupling
@@ -179,6 +155,7 @@ class ISCoupling(Coupling):
     as MRSimulator or Simpson.
 
     """
+    type: str = "J" # J-coupling
 
     @property
     def J_evals(self):
@@ -240,20 +217,6 @@ class ISCoupling(Coupling):
     def coupling_constant(self):
         return self.Jisotropy
 
-    def euler_angles(
-        self,
-        convention: Optional[str] = None,
-        passive: Optional[bool] = None,
-        degrees: Optional[bool] = None,
-    ) -> np.ndarray:
-
-        # Use provided conventions or use the default ones.
-        convention = convention or self.euler_convention
-        passive = passive or self.euler_passive
-        degrees = degrees or self.euler_degrees
-        return self.tensor.euler_angles(
-            convention=convention, passive=passive, degrees=degrees
-        )
 
 
 # end class ISCoupling
@@ -272,6 +235,8 @@ class DipolarCoupling(Coupling):
     This class contains methods to return the dipolar coupling constant and the dipolar coupling tensor.
     """
 
+    type: str = "D"  # Dipolar coupling
+
     @property
     def coupling_constant(self):
         """
@@ -287,21 +252,6 @@ class DipolarCoupling(Coupling):
 
         """
         return self.tensor.eigenvalues[2] / 2
-
-    def euler_angles(
-        self,
-        convention: Optional[str] = None,
-        passive: Optional[bool] = None,
-        degrees: Optional[bool] = None,
-    ) -> np.ndarray:
-
-        # Use provided conventions or use the default ones.
-        convention = convention or self.euler_convention
-        passive = passive or self.euler_passive
-        degrees = degrees or self.euler_degrees
-        return self.tensor.euler_angles(
-            convention=convention, passive=passive, degrees=degrees
-        )
 
     @classmethod
     def from_distance_vector(
@@ -371,14 +321,27 @@ class DipolarCoupling(Coupling):
             species2=species2,
             tensor=dipolar_tensor,
             tag=tag,
-            euler_convention=euler_convention,
-            euler_passive=euler_passive,
-            euler_degrees=euler_degrees,
             gamma1=gamma_1,
             gamma2=gamma_2,
         )
+    
+    def to_mrsimulator(self):
+        """
+        Convert the DipolarCoupling object to a dictionary suitable for input to MRSimulator.
 
+        Returns:
+        --------
+        dict
+            A dictionary containing the dipolar coupling tensor and the gyromagnetic ratios of the two sites.
 
+        """
+        # return {
+        #     "dipolar_coupling": self.tensor.to_dict(),
+        #     "gamma1": self.gamma1,
+        #     "gamma2": self.gamma2,
+        # }
+        raise NotImplementedError("to_mrsimulator method not implemented for DipolarCoupling class")
+    
 def dipolar_coupling_from_distance_vector(r: np.ndarray, gamma1, gamma2) -> float:
     """
     Calculate the dipolar coupling constant from the distance vector r and gyromagnetic ratios gamma1 and gamma2.
@@ -395,6 +358,3 @@ def dipolar_coupling_from_distance_vector(r: np.ndarray, gamma1, gamma2) -> floa
     """
     # Calculate the dipolar coupling constant
     return _dip_constant(r * 1e-10, gamma1, gamma2)
-
-
-# end class DipolarCoupling

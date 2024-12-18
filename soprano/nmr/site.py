@@ -37,20 +37,25 @@ on the MRSimulator code: https://github.com/deepanshs/mrsimulator
 """
 
 import warnings
-from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from typing import Any, Optional
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor
+from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, TensorConvention
 from soprano.nmr.utils import _split_species
 
-TensorConvention = Literal["Haeberlen", "Increasing", "Decreasing", "NQR"]
-tensor_convention_mapping = {
-    "Haeberlen": NMRTensor.ORDER_HAEBERLEN,
-    "Increasing": NMRTensor.ORDER_INCREASING,
-    "Decreasing": NMRTensor.ORDER_DECREASING,
-    "NQR": NMRTensor.ORDER_NQR,
-}
 
+def check_tensor_present(tensor_name):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            tensor = getattr(self, tensor_name)
+            if tensor is not None:
+                return func(self, *args, **kwargs)
+            return None
+        return wrapper
+    return decorator
+
+check_magnetic_shielding_tensor = check_tensor_present('ms')
+check_efg_tensor = check_tensor_present('efg')
 
 class Site(BaseModel):
     """
@@ -65,78 +70,54 @@ class Site(BaseModel):
         ...,
         description="A label for this site, e.g. 'H1', 'C2'",
     )
-    magnetic_shielding_tensor: MagneticShielding = Field(
-        ...,
+    ms: Optional[MagneticShielding] = Field(
+        default=None,
         description="The magnetic shielding tensor at this site, in ppm",
     )
-    ms_tensor_convention: TensorConvention = Field(
-        default="Haeberlen",
-        description="The convention used for the magnetic shielding tensor",
-    )
-    efg_tensor: ElectricFieldGradient = Field(
-        ...,
+    efg: Optional[ElectricFieldGradient] = Field(
+        default=None,
         description="The electric field gradient tensor at this site, in atomic units",
-    )
-    efg_tensor_convention: TensorConvention = Field(
-        default="NQR",
-        description="The convention used for the electric field gradient tensor",
-    )
-    # TODO: how should this be used, if at all?
-    quadrupolar: bool = Field(
-        default=False,
-        description="Whether the nucleus at this site has a quadrupolar interaction",
-    )
-    # Euler angle conventions
-    euler_convention: Literal["zyz", "zxz"] = Field(
-        default="zyz",
-        description="The convention used for the Euler angles" "(default is zyz",
-    )
-    euler_passive: bool = Field(
-        default=False, description="Whether the Euler angles are passive or active. "
-    )
-    euler_degrees: bool = Field(
-        default=False,
-        description="Whether the Euler angles are in degrees or radians. "
-        "Default is False (radians)",
     )
 
     model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     @field_validator("isotope")
-    def isotope_validator(cls, v):
+    def validate_isotope(cls, v):
         return cls.validate_species(v)
 
-    # Run this after instantiation to ensure the tensors are valid
-    @model_validator(mode="after")
-    def enforce_tensor_convention(self):
-        # MS
-        convention = self.ms_tensor_convention
-        convention = tensor_convention_mapping.get(convention)
-        tensor = self.magnetic_shielding_tensor
-        if convention and tensor:
+    def enforce_tensor_conventions(
+        self,
+        ms_convention: Optional[TensorConvention] = None,
+        efg_convention: Optional[TensorConvention] = None,
+    ):
+        def enforce_convention(tensor, convention):
+            if convention is None:
+                return
+            input_convention = TensorConvention.from_input(convention)
             current_convention = tensor.order
-            if current_convention != convention:
-                tensor.order = convention
+            if current_convention != input_convention:
+                tensor.order = input_convention
                 warnings.warn(
-                    f"Converted magnetic shielding tensor to {convention} convention"
+                    f"Converted {tensor.__class__.__name__} tensor to {input_convention} convention"
                 )
-                # update the value in the dict
-                self.magnetic_shielding_tensor = tensor
-        #  EFG
-        convention = self.efg_tensor_convention
-        convention = tensor_convention_mapping.get(convention)
-        tensor = self.efg_tensor
-        if convention and tensor:
-            current_convention = tensor.order
-            if current_convention != convention:
-                tensor.order = convention
-                warnings.warn(f"Converted EFG tensor to {convention} ordering")
-                # update the value in the dict
-                self.efg_tensor = tensor
-        return self
+
+        enforce_convention(self.ms, ms_convention)
+        enforce_convention(self.efg, efg_convention)
 
     @staticmethod
     def validate_species(species: str) -> str:
+        """
+        Validate the given species string.
+
+        Parameters:
+        species (str): The isotope string to validate, e.g., '1H', '13C'.
+
+        Returns:
+        str: The validated species string.
+
+        Raises:
+        ValueError: If the species string is not valid.
+        """
         try:
             isotope_number, element = _split_species(species)
         except ValueError as e:
@@ -144,23 +125,217 @@ class Site(BaseModel):
         return species
 
     @property
+    @check_magnetic_shielding_tensor
     def ms_iso(self):
-        return self.magnetic_shielding_tensor.isotropy
+        return self.ms.isotropy
 
     @property
+    @check_magnetic_shielding_tensor
     def ms_aniso(self):
-        return self.magnetic_shielding_tensor.anisotropy
-   
+        return self.ms.anisotropy
+
+    @check_magnetic_shielding_tensor
     def ms_euler(self, **kwargs):
         """
         Return the Euler angles for the magnetic shielding tensor.
-        kwargs are passed to the euler_angles method of the tensor object.
+
+        Parameters:
+        **kwargs: Additional keyword arguments that are passed to the
+                  euler_angles method of the MagneticShielding tensor object.
+                  These can include:
+                  - convention (str): The convention used for the Euler angles: zyz or zxz.
+                  - passive (bool): Whether the Euler angles are passive or active.
+                  - degrees (bool): Whether the Euler angles are in degrees or radians.
+
+        Returns:
+        tuple: The Euler angles (alpha, beta, gamma) for the magnetic shielding tensor.
         """
-        return self.magnetic_shielding_tensor.euler_angles(**kwargs)
-    
+        return self.ms.euler_angles(**kwargs)
+
+    @check_efg_tensor
     def efg_euler(self, **kwargs):
         """
         Return the Euler angles for the electric field gradient tensor.
-        kwargs are passed to the euler_angles method of the tensor object.
+
+        Parameters:
+        **kwargs: Arbitrary keyword arguments passed to the euler_angles method of the tensor object.
+                  These can include:
+                  - convention (str): The convention to use for the Euler angles.
+                  - passive (boo): Whether the Euler angles are passive or active.
+                  - degrees (bool): Whether to return the angles in degrees or radians.
+
+        Returns:
+        tuple: The Euler angles (alpha, beta, gamma) for the electric field gradient tensor.
         """
-        return self.efg_tensor.euler_angles(**kwargs)
+        return self.efg.euler_angles(**kwargs)
+    
+
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> 'Site':
+        """
+        Create a Site instance from a dictionary representation.
+
+        Parameters:
+        data (dict[str, Any]): A dictionary containing Site configuration.
+                                Can include nested dictionaries for ms and efg.
+
+        Returns:
+        Site: A new Site instance created from the input dictionary.
+        """
+        # Create a copy of the data to avoid modifying the original
+        data_copy = data.copy()
+
+        # Handle magnetic shielding tensor
+        if 'ms' in data_copy and isinstance(data_copy['ms'], dict):
+            ms_data = data_copy.pop('ms')
+            data_copy['ms'] = MagneticShielding(**ms_data)
+
+        # Handle electric field gradient tensor
+        if 'efg' in data_copy and isinstance(data_copy['efg'], dict):
+            efg_data = data_copy.pop('efg')
+            data_copy['efg'] = ElectricFieldGradient(**efg_data)
+
+        # Create and return the Site instance
+        return cls(**data_copy)
+
+
+    def copy(self, deep: bool = True, **kwargs) -> 'Site':
+        """
+        Create a copy of the Site object.
+        
+        This method overrides the deprecated copy method with model_copy.
+        
+        Parameters:
+        -----------
+        deep : bool, optional
+            If True, performs a deep copy of nested objects. 
+            Default is True to ensure tensor objects are properly copied.
+        **kwargs : dict
+            Additional keyword arguments to pass to model_copy
+        
+        Returns:
+        --------
+        Site
+            A new Site object that is a copy of the current object
+        
+        Notes:
+        ------
+        Deprecation warning for the original copy method is automatically 
+        handled by Pydantic.
+        """
+        return self.model_copy(deep=deep, **kwargs)
+
+    # Nice representation of the Site object
+    def __repr__(self):
+        return (f"Site(label={self.label!r}, "
+                f"isotope={self.isotope!r}, "
+                f"efg={self.efg!r}, "
+                f"ms={self.ms!r})")
+
+    def __str__(self):
+        return (f"Site: {self.label} (isotope: {self.isotope})\n"
+                "=============================================\n"
+                f"{self.ms}\n"
+                f"{self.efg}")
+    
+    def __eq__(self, other: 'Site') -> bool:
+        """
+        Check if two Site objects are equal.
+        
+        Sites are considered equal if they have:
+        - The same isotope
+        - The same label
+        - Equivalent magnetic shielding tensor (if present)
+        - Equivalent electric field gradient tensor (if present)
+        
+        Parameters:
+        other (Site): Another Site object to compare against
+        
+        Returns:
+        bool: True if sites are equivalent, False otherwise
+        """
+        # Quick type and identity checks
+        if not isinstance(other, Site):
+            return False
+        
+        # Compare basic attributes
+        if self.isotope != other.isotope or self.label != other.label:
+            return False
+        
+        # Compare magnetic shielding tensors
+        if (self.ms is None) != (other.ms is None):
+            return False
+        if self.ms is not None and other.ms is not None:
+            if self.ms != other.ms:
+                return False
+        
+        # Compare electric field gradient tensors
+        if (self.efg is None) != (other.efg is None):
+            return False
+        if self.efg is not None and other.efg is not None:
+            if self.efg != other.efg:
+                return False
+        
+        return True
+
+    def __hash__(self) -> int:
+        """
+        Generate a hash for the Site object.
+        
+        This allows Site objects to be used in sets and as dictionary keys.
+        
+        Returns:
+        int: A hash value for the Site object
+        """
+        return hash((
+            self.isotope, 
+            self.label, 
+            self.ms if self.ms is None else hash(self.ms), 
+            self.efg if self.efg is None else hash(self.efg)
+        ))
+
+
+    # INTERFACE METHODS
+
+    def to_mrsimulator(self):
+        """
+        Convert the Site object to a dictionary representation compatible with MRSimulator.
+
+        Returns:
+        dict: A dictionary representation of the Site object.
+        """
+        data = {
+            'isotope': self.isotope,
+            'label': self.label,
+        }
+        if self.ms is not None:
+            isotropic_chemical_shift = self.ms.isotropy
+            # TODO: what angle conventions are used?
+            euler_angles = self.ms.euler_angles()
+            shielding_symmetric = {
+                "zeta": self.ms.anisotropy,
+                "eta": self.ms.asymmetry,
+                "alpha": euler_angles[0],
+                "beta": euler_angles[1],
+                "gamma": euler_angles[2],}
+            data['isotropic_chemical_shift'] = isotropic_chemical_shift
+            data['shielding_symmetric'] = shielding_symmetric
+
+
+        if self.efg is not None:
+            Cq = self.efg.Cq
+            eta = self.efg.asymmetry
+            euler_angles = self.efg.euler_angles()
+            data['quadrupolar'] = {
+                "Cq": Cq,
+                "eta": eta,
+                "alpha": euler_angles[0],
+                "beta": euler_angles[1],
+                "gamma": euler_angles[2],
+            }
+
+            
+
+
+        return data
