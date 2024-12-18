@@ -26,6 +26,7 @@ from soprano.properties.nmr.dipolar import (
     DipolarEuler,
     DipolarRSS,
     DipolarTensor,
+    DipolarCouplingList
 )
 from soprano.properties.nmr.efg import (
     EFGNQR,
@@ -57,4 +58,10 @@ from soprano.properties.nmr.ms import (
     MSSkew,
     MSSpan,
     MSTensor,
+)
+from soprano.properties.nmr.spinsystem import (
+    NMRSpinSystem,
+    get_sites,
+    get_dipolar_couplings,
+    get_spin_system,
 )
