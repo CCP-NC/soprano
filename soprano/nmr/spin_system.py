@@ -26,7 +26,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
-from soprano.nmr.coupling import Coupling
+from soprano.nmr.coupling import Coupling, coupling_list_to_mrsimulator
 from soprano.nmr.site import Site
 
 TensorConvention = Literal["Haeberlen", "Increasing", "Decreasing", "NQR"]
@@ -258,30 +258,28 @@ class SpinSystem(BaseModel):
     # Interfaces:
     # =============================================================================
 
-    def to_mrsimulator(self):
+    def to_mrsimulator(self, **kwargs):
         """
         Convert the SpinSystem to a dictionary that can be used to create an
         MRSimulator SpinSystem object.
         """
 
-        # soprano_sites = self.sites
-        # soprano_couplings = self.couplings
+        soprano_sites = self.sites
+        soprano_couplings = self.couplings
 
-        # mrsimulator_sites = []
-        # mrsimulator_couplings = []
 
-        # for site in soprano_sites:
-        #     mrsimulator_sites.append(site.to_mrsimulator())
+        mrsimulator_sites = []
+        for site in soprano_sites:
+            mrsimulator_sites.append(site.to_mrsimulator())
 
-        # for coupling in soprano_couplings:
-        #     mrsimulator_couplings.append(coupling.to_mrsimulator())
+        mrsimulator_couplings = coupling_list_to_mrsimulator(soprano_couplings)
 
-        # return {
-        #     "sites": mrsimulator_sites,
-        #     "couplings": mrsimulator_couplings,
-        # }
+        return {
+            "sites": mrsimulator_sites,
+            "couplings": mrsimulator_couplings,
+            **kwargs
+        }
         
-        raise NotImplementedError("Conversion to MRSimulator SpinSystem not yet implemented")
         
     def from_mrsimulator(self, mrsimulator_spin_system):
         """
