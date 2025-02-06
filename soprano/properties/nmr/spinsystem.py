@@ -40,38 +40,36 @@ class NMRSpinSystem(AtomsProperty):
     Extact the information needed to output a SpinSystem object from an Atoms object.
 
     Parameters:
-    ------------
-    isotopes: list/dict/None
-        Specify the isotopes to be used. If None, default NMR-active isotopes
-        are chosen. Can be a dict like {'H': 2, 'C': 13} or a list like
-        ['2H', '13C']. If list, you can specify either one isotope per site
-        or a list of the unique isotopes (in which case all sites of that element
-        will have the same isotope).
-    references: list/dict/None
-        Specification of the references to convert magnetic shielding tensors to
-        chemical shifts. Can be a dict like {'H': 30, 'C': 170} or a list like
-        [30, 170]. If list, you must specify one reference per site in the system.
-        If None, no conversion is done and the outputs will be shieldings.
-    gradients: list/dict/float
-        Specification of the gradients to convert magnetic shielding tensors to
-        chemical shifts. Default is -1.0 corresponding as in the typical formula:
-        delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
-    include_shielding: bool
-        Whether to include magnetic shielding tensors in the output.
-    include_efg: bool
-        Whether to include electric field gradient tensors in the output.
-    include_dipolar: bool
-        Whether to include dipolar couplings in the output.
-    include_j: bool
-        Whether to include spin-spin (J) couplings in the output.
-    coupling_kwargs: dict
-        A dictionary of keyword arguments to pass to the Coupling constructor.
-        (see the documentation of the Coupling class for more details)
+        isotopes: list/dict/None
+            Specify the isotopes to be used. If None, default NMR-active isotopes
+            are chosen. Can be a dict like {'H': 2, 'C': 13} or a list like
+            ['2H', '13C']. If list, you can specify either one isotope per site
+            or a list of the unique isotopes (in which case all sites of that element
+            will have the same isotope).
+        references: list/dict/None
+            Specification of the references to convert magnetic shielding tensors to
+            chemical shifts. Can be a dict like {'H': 30, 'C': 170} or a list like
+            [30, 170]. If list, you must specify one reference per site in the system.
+            If None, no conversion is done and the outputs will be shieldings.
+        gradients: list/dict/float
+            Specification of the gradients to convert magnetic shielding tensors to
+            chemical shifts. Default is -1.0 corresponding as in the typical formula:
+            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+        include_shielding: bool
+            Whether to include magnetic shielding tensors in the output.
+        include_efg: bool
+            Whether to include electric field gradient tensors in the output.
+        include_dipolar: bool
+            Whether to include dipolar couplings in the output.
+        include_j: bool
+            Whether to include spin-spin (J) couplings in the output.
+        coupling_kwargs: dict
+            A dictionary of keyword arguments to pass to the Coupling constructor.
+            (see the documentation of the Coupling class for more details)
 
     Returns:
-    --------
-    spin_system: SpinSystem
-        The SpinSystem object containing the extracted information.
+        spin_system: SpinSystem
+            The SpinSystem object containing the extracted information.
     """
 
     default_name = "spin_system"
@@ -159,34 +157,32 @@ class NMRSites(AtomsProperty):
     Extract a list of Site objects from an Atoms object.
 
     Parameters:
-    -----------
-    isotopes: list/dict/None
-        Specify the isotopes to be used. If None, default NMR-active isotopes
-        are chosen. Can be a dict like {'H': 2, 'C': 13} or a list like
-        ['2H', '13C']. If list, you can specify either one isotope per site
-        or a list of the unique isotopes (in which case all sites of that element
-        will have the same isotope).
-    references: list/dict/None
-        Specification of the references to convert magnetic shielding tensors to
-        chemical shifts. Can be a dict like {'H': 30, 'C': 170} or a list like
-        [30, 170]. If list, you must specify one reference per site in the system.
-        If None, no conversion is done and the outputs will be shieldings.
-    gradients: list/dict/float
-        Specification of the gradients to convert magnetic shielding tensors to
-        chemical shifts. Default is -1.0 corresponding as in the typical formula:
-        delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
-    include_shielding: bool
-        Whether to include magnetic shielding tensors in the output.
-    include_efg: bool
-        Whether to include electric field gradient tensors in the output.
-    use_q_isotopes: bool
-        Whether to use quadrupolar isotopes for elements that have them. This is 
-        only relevant if isotopes is None.
+        isotopes: list/dict/None
+            Specify the isotopes to be used. If None, default NMR-active isotopes
+            are chosen. Can be a dict like {'H': 2, 'C': 13} or a list like
+            ['2H', '13C']. If list, you can specify either one isotope per site
+            or a list of the unique isotopes (in which case all sites of that element
+            will have the same isotope).
+        references: list/dict/None
+            Specification of the references to convert magnetic shielding tensors to
+            chemical shifts. Can be a dict like {'H': 30, 'C': 170} or a list like
+            [30, 170]. If list, you must specify one reference per site in the system.
+            If None, no conversion is done and the outputs will be shieldings.
+        gradients: list/dict/float
+            Specification of the gradients to convert magnetic shielding tensors to
+            chemical shifts. Default is -1.0 corresponding as in the typical formula:
+            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+        include_shielding: bool
+            Whether to include magnetic shielding tensors in the output.
+        include_efg: bool
+            Whether to include electric field gradient tensors in the output.
+        use_q_isotopes: bool
+            Whether to use quadrupolar isotopes for elements that have them. This is 
+            only relevant if isotopes is None.
 
     Returns:
-    --------
-    sites: list
-        A list of Site objects extracted from the Atoms object.
+        sites: list
+            A list of Site objects extracted from the Atoms object.
 
     """
 
@@ -268,13 +264,13 @@ def get_sites(
     options. For even more advanced use cases, you can build Site objects manually.
 
     Parameters:
-    atoms (ase.Atoms): The Atoms object from which to extract the sites.
-    isotopes (dict[str, int]): A dictionary of isotopes to use for the sites. e.g. {'H': 2, 'C': 13}
-    indices (list[int]): The indices of the atoms to extract as sites.
-    selection (AtomSelection): An AtomSelection object to use to extract the sites
+        atoms (ase.Atoms): The Atoms object from which to extract the sites.
+        isotopes (dict[str, int]): A dictionary of isotopes to use for the sites. e.g. {'H': 2, 'C': 13}
+        indices (list[int]): The indices of the atoms to extract as sites.
+        selection (AtomSelection): An AtomSelection object to use to extract the sites
 
     Returns:
-    list: A list of Site objects extracted from the Atoms object.
+        list: A list of Site objects extracted from the Atoms object.
     """
     if indices is not None and selection is not None:
         raise ValueError("You can't use both indices and selection at the same time in `get_sites`.")
@@ -309,7 +305,7 @@ def get_dipolar_couplings(
     """
     Extract a list of DipolarCoupling objects from an Atoms object.
 
-        Parameters:
+    Parameters:
       sel_i (AtomSelection or [int]): Selection or list of indices of atoms
                                       for which to compute the dipolar
                                       coupling. By default is None
@@ -354,7 +350,7 @@ def get_spin_system(
         atoms: Atoms,
         isotopes: Optional[dict[str, int]] = None,
         references: Optional[dict[str, float]] = None,
-        gradients: Optional[Union[dict[str, float], float]] = -1,
+        gradients: Optional[Union[dict[str, float], float]] = -1.0,
         include_shielding: bool = True,
         include_efg: bool = True,
         include_dipolar: bool = False,
@@ -366,25 +362,23 @@ def get_spin_system(
     Extract the information needed to output a SpinSystem object from an Atoms object.
 
     Parameters:
-    ------------
-    atoms (ase.Atoms): The Atoms object from which to extract the sites.
-    isotopes (dict[str, int]): A dictionary of isotopes to use for the sites. e.g. {'H': 2, 'C': 13}
-    references (dict[str, float]): Specification of the references to convert magnetic shielding tensors to
-        chemical shifts. e.g. {'H': 30, 'C': 170}
-    gradients (dict[str, float]/float): Specification of the gradients to convert magnetic shielding tensors to
-        chemical shifts. Default is -1.0 corresponding as in the typical formula:
-        delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
-    include_shielding (bool): Whether to include magnetic shielding tensors in the output.
-    include_efg (bool): Whether to include electric field gradient tensors in the output.
-    include_dipolar (bool): Whether to include dipolar couplings in the output.
-    include_j (bool): Whether to include spin-spin (J) couplings in the output.
-    use_q_isotopes (bool): Whether to use quadrupolar isotopes for elements that have them. This is 
-        only relevant if isotopes is None.
-    coupling_kwargs (dict): A dictionary of keyword arguments to pass to the Coupling constructor.
+        atoms (ase.Atoms): The Atoms object from which to extract the sites.
+        isotopes (dict[str, int]): A dictionary of isotopes to use for the sites. e.g. {'H': 2, 'C': 13}
+        references (dict[str, float]): Specification of the references to convert magnetic shielding tensors to
+            chemical shifts. e.g. {'H': 30, 'C': 170}
+        gradients (dict[str, float]/float): Specification of the gradients to convert magnetic shielding tensors to
+            chemical shifts. Default is -1.0 corresponding as in the typical formula:
+            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+        include_shielding (bool): Whether to include magnetic shielding tensors in the output.
+        include_efg (bool): Whether to include electric field gradient tensors in the output.
+        include_dipolar (bool): Whether to include dipolar couplings in the output.
+        include_j (bool): Whether to include spin-spin (J) couplings in the output.
+        use_q_isotopes (bool): Whether to use quadrupolar isotopes for elements that have them. This is 
+            only relevant if isotopes is None.
+        coupling_kwargs (dict): A dictionary of keyword arguments to pass to the Coupling constructor.
 
     Returns:
-    --------
-    spin_system (SpinSystem): The SpinSystem object containing the extracted information.
+        spin_system (SpinSystem): The SpinSystem object containing the extracted information.
     """
 
     return NMRSpinSystem.get(
