@@ -134,6 +134,13 @@ class Site(BaseModel):
     def ms_aniso(self):
         return self.ms.anisotropy
 
+
+    @property
+    def is_quadrupole_active(self):
+        if self.efg is not None:
+            return self.efg.is_quadrupole_active
+        return None
+
     @check_magnetic_shielding_tensor
     def ms_euler(self, **kwargs):
         """
@@ -323,7 +330,7 @@ class Site(BaseModel):
             data['shielding_symmetric'] = shielding_symmetric
 
 
-        if self.efg is not None:
+        if self.efg is not None and self.is_quadrupole_active:
             Cq = self.efg.Cq
             eta = self.efg.asymmetry
             euler_angles = self.efg.euler_angles()

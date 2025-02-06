@@ -1390,6 +1390,16 @@ class MagneticShielding(NMRTensor):
 
 
 
+def check_quadrupole_active(func):
+    """
+    Decorator to check if the nucleus is quadrupole active.
+    """
+    def wrapper(self, *args, **kwargs):
+        if not self.is_quadrupole_active:
+            raise ValueError(f"Nuclear spin is {self.spin}. This is not quadrupolar active.")
+        return func(self, *args, **kwargs)
+    return wrapper
+
 class ElectricFieldGradient(NMRTensor):
     """ElectricFieldGradient
 
@@ -1451,23 +1461,28 @@ class ElectricFieldGradient(NMRTensor):
         self.gamma = gamma or nmr_gamma(element, iso=isotope_number)
 
 
-
     @property
-    def eta(self):
+    def is_quadrupole_active(self) -> bool:
+        '''
+        Returns True if the nucleus is quadrupole active, False otherwise.
+        '''
+        return self.spin > 0.5
+    @property
+    def eta(self) -> float:
         '''
         Returns the asymmetry parameter of the tensor.
         '''
         return self.asymmetry
 
     @property
-    def zeta(self):
+    def zeta(self) -> float:
         '''
         Returns the reduced anisotropy of the tensor.
         '''
         return self.reduced_anisotropy
 
     @property
-    def Vzz(self):
+    def Vzz(self) -> float:
         '''
         Returns the largest absolute eigenvalue of the tensor (
         the principal component of the EFG tensor).
@@ -1523,6 +1538,7 @@ class ElectricFieldGradient(NMRTensor):
         return self.Cq * (1 + self.eta ** 2 / 3)**0.5
 
     @property
+    @check_quadrupole_active
     def nuq(self) -> float:
         '''
         Calculates the quadrupolar frequency in Hz for this EFG tensor.
@@ -1540,11 +1556,9 @@ class ElectricFieldGradient(NMRTensor):
         Returns:
             float: Quadrupolar frequency value in Hz.
         '''
-        if self.spin == 0 or self.spin == 0.5:
-            raise ValueError("Nuclear spin is {self.spin}. Quadrupolar frequency is not defined.")
         return 3 * self.Cq / (2 * self.spin * (2 * self.spin - 1))
 
-    def get_larmor_frequency(self, Bext):
+    def get_larmor_frequency(self, Bext: float) -> float:
         '''
         Returns the Larmor frequency of the nucleus in an external magnetic field in Hz.
 
@@ -1563,7 +1577,8 @@ class ElectricFieldGradient(NMRTensor):
         return self.gamma * Bext / (2 * np.pi)
 
 
-    def get_quadrupolar_perturbation(self, Bext):
+    @check_quadrupole_active
+    def get_quadrupolar_perturbation(self, Bext: float) -> float:
         '''
         Returns the perturbation of the quadrupolar Hamiltonian due to an external magnetic field.
         The perturbation is given by:
@@ -1586,7 +1601,9 @@ class ElectricFieldGradient(NMRTensor):
         a = (nuq**2 / nu_larmor) * (spin*(spin+1) - 3/2)
         return a
 
-    def get_MAS_full_max_linewidth(self, Bext):
+
+    @check_quadrupole_active
+    def get_MAS_full_max_linewidth(self, Bext: float) -> float:
         '''
         Returns the MAS full maximum line width (Hz) of the central transition.
 

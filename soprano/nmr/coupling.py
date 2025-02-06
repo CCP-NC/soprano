@@ -25,7 +25,7 @@ but the dipolar coupling class does not.
 """
 
 from abc import ABC, abstractmethod
-from typing import Literal, Optional
+from typing import Any, Literal, Optional, Union
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -128,9 +128,10 @@ class Coupling(BaseModel, ABC):
         return self.model_copy(deep=deep, **kwargs)
     
     @abstractmethod
-    def to_mrsimulator(self):
+    def to_mrsimulator(self) -> dict[str, dict[str, Union[float, np.ndarray]]]:
         pass
-
+    
+    
 
 # end class Coupling
 
@@ -218,6 +219,8 @@ class ISCoupling(Coupling):
         return self.Jisotropy
 
 
+    def to_mrsimulator(self):
+        raise NotImplementedError("to_mrsimulator method not implemented for ISCoupling objects")
 
 # end class ISCoupling
 
@@ -264,9 +267,6 @@ class DipolarCoupling(Coupling):
         gamma_1: Optional[float] = None,
         gamma_2: Optional[float] = None,
         tag: Optional[str] = None,
-        euler_convention: Literal["zyz", "zxz"] = "zyz",
-        euler_passive: bool = False,
-        euler_degrees: bool = False,
     ) -> "DipolarCoupling":
         """
         Create a DipolarCoupling object from a distance vector.
@@ -286,9 +286,6 @@ class DipolarCoupling(Coupling):
             gamma_1: The gyromagnetic ratio of the first site. If not provided, it is looked up in the nmrdata.json file for the specified species.
             gamma_2: The gyromagnetic ratio of the second site. If not provided, it is looked up in the nmrdata.json file for the specified species.
             tag: A tag to identify the coupling tensor.
-            euler_convention: The convention used for the Euler angles.
-            euler_passive: Whether the Euler angles are passive.
-            euler_degrees: Whether the Euler angles are in degrees. Default is radians (False).
 
         Returns:
             A DipolarCoupling object.
@@ -325,23 +322,41 @@ class DipolarCoupling(Coupling):
             gamma2=gamma_2,
         )
     
-    def to_mrsimulator(self):
+    def to_mrsimulator(self) -> dict[str, dict[str, Union[float, np.ndarray]]]:
         """
-        Convert the DipolarCoupling object to a dictionary suitable for input to MRSimulator.
+        Convert the DipolarCoupling object to a dictionary compatible with MRSimulator.
+
+        This method prepares the dipolar coupling tensor information for simulation,
+        including the coupling constant and orientation relative to the principal axis system.
+
+        Notes:
+        ------
+        - Coupling constant is reported in Hz
+        - Euler angles are in the convention used by the MRSimulator library (TODO: double check this!)
 
         Returns:
         --------
         dict
-            A dictionary containing the dipolar coupling tensor and the gyromagnetic ratios of the two sites.
+            A nested dictionary with dipolar coupling tensor parameters:
+            - 'D': Coupling constant (Hz)
+            - 'alpha': First Euler rotation angle (radians)
+            - 'beta': Second Euler rotation angle (radians)
+            - 'gamma': Third Euler rotation angle (radians)
 
         """
-        # return {
-        #     "dipolar_coupling": self.tensor.to_dict(),
-        #     "gamma1": self.gamma1,
-        #     "gamma2": self.gamma2,
-        # }
-        raise NotImplementedError("to_mrsimulator method not implemented for DipolarCoupling class")
-    
+        euler_angles = self.tensor.euler_angles()
+        
+        return {
+            "dipolar": {
+                "D": float(self.coupling_constant),
+                "alpha": float(euler_angles[0]),   
+                "beta": float(euler_angles[1]),    
+                "gamma": float(euler_angles[2]),   
+            }
+        }
+
+
+
 def dipolar_coupling_from_distance_vector(r: np.ndarray, gamma1, gamma2) -> float:
     """
     Calculate the dipolar coupling constant from the distance vector r and gyromagnetic ratios gamma1 and gamma2.
@@ -358,3 +373,51 @@ def dipolar_coupling_from_distance_vector(r: np.ndarray, gamma1, gamma2) -> floa
     """
     # Calculate the dipolar coupling constant
     return _dip_constant(r * 1e-10, gamma1, gamma2)
+
+
+
+
+
+
+def coupling_list_to_mrsimulator(coupling_list: list[Coupling]) -> list[dict[str, Any]]:
+    """
+    Convert a list of Coupling objects to a dictionary of coupling tensors for MRSimulator.
+
+    Args:
+        coupling_list: A list of Coupling objects representing inter-site couplings.
+
+    Returns:
+        A list of dictionaries.
+    Raises:
+        ValueError: If multiple coupling tensors of the same type are found 
+        for a given pair of sites.
+    """
+    coupling_tensors = {}
+
+    for coupling in coupling_list:
+        site_pair = (coupling.site_i, coupling.site_j)
+        new_coupling_dict = coupling.to_mrsimulator()
+        
+        # Get the existing dictionary for this site pair, or an empty dict if not exists
+        existing_tensor = coupling_tensors.setdefault(site_pair, {})
+        
+        # Check for key conflicts
+        shared_keys = set(new_coupling_dict.keys()) & set(existing_tensor.keys())
+        
+        if shared_keys:
+            raise ValueError(
+                f"Multiple coupling tensors with identical keys {shared_keys} "
+                f"found for sites {site_pair}"
+            )
+        
+        # Update the tensor dictionary for this site pair
+        existing_tensor.update(new_coupling_dict)
+
+    # Convert to list of dictionaries
+    coupling_list_out = []
+    for key, value in coupling_tensors.items():
+        value["site_index"] = list(key)
+        coupling_list_out.append(value)
+
+
+    return coupling_list_out
