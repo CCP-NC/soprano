@@ -130,8 +130,10 @@ class Coupling(BaseModel, ABC):
     @abstractmethod
     def to_mrsimulator(self) -> dict[str, dict[str, Union[float, np.ndarray]]]:
         pass
-    
-    
+
+    @abstractmethod
+    def to_simpson(self) -> str:
+        pass
 
 # end class Coupling
 
@@ -218,9 +220,11 @@ class ISCoupling(Coupling):
     def coupling_constant(self):
         return self.Jisotropy
 
-
     def to_mrsimulator(self):
         raise NotImplementedError("to_mrsimulator method not implemented for ISCoupling objects")
+
+    def to_simpson(self):
+        raise NotImplementedError("to_simpson method not implemented for ISCoupling objects")
 
 # end class ISCoupling
 
@@ -354,6 +358,25 @@ class DipolarCoupling(Coupling):
                 "gamma": float(euler_angles[2]),   
             }
         }
+    
+    def to_simpson(self) -> str:
+        """
+        Convert the DipolarCoupling object to a string compatible with Simpson.
+
+        This method prepares the dipolar coupling tensor information for simulation
+        in the Simpson NMR simulation software.
+
+        Returns:
+        --------
+        str
+            A string representation of the dipolar coupling tensor in the format used by Simpson.
+
+        """
+        # TODO check simpson convention for euler angles
+        euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
+        a, b, c = euler_angles # a should be zero for dipolar couplings in simpson
+        i, j = self.site_i, self.site_j
+        return f"dipole {i+1} {j+1} {self.coupling_constant * 2 * np.pi:.6f} {a:.6f} {b:.6f} {c:.6f}"
 
 
 

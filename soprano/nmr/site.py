@@ -70,6 +70,10 @@ class Site(BaseModel):
         ...,
         description="A label for this site, e.g. 'H1', 'C2'",
     )
+    index: int = Field(
+        ...,
+        description="The index of this site in the SpinSystem",
+    )
     ms: Optional[MagneticShielding] = Field(
         default=None,
         description="The magnetic shielding tensor at this site, in ppm",
@@ -236,12 +240,13 @@ class Site(BaseModel):
     # Nice representation of the Site object
     def __repr__(self):
         return (f"Site(label={self.label!r}, "
+                f"index={self.index!r}, "
                 f"isotope={self.isotope!r}, "
                 f"efg={self.efg!r}, "
                 f"ms={self.ms!r})")
 
     def __str__(self):
-        return (f"Site: {self.label} (isotope: {self.isotope})\n"
+        return (f"Site: {self.label} (isotope: {self.isotope}, index = {self.index})\n"
                 "=============================================\n"
                 f"{self.ms}\n"
                 f"{self.efg}")
@@ -267,7 +272,9 @@ class Site(BaseModel):
             return False
         
         # Compare basic attributes
-        if self.isotope != other.isotope or self.label != other.label:
+        if (self.isotope != other.isotope or 
+            self.label != other.label or 
+            self.index != other.index):
             return False
         
         # Compare magnetic shielding tensors
@@ -289,19 +296,19 @@ class Site(BaseModel):
     def __hash__(self) -> int:
         """
         Generate a hash for the Site object.
-        
+
         This allows Site objects to be used in sets and as dictionary keys.
-        
+
         Returns:
         int: A hash value for the Site object
         """
         return hash((
-            self.isotope, 
-            self.label, 
+            self.isotope,
+            self.label,
+            self.index,
             self.ms if self.ms is None else hash(self.ms), 
             self.efg if self.efg is None else hash(self.efg)
         ))
-
 
     # INTERFACE METHODS
 
@@ -329,7 +336,6 @@ class Site(BaseModel):
             data['isotropic_chemical_shift'] = isotropic_chemical_shift
             data['shielding_symmetric'] = shielding_symmetric
 
-
         if self.efg is not None and self.is_quadrupole_active:
             Cq = self.efg.Cq
             eta = self.efg.asymmetry
@@ -342,7 +348,28 @@ class Site(BaseModel):
                 "gamma": euler_angles[2],
             }
 
-            
-
-
         return data
+
+    def to_simpson(self):
+        """
+        Convert the Site object to a dictionary representation compatible with Simpson.
+
+        Returns:
+        dict: A dictionary representation of the Site object.
+        """
+
+        ms_block = ""
+        if self.ms is not None:
+            # TODO check simpson euler angle convention here
+            euler_angles = self.ms.euler_angles(convention='zyz', passive=True, degrees=True)
+            ms_block = f"shift {self.index + 1} {self.ms.isotropy}p {self.ms.reduced_anisotropy}p {self.ms.asymmetry} {euler_angles[0]} {euler_angles[1]} {euler_angles[2]}"
+
+        efg_block = ""
+        if self.efg is not None and self.is_quadrupole_active:
+            # TODO check simpson euler angle convention here
+            euler_angles = self.efg.euler_angles(convention='zyz', passive=True, degrees=True)
+            # TODO check simpson quadrupole order here
+            q_order = 2
+            efg_block = f"quadrupole {self.index + 1} {q_order} {self.efg.Cq} {self.efg.asymmetry} {euler_angles[0]} {euler_angles[1]} {euler_angles[2]}"
+
+        return (ms_block, efg_block)

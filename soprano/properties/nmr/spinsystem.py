@@ -221,9 +221,9 @@ class NMRSites(AtomsProperty):
 
         species_list = [f'{iso}{el}' for iso, el in zip(isotope_list, elements)]
 
-        sites = [Site(isotope=specie, label=label) for specie, label in zip(species_list, s.get_array("labels"))]
+        label_list = s.get_array("labels")
+        sites = [Site(isotope=species_list[i], label=label_list[i], index=i) for i in range(len(s))]
 
-        ms = None
         if include_shielding:
             ms_tensors = MSTensor.get(s, references=references, gradients=gradients)
             if ms_tensors is not None:
@@ -233,7 +233,6 @@ class NMRSites(AtomsProperty):
                     )
                 for site, ms_tensor in zip(sites, ms_tensors):
                     site.ms = ms_tensor
-        efg = None
         if include_efg:
             efg_tensors = EFGTensor.get(s, isotope_list=isotope_list)
             if efg_tensors is not None:

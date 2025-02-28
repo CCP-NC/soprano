@@ -138,6 +138,20 @@ class TestNMR(unittest.TestCase):
         # the ratio bewtween the two transion frequencies should 2 in this case
         self.assertAlmostEqual(NQR_vals[1] / NQR_vals[0], 2.0)
 
+        # Create an axially symmetric tensor (e.g. eigenvalues: [1, 1, 2])
+        # Use a diagonal tensor for simplicity.
+        tensor_data = np.diag([1.0, 1.0, 2.0])
+        tensor = NMRTensor(tensor_data)
+        # Ensure degeneracy is 2
+        self.assertEqual(tensor.degeneracy, 2)
+        # Get Euler angles with passive False
+        angles_active = tensor.euler_angles(passive=False)
+        # Get Euler angles with passive True (should be swapped)
+        angles_passive = tensor.euler_angles(passive=True)
+        # Expected: passive angles = (-gamma, -beta, -alpha) mod 2pi
+        expected = np.mod(np.array([-angles_active[2], -angles_active[1], -angles_active[0]]), 2*np.pi)
+        np.testing.assert_allclose(angles_passive, expected, rtol=1e-5, atol=1e-8)
+
     def test_dipolar(self):
         eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
 
