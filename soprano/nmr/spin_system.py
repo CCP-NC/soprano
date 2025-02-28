@@ -46,19 +46,6 @@ class SpinSystem(BaseModel):
         default_factory=dict,
         description="A dictionary of coupling indices to keep track of couplings between sites")
     
-    euler_convention: Literal["zyz", "zxz"] = Field(
-        default="zyz",
-        description="The convention used for the Euler angles",
-    )
-    euler_passive: bool = Field(
-        default=False,
-        description="Whether the Euler angles are passive",
-    )
-    euler_degrees: bool = Field(
-        default=False,
-        description="Whether the Euler angles are in degrees. Default is radians (False)",
-    )
-    
     @model_validator(mode='before')
     def validate_sites_and_couplings(cls, data):
         if 'sites' in data and not all(isinstance(site, Site) for site in data['sites']):
@@ -192,7 +179,6 @@ class SpinSystem(BaseModel):
         """
         return self.model_copy(deep=deep, **kwargs)
 
-
     def __eq__(self, other: 'SpinSystem') -> bool:
         # Check attributes
         if len(self.sites) != len(other.sites):
@@ -205,30 +191,22 @@ class SpinSystem(BaseModel):
         for coupling, other_coupling in zip(self.couplings, other.couplings):
             if coupling != other_coupling:
                 return False
-            
+
         # Check coupling indices dictionary
         if self.coupling_indices != other.coupling_indices:
             return False
-        
-        # Check Euler angle conventions
-        if self.euler_convention != other.euler_convention:
-            return False
-        if self.euler_passive != other.euler_passive:
-            return False
-        if self.euler_degrees != other.euler_degrees:
-            return False
-        
+    
         return True
     
     def __hash__(self) -> int:
         """
         Generate a hash for the SpinSystem object.
-        
+
         The hash is based on:
         - Sites (order-dependent)
         - Couplings (order-dependent)
         - Euler angle configuration
-        
+
         Returns:
         --------
         int
@@ -236,22 +214,14 @@ class SpinSystem(BaseModel):
         """
         # Hash sites (order matters)
         sites_hash = tuple(hash(site) for site in self.sites)
-        
+
         # Hash couplings (order matters)
         couplings_hash = tuple(hash(coupling) for coupling in self.couplings)
-        
-        # Hash Euler angle configuration
-        euler_hash = hash((
-            self.euler_convention,
-            self.euler_passive,
-            self.euler_degrees
-        ))
-        
+
         # Combine all components
         return hash((
             sites_hash,
             couplings_hash,
-            euler_hash
         ))
     
 
@@ -279,21 +249,63 @@ class SpinSystem(BaseModel):
             "couplings": mrsimulator_couplings,
             **kwargs
         }
-        
-        
+
     def from_mrsimulator(self, mrsimulator_spin_system):
         """
         Convert an MRSimulator SpinSystem object to a SpinSystem object.
         """
         raise NotImplementedError("Conversion from MRSimulator SpinSystem not yet implemented")
-    
-    def to_simpson(self):
-        """
-        Convert the SpinSystem to a dictionary that can be used to create a
-        Simpson SpinSystem object.
-        """
-        raise NotImplementedError("Conversion to Simpson SpinSystem not yet implemented")
-    
 
-        
-        
+    def to_simpson(self, observed_nucleus: Optional[str]) -> str:
+        """
+        Convert the SpinSystem to a string that can be used to create a
+        Simpson SpinSystem object.
+
+        Parameters:
+            observed_nucleus: str
+                The nucleus that is being observed. This is required for the
+                Simpson format. The observed nucleus should be the first that
+                appears in the list of channels.
+
+        Returns:
+            str: The SpinSystem in Simpson format.
+        """
+
+        nuclei = [site.isotope for site in self.sites]
+        # If the observed nucleus is not specified, use the first nucleus in the list
+        if observed_nucleus is None:
+            channels = sorted(set(nuclei))
+        else:
+            if observed_nucleus not in nuclei:
+                raise ValueError(f"Observed nucleus {observed_nucleus} not found in the list of nuclei")
+            else:
+                channels = [observed_nucleus] + sorted(set(nuclei) - {observed_nucleus})
+
+        ms_blocks = []
+        efg_blocks = []
+        for site in self.sites:
+            ms_block, efg_block = site.to_simpson()
+            ms_blocks.append(ms_block)
+            efg_blocks.append(efg_block)
+
+        ms_string = "\n".join(ms_blocks)
+        efg_string = "\n".join(efg_blocks)
+
+        dipolar_blocks = []
+        for coupling in self.couplings:
+            if coupling.type == "D":
+                dipolar_blocks.append(coupling.to_simpson())
+        dipolar_string = "\n".join(dipolar_blocks)
+
+        # Combine the header and blocks into a formatted string
+        return f"""spinsys{{
+channels {" ".join(channels)}
+nuclei {" ".join(nuclei)}
+
+{ms_string}
+
+{efg_string}
+
+{dipolar_string}
+}}
+        """
