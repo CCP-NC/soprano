@@ -84,6 +84,7 @@ class TestSite(unittest.TestCase):
         site = Site(
             isotope=isotope,
             label=site_label,
+            index=0,
             ms=MagneticShielding(
                 ms_data,
                 isotope,
@@ -108,6 +109,7 @@ class TestSite(unittest.TestCase):
         site_dict = {
             "isotope": isotope,
             "label": site_label,
+            "index": 0,
             "ms": {
                 "data": ms_data.tolist(),
                 "species": isotope,
@@ -133,6 +135,7 @@ class TestSite(unittest.TestCase):
         site1 = Site(
             isotope=isotope,
             label=site_label,
+            index=0,
             ms=MagneticShielding(
                 ms_data,
                 isotope,
