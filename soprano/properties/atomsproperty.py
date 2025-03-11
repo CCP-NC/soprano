@@ -58,7 +58,7 @@ class AtomsProperty:
                 self.params[p] = params[p]
 
     @classmethod
-    def get(self, s, store_array=False, **kwargs):
+    def get(self, s, store_array=False, average=False,**kwargs):
         """Extract the given property using the default parameters
         on an Atoms object s
 
@@ -69,6 +69,8 @@ class AtomsProperty:
         |   store_array (bool): if s is a collection, whether to store the
         |                       resulting data as an array in the collection
         |                       using the default name for this property
+        |   average (bool): if s is a trajectory (list of Atoms), whether to return
+        |                   the average property across all frames. Default is False.
         |
 
         | Returns:
@@ -83,6 +85,22 @@ class AtomsProperty:
             if store_array:
                 s.set_array(self.default_name, arr)
             return arr
+        elif isinstance(s, list):
+            if average == True:
+                results = [self.get(a, **kwargs) for a in s]
+
+                if results and isinstance(results[0], list) and len(results[0]) > 0:
+                    from soprano.nmr.tensor import NMRTensor
+
+                    if hasattr(results[0][0], 'data'):
+                        n_atoms = min(len(r) for r in results)
+                        return [NMRTensor.average([r[i] for r in results]) for i in range(n_atoms)]
+                
+                return sum(results) / len(results) if results else None
+
+            else:
+                # Select the last frame by default if average is False
+                return self.get(s[-1], **kwargs)
         else:
             params = dict(self.default_params)
             params.update(kwargs)

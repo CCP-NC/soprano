@@ -595,6 +595,23 @@ class NMRTensor:
                 f"Eigenvalues: {self.eigenvalues}\n" + \
                 f"Eigenvectors: \n{self.eigenvectors}\n" + \
                 f"Euler angles (deg): {self.euler_angles(degrees=True)}\n"
+    
+    @classmethod
+    def average(cls, tensors):
+        """Average multiple NMRTensor objects.
+
+        Arguments:
+            tensors (list): List of NMRTensor objects to average
+
+        Returns:
+            NMRTensor: A new NMRTensor with averaged data
+        """
+        if not tensors:
+            return None
+
+        # Average the data tensors directly
+        avg_data = np.mean([t.data for t in tensors], axis=0)
+        return cls(avg_data)
 
 
 class MagneticShielding(NMRTensor):
