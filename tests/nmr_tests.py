@@ -977,6 +977,200 @@ class TestNMR(unittest.TestCase):
         evecs = dip_tens.eigenvectors
         self.assertTrue(np.allclose(np.dot(evecs.T, evecs), np.eye(3)))
 
+    def test_tensor_arithmetic(self):
+        """Test the arithmetic operations for NMRTensor."""
+        # Create simple tensors for testing
+        data1 = np.array([
+            [1.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 3.0]
+        ])
+        data2 = np.array([
+            [4.0, 1.0, 0.0],
+            [1.0, 5.0, 0.0],
+            [0.0, 0.0, 6.0]
+        ])
+        data3 = np.ones((3, 3)) * 3.0
+        
+        t1 = NMRTensor(data1)
+        t2 = NMRTensor(data2)
+        t3 = NMRTensor(data3)
+        
+        # Test addition
+        result = t1 + t2
+        self.assertTrue(np.allclose(result.data, data1 + data2))
+        
+        # Test scalar addition
+        result = t1 + 5
+        self.assertTrue(np.allclose(result.data, data1 + 5))
+        
+        # Test right scalar addition
+        result = 5 + t1
+        self.assertTrue(np.allclose(result.data, 5 + data1))
+        
+        # Test array addition
+        arr = np.ones((3, 3))
+        result = t1 + arr
+        self.assertTrue(np.allclose(result.data, data1 + arr))
+        
+        # Test right array addition
+        result = arr + t1
+        self.assertTrue(np.allclose(result.data, arr + data1))
+        
+        # Test invalid array addition
+        with self.assertRaises(ValueError):
+            t1 + np.ones(4)
+            
+        # Test subtraction
+        result = t1 - t2
+        self.assertTrue(np.allclose(result.data, data1 - data2))
+        
+        # Test scalar subtraction
+        result = t1 - 2
+        self.assertTrue(np.allclose(result.data, data1 - 2))
+        
+        # Test right scalar subtraction
+        result = 10 - t1
+        self.assertTrue(np.allclose(result.data, 10 - data1))
+        
+        # Test array subtraction
+        result = t1 - arr
+        self.assertTrue(np.allclose(result.data, data1 - arr))
+        
+        # Test right array subtraction
+        result = arr - t1
+        self.assertTrue(np.allclose(result.data, arr - data1))
+        
+        # Test invalid array subtraction
+        with self.assertRaises(ValueError):
+            t1 - np.ones(4)
+            
+        # Test multiplication
+        result = t1 * t2
+        self.assertTrue(np.allclose(result.data, data1 * data2))
+        
+        # Test scalar multiplication
+        result = t1 * 3
+        self.assertTrue(np.allclose(result.data, data1 * 3))
+        
+        # Test right scalar multiplication
+        result = 3 * t1
+        self.assertTrue(np.allclose(result.data, 3 * data1))
+        
+        # Test array multiplication
+        result = t1 * arr
+        self.assertTrue(np.allclose(result.data, data1 * arr))
+        
+        # Test right array multiplication
+        result = arr * t1
+        self.assertTrue(np.allclose(result.data, arr * data1))
+        
+        # Test invalid array multiplication
+        with self.assertRaises(ValueError):
+            t1 * np.ones(4)
+            
+        # Test division
+        result = t1 / t3
+        self.assertTrue(np.allclose(result.data, data1 / data3))
+        
+        # Test scalar division
+        result = t1 / 2
+        self.assertTrue(np.allclose(result.data, data1 / 2))
+        
+        # Test right scalar division
+        result = 6 / t3
+        self.assertTrue(np.allclose(result.data, 6 / data3))
+        
+        # Test array division
+        result = t1 / arr
+        self.assertTrue(np.allclose(result.data, data1 / arr))
+        
+        # Test right array division
+        result = arr / t3
+        self.assertTrue(np.allclose(result.data, arr / data3))
+        
+        # Test invalid array division
+        with self.assertRaises(ValueError):
+            t1 / np.ones(4)
+            
+        # Test matrix multiplication
+        result = t1 @ t2
+        self.assertTrue(np.allclose(result.data, data1 @ data2))
+        
+        # Test matrix multiplication with array
+        result = t1 @ arr
+        self.assertTrue(np.allclose(result.data, data1 @ arr))
+        
+        # Test right matrix multiplication with array
+        result = arr @ t1
+        self.assertTrue(np.allclose(result.data, arr @ data1))
+        
+        # Test matrix multiplication with vector
+        vec = np.array([1.0, 2.0, 3.0])
+        result = t1 @ vec
+        self.assertTrue(np.allclose(result, data1 @ vec))
+        
+        # Test invalid matrix multiplication
+        with self.assertRaises(ValueError):
+            t1 @ np.ones(4)
+            
+        # Test negation
+        result = -t1
+        self.assertTrue(np.allclose(result.data, -data1))
+        
+        # Test positive 
+        result = +t1
+        self.assertTrue(np.allclose(result.data, data1))
+        
+        # Test equality
+        t3 = NMRTensor(data1.copy())
+        self.assertTrue(t1 == t3)
+        self.assertFalse(t1 == t2)
+        
+        # Test equality with array
+        self.assertTrue(t1 == data1)
+        self.assertFalse(t1 == data2)
+        
+        # Test inequality with non-tensor/array
+        self.assertFalse(t1 == "string")
+        self.assertFalse(t1 == 123)
+
+    def test_tensor_mean(self):
+        """Test the mean class method for NMRTensor."""
+        # Create some tensors for testing
+        data1 = np.array([
+            [1.0, 0.0, 0.0],
+            [0.0, 2.0, 0.0],
+            [0.0, 0.0, 3.0]
+        ])
+        data2 = np.array([
+            [4.0, 1.0, 0.0],
+            [1.0, 5.0, 0.0],
+            [0.0, 0.0, 6.0]
+        ])
+        data3 = np.array([
+            [7.0, 0.0, 0.0],
+            [0.0, 8.0, 0.0],
+            [0.0, 0.0, 9.0]
+        ])
+        
+        t1 = NMRTensor(data1)
+        t2 = NMRTensor(data2)
+        t3 = NMRTensor(data3)
+        
+        # Calculate the mean
+        mean_tensor = NMRTensor.mean([t1, t2, t3])
+        
+        # Calculate the expected result
+        expected_mean = (data1 + data2 + data3) / 3
+        
+        # Check if the result is correct
+        self.assertTrue(np.allclose(mean_tensor.data, expected_mean))
+        
+        # Test with empty list
+        with self.assertRaises(ValueError):
+            NMRTensor.mean([])
+
 class TestMagneticShielding(unittest.TestCase):
 
     def setUp(self):
@@ -1011,8 +1205,6 @@ class TestMagneticShielding(unittest.TestCase):
         self.tensor.reference = 10.0
         self.tensor.gradient = -2.0
         self.assertAlmostEqual(self.tensor.shift, 10 + (-2.0 * self.tensor.isotropy) / (1 + 10e-6))
-
-
 
     def test_haeberlen_values(self):
         haeb = self.tensor.haeberlen_values
@@ -1051,6 +1243,75 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertAlmostEqual(mehr.sigma_22, iupac.sigma_22)
         self.assertAlmostEqual(mehr.sigma_33, iupac.sigma_33)
 
+    def test_array_ufunc(self):
+        # Test array ufunc operations
+        tensor2 = MagneticShielding([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H', reference=0)
+        result = self.tensor + tensor2
+        self.assertIsInstance(result, MagneticShielding)
+        np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
+
+    def test_magnetic_shielding_mean(self):
+        """Test the mean class method for MagneticShielding."""
+        # Create tensors with same parameters
+        ms1 = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-1)
+        ms2 = MagneticShielding(np.diag([4, 5, 6]), species='13C', reference=100, gradient=-1)
+        
+        # Calculate mean
+        mean_ms = MagneticShielding.mean([ms1, ms2])
+        
+        # Check result
+        self.assertTrue(np.allclose(mean_ms.data, (ms1.data + ms2.data) / 2))
+        self.assertEqual(mean_ms.species, '13C')
+        self.assertEqual(mean_ms.reference, 100)
+        self.assertEqual(mean_ms.gradient, -1)
+        
+        # Test with different parameters
+        ms3 = MagneticShielding(np.diag([7, 8, 9]), species='1H', reference=50, gradient=-0.5)
+        
+        # Should give warnings for different parameters
+        with pytest.warns(UserWarning, match="different species"):
+            mean_ms = MagneticShielding.mean([ms1, ms3])
+        
+        # Should use the first tensor's parameters
+        self.assertEqual(mean_ms.species, '13C')
+        self.assertEqual(mean_ms.reference, 100)
+        self.assertEqual(mean_ms.gradient, -1)
+
+    def test_parameter_consistency_warnings(self):
+        """Test that warnings are issued when operating on tensors with different parameters."""
+        # Create base tensor
+        ms1 = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-1.0, tag='ms')
+        
+        # Create tensors with different parameters
+        ms2_species = MagneticShielding(np.diag([1, 2, 3]), species='1H', reference=100, gradient=-1.0, tag='ms')
+        ms2_reference = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=50, gradient=-1.0, tag='ms')
+        ms2_gradient = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-0.5, tag='ms')
+        ms2_tag = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-1.0, tag='ms_fc')
+        
+        # Test warning for different species
+        with pytest.warns(UserWarning, match="different species"):
+            result = ms1 + ms2_species
+            
+        # Test warning for different references
+        with pytest.warns(UserWarning, match="different references"):
+            result = ms1 + ms2_reference
+            
+        # Test warning for different gradients
+        with pytest.warns(UserWarning, match="different gradients"):
+            result = ms1 + ms2_gradient
+            
+        # Test warning for different tags
+        with pytest.warns(UserWarning, match="different tags"):
+            result = ms1 + ms2_tag
+            
+        # Test that the result preserves the parameters of the first tensor
+        with pytest.warns(UserWarning):
+            result = ms1 + ms2_species
+            self.assertEqual(result.species, '13C')
+            self.assertEqual(result.reference, 100)
+            self.assertEqual(result.gradient, -1.0)
+            self.assertEqual(result.mstag, 'ms')
+
 class TestElectricFieldGradient(unittest.TestCase):
 
     def setUp(self):
@@ -1085,14 +1346,12 @@ class TestElectricFieldGradient(unittest.TestCase):
         # For 2H, gamma = 41066279.1 rad/T/s
         self.assertAlmostEqual(self.tensor.gamma, 41066279.1)
 
-
         # Quadrupolar product
         method1 = EFGQuadrupolarProduct.get(self.atoms, isotopes={'H': 2})[0]
         method2 = self.tensor.Pq
         manual = self.tensor.Cq * (1 + self.tensor.eta ** 2 / 3)**0.5
         self.assertAlmostEqual(method1, method2)
         self.assertAlmostEqual(method1, manual)
-
 
     def test_larmor_frequency(self):
         # Test the larmor frequency method
@@ -1101,7 +1360,6 @@ class TestElectricFieldGradient(unittest.TestCase):
         expected_nu_larmor = gamma * Bext / (2 * np.pi) # in Hz
         nu_larmor = self.tensor.get_larmor_frequency(Bext)
         self.assertAlmostEqual(nu_larmor, expected_nu_larmor)
-
 
     def test_quadrupolar_perturbation(self):
         # Test the quadrupolar_perturbation method
@@ -1114,12 +1372,75 @@ class TestElectricFieldGradient(unittest.TestCase):
         result = self.tensor.get_quadrupolar_perturbation(Bext)
         self.assertAlmostEqual(result, expected_a)
 
+    def test_array_ufunc(self):
+        # Test array ufunc operations
+        tensor2 = ElectricFieldGradient([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H')
+        result = self.tensor + tensor2
+        self.assertIsInstance(result, ElectricFieldGradient)
+        np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
 
+    def test_electric_field_gradient_mean(self):
+        """Test the mean class method for ElectricFieldGradient."""
+        # Create test data using a simple diagonal tensor
+        data1 = np.diag([-1, -2, 3])  # Trace should be zero for EFG
+        data2 = np.diag([-3, -1, 4])
+        
+        # Create EFG tensors with same parameters
+        efg1 = ElectricFieldGradient(data1, species='2H')
+        efg2 = ElectricFieldGradient(data2, species='2H')
+        
+        # Calculate mean
+        mean_efg = ElectricFieldGradient.mean([efg1, efg2])
+        
+        # Check result
+        self.assertTrue(np.allclose(mean_efg.data, (data1 + data2) / 2))
+        self.assertEqual(mean_efg.species, '2H')
+        
+        # Test with different parameters
+        efg3 = ElectricFieldGradient(data1, species='17O', quadrupole_moment=25.0)
+        
+        # Should give warnings for different parameters
+        with pytest.warns(UserWarning, match="different species"):
+            mean_efg = ElectricFieldGradient.mean([efg1, efg3])
+        
+        # Should use the first tensor's parameters
+        self.assertEqual(mean_efg.species, '2H')
 
-
-
-
-
+    def test_parameter_consistency_warnings(self):
+        """Test that warnings are issued when operating on tensors with different parameters."""
+        # Create base tensor with known parameters
+        efg1 = ElectricFieldGradient(np.diag([-1, -1, 2]), species='2H')
+        
+        # Get the default values to create consistent tensors with only one difference
+        quadrupole_moment = efg1.quadrupole_moment
+        gamma = efg1.gamma
+        
+        # Create tensors with different parameters
+        efg2_species = ElectricFieldGradient(np.diag([-1, -1, 2]), species='17O', 
+                                           quadrupole_moment=quadrupole_moment, gamma=gamma)
+        efg2_quadrupole = ElectricFieldGradient(np.diag([-1, -1, 2]), species='2H',
+                                              quadrupole_moment=quadrupole_moment*2, gamma=gamma)
+        efg2_gamma = ElectricFieldGradient(np.diag([-1, -1, 2]), species='2H',
+                                         quadrupole_moment=quadrupole_moment, gamma=gamma*2)
+        
+        # Test warning for different species
+        with pytest.warns(UserWarning, match="different species"):
+            result = efg1 + efg2_species
+            
+        # Test warning for different quadrupole moments
+        with pytest.warns(UserWarning, match="different quadrupole moments"):
+            result = efg1 + efg2_quadrupole
+            
+        # Test warning for different gamma values
+        with pytest.warns(UserWarning, match="different gamma values"):
+            result = efg1 + efg2_gamma
+            
+        # Test that the result preserves the parameters of the first tensor
+        with pytest.warns(UserWarning):
+            result = efg1 + efg2_species
+            self.assertEqual(result.species, '2H')
+            self.assertEqual(result.quadrupole_moment, quadrupole_moment)
+            self.assertEqual(result.gamma, gamma)
 
 if __name__ == "__main__":
     unittest.main()

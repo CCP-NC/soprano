@@ -23,6 +23,7 @@ import warnings
 from typing import NamedTuple, Optional, Tuple, Union
 
 import numpy as np
+from numpy.lib.mixins import NDArrayOperatorsMixin
 from ase.quaternions import Quaternion
 from scipy.spatial.transform import Rotation
 
@@ -47,7 +48,7 @@ from soprano.nmr.utils import (
 
 DEGENERACY_TOLERANCE = 1e-6
 
-class NMRTensor:
+class NMRTensor(NDArrayOperatorsMixin):
     """NMRTensor
 
     Class containing an NMR tensor, useful to access all its most important
@@ -595,6 +596,189 @@ class NMRTensor:
                 f"Eigenvalues: {self.eigenvalues}\n" + \
                 f"Eigenvectors: \n{self.eigenvectors}\n" + \
                 f"Euler angles (deg): {self.euler_angles(degrees=True)}\n"
+                
+    def __array__(self, dtype=None):
+        """
+        Return a numpy array representation of the tensor.
+        Required for NDArrayOperatorsMixin.
+        """
+        return np.asarray(self._data, dtype=dtype)
+    
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        """
+        Handle NumPy's universal functions for tensor operations.
+        This enables proper handling of arithmetic operations.
+        """
+        # Only handle the __call__ method of ufuncs
+        if method != '__call__':
+            return NotImplemented
+        
+        # Check if the operation is supported
+        supported_ops = [np.add, np.subtract, np.multiply, np.true_divide, np.matmul, np.negative, np.positive]
+        if ufunc not in supported_ops:
+            return NotImplemented
+        
+        # Handle unary operations
+        if len(inputs) == 1:
+            if ufunc is np.negative or ufunc is np.positive:
+                # Let subclasses handle their own instantiation if possible
+                if hasattr(self, '_create_like'):
+                    data = -self.data if ufunc is np.negative else self.data
+                    return self._create_like(data)
+                # Otherwise use the default constructor
+                data = -self.data if ufunc is np.negative else self.data
+                return self.__class__(data, order=self.order)
+            return NotImplemented
+        
+        # Handle binary operations
+        if len(inputs) == 2:
+            # Find which input is self
+            self_idx = None
+            for i, x in enumerate(inputs):
+                if isinstance(x, NMRTensor) and x is self:
+                    self_idx = i
+                    break
+            
+            if self_idx is None:
+                return NotImplemented
+                
+            # Get the other operand
+            other_idx = 1 - self_idx
+            other = inputs[other_idx]
+            
+            # Convert inputs to numpy arrays
+            tensor_data = self.data
+            result_order = self.order
+            
+            # Process the other operand based on its type
+            if isinstance(other, NMRTensor):
+                # Check if tensors have the same order, warn if not
+                if other.order != self.order:
+                    warnings.warn(f"Operating on tensors with different ordering conventions: "
+                                f"{self.order} and {other.order}. Using {self.order}.")
+                other_data = other.data
+            elif isinstance(other, (int, float)):
+                other_data = other
+            elif isinstance(other, np.ndarray):
+                # Special handling for matmul with vectors
+                if ufunc is np.matmul and len(other.shape) == 1 and other.shape[0] == 3:
+                    other_data = other
+                # Regular handling for 3x3 arrays
+                elif other.shape == (3, 3):
+                    other_data = other
+                else:
+                    raise ValueError(f"Cannot perform operation with array of shape {other.shape}")
+            else:
+                return NotImplemented
+            
+            # Apply the operation with correct argument order
+            args = (tensor_data, other_data) if self_idx == 0 else (other_data, tensor_data)
+            result_data = ufunc(*args, **kwargs)
+            
+            # Return appropriate result based on the operation
+            if ufunc in [np.add, np.subtract, np.multiply, np.true_divide]:
+                # Let subclasses handle their own instantiation if possible
+                if hasattr(self, '_create_like'):
+                    return self._create_like(result_data)
+                return self.__class__(result_data, order=result_order)
+            elif ufunc is np.matmul:
+                if result_data.shape == (3, 3):
+                    # Let subclasses handle their own instantiation if possible
+                    if hasattr(self, '_create_like'):
+                        return self._create_like(result_data)
+                    return self.__class__(result_data, order=result_order)
+                else:
+                    return result_data
+        
+        # For unsupported operations
+        return NotImplemented
+
+    def _create_like(self, data):
+        """
+        Create a new tensor of the same type with the provided data
+        but preserving other properties of this tensor.
+        
+        Args:
+            data (np.ndarray): New tensor data
+            
+        Returns:
+            NMRTensor: A new tensor with the same properties
+        """
+        return self.__class__(data, order=self.order)
+    
+    @classmethod
+    def mean(cls, tensors):
+        """
+        Calculate the mean of a list of NMRTensor objects.
+        
+        Args:
+            tensors (list): List of NMRTensor objects to average
+            
+        Returns:
+            NMRTensor: A new tensor with the mean values
+            
+        Raises:
+            ValueError: If the list is empty or contains objects that are not NMRTensor instances
+        """
+        if not tensors:
+            raise ValueError("Cannot calculate mean of an empty list")
+            
+        # Check that all tensors are of the same class
+        tensor_types = {type(t) for t in tensors}
+        if len(tensor_types) > 1:
+            warnings.warn(f"Calculating mean of different tensor types: {tensor_types}. "
+                         f"The result will be of type {type(tensors[0])}.")
+            
+            
+        # For subclasses, get the common parameters or use the first tensor's values
+        if issubclass(cls, NMRTensor) and cls is not NMRTensor:
+            if cls is MagneticShielding:
+                # Handle MagneticShielding specific parameters
+                species = tensors[0].species
+                if not all(t.species == species for t in tensors):
+                    warnings.warn("Tensors have different species. Using the species of the first tensor.")
+                
+                reference = tensors[0].reference
+                if not all(t.reference == reference for t in tensors):
+                    warnings.warn("Tensors have different references. Using the reference of the first tensor.")
+                
+                gradient = tensors[0].gradient
+                if not all(t.gradient == gradient for t in tensors):
+                    warnings.warn("Tensors have different gradients. Using the gradient of the first tensor.")
+                
+                tag = tensors[0].mstag
+                if not all(getattr(t, 'mstag', None) == tag for t in tensors):
+                    warnings.warn("Tensors have different tags. Using the tag of the first tensor.")
+                
+            elif cls is ElectricFieldGradient:
+                # Handle ElectricFieldGradient specific parameters
+                species = tensors[0].species
+                if not all(t.species == species for t in tensors):
+                    warnings.warn("Tensors have different species. Using the species of the first tensor.")
+                
+                quadrupole_moment = tensors[0].quadrupole_moment
+                if not all(t.quadrupole_moment == quadrupole_moment for t in tensors):
+                    warnings.warn("Tensors have different quadrupole moments. Using the moment of the first tensor.")
+                
+                gamma = tensors[0].gamma
+                if not all(t.gamma == gamma for t in tensors):
+                    warnings.warn("Tensors have different gamma values. Using the gamma of the first tensor.")
+        # Get the mean tensor data
+        mean_data = np.mean(tensors, axis=0)
+        return tensors[0]._create_like(mean_data)
+        
+
+    def __eq__(self, other):
+        """
+        Check if tensor equals another tensor or array
+        """
+        if isinstance(other, NMRTensor):
+            return np.allclose(self.data, other.data)
+        elif isinstance(other, np.ndarray) and other.shape == (3, 3):
+            return np.allclose(self.data, other)
+        else:
+            return False
+
 
 
 class MagneticShielding(NMRTensor):
@@ -826,6 +1010,24 @@ class MagneticShielding(NMRTensor):
         '''
         self.gradient = gradient
 
+    def _create_like(self, data):
+        """
+        Create a new MagneticShielding tensor with the provided data
+        but preserving other properties of this tensor.
+        
+        Args:
+            data (np.ndarray): New tensor data
+            
+        Returns:
+            MagneticShielding: A new tensor with the same properties
+        """
+        return self.__class__(data, 
+                             species=self.species, 
+                             order=self.order,
+                             reference=self.reference, 
+                             gradient=self.gradient, 
+                             tag=self.mstag)
+
     def __str__(self):
         """
         Neatly formatted string representation of the tensor and Haeberlen description.
@@ -836,6 +1038,40 @@ class MagneticShielding(NMRTensor):
         s += str(self.haeberlen_values)
         return s
 
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        # Check parameter consistency when operating with another MagneticShielding tensor
+        other_ms = None
+        for inp in inputs:
+            if isinstance(inp, MagneticShielding) and inp is not self:
+                other_ms = inp
+                break
+        
+        if other_ms is not None:
+            # Check species consistency
+            if self.species != other_ms.species:
+                warnings.warn(f"Operating on MagneticShielding tensors with different species: "
+                            f"{self.species} and {other_ms.species}")
+            
+            # Check reference consistency
+            if self.reference != other_ms.reference:
+                warnings.warn(f"Operating on MagneticShielding tensors with different references: "
+                            f"{self.reference} and {other_ms.reference}. Using {self.reference}.")
+            
+            # Check gradient consistency
+            if self.gradient != other_ms.gradient:
+                warnings.warn(f"Operating on MagneticShielding tensors with different gradients: "
+                            f"{self.gradient} and {other_ms.gradient}. Using {self.gradient}.")
+            
+            # Check tag consistency
+            if self.mstag != other_ms.mstag:
+                warnings.warn(f"Operating on MagneticShielding tensors with different tags: "
+                            f"{self.mstag} and {other_ms.mstag}. Using {self.mstag}.")
+        
+        result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
+        if isinstance(result, NMRTensor) and not isinstance(result, MagneticShielding):
+            # Only convert if it's a base NMRTensor but not already a MagneticShielding
+            return self._create_like(result.data)
+        return result
 
 class ElectricFieldGradient(NMRTensor):
     """ElectricFieldGradient
@@ -1074,4 +1310,52 @@ class ElectricFieldGradient(NMRTensor):
     #     nu_larmor = self.get_larmor_frequency(Bext)
     #     return nu_larmor - (a / 30) * (1 + self.eta**(2/3))
 
+    def _create_like(self, data):
+        """
+        Create a new ElectricFieldGradient tensor with the provided data
+        but preserving other properties of this tensor.
+        
+        Args:
+            data (np.ndarray): New tensor data
+            
+        Returns:
+            ElectricFieldGradient: A new tensor with the same properties
+        """
+        return self.__class__(data, 
+                             species=self.species, 
+                             order=self.order,
+                             quadrupole_moment=self.quadrupole_moment, 
+                             gamma=self.gamma)
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        # Check parameter consistency when operating with another ElectricFieldGradient tensor
+        other_efg = None
+        for inp in inputs:
+            if isinstance(inp, ElectricFieldGradient) and inp is not self:
+                other_efg = inp
+                break
+        
+        if other_efg is not None:
+            # Check species consistency
+            if self.species != other_efg.species:
+                warnings.warn(f"Operating on ElectricFieldGradient tensors with different species: "
+                            f"{self.species} and {other_efg.species}")
+            
+            # Check quadrupole moment consistency
+            if self.quadrupole_moment != other_efg.quadrupole_moment:
+                warnings.warn(f"Operating on ElectricFieldGradient tensors with different quadrupole moments: "
+                            f"{self.quadrupole_moment} and {other_efg.quadrupole_moment}. Using {self.quadrupole_moment}.")
+            
+            # Check gamma consistency
+            if self.gamma != other_efg.gamma:
+                warnings.warn(f"Operating on ElectricFieldGradient tensors with different gamma values: "
+                            f"{self.gamma} and {other_efg.gamma}. Using {self.gamma}.")
+        
+        # Remove the strict type checking to allow operations with non-NMRTensor types
+        # and unary operations such as -tensor
+        result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
+        if isinstance(result, NMRTensor) and not isinstance(result, ElectricFieldGradient):
+            # Only convert if it's a base NMRTensor but not already an ElectricFieldGradient
+            return self._create_like(result.data)
+        return result
 
