@@ -20,7 +20,8 @@ NMR tensor as well as its representation in multiple conventions
 """
 
 import warnings
-from typing import NamedTuple, Optional, Tuple, Union
+from collections import defaultdict
+from typing import Any, NamedTuple, Optional, Tuple, Type, Union, List, TypeVar
 
 import numpy as np
 from numpy.lib.mixins import NDArrayOperatorsMixin
@@ -31,6 +32,7 @@ from soprano.data.nmr import EFG_TO_CHI, _get_isotope_data, nmr_gamma, nmr_quadr
 from soprano.nmr.utils import (
     _anisotropy,
     _asymmetry,
+    _frange,
     _dip_constant,
     _equivalent_euler,
     _equivalent_relative_euler,
@@ -47,6 +49,8 @@ from soprano.nmr.utils import (
 )
 
 DEGENERACY_TOLERANCE = 1e-6
+
+T = TypeVar("T", bound="NMRTensor")
 
 class NMRTensor(NDArrayOperatorsMixin):
     """NMRTensor
@@ -604,6 +608,30 @@ class NMRTensor(NDArrayOperatorsMixin):
         """
         return np.asarray(self._data, dtype=dtype)
     
+    @property
+    def _initialisation_params(self):
+        """
+        Return the parameters used for the initialisation of the tensor.
+        This is useful for debugging and understanding how the tensor was created.
+        """
+        return {
+            "order": self.order
+        }
+
+    def _create_like(self, data):
+        """
+        Create a new tensor of the same type with the provided data
+        but preserving other properties of this tensor.
+        
+        Args:
+            data (np.ndarray): New tensor data
+            
+        Returns:
+            NMRTensor: A new tensor with the same properties
+        """
+        params = self._initialisation_params
+        return self.__class__(data = data, **params)
+    
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         """
         Handle NumPy's universal functions for tensor operations.
@@ -622,12 +650,8 @@ class NMRTensor(NDArrayOperatorsMixin):
         if len(inputs) == 1:
             if ufunc is np.negative or ufunc is np.positive:
                 # Let subclasses handle their own instantiation if possible
-                if hasattr(self, '_create_like'):
-                    data = -self.data if ufunc is np.negative else self.data
-                    return self._create_like(data)
-                # Otherwise use the default constructor
                 data = -self.data if ufunc is np.negative else self.data
-                return self.__class__(data, order=self.order)
+                return self._create_like(data)
             return NotImplemented
         
         # Handle binary operations
@@ -648,10 +672,12 @@ class NMRTensor(NDArrayOperatorsMixin):
             
             # Convert inputs to numpy arrays
             tensor_data = self.data
-            result_order = self.order
             
             # Process the other operand based on its type
             if isinstance(other, NMRTensor):
+                # Check parameter consistency if both are same subclass
+                if isinstance(other, self.__class__):
+                    self._check_binary_op_params(other)
                 # Check if tensors have the same order, warn if not
                 if other.order != self.order:
                     warnings.warn(f"Operating on tensors with different ordering conventions: "
@@ -677,97 +703,181 @@ class NMRTensor(NDArrayOperatorsMixin):
             
             # Return appropriate result based on the operation
             if ufunc in [np.add, np.subtract, np.multiply, np.true_divide]:
-                # Let subclasses handle their own instantiation if possible
-                if hasattr(self, '_create_like'):
-                    return self._create_like(result_data)
-                return self.__class__(result_data, order=result_order)
+                return self._create_like(result_data)
             elif ufunc is np.matmul:
                 if result_data.shape == (3, 3):
-                    # Let subclasses handle their own instantiation if possible
-                    if hasattr(self, '_create_like'):
-                        return self._create_like(result_data)
-                    return self.__class__(result_data, order=result_order)
+                    return self._create_like(result_data)
                 else:
                     return result_data
         
         # For unsupported operations
         return NotImplemented
-
-    def _create_like(self, data):
-        """
-        Create a new tensor of the same type with the provided data
-        but preserving other properties of this tensor.
-        
-        Args:
-            data (np.ndarray): New tensor data
-            
-        Returns:
-            NMRTensor: A new tensor with the same properties
-        """
-        return self.__class__(data, order=self.order)
     
-    @classmethod
-    def mean(cls, tensors):
+    def _check_binary_op_params(self, other):
         """
-        Calculate the mean of a list of NMRTensor objects.
+        Check that parameters of two tensors are compatible for binary operations.
+        Warns about any inconsistencies.
         
         Args:
-            tensors (list): List of NMRTensor objects to average
-            
-        Returns:
-            NMRTensor: A new tensor with the mean values
+            other (NMRTensor): Another tensor to compare parameters with
+        """
+        # Convenience method to check parameters for two tensors
+        self._check_compatible([self, other])
+
+
+    @classmethod
+    def _check_compatible(cls, tensors: List[T]) -> None:
+        """
+        Tensor compatibility checks.
+        
+        Args:
+            tensors (List[T]): List of NMRTensor objects
             
         Raises:
-            ValueError: If the list is empty or contains objects that are not NMRTensor instances
+            ValueError: If the tensors are not compatible
         """
-        if not tensors:
-            raise ValueError("Cannot calculate mean of an empty list")
-            
-        # Check that all tensors are of the same class
-        tensor_types = {type(t) for t in tensors}
-        if len(tensor_types) > 1:
-            warnings.warn(f"Calculating mean of different tensor types: {tensor_types}. "
-                         f"The result will be of type {type(tensors[0])}.")
-            
-            
-        # For subclasses, get the common parameters or use the first tensor's values
-        if issubclass(cls, NMRTensor) and cls is not NMRTensor:
-            if cls is MagneticShielding:
-                # Handle MagneticShielding specific parameters
-                species = tensors[0].species
-                if not all(t.species == species for t in tensors):
-                    warnings.warn("Tensors have different species. Using the species of the first tensor.")
-                
-                reference = tensors[0].reference
-                if not all(t.reference == reference for t in tensors):
-                    warnings.warn("Tensors have different references. Using the reference of the first tensor.")
-                
-                gradient = tensors[0].gradient
-                if not all(t.gradient == gradient for t in tensors):
-                    warnings.warn("Tensors have different gradients. Using the gradient of the first tensor.")
-                
-                tag = tensors[0].mstag
-                if not all(getattr(t, 'mstag', None) == tag for t in tensors):
-                    warnings.warn("Tensors have different tags. Using the tag of the first tensor.")
-                
-            elif cls is ElectricFieldGradient:
-                # Handle ElectricFieldGradient specific parameters
-                species = tensors[0].species
-                if not all(t.species == species for t in tensors):
-                    warnings.warn("Tensors have different species. Using the species of the first tensor.")
-                
-                quadrupole_moment = tensors[0].quadrupole_moment
-                if not all(t.quadrupole_moment == quadrupole_moment for t in tensors):
-                    warnings.warn("Tensors have different quadrupole moments. Using the moment of the first tensor.")
-                
-                gamma = tensors[0].gamma
-                if not all(t.gamma == gamma for t in tensors):
-                    warnings.warn("Tensors have different gamma values. Using the gamma of the first tensor.")
-        # Get the mean tensor data
-        mean_data = np.mean(tensors, axis=0)
-        return tensors[0]._create_like(mean_data)
+        first_tensor = tensors[0]
+        expected_params = first_tensor._initialisation_params
         
+        param_keys = expected_params.keys()
+        
+        for t in tensors[1:]:
+            tensor_params = t._initialisation_params
+            for key in param_keys:
+                if tensor_params.get(key) != expected_params.get(key):
+                    raise ValueError(f"All tensors must have the same {key}. "
+                                    f"Found: {[t._initialisation_params.get(key) for t in tensors]}")
 
+
+    @classmethod
+    def mean(cls: Type[T], tensor_list: List[Any], axis: Optional[int]=None, weights: Optional[np.ndarray]=None) -> Union[T, List[T]]:
+        """
+        Calculate the mean of a list of NMRTensor objects along a specified axis.
+        
+        Args:
+            tensor_list (List[Any]): List or nested list of NMRTensor objects to average.
+                For a 2D array with shape [N, M], this represents N rows of M tensors.
+            axis (int, optional): Axis along which the mean is computed:
+                - None: Average all tensors into a single tensor
+                - 0: Average over rows (result has length M)
+                - 1: Average over columns (result has length N)
+                - etc. for higher dimensions
+            weights (np.ndarray, optional): Array of weights to use for weighted average.
+                Must have length matching the dimension being averaged:
+                - If axis=None: weights should have same length as flattened tensor_list
+                - If axis=0: weights should have length N (one weight per row)
+                - If axis=1: weights should have length M (one weight per column)
+            
+        Returns:
+            Union[T, List[T]]: A new tensor or list of tensors with averaged values
+            
+        Raises:
+            ValueError: If tensor_list is empty, has incompatible dimensions,
+                       or if weights have incorrect shape
+        """
+        if not tensor_list:
+            raise ValueError("Cannot calculate mean of an empty list")
+        
+        # Helper function for averaging a flat list of tensors
+        def average_tensor_list(tensors, weights=None):
+            if not tensors:
+                raise ValueError("Cannot calculate mean of an empty list")
+                
+            try:
+                cls._check_compatible(tensors)
+            except ValueError as e:
+                raise ValueError("It seems you are trying to average incompatible tensors. \n"
+                                 f"{e}\n"
+                                 " Did you mean to average over a different axis perhaps?\n"
+                                 " If so, please use the axis argument (e.g. axis=0).\n")
+            tensor_data = np.array([t.data for t in tensors])
+            
+            if weights is not None:
+                if len(weights) != len(tensors):
+                    raise ValueError(f"Weights length ({len(weights)}) doesn't match tensor count ({len(tensors)})")
+                mean_data = np.average(tensor_data, axis=0, weights=weights)
+            else:
+                mean_data = np.mean(tensor_data, axis=0)
+                
+            return tensors[0]._create_like(mean_data)
+        
+        # Handle 1D list of tensors with axis=None
+        if all(isinstance(t, NMRTensor) for t in tensor_list) and axis is None:
+            return average_tensor_list(tensor_list, weights)
+        
+        # Convert to numpy object array for easier handling of dimensions
+        tensor_array = np.array(tensor_list, dtype=object)
+        array_shape = tensor_array.shape[:-2]  # Exclude the last two dimensions (3x3)
+        
+        # For axis=None, flatten the array and average all tensors
+        if axis is None:
+            flat_tensors = tensor_array.flatten().tolist()
+            if weights is not None and len(weights) != len(flat_tensors):
+                raise ValueError(f"For axis=None, weights length ({len(weights)}) must match "
+                                 f"total tensor count ({len(flat_tensors)})")
+            return average_tensor_list(flat_tensors, weights)
+        
+        # Validate axis
+        if axis >= len(array_shape):
+            raise ValueError(f"Axis {axis} out of bounds for array of dimension {len(array_shape)}")
+        
+        # Validate weights for the specified axis
+        if weights is not None:
+            if len(weights) != array_shape[axis]:
+                raise ValueError(f"For axis={axis}, weights length ({len(weights)}) must match "
+                                 f"dimension size ({array_shape[axis]})")
+        
+        # Use numpy's apply_along_axis to handle the averaging
+        result_shape = list(array_shape)
+        result_shape.pop(axis)  # Remove the dimension being averaged
+        result = np.empty(result_shape, dtype=object)
+        
+        # Helper function to apply averaging along the specified axis
+        def average_along_axis():
+            # For each slice perpendicular to the specified axis
+            for idx in np.ndindex(result_shape):
+                idx_list = list(idx)
+                if axis > 0:
+                    idx_list.insert(axis, slice(None))
+                else:
+                    idx_list = [slice(None)] + idx_list
+                
+                # Extract tensors along the axis
+                tensors_to_average = tensor_array[tuple(idx_list)].tolist()
+                
+                # Apply weights if provided
+                if weights is not None:
+                    avg_tensor = average_tensor_list(tensors_to_average, weights)
+                else:
+                    avg_tensor = average_tensor_list(tensors_to_average)
+                
+                result[idx] = avg_tensor
+            
+            return result
+        
+        # Handle 1D and 2D cases explicitly for clarity
+        if len(array_shape) == 1:
+            # Simple 1D case - single average
+            return average_tensor_list(tensor_list, weights)
+        elif len(array_shape) == 2:
+            # Common 2D case - handle more explicitly
+            if axis == 0:  # Average over rows
+                result = np.empty(array_shape[1], dtype=object)
+                for col in range(array_shape[1]):
+                    # Extract all tensor objects from tensor_list in the column
+                    col_tensors = [row[col] for row in tensor_list]
+                    result[col] = average_tensor_list(col_tensors, weights)
+                return result.tolist()
+            elif axis == 1:  # Average over columns
+                result = np.empty(array_shape[0], dtype=object)
+                for row in range(array_shape[0]):
+                    row_tensors = tensor_list[row]
+                    result[row] = average_tensor_list(row_tensors, weights)
+                return result.tolist()
+        
+        # Generic case for higher dimensions
+        return average_along_axis().tolist()
+    
     def __eq__(self, other):
         """
         Check if tensor equals another tensor or array
@@ -1010,23 +1120,18 @@ class MagneticShielding(NMRTensor):
         '''
         self.gradient = gradient
 
-    def _create_like(self, data):
+    @property
+    def _initialisation_params(self):
         """
-        Create a new MagneticShielding tensor with the provided data
-        but preserving other properties of this tensor.
-        
-        Args:
-            data (np.ndarray): New tensor data
-            
-        Returns:
-            MagneticShielding: A new tensor with the same properties
+        Return the parameters used for initialisation of the tensor.
         """
-        return self.__class__(data, 
-                             species=self.species, 
-                             order=self.order,
-                             reference=self.reference, 
-                             gradient=self.gradient, 
-                             tag=self.mstag)
+        return {
+            'species': self.species,
+            'order': self.order,
+            'reference': self.reference,
+            'gradient': self.gradient,
+            'tag': self.mstag
+        }
 
     def __str__(self):
         """
@@ -1037,41 +1142,6 @@ class MagneticShielding(NMRTensor):
         s += str(np.array2string(self.data, precision=5, separator=",", suppress_small=True)) + "\n"
         s += str(self.haeberlen_values)
         return s
-
-    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-        # Check parameter consistency when operating with another MagneticShielding tensor
-        other_ms = None
-        for inp in inputs:
-            if isinstance(inp, MagneticShielding) and inp is not self:
-                other_ms = inp
-                break
-        
-        if other_ms is not None:
-            # Check species consistency
-            if self.species != other_ms.species:
-                warnings.warn(f"Operating on MagneticShielding tensors with different species: "
-                            f"{self.species} and {other_ms.species}")
-            
-            # Check reference consistency
-            if self.reference != other_ms.reference:
-                warnings.warn(f"Operating on MagneticShielding tensors with different references: "
-                            f"{self.reference} and {other_ms.reference}. Using {self.reference}.")
-            
-            # Check gradient consistency
-            if self.gradient != other_ms.gradient:
-                warnings.warn(f"Operating on MagneticShielding tensors with different gradients: "
-                            f"{self.gradient} and {other_ms.gradient}. Using {self.gradient}.")
-            
-            # Check tag consistency
-            if self.mstag != other_ms.mstag:
-                warnings.warn(f"Operating on MagneticShielding tensors with different tags: "
-                            f"{self.mstag} and {other_ms.mstag}. Using {self.mstag}.")
-        
-        result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
-        if isinstance(result, NMRTensor) and not isinstance(result, MagneticShielding):
-            # Only convert if it's a base NMRTensor but not already a MagneticShielding
-            return self._create_like(result.data)
-        return result
 
 class ElectricFieldGradient(NMRTensor):
     """ElectricFieldGradient
@@ -1087,7 +1157,7 @@ class ElectricFieldGradient(NMRTensor):
 
     The principal components of the tensor are the eigenvalues of the tensor, and they
     are usually sorted according to the NQR convention ( :math:`|V_{zz}| \\geq |V_{yy}| \\geq |V_{xx}|` ). Note however, that 
-    Simpson uses the convention :math:`|V_{zz}| \\geq |V_{xx}| \\geq |V_{yy}|` . This is can be compensated for by using the
+    Simpson uses the convention :math:`|V_{zz}| \\geq |V_{xx}| \\geq |V_{yy}` . This is can be compensated for by using the
     order parameter when creating the tensor.
 
     Note that some conventions use the reduced anisotropy ( :math:`\\zeta` ) instead of the asymmetry parameter.
@@ -1310,52 +1380,26 @@ class ElectricFieldGradient(NMRTensor):
     #     nu_larmor = self.get_larmor_frequency(Bext)
     #     return nu_larmor - (a / 30) * (1 + self.eta**(2/3))
 
-    def _create_like(self, data):
+    @property
+    def _initialisation_params(self):
         """
-        Create a new ElectricFieldGradient tensor with the provided data
-        but preserving other properties of this tensor.
-        
-        Args:
-            data (np.ndarray): New tensor data
-            
-        Returns:
-            ElectricFieldGradient: A new tensor with the same properties
+        Return the parameters used for initialisation of the tensor.
         """
-        return self.__class__(data, 
-                             species=self.species, 
-                             order=self.order,
-                             quadrupole_moment=self.quadrupole_moment, 
-                             gamma=self.gamma)
+        return {
+            'species': self.species,
+            'order': self.order,
+            'quadrupole_moment': self.quadrupole_moment,
+            'gamma': self.gamma
+        }
 
-    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
-        # Check parameter consistency when operating with another ElectricFieldGradient tensor
-        other_efg = None
-        for inp in inputs:
-            if isinstance(inp, ElectricFieldGradient) and inp is not self:
-                other_efg = inp
-                break
-        
-        if other_efg is not None:
-            # Check species consistency
-            if self.species != other_efg.species:
-                warnings.warn(f"Operating on ElectricFieldGradient tensors with different species: "
-                            f"{self.species} and {other_efg.species}")
-            
-            # Check quadrupole moment consistency
-            if self.quadrupole_moment != other_efg.quadrupole_moment:
-                warnings.warn(f"Operating on ElectricFieldGradient tensors with different quadrupole moments: "
-                            f"{self.quadrupole_moment} and {other_efg.quadrupole_moment}. Using {self.quadrupole_moment}.")
-            
-            # Check gamma consistency
-            if self.gamma != other_efg.gamma:
-                warnings.warn(f"Operating on ElectricFieldGradient tensors with different gamma values: "
-                            f"{self.gamma} and {other_efg.gamma}. Using {self.gamma}.")
-        
-        # Remove the strict type checking to allow operations with non-NMRTensor types
-        # and unary operations such as -tensor
-        result = super().__array_ufunc__(ufunc, method, *inputs, **kwargs)
-        if isinstance(result, NMRTensor) and not isinstance(result, ElectricFieldGradient):
-            # Only convert if it's a base NMRTensor but not already an ElectricFieldGradient
-            return self._create_like(result.data)
-        return result
 
+
+def contains_nmr_tensors(values):
+    """Check if values contain NMRTensor objects at any nesting level"""
+    if isinstance(values, list) or isinstance(values, np.ndarray):
+        if len(values) > 0:
+            if isinstance(values[0], NMRTensor):
+                return True
+            elif isinstance(values[0], (list, np.ndarray)):
+                return contains_nmr_tensors(values[0])
+    return False

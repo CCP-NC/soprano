@@ -1287,30 +1287,23 @@ class TestMagneticShielding(unittest.TestCase):
         ms2_reference = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=50, gradient=-1.0, tag='ms')
         ms2_gradient = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-0.5, tag='ms')
         ms2_tag = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-1.0, tag='ms_fc')
+        ms2_order = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-1.0, tag='ms', order='i')
         
-        # Test warning for different species
-        with pytest.warns(UserWarning, match="different species"):
-            result = ms1 + ms2_species
+        # Test the direct _check_compatible method
+        with self.assertRaises(ValueError, msg="Should raise error for different species"):
+            MagneticShielding._check_compatible([ms1, ms2_species])
             
-        # Test warning for different references
-        with pytest.warns(UserWarning, match="different references"):
-            result = ms1 + ms2_reference
+        with self.assertRaises(ValueError, msg="Should raise error for different references"):
+            MagneticShielding._check_compatible([ms1, ms2_reference])
             
-        # Test warning for different gradients
-        with pytest.warns(UserWarning, match="different gradients"):
-            result = ms1 + ms2_gradient
+        with self.assertRaises(ValueError, msg="Should raise error for different gradients"):
+            MagneticShielding._check_compatible([ms1, ms2_gradient])
             
-        # Test warning for different tags
-        with pytest.warns(UserWarning, match="different tags"):
-            result = ms1 + ms2_tag
+        with self.assertRaises(ValueError, msg="Should raise error for different tags"):
+            MagneticShielding._check_compatible([ms1, ms2_tag])
             
-        # Test that the result preserves the parameters of the first tensor
-        with pytest.warns(UserWarning):
-            result = ms1 + ms2_species
-            self.assertEqual(result.species, '13C')
-            self.assertEqual(result.reference, 100)
-            self.assertEqual(result.gradient, -1.0)
-            self.assertEqual(result.mstag, 'ms')
+        with self.assertRaises(ValueError, msg="Should raise error for different orders"):
+            MagneticShielding._check_compatible([ms1, ms2_order])
 
 class TestElectricFieldGradient(unittest.TestCase):
 
