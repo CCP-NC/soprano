@@ -1356,6 +1356,43 @@ class ElectricFieldGradient(NMRTensor):
         '''
         a = self.get_quadrupolar_perturbation(Bext)
         return a * (6 + self.eta)**2 / 504
+    
+    @property
+    def NQR(self):
+        '''
+        EFGNQR
+
+        Produces an array containing NQR transition frequencies (in Hz) for every atom
+        in a system. For non-quadrupole active nuclei, the we return an empty dictionary.
+        Unless specified otherwise, the spin and quadrupole moment of the most common
+        NMR-active isotope is used.
+
+        For reference: the value returned by this property is defined as
+
+        .. math::
+
+            A = \\frac{V_{zz} Q}{4I(2I - 1)}
+            fq = 3A(2m+1)\\sqrt{1 + \\eta^2/3}
+
+        in Hz.
+        It is important to keep in mind that therefore this represents a
+        *frequency*; the corresponding 'omega' (pulsation) would be the same value
+        multiplied by 2*pi. 
+        '''
+        result = defaultdict(None)
+
+        if self.spin == 0:
+            return result
+
+        A = EFG_TO_CHI * self.Vzz * self.quadrupole_moment / (4 * self.spin * (2 * self.spin - 1))
+        ms = [m for m in _frange(-self.spin, self.spin + 1, 1) if m >= 0.0][:-1]
+        for m in ms:
+            key = f'm={m}->{m+1}'
+            fq = 3 * A * (2 * m + 1) * np.sqrt(1 + self.eta ** 2 / 3)
+            result[key] = fq
+
+        return result
+        
 
     # def get_MAS_second_order_shift(self, Bext):
     #     '''
