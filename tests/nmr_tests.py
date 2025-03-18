@@ -32,6 +32,8 @@ from soprano.properties.nmr import (
     MSSkew,
     MSSpan,
 )
+from soprano.properties.nmr.efg import EFGAnisotropy, EFGDiagonal, EFGEuler, EFGQuaternion, EFGReducedAnisotropy, EFGSkew, EFGSpan
+from soprano.properties.nmr.ms import MSEuler, MSShielding, MSShift, MSTensor
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -1170,6 +1172,157 @@ class TestNMR(unittest.TestCase):
         # Test with empty list
         with self.assertRaises(ValueError):
             NMRTensor.mean([])
+        
+        # # Test flattening of nested list with axis=None
+        # nested_tensors = [[t1], [t2, t3]]
+        # mean_flat = NMRTensor.mean(nested_tensors)
+        # expected_flat = (data1 + data2 + data3) / 3
+        # self.assertTrue(np.allclose(mean_flat.data, expected_flat))
+        
+    def test_tensor_mean_with_weights(self):
+        """Test the mean class method with weights."""
+        # Create test tensors
+        data1 = np.eye(3)
+        data2 = 2 * np.eye(3)
+        data3 = 3 * np.eye(3)
+        
+        t1 = NMRTensor(data1)
+        t2 = NMRTensor(data2)
+        t3 = NMRTensor(data3)
+        
+        # Test with weights - simple case
+        weights = np.array([1.0, 2.0, 3.0])
+        mean_tensor = NMRTensor.mean([t1, t2, t3], weights=weights)
+        
+        # Calculate expected weighted average: (1*1 + 2*2 + 3*3) / (1+2+3) = 14/6
+        expected_mean = (data1 * weights[0] + data2 * weights[1] + data3 * weights[2]) / np.sum(weights)
+        self.assertTrue(np.allclose(mean_tensor.data, expected_mean))
+        
+        # Test with weights on a nested structure
+        nested_tensors = [[t1, t2], [t3, t1]]
+        nested_weights = np.array([0.5, 1.5])  # Weights for the two rows
+        
+        # For axis=0, weights apply to rows
+        mean_columns = NMRTensor.mean(nested_tensors, axis=0, weights=nested_weights)
+        
+        # Expected: first column is (0.5*t1 + 1.5*t3)/(0.5+1.5), second is (0.5*t2 + 1.5*t1)/(0.5+1.5)
+        expected_col1 = (0.5 * data1 + 1.5 * data3) / 2.0
+        expected_col2 = (0.5 * data2 + 1.5 * data1) / 2.0
+        
+        self.assertTrue(np.allclose(mean_columns[0].data, expected_col1))
+        self.assertTrue(np.allclose(mean_columns[1].data, expected_col2))
+        
+    def test_tensor_mean_axis(self):
+        """Test the mean class method with axis selection."""
+        # Create a 2D grid of tensors
+        data_base = np.eye(3)
+        tensors_2d = [
+            [NMRTensor(data_base * 1), NMRTensor(data_base * 2), NMRTensor(data_base * 3)],
+            [NMRTensor(data_base * 4), NMRTensor(data_base * 5), NMRTensor(data_base * 6)]
+        ]
+        
+        # Test mean along axis=0 (average the rows)
+        mean_axis0 = NMRTensor.mean(tensors_2d, axis=0)
+        
+        # Expected: 3 tensors, each an average of the corresponding column
+        expected0_0 = (data_base * 1 + data_base * 4) / 2  # First column average
+        expected0_1 = (data_base * 2 + data_base * 5) / 2  # Second column average
+        expected0_2 = (data_base * 3 + data_base * 6) / 2  # Third column average
+        
+        self.assertTrue(np.allclose(mean_axis0[0].data, expected0_0))
+        self.assertTrue(np.allclose(mean_axis0[1].data, expected0_1))
+        self.assertTrue(np.allclose(mean_axis0[2].data, expected0_2))
+        self.assertEqual(len(mean_axis0), 3)
+        
+        # Test mean along axis=1 (average the columns)
+        mean_axis1 = NMRTensor.mean(tensors_2d, axis=1)
+        
+        # Expected: 2 tensors, each an average of the corresponding row
+        expected1_0 = (data_base * 1 + data_base * 2 + data_base * 3) / 3  # First row average
+        expected1_1 = (data_base * 4 + data_base * 5 + data_base * 6) / 3  # Second row average
+        
+        self.assertTrue(np.allclose(mean_axis1[0].data, expected1_0))
+        self.assertTrue(np.allclose(mean_axis1[1].data, expected1_1))
+        self.assertEqual(len(mean_axis1), 2)
+        
+        # Test with a single list of tensors - should behave the same with axis=None or axis=0
+        tensors_1d = [NMRTensor(data_base * i) for i in range(1, 4)]
+        mean_none = NMRTensor.mean(tensors_1d)
+        mean_axis0_1d = NMRTensor.mean(tensors_1d, axis=0)
+        expected_1d = data_base * 2  # (1+2+3)/3 = 2
+        
+        self.assertTrue(np.allclose(mean_none.data, expected_1d))
+        self.assertTrue(np.allclose(mean_axis0_1d.data, expected_1d))
+        
+    def test_tensor_mean_errors(self):
+        """Test error cases for the mean class method."""
+        data_base = np.eye(3)
+        t1 = NMRTensor(data_base)
+        t2 = NMRTensor(data_base * 2)
+        t3 = NMRTensor(data_base * 3)
+        
+        tensors_1d = [t1, t2, t3]
+        tensors_2d = [[t1, t2], [t3, t1]]
+        
+        # Test with invalid axis
+        with self.assertRaises(ValueError):
+            NMRTensor.mean(tensors_1d, axis=2)  # Axis out of bounds
+            
+        with self.assertRaises(ValueError):
+            NMRTensor.mean(tensors_2d, axis=3)  # Axis out of bounds
+        
+        # Test with wrong weights length
+        with self.assertRaises(ValueError):
+            NMRTensor.mean(tensors_1d, weights=np.array([1, 2]))  # Should be length 3
+            
+        with self.assertRaises(ValueError):
+            NMRTensor.mean(tensors_2d, axis=0, weights=np.array([1, 2, 3]))  # Should be length 2
+            
+        with self.assertRaises(ValueError):
+            NMRTensor.mean(tensors_2d, axis=1, weights=np.array([1, 2, 3]))  # Should be length 2 and 3 respectively
+    
+    def test_tensor_mean_with_subclass(self):
+        """Test mean works properly with tensor subclasses."""
+        # Create magnetic shielding tensors for testing
+        ms1 = MagneticShielding(np.eye(3), species='13C', reference=100)
+        ms2 = MagneticShielding(np.eye(3) * 2, species='13C', reference=100)
+        ms3 = MagneticShielding(np.eye(3) * 3, species='13C', reference=100)
+        
+        # Test with same subclass
+        mean_ms = MagneticShielding.mean([ms1, ms2, ms3])
+        self.assertIsInstance(mean_ms, MagneticShielding)
+        self.assertEqual(mean_ms.species, '13C')
+        self.assertEqual(mean_ms.reference, 100)
+        
+        # Test mean with different axes
+        ms_2d = [[ms1, ms2], [ms3, ms1]]
+        
+        # Mean along axis 0 (columns)
+        mean_col = MagneticShielding.mean(ms_2d, axis=0)
+        self.assertEqual(len(mean_col), 2)
+        self.assertIsInstance(mean_col[0], MagneticShielding)
+        self.assertIsInstance(mean_col[1], MagneticShielding)
+        self.assertTrue(np.allclose(mean_col[0].data, (np.eye(3) + np.eye(3) * 3) / 2))
+        
+        # Mean along axis 1 (rows)
+        mean_row = MagneticShielding.mean(ms_2d, axis=1)
+        self.assertEqual(len(mean_row), 2)
+        self.assertIsInstance(mean_row[0], MagneticShielding)
+        self.assertIsInstance(mean_row[1], MagneticShielding)
+        self.assertTrue(np.allclose(mean_row[0].data, (np.eye(3) + np.eye(3) * 2) / 2))
+        
+        # Test with weights
+        weights = [1.0, 2.0, 3.0]
+        mean_weighted = MagneticShielding.mean([ms1, ms2, ms3], weights=weights)
+        expected = (np.eye(3) + np.eye(3) * 2 * 2 + np.eye(3) * 3 * 3) / 6
+        self.assertTrue(np.allclose(mean_weighted.data, expected))
+        
+        # Test weighted mean with axis
+        row_weights = [1.0, 2.0]
+        mean_row_weighted = MagneticShielding.mean(ms_2d, axis=1, weights=row_weights)
+        self.assertEqual(len(mean_row_weighted), 2)
+        expected_row1 = (np.eye(3) * 1 + np.eye(3) * 2 * 2) / 3
+        self.assertTrue(np.allclose(mean_row_weighted[0].data, expected_row1))
 
 class TestMagneticShielding(unittest.TestCase):
 
@@ -1249,33 +1402,6 @@ class TestMagneticShielding(unittest.TestCase):
         result = self.tensor + tensor2
         self.assertIsInstance(result, MagneticShielding)
         np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
-
-    def test_magnetic_shielding_mean(self):
-        """Test the mean class method for MagneticShielding."""
-        # Create tensors with same parameters
-        ms1 = MagneticShielding(np.diag([1, 2, 3]), species='13C', reference=100, gradient=-1)
-        ms2 = MagneticShielding(np.diag([4, 5, 6]), species='13C', reference=100, gradient=-1)
-        
-        # Calculate mean
-        mean_ms = MagneticShielding.mean([ms1, ms2])
-        
-        # Check result
-        self.assertTrue(np.allclose(mean_ms.data, (ms1.data + ms2.data) / 2))
-        self.assertEqual(mean_ms.species, '13C')
-        self.assertEqual(mean_ms.reference, 100)
-        self.assertEqual(mean_ms.gradient, -1)
-        
-        # Test with different parameters
-        ms3 = MagneticShielding(np.diag([7, 8, 9]), species='1H', reference=50, gradient=-0.5)
-        
-        # Should give warnings for different parameters
-        with pytest.warns(UserWarning, match="different species"):
-            mean_ms = MagneticShielding.mean([ms1, ms3])
-        
-        # Should use the first tensor's parameters
-        self.assertEqual(mean_ms.species, '13C')
-        self.assertEqual(mean_ms.reference, 100)
-        self.assertEqual(mean_ms.gradient, -1)
 
     def test_parameter_consistency_warnings(self):
         """Test that warnings are issued when operating on tensors with different parameters."""
@@ -1372,33 +1498,6 @@ class TestElectricFieldGradient(unittest.TestCase):
         self.assertIsInstance(result, ElectricFieldGradient)
         np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
 
-    def test_electric_field_gradient_mean(self):
-        """Test the mean class method for ElectricFieldGradient."""
-        # Create test data using a simple diagonal tensor
-        data1 = np.diag([-1, -2, 3])  # Trace should be zero for EFG
-        data2 = np.diag([-3, -1, 4])
-        
-        # Create EFG tensors with same parameters
-        efg1 = ElectricFieldGradient(data1, species='2H')
-        efg2 = ElectricFieldGradient(data2, species='2H')
-        
-        # Calculate mean
-        mean_efg = ElectricFieldGradient.mean([efg1, efg2])
-        
-        # Check result
-        self.assertTrue(np.allclose(mean_efg.data, (data1 + data2) / 2))
-        self.assertEqual(mean_efg.species, '2H')
-        
-        # Test with different parameters
-        efg3 = ElectricFieldGradient(data1, species='17O', quadrupole_moment=25.0)
-        
-        # Should give warnings for different parameters
-        with pytest.warns(UserWarning, match="different species"):
-            mean_efg = ElectricFieldGradient.mean([efg1, efg3])
-        
-        # Should use the first tensor's parameters
-        self.assertEqual(mean_efg.species, '2H')
-
     def test_parameter_consistency_warnings(self):
         """Test that warnings are issued when operating on tensors with different parameters."""
         # Create base tensor with known parameters
@@ -1410,30 +1509,346 @@ class TestElectricFieldGradient(unittest.TestCase):
         
         # Create tensors with different parameters
         efg2_species = ElectricFieldGradient(np.diag([-1, -1, 2]), species='17O', 
-                                           quadrupole_moment=quadrupole_moment, gamma=gamma)
+                                          quadrupole_moment=quadrupole_moment, gamma=gamma)
         efg2_quadrupole = ElectricFieldGradient(np.diag([-1, -1, 2]), species='2H',
-                                              quadrupole_moment=quadrupole_moment*2, gamma=gamma)
+                                             quadrupole_moment=quadrupole_moment*2, gamma=gamma)
         efg2_gamma = ElectricFieldGradient(np.diag([-1, -1, 2]), species='2H',
-                                         quadrupole_moment=quadrupole_moment, gamma=gamma*2)
+                                        quadrupole_moment=quadrupole_moment, gamma=gamma*2)
+        efg2_order = ElectricFieldGradient(np.diag([-1, -1, 2]), species='2H',
+                                        quadrupole_moment=quadrupole_moment, gamma=gamma, order='i')
         
-        # Test warning for different species
-        with pytest.warns(UserWarning, match="different species"):
-            result = efg1 + efg2_species
+        # Test the direct _check_compatible method
+        with self.assertRaises(ValueError, msg="Should raise error for different species"):
+            ElectricFieldGradient._check_compatible([efg1, efg2_species])
             
-        # Test warning for different quadrupole moments
-        with pytest.warns(UserWarning, match="different quadrupole moments"):
-            result = efg1 + efg2_quadrupole
+        with self.assertRaises(ValueError, msg="Should raise error for different quadrupole moments"):
+            ElectricFieldGradient._check_compatible([efg1, efg2_quadrupole])
             
-        # Test warning for different gamma values
-        with pytest.warns(UserWarning, match="different gamma values"):
-            result = efg1 + efg2_gamma
+        with self.assertRaises(ValueError, msg="Should raise error for different gamma values"):
+            ElectricFieldGradient._check_compatible([efg1, efg2_gamma])
             
-        # Test that the result preserves the parameters of the first tensor
-        with pytest.warns(UserWarning):
-            result = efg1 + efg2_species
-            self.assertEqual(result.species, '2H')
-            self.assertEqual(result.quadrupole_moment, quadrupole_moment)
-            self.assertEqual(result.gamma, gamma)
+        with self.assertRaises(ValueError, msg="Should raise error for different orders"):
+            ElectricFieldGradient._check_compatible([efg1, efg2_order])
+
+class TestMSMeanProperties(unittest.TestCase):
+    def setUp(self):
+        """Set up a test collection with predictable MS values."""
+        # Load the ethanol structure
+        self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        
+        # Create a second structure with scaled MS values
+        from soprano.collection import AtomsCollection
+        eth2 = self.eth.copy()
+        ms_orig = self.eth.get_array("ms").copy()
+        # Rotate each ms tensors by 90 degrees
+        R = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
+        ms_new = np.einsum('ij,njk,kl->nil', R, ms_orig, R.T)
+        ms_new = ms_new * 2.0  # Double all MS values
+        eth2.set_array("ms", ms_new)
+
+        eth_mean = self.eth.copy()
+        eth_mean.set_array("ms", np.mean([self.eth.get_array("ms"), eth2.get_array("ms")], axis=0))
+        self.eth_mean = eth_mean
+        
+        # Create collection with both structures
+        self.collection = AtomsCollection([self.eth, eth2])
+        
+        # Calculate properties for both structures for comparison
+        self.iso1 = MSShielding.get(self.eth)
+        self.iso2 = MSShielding.get(eth2)
+        
+        self.aniso1 = MSAnisotropy.get(self.eth)
+        self.aniso2 = MSAnisotropy.get(eth2)
+        
+        self.red_aniso1 = MSReducedAnisotropy.get(self.eth)
+        self.red_aniso2 = MSReducedAnisotropy.get(eth2)
+        
+        self.asymm1 = MSAsymmetry.get(self.eth)
+        self.asymm2 = MSAsymmetry.get(eth2)
+        
+        self.span1 = MSSpan.get(self.eth)
+        self.span2 = MSSpan.get(eth2)
+        
+        self.skew1 = MSSkew.get(self.eth)
+        self.skew2 = MSSkew.get(eth2)
+        
+        # Reference settings for testing shift calculations
+        self.ref = {'C': 175.0, 'H': 30.0, 'O': 200.0}
+        
+        self.shift1 = MSShift.get(self.eth, ref=self.ref)
+        self.shift2 = MSShift.get(eth2, ref=self.ref)
+
+    def test_shielding_mean(self):
+        """Test MSShielding.mean."""
+        # Calculate mean shielding manually
+        expected_mean = (self.iso1 + self.iso2) / 2
+        
+        # Use MSShielding.mean
+        result_mean = MSShielding().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_anisotropy_mean(self):
+        """Test MSAnisotropy.mean."""
+        # Use MSAnisotropy.mean
+        result_mean = MSAnisotropy().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, MSAnisotropy.get(self.eth_mean)))
+        
+    def test_reduced_anisotropy_mean(self):
+        """Test MSReducedAnisotropy.mean."""
+        # Calculate mean reduced anisotropy manually
+        expected_mean = MSReducedAnisotropy.get(self.eth_mean)
+        # Use MSReducedAnisotropy.mean
+        result_mean = MSReducedAnisotropy().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_asymmetry_mean(self):
+        """Test MSAsymmetry.mean."""
+        # Calculate mean asymmetry manually
+        expected_mean = MSAsymmetry.get(self.eth_mean)
+        
+        # Use MSAsymmetry.mean
+        result_mean = MSAsymmetry().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_span_mean(self):
+        """Test MSSpan.mean."""
+        # Calculate mean span manually
+        expected_mean = MSSpan.get(self.eth_mean)
+        
+        # Use MSSpan.mean
+        result_mean = MSSpan().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_skew_mean(self):
+        """Test MSSkew.mean."""
+        # Calculate mean skew manually
+        expected_mean = MSSkew.get(self.eth_mean)
+        
+        # Use MSSkew.mean
+        result_mean = MSSkew().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_shift_mean_with_reference(self):
+        """Test MSShift.mean with references."""
+        # Calculate mean shift manually
+        expected_mean = MSShift.get(self.eth_mean, ref=self.ref)
+        
+        # Use MSShift.mean
+        result_mean = MSShift().mean(self.collection, axis=0, ref=self.ref)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_isotropy_mean_with_reference(self):
+        """Test MSIsotropy.mean with references."""
+        # Calculate mean shift
+        expected_mean = MSIsotropy.get(self.eth_mean, ref=self.ref)
+        
+        # Use MSIsotropy.mean with reference (should give shift)
+        result_mean = MSIsotropy().mean(self.collection, ref=self.ref, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_isotropy_mean_without_reference(self):
+        """Test MSIsotropy.mean without references."""
+        # Calculate mean shielding
+        expected_mean = MSIsotropy.get(self.eth_mean)
+        
+        # Use MSIsotropy.mean without reference (should give shielding)
+        result_mean = MSIsotropy().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
+        
+    def test_weighted_mean(self):
+        """Test weighted mean calculations."""
+        weights = [0.25, 0.75]  # 25% first structure, 75% second
+        
+        # Calculate weighted mean shielding manually
+        expected_weighted_mean = weights[0] * self.iso1 + weights[1] * self.iso2
+        
+        # Use MSShielding.mean with weights
+        result_weighted_mean = MSShielding().mean(self.collection, weights=weights, axis=0)
+        
+        self.assertTrue(np.allclose(result_weighted_mean, expected_weighted_mean))
+        
+    def test_euler_mean(self):
+        """Test MSEuler.mean."""
+        # Get tensors from both structures
+        tensors1 = MSTensor.get(self.eth)
+        tensors2 = MSTensor.get(self.collection[1])[0]
+        
+        # Calculate mean tensors manually
+        mean_tensors = []
+        for t1, t2 in zip(tensors1, tensors2):
+            mean_data = (t1.data + t2.data) / 2
+            mean_tensors.append(MagneticShielding(mean_data, species=t1.species, order=t1.order))
+        
+        # Get Euler angles from mean tensors
+        expected_eulers = np.array([t.euler_angles() for t in mean_tensors])
+        
+        # Use MSEuler.mean
+        result_eulers = MSEuler().mean(self.collection, axis=0)
+        
+        self.assertTrue(np.allclose(result_eulers, expected_eulers))
+
+class TestEFGMeanProperties(unittest.TestCase):
+    def setUp(self):
+        """Set up a test collection with predictable EFG values."""
+        # Load the ethanol structure
+        self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        
+        # Create a second structure with scaled EFG values
+        from soprano.collection import AtomsCollection
+        eth2 = self.eth.copy()
+        efg_orig = self.eth.get_array("efg").copy()
+        # "Rotate the EFG tensor by 90 deg"
+        R = np.array([
+            [0, 1, 0],
+            [-1, 0, 0],
+            [0, 0, 1]
+        ])
+        # efg_new = np.dot(R, np.dot(efg_orig, R.T))
+        efg_new = np.einsum('ij,njk,kl->nil', R, efg_orig, R.T)
+        eth2.set_array("efg", efg_new)
+        self.eth2 = eth2
+
+        eth_mean = self.eth.copy()
+        # Set the EFG to the mean of the two structures
+        efg_mean = (efg_orig + efg_new) / 2
+        eth_mean.set_array("efg", efg_mean)
+        self.eth_mean = eth_mean
+        
+        # Create collection with both structures
+        self.collection = AtomsCollection([self.eth, self.eth2])
+        
+        # Calculate mean properties
+        self.vzz_mean = EFGVzz.get(self.eth_mean)
+        self.aniso_mean = EFGAnisotropy.get(self.eth_mean)
+        self.red_aniso_mean = EFGReducedAnisotropy.get(self.eth_mean)
+        self.asymm_mean = EFGAsymmetry.get(self.eth_mean)
+        self.span_mean = EFGSpan.get(self.eth_mean)
+        self.skew_mean = EFGSkew.get(self.eth_mean)
+        self.euler_mean = EFGEuler.get(self.eth_mean)
+        self.quat_mean = EFGQuaternion.get(self.eth_mean)
+        
+        # Isotope settings for testing quadrupolar properties
+        self.isotopes = {'H': 2, 'O': 17, 'C': 13}
+        self.qconst_mean = EFGQuadrupolarConstant.get(self.eth_mean, isotopes=self.isotopes)
+        self.qprod_mean = EFGQuadrupolarProduct.get(self.eth_mean, isotopes=self.isotopes)
+        self.nqr_mean = EFGNQR.get(self.eth_mean, isotopes=self.isotopes)
+
+    def test_vzz_mean(self):
+        """Test EFGVzz.mean."""
+        # Use EFGVzz.mean
+        result_mean = EFGVzz().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.vzz_mean))
+        
+    def test_anisotropy_mean(self):
+        """Test EFGAnisotropy.mean."""
+        
+        # Use EFGAnisotropy.mean
+        result_mean = EFGAnisotropy().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.aniso_mean))
+        
+    def test_reduced_anisotropy_mean(self):
+        """Test EFGReducedAnisotropy.mean."""
+        # Use EFGReducedAnisotropy.mean
+        result_mean = EFGReducedAnisotropy().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.red_aniso_mean))
+        
+    def test_asymmetry_mean(self):
+        """Test EFGAsymmetry.mean."""
+        # Use EFGAsymmetry.mean
+        result_mean = EFGAsymmetry().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.asymm_mean))
+        
+    def test_span_mean(self):
+        """Test EFGSpan.mean."""
+        # Use EFGSpan.mean
+        result_mean = EFGSpan().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.span_mean))
+        
+    def test_skew_mean(self):
+        """Test EFGSkew.mean."""
+        # Use EFGSkew.mean
+        result_mean = EFGSkew().mean(self.collection, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.skew_mean))
+        
+    def test_quadrupolar_constant_mean(self):
+        """Test EFGQuadrupolarConstant.mean."""
+        # Use EFGQuadrupolarConstant.mean with isotopes
+        result_mean = EFGQuadrupolarConstant().mean(self.collection, isotopes=self.isotopes, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.qconst_mean))
+        
+    def test_quadrupolar_product_mean(self):
+        """Test EFGQuadrupolarProduct.mean."""
+        # Use EFGQuadrupolarProduct.mean with isotopes
+        result_mean = EFGQuadrupolarProduct().mean(self.collection, isotopes=self.isotopes, axis=0)
+        self.assertTrue(np.allclose(result_mean, self.qprod_mean))
+
+    def test_nqr_mean(self):
+        """Test EFGNQR.mean."""
+        nqr_mean = self.nqr_mean
+        # Use EFGNQR.mean with isotopes
+        result_mean = EFGNQR().mean(self.collection, isotopes=self.isotopes, axis=0)
+
+        
+        # Check each atom's NQR frequencies
+        for i in range(len(self.eth)):
+            # If there are no transitions (not quadrupolar), both should be empty
+            if not nqr_mean[i]:
+                self.assertEqual(len(result_mean[i]), 0)
+                continue
+                
+            # For atoms with transitions, compare the frequencies
+            for key in nqr_mean[i]:
+                # Check if key exists in both original and mean result
+                self.assertIn(key, result_mean[i])
+                # Calculate expected mean frequency for this transition
+                expected_freq = nqr_mean[i][key]
+                # Check if mean frequency matches expected
+                self.assertAlmostEqual(result_mean[i][key], expected_freq)
+                
+    def test_euler_mean(self):
+        """Test EFGEuler.mean."""
+        # Use EFGEuler.mean
+        result_eulers = EFGEuler().mean(self.collection, isotopes=self.isotopes, axis=0)
+        self.assertTrue(np.allclose(result_eulers, self.euler_mean))
+        
+    def test_quaternion_mean(self):
+        """Test EFGQuaternion.mean."""
+        # Use EFGQuaternion.mean
+        result_quats = EFGQuaternion().mean(self.collection, isotopes=self.isotopes, axis=0)
+        
+        # Compare quaternions - check q or -q since they represent the same rotation
+        for q_exp, q_res in zip(self.quat_mean, result_quats):
+            # Quaternions q and -q represent the same rotation
+            self.assertTrue(np.allclose(q_exp.q, q_res.q) or np.allclose(q_exp.q, -q_res.q))
+
+    def test_weighted_mean(self):
+        """Test weighted mean calculations."""
+        weights = [0.25, 0.75]  # 25% first structure, 75% second
+        # New structure with the efg tensors weighted by the weights
+        atoms1 = self.eth.copy()
+        atoms2 = self.eth2.copy()
+
+        # weighted EFG tensors
+        efg1 = atoms1.get_array("efg")
+        efg2 = atoms2.get_array("efg")
+        # Set the EFG to the weighted mean of the two structures
+        efg_weighted = (weights[0] * efg1 + weights[1] * efg2) / sum(weights)
+        atomsout = atoms1.copy()
+        atomsout.set_array("efg", efg_weighted)
+        expected_weighted_mean = EFGVzz.get(atomsout)
+        
+        # Use EFGVzz.mean with weights
+        result_weighted_mean = EFGVzz().mean(self.collection, weights=weights, axis=0)
+        
+        self.assertTrue(np.allclose(result_weighted_mean, expected_weighted_mean))
 
 if __name__ == "__main__":
     unittest.main()

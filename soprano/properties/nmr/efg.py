@@ -47,6 +47,27 @@ def _has_efg_check(f):
     return decorated_f
 
 
+def tensor_mean_property(property_name):
+    """
+    Decorator for creating mean methods that extract a specific property from ElectricFieldGradient objects.
+    
+    Parameters:
+      property_name (str): The name of the property to extract from each ElectricFieldGradient object.
+                          Must be a valid attribute or property of ElectricFieldGradient.
+    
+    Returns:
+      decorator: A decorator for mean methods
+    """
+    def decorator(method):
+        def wrapper(self, s, axis=None, weights=None, **kwargs):
+            # Get the mean EFGTensor
+            meanTensors = EFGTensor().mean(s, axis=axis, weights=weights, **kwargs)
+            # Extract the specified property from each tensor
+            return np.array([getattr(T, property_name) for T in meanTensors])
+        return wrapper
+    return decorator
+
+
 class EFGTensor(AtomsProperty):
     """
     EFGTensor
@@ -93,7 +114,7 @@ class EFGTensor(AtomsProperty):
 
     @staticmethod
     @_has_efg_check
-    def extract(s, order, use_q_isotopes, isotopes, isotope_list) -> List[ElectricFieldGradient]:
+    def extract(s, order, use_q_isotopes, isotopes, isotope_list, **kwargs) -> List[ElectricFieldGradient]:
 
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
@@ -110,9 +131,6 @@ class EFGTensor(AtomsProperty):
 
         efg_tensors = [ElectricFieldGradient(efg, species, order=order) for efg, species in zip(s.get_array("efg"), isotopelist)]
         return efg_tensors
-
-
-
 
 
 class EFGDiagonal(AtomsProperty):
@@ -155,6 +173,20 @@ class EFGDiagonal(AtomsProperty):
 
         return np.array([dict(zip(("evals", "evecs"), efg)) for efg in efg_diag])
 
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGDiagonal property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_diag_mean (np.ndarray): The mean of the EFGDiagonal property.
+        """
+        raise NotImplementedError("Mean calculation for EFGDiagonal is not yet implemented.")
+
 
 class EFGVzz(AtomsProperty):
 
@@ -187,6 +219,21 @@ class EFGVzz(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return efg_evals[:, -1]
+    
+    @tensor_mean_property('Vzz')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGVzz property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_vzz_mean (np.ndarray): The mean of the EFGVzz property.
+        """
+        pass  # Implementation handled by decorator
 
 
 class EFGAnisotropy(AtomsProperty):
@@ -222,6 +269,21 @@ class EFGAnisotropy(AtomsProperty):
 
         return _anisotropy(efg_evals)
 
+    @tensor_mean_property('anisotropy')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGAnisotropy property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_aniso_mean (np.ndarray): The mean of the EFGAnisotropy property.
+        """
+        pass  # Implementation handled by decorator
+
 
 class EFGReducedAnisotropy(AtomsProperty):
 
@@ -255,6 +317,21 @@ class EFGReducedAnisotropy(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(efg_evals, reduced=True)
+    
+    @tensor_mean_property('reduced_anisotropy')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGReducedAnisotropy property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_red_aniso_mean (np.ndarray): The mean of the EFGReducedAnisotropy property.
+        """
+        pass  # Implementation handled by decorator
 
 
 class EFGAsymmetry(AtomsProperty):
@@ -289,6 +366,21 @@ class EFGAsymmetry(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _asymmetry(efg_evals)
+    
+    @tensor_mean_property('asymmetry')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGAsymmetry property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_asymm_mean (np.ndarray): The mean of the EFGAsymmetry property.
+        """
+        pass  # Implementation handled by decorator
 
 
 class EFGSpan(AtomsProperty):
@@ -323,6 +415,21 @@ class EFGSpan(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _span(efg_evals)
+    
+    @tensor_mean_property('span')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGSpan property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_span_mean (np.ndarray): The mean of the EFGSpan property.
+        """
+        pass  # Implementation handled by decorator
 
 
 class EFGSkew(AtomsProperty):
@@ -357,6 +464,21 @@ class EFGSkew(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _skew(efg_evals)
+    
+    @tensor_mean_property('skew')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGSkew property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_skew_mean (np.ndarray): The mean of the EFGSkew property.
+        """
+        pass  # Implementation handled by decorator
 
 
 class EFGQuadrupolarConstant(AtomsProperty):
@@ -426,6 +548,24 @@ class EFGQuadrupolarConstant(AtomsProperty):
         q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
 
         return EFG_TO_CHI * q_list * EFGVzz.get(s)
+    
+    @tensor_mean_property('Cq')
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the EFGQuadrupolarConstant property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+          **kwargs: Additional parameters, including isotopes and use_q_isotopes.
+
+        Returns:
+          efg_qconst_mean (np.ndarray): The mean of the EFGQuadrupolarConstant property.
+        """
+        pass  # Implementation handled by decorator
+
+
 class EFGNQR(AtomsProperty):
 
     """
@@ -513,6 +653,23 @@ class EFGNQR(AtomsProperty):
 
 
         return nqr
+    
+    @tensor_mean_property('NQR')
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the EFGNQR property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+          **kwargs: Additional parameters, including isotopes and use_q_isotopes.
+
+        Returns:
+          efg_nqr_mean (list): The mean of the EFGNQR property frequencies.
+        """
+        pass # Implementation handled by decorator
+
 
 class EFGQuadrupolarProduct(AtomsProperty):
 
@@ -580,6 +737,23 @@ class EFGQuadrupolarProduct(AtomsProperty):
             * EFGVzz.get(s)
             * (1 + (EFGAsymmetry.get(s) ** 2) / 3) ** 0.5
         )
+    
+    @tensor_mean_property('Pq')
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the EFGQuadrupolarProduct property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+          **kwargs: Additional parameters, including isotopes and use_q_isotopes.
+
+        Returns:
+          efg_qprod_mean (np.ndarray): The mean of the EFGQuadrupolarProduct property.
+        """
+        pass  # Implementation handled by decorator
+
 
 class EFGEuler(AtomsProperty):
 
@@ -616,7 +790,26 @@ class EFGEuler(AtomsProperty):
     @_has_efg_check
     def extract(s, order, convention, passive):
         return np.array([t.euler_angles(convention, passive=passive) for t in EFGTensor.get(s, order=order)])
+    
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the EFGEuler property.
 
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+          **kwargs: Additional parameters for euler angles calculation.
+
+        Returns:
+          efg_euler_mean (np.ndarray): The mean of the EFGEuler property.
+        """
+        # Get the mean EFGTensor
+        meanTensors = EFGTensor().mean(s, axis=axis, weights=weights, **kwargs)
+        # Get the Euler angles
+        convention = kwargs.get('convention', 'zyz')
+        passive = kwargs.get('passive', False)
+        return np.array([t.euler_angles(convention=convention, passive=passive) for t in meanTensors])
 
 
 class EFGQuaternion(AtomsProperty):
@@ -651,3 +844,18 @@ class EFGQuaternion(AtomsProperty):
     @_has_efg_check
     def extract(s, order):
         return [t.quaternion for t in EFGTensor.get(s, order=order)]
+    
+    @tensor_mean_property('quaternion')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the EFGQuaternion property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          efg_quat_mean (np.ndarray): The mean of the EFGQuaternion property.
+        """
+        pass  # Implementation handled by decorator

@@ -22,6 +22,9 @@ A generic template class that specific Properties will inherit from.
 
 
 from soprano.collection import AtomsCollection
+import numpy as np
+
+from soprano.nmr.tensor import NMRTensor, contains_nmr_tensors
 
 
 class AtomsProperty:
@@ -108,6 +111,97 @@ class AtomsProperty:
         # Do something specific to get the property of interest
         # Then return the value
 
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Compute the mean of the property over a list of structures.
+
+        The default behaviours are:
+        - For a list of scalars, compute the mean along the specified axis.
+        - For a list of dictionaries, compute the mean for each key across all dictionaries.
+        - For a list of NMRTensor objects, compute the mean using the NMRTensor.mean method.
+        - For a list of arrays, convert to numpy array and then compute the mean along the specified axis.
+
+
+        | Args:
+        |   s (list of ase.Atoms or an AtomsCollection): the structure or collection
+        |                                     from which to extract the
+        |                                     property
+        |   axis (int or None): axis along which the means are computed. If None, compute the mean of scalars.
+        |   weights (array-like, optional): An array of weights associated with the values.
+        |                                   If this is specified, the weighted average will be computed.
+        |                                   Must have the same shape as the property values.
+        |   **kwargs: Additional arguments passed to the property's get method.
+
+        | Returns:
+        |   mean_property: the mean value of the property for the given structures
+        |
+        | Raises:
+        |   ValueError: If s is not a collection/list, if property values are None,
+        |               or if there's an incompatible shape for computing the mean.
+        |   TypeError: If the property values are of a type that cannot be averaged.
+        """
+        if not (isinstance(s, AtomsCollection) or isinstance(s, list)):
+            raise ValueError(
+                "Mean can only be computed on a collection/list of structures"
+            )
+        
+        property_values = self.get(s, **kwargs)
+
+        if not property_values:
+            raise ValueError(
+                "No property values found for the given structures"
+            )
+        
+        # Apply weights if provided
+        if weights is not None:
+            # Ensure weights match the length of property values
+            if len(weights) != len(property_values):
+                raise ValueError(
+                    f"Length of weights ({len(weights)}) does not match "
+                    f"length of property values ({len(property_values)})"
+                )
+        
+        # Dict mean
+        if isinstance(property_values[0], dict):
+            if weights is not None:
+                raise NotImplementedError(
+                    "Weighted mean for dictionaries is not implemented"
+                )
+            if axis is not None:
+                raise NotImplementedError(
+                    "Mean along an axis for dictionaries is not implemented"
+                )
+            mean_property = {}
+            for key in property_values[0].keys():
+                # Check if all dictionaries have the same keys
+                if not all(key in prop for prop in property_values):
+                    raise ValueError(
+                        f"Key '{key}' not present in all property dictionaries"
+                    )
+                
+                values = [d.get(key) for d in property_values]
+                try:
+                    mean_values = np.mean(values, axis=axis)
+                except (ValueError, TypeError) as e:
+                    raise ValueError(
+                        f"Cannot compute mean for key '{key}': {str(e)}"
+                    )
+                mean_property[key] = mean_values
+            return mean_property
+        else: # List or array mean
+            
+            # Special handling for lists of NMRTensor objects (including nested)
+            if contains_nmr_tensors(property_values):
+                # Pass weights to NMRTensor.mean if supported
+                return NMRTensor.mean(property_values, weights=weights, axis=axis)
+
+            try:
+                if weights is not None:
+                    return np.average(property_values, axis=axis, weights=weights)
+                return np.mean(property_values, axis=axis)
+            except (ValueError, TypeError) as e:
+                raise ValueError(f"Cannot compute mean of property values: {str(e)}")
+    
 
     def __call__(self, s, store_array=False):
         """Calling the AtomsProperty returns the value of the property as

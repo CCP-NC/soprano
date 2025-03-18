@@ -60,6 +60,58 @@ class TestPropertyLoad(unittest.TestCase):
         # And with additional arguments...
         self.assertTrue(np.all(DummyProperty.get(c1, mul=3) == [3, 6]))
 
+    def test_mean_property(self):
+        from soprano.collection import AtomsCollection
+        from soprano.properties import AtomsProperty
+
+        class DummyProperty(AtomsProperty):
+            default_name = "dummy"
+            default_params = {"mul": 2.0}
+
+            @staticmethod
+            def extract(s, mul):
+                return s.positions.shape[0] * mul
+
+        # Now two atoms objects to test it on
+        a1 = Atoms("C")
+        a2 = Atoms("CC")
+        a3 = Atoms("CCC")
+
+        c1 = AtomsCollection([a1, a2, a3])
+
+        dummy_prop = DummyProperty()
+
+        # Test mean of scalar properties
+        mean_value = dummy_prop.mean(c1)
+        self.assertEqual(mean_value, 4.0)
+
+        # Test mean of array properties
+        class ArrayProperty(AtomsProperty):
+            default_name = "array_prop"
+            default_params = {}
+
+            @staticmethod
+            def extract(s):
+                return np.array([s.positions.shape[0], s.positions.shape[0] * 2])
+
+        array_prop = ArrayProperty()
+        mean_array = array_prop.mean(c1, axis=0)
+        np.testing.assert_array_equal(mean_array, np.array([2.0, 4.0]))
+
+        # Test mean of dictionary properties
+        class DictProperty(AtomsProperty):
+            default_name = "dict_prop"
+            default_params = {}
+
+            @staticmethod
+            def extract(s):
+                return {"count": s.positions.shape[0], "double_count": s.positions.shape[0] * 2}
+
+        dict_prop = DictProperty()
+        mean_dict = dict_prop.mean(c1)
+        self.assertEqual(mean_dict["count"], 2.0)
+        self.assertEqual(mean_dict["double_count"], 4.0)
+
     def test_basicprop(self):
         from soprano.properties.basic import LatticeABC, LatticeCart
         from soprano.utils import cart2abc
