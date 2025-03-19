@@ -1157,7 +1157,7 @@ class ElectricFieldGradient(NMRTensor):
 
     The principal components of the tensor are the eigenvalues of the tensor, and they
     are usually sorted according to the NQR convention ( :math:`|V_{zz}| \\geq |V_{yy}| \\geq |V_{xx}|` ). Note however, that 
-    Simpson uses the convention :math:`|V_{zz}| \\geq |V_{xx}| \\geq |V_{yy}` . This is can be compensated for by using the
+    Simpson uses the convention :math:`|V_{zz}| \\geq |V_{xx}| \\geq |V_{yy}|` . This is can be compensated for by using the
     order parameter when creating the tensor.
 
     Note that some conventions use the reduced anisotropy ( :math:`\\zeta` ) instead of the asymmetry parameter.
