@@ -232,7 +232,7 @@ class EFGVzz(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return efg_evals[:, -1]
-    
+
     @tensor_mean_property('Vzz')
     def mean(self, s, axis=None, weights=None):
         """
@@ -246,7 +246,7 @@ class EFGVzz(AtomsProperty):
         Returns:
           efg_vzz_mean (np.ndarray): The mean of the EFGVzz property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGAnisotropy(AtomsProperty):
@@ -295,7 +295,7 @@ class EFGAnisotropy(AtomsProperty):
         Returns:
           efg_aniso_mean (np.ndarray): The mean of the EFGAnisotropy property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGReducedAnisotropy(AtomsProperty):
@@ -330,7 +330,7 @@ class EFGReducedAnisotropy(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(efg_evals, reduced=True)
-    
+
     @tensor_mean_property('reduced_anisotropy')
     def mean(self, s, axis=None, weights=None):
         """
@@ -344,7 +344,7 @@ class EFGReducedAnisotropy(AtomsProperty):
         Returns:
           efg_red_aniso_mean (np.ndarray): The mean of the EFGReducedAnisotropy property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGAsymmetry(AtomsProperty):
@@ -379,7 +379,7 @@ class EFGAsymmetry(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _asymmetry(efg_evals)
-    
+
     @tensor_mean_property('asymmetry')
     def mean(self, s, axis=None, weights=None):
         """
@@ -393,7 +393,7 @@ class EFGAsymmetry(AtomsProperty):
         Returns:
           efg_asymm_mean (np.ndarray): The mean of the EFGAsymmetry property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGSpan(AtomsProperty):
@@ -428,7 +428,7 @@ class EFGSpan(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _span(efg_evals)
-    
+
     @tensor_mean_property('span')
     def mean(self, s, axis=None, weights=None):
         """
@@ -442,7 +442,7 @@ class EFGSpan(AtomsProperty):
         Returns:
           efg_span_mean (np.ndarray): The mean of the EFGSpan property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGSkew(AtomsProperty):
@@ -477,7 +477,7 @@ class EFGSkew(AtomsProperty):
         efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
 
         return _skew(efg_evals)
-    
+
     @tensor_mean_property('skew')
     def mean(self, s, axis=None, weights=None):
         """
@@ -491,7 +491,7 @@ class EFGSkew(AtomsProperty):
         Returns:
           efg_skew_mean (np.ndarray): The mean of the EFGSkew property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGQuadrupolarConstant(AtomsProperty):
@@ -561,7 +561,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
         q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
 
         return EFG_TO_CHI * q_list * EFGVzz.get(s)
-    
+
     @tensor_mean_property('Cq')
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
@@ -576,7 +576,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
         Returns:
           efg_qconst_mean (np.ndarray): The mean of the EFGQuadrupolarConstant property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGNQR(AtomsProperty):
@@ -666,7 +666,7 @@ class EFGNQR(AtomsProperty):
 
 
         return nqr
-    
+
     @tensor_mean_property('NQR')
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
@@ -681,7 +681,7 @@ class EFGNQR(AtomsProperty):
         Returns:
           efg_nqr_mean (list): The mean of the EFGNQR property frequencies.
         """
-        pass # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGQuadrupolarProduct(AtomsProperty):
@@ -750,7 +750,7 @@ class EFGQuadrupolarProduct(AtomsProperty):
             * EFGVzz.get(s)
             * (1 + (EFGAsymmetry.get(s) ** 2) / 3) ** 0.5
         )
-    
+
     @tensor_mean_property('Pq')
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
@@ -765,7 +765,7 @@ class EFGQuadrupolarProduct(AtomsProperty):
         Returns:
           efg_qprod_mean (np.ndarray): The mean of the EFGQuadrupolarProduct property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class EFGEuler(AtomsProperty):
@@ -803,7 +803,7 @@ class EFGEuler(AtomsProperty):
     @_has_efg_check
     def extract(s, order, convention, passive):
         return np.array([t.euler_angles(convention, passive=passive) for t in EFGTensor.get(s, order=order)])
-    
+
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
         Calculate the mean of the EFGEuler property.
@@ -857,7 +857,7 @@ class EFGQuaternion(AtomsProperty):
     @_has_efg_check
     def extract(s, order):
         return [t.quaternion for t in EFGTensor.get(s, order=order)]
-    
+
     @tensor_mean_property('quaternion')
     def mean(self, s, axis=None, weights=None):
         """
@@ -871,4 +871,4 @@ class EFGQuaternion(AtomsProperty):
         Returns:
           efg_quat_mean (np.ndarray): The mean of the EFGQuaternion property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator

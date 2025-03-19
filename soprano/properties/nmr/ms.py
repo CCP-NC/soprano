@@ -99,7 +99,7 @@ class MSTensor(AtomsProperty):
     def extract(s, order, **kwargs):
         symbols = s.get_chemical_symbols()
         ms_list = s.get_array("ms")
-        
+
         ref_list = [None] * len(ms_list)
         grad_list = [-1] * len(ms_list)
         if "ref" in kwargs:
@@ -108,7 +108,7 @@ class MSTensor(AtomsProperty):
         if "grad" in kwargs:
             grad = kwargs.pop("grad")
             grad_list = [grad[symbol] if isinstance(grad, dict) else grad for symbol in symbols]
-        
+
         ms_tensors = [MagneticShielding(ms, species=symbol, order=order, reference=ref, gradient=grad)
                         for ms, symbol, ref, grad in zip(ms_list, symbols, ref_list, grad_list)]
         return ms_tensors
@@ -185,7 +185,7 @@ class MSShielding(AtomsProperty):
             s.set_array(MSShielding.default_name, ms_shielding)
 
         return ms_shielding
-    
+
     @tensor_mean_property('isotropy')
     def mean(self, s, axis=None, weights=None):
         """
@@ -199,7 +199,6 @@ class MSShielding(AtomsProperty):
         Returns:
           ms_shielding_mean (np.ndarray): The mean of the MSShielding property.
         """
-        pass
 
 
 class MSShift(AtomsProperty):
@@ -347,7 +346,6 @@ class MSShift(AtomsProperty):
         Returns:
           ms_shift_mean (np.ndarray): The mean of the MSShift property.
         """
-        pass
 
 
 class MSIsotropy(AtomsProperty):
@@ -395,7 +393,7 @@ class MSIsotropy(AtomsProperty):
             # Save the isotropic shifts
             s.set_array(MSIsotropy.default_name, ms_iso)
         return ms_iso
-    
+
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
         Calculate the mean of the MSIsotropy property.
@@ -464,7 +462,7 @@ class MSAnisotropy(AtomsProperty):
         Returns:
           ms_aniso_mean (np.ndarray): The mean of the MSAnisotropy property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class MSReducedAnisotropy(AtomsProperty):
@@ -499,7 +497,7 @@ class MSReducedAnisotropy(AtomsProperty):
         ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(ms_evals, reduced=True)
-    
+
     @tensor_mean_property('reduced_anisotropy')
     def mean(self, s, axis=None, weights=None):
         """
@@ -513,7 +511,7 @@ class MSReducedAnisotropy(AtomsProperty):
         Returns:
           ms_red_aniso_mean (np.ndarray): The mean of the MSReducedAnisotropy property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class MSAsymmetry(AtomsProperty):
@@ -548,7 +546,7 @@ class MSAsymmetry(AtomsProperty):
         ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _asymmetry(ms_evals)
-    
+
     @tensor_mean_property('asymmetry')
     def mean(self, s, axis=None, weights=None):
         """
@@ -562,7 +560,7 @@ class MSAsymmetry(AtomsProperty):
         Returns:
           ms_asym_mean (np.ndarray): The mean of the MSAsymmetry property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class MSSpan(AtomsProperty):
@@ -597,7 +595,7 @@ class MSSpan(AtomsProperty):
         ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _span(ms_evals)
-    
+
     @tensor_mean_property('span')
     def mean(self, s, axis=None, weights=None):
         """
@@ -611,7 +609,7 @@ class MSSpan(AtomsProperty):
         Returns:
           ms_span_mean (np.ndarray): The mean of the MSSpan property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class MSSkew(AtomsProperty):
@@ -660,7 +658,7 @@ class MSSkew(AtomsProperty):
         Returns:
           ms_skew_mean (np.ndarray): The mean of the MSSkew property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
 
 
 class MSEuler(AtomsProperty):
@@ -698,7 +696,7 @@ class MSEuler(AtomsProperty):
     @_has_ms_check
     def extract(s, order, convention, passive):
         return np.array([t.euler_angles(convention, passive=passive) for t in MSTensor.get(s, order=order)])
-    
+
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
         Calculate the mean of the MSEuler property.
@@ -758,7 +756,7 @@ class MSQuaternion(AtomsProperty):
     @_has_ms_check
     def extract(s, order):
         return [t.quaternion for t in MSTensor.get(s, order=order)]
-    
+
     @tensor_mean_property('quaternion')
     def mean(self, s, axis=None, weights=None):
         """
@@ -772,4 +770,4 @@ class MSQuaternion(AtomsProperty):
         Returns:
           ms_quat_mean (np.ndarray): The mean of the MSQuaternion property.
         """
-        pass  # Implementation handled by decorator
+        # Implementation handled by decorator
