@@ -25,6 +25,7 @@ from soprano.collection import AtomsCollection
 import numpy as np
 
 from soprano.nmr.tensor import NMRTensor, contains_nmr_tensors
+from soprano.selection import AtomSelection
 
 
 class AtomsProperty:
@@ -61,7 +62,7 @@ class AtomsProperty:
                 self.params[p] = params[p]
 
     @classmethod
-    def get(self, s, store_array=False, **kwargs):
+    def get(self, s, store_array=False, selection=None, **kwargs):
         """Extract the given property using the default parameters
         on an Atoms object s
 
@@ -72,6 +73,7 @@ class AtomsProperty:
         |   store_array (bool): if s is a collection, whether to store the
         |                       resulting data as an array in the collection
         |                       using the default name for this property
+        |   selection (str): a selection string to filter the atoms or AtomSelection
         |
 
         | Returns:
@@ -82,14 +84,24 @@ class AtomsProperty:
         """
 
         if isinstance(s, AtomsCollection):
-            arr = s.all.map(self.get, **kwargs)
+            arr = s.all.map(self.get, selection=selection, **kwargs)
             if store_array:
                 s.set_array(self.default_name, arr)
             return arr
         else:
             params = dict(self.default_params)
             params.update(kwargs)
-            return self.extract(s, **params)
+
+            # Handle selection
+            if selection is not None and "selection" not in params:
+                # If it's a string, convert to AtomSelection
+                if isinstance(selection, str):
+                    selection = AtomSelection.from_selection_string(s, selection)
+                # Apply the selection to get a subset of atoms
+                s_subset = selection.subset(s)
+                return self.extract(s_subset, **params)
+            else:
+                return self.extract(s, **params)
 
     @staticmethod
     def extract(s, **params):
@@ -199,7 +211,7 @@ class AtomsProperty:
                 raise ValueError(f"Cannot compute mean of property values: {str(e)}")
     
 
-    def __call__(self, s, store_array=False):
+    def __call__(self, s, store_array=False, selection=None):
         """Calling the AtomsProperty returns the value of the property as
         extracted with the parameters of this specific instance.
 
@@ -210,6 +222,7 @@ class AtomsProperty:
         |   store_array (bool): if s is a collection, whether to store the
         |                       resulting data as an array in the collection
         |                       using the given name for this instance
+        |   selection (str): a selection string to filter the atoms or AtomSelection
         |
 
         | Returns:
@@ -220,7 +233,7 @@ class AtomsProperty:
         """
 
         if isinstance(s, AtomsCollection):
-            arr = s.all.map(self.__call__)
+            arr = s.all.map(self.__call__, selection=selection)
             if store_array:
                 s.set_array(self.name, arr)
             return arr
