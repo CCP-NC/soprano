@@ -62,7 +62,7 @@ class AtomsProperty:
                 self.params[p] = params[p]
 
     @classmethod
-    def get(self, s, store_array=False, selection=None, **kwargs):
+    def get(cls, s, store_array=False, selection=None, **kwargs):
         """Extract the given property using the default parameters
         on an Atoms object s
 
@@ -84,24 +84,24 @@ class AtomsProperty:
         """
 
         if isinstance(s, AtomsCollection):
-            arr = s.all.map(self.get, selection=selection, **kwargs)
+            arr = s.all.map(cls.get, selection=selection, **kwargs)
             if store_array:
-                s.set_array(self.default_name, arr)
+                s.set_array(cls.default_name, arr)
             return arr
         else:
-            params = dict(self.default_params)
+            params = dict(cls.default_params)
             params.update(kwargs)
 
             # Handle selection
-            if selection is not None and "selection" not in params:
+            if selection is not None and (params.get("selection") is None):
                 # If it's a string, convert to AtomSelection
                 if isinstance(selection, str):
                     selection = AtomSelection.from_selection_string(s, selection)
                 # Apply the selection to get a subset of atoms
                 s_subset = selection.subset(s)
-                return self.extract(s_subset, **params)
+                return cls.extract(s_subset, **params)
             else:
-                return self.extract(s, **params)
+                return cls.extract(s, **params)
 
     @staticmethod
     def extract(s, **params):
