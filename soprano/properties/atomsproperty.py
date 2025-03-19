@@ -140,10 +140,6 @@ class AtomsProperty:
         |               or if there's an incompatible shape for computing the mean.
         |   TypeError: If the property values are of a type that cannot be averaged.
         """
-        if not (isinstance(s, AtomsCollection) or isinstance(s, list)):
-            raise ValueError(
-                "Mean can only be computed on a collection/list of structures"
-            )
         
         property_values = self.get(s, **kwargs)
 

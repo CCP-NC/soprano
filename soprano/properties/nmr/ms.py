@@ -57,8 +57,17 @@ def tensor_mean_property(property_name):
         def wrapper(self, s, axis=None, weights=None, **kwargs):
             # Get the mean MSTensor
             meanTensors = MSTensor().mean(s, axis=axis, weights=weights, **kwargs)
-            # Extract the specified property from each tensor
-            return np.array([getattr(T, property_name) for T in meanTensors])
+            # If meanTensors is a list of MagneticShielding objects, extract the specified property
+            if isinstance(meanTensors, list) and all(isinstance(T, MagneticShielding) for T in meanTensors):
+                # Extract the specified property from each tensor
+                return np.array([getattr(T, property_name) for T in meanTensors])
+            # If meanTensors is a single MagneticShielding object, extract the specified property
+            elif isinstance(meanTensors, MagneticShielding):
+                # Extract the specified property from the tensor
+                return getattr(meanTensors, property_name)
+            # If meanTensors is not a list of MagneticShielding objects, raise an error
+            else:
+                raise ValueError("meanTensors must be a list of MagneticShielding objects")
         return wrapper
     return decorator
 
@@ -401,15 +410,12 @@ class MSIsotropy(AtomsProperty):
         Returns:
           ms_iso_mean (np.ndarray): The mean of the MSIsotropy property.
         """
-        # Get the mean MSTensor
-        meanTensors = MSTensor().mean(s, axis=axis, weights=weights, **kwargs)
-
         # if references are provided in kwargs, we need to calculate the chemical shift
         if kwargs.get("ref"):
-            return np.array([T.shift for T in meanTensors])
+            return MSShift().mean(s, axis=axis, weights=weights, **kwargs)
         # otherwise we return the isotropic shielding
         else:
-            return np.array([T.isotropy for T in meanTensors])
+            return MSShielding().mean(s, axis=axis, weights=weights, **kwargs)
 
 
 class MSAnisotropy(AtomsProperty):
@@ -707,8 +713,18 @@ class MSEuler(AtomsProperty):
         """
         # Get the mean MSTensor
         meanTensors = MSTensor().mean(s, axis=axis, weights=weights, **kwargs)
-        # Get the Euler angles
-        return np.array([t.euler_angles(**kwargs) for t in meanTensors])
+
+        # If meanTensors is a list of MagneticShielding objects, extract the Euler angles
+        if isinstance(meanTensors, list) and all(isinstance(T, MagneticShielding) for T in meanTensors):
+            # Extract the Euler angles from each tensor
+            return np.array([t.euler_angles(**kwargs) for t in meanTensors])
+        # If meanTensors is a single MagneticShielding object, extract the Euler angles
+        elif isinstance(meanTensors, MagneticShielding):
+            # Extract the Euler angles from the tensor
+            return meanTensors.euler_angles(**kwargs)
+        # If meanTensors is not a list of MagneticShielding objects, raise an error
+        else:
+            raise ValueError("meanTensors must be a list of MagneticShielding objects")
 
 
 class MSQuaternion(AtomsProperty):

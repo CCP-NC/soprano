@@ -62,6 +62,19 @@ def tensor_mean_property(property_name):
         def wrapper(self, s, axis=None, weights=None, **kwargs):
             # Get the mean EFGTensor
             meanTensors = EFGTensor().mean(s, axis=axis, weights=weights, **kwargs)
+
+            # If meanTensors is a list of ElectricFieldGradient objects, extract the specified property
+            if isinstance(meanTensors, list) and all(isinstance(T, ElectricFieldGradient) for T in meanTensors):
+                # Extract the specified property from each tensor
+                return np.array([getattr(T, property_name) for T in meanTensors])
+            # If meanTensors is a single ElectricFieldGradient object, extract the specified property
+            elif isinstance(meanTensors, ElectricFieldGradient):
+                # Extract the specified property from the tensor
+                return getattr(meanTensors, property_name)
+            # If meanTensors is not a list of ElectricFieldGradient objects, raise an error
+            else:
+                raise ValueError("meanTensors must be a list of ElectricFieldGradient objects")
+
             # Extract the specified property from each tensor
             return np.array([getattr(T, property_name) for T in meanTensors])
         return wrapper

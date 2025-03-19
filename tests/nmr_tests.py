@@ -34,6 +34,7 @@ from soprano.properties.nmr import (
 )
 from soprano.properties.nmr.efg import EFGAnisotropy, EFGDiagonal, EFGEuler, EFGQuaternion, EFGReducedAnisotropy, EFGSkew, EFGSpan
 from soprano.properties.nmr.ms import MSEuler, MSShielding, MSShift, MSTensor
+from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -1535,6 +1536,14 @@ class TestMSMeanProperties(unittest.TestCase):
         """Set up a test collection with predictable MS values."""
         # Load the ethanol structure
         self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        # Create a copy with just the H atoms
+        #  so that we can average within a structure easily
+        eth_justH = self.eth.copy()
+        # Use MSShielding.mean
+        sel = AtomSelection.from_element(eth_justH, 'H')
+        self.eth_justH = sel.subset(eth_justH)
+        self.justH_indices = sel.indices
+
         
         # Create a second structure with scaled MS values
         from soprano.collection import AtomsCollection
@@ -1577,6 +1586,15 @@ class TestMSMeanProperties(unittest.TestCase):
         
         self.shift1 = MSShift.get(self.eth, ref=self.ref)
         self.shift2 = MSShift.get(eth2, ref=self.ref)
+
+    def test_flat_list_shielding(self):
+        """Test MSShielding.mean with flat list."""
+        result_mean = MSShielding().mean(self.eth_justH)
+        
+        # Calculate mean shielding manually
+        expected_mean = np.mean(self.iso1[self.justH_indices])
+        
+        self.assertTrue(np.allclose(result_mean, expected_mean))
 
     def test_shielding_mean(self):
         """Test MSShielding.mean."""
