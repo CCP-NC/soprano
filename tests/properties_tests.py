@@ -60,6 +60,58 @@ class TestPropertyLoad(unittest.TestCase):
         # And with additional arguments...
         self.assertTrue(np.all(DummyProperty.get(c1, mul=3) == [3, 6]))
 
+    def test_mean_property(self):
+        from soprano.collection import AtomsCollection
+        from soprano.properties import AtomsProperty
+
+        class DummyProperty(AtomsProperty):
+            default_name = "dummy"
+            default_params = {"mul": 2.0}
+
+            @staticmethod
+            def extract(s, mul):
+                return s.positions.shape[0] * mul
+
+        # Now two atoms objects to test it on
+        a1 = Atoms("C")
+        a2 = Atoms("CC")
+        a3 = Atoms("CCC")
+
+        c1 = AtomsCollection([a1, a2, a3])
+
+        dummy_prop = DummyProperty()
+
+        # Test mean of scalar properties
+        mean_value = dummy_prop.mean(c1)
+        self.assertEqual(mean_value, 4.0)
+
+        # Test mean of array properties
+        class ArrayProperty(AtomsProperty):
+            default_name = "array_prop"
+            default_params = {}
+
+            @staticmethod
+            def extract(s):
+                return np.array([s.positions.shape[0], s.positions.shape[0] * 2])
+
+        array_prop = ArrayProperty()
+        mean_array = array_prop.mean(c1, axis=0)
+        np.testing.assert_array_equal(mean_array, np.array([2.0, 4.0]))
+
+        # Test mean of dictionary properties
+        class DictProperty(AtomsProperty):
+            default_name = "dict_prop"
+            default_params = {}
+
+            @staticmethod
+            def extract(s):
+                return {"count": s.positions.shape[0], "double_count": s.positions.shape[0] * 2}
+
+        dict_prop = DictProperty()
+        mean_dict = dict_prop.mean(c1)
+        self.assertEqual(mean_dict["count"], 2.0)
+        self.assertEqual(mean_dict["double_count"], 4.0)
+
     def test_basicprop(self):
         from soprano.properties.basic import LatticeABC, LatticeCart
         from soprano.utils import cart2abc
@@ -85,6 +137,59 @@ class TestPropertyLoad(unittest.TestCase):
         num_atoms_prop = coll.all.map(NumAtoms.get)
 
         self.assertTrue((num_atoms == num_atoms_prop).all)
+
+    def test_property_selection(self):
+        from soprano.properties import AtomsProperty
+        from soprano.selection import AtomSelection
+
+        # Create a test property that returns the number of atoms of a specific element
+        class ElementCountProperty(AtomsProperty):
+            default_name = "elem_count"
+            default_params = {"element": "H"}
+
+            @staticmethod
+            def extract(s, element):
+                return sum(1 for atom in s if atom.symbol == element)
+
+        # Create a test structure with mixed atoms
+        a = Atoms('CH2O', positions=[[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        
+        # Create the property
+        elem_count = ElementCountProperty()
+        
+        # Test without selection (all atoms)
+        count_all = elem_count(a)
+        self.assertEqual(count_all, 2)  # There are 2 H atoms
+        
+        # Test with selection string
+        count_string = ElementCountProperty.get(a, selection="C")
+        self.assertEqual(count_string, 0)  # No H atoms in the C-only selection
+        
+        # Test with AtomSelection object
+        sel = AtomSelection.from_element(a, "C")
+        count_sel = ElementCountProperty.get(a, selection=sel)
+        self.assertEqual(count_sel, 0)  # No H atoms in the C-only selection
+        
+        # Test with O selection
+        count_o = ElementCountProperty.get(a, selection="O")
+        self.assertEqual(count_o, 0)  # No H atoms in the O-only selection
+        
+        # Test with H selection
+        count_h = ElementCountProperty.get(a, selection="H")
+        self.assertEqual(count_h, 2)  # 2 H atoms in the H-only selection
+
+        # Test with H.1 selection
+        count_h = ElementCountProperty.get(a, selection="H.1")
+        self.assertEqual(count_h, 1)  # 1 H atoms in the H.1 selection
+
+        # Test using instance call with selection
+        h_sel = AtomSelection.from_element(a, "H")
+        count_h_instance = elem_count(a, selection=h_sel)
+        self.assertEqual(count_h_instance, 2)
+        
+        # Test property with parameters and selection
+        custom_count = ElementCountProperty.get(a, selection="H", element="O")
+        self.assertEqual(custom_count, 0)  # No O atoms among the H atoms
 
     def test_remap(self):
         from soprano.properties.map import Remap, RemapIndices

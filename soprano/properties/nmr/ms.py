@@ -42,6 +42,36 @@ def _has_ms_check(f):
     return decorated_f
 
 
+def tensor_mean_property(property_name):
+    """
+    Decorator for creating mean methods that extract a specific property from MagneticShielding objects.
+    
+    Parameters:
+      property_name (str): The name of the property to extract from each MagneticShielding object.
+                          Must be a valid attribute or property of MagneticShielding.
+    
+    Returns:
+      decorator: A decorator for mean methods
+    """
+    def decorator(method):
+        def wrapper(self, s, axis=None, weights=None, **kwargs):
+            # Get the mean MSTensor
+            meanTensors = MSTensor().mean(s, axis=axis, weights=weights, **kwargs)
+            # If meanTensors is a list of MagneticShielding objects, extract the specified property
+            if isinstance(meanTensors, list) and all(isinstance(T, MagneticShielding) for T in meanTensors):
+                # Extract the specified property from each tensor
+                return np.array([getattr(T, property_name) for T in meanTensors])
+            # If meanTensors is a single MagneticShielding object, extract the specified property
+            elif isinstance(meanTensors, MagneticShielding):
+                # Extract the specified property from the tensor
+                return getattr(meanTensors, property_name)
+            # If meanTensors is not a list of MagneticShielding objects, raise an error
+            else:
+                raise ValueError("meanTensors must be a list of MagneticShielding objects")
+        return wrapper
+    return decorator
+
+
 class MSTensor(AtomsProperty):
     """
     MSTensor
@@ -66,9 +96,21 @@ class MSTensor(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, order):
-        ms_tensors = [MagneticShielding(ms, species=symbol, order=order)
-                        for ms, symbol in zip(s.get_array("ms"), s.get_chemical_symbols())]
+    def extract(s, order, **kwargs):
+        symbols = s.get_chemical_symbols()
+        ms_list = s.get_array("ms")
+
+        ref_list = [None] * len(ms_list)
+        grad_list = [-1] * len(ms_list)
+        if "ref" in kwargs:
+            ref = kwargs.pop("ref")
+            ref_list = [ref[symbol] if isinstance(ref, dict) else ref for symbol in symbols]
+        if "grad" in kwargs:
+            grad = kwargs.pop("grad")
+            grad_list = [grad[symbol] if isinstance(grad, dict) else grad for symbol in symbols]
+
+        ms_tensors = [MagneticShielding(ms, species=symbol, order=order, reference=ref, gradient=grad)
+                        for ms, symbol, ref, grad in zip(ms_list, symbols, ref_list, grad_list)]
         return ms_tensors
 
 class MSDiagonal(AtomsProperty):
@@ -143,6 +185,22 @@ class MSShielding(AtomsProperty):
             s.set_array(MSShielding.default_name, ms_shielding)
 
         return ms_shielding
+
+    @tensor_mean_property('isotropy')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSShielding property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_shielding_mean (np.ndarray): The mean of the MSShielding property.
+        """
+
+
 class MSShift(AtomsProperty):
 
     """
@@ -264,7 +322,7 @@ class MSShift(AtomsProperty):
 
 
         # Convert from shielding to chemical shift
-        ms_shifts = references + gradients * ms_shieldings
+        ms_shifts = references + (np.array(gradients) * np.array(ms_shieldings)) / (1 + references * 1e-6)
 
         if save_array:
             # Save the isotropic shifts
@@ -272,6 +330,24 @@ class MSShift(AtomsProperty):
 
 
         return ms_shifts
+
+    @tensor_mean_property('shift')
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the MSShift property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+          **kwParameters: ref and grad parameters for the MSShift calculation. For example,
+                    ref={'C': 100.0, 'H': 200.0} and grad=-1.0.
+
+        Returns:
+          ms_shift_mean (np.ndarray): The mean of the MSShift property.
+        """
+
+
 class MSIsotropy(AtomsProperty):
 
     """
@@ -318,6 +394,28 @@ class MSIsotropy(AtomsProperty):
             s.set_array(MSIsotropy.default_name, ms_iso)
         return ms_iso
 
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the MSIsotropy property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+          **kwParameters: ref and grad parameters for the MSIsotropy calculation. For example,
+                    ref={'C': 100.0, 'H': 200.0} and grad=-1.0.
+
+        Returns:
+          ms_iso_mean (np.ndarray): The mean of the MSIsotropy property.
+        """
+        # if references are provided in kwargs, we need to calculate the chemical shift
+        if kwargs.get("ref"):
+            return MSShift().mean(s, axis=axis, weights=weights, **kwargs)
+        # otherwise we return the isotropic shielding
+        else:
+            return MSShielding().mean(s, axis=axis, weights=weights, **kwargs)
+
+
 class MSAnisotropy(AtomsProperty):
 
     """
@@ -350,6 +448,21 @@ class MSAnisotropy(AtomsProperty):
         ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _anisotropy(ms_evals)
+
+    @tensor_mean_property('anisotropy')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSAnisotropy property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_aniso_mean (np.ndarray): The mean of the MSAnisotropy property.
+        """
+        # Implementation handled by decorator
 
 
 class MSReducedAnisotropy(AtomsProperty):
@@ -385,6 +498,21 @@ class MSReducedAnisotropy(AtomsProperty):
 
         return _anisotropy(ms_evals, reduced=True)
 
+    @tensor_mean_property('reduced_anisotropy')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSReducedAnisotropy property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_red_aniso_mean (np.ndarray): The mean of the MSReducedAnisotropy property.
+        """
+        # Implementation handled by decorator
+
 
 class MSAsymmetry(AtomsProperty):
 
@@ -418,6 +546,21 @@ class MSAsymmetry(AtomsProperty):
         ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _asymmetry(ms_evals)
+
+    @tensor_mean_property('asymmetry')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSAsymmetry property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_asym_mean (np.ndarray): The mean of the MSAsymmetry property.
+        """
+        # Implementation handled by decorator
 
 
 class MSSpan(AtomsProperty):
@@ -453,6 +596,21 @@ class MSSpan(AtomsProperty):
 
         return _span(ms_evals)
 
+    @tensor_mean_property('span')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSSpan property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_span_mean (np.ndarray): The mean of the MSSpan property.
+        """
+        # Implementation handled by decorator
+
 
 class MSSkew(AtomsProperty):
 
@@ -486,6 +644,21 @@ class MSSkew(AtomsProperty):
         ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
 
         return _skew(ms_evals)
+
+    @tensor_mean_property('skew')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSSkew property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_skew_mean (np.ndarray): The mean of the MSSkew property.
+        """
+        # Implementation handled by decorator
 
 
 class MSEuler(AtomsProperty):
@@ -524,6 +697,33 @@ class MSEuler(AtomsProperty):
     def extract(s, order, convention, passive):
         return np.array([t.euler_angles(convention, passive=passive) for t in MSTensor.get(s, order=order)])
 
+    def mean(self, s, axis=None, weights=None, **kwargs):
+        """
+        Calculate the mean of the MSEuler property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_euler_mean (np.ndarray): The mean of the MSEuler property.
+        """
+        # Get the mean MSTensor
+        meanTensors = MSTensor().mean(s, axis=axis, weights=weights, **kwargs)
+
+        # If meanTensors is a list of MagneticShielding objects, extract the Euler angles
+        if isinstance(meanTensors, list) and all(isinstance(T, MagneticShielding) for T in meanTensors):
+            # Extract the Euler angles from each tensor
+            return np.array([t.euler_angles(**kwargs) for t in meanTensors])
+        # If meanTensors is a single MagneticShielding object, extract the Euler angles
+        elif isinstance(meanTensors, MagneticShielding):
+            # Extract the Euler angles from the tensor
+            return meanTensors.euler_angles(**kwargs)
+        # If meanTensors is not a list of MagneticShielding objects, raise an error
+        else:
+            raise ValueError("meanTensors must be a list of MagneticShielding objects")
+
 
 class MSQuaternion(AtomsProperty):
 
@@ -556,3 +756,18 @@ class MSQuaternion(AtomsProperty):
     @_has_ms_check
     def extract(s, order):
         return [t.quaternion for t in MSTensor.get(s, order=order)]
+
+    @tensor_mean_property('quaternion')
+    def mean(self, s, axis=None, weights=None):
+        """
+        Calculate the mean of the MSQuaternion property.
+
+        Parameters:
+          s (AtomsCollection): The collection of structures to calculate the mean for.
+          axis (int or None): Axis along which to calculate the mean. Default is None.
+          weights (array-like or None): Weights for each structure. Default is None.
+
+        Returns:
+          ms_quat_mean (np.ndarray): The mean of the MSQuaternion property.
+        """
+        # Implementation handled by decorator
