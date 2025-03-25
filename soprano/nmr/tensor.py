@@ -705,7 +705,12 @@ class NMRTensor(NDArrayOperatorsMixin):
             return NotImplemented
 
         # Check if the operation is supported
-        supported_ops = [np.add, np.subtract, np.multiply, np.true_divide, np.matmul, np.negative, np.positive]
+        supported_ops = [
+            np.add, np.subtract, np.multiply,
+            np.true_divide, np.matmul,
+            np.negative, np.positive,
+            np.equal, np.not_equal]
+
         if ufunc not in supported_ops:
             return NotImplemented
 
@@ -732,6 +737,11 @@ class NMRTensor(NDArrayOperatorsMixin):
             # Get the other operand
             other_idx = 1 - self_idx
             other = inputs[other_idx]
+
+            if ufunc is np.equal:
+                return self.__eq__(other)
+            elif ufunc is np.not_equal:
+                return not self.__eq__(other)
 
             # Convert inputs to numpy arrays
             tensor_data = self.data
