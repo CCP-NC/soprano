@@ -647,6 +647,7 @@ def get_ms_summary(
         dict: a dictionary with the summary of the ms tensors
     """
     # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
+    shift = MSIsotropy.get(atoms, references=references, gradients=gradients)
     iso = MSIsotropy.get(atoms, tag=ms_tag)
     shift = MSIsotropy.get(atoms, ref=references, grad=gradients, tag=ms_tag)
     aniso = MSAnisotropy.get(atoms, tag=ms_tag)

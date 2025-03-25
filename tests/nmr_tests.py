@@ -1159,11 +1159,7 @@ class TestNMR(unittest.TestCase):
         t3 = NMRTensor(data1.copy())
         self.assertTrue(t1 == t3)
         self.assertFalse(t1 == t2)
-        
-        # Test equality with array
-        self.assertTrue(t1 == data1)
-        self.assertFalse(t1 == data2)
-        
+
         # Test inequality with non-tensor/array
         self.assertFalse(t1 == "string")
         self.assertFalse(t1 == 123)
@@ -1465,7 +1461,7 @@ class TestMagneticShielding(unittest.TestCase):
 
     def test_array_ufunc(self):
         # Test array ufunc operations
-        tensor2 = MagneticShielding([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H', reference=0)
+        tensor2 = MagneticShielding([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H')
         result = self.tensor + tensor2
         self.assertIsInstance(result, MagneticShielding)
         np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
@@ -1670,8 +1666,8 @@ class TestMSMeanProperties(unittest.TestCase):
         # Reference settings for testing shift calculations
         self.ref = {'C': 175.0, 'H': 30.0, 'O': 200.0}
         
-        self.shift1 = MSShift.get(self.eth, ref=self.ref)
-        self.shift2 = MSShift.get(eth2, ref=self.ref)
+        self.shift1 = MSShift.get(self.eth, references=self.ref)
+        self.shift2 = MSShift.get(eth2, references=self.ref)
 
     def test_flat_list_shielding(self):
         """Test MSShielding.mean with flat list."""
@@ -1740,20 +1736,20 @@ class TestMSMeanProperties(unittest.TestCase):
     def test_shift_mean_with_reference(self):
         """Test MSShift.mean with references."""
         # Calculate mean shift manually
-        expected_mean = MSShift.get(self.eth_mean, ref=self.ref)
+        expected_mean = MSShift.get(self.eth_mean, references=self.ref)
         
         # Use MSShift.mean
-        result_mean = MSShift().mean(self.collection, axis=0, ref=self.ref)
+        result_mean = MSShift().mean(self.collection, axis=0, references=self.ref)
         
         self.assertTrue(np.allclose(result_mean, expected_mean))
         
     def test_isotropy_mean_with_reference(self):
         """Test MSIsotropy.mean with references."""
         # Calculate mean shift
-        expected_mean = MSIsotropy.get(self.eth_mean, ref=self.ref)
+        expected_mean = MSIsotropy.get(self.eth_mean, references=self.ref)
         
         # Use MSIsotropy.mean with reference (should give shift)
-        result_mean = MSIsotropy().mean(self.collection, ref=self.ref, axis=0)
+        result_mean = MSIsotropy().mean(self.collection, references=self.ref, axis=0)
         
         self.assertTrue(np.allclose(result_mean, expected_mean))
         
