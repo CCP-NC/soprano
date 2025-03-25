@@ -328,7 +328,7 @@ class Site(BaseModel):
             # TODO: what angle conventions are used?
             euler_angles = self.ms.euler_angles()
             shielding_symmetric = {
-                "zeta": self.ms.anisotropy,
+                "zeta": self.ms.reduced_anisotropy, # zeta = lambda_c^(s) = delta_2 - delta_iso
                 "eta": self.ms.asymmetry,
                 "alpha": euler_angles[0],
                 "beta": euler_angles[1],
