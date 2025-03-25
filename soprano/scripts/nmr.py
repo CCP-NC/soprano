@@ -628,7 +628,7 @@ def get_ms_summary(
     """
     # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
     iso = MSIsotropy.get(atoms)
-    shift = MSIsotropy.get(atoms, ref=references, grad=gradients)
+    shift = MSIsotropy.get(atoms, references=references, gradients=gradients)
     aniso = MSAnisotropy.get(atoms)
     red_aniso = MSReducedAnisotropy.get(atoms)
     asymm = MSAsymmetry.get(atoms)

@@ -230,7 +230,7 @@ class MSShift(AtomsProperty):
     containing the relevant information.
 
     | Parameters:
-    |   ref (list/float/dict): reference frequency per element. Must
+    |   references (list/float/dict): reference frequency per element. Must
     |                          be provided.
     |   gradients float/list/dict: usually around -1. Optional.
     |                              Default: -1 for all elements.
@@ -243,11 +243,20 @@ class MSShift(AtomsProperty):
     """
 
     default_name = "ms_shift"
-    default_params = {"references": {}, "gradients": -1.0, "save_array": True}
+    default_params = {"references": None, "gradients": -1.0, "save_array": True}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, references, gradients, save_array)-> np.ndarray:
+    def extract(s, references, gradients, save_array, **kwargs)-> np.ndarray:
+
+        # Backwards compatibility for ref and grad parameters
+        if "ref" in kwargs:
+            references = kwargs.pop("ref")
+            warnings.warn("The 'ref' parameter is deprecated. Use 'references' instead.", DeprecationWarning)
+        if "grad" in kwargs:
+            gradients = kwargs.pop("grad")
+            warnings.warn("The 'grad' parameter is deprecated. Use 'gradients' instead.", DeprecationWarning)
+
         # make sure we have some references set!
         if not references:
             raise ValueError("No reference provided for chemical shifts")
@@ -295,8 +304,9 @@ class MSShift(AtomsProperty):
           s (AtomsCollection): The collection of structures to calculate the mean for.
           axis (int or None): Axis along which to calculate the mean. Default is None.
           weights (array-like or None): Weights for each structure. Default is None.
-          **kwParameters: ref and grad parameters for the MSShift calculation. For example,
-                    ref={'C': 100.0, 'H': 200.0} and grad=-1.0.
+          **kwParameters: references and gradients parameters for the MSShift calculation. 
+                    For example,
+                    references={'C': 100.0, 'H': 200.0} and gradients=-1.0.
 
         Returns:
           ms_shift_mean (np.ndarray): The mean of the MSShift property.
@@ -319,7 +329,7 @@ class MSIsotropy(AtomsProperty):
     compatibility.
 
     | Parameters:
-    |   ref (float/dict): reference frequency per element. If provided, the chemical shift
+    |   references (float/dict): reference frequency per element. If provided, the chemical shift
     |                will be returned instead of the magnetic shielding.
     |   gradients float/list/dict: usually around -1. 
     |   save_array (bool): if True, save the diagonalised tensors in the
@@ -331,15 +341,24 @@ class MSIsotropy(AtomsProperty):
     """
 
     default_name = "ms_isotropy"
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True}
+    default_params = {"references": None, "gradients": -1.0, "save_array": True}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array) -> np.ndarray:
+    def extract(s, references, gradients, save_array, **kwargs) -> np.ndarray:
 
-        if ref:
+        # Backwards compatibility for ref and grad parameters
+        if "ref" in kwargs:
+            references = kwargs["ref"]
+            warnings.warn("The 'ref' parameter is deprecated. Use 'references' instead.", DeprecationWarning)
+        if "grad" in kwargs:
+            gradients = kwargs["grad"]
+            warnings.warn("The 'grad' parameter is deprecated. Use 'gradients' instead.", DeprecationWarning)
+
+
+        if references:
             # the user wants to use the chemical shift
-            ms_iso =  MSShift.extract(s, ref, grad, save_array)
+            ms_iso =  MSShift.extract(s, references, gradients, save_array)
         else:
             # the user wants to use the magnetic shielding
             ms_iso =  MSShielding.extract(s, save_array)
@@ -357,14 +376,14 @@ class MSIsotropy(AtomsProperty):
           s (AtomsCollection): The collection of structures to calculate the mean for.
           axis (int or None): Axis along which to calculate the mean. Default is None.
           weights (array-like or None): Weights for each structure. Default is None.
-          **kwParameters: ref and grad parameters for the MSIsotropy calculation. For example,
-                    ref={'C': 100.0, 'H': 200.0} and grad=-1.0.
+          **kwParameters: references and gradients parameters for the MSIsotropy calculation. For example,
+                    references={'C': 100.0, 'H': 200.0} and gradients=-1.0.
 
         Returns:
           ms_iso_mean (np.ndarray): The mean of the MSIsotropy property.
         """
         # if references are provided in kwargs, we need to calculate the chemical shift
-        if kwargs.get("ref"):
+        if kwargs.get("references"):
             return MSShift().mean(s, axis=axis, weights=weights, **kwargs)
         # otherwise we return the isotropic shielding
         else:
