@@ -70,7 +70,7 @@ class TensorConvention(str, Enum):
             'n': cls.NQR,
             'nqr': cls.NQR
         }
-        
+
         try:
             return conversion_map[normalized]
         except KeyError:
@@ -128,7 +128,7 @@ class NMRTensor(NDArrayOperatorsMixin):
         self._sph = None
         self._quat = None
 
-        self._incr_evals = self._evals
+        self._incr_evals = _evals_sort([self._evals], 'i')[0]
         self._haeb_evals = _haeb_sort([self._evals])[0]
 
     def _process_data(self, data):
@@ -156,8 +156,8 @@ class NMRTensor(NDArrayOperatorsMixin):
             self._evals, sort_i = _evals_sort([self._evals], order, True)
             self._evals = self._evals[0]
             self._evecs = self._evecs[:, sort_i[0]]
-        # Last eigenvector must be the cross product of the first two
-        self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
+            # Last eigenvector must be the cross product of the first two
+            self._evecs[:, 2] = np.cross(self._evecs[:, 0], self._evecs[:, 1])
 
         # For any property that depends on the eigenvalue order, reset it
         self._anisotropy = None
@@ -607,6 +607,17 @@ class NMRTensor(NDArrayOperatorsMixin):
 
         return NMRTensor(D)
 
+    def make_isotropic_like(self):
+        """
+        Create an isotropic NMRTensor with the same isotropy value as this tensor.
+        The initialisation parameters are kept the same.
+
+        Returns:
+            NMRTensor: An isotropic NMRTensor object.
+        """
+        data = np.eye(3) * self.isotropy
+        return self._create_like(data)
+
     def __repr__(self) -> str:
         """
         Return a string representation of the tensor
@@ -651,16 +662,16 @@ class NMRTensor(NDArrayOperatorsMixin):
         # Quick type and identity checks
         if not isinstance(other, NMRTensor):
             return False
-        
+
         # Check order convention
         if self.order != other.order:
             return False
-        
+
         # Check eigenvalues
         # Use numpy's allclose to handle floating-point comparison
         if not np.allclose(self.eigenvalues, other.eigenvalues, rtol=1e-05, atol=1e-08):
             return False
-        
+
         # Check eigenvectors
         # TODO verify if this is the best way to compare eigenvectors
         # Eigenvectors can have opposite signs and still represent the same tensor
@@ -668,7 +679,7 @@ class NMRTensor(NDArrayOperatorsMixin):
         for our_evec, other_evec in zip(self.eigenvectors.T, other.eigenvectors.T):
             if not (np.allclose(np.abs(our_evec), np.abs(other_evec), rtol=1e-05, atol=1e-08)):
                 return False
-        
+
         return True
 
     @property
@@ -694,6 +705,15 @@ class NMRTensor(NDArrayOperatorsMixin):
         """
         params = self._initialisation_params
         return self.__class__(data = data, **params)
+    
+    def copy(self):
+        """
+        Create a copy of the NMRTensor object.
+        
+        Returns:
+            NMRTensor: A new NMRTensor object with the same data and properties.
+        """
+        return self._create_like(self.data)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         """
@@ -963,7 +983,7 @@ class NMRTensor(NDArrayOperatorsMixin):
                 return None
             # Round to avoid floating-point precision issues
             return tuple(np.round(arr.flatten(), decimals=8))
-        
+
         # Hash components
         return hash((
             self.order,
@@ -972,13 +992,27 @@ class NMRTensor(NDArrayOperatorsMixin):
         ))
 
 
+def has_reference(func):
+    """
+    Decorator to check if a reference chemical shift has been set.
+    Raises a ValueError if the reference is not set.
+    """
+    def wrapper(self, *args, **kwargs):
+        if self.reference is None:
+            raise ValueError(
+                "Reference chemical shift not set for this tensor. "
+                "Please set the reference using the `set_reference` method."
+            )
+        return func(self, *args, **kwargs)
+    return wrapper
+
 class MagneticShielding(NMRTensor):
     """MagneticShielding
 
     Class containing a magnetic shielding tensor, a subclass of NMRTensor
 
     It provides easy access to common representations of the tensor in common conventions
-    such as: IPAC, Herzfeld-Berger, Haeberlen, Maryland, and Mehring.
+    such as: IUPAC, Herzfeld-Berger, Haeberlen, Maryland, and Mehring.
     For more information on these conventions, see the documentation for the corresponding
     NamedTuple and also :cite:p:`Harris2008`
 
@@ -1023,45 +1057,42 @@ class MagneticShielding(NMRTensor):
         self.gradient = gradient
         self.mstag = tag
 
-    # Override isotropy, anisotropies and skew definitions to
-    # include the reference and gradient if is_shift is True
     @property
-    def isotropy(self):
-        if self.is_shift:
-            iso = self.shift
-        else:
-            iso = super().isotropy
-        return iso
+    @has_reference
+    def shift_anisotropy(self) -> float:
+        shift_haeb_evals = self.shift_eigenvalues_haeberlen[None, :]
+        return _anisotropy(shift_haeb_evals)[0]
     
     @property
-    def anisotropy(self):
-        anisotropy = super().anisotropy
-        if self.is_shift:
-            # Swap sign
-            anisotropy *= -1.0
-        return anisotropy
+    @has_reference
+    def shift_reduced_anisotropy(self) -> float:
+        shift_haeb_evals = self.shift_eigenvalues_haeberlen[None, :]
+        return _anisotropy(shift_haeb_evals, reduced=True)[0]
     
     @property
-    def reduced_anisotropy(self):
-        redaniso = super().reduced_anisotropy
-        if self.is_shift:
-            # Swap sign
-            redaniso *= -1.0
-        return redaniso
-    
+    def shift_asymmetry(self) -> float:
+        """
+        The asymmetry is not dependent on the referencing
+        so we just return the shielding asymmetry
+        """
+        return self.asymmetry
+
     @property
-    def skew(self):
+    @has_reference
+    def shift_skew(self) -> float:
         """
         The absolute value of the skew parameter is 
         not dependent on the referencing but the sign is.
-        
-        TODO: is this still the case if the gradient is not -1 ? 
         """
-        skew = super().skew
-        if self.is_shift:
-            # Swap sign
-            skew *= -1.0
-        return skew
+        return _skew(self.shift_eigenvalues[None, :])[0]
+    
+    @property
+    def shift_span(self) -> float:
+        """
+        The span is not dependent on the referencing
+        so we just return the shielding span
+        """
+        return self.span
 
     # Define some NamedTuples for the different representations
     # of the tensor. See here for a description of the different
@@ -1095,7 +1126,7 @@ class MagneticShielding(NMRTensor):
                     f"  sigma_22:  {self.sigma_22:.5f}\n"
                     f"  sigma_33:  {self.sigma_33:.5f}\n"
                     f"  sigma_iso: {self.sigma_iso:.5f}")
-        
+
     class IUPACShift(NamedTuple):
         """
         The same as the IUPACShielding, but for chemical shifts. i.e. sigma -> delta.
@@ -1140,11 +1171,11 @@ class MagneticShielding(NMRTensor):
     class HerzfeldBergerShift(NamedTuple):
         """
         The same as the Herzfeld-BergerShielding, but for chemical shifts. i.e. sigma -> delta.
-        Therefore:
+        Therefore there is a corresponding swap in the sign of the skew (but not the span) value:
 
         .. math::
-            \\delta_{33} - \\delta_{11} = \\Omega
-
+            \\Omega = \\delta_{11} - \\delta_{33}
+            \\kappa = 3(\\delta_{22} - \\delta_{iso}) / \\Omega
         """
         delta_iso: float
         omega: float
@@ -1155,8 +1186,8 @@ class MagneticShielding(NMRTensor):
                     f"  delta_iso (isotropic shift): {self.delta_iso:.5f}\n"
                     f"  omega (span):     {self.omega:.5f}\n"
                     f"  kappa (skew):     {self.kappa:.5f}")
-    
-    
+
+
 
 
 
@@ -1171,22 +1202,22 @@ class MagneticShielding(NMRTensor):
         and uses the following parameters to describe the shielding tensor:
 
         * :math:`\\sigma_{iso}` : isotropic magnetic shielding
-        * :math:`\\sigma = \\sigma_{zz} - \\sigma_{iso}` : the reduced anisotropy
-        * :math:`\\Delta = \\sigma_{zz} - (\\sigma_{xx} + \\sigma_{yy}) / 2 = 3\\sigma / 2`  : the anisotropy
-        * :math:`\\eta = (\\sigma_{yy} - \\sigma_{xx}) / \\sigma` : the asymmetry ( :math:`0 \\leq \\eta \\leq +1` )
+        * :math:`\\zeta = \\sigma_{zz} - \\sigma_{iso}` : the reduced anisotropy
+        * :math:`\\Delta = \\sigma_{zz} - (\\sigma_{xx} + \\sigma_{yy}) / 2 = 3\\zeta / 2`  : the anisotropy
+        * :math:`\\eta = (\\sigma_{yy} - \\sigma_{xx}) / \\zeta` : the asymmetry ( :math:`0 \\leq \\eta \\leq +1` )
 
         """
 
         sigma_iso: float
-        sigma: float
+        zeta: float
         delta: float
         eta: float
 
         def __str__(self):
             return (f"HaeberlenShielding:\n"
                     f"  sigma_iso (isotropy): {self.sigma_iso:.5f}\n"
-                    f"  sigma (reduced anisotropy): {self.sigma:.5f}\n"
-                    f"  delta (anisotropy): {self.delta:.5f}\n"
+                    f"  zeta (reduced anisotropy): {self.zeta:.5f}\n"
+                    f"  Delta (anisotropy): {self.delta:.5f}\n"
                     f"  eta (asymmetry): {self.eta:.5f}")
 
     class HaeberlenShift(NamedTuple):
@@ -1197,18 +1228,19 @@ class MagneticShielding(NMRTensor):
         .. math::
             |\\delta_{zz} - \\delta_{iso} | \\geq |\\delta_{xx} - \\delta_{iso} | \\geq |\\delta_{yy} - \\delta_{iso} |
 
+        Note that there is a corresponding swap in the sign of the anisotropy and reduced anisotropy values.
         """
         delta_iso: float
+        zeta: float
         delta: float
-        anisotropy: float
-        asymmetry: float
+        eta: float
 
         def __str__(self):
             return (f"HaeberlenShift:\n"
                     f"  delta_iso (isotropic shift): {self.delta_iso:.5f}\n"
-                    f"  delta (reduced anisotropy): {self.delta:.5f}\n"
-                    f"  anisotropy: {self.anisotropy:.5f}\n"
-                    f"  asymmetry: {self.asymmetry:.5f}")
+                    f"  zeta (reduced anisotropy): {self.zeta:.5f}\n"
+                    f"  Delta (anisotropy): {self.delta:.5f}\n"
+                    f"  eta (asymmetry): {self.eta:.5f}")
 
     class MehringShielding(IUPACShielding):
         """
@@ -1219,12 +1251,10 @@ class MagneticShielding(NMRTensor):
         The same as the MehringShielding, but for chemical shifts. i.e. sigma -> delta.
         """
     class MarylandShielding(HerzfeldBergerShielding):
-        """The same as the Herzfeld-Berger notation."""
+        """The same as the HerzfeldBergerShielding notation."""
 
     class MarylandShift(HerzfeldBergerShift):
-        """The same as the Herzfeld-BergerShift."""
-
-
+        """The same as the HerzfeldBergerShift."""
 
     @property
     def element(self):
@@ -1236,102 +1266,155 @@ class MagneticShielding(NMRTensor):
         '''
         return self.species.strip('1234567890')
 
+    @staticmethod
+    def _get_referenced_eigenvalues(eigenvalues: Union[list, np.ndarray], reference: float, gradient: float):
+        """
+        Get the referenced eigenvalues for the magnetic shielding tensor.
+
+        Args:
+            eigenvalues (Union[list, np.ndarray]): Eigenvalues of the magnetic shielding tensor (ppm)
+            reference (float): Reference shielding (ppm)
+            gradient (float): Gradient for the magnetic shielding to shift conversion
+        Returns:
+            np.ndarray: Chemical shift eigenvalues (ppm)
+        """
+        # Convert to numpy array if not already
+        eigenvalues = np.array(eigenvalues)
+        # Reference components
+        shift_eigenvalues = (reference + gradient * eigenvalues) / (1 - reference * 1e-6)
+        return shift_eigenvalues
+
     @property
-    def shift(self):
+    @has_reference
+    def shift_eigenvalues(self) -> np.ndarray:
+        '''
+        Returns the eigenvalues of the shift tensor in ppm in descending order. i.e. 
+        
+        :math:`\\delta_{11} \\geq \\delta_{22} \\geq \\delta_{33}`
+
+        If the reference is not set, will raise a ValueError. You can set the reference
+        using the reference attribute.
+        '''
+        return self._get_referenced_eigenvalues(self._incr_evals, self.reference, self.gradient) # type: ignore
+    
+    # For convenience, we can also easily get the Haeberlen-ordered shift eigenvalues
+    @property
+    @has_reference
+    def shift_eigenvalues_haeberlen(self) -> np.ndarray:
+        '''
+        Returns the eigenvalues of the shift tensor in ppm in Haeberlen order. i.e. 
+        
+        :math:`|\\delta_{zz} - \\delta_{iso}|  \\geq  |\\delta_{xx} - \\delta_{iso}| \\geq |\\delta_{yy} - \\delta_{iso}|`
+
+        If the reference is not set, will raise a ValueError. You can set the reference
+        using the reference attribute.
+        '''
+        return self._get_referenced_eigenvalues(self._haeb_evals, self.reference, self.gradient) # type: ignore
+    
+    @property
+    @has_reference
+    def shift(self) -> float:
         '''
         Returns the isotropic chemical shift of the tensor (ppm).
         If the reference is not set, will raise a ValueError. You can set the reference
         using the reference attribute.
         '''
-        if self.reference is None:
-            raise ValueError('Reference chemical shift not set for this tensor.')
-
-        iso = self.trace / 3
-        return (self.reference + self.gradient * iso) / (1 - self.reference * 1e-6)
+        return np.mean(self.shift_eigenvalues)
 
     @property
-    def shift_tensor(self):
-        '''
-        Returns the chemical shift tensor in ppm.
-        '''
-        if self.reference is None:
-            raise ValueError('Reference chemical shift not set for this tensor.')
-        ref_tensor = np.eye(3) * self.reference
-        shift_data = (ref_tensor + self.gradient * self.data) / (1 - ref_tensor * 1e-6)
-        return MagneticShielding(shift_data, self.species, order=self.order, reference=self.reference, gradient=self.gradient)
+    def haeberlen_shielding(self) -> HaeberlenShielding:
+        """The magnetic shielding tensor in Haeberlen Notation."""
+        return self.HaeberlenShielding(
+            self.isotropy,
+            self.reduced_anisotropy,
+            self.anisotropy,
+            self.asymmetry)
 
     @property
-    def haeberlen_values(self):
-        """The magnetic shielding/shift tensor in Haeberlen Notation."""
-        iso   = self.isotropy
-        sigma = self.reduced_anisotropy
-        delta = self.anisotropy
-        eta   = self.asymmetry
-
-        if self.is_shift:
-            return self.HaeberlenShift(iso, sigma, delta, eta)
-        else:
-            return self.HaeberlenShielding(iso, sigma, delta, eta)
+    @has_reference
+    def haeberlen_shift(self) -> HaeberlenShift:
+        """The chemical shift tensor in Haeberlen Notation."""
+        return self.HaeberlenShift(
+            self.shift,
+            self.shift_reduced_anisotropy,
+            self.shift_anisotropy,
+            self.shift_asymmetry)
 
     @property
-    def mehring_values(self):
+    def mehring_shielding(self) -> MehringShielding:
         """The magnetic shielding tensor in Mehring Notation."""
-        if self.is_shift:
-            delta_iso = self.shift
-            shifted_tensor = self.shift_tensor
-            shifted_tensor.order = TensorConvention.Decreasing
-            delta_11, delta_22, delta_33 = shifted_tensor.eigenvalues
-            return self.MehringShift(delta_iso, delta_11, delta_22, delta_33)
-        else:
-            sigma_iso = self.isotropy
-            # sort the eigenvalues in increasing order
-            sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
-            return self.MehringShielding(sigma_iso, sigma_11, sigma_22, sigma_33)
+        evals = self.eigenvalues
+        # sort the eigenvalues in increasing order
+        sigma_11, sigma_22, sigma_33 = sorted(evals)
+        return self.MehringShielding(
+            self.isotropy,
+            sigma_11,
+            sigma_22,
+            sigma_33)
+
 
 
     @property
-    def iupac_values(self):
-        """The magnetic shielding tensor in IUPAC Notation."""
-        iso = self.isotropy
-        if self.is_shift:
-            delta_iso = self.shift
-            shifted_tensor = self.shift_tensor
-            shifted_tensor.order = TensorConvention.Decreasing
-            delta_11, delta_22, delta_33 = shifted_tensor.eigenvalues
-            return self.IUPACShift(delta_iso, delta_11, delta_22, delta_33)
-        else:
-            sigma_iso = self.isotropy
-            # sort the eigenvalues in increasing order
-            sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
-            return self.IUPACShielding(sigma_iso, sigma_11, sigma_22, sigma_33)
-
-    @property
-    def maryland_values(self):
-        """The shielding/shift tensor in Maryland Notation."""
-        iso = self.shift if self.is_shift else self.isotropy
-        # omega and kappa should be the same for the shielding and shift
-        # !TODO check if this is correct
-        omega = self.span
-        kappa = self.skew
-
-        if self.is_shift:
-            return self.MarylandShift(iso, omega, kappa)
-        else:
-            return self.MarylandShielding(iso, omega, kappa)
+    @has_reference
+    def mehring_shift(self) -> MehringShift:
+        """The chemical shift tensor in Mehring Notation."""
+        delta_11, delta_22, delta_33 = self.shift_eigenvalues
+        shift = (delta_11 + delta_22 + delta_33) / 3
+        return self.MehringShift(
+            shift,
+            delta_11,
+            delta_22,
+            delta_33
+        )
     
     @property
-    def herzfeldberger_values(self):
-        """The shielding/shift tensor in Herzfeld-Berger Notation."""
-        iso = self.shift if self.is_shift else self.isotropy
-        # omega and kappa should be the same for the shielding and shift
-        # !TODO check if this is correct
+    def iupac_shielding(self) -> IUPACShielding:
+        """The magnetic shielding tensor in IUPAC Notation."""
+        sigma_iso = self.isotropy
+        # sort the eigenvalues in increasing order
+        sigma_11, sigma_22, sigma_33 = sorted(self.eigenvalues)
+        return self.IUPACShielding(sigma_iso, sigma_11, sigma_22, sigma_33)
+    
+    @property
+    @has_reference
+    def iupac_shift(self) -> IUPACShift:
+        """The chemical shift tensor in IUPAC Notation."""
+        delta_iso = self.shift
+        delta_11, delta_22, delta_33 = self.shift_eigenvalues
+        return self.IUPACShift(delta_iso, delta_11, delta_22, delta_33)
+
+    @property
+    def maryland_shielding(self) -> MarylandShielding:
+        """The magnetic shielding tensor in Maryland Notation."""
+        iso = self.isotropy
         omega = self.span
         kappa = self.skew
+        return self.MarylandShielding(iso, omega, kappa)
 
-        if self.is_shift:
-            return self.HerzfeldBergerShift(iso, omega, kappa)
-        else:
-            return self.HerzfeldBergerShielding(iso, omega, kappa)
+    @property
+    @has_reference
+    def maryland_shift(self) -> MarylandShift:
+        """The chemical shift tensor in Maryland Notation."""
+        iso = self.shift
+        omega = self.shift_span
+        kappa = self.shift_skew
+        return self.MarylandShift(iso, omega, kappa)
+
+    @property
+    def herzfeldberger_shielding(self) -> HerzfeldBergerShielding:
+        """The shielding tensor in Herzfeld-Berger Notation."""
+        iso = self.isotropy
+        omega = self.span
+        kappa = self.skew
+        return self.HerzfeldBergerShielding(iso, omega, kappa)
+    @property
+    @has_reference
+    def herzfeldberger_shift(self) -> HerzfeldBergerShift:
+        """The chemical shift tensor in Herzfeld-Berger Notation."""
+        iso = self.shift
+        omega = self.shift_span
+        kappa = self.shift_skew
+        return self.HerzfeldBergerShift(iso, omega, kappa)
 
     # Set/update the reference chemical shift
     def set_reference(self, reference: float):
@@ -1346,13 +1429,6 @@ class MagneticShielding(NMRTensor):
         Set the gradient for this tensor.
         '''
         self.gradient = gradient
-
-    @property
-    def is_shift(self):
-        '''
-        Returns True if we have a reference set -> we want the chemical shift, False otherwise.
-        '''
-        return self.reference is not None
 
     @property
     def _initialisation_params(self):
@@ -1375,18 +1451,18 @@ class MagneticShielding(NMRTensor):
         s =  f"Magnetic Shielding Tensor for {self.species}:\n"
         # 3x3 tensor representation neatly formatted with 5 decimal places
         s += str(np.array2string(self.data, precision=5, separator=",", suppress_small=True)) + "\n"
-        s += str(self.haeberlen_values)
+        s += str(self.haeberlen_shielding)
         return s
-    
+
     def __eq__(self, other: 'MagneticShielding') -> bool:
         # First, check if it's a MagneticShielding object
         if not isinstance(other, MagneticShielding):
             return False
-        
+
         # Use parent class equality for tensor comparison
         if not super().__eq__(other):
             return False
-        
+
         # Compare additional MagneticShielding-specific attributes
         # Species comparison is optional and can be modified as needed
         return self.species == other.species
@@ -1504,9 +1580,9 @@ class ElectricFieldGradient(NMRTensor):
         else:
             # warn user that the eigenvalues are not sorted in NQR order
             warnings.warn("The eigenvalues are not sorted in NQR order. "
-                            "Returning the largest abs. eigenvalue following NQR convention.")
+                            "Returning Vzz as the largest abs. eigenvalue following NQR convention.")
             # sort them in NQR order
-            return _evals_sort(self.eigenvalues, convention=self.ORDER_NQR)[2]
+            return _evals_sort([self.eigenvalues], convention=self.ORDER_NQR)[0][2]
 
     @property
     def Cq(self) -> float:
@@ -1722,16 +1798,16 @@ class ElectricFieldGradient(NMRTensor):
             s += f"Quadrupolar product: {self.Pq} Hz\n"
             s += f"Quadrupolar frequency: {self.nuq} Hz\n"
         return s
-    
+
     def __eq__(self, other: 'ElectricFieldGradient') -> bool:
         # First, check if it's a ElectricFieldGradient object
         if not isinstance(other, ElectricFieldGradient):
             return False
-        
+
         # Use parent class equality for tensor comparison
         if not super().__eq__(other):
             return False
-        
+
         # Compare additional MagneticShielding-specific attributes
         # Species comparison is optional and can be modified as needed
         return self.species == other.species

@@ -1368,6 +1368,7 @@ class TestMagneticShielding(unittest.TestCase):
         self.ref_omega = 8.0
         self.ref_kappa = -0.75
 
+
     def test_initialization(self):
         # Test if the object is initialized correctly
         self.assertIsInstance(self.tensor, MagneticShielding)
@@ -1388,10 +1389,7 @@ class TestMagneticShielding(unittest.TestCase):
 
         # shift = -isotropy in this case (reference = 0)
         manual_shift = (self.ref - self.tensor.isotropy) / (1 - self.ref*1e-6)
-        ref_tensor = np.eye(3) * self.ref
-        manual_shift_tensor = (ref_tensor - self.tensor.data) / (1 - ref_tensor*1e-6)
         self.assertAlmostEqual(self.tensor_ref.shift, manual_shift)
-        np.testing.assert_array_equal(self.tensor_ref.shift_tensor.data, manual_shift_tensor)
 
         # update the reference and gradient
         shielding_iso = self.tensor.isotropy
@@ -1400,14 +1398,13 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertAlmostEqual(self.tensor.shift, (10 + -2.0 * shielding_iso) / (1 - 10e-6))
 
     def test_haeberlen_values(self):
-        haeb = self.tensor.haeberlen_values
+        haeb = self.tensor.haeberlen_shielding
         self.assertAlmostEqual(haeb.sigma_iso, self.ref_shielding_iso)
-        self.assertAlmostEqual(haeb.sigma, -5.0)
+        self.assertAlmostEqual(haeb.zeta, -5.0)
         self.assertAlmostEqual(haeb.delta, -7.5)
         self.assertAlmostEqual(haeb.eta, 0.2)
 
-        haebr = self.tensor_ref.haeberlen_values
-        print(haebr,self.tensor_ref.iupac_values, self.tensor_ref.herzfeldberger_values)
+        haebr = self.tensor_ref.haeberlen_shift
         self.assertAlmostEqual(haebr.delta_iso, self.ref_delta)
         # TODO: should these be the same as for the shielding tensor?
         # self.assertAlmostEqual(haebr.sigma, -5.0)
@@ -1415,24 +1412,24 @@ class TestMagneticShielding(unittest.TestCase):
         # self.assertAlmostEqual(haebr.eta, 0.2)
 
     def test_herzfeldberger_values(self):
-        herz = self.tensor.herzfeldberger_values
+        herz = self.tensor.herzfeldberger_shielding
         self.assertAlmostEqual(herz.sigma_iso, self.ref_shielding_iso)
         self.assertAlmostEqual(herz.omega, 8.0) # span
         self.assertAlmostEqual(herz.kappa, -0.75) # skew
 
-        haebr = self.tensor_ref.herzfeldberger_values
-        self.assertAlmostEqual(haebr.delta_iso, self.ref_delta)
-        self.assertAlmostEqual(haebr.omega, 8.0) # span
-        self.assertAlmostEqual(haebr.kappa, 0.75) # skew
+        herzr = self.tensor_ref.herzfeldberger_shift
+        self.assertAlmostEqual(herzr.delta_iso, self.ref_delta)
+        self.assertAlmostEqual(herzr.omega, 8.0) # span
+        self.assertAlmostEqual(herzr.kappa, 0.75) # skew
 
     def test_iupac_values(self):
-        iupac = self.tensor.iupac_values
+        iupac = self.tensor.iupac_shielding
         self.assertAlmostEqual(iupac.sigma_iso, -1.0)
         self.assertAlmostEqual(iupac.sigma_11, -6.0)
         self.assertAlmostEqual(iupac.sigma_22,  1.0)
         self.assertAlmostEqual(iupac.sigma_33,  2.0)
 
-        iupacr = self.tensor_ref.iupac_values
+        iupacr = self.tensor_ref.iupac_shift
         delta11 = (self.ref - iupac.sigma_11) / (1 - self.ref*1e-6)
         delta22 = (self.ref - iupac.sigma_22) / (1 - self.ref*1e-6)
         delta33 = (self.ref - iupac.sigma_33) / (1 - self.ref*1e-6)
@@ -1442,18 +1439,18 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertAlmostEqual(iupacr.delta_33, delta33)
 
     def test_maryland_values(self):
-        mary = self.tensor.maryland_values
+        mary = self.tensor.maryland_shielding
         # should be equivalent to the herzfeld-berger values
-        herz = self.tensor.herzfeldberger_values
+        herz = self.tensor.herzfeldberger_shielding
         self.assertAlmostEqual(mary.sigma_iso, herz.sigma_iso)
         self.assertAlmostEqual(mary.omega, herz.omega)
         self.assertAlmostEqual(mary.kappa, herz.kappa)
 
 
     def test_mehring_values(self):
-        mehr = self.tensor.mehring_values
+        mehr = self.tensor.mehring_shielding
         # should be equivalent to the iupac values
-        iupac = self.tensor.iupac_values
+        iupac = self.tensor.iupac_shielding
         self.assertAlmostEqual(mehr.sigma_iso, iupac.sigma_iso)
         self.assertAlmostEqual(mehr.sigma_11, iupac.sigma_11)
         self.assertAlmostEqual(mehr.sigma_22, iupac.sigma_22)
@@ -1493,6 +1490,206 @@ class TestMagneticShielding(unittest.TestCase):
             
         with self.assertRaises(ValueError, msg="Should raise error for different orders"):
             MagneticShielding._check_compatible([ms1, ms2_order])
+
+    def test_shift_eigenvalues(self):
+        """Test the shift_eigenvalues property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_eigenvalues
+        
+        # Test with reference set
+        shift_eigenvalues = self.tensor_ref.shift_eigenvalues
+        
+        # Calculate expected values manually
+        shielding_evals = np.sort(self.tensor.eigenvalues)  # -6, 1, 2
+        expected_shift_evals = (self.ref - shielding_evals) / (1 - self.ref*1e-6)
+
+        # Ensure they're in decreasing order (shift convention)
+        self.assertTrue(shift_eigenvalues[0] >= shift_eigenvalues[1] >= shift_eigenvalues[2])
+
+        np.testing.assert_array_almost_equal(shift_eigenvalues, expected_shift_evals)
+
+    def test_shift_eigenvalues_haeberlen(self):
+        """Test the shift_eigenvalues_haeberlen property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_eigenvalues_haeberlen
+        
+        # Test with reference set
+        shift_haeberlen_evals = self.tensor_ref.shift_eigenvalues_haeberlen
+        
+        # Calculate expected values manually (using Haeberlen-ordered shielding eigenvalues)
+        shielding_evals_haeb = self.tensor.eigenvalues  # Already in Haeberlen order: 2, 1, -6
+        expected_shift_haeb = (self.ref - shielding_evals_haeb) / (1 - self.ref*1e-6)
+        
+        # Verify Haeberlen ordering for shift eigenvalues
+        delta_iso = np.mean(shift_haeberlen_evals)
+        # |δzz - δiso| ≥ |δxx - δiso| ≥ |δyy - δiso|
+        diffs = np.abs(shift_haeberlen_evals - delta_iso)
+        self.assertTrue(diffs[2] >= diffs[0] >= diffs[1])
+        
+        np.testing.assert_array_almost_equal(shift_haeberlen_evals, expected_shift_haeb)
+        
+
+    def test_shift_anisotropy(self):
+        """Test the shift_anisotropy property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_anisotropy
+        
+        # Test with reference set
+        shift_aniso = self.tensor_ref.shift_anisotropy
+        
+        # Calculate expected anisotropy manually using Haeberlen convention
+        shift_haeb_evals = self.tensor_ref.shift_eigenvalues_haeberlen
+        expected_aniso = shift_haeb_evals[2] - (shift_haeb_evals[0] + shift_haeb_evals[1])/2
+        
+        self.assertAlmostEqual(shift_aniso, expected_aniso)
+        
+        # Verify it has the opposite sign of shielding anisotropy
+        self.assertAlmostEqual(np.sign(shift_aniso), -np.sign(self.tensor.anisotropy))
+
+    def test_shift_reduced_anisotropy(self):
+        """Test the shift_reduced_anisotropy property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_reduced_anisotropy
+        
+        # Test with reference set
+        shift_red_aniso = self.tensor_ref.shift_reduced_anisotropy
+        
+        # Calculate expected reduced anisotropy manually
+        shift_haeb_evals = self.tensor_ref.shift_eigenvalues_haeberlen
+        expected_red_aniso = shift_haeb_evals[2] - np.mean(shift_haeb_evals)
+        
+        self.assertAlmostEqual(shift_red_aniso, expected_red_aniso)
+        
+        # Verify it's related to the anisotropy by a factor of 2/3
+        self.assertAlmostEqual(shift_red_aniso * 3/2, self.tensor_ref.shift_anisotropy)
+
+    def test_shift_skew(self):
+        """Test the shift_skew property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_skew
+        
+        # Test with reference set
+        shift_skew = self.tensor_ref.shift_skew
+        
+        # Calculate expected skew manually
+        shift_evals = self.tensor_ref.shift_eigenvalues  # Decreasing order
+        delta_iso = np.mean(shift_evals)
+        # skew = 3(delta_iso - delta_22) / span
+        expected_skew = 3 * (delta_iso - shift_evals[1]) / (shift_evals[0] - shift_evals[2])
+        
+        self.assertAlmostEqual(shift_skew, expected_skew)
+        
+        # Verify that it's the negative of the shielding skew (since shifts are inverted)
+        # Note: skew is a signed quantity, so it should be opposite for shift vs shielding
+        self.assertAlmostEqual(shift_skew, -self.tensor.skew)
+
+    def test_shift_span(self):
+        """Test the shift_span property."""
+        # Test that the property is accessible even when reference is not set
+        # since span doesn't depend on reference
+        shift_span = self.tensor.shift_span
+        
+        # Calculate expected span manually
+        shielding_evals = np.sort(self.tensor.eigenvalues)  # -6, 1, 2
+        expected_span = shielding_evals[2] - shielding_evals[0]  # 2 - (-6) = 8
+        
+        self.assertAlmostEqual(shift_span, expected_span)
+        self.assertAlmostEqual(shift_span, self.tensor.span)
+        
+        # Also test with reference set to verify consistency
+        shift_span_ref = self.tensor_ref.shift_span
+        self.assertAlmostEqual(shift_span_ref, expected_span)
+
+    def test_set_reference_and_gradient(self):
+        """Test setting reference and gradient values."""
+        # Create a copy to work with
+        tensor = self.tensor.copy() if hasattr(self.tensor, 'copy') else MagneticShielding(
+            self.tensor.data.copy(), species=self.tensor.species)
+        
+        # Initially no reference
+        with self.assertRaises(ValueError):
+            _ = tensor.shift
+        
+        # Set reference
+        tensor.set_reference(200.0)
+        self.assertEqual(tensor.reference, 200.0)
+        
+        # Now shift should be calculable
+        expected_shift = (200.0 - tensor.isotropy) / (1 - 200.0*1e-6)
+        self.assertAlmostEqual(tensor.shift, expected_shift)
+        
+        # Set gradient
+        tensor.set_gradient(-2.0)
+        self.assertEqual(tensor.gradient, -2.0)
+        
+        # Shift should now use the new gradient
+        expected_shift_new = (200.0 + (-2.0) * tensor.isotropy) / (1 - 200.0*1e-6)
+        self.assertAlmostEqual(tensor.shift, expected_shift_new)
+
+    def test_make_isotropic(self):
+        """Test creating an isotropic copy of a magnetic shielding tensor."""
+        # Import Site class for testing
+        from soprano.nmr.site import Site
+        
+        # Create a site with anisotropic MS tensor
+        site = Site(
+            isotope="2H",
+            label="H1",
+            index=0,
+            ms=self.tensor_ref  # Using the tensor with reference from setUp
+        )
+        
+        # Create an isotropic version
+        iso_site = site.make_isotropic()
+        
+        # Verify it's a different object
+        self.assertIsNot(site, iso_site)
+        
+        # Check that the isotropy is preserved
+        self.assertAlmostEqual(iso_site.ms.isotropy, site.ms.isotropy)
+        
+        # Check that the eigenvalues are all equal to the isotropy
+        iso_value = site.ms.isotropy
+        np.testing.assert_array_almost_equal(
+            iso_site.ms.eigenvalues, 
+            np.array([iso_value, iso_value, iso_value])
+        )
+
+        # Check that the eigenvectors form an identity matrix
+        np.testing.assert_array_almost_equal(
+            iso_site.ms.eigenvectors,
+            np.eye(3)
+        )
+        
+        # Check that the reference value is preserved
+        self.assertEqual(iso_site.ms.reference, site.ms.reference)
+        
+        # Verify that the site without MS tensor returns unchanged
+        site_no_ms = Site(
+            isotope="2H",
+            label="H1",
+            index=0
+        )
+        iso_site_no_ms = site_no_ms.make_isotropic()
+        self.assertIsNone(iso_site_no_ms.ms)
+        
+        # Check that all other properties are preserved
+        self.assertEqual(iso_site.isotope, site.isotope)
+        self.assertEqual(iso_site.label, site.label)
+        self.assertEqual(iso_site.index, site.index)
+        
+        # Check anisotropy and asymmetry for isotropic tensor
+        self.assertAlmostEqual(iso_site.ms.anisotropy, 0.0)
+        self.assertAlmostEqual(iso_site.ms.asymmetry, 0.0)
+        self.assertAlmostEqual(iso_site.ms.span, 0.0)
+        
+        # Check that shift calculations still work
+        self.assertAlmostEqual(iso_site.ms.shift, site.ms.shift)
 
 class TestElectricFieldGradient(unittest.TestCase):
 
