@@ -28,7 +28,7 @@ import logging
 import click
 import click_log
 
-from soprano.scripts import dipolar, molecules, nmr, nmr_plot, view
+from soprano.scripts import dipolar, molecules, nmr, nmr_plot, view, spinsys
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger(__name__)
@@ -58,6 +58,7 @@ soprano.add_command(nmr_plot.plotnmr)
 soprano.add_command(dipolar.dipolar)
 soprano.add_command(view.view)
 soprano.add_command(molecules.splitmols)
+soprano.add_command(spinsys.spinsys)
 
 if __name__ == "__main__":
     soprano()
