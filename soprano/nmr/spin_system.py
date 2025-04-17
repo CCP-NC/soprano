@@ -64,6 +64,31 @@ class SpinSystem(BaseModel):
             data['coupling_indices'] = coupling_indices
         return data
     
+    @property
+    def n_sites(self) -> int:
+        """
+        Returns the number of sites in the SpinSystem.
+        """
+        return len(self.sites)
+    @property
+    def n_couplings(self) -> int:
+        """
+        Returns the number of couplings in the SpinSystem.
+        """
+        return len(self.couplings)
+    @property
+    def isotope_set(self) -> set[str]:
+        """
+        Returns a set of unique isotopes present in the SpinSystem.
+        """
+        return set(site.isotope for site in self.sites)
+    @property
+    def element_set(self) -> set[str]:
+        """
+        Returns a set of unique elements present in the SpinSystem.
+        """
+        return set(site.element for site in self.sites)
+    
     def add_site(self, site: Site):
         """
         Add a site to the SpinSystem.
@@ -178,6 +203,61 @@ class SpinSystem(BaseModel):
         handled by Pydantic.
         """
         return self.model_copy(deep=deep, **kwargs)
+    def to_string(self, format: str = "simpson", **kwargs) -> str:
+        """
+        Convert the SpinSystem to a string in the specified format.
+
+        Parameters:
+        -----------
+        format: str
+            The format to convert to. Options are "simpson", "mrsimulator"
+        kwargs: dict
+            Additional keyword arguments to pass to the to_simpson or
+            to_mrsimulator methods.
+            
+        Returns:
+        --------
+        str:
+            The string representation of the SpinSystem in the specified format.
+        """
+        if format == "simpson":
+            return self.to_simpson(**kwargs)
+        elif format == "mrsimulator":
+            mrsimulator_dict = self.to_mrsimulator(**kwargs)
+            import json
+            json_string = json.dumps(mrsimulator_dict, ensure_ascii=False, sort_keys=False, allow_nan=False)
+            return json_string
+        else:
+            raise ValueError(f"Unknown format: {format}")
+
+    def write(self, filename: Optional[str] = None, format: str = "simpson", **kwargs):
+        """
+        Write the SpinSystem to a file in the specified format or return as a string.
+
+        Parameters:
+        -----------
+        filename: Optional[str]
+            The name of the file to write to. If None, returns the string representation
+            instead of writing to a file.
+        format: str
+            The format to write in. Options are "simpson", "mrsimulator"
+        kwargs: dict
+            Additional keyword arguments to pass to the to_simpson or
+            to_mrsimulator methods.
+            
+        Returns:
+        --------
+        Optional[str]:
+            If filename is None, returns the string representation in the specified format.
+            Otherwise returns None after writing to the file.
+        """
+        output_string = self.to_string(format=format, **kwargs)
+        
+        if filename:
+            with open(filename, "w") as f:
+                f.write(output_string)
+        else:
+            print(output_string)
 
     def __eq__(self, other: 'SpinSystem') -> bool:
         # Check attributes
@@ -228,21 +308,66 @@ class SpinSystem(BaseModel):
     # Interfaces:
     # =============================================================================
 
-    def to_mrsimulator(self, **kwargs):
+    def to_mrsimulator(
+            self,
+            ms_isotropic: bool = False,
+            include_angles: bool = True,
+            include_ms_angles: Optional[bool] = None,
+            include_efg_angles: Optional[bool] = None,
+            include_dipolar_angles: Optional[bool] = None,
+            include_jcoupling_angles: Optional[bool] = None,
+            **kwargs) -> dict:
         """
         Convert the SpinSystem to a dictionary that can be used to create an
         MRSimulator SpinSystem object.
+
+        Parameters:
+            ms_isotropic: bool
+                Whether to convert the magnetic shielding/shift tensor to an isotropic one.
+                (i.e. the anisotropy, asymmetry, and Euler angles are set to 0)
+                Default is False.
+            include_angles: bool
+                Whether to include angles in the output. Default is True.
+            include_ms_angles: bool
+                Whether to include magnetic shielding/shift Euler angles. Default is None.
+            include_efg_angles: bool
+                Whether to include electric field gradient angles. Default is None.
+            include_dipolar_angles: bool
+                Whether to include dipolar angles. Default is None.
+            include_jcoupling_angles: bool
+                Whether to include J-coupling angles. Default is None.
+            **kwargs: dict
+                Additional keyword arguments to pass to the MRSimulator SpinSystem
+                constructor.
+        Returns:
+            dict: The SpinSystem in MRSimulator format.
         """
 
         soprano_sites = self.sites
         soprano_couplings = self.couplings
 
+        # Handle the angle logic
+        include_ms_angles = include_angles if include_ms_angles is None else include_ms_angles
+        include_efg_angles = include_angles if include_efg_angles is None else include_efg_angles
+        include_dipolar_angles = include_angles if include_dipolar_angles is None else include_dipolar_angles
+        include_jcoupling_angles = include_angles if include_jcoupling_angles is None else include_jcoupling_angles
+
+
 
         mrsimulator_sites = []
         for site in soprano_sites:
-            mrsimulator_sites.append(site.to_mrsimulator())
+            mrsimulator_sites.append(
+                site.to_mrsimulator(
+                    ms_isotropic=ms_isotropic,
+                    include_ms_angles=include_ms_angles,
+                    include_efg_angles=include_efg_angles)
+            )
 
-        mrsimulator_couplings = coupling_list_to_mrsimulator(soprano_couplings)
+        mrsimulator_couplings = coupling_list_to_mrsimulator(
+            soprano_couplings,
+            include_dipolar_angles = include_dipolar_angles,
+            include_jcoupling_angles = include_jcoupling_angles,
+        )
 
         return {
             "sites": mrsimulator_sites,
@@ -256,7 +381,17 @@ class SpinSystem(BaseModel):
         """
         raise NotImplementedError("Conversion from MRSimulator SpinSystem not yet implemented")
 
-    def to_simpson(self, observed_nucleus: Optional[str]) -> str:
+    def to_simpson(
+            self,
+            observed_nucleus: Optional[str]=None,
+            q_order: Optional[int] = None,
+            ms_isotropic: bool = False,
+            include_angles: bool = True,
+            include_ms_angles: Optional[bool] = None,
+            include_efg_angles: Optional[bool] = None,
+            include_dipolar_angles: Optional[bool] = None,
+            include_jcoupling_angles: Optional[bool] = None,
+            ) -> str:
         """
         Convert the SpinSystem to a string that can be used to create a
         Simpson SpinSystem object.
@@ -266,14 +401,37 @@ class SpinSystem(BaseModel):
                 The nucleus that is being observed. This is required for the
                 Simpson format. The observed nucleus should be the first that
                 appears in the list of channels.
+            q_order: int
+                The order of the quadrupole tensor. This is required for the
+                Simpson format. The order should be 0, 1, or 2.
+            ms_isotropic: bool
+                Whether to convert the magnetic shielding/shift tensor to an isotropic one.
+                (i.e. the anisotropy, asymmetry, and Euler angles are set to 0)
+                Default is False.
+            include_angles: bool
+                Whether to include angles in the output. Default is True.
+            include_ms_angles: bool
+                Whether to include magnetic shielding/shift Euler angles. Default is None.
+            include_efg_angles: bool
+                Whether to include electric field gradient angles. Default is None.
+            include_dipolar_angles: bool
+                Whether to include dipolar angles. Default is None.
+            include_jcoupling_angles: bool
+                Whether to include J-coupling angles. Default is None.
 
         Returns:
             str: The SpinSystem in Simpson format.
         """
 
+        # Handle the angle logic
+        include_ms_angles = include_angles if include_ms_angles is None else include_ms_angles
+        include_efg_angles = include_angles if include_efg_angles is None else include_efg_angles
+        include_dipolar_angles = include_angles if include_dipolar_angles is None else include_dipolar_angles
+        include_jcoupling_angles = include_angles if include_jcoupling_angles is None else include_jcoupling_angles
+
         nuclei = [site.isotope for site in self.sites]
         # If the observed nucleus is not specified, use the first nucleus in the list
-        if observed_nucleus is None:
+        if not observed_nucleus:
             channels = sorted(set(nuclei))
         else:
             if observed_nucleus not in nuclei:
@@ -284,7 +442,11 @@ class SpinSystem(BaseModel):
         ms_blocks = []
         efg_blocks = []
         for site in self.sites:
-            ms_block, efg_block = site.to_simpson()
+            ms_block, efg_block = site.to_simpson(
+                q_order=q_order,
+                ms_isotropic=ms_isotropic,
+                include_ms_angles=include_ms_angles,
+                include_efg_angles=include_efg_angles)
             ms_blocks.append(ms_block)
             efg_blocks.append(efg_block)
 
@@ -294,11 +456,13 @@ class SpinSystem(BaseModel):
         dipolar_blocks = []
         for coupling in self.couplings:
             if coupling.type == "D":
-                dipolar_blocks.append(coupling.to_simpson())
+                dipolar_blocks.append(coupling.to_simpson(
+                    include_angles=include_dipolar_angles,
+                ))
         dipolar_string = "\n".join(dipolar_blocks)
 
         # Combine the header and blocks into a formatted string
-        return f"""spinsys{{
+        output_string = f"""spinsys {{
 channels {" ".join(channels)}
 nuclei {" ".join(nuclei)}
 
@@ -308,4 +472,9 @@ nuclei {" ".join(nuclei)}
 
 {dipolar_string}
 }}
-        """
+"""
+        # Trim blank lines from the end of the string
+        output_string = "\n".join(line.rstrip() for line in output_string.splitlines() if line.strip())
+        # Add a final line break
+        output_string += "\n"
+        return output_string

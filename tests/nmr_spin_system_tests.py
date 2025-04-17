@@ -12,7 +12,7 @@ import unittest
 import numpy as np
 from ase import io
 
-from soprano.data.nmr import nmr_gamma
+from soprano.data.nmr import EFG_TO_CHI, nmr_gamma
 from soprano.nmr.coupling import DipolarCoupling
 from soprano.nmr.spin_system import SpinSystem
 from soprano.nmr.site import Site
@@ -157,6 +157,222 @@ class TestSite(unittest.TestCase):
         self.assertNotEqual(site1, site4)
         self.assertNotEqual(site1, site5)
 
+    def test_to_mrsimulator(self):
+        # Create a site with known tensor values
+        isotope = "2H"
+        site_label = "H1"
+        # Create a ms tensor (First H ms in ethanol.magres)
+        ms_data = np.array([
+            [30.2981796159, 1.2051069281, 3.67274492938],
+            [1.96313294552, 27.5765250451, 2.57545224195],
+            [4.21834131673, 2.16271307552, 30.9031525163]])
+        ms_reference = 31.7
+
+        # Create an efg tensor that's not just identity
+        # (First H efg in ethanol.magres)
+        efg_data = np.array([
+            [0.12793404309, 0.0514298737569, 0.20226839328],
+            [0.0514298737569, -0.133531745662, 0.0414560149276],
+            [0.20226839328, 0.0414560149276, 0.00559770257191]
+        ])
+
+        site = Site(
+            isotope=isotope,
+            label=site_label,
+            index=0,
+            ms=MagneticShielding(ms_data, isotope, reference=ms_reference),
+            efg=ElectricFieldGradient(efg_data, isotope)
+        )
+
+        # From MRSimulator's to_haeberlen_params function:
+        ref_ms_iso = 29.5926190591
+        ref_ms_zeta = 5.961009887515737
+        ref_ms_eta = 0.1419680007811347
+        ref_ms_eulers = [ 2.67320545,  2.35027756, -2.65355747]
+        # chemical shift reference
+        ref_cs_iso = (ms_reference - ref_ms_iso) / (1.0 - ms_reference*1e-6)
+
+        # From MRSimulator's to_haeberlen_params function:
+        ref_efg_Cq = 0.28840675146787703 * EFG_TO_CHI * site.efg.quadrupole_moment
+        ref_efg_eta = 0.01819690682375444
+        ref_efg_eulers = [-0.60493229,  2.2014038 , -2.9490402 ]
+
+        # Test with default parameters (include everything)
+        result = site.to_mrsimulator()
+
+        # Check basic fields
+        self.assertEqual(result["isotope"], isotope)
+        self.assertEqual(result["label"], site_label)
+
+        # Check MS values present
+        self.assertIn("isotropic_chemical_shift", result)
+        self.assertIn("shielding_symmetric", result)
+        self.assertIn("zeta", result["shielding_symmetric"])
+        self.assertIn("eta", result["shielding_symmetric"])
+        self.assertIn("alpha", result["shielding_symmetric"])
+        self.assertIn("beta", result["shielding_symmetric"])
+        self.assertIn("gamma", result["shielding_symmetric"])
+
+        # Check MS values
+        self.assertAlmostEqual(result["isotropic_chemical_shift"], ref_cs_iso, places=5)
+        self.assertAlmostEqual(result["shielding_symmetric"]["zeta"], ref_ms_zeta, places=5)
+        self.assertAlmostEqual(result["shielding_symmetric"]["eta"], ref_ms_eta, places=5)
+        # The angles are unlikely to agree due to our choice of normalisations... (TODO)
+        # self.assertAlmostEqual(result["shielding_symmetric"]["alpha"], ref_ms_eulers[0], places=5)
+        # self.assertAlmostEqual(result["shielding_symmetric"]["beta"], ref_ms_eulers[1], places=5)
+        # self.assertAlmostEqual(result["shielding_symmetric"]["gamma"], ref_ms_eulers[2], places=5)
+
+        # Check EFG fields present
+        self.assertIn("quadrupolar", result)
+        self.assertIn("Cq", result["quadrupolar"])
+        self.assertIn("eta", result["quadrupolar"])
+        self.assertIn("alpha", result["quadrupolar"])
+        self.assertIn("beta", result["quadrupolar"])
+        self.assertIn("gamma", result["quadrupolar"])
+
+        # Check EFG values
+        self.assertAlmostEqual(result["quadrupolar"]["Cq"], ref_efg_Cq, places=5)
+        self.assertAlmostEqual(result["quadrupolar"]["eta"], ref_efg_eta, places=5)
+        # The angles are unlikely to agree due to our choice of normalisations... (TODO)
+        # self.assertAlmostEqual(result["quadrupolar"]["alpha"], ref_efg_eulers[0], places=5)
+        # self.assertAlmostEqual(result["quadrupolar"]["beta"], ref_efg_eulers[1], places=5)
+        # self.assertAlmostEqual(result["quadrupolar"]["gamma"], ref_efg_eulers[2], places=5)
+
+        # Test with excluding magnetic shielding
+        result = site.to_mrsimulator(include_ms=False)
+        self.assertNotIn("isotropic_chemical_shift", result)
+        self.assertNotIn("shielding_symmetric", result)
+
+        # Test with excluding electric field gradient
+        result = site.to_mrsimulator(include_efg=False)
+        self.assertNotIn("quadrupolar", result)
+
+        # Test with excluding angles
+        result = site.to_mrsimulator(include_angles=False)
+        self.assertIn("shielding_symmetric", result)
+        self.assertIn("quadrupolar", result)
+        self.assertNotIn("alpha", result["shielding_symmetric"])
+        self.assertNotIn("beta", result["shielding_symmetric"])
+        self.assertNotIn("gamma", result["shielding_symmetric"])
+        self.assertNotIn("alpha", result["quadrupolar"])
+        self.assertNotIn("beta", result["quadrupolar"])
+        self.assertNotIn("gamma", result["quadrupolar"])
+
+        # Test selective angle inclusion
+        result = site.to_mrsimulator(include_ms_angles=True, include_efg_angles=False)
+        self.assertIn("alpha", result["shielding_symmetric"])
+        self.assertIn("beta", result["shielding_symmetric"])
+        self.assertIn("gamma", result["shielding_symmetric"])
+        self.assertNotIn("alpha", result["quadrupolar"])
+        self.assertNotIn("beta", result["quadrupolar"])
+        self.assertNotIn("gamma", result["quadrupolar"])
+
+    def test_to_simpson(self):
+        # Create a site with known tensor values
+        isotope = "2H"
+        site_label = "H1"
+        # Create a ms tensor (First H ms in ethanol.magres)
+        ms_data = np.array([
+            [30.2981796159, 1.2051069281, 3.67274492938],
+            [1.96313294552, 27.5765250451, 2.57545224195],
+            [4.21834131673, 2.16271307552, 30.9031525163]])
+        ms_reference = 31.7
+
+        # Create an efg tensor that's not just identity
+        # (First H efg in ethanol.magres)
+        efg_data = np.array([
+            [0.12793404309, 0.0514298737569, 0.20226839328],
+            [0.0514298737569, -0.133531745662, 0.0414560149276],
+            [0.20226839328, 0.0414560149276, 0.00559770257191]
+        ])
+
+        site = Site(
+            isotope=isotope,
+            label=site_label,
+            index=0,
+            ms=MagneticShielding(ms_data, isotope, reference=ms_reference),
+            efg=ElectricFieldGradient(efg_data, isotope)
+        )
+
+        ms_haeberlen = site.ms.haeberlen_shift
+        ref_cs_iso = ms_haeberlen.delta_iso
+        ref_cs_zeta = ms_haeberlen.zeta  # Simpson expects reduced anisotropy
+        ref_cs_eta = ms_haeberlen.eta
+        # ref_cs_zeta = site.ms.shift_reduced_anisotropy
+
+        # From MRSimulator's to_haeberlen_params function:
+        ref_efg_Cq = 0.28840675146787703 * EFG_TO_CHI * site.efg.quadrupole_moment
+        ref_efg_eta = 0.01819690682375444
+        ref_efg_eulers = [-0.60493229,  2.2014038 , -2.9490402 ]
+
+        # Test with default parameters
+        ms_block, efg_block = site.to_simpson(include_angles=True)
+
+        # Check basic format for MS block
+        self.assertTrue(ms_block.startswith("shift 1"))
+        # The MS block should contain 8 elements: "shift", index, iso, aniso, eta, alpha, beta, gamma
+        ms_block_elements = ms_block.split()
+        self.assertEqual(len(ms_block_elements), 8)
+        # Check the isotropic chemical shift is correct (remove the "p" from the string)
+        self.assertAlmostEqual(float(ms_block_elements[2][:-1]), ref_cs_iso, places=5)
+        # Check the anisotropic chemical shift is correct (remove the "p" from the string)
+        self.assertAlmostEqual(float(ms_block_elements[3][:-1]), ref_cs_zeta, places=5)
+        # Check the eta is correct
+        self.assertAlmostEqual(float(ms_block_elements[4]), ref_cs_eta, places=5)
+
+        # Check basic format for EFG block
+        self.assertTrue(efg_block.startswith("quadrupole 1"))
+        # The EFG block should contain 8 elements: "quadrupole", index, order, Cq, eta, alpha, beta, gamma
+        self.assertEqual(len(efg_block.split()), 8)
+        # Check the quadrupole order is correct
+        self.assertEqual(efg_block.split()[2], "2")
+        # Check the quadrupole Cq is correct
+        self.assertAlmostEqual(float(efg_block.split()[3]), ref_efg_Cq, places=5)
+        # Check the quadrupole eta is correct
+        self.assertAlmostEqual(float(efg_block.split()[4]), ref_efg_eta, places=5)
+
+        # Test excluding MS
+        ms_block, efg_block = site.to_simpson(include_ms=False)
+        self.assertEqual(ms_block, "")
+
+        # Test excluding EFG
+        ms_block, efg_block = site.to_simpson(include_efg=False)
+        self.assertEqual(efg_block, "")
+
+        # Test excluding angles
+        ms_block, efg_block = site.to_simpson(include_angles=False)
+        # Now we should still have 8 elements in MS block
+        self.assertEqual(len(ms_block.split()), 8)
+        # The last three elements should zero
+        self.assertEqual(ms_block.split()[5], "0.0")
+        self.assertEqual(ms_block.split()[6], "0.0")
+        self.assertEqual(ms_block.split()[7], "0.0")
+        
+        # And 8 elements in EFG block
+        self.assertEqual(len(efg_block.split()), 8)
+        # The last three elements should zero
+        self.assertEqual(efg_block.split()[5], "0.0")
+        self.assertEqual(efg_block.split()[6], "0.0")
+        self.assertEqual(efg_block.split()[7], "0.0")
+
+
+        # Test specific quadrupole order
+        ms_block, efg_block = site.to_simpson(q_order=1)
+        # Check the quadrupole order is set correctly
+        self.assertEqual(efg_block.split()[2], "1")
+
+        # Test selective angle inclusion
+        ms_block, efg_block = site.to_simpson(include_ms_angles=True, include_efg_angles=False)
+        # Check the MS block has angles that are not zero
+        self.assertEqual(len(ms_block.split()), 8)  # not zero angles
+        self.assertNotEqual(ms_block.split()[5], "0.0")
+        self.assertNotEqual(ms_block.split()[6], "0.0")
+        self.assertNotEqual(ms_block.split()[7], "0.0")
+        
+        self.assertEqual(len(efg_block.split()), 8)  # zero angles
+        self.assertEqual(efg_block.split()[5], "0.0")
+        self.assertEqual(efg_block.split()[6], "0.0")
+        self.assertEqual(efg_block.split()[7], "0.0")
 
 
 class TestDipolarCoupling(unittest.TestCase):
@@ -263,6 +479,76 @@ class TestDipolarCoupling(unittest.TestCase):
         self.assertNotEqual(coupling1, coupling4)
         self.assertNotEqual(coupling1, coupling5)
 
+    def test_to_mrsimulator(self):
+        """Test the to_mrsimulator method of DipolarCoupling"""
+        # Create a dipolar coupling with known tensor for testing
+        dipolar_data = np.array([-2.0, 0.0, 0.0, 0.0, -2.0, 0.0, 0.0, 0.0, 4.0]).reshape(3, 3)
+        coupling = DipolarCoupling(
+            site_i=0,
+            site_j=1,
+            species1='1H',
+            species2='13C',
+            tensor=NMRTensor(dipolar_data, order='n'),
+            tag='test_tag',
+        )
+
+        # Test with default parameters (include angles)
+        result = coupling.to_mrsimulator()
+
+        # Check the structure of the output
+        self.assertIn('dipolar', result)
+        self.assertIn('D', result['dipolar'])
+        self.assertIn('alpha', result['dipolar'])
+        self.assertIn('beta', result['dipolar'])
+        self.assertIn('gamma', result['dipolar'])
+
+        # Check the coupling constant value
+        self.assertEqual(result['dipolar']['D'], 2.0)
+
+        # Test with angles excluded
+        result = coupling.to_mrsimulator(include_angles=False)
+        self.assertIn('dipolar', result)
+        self.assertIn('D', result['dipolar'])
+        self.assertNotIn('alpha', result['dipolar'])
+        self.assertNotIn('beta', result['dipolar'])
+        self.assertNotIn('gamma', result['dipolar'])
+
+    def test_to_simpson(self):
+        """Test the to_simpson method of DipolarCoupling"""
+        # Create a dipolar coupling with known tensor for testing
+        dipolar_data = np.array([-2.0, 0.0, 0.0, 0.0, -2.0, 0.0, 0.0, 0.0, 4.0]).reshape(3, 3)
+        coupling = DipolarCoupling(
+            site_i=0,
+            site_j=1,
+            species1='1H',
+            species2='13C',
+            tensor=NMRTensor(dipolar_data, order='n'),
+            tag='test_tag',
+        )
+
+        # Test with default parameters (include angles)
+        result = coupling.to_simpson()
+        
+        # Check the format of the string
+        self.assertTrue(result.startswith("dipole 1 2"))
+
+        # The coupling constant is scaled by 2*pi in simpson format
+        # So we expect 2.0 * 2 * pi = 4*pi Hz
+        coupling_constant_part = result.split()[3]
+        self.assertAlmostEqual(float(coupling_constant_part), 2.0 * 2 * np.pi, places=5)
+
+        # Check that we have Euler angles (should have 7 parts with angles)
+        parts = result.split()
+        self.assertEqual(len(parts), 7)
+
+        # Test without angles
+        result = coupling.to_simpson(include_angles=False)
+        parts = result.split()
+        # Should still have 7 parts, but last three should be "0"
+        self.assertEqual(len(parts), 7)
+        self.assertEqual(parts[4], "0")
+        self.assertEqual(parts[5], "0")
+        self.assertEqual(parts[6], "0")
 
 # class TestISCoupling(unittest.TestCase):
 
