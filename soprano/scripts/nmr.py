@@ -43,6 +43,7 @@ from ase.units import Bohr, Ha
 from soprano.data.nmr import _get_isotope_list
 from soprano.properties.labeling import MagresViewLabels, UniqueSites
 from soprano.properties.nmr import *
+from soprano.properties.nmr.ms import MSShift
 from soprano.scripts.cli_utils import (
     NMREXTRACT_OPTIONS,
     NO_CIF_LABEL_WARNING,
@@ -270,9 +271,16 @@ def nmr_extract_multi(
                 include += properties
 
         # apply filters
+        cols_to_include_list = expand_aliases(include, NMR_COLUMN_ALIASES)
+        # if MS_shielding in the list _and_ references are provided, add the MS_shift column
+        if "MS_shielding" in cols_to_include_list and references:
+            logger.debug(
+                "Adding MS_shift column to dataframe as references are provided."
+            )
+            cols_to_include_list.append("MS_shift")
         df = apply_df_filtering(
             df,
-            expand_aliases(include, NMR_COLUMN_ALIASES),
+            cols_to_include_list,
             exclude,
             query,
             essential_columns=NMR_COLUMN_ALIASES["essential"],
@@ -572,9 +580,6 @@ def build_nmr_df(
             ms_summary = pd.DataFrame(
                 get_ms_summary(atoms, euler_convention, references, gradients)
             )
-            if not references:
-                # drop shift column if no references are given
-                ms_summary.drop(columns=["MS_shift"], inplace=True)
 
             df = pd.concat([df, ms_summary], axis=1)
         except RuntimeError:
@@ -628,7 +633,6 @@ def get_ms_summary(
     """
     # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
     iso = MSIsotropy.get(atoms)
-    shift = MSIsotropy.get(atoms, references=references, gradients=gradients)
     aniso = MSAnisotropy.get(atoms)
     red_aniso = MSReducedAnisotropy.get(atoms)
     asymm = MSAsymmetry.get(atoms)
@@ -645,7 +649,6 @@ def get_ms_summary(
     ).T
     ms_summary = {
         "MS_shielding": iso,
-        "MS_shift": shift,
         "MS_anisotropy": aniso,
         "MS_reduced_anisotropy": red_aniso,
         "MS_asymmetry": asymm,
@@ -655,6 +658,9 @@ def get_ms_summary(
         "MS_beta": beta,
         "MS_gamma": gamma,
     }
+    if references:
+        # convert shift from ppm to MHz
+        ms_summary["MS_shift"] = MSShift.get(atoms, references=references, gradients=gradients)
     return ms_summary
 
 
