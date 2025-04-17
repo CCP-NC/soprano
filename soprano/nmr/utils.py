@@ -46,9 +46,33 @@ def _split_species(species: str) -> tuple[int, str]:
         return int(isotope_number), element
 
 
-def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
-    """Sort a list of eigenvalue triplets by varios conventions"""
+def _evals_sort(evals, convention="i", return_indices=False) -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
+    """Sort a list of eigenvalue triplets by various conventions
+
+    The sorting conventions are:
+    - i: increasing order
+    - d: decreasing order
+    - h: Haeberlen order
+    - n: NQR order (absolute values)
+    
+    Args:
+        evals (np.ndarray): Array of eigenvalue triplets to sort.
+        convention (str): The sorting convention to use ('i', 'd', 'h', 'n').
+        return_indices (bool): Whether to return the sorting indices.
+
+        Returns:
+            Union[np.ndarray, tuple[np.ndarray, np.ndarray]]: Sorted eigenvalues, and optionally the sorting indices.
+    """
     evals = np.array(evals)
+    # Handle special case of all eigenvalues being the same (within tolerance)
+    if np.all(np.abs(evals - evals[:, 0:1]) < 1e-16):
+        # Return indices matching the input shape (0,1,2 for each eigenvalue)
+        if not return_indices:
+            return evals
+        else:
+            indices = np.tile(np.arange(evals.shape[1]), (evals.shape[0], 1))
+            return evals, indices
+        
     iso = np.average(evals, axis=1)
 
     if convention in ("i", "d"):
@@ -61,7 +85,7 @@ def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray
 
         # We can warn the user if the isotropic value is not zero
         if np.any(np.abs(iso) > 1e-6):
-            warnings.warn("Isotropic value(s) are not zero but NQR order is requested.\n"
+            warnings.warn(f"Isotropic value(s) are not zero ({iso}) but NQR order is requested.\n"
                 "If you're dealing with an EFG tensor, "
                 "then check it carefully since these should be traceless.\n"
                 "Sorting by absolute values.\n"
