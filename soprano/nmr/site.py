@@ -129,6 +129,22 @@ class Site(BaseModel):
         return species
 
     @property
+    def element(self) -> str:
+        """
+        Return the element symbol of the isotope.
+
+        Converts e.g. 1H to H, 13C to C.
+
+        Returns:
+        str: The element symbol, e.g., 'H', 'C'.
+        """
+        try:
+            _, element = _split_species(self.isotope)
+        except ValueError as e:
+            raise ValueError(f"Error processing isotope ('{self.isotope}'): {e}")
+        return element
+
+    @property
     @check_magnetic_shielding_tensor
     def ms_iso(self):
         return self.ms.isotropy
@@ -237,6 +253,21 @@ class Site(BaseModel):
         """
         return self.model_copy(deep=deep, **kwargs)
 
+    # Method to return a copy of the Site object but replacing the ms tensor with an isotropic version
+    def make_isotropic(self) -> 'Site':
+        """
+        Create a copy of the Site object with the magnetic shielding tensor replaced by its isotropic version.
+
+        Returns:
+        --------
+        Site
+            A new Site object with the isotropic magnetic shielding tensor.
+        """
+        site_copy = self.copy()
+        if site_copy.ms is not None:
+            site_copy.ms = site_copy.ms.make_isotropic_like()
+        return site_copy
+
     # Nice representation of the Site object
     def __repr__(self):
         return (f"Site(label={self.label!r}, "
@@ -312,64 +343,151 @@ class Site(BaseModel):
 
     # INTERFACE METHODS
 
-    def to_mrsimulator(self):
+    def to_mrsimulator(
+            self,
+            include_ms: bool = True,
+            ms_isotropic: bool = False,
+            include_efg: bool = True,
+            include_angles: bool = True,
+            include_ms_angles: Optional[bool] = None,
+            include_efg_angles: Optional[bool] = None,
+            ) -> dict[str, Any]:
         """
         Convert the Site object to a dictionary representation compatible with MRSimulator.
+
+        Parameters:
+        include_ms (bool): If True, include the magnetic shielding tensor in the output.
+        ms_isotropic (bool): If True, only output the isotropic magnetic shielding (no orientation or anisotropy information).
+        include_efg (bool): If True, include the electric field gradient tensor in the output.
+        include_angles (bool): If True, include the Euler angles in the output.
+        include_ms_angles (bool): If True, include the Euler angles for the magnetic shielding tensor.
+                                    Note this overrides include_angles.
+        include_efg_angles (bool): If True, include the Euler angles for the electric field gradient tensor.
+                                    Note this overrides include_angles.
+
+
 
         Returns:
         dict: A dictionary representation of the Site object.
         """
+        # Handle the angle inclusion logic
+        # If the ms and efg angles are not specified, use the include_angles value
+        include_ms_angles = include_ms_angles if include_ms_angles is not None else include_angles
+        include_efg_angles = include_efg_angles if include_efg_angles is not None else include_angles
+
         data = {
             'isotope': self.isotope,
             'label': self.label,
         }
-        if self.ms is not None:
-            isotropic_chemical_shift = self.ms.isotropy
+        if self.ms is not None and include_ms:
+            ms = self.ms.copy()
+            if ms_isotropic:
+                # Replace the MS tensor with its isotropic version
+                ms = ms.make_isotropic_like()
+
             # TODO: what angle conventions are used?
-            euler_angles = self.ms.euler_angles()
+            euler_angles = ms.euler_angles()
             shielding_symmetric = {
-                "zeta": self.ms.reduced_anisotropy, # zeta = lambda_c^(s) = delta_2 - delta_iso
-                "eta": self.ms.asymmetry,
+                "zeta": ms.reduced_anisotropy,
+                "eta": ms.asymmetry}
+            if include_ms_angles:
+                shielding_symmetric.update({
                 "alpha": euler_angles[0],
                 "beta": euler_angles[1],
                 "gamma": euler_angles[2],}
-            data['isotropic_chemical_shift'] = isotropic_chemical_shift
+                )
+            data['isotropic_chemical_shift'] = ms.shift
             data['shielding_symmetric'] = shielding_symmetric
 
-        if self.efg is not None and self.is_quadrupole_active:
+        if self.efg is not None and self.is_quadrupole_active and include_efg:
+            # The Haeberlen ordering convention is used here
+            self.efg.order = TensorConvention.Haeberlen
+
             Cq = self.efg.Cq
             eta = self.efg.asymmetry
             euler_angles = self.efg.euler_angles()
             data['quadrupolar'] = {
                 "Cq": Cq,
-                "eta": eta,
+                "eta": eta,}
+            if include_efg_angles:
+                data['quadrupolar'].update({
                 "alpha": euler_angles[0],
                 "beta": euler_angles[1],
                 "gamma": euler_angles[2],
-            }
+            })
 
         return data
 
-    def to_simpson(self):
+    def to_simpson(
+            self,
+            q_order: Optional[int] = None,
+            include_ms: bool = True,
+            ms_isotropic: bool = False,
+            include_efg: bool = True,
+            include_angles: bool = True,
+            include_ms_angles: Optional[bool] = None,
+            include_efg_angles: Optional[bool] = None,
+            ) -> tuple[str, str]:
         """
         Convert the Site object to a dictionary representation compatible with Simpson.
+
+        Parameters:
+        q_order (int, optional): The order of the quadrupole interaction. If 
+            None, and the site is quadrupole active, the order is set to 2.
+        include_ms (bool): If True, include the magnetic shielding tensor in the output.
+        ms_isotropic (bool): If True, only output the isotropic magnetic shielding (no orientation or anisotropy information).
+        include_efg (bool): If True, include the electric field gradient tensor in the output.
+        include_angles (bool): If True, include the Euler angles in the output. If False, the angles are set to 0.
+        include_ms_angles (bool): If True, include the Euler angles for the magnetic shielding tensor.
+                                    Note this overrides include_angles. If False, the angles are set to 0.
+        include_efg_angles (bool): If True, include the Euler angles for the electric field gradient tensor.
+                                    Note this overrides include_angles. If False, the angles are set to 0.
 
         Returns:
         dict: A dictionary representation of the Site object.
         """
 
+        # Handle the angle inclusion logic
+        # If the ms and efg angles are not specified, use the include_angles value
+        include_ms_angles = include_ms_angles if include_ms_angles is not None else include_angles
+        include_efg_angles = include_efg_angles if include_efg_angles is not None else include_angles
+
+
         ms_block = ""
-        if self.ms is not None:
-            # TODO check simpson euler angle convention here
-            euler_angles = self.ms.euler_angles(convention='zyz', passive=True, degrees=True)
-            ms_block = f"shift {self.index + 1} {self.ms.isotropy}p {self.ms.reduced_anisotropy}p {self.ms.asymmetry} {euler_angles[0]} {euler_angles[1]} {euler_angles[2]}"
+        if self.ms is not None and include_ms:
+            ms = self.ms.copy()
+            ms.order = TensorConvention.Haeberlen
+            if ms_isotropic:
+                # Replace the MS tensor with its isotropic version
+                ms = ms.make_isotropic_like()
+            cs_iso = ms.shift
+            cs_aniso = ms.shift_reduced_anisotropy
+            cs_asymmetry = ms.shift_asymmetry
+            ms_block = f"shift {self.index + 1} {cs_iso}p {cs_aniso}p {cs_asymmetry}"
+            
+            if include_ms_angles:
+                # TODO check simpson euler angle convention here
+                euler_angles = ms.euler_angles(convention='zyz', passive=True, degrees=True)
+            else:
+                euler_angles = (0.0, 0.0, 0.0)
+
+            ms_block += f" {euler_angles[0]} {euler_angles[1]} {euler_angles[2]}"
 
         efg_block = ""
-        if self.efg is not None and self.is_quadrupole_active:
-            # TODO check simpson euler angle convention here
-            euler_angles = self.efg.euler_angles(convention='zyz', passive=True, degrees=True)
-            # TODO check simpson quadrupole order here
-            q_order = 2
-            efg_block = f"quadrupole {self.index + 1} {q_order} {self.efg.Cq} {self.efg.asymmetry} {euler_angles[0]} {euler_angles[1]} {euler_angles[2]}"
+        if self.efg is not None and self.is_quadrupole_active and include_efg:
+            efg = self.efg.copy()
+            # The Haeberlen ordering convention is used here
+            efg.order = TensorConvention.Haeberlen
+            
+            # If q_order is not specified, set it to 2
+            q_order = 2 if q_order is None else q_order
+            
+            efg_block = f"quadrupole {self.index + 1} {q_order} {efg.Cq} {efg.asymmetry}"
+            if include_efg_angles:
+                # TODO check simpson euler angle convention here
+                euler_angles = efg.euler_angles(convention='zyz', passive=True, degrees=True)
+            else:
+                euler_angles = (0.0, 0.0, 0.0)
+            efg_block += f" {euler_angles[0]} {euler_angles[1]} {euler_angles[2]}"
 
         return (ms_block, efg_block)
