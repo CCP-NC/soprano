@@ -128,11 +128,11 @@ class Coupling(BaseModel, ABC):
         return self.model_copy(deep=deep, **kwargs)
     
     @abstractmethod
-    def to_mrsimulator(self) -> dict[str, dict[str, Union[float, np.ndarray]]]:
+    def to_mrsimulator(self, include_angles: bool = True) -> dict[str, dict[str, Union[float, np.ndarray]]]:
         pass
 
     @abstractmethod
-    def to_simpson(self) -> str:
+    def to_simpson(self, include_angles: bool = True) -> str:
         pass
 
 # end class Coupling
@@ -203,8 +203,7 @@ class ISCoupling(Coupling):
 
         """
         jc_evals = self.J_evals
-        jc_evals = _haeb_sort(jc_evals)
-        return _anisotropy(jc_evals)
+        return _anisotropy(_haeb_sort(jc_evals))
 
     @property
     def J_reduced_anisotropy(self):
@@ -213,8 +212,7 @@ class ISCoupling(Coupling):
 
         """
         jc_evals = self.J_evals
-        jc_evals = _haeb_sort(jc_evals)
-        return _anisotropy(jc_evals, reduced=True)
+        return _anisotropy(_haeb_sort(jc_evals), reduced=True)
 
     @property
     def coupling_constant(self):
@@ -326,7 +324,7 @@ class DipolarCoupling(Coupling):
             gamma2=gamma_2,
         )
     
-    def to_mrsimulator(self) -> dict[str, dict[str, Union[float, np.ndarray]]]:
+    def to_mrsimulator(self, include_angles: bool = True) -> dict[str, dict[str, float]]:
         """
         Convert the DipolarCoupling object to a dictionary compatible with MRSimulator.
 
@@ -338,6 +336,11 @@ class DipolarCoupling(Coupling):
         - Coupling constant is reported in Hz
         - Euler angles are in the convention used by the MRSimulator library (TODO: double check this!)
 
+        Args:
+        ----
+        include_angles: bool, optional
+            If True, include the Euler angles in the output dictionary. Default is True.
+
         Returns:
         --------
         dict
@@ -348,23 +351,25 @@ class DipolarCoupling(Coupling):
             - 'gamma': Third Euler rotation angle (radians)
 
         """
-        euler_angles = self.tensor.euler_angles()
-        
-        return {
-            "dipolar": {
-                "D": float(self.coupling_constant),
-                "alpha": float(euler_angles[0]),   
-                "beta": float(euler_angles[1]),    
-                "gamma": float(euler_angles[2]),   
-            }
-        }
+        result = {"dipolar": {"D": float(self.coupling_constant)}}
+        if include_angles:
+            euler_angles = self.tensor.euler_angles()
+            result["dipolar"]["alpha"] = float(euler_angles[0])
+            result["dipolar"]["beta"] = float(euler_angles[1])
+            result["dipolar"]["gamma"] = float(euler_angles[2])
+        return result
     
-    def to_simpson(self) -> str:
+    def to_simpson(self, include_angles: bool = True) -> str:
         """
         Convert the DipolarCoupling object to a string compatible with Simpson.
 
         This method prepares the dipolar coupling tensor information for simulation
         in the Simpson NMR simulation software.
+
+        Args:
+        ----
+        include_angles: bool, optional
+            If True, include the Euler angles in the output string. Default is True.
 
         Returns:
         --------
@@ -372,11 +377,18 @@ class DipolarCoupling(Coupling):
             A string representation of the dipolar coupling tensor in the format used by Simpson.
 
         """
-        # TODO check simpson convention for euler angles
-        euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
-        a, b, c = euler_angles # a should be zero for dipolar couplings in simpson
         i, j = self.site_i, self.site_j
-        return f"dipole {i+1} {j+1} {self.coupling_constant * 2 * np.pi:.6f} {a:.6f} {b:.6f} {c:.6f}"
+        result = f"dipole {i+1} {j+1} {self.coupling_constant * 2 * np.pi:.6f}"
+
+        if include_angles:
+            # TODO check simpson convention for euler angles
+            euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
+            a, b, c = euler_angles # a should be zero for dipolar couplings in simpson
+            result += f" {a:.6f} {b:.6f} {c:.6f}"
+        else:
+            result += " 0 0 0"
+
+        return result
 
 
 
@@ -402,12 +414,22 @@ def dipolar_coupling_from_distance_vector(r: np.ndarray, gamma1, gamma2) -> floa
 
 
 
-def coupling_list_to_mrsimulator(coupling_list: list[Coupling]) -> list[dict[str, Any]]:
+def coupling_list_to_mrsimulator(
+        coupling_list: list[Coupling],
+        include_dipolar_angles: bool = True,
+        include_jcoupling_angles: bool = True,
+        ) -> list[dict[str, Any]]:
     """
     Convert a list of Coupling objects to a dictionary of coupling tensors for MRSimulator.
 
     Args:
         coupling_list: A list of Coupling objects representing inter-site couplings.
+        include_dipolar_angles: bool, optional
+            If True, include the Euler angles in the output dictionary for dipolar couplings.
+            Default is True.
+        include_jcoupling_angles: bool, optional
+            If True, include the Euler angles in the output dictionary for J couplings.
+            Default is True.
 
     Returns:
         A list of dictionaries.
@@ -419,7 +441,14 @@ def coupling_list_to_mrsimulator(coupling_list: list[Coupling]) -> list[dict[str
 
     for coupling in coupling_list:
         site_pair = (coupling.site_i, coupling.site_j)
-        new_coupling_dict = coupling.to_mrsimulator()
+        # check type
+        if coupling.type == "D":
+            include_angles = include_dipolar_angles
+        elif coupling.type == "J":
+            include_angles = include_jcoupling_angles
+        else:
+            raise ValueError(f"Unsupported coupling type: {coupling.type}")
+        new_coupling_dict = coupling.to_mrsimulator(include_angles = include_angles)
         
         # Get the existing dictionary for this site pair, or an empty dict if not exists
         existing_tensor = coupling_tensors.setdefault(site_pair, {})
