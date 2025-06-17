@@ -677,11 +677,11 @@ plot_shielding = click.option(
 
 
 # option to select a subset of atoms
-dip_selection_i = click.option(
-    "--select_i", "-i", "selection_i", type=str, default=None, help=subset_help
+coupling_selection_i = click.option(
+    "--select_i", "selection_i", type=str, default=None, help=subset_help
 )
-dip_selection_j = click.option(
-    "--select_j", "-j", "selection_j", type=str, default=None, help=subset_help
+coupling_selection_j = click.option(
+    "--select_j", "selection_j", type=str, default=None, help=subset_help
 )
 dip_rss_flag = click.option(
     "--rss",
@@ -751,7 +751,7 @@ spinsys_include_dip = click.option(
     help="Include dipolar coupling values in SpinSys output. Default is False.",
 )
 spinsys_include_j = click.option(
-    "--j/--no-j",
+    "--jcoupling/--no-jcoupling",
     "include_j",
     default=False,
     help="Include J coupling values in SpinSys output. Default is False.",
@@ -904,8 +904,8 @@ PLOT_SPECIFIC_OPTIONS = [
 DIP_OPTIONS = [
     isotopes,
     average_group,
-    dip_selection_i,
-    dip_selection_j,
+    coupling_selection_i,
+    coupling_selection_j,
     dip_rss_flag,
     dip_rss_cutoff,
     dip_isonuclear,
@@ -934,8 +934,8 @@ SPINSYS_OPTIONS = [
     spinsys_efg_angles,
     spinsys_dipolar_angles,
     spinsys_jcoupling_angles,
-    dip_selection_i,
-    dip_selection_j,
+    coupling_selection_i,
+    coupling_selection_j,
 ]
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS

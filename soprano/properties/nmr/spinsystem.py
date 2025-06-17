@@ -136,16 +136,40 @@ class NMRSpinSystem(AtomsProperty):
             use_q_isotopes=use_q_isotopes,
         )
 
+        # --- Couplings: ---
+        
+        # If coupling_kwargs has sel_i or sel_j, we handle them explicitly:
+        selection_i = None
+        selection_j = None
+
+        if "sel_i" in coupling_kwargs:
+            selection_i = AtomSelection.from_input(s, coupling_kwargs.pop("sel_i"))
+
+        if selection_i is not None and not isinstance(selection_i, AtomSelection):
+            raise TypeError("sel_i must be an AtomSelection object or a list of indices.")
+
+        if "sel_j" in coupling_kwargs:
+            selection_j = AtomSelection.from_input(s, coupling_kwargs.pop("sel_j"))
+
+        if selection_j is not None and not isinstance(selection_j, AtomSelection):
+            raise TypeError("sel_j must be an AtomSelection object or a list of indices.")
         couplings = []
 
         if include_dipolar:
-            dipolar_couplings = DipolarCouplingList.get(s, isotope_list=isotope_list, **coupling_kwargs)
+            dipolar_couplings = DipolarCouplingList.get(
+                s,
+                isotope_list=isotope_list,
+                sel_i=selection_i,
+                sel_j=selection_j,
+                **coupling_kwargs)
+            
             if dipolar_couplings is not None:
                 couplings.extend(dipolar_couplings)
                 
 
         if include_j:
-            j_couplings = JCouplingList.get(s, isotope_list=isotope_list, **coupling_kwargs)
+            j_couplings = JCouplingList.get(
+                s, isotope_list=isotope_list, **coupling_kwargs)
             if j_couplings is not None:
                 couplings.extend(j_couplings)
 
