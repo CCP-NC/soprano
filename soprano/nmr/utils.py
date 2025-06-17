@@ -28,6 +28,7 @@ from scipy.spatial.transform import Rotation
 
 # Left here for backwards compatibility
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
+from soprano.utils import FloatOrArray
 
 def _split_species(species: str) -> tuple[int, str]:
         """
@@ -110,7 +111,7 @@ def _haeb_sort(evals, return_indices=False):
     return _evals_sort(evals, "h", return_indices)
 
 
-def _anisotropy(haeb_evals, reduced=False):
+def _anisotropy(haeb_evals, reduced=False) -> FloatOrArray:
     """Calculate anisotropy given eigenvalues sorted with Haeberlen
     convention"""
 
@@ -119,7 +120,7 @@ def _anisotropy(haeb_evals, reduced=False):
     return (haeb_evals[:, 2] - (haeb_evals[:, 0] + haeb_evals[:, 1]) / 2.0) * f
 
 
-def _asymmetry(haeb_evals):
+def _asymmetry(haeb_evals) -> FloatOrArray:
     """Calculate asymmetry"""
 
     aniso = _anisotropy(haeb_evals, reduced=True)
@@ -129,7 +130,7 @@ def _asymmetry(haeb_evals):
     return (haeb_evals[:, 1] - haeb_evals[:, 0]) / aniso
 
 
-def _span(evals):
+def _span(evals) -> FloatOrArray:
     """Calculate span
     
     .. math::
@@ -143,7 +144,7 @@ def _span(evals):
     return np.amax(evals, axis=-1) - np.amin(evals, axis=-1)
 
 
-def _skew(evals):
+def _skew(evals) -> FloatOrArray:
     """Calculate skew
 
     .. math::
@@ -170,7 +171,7 @@ def _evecs_2_quat(evecs):
     return [Quaternion.from_matrix(evs.T) for evs in evecs]
 
 
-def _dip_constant(Rij, gi, gj):
+def _dip_constant(Rij, gi, gj) -> FloatOrArray:
     """Dipolar constants for pairs ij, with distances Rij and gyromagnetic
     ratios gi and gj"""
 
@@ -194,7 +195,7 @@ def _dip_tensor(d, r, rotation_axis=None):
     return D
 
 
-def _J_constant(Kij, gi, gj):
+def _J_constant(Kij, gi, gj) -> FloatOrArray:
     """J coupling constants for pairs ij, with reduced constant Kij and
     gyromagnetic ratios gi and gj"""
 
@@ -474,7 +475,7 @@ def _normalise_euler_angles(
     return np.array([alpha, beta, gamma])
 
 
-def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False):
+def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False) -> np.ndarray:
     """
     Find the equivalent Euler angles for a given set of Euler angles.
 

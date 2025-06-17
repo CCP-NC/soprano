@@ -29,9 +29,10 @@ import numpy as np
 from soprano.data.nmr import  _get_isotope_list, get_isotope_list_from_species
 from soprano.nmr.site import Site
 from soprano.nmr.coupling import DipolarCoupling as SiteDipolarCoupling
+from soprano.nmr.coupling import JCoupling as SiteJCoupling
 from soprano.nmr.spin_system import SpinSystem
 from soprano.properties import AtomsProperty
-from soprano.properties.nmr import MSTensor, EFGTensor, DipolarCouplingList
+from soprano.properties.nmr import MSTensor, EFGTensor, DipolarCouplingList, JCouplingList
 from soprano.selection import AtomSelection
 
 
@@ -143,8 +144,10 @@ class NMRSpinSystem(AtomsProperty):
                 couplings.extend(dipolar_couplings)
                 
 
-        # TODO handle J couplings
-
+        if include_j:
+            j_couplings = JCouplingList.get(s, isotope_list=isotope_list, **coupling_kwargs)
+            if j_couplings is not None:
+                couplings.extend(j_couplings)
 
         # Return the SpinSystem object
         return SpinSystem(sites=sites, couplings=couplings)
@@ -342,7 +345,55 @@ def get_dipolar_couplings(
         rotation_axis=rotation_axis,
         isonuclear=isonuclear,
     )    
-    
+
+
+def get_j_couplings(
+        atoms: Atoms,
+        sel_i: Optional[Union[AtomSelection, list[int]]] = None,
+        sel_j: Optional[Union[AtomSelection, list[int]]] = None,
+        tag: str = 'isc',
+        isotopes: Optional[dict[str, int]] = None,
+        isotope_list: Optional[list[Optional[int]]] = None,
+        self_coupling: bool = False,
+    ) -> Optional[list[SiteJCoupling]]:
+    """
+    Extract a list of JCoupling objects from an Atoms object.
+
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the J coupling. By
+                                      default is None (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the J coupling with
+                                      the ones in sel_i. By default is None
+                                      (= same as sel_i).
+        tag (str): tag to use for the J coupling. Magres files
+                 usually contain isc, isc_spin, isc_fc, isc_orbital_p and
+                 isc_orbital_d. Default is isc.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised. e.g. {'H': 2, 'C': 13}
+        isotope_list (list): list of isotopes to use for the J coupling.
+                             If None, the default isotopes for the elements
+                             in the system are used. If provided, it should
+                             match the number of sites in the system.
+      self_coupling (bool): if True, include coupling of a nucleus with its
+                            own closest periodic copy. Otherwise excluded.
+                            Default is False.
+
+    Returns:
+      j_list (list): List of `JCoupling` objects.
+    """
+
+    return JCouplingList.get(
+        atoms,
+        sel_i=sel_i,
+        sel_j=sel_j,
+        tag=tag,
+        isotopes=isotopes,
+        isotope_list=isotope_list,
+        self_coupling=self_coupling,
+    )
 
 
 def get_spin_system(
