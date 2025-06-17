@@ -22,8 +22,9 @@ NMR tensor as well as its representation in multiple conventions
 import warnings
 from collections import defaultdict
 from enum import Enum
-from typing import Any, NamedTuple, Optional, Tuple, TypeVar, Union
+from typing import Any, Literal, NamedTuple, Optional, Tuple, TypeVar, Union
 
+from numpy.typing import NDArray
 import numpy as np
 from ase.quaternions import Quaternion
 from numpy.lib.mixins import NDArrayOperatorsMixin
@@ -293,14 +294,18 @@ class NMRTensor(NDArrayOperatorsMixin):
 
         return self._sph.copy()
 
-    def euler_angles(self, convention: str = "zyz", passive: bool = False, degrees=False) -> np.ndarray:
-        """Euler angles of the Principal Axis System
-
+    def euler_angles(
+            self,
+            convention: Literal["zyz", "zxz"] = "zyz",
+            passive: bool = False,
+            degrees: bool = False
+        ) -> NDArray[np.float64]:
+        """
         Return Euler angles of the PAS for this tensor in the
         required convention (currently supported: zyz, zxz).
 
         Args:
-            convention {str} -- Euler angles convention to use
+            convention {Literal["zyz", "zxz"]} -- Euler angles convention to use
             (default: {'zyz'})
             passive {bool} -- Whether to return the passive Euler angles
             (default: {False})
