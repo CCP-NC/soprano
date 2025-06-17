@@ -71,8 +71,8 @@ def spinsys(
     include_efg_angles,
     include_dipolar_angles,
     include_jcoupling_angles,
-    selection_i,  # custom dipolar selection i
-    selection_j,  # custom dipolar selection j
+    selection_i,  # custom coupling selection i
+    selection_j,  # custom coupling selection j
     isotopes,
     references,
     gradients,
@@ -139,7 +139,7 @@ def spinsys(
     # --- References: ---
     # If the references is an empty dict or doesn't contain the set(symbols),
     # then raise an error explaining how to set the references
-    if not references or not set(symbols).issubset(references.keys()):
+    if (not references or not set(symbols).issubset(references.keys())) and include_ms:
         logger.error(
             f"References dictionary provided ({references}) does not contain all references for all the species" \
             f" in the (sub)system:  {set(symbols)} \n"
