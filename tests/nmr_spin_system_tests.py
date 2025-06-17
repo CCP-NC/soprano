@@ -13,13 +13,13 @@ import numpy as np
 from ase import io
 
 from soprano.data.nmr import EFG_TO_CHI, nmr_gamma
-from soprano.nmr.coupling import DipolarCoupling
+from soprano.nmr.coupling import DipolarCoupling, ISCoupling
 from soprano.nmr.spin_system import SpinSystem
 from soprano.nmr.site import Site
 from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor
 from soprano.properties.nmr import DipolarCoupling as DipolarCouplingProperty
 from soprano.properties.nmr import DipolarTensor, NMRSpinSystem, get_sites
-from soprano.properties.nmr import DipolarCouplingList
+from soprano.properties.nmr import DipolarCouplingList, JCouplingList
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -550,50 +550,144 @@ class TestDipolarCoupling(unittest.TestCase):
         self.assertEqual(parts[5], "0")
         self.assertEqual(parts[6], "0")
 
-# class TestISCoupling(unittest.TestCase):
+class TestISCoupling(unittest.TestCase):
 
-#     def setUp(self):
-#         k = np.array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]).reshape(3, 3)
-#         self.coupling = ISCoupling(
-#             site_i=1,
-#             site_j=2,
-#             species1='1H',
-#             species2='13C',
-#             gamma1=42.0, # in MHz/T
-#             gamma2=24.0, # in MHz/T
-#             tensor=NMRTensor(k),
-#             tag='test_tag',
-#             euler_convention='zyz',
-#         )
+    def setUp(self):
+        """
+        For this K tensor (from a CASTEP magres file:)
+        isc H            1 C            1          2.4613771018822995E+01         -1.7689090415937836E+00         -7.3815468058327873E+00         -1.7342375535431414E+00          3.3870555727450665E+01         -1.5523010487085713E+00         -7.5180123793714939E+00         -1.6000769431832076E+00          2.8229351540541071E+01
+        
+        We get this magres_old block (again this is the K tensor, not the J tensor!):
+        J-coupling Total
 
-#     def test_coupling_strength(self):
-#         self.assertEqual(self.coupling.coupling_constant, 100.0)
+            24.6138     -1.7689     -7.3815
+            -1.7342     33.8706     -1.5523
+            -7.5180     -1.6001     28.2294
 
-#     def test_euler_angles(self):
-#         expected_angles = np.array([0, 0, 0])
-#         np.testing.assert_array_equal(self.coupling.euler_angles(), expected_angles)
+        C    1 Isotropic:       28.9046    10^19kg m^-2 s^-2 A^-2
 
-#     def test_site_i(self):
-#         self.assertEqual(self.coupling.site_i, 1)
+        C    1 Eigenvalue  sigma_xx      18.3983
+        C    1 Eigenvector sigma_xx       0.7762      0.1502      0.6123
+        C    1 Eigenvalue  sigma_yy      33.9880
+        C    1 Eigenvector sigma_yy      -0.5846      0.5353      0.6097
+        C    1 Eigenvalue  sigma_zz      34.3274
+        C    1 Eigenvector sigma_zz       0.2361      0.8312     -0.5033
 
-#     def test_site_j(self):
-#         self.assertEqual(self.coupling.site_j, 2)
+        C    1 Anisotropy:       8.1343 # TODO: check this value...
 
-#     def test_species1(self):
-#         self.assertEqual(self.coupling.species1, 'H')
+        And from the .castep file (J-coupling values):
+        |--------------------------------------------------------------------------------|
+        |     Nucleus                               J-coupling values                    |
+        |  Species          Ion     FC           SD         PARA       DIA       TOT(Hz) |
+        |** H                 1     --.--       --.--       --.--      --.--       --.-- |
+        |   C                 1     85.44        0.17        1.18       0.53       87.32 |
+        |                                                                                |
+        |** Signifies Perturbing Nucleus A of coupling J_AB                              |
+        ==================================================================================
 
-#     def test_species2(self):
-#         self.assertEqual(self.coupling.species2, 'C')
+        ================================================================================
+                    Bond                          Length    1st image    J_iso    J_aniso
+                                                    (A)         (A)       (Hz)       (Hz)
+        ================================================================================
+                    H 1 -- C 1                  1.0944     4.4757      87.32      24.57 # TODO: check the aniso value
 
-#     def test_tensor(self):
-#         np.testing.assert_array_equal(self.coupling.tensor.data, np.array([1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]).reshape(3, 3))
+        """
+        # From the ethanol test case H-C coupling
+        k = np.array([[ 2.4613771018822995E+01, -1.7689090415937836E+00, -7.3815468058327873E+00],
+                      [-1.7342375535431414E+00, 3.3870555727450665E+01, -1.5523010487085713E+00],
+                      [-7.5180123793714939E+00, -1.6000769431832076E+00, 2.8229351540541071E+01]])
+        self.k = k
+        self.coupling = ISCoupling(
+            site_i=0,
+            site_j=6,
+            species1='1H',
+            species2='13C',
+            tensor=NMRTensor(k),
+            tag='test_tag',
+        )
 
-#     def test_tag(self):
-#         self.assertEqual(self.coupling.tag, 'test_tag')
+        self.ref_isotropic_J = 87.32260275
+        self.ref_anisotropy = -47.61034819209813
+        self.ref_reduced_anisotropy = -31.74023212806542
+        self.ref_asymmetry = 0.03230181862060256
 
-#     def test_euler_convention(self):
-#         self.assertEqual(self.coupling.euler_convention, 'zyz')
 
+
+    # def test_euler_angles(self):
+        # expected_angles = np.array([0, 0, 0])
+        # np.testing.assert_array_equal(self.coupling.euler_angles(), expected_angles)
+
+    def test_site_i(self):
+        self.assertEqual(self.coupling.site_i, 0)
+
+    def test_site_j(self):
+        self.assertEqual(self.coupling.site_j, 6)
+
+    def test_species1(self):
+        self.assertEqual(self.coupling.species1, '1H')
+
+    def test_species2(self):
+        self.assertEqual(self.coupling.species2, '13C')
+
+    def test_tensor(self):
+        np.testing.assert_array_equal(self.coupling.tensor.data, self.k)
+
+    def test_tag(self):
+        self.assertEqual(self.coupling.tag, 'test_tag')
+
+    def test_coupling_strength(self):
+        self.assertAlmostEqual(self.coupling.coupling_constant, self.ref_isotropic_J, places=6)
+
+    def test_asymmetry(self):
+        """Test the asymmetry parameter of the ISCoupling"""
+        self.assertAlmostEqual(self.coupling.J_asymmetry, self.ref_asymmetry, places=6)
+
+    def test_anisotropy(self):
+        """Test the anisotropy parameter of the ISCoupling
+        
+        Note that CASTEP sorts the K eigenvalues in abs ascending order, so the
+        anisotropy is different to the one calculated here, following the Haeberlen convention.
+        """
+        self.assertAlmostEqual(self.coupling.J_anisotropy, self.ref_anisotropy, places=6)
+    def test_reduced_anisotropy(self):
+        """Test the reduced anisotropy of the ISCoupling"""
+        self.assertAlmostEqual(self.coupling.J_reduced_anisotropy, self.ref_reduced_anisotropy, places=6)
+
+    def test_to_mrsimulator(self):
+        """Test the to_mrsimulator method of ISCoupling"""
+        mrsimulator_dict = self.coupling.to_mrsimulator()
+        # Check the structure of the output
+        self.assertIn('isotropic_j', mrsimulator_dict)
+        self.assertIn('zeta', mrsimulator_dict['j_symmetric'])
+        self.assertIn('eta', mrsimulator_dict['j_symmetric'])
+        self.assertIn('alpha', mrsimulator_dict['j_symmetric'])
+        self.assertIn('beta', mrsimulator_dict['j_symmetric'])
+        self.assertIn('gamma', mrsimulator_dict['j_symmetric'])
+        # Check the isotropic J value
+        self.assertAlmostEqual(mrsimulator_dict['isotropic_j'], self.ref_isotropic_J, places=6)
+        self.assertAlmostEqual(mrsimulator_dict['j_symmetric']['zeta'], self.ref_reduced_anisotropy, places=6)
+        self.assertAlmostEqual(mrsimulator_dict['j_symmetric']['eta'], self.ref_asymmetry, places=6)
+
+        # TODO: add Euler angle checks
+
+    def test_to_simpson(self):
+        """Test the to_simpson method of ISCoupling"""
+        simpson_str = self.coupling.to_simpson()
+        # Check the format of the string:
+        # jcoupling i j Jiso_ij Janiso_ij eta_ij alpha beta gamma
+        # NB Simpson uses 1-based indexing, so site_i=0 becomes 1, site_j=6 becomes 7
+        self.assertTrue(simpson_str.startswith("jcoupling 1 7"))
+        # The string should have 9 parts
+        parts = simpson_str.split()
+        self.assertEqual(len(parts), 9)
+
+        # Isotropic J value
+        self.assertAlmostEqual(float(parts[3]), self.ref_isotropic_J, places=6)
+
+        # Anisotropy value
+        self.assertAlmostEqual(float(parts[4]), self.ref_anisotropy, places=6)
+
+        # TODO: add checks for angles
 
 
 class TestSpinSystem(unittest.TestCase):
@@ -616,7 +710,10 @@ class TestSpinSystem(unittest.TestCase):
 
         self.sites = get_sites(self.atoms, isotopes=self.isotopes)
 
-        self.couplings = DipolarCouplingList.get(self.atoms, isotopes=self.isotopes, self_coupling=False)
+        self.dipcouplings = DipolarCouplingList.get(self.atoms, isotopes=self.isotopes, self_coupling=False)
+        self.jcouplings = JCouplingList.get(self.atoms, isotopes=self.isotopes, self_coupling=False)
+
+        self.couplings = self.dipcouplings + self.jcouplings
 
 
     def test_spin_system(self):
@@ -664,7 +761,7 @@ class TestSpinSystem(unittest.TestCase):
     def test_spin_system_get_couplings(self):
         spin_system = SpinSystem(sites=self.sites, couplings=self.couplings)
         couplings = spin_system.get_couplings(0, 1)
-        self.assertEqual(len(couplings), 1)
+        self.assertEqual(len(couplings), 2) # One dipolar and one J-coupling
         self.assertEqual(couplings[0].site_i, 0)
         self.assertEqual(couplings[0].site_j, 1)
 
@@ -699,18 +796,16 @@ class TestSpinSystem(unittest.TestCase):
         
 
         spin_system_manual = SpinSystem(sites = self.sites, couplings = self.couplings)
-        spin_system_prop = NMRSpinSystem.get(self.atoms, include_dipolar = True)
+        spin_system_prop = NMRSpinSystem.get(self.atoms, include_dipolar = True, include_j = True)
         self.assertEqual(spin_system_manual, spin_system_prop)
 
     def test_spin_system_subsystem(self):
         from soprano.selection import AtomSelection
 
-        spin_system_all = NMRSpinSystem.get(self.atoms, include_dipolar = True)
         sel = AtomSelection.from_element(self.atoms, 'H')
-        spin_system_sel = NMRSpinSystem.get(sel.subset(self.atoms), include_dipolar = True)
+        spin_system_sel = NMRSpinSystem.get(sel.subset(self.atoms), include_dipolar = True, include_j = True)
 
         # Convert to dictionaries and compare
-        all_dict = spin_system_all.model_dump()
         sel_dict = spin_system_sel.model_dump()
 
         # Check that the sites are all H

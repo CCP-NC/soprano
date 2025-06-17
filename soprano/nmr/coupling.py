@@ -28,12 +28,14 @@ from abc import ABC, abstractmethod
 from typing import Any, Literal, Optional, Union
 
 import numpy as np
+from numpy.typing import NDArray
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from soprano.data.nmr import nmr_gamma
 from soprano.nmr.tensor import NMRTensor
 from soprano.nmr.utils import (
     _anisotropy,
+    _asymmetry,
     _dip_constant,
     _dip_tensor,
     _haeb_sort,
@@ -161,7 +163,7 @@ class ISCoupling(Coupling):
     type: str = "J" # J-coupling
 
     @property
-    def J_evals(self):
+    def J_evals(self) -> NDArray[np.float64]:
         """
         Produces the eigenvalues of the J-coupling tensor for the pair of nuclei
         in the system. The J coupling for a pair of nuclei i and j is defined as:
@@ -176,11 +178,12 @@ class ISCoupling(Coupling):
 
         """
         evals = self.tensor.eigenvalues  # eigenvalues of the IScoupling tensor.
-
+        if evals.size != 3:
+            raise ValueError("J-coupling tensor must have exactly 3 eigenvalues.")
         return _J_constant(evals, self.gamma1, self.gamma2)
 
     @property
-    def J_eigenvectors(self):
+    def J_eigenvectors(self) -> NDArray[np.float64]:
         """
         The eigenvectors of the J-coupling tensor for the pair of nuclei in the system
         - these are the same as the eigenvectors J coupling reduced tensor found in a .magres file.
@@ -189,45 +192,151 @@ class ISCoupling(Coupling):
         return self.tensor.eigenvectors
 
     @property
-    def Jisotropy(self):
+    def Jisotropy(self) -> float:
         """
         The isotropic J-coupling constant for the pair of nuclei in the system.
 
         """
-        return np.average(self.J_evals)
+        jc_evals = self.J_evals
+        # Explicitly convert to python float to avoid type issues (.item())
+        return np.mean(jc_evals).item()
 
     @property
-    def J_anisotropy(self):
+    def J_anisotropy(self) -> float:
         """
         The anisotropic J-coupling constant for the pair of nuclei in the system.
 
         """
         jc_evals = self.J_evals
-        return _anisotropy(_haeb_sort(jc_evals))
+        return _anisotropy(_haeb_sort([jc_evals]))[0]
 
     @property
-    def J_reduced_anisotropy(self):
+    def J_reduced_anisotropy(self) -> float:
         """
         The reduced anisotropic J-coupling constant for the pair of nuclei in the system.
 
         """
         jc_evals = self.J_evals
-        return _anisotropy(_haeb_sort(jc_evals), reduced=True)
+        return _anisotropy(_haeb_sort([jc_evals]), reduced=True)[0]
 
     @property
-    def coupling_constant(self):
+    def J_asymmetry(self) -> float:
+        """
+        The asymmetry parameter for the pair of nuclei in the system.
+
+        """
+        jc_evals = self.J_evals
+        return _asymmetry(_haeb_sort([jc_evals]))[0]
+
+    @property
+    def coupling_constant(self) -> float:
         return self.Jisotropy
 
-    def to_mrsimulator(self):
-        raise NotImplementedError("to_mrsimulator method not implemented for ISCoupling objects")
+    def to_mrsimulator(
+            self,
+            include_angles: bool = True
+            ) -> dict[str, Union[tuple[int, int], float, dict[str, float]]]:
+        """
+        The MRSimulator format expects the J-coupling tensor 
+        as a dict to be something like this:
+        {
+            site_index=[0, 1],
+            isotropic_j=15.0,  # in Hz
+            j_symmetric={
+                zeta=12.12,  # in Hz
+                eta=0.82,
+                alpha=2.45,  # in radians
+                beta=1.75,  # in radians
+                gamma=0.15,  # in radians
+            }
+        }
 
-    def to_simpson(self):
-        raise NotImplementedError("to_simpson method not implemented for ISCoupling objects")
+        Args:
+            include_angles: bool, optional
+                If True, include the Euler angles in the output. Default is True.
 
+        Returns:
+        -------
+        dict
+            A dictionary containing the J-coupling tensor parameters for MRSimulator.
+        Notes:
+        -----
+        - The isotropic J-coupling constant is reported in Hz.
+        - The J-coupling tensor is represented in a symmetric form with the parameters zeta, eta, alpha, beta, and gamma.
+        - The Euler angles are in radians.
+        - The site_index is a list of two integers representing the indices of the coupled sites.
+        - The zeta parameter is the reduced anisotropic J-coupling constant.
+        - The eta parameter is asymmetry parameter of the J-coupling tensor.
+        - The alpha, beta, and gamma parameters are the Euler angles of the J-coupling tensor in radians.
+        """
+        angles = {}
+        if include_angles:
+            euler_angles = self.euler_angles()
+            angles = {
+                "alpha": euler_angles[0],
+                "beta": euler_angles[1],
+                "gamma": euler_angles[2]
+            }
+
+        j_symmetric = {
+            "zeta": self.J_reduced_anisotropy,
+            "eta": self.J_asymmetry,
+            **angles
+        }
+
+        return {
+            "site_index": (self.site_i, self.site_j),
+            "isotropic_j": self.Jisotropy,
+            "j_symmetric": j_symmetric
+        }
+
+    def to_simpson(self, include_angles: bool = True) -> str:
+        """
+        Convert the J-coupling tensor to the Simpson format.
+
+        The expected format for Simpson is:
+        ```
+        jcoupling i j Jiso_ij Janiso_ij eta_ij alpha beta gamma
+        ```
+        where:
+        - `i` and `j` are the indices of the coupled sites (1-based indexing).
+        - `Jiso_ij` is the isotropic J-coupling constant in Hz.
+        - `Janiso_ij` is the reduced anisotropic J-coupling constant in Hz.
+        - `eta_ij` is the asymmetry parameter of the J-coupling tensor.
+        - `alpha`, `beta`, and `gamma` are the Euler angles of the J-coupling tensor in radians.
+
+        Args:
+            include_angles: bool, optional
+                If True, include the Euler angles in the output. Default is True.
+                If False, the angles will be set to zero.
+
+        Returns:
+            str: The J-coupling tensor in the Simpson format.
+        """
+        EULER_ANGLE_CONVENTION = 'zyz'  # Simpson uses zyz convention for Euler angles
+        EULER_ANGLE_IS_PASSIVE = True  # Simpson uses passive convention for Euler angles
+        EULER_ANGLE_IS_DEGREES = True  # Simpson uses degrees for Euler angles
+
+        angles = [0.0, 0.0, 0.0]  # Default angles if not included
+        if include_angles:
+            euler_angles = self.euler_angles(
+                convention=EULER_ANGLE_CONVENTION,
+                passive=EULER_ANGLE_IS_PASSIVE,
+                degrees=EULER_ANGLE_IS_DEGREES
+            )
+            angles = [euler_angles[0], euler_angles[1], euler_angles[2]]
+        # Format the output string
+        return (
+            f"jcoupling {self.site_i + 1} {self.site_j + 1} "
+            f"{self.Jisotropy:.6f} "
+            f"{self.J_anisotropy:.6f} "
+            f"{self.J_asymmetry:.6f} "
+            f"{angles[0]:.6f} {angles[1]:.6f} {angles[2]:.6f}"
+        )
 # end class ISCoupling
 
 # Alias of ISCoupling: JCoupling ?
-# JCoupling = ISCoupling
+JCoupling = ISCoupling
 
 
 class DipolarCoupling(Coupling):
@@ -351,12 +460,12 @@ class DipolarCoupling(Coupling):
             - 'gamma': Third Euler rotation angle (radians)
 
         """
-        result = {"dipolar": {"D": float(self.coupling_constant)}}
+        result = {"dipolar": {"D": self.coupling_constant}}
         if include_angles:
             euler_angles = self.tensor.euler_angles()
-            result["dipolar"]["alpha"] = float(euler_angles[0])
-            result["dipolar"]["beta"] = float(euler_angles[1])
-            result["dipolar"]["gamma"] = float(euler_angles[2])
+            result["dipolar"]["alpha"] = euler_angles[0]
+            result["dipolar"]["beta"] = euler_angles[1]
+            result["dipolar"]["gamma"] = euler_angles[2]
         return result
     
     def to_simpson(self, include_angles: bool = True) -> str:

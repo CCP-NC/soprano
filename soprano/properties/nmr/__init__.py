@@ -46,6 +46,8 @@ from soprano.properties.nmr.efg import (
 from soprano.properties.nmr.isc import (
     JCDiagonal,
     JCIsotropy,
+    JCEuler,
+    JCouplingList,
 )
 from soprano.properties.nmr.ms import (
     MSAnisotropy,
