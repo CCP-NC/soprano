@@ -359,19 +359,23 @@ df_sort_order = click.option(
 )
 # dictionary option to specify reference for each element
 references = click.option(
+    "--ref",
     "--references",
+    "references",
     callback=keyvalue_parser,
     default="",
     help="Reference shielding for each element (in ppm). "
-    "The format is ``--references C:170,H:123``. ",
+    "The format is ``--ref C:170,H:123``. ",
 )
 gradients = click.option(
+    "--grad",
     "--gradients",
+    "gradients",
     callback=keyvalue_parser,
     default="",
     help="Reference shielding gradients for each element. "
     "Defaults to -1 for all elements. Set it like this: "
-    "``--gradients H:-1,C:-0.97``. ",
+    "``--grad H:-1,C:-0.97``. ",
 )
 # TODO: have an option to set a file/env variable for the references...
 # flag to include certain columns only
