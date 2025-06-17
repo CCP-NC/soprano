@@ -153,6 +153,44 @@ Here are some common examples:
             seedname.magres
     ```
 
+## Spin Systems
+The `spinsys` subcommand can be used to extract spin systems from a magres file. You can see the full help by running `soprano spinsys --help`. 
+If you include the magnetic shielding information, you have to specify the shielding reference values for each isotope you want to include in the spin system.
+
+Here are some examples of how you might use this command:
+
+* Extract a spin system in Simpson format for all the H sites in the magres file:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30
+    ```
+
+* Extract a spin system in MRSimulator format for all the H sites in the magres file:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 -f mrsimulator
+    ```
+
+* Extract a set of individual spin systems for each of the H sites in the magres file, outputting to separate files:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --split
+    ```
+* Include the dipolar couplings in the spin system output:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --dip
+    ```
+* Include only the dipolar couplings between the C and H sites in the spin system output:
+
+    ```bash
+    soprano spinsys seedname.magres -s H.1-4 --ref H:30 --dip --select_i C --select_j H
+    ```
+* Set the isotope to use for the spin system:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 -i 2H
+    ```
 
 
 ## Dipolar Couplings
