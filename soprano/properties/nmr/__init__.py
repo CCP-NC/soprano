@@ -65,5 +65,6 @@ from soprano.properties.nmr.spinsystem import (
     NMRSpinSystem,
     get_sites,
     get_dipolar_couplings,
+    get_j_couplings,
     get_spin_system,
 )
