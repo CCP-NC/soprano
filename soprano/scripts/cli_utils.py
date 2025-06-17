@@ -763,13 +763,12 @@ spinsys_include_dip = click.option(
     default=False,
     help="Include dipolar coupling values in SpinSys output. Default is False.",
 )
-# Not yet implemented J coupling
-# spinsys_include_j = click.option(
-#     "--j/--no-j",
-#     "include_j",
-#     default=False,
-#     help="Include J coupling values in SpinSys output. Default is False.",
-# )
+spinsys_include_j = click.option(
+    "--j/--no-j",
+    "include_j",
+    default=False,
+    help="Include J coupling values in SpinSys output. Default is False.",
+)
 # Treat MS as isotropic?
 spinsys_ms_isotropic = click.option(
     "--ms-iso",
@@ -942,6 +941,7 @@ SPINSYS_OPTIONS = [
     spinsys_include_ms,
     spinsys_include_efg,
     spinsys_include_dip,
+    spinsys_include_j,
     spinsys_ms_isotropic,
     spinsys_q_order,
     spinsys_angles,

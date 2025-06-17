@@ -461,16 +461,22 @@ class SpinSystem(BaseModel):
                 ))
         dipolar_string = "\n".join(dipolar_blocks)
 
+        jcouping_blocks = []
+        for coupling in self.couplings:
+            if coupling.type == "J":
+                jcouping_blocks.append(coupling.to_simpson(
+                    include_angles=include_jcoupling_angles,
+                ))
+        jcouping_string = "\n".join(jcouping_blocks)
+
         # Combine the header and blocks into a formatted string
         output_string = f"""spinsys {{
 channels {" ".join(channels)}
 nuclei {" ".join(nuclei)}
-
 {ms_string}
-
 {efg_string}
-
 {dipolar_string}
+{jcouping_string}
 }}
 """
         # Trim blank lines from the end of the string
