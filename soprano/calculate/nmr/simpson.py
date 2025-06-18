@@ -21,6 +21,7 @@ Classes and functions for interfacing with the SIMPSON spin dynamics software.
 
 import re
 import warnings
+warnings.filterwarnings("always", category=DeprecationWarning, module="soprano")
 from collections import namedtuple
 
 import numpy as np
@@ -120,6 +121,7 @@ def write_spinsys(
         "SpinSystem interface under the hood. "
         "See the NMR spin system tutorial for more information.",
         DeprecationWarning,
+        stacklevel=2,
     )
 
     # Start by creating a proper isotope_list
