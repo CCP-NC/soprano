@@ -236,7 +236,7 @@ def nmr_extract_multi(
             logger.error(
                 f"File {fname} has no {' '.join(properties)} data to extract. Skipping."
             )
-            return
+            continue
 
         atoms = nmr_extract_atoms(
             atoms,
@@ -278,6 +278,14 @@ def nmr_extract_multi(
             essential_columns=NMR_COLUMN_ALIASES["essential"],
             logger=logger,
         )
+
+        # If length of df is 0, we skip this file
+        if len(df) == 0:
+            logger.warning(
+                f"No results found for {fname}.\n "
+                "Try removing filters/checking the file contents."
+            )
+            continue
 
         # ----- atoms object manipulation -----
         # only keep the atoms that are in the dataframe (based on tag)
