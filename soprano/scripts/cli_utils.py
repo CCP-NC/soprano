@@ -1080,7 +1080,8 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
         # group_tags = np.ones((len(xinds), n), dtype=int)
         seen_tags = []
         for ix, xind in enumerate(xinds):
-            group = list(np.where(bmat[xind][hinds] == 1)[0])
+            bonded_hinds = np.where(bmat[xind][hinds] == 1)[0]
+            group = list(hinds[bonded_hinds])
             assert len(group) == n
             match = []
             if len(seen_tags) > 0:
