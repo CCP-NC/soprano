@@ -27,6 +27,8 @@ from ase.data import atomic_numbers
 # Internal imports
 from soprano import utils
 from soprano.data import vdw_radii
+from soprano.selection import AtomSelection
+from soprano.properties.linkage import Bonds
 from soprano.rnd import Random, random_combination, random_product
 
 
