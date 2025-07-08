@@ -231,14 +231,14 @@ def additionGen(
     n=1,
     add_r=1.2,
     accept=None,
-    bonds = None,
+    bonds=None,
     rep_alg_kwargs={},
-    random = False,
+    random=False,
     max_attempts=0):
     """Generator function to create multiple structures with an atom of a
     given element added in the existing cell. The atoms will be attached to
     the atoms passed in the to_addition selection. If none is passed,
-    all atoms will be additioned in turn. Multiple defects can be included, in
+    all atoms will be considered for addition. Multiple atoms can be included, in
     which case all permutations will be generated. The algorithm will try
     adding the atom in the direction that seems most compatible with all the
     already existing bonds. If multiple directions satisfy the condition, they
@@ -282,63 +282,131 @@ def additionGen(
     |                                structures with all possible additions.
     """
 
+    # Input validation
+    if n <= 0:
+        raise ValueError("Number of atoms to add must be positive")
+    if add_r <= 0:
+        raise ValueError("Addition radius must be positive")
+    
+    # Default to all atoms if no selection is provided
     if to_addition is None:
         to_addition = AtomSelection.all(struct)
 
-    # Compute bonds
+    # Empty selection check
+    if len(to_addition.indices) == 0:
+        raise ValueError("The to_addition selection is empty")
+    
+    # Check if n is larger than the number of atoms to add to
+    if n > len(to_addition.indices):
+        raise ValueError(f"Number of atoms to add ({n}) exceeds the number of atoms in the selection ({len(to_addition.indices)})")
+
+    # Compute bonds if not provided
     if bonds is None:
         bonds = Bonds.get(struct)
 
     cell = struct.get_cell()
     pos = struct.get_positions()
 
-    # Separate bonds by atoms
+    # Separate bonds by atoms - only consider atoms in the to_addition selection
     atom_bonds = [[] if i in to_addition.indices else None for i in range(len(struct))]
+    
+    # Process each bond and store the bond vectors
     for b in bonds:
-        v = pos[b[1]] - pos[b[0]] + np.dot(b[2], cell)
-        try:
-            atom_bonds[b[0]].append(v.copy())
-        except AttributeError:
-            pass
-        try:
-            atom_bonds[b[1]].append(-v.copy())
-        except AttributeError:
-            pass
+        i, j, cell_shift, bond_length = b
+        # Calculate the bond vector
+        v = pos[j] - pos[i] + np.dot(cell_shift, cell)
+        
+        # Store bond vector for first atom if it's in the selection
+        if atom_bonds[i] is not None:
+            atom_bonds[i].append(v.copy())
+            
+        # Store negative bond vector for second atom if it's in the selection
+        if atom_bonds[j] is not None:
+            atom_bonds[j].append(-v.copy())
 
     # Compute possible attachment points for each atom
     attach_v = [None] * len(struct)
     for i, bset in enumerate(atom_bonds):
         if bset is None:
             continue
+            
         if len(bset) == 0:
+            # For atoms with no bonds, generate a random normalized direction
             rndv = Random.random((1, 3)) - 0.5
             rndv /= np.linalg.norm(rndv, axis=1)[:, None]
             attach_v[i] = rndv
         else:
+            # For atoms with bonds, use the repulsion algorithm to find suitable attachment points
             this_v = utils.rep_alg(bset, **rep_alg_kwargs)
-            # print(f'Atom {i} has {len(bset)} bonds and {len(this_v)} possible attachment points')
             attach_v[i] = this_v
-    attach_v = np.array(attach_v)
+    
+    # Remove None entries from attach_v but store the indices of non-None entries
+    attach_v_indices = [i for i, v in enumerate(attach_v) if v is not None]
+    attach_v = [v for v in attach_v if v is not None]
 
-    addconfs = itertools.combinations(to_addition.indices, n)
+    # Make sure that the number of attachment points is sufficient
+    if len(attach_v) < n:
+        raise ValueError(f"Not enough attachment points available (found {len(attach_v)}, needed {n})")
 
-    for ac in addconfs:
+    # Check if we have any valid attachment points
+    if len(attach_v) == 0:
+        raise ValueError("No atoms available for addition. Check the to_addition selection.")
+
+    # Create a mapping from original atom index to index in the filtered attach_v list
+    atom_to_attach_v_index = {orig_idx: new_idx for new_idx, orig_idx in enumerate(attach_v_indices)}
+
+    # Generate all combinations of atoms to add to (or use random sampling if requested)
+    if random:
+        def config_generator():
+            while True:
+                # Generate random combinations of atoms
+                yield random_combination(to_addition.indices, n)
+    else:
+        config_generator = lambda: itertools.combinations(to_addition.indices, n)
+    
+    # Calculate total number of configurations for max_attempts handling
+    total_configs = factorial(len(to_addition.indices)) // (factorial(n) * factorial(len(to_addition.indices) - n))
+    
+    # Set the actual number of configurations to try
+    if max_attempts > 0:
+        attempts_left = min(max_attempts, total_configs)
+    else:
+        attempts_left = total_configs
+    
+    # Process each configuration
+    for ac in config_generator():
+        # Skip if we've already tried enough configurations
+        if attempts_left <= 0:
+            break
+            
+        try:
+            # Map from the original atom indices to indices in the filtered attach_v array
+            chosen_v = [attach_v[atom_to_attach_v_index[i]] for i in ac]
+        except KeyError as e:
+            # Skip configurations with atoms that don't have attachment vectors
+            continue
+            
+        # Generate positions for adding atoms
         if random:
-            addpos = random_product(*attach_v[list(ac)])
+            addpos = random_product(*chosen_v)
         else:
-            addpos = itertools.product(*attach_v[list(ac)])
-
-        iiter = 1
+            addpos = itertools.product(*chosen_v)
+            
         for ap in addpos:
-            if iiter > max_attempts > 0:
-                break
-
-            iiter += 1
+            attempts_left -= 1
+            
+            # Create the new structure with added atoms
             astruct = struct.copy()
-            astruct += Atoms(add * n, positions=pos[list(ac)] + np.array(ap) * add_r)
-
+            new_atoms_positions = pos[list(ac)] + np.array(ap) * add_r
+            astruct += Atoms(symbols=[add] * n, positions=new_atoms_positions)
+            
+            # Apply acceptance filter if provided
             if accept is not None:
                 if not accept(astruct, ac):
                     continue
-
+                    
             yield astruct
+            
+            # Exit if we've reached the maximum number of attempts
+            if attempts_left <= 0 and max_attempts > 0:
+                break

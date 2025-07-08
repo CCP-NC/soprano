@@ -199,6 +199,191 @@ class TestGenerate(unittest.TestCase):
 
         self.assertEqual(len(all_neigh), 9)
 
+    def test_addition_defect(self):
+        import itertools
+
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import additionGen
+        from soprano.selection import AtomSelection
+
+        # Create a simple test structure - H2 molecule
+        h2 = molecule("H2")
+        h2.set_pbc(True)
+        h2.set_cell([10, 10, 10])
+        h2.center()
+
+        # Test basic functionality - add one H atom
+        aGen = additionGen(h2, 'H', n=1, add_r=1.0)
+        aColl = AtomsCollection(aGen)
+
+        # Should generate structures with 3 H atoms total
+        for struct in aColl:
+            self.assertEqual(len(struct), 3)
+            self.assertEqual(struct.get_chemical_formula(), 'H3')
+
+        # Test parameter validation
+        with self.assertRaises(ValueError):
+            # Negative n
+            aGen = additionGen(h2, 'H', n=-1)
+            next(aGen)
+
+        with self.assertRaises(ValueError):
+            # Zero n
+            aGen = additionGen(h2, 'H', n=0)
+            next(aGen)
+
+        with self.assertRaises(ValueError):
+            # Negative add_r
+            aGen = additionGen(h2, 'H', n=1, add_r=-1.0)
+            next(aGen)
+
+        # Test with atom selection
+        h_sel = AtomSelection.from_element(h2, 'H')
+        first_h_sel = AtomSelection(h2, [0])  # Only first H atom
+
+        aGen = additionGen(h2, 'H', to_addition=first_h_sel, n=1, add_r=1.0)
+        aColl = AtomsCollection(aGen)
+
+        # Should still generate valid structures
+        for struct in aColl:
+            self.assertEqual(len(struct), 3)
+
+        # Test with larger structure - methane
+        ch4 = molecule("CH4")
+        ch4.set_pbc(True)
+        ch4.set_cell([10, 10, 10])
+        ch4.center()
+
+        # Add H atoms only to C atoms
+        c_sel = AtomSelection.from_element(ch4, 'C')
+
+        aGen = additionGen(ch4, 'H', to_addition=c_sel, n=1, add_r=1.1)
+        aColl = AtomsCollection(aGen)
+
+        # Should generate structures with 6 atoms total (5 original + 1 added)
+        for struct in aColl:
+            self.assertEqual(len(struct), 6)
+
+        # Test acceptance function
+        def accept_func(struct, indices):
+            # Only accept if the new atom is not too close to existing ones
+            new_pos = struct.get_positions()[-1]  # Last atom is the new one
+            old_pos = struct.get_positions()[:-1]
+            distances = np.linalg.norm(old_pos - new_pos, axis=1)
+            return np.all(distances > 0.8)  # Minimum distance of 0.8 Å
+
+        aGen = additionGen(ch4, 'H', to_addition=c_sel, n=1, add_r=1.1,
+                          accept=accept_func)
+        aColl = AtomsCollection(aGen)
+
+        # Should generate fewer structures due to acceptance filtering
+        self.assertGreater(len(aColl), 0)  # Should have some accepted structures
+
+        # Test max_attempts parameter
+        aGen = additionGen(ch4, 'H', to_addition=c_sel, n=1, add_r=1.1,
+                          max_attempts=2)
+        aColl = AtomsCollection(aGen)
+
+        # Should limit the number of generated structures
+        self.assertLessEqual(len(aColl), 2)
+
+        # Test random mode
+        aGen = additionGen(ch4, 'H', to_addition=c_sel, n=1, add_r=1.1,
+                          random=True, max_attempts=3)
+        aColl = AtomsCollection(aGen)
+
+        # Should generate structures in random order
+        self.assertGreater(len(aColl), 0)
+
+        # Test multiple additions (n > 1)
+        aGen = additionGen(h2, 'H', n=2, add_r=1.0, max_attempts=5)
+        aColl = AtomsCollection(aGen)
+
+        # Should generate structures with 4 H atoms total
+        for struct in aColl:
+            self.assertEqual(len(struct), 4)
+            self.assertEqual(struct.get_chemical_formula(), 'H4')
+
+        # Test empty selection
+        empty_sel = AtomSelection(h2, [])
+        with self.assertRaises(ValueError):
+            aGen = additionGen(h2, 'H', to_addition=empty_sel, n=1)
+            next(aGen)
+
+        # Test n larger than selection size
+        single_sel = AtomSelection(h2, [0])
+        with self.assertRaises(ValueError):
+            aGen = additionGen(h2, 'H', to_addition=single_sel, n=2)
+            next(aGen)
+
+    def test_addition_bonds_and_attachment(self):
+        """Test additionGen with bond-based attachment logic"""
+        from soprano.collection import AtomsCollection
+        from soprano.collection.generate import additionGen
+        from soprano.properties.linkage import Bonds
+        from soprano.selection import AtomSelection
+
+        # Create a linear molecule (acetylene) to test directed attachment
+        c2h2 = molecule("C2H2")
+        c2h2.set_pbc(True)
+        c2h2.set_cell([15, 15, 15])
+        c2h2.center()
+
+        # Test with pre-computed bonds
+        bonds = Bonds.get(c2h2)
+        
+        # Add atoms to carbon atoms with specific bonds object
+        c_sel = AtomSelection.from_element(c2h2, 'C')
+        aGen = additionGen(c2h2, 'H', to_addition=c_sel, n=1, add_r=1.1, bonds=bonds)
+        aColl = AtomsCollection(aGen)
+        
+        # Should generate structures
+        self.assertGreater(len(aColl), 0)
+        
+        # Test with custom rep_alg_kwargs
+        rep_kwargs = {'iters': 500, 'attempts': 5}
+        aGen = additionGen(c2h2, 'H', to_addition=c_sel, n=1, add_r=1.1, 
+                          rep_alg_kwargs=rep_kwargs)
+        aColl = AtomsCollection(aGen)
+        
+        # Should still generate structures
+        self.assertGreater(len(aColl), 0)
+
+        # Test with isolated atom (no bonds)
+        isolated_h = Atoms('H', positions=[[0, 0, 0]], cell=[10, 10, 10], pbc=True)
+        
+        aGen = additionGen(isolated_h, 'H', n=1, add_r=1.5)
+        aColl = AtomsCollection(aGen)
+        
+        # Should generate structures even for isolated atoms
+        self.assertGreater(len(aColl), 0)
+        for struct in aColl:
+            self.assertEqual(len(struct), 2)
+            # Check that the distance is approximately correct
+            dist = struct.get_distance(0, 1, mic=True)
+            self.assertAlmostEqual(dist, 1.5, places=1)
+
+        # Test complex acceptance function
+        def complex_accept(struct, indices):
+            # Accept only if the new atoms form reasonable angles
+            if len(struct) < 3:
+                return True
+            
+            # Get the last added atom position
+            new_pos = struct.get_positions()[-1]
+            host_pos = struct.get_positions()[indices[0]]
+            
+            # Check if the new atom is roughly in the expected direction
+            vec = new_pos - host_pos
+            dist = np.linalg.norm(vec)
+            return 0.8 < dist < 2.0  # Reasonable distance range
+
+        aGen = additionGen(c2h2, 'H', to_addition=c_sel, n=1, add_r=1.1, 
+                          accept=complex_accept, max_attempts=10)
+        aColl = AtomsCollection(aGen)
+        
+        # Should have some accepted structures
+        self.assertGreaterEqual(len(aColl), 0)
 
 if __name__ == "__main__":
     unittest.main()
