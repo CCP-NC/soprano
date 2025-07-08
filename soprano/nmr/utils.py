@@ -628,3 +628,42 @@ def _frange(a, b, x):
     while a < b:
         yield a
         a += x
+
+def _ensure_tensor_format(tensors):
+    """
+    Ensure tensors are in 3x3 format, converting from flattened 1x9 if necessary.
+    
+    Args:
+        tensors (np.ndarray): Tensor array, either (N, 3, 3) or (N, 9)
+        
+    Returns:
+        np.ndarray: Tensors in (N, 3, 3) format
+    """
+    tensors = np.array(tensors)
+    
+    if tensors.ndim == 2 and tensors.shape[1] == 9:
+        return tensors.reshape(-1, 3, 3)
+    elif tensors.ndim == 3 and tensors.shape[1:] == (3, 3):
+        return tensors
+    else:
+        raise ValueError(f"Invalid tensor format: expectd (N, 9) or (N, 3, 3), got {tensors.shape}")
+
+def _get_tensor_array(s, tensor_tag):
+    """
+    Get tensor array from structure, ensuring 3x3 format.
+    
+    Args:
+        s (Atoms): The structure
+        tensor_tag (str): Name of the tensor array
+        
+    Returns:
+        np.ndarray: Tensor array in (N, 3, 3) format
+        
+    Raises:
+        RuntimeError: If tensor array not found
+    """
+    if not s.has(tensor_tag):
+        raise RuntimeError(f"Structure does not have tensor array '{tensor_tag}'")
+    
+    tensors = s.get_array(tensor_tag)
+    return _ensure_tensor_format(tensors)

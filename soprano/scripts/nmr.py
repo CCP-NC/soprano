@@ -89,6 +89,16 @@ NMR_COLUMN_ALIASES = {
 @click.command()
 # one of more files
 @click.argument("files", nargs=-1, type=click.Path(exists=True), required=True)
+@click.option(
+    "--ms-tag",
+    default="ms",
+    help="Name of array containing MS tensors. default: 'ms'",
+)
+@click.option(
+    "--efg-tag", 
+    default="efg",
+    help="Name of array containing EFG tensors. default: 'efg'",
+)
 @add_options(NMREXTRACT_OPTIONS)
 def nmr(
     files,
@@ -112,14 +122,17 @@ def nmr(
     query=None,
     view=False,
     verbosity=0,
+    ms_tag="ms",
+    efg_tag="efg",
 ):
     """
-    Extract and analyse NMR data from magres file(s).
+    Extract and analyse NMR data from magres file(s) or extended XYZ files.
 
     Usage:
     soprano nmr seedname.magres
+    soprano nmr data.xyz --ms-tag pred_ms --efg-tag ref_efg
 
-    Processes .magres file(s) containing NMR-related properties
+    Processes .magres file(s) or extended XYZ files containing NMR-related properties
     and prints a summary. It defaults to printing all NMR properties
     present in the file for all the atoms.
 
@@ -150,6 +163,8 @@ def nmr(
         exclude=exclude,
         query=query,
         logger=logger,
+        ms_tag=ms_tag,
+        efg_tag=efg_tag,
     )
     if view:
         viewimages(images)
