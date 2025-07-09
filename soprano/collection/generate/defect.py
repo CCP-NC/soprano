@@ -340,52 +340,29 @@ def additionGen(
             this_v = utils.rep_alg(bset, **rep_alg_kwargs)
             attach_v[i] = this_v
     
-    # Remove None entries from attach_v but store the indices of non-None entries
-    attach_v_indices = [i for i, v in enumerate(attach_v) if v is not None]
-    attach_v = [v for v in attach_v if v is not None]
+    n_attach_v = len([v for v in attach_v if v is not None])
 
     # Make sure that the number of attachment points is sufficient
-    if len(attach_v) < n:
-        raise ValueError(f"Not enough attachment points available (found {len(attach_v)}, needed {n})")
+    if n_attach_v < n:
+        raise ValueError(f"Not enough attachment points available (found {n_attach_v}, needed {n})")
 
     # Check if we have any valid attachment points
-    if len(attach_v) == 0:
+    if n_attach_v == 0:
         raise ValueError("No atoms available for addition. Check the to_addition selection.")
+    
+    # Set the number of attempts to try
+    attempts_left = max_attempts
 
-    # Create a mapping from original atom index to index in the filtered attach_v list
-    atom_to_attach_v_index = {orig_idx: new_idx for new_idx, orig_idx in enumerate(attach_v_indices)}
+    addconfs = itertools.combinations(to_addition.indices, n)
 
-    # Generate all combinations of atoms to add to (or use random sampling if requested)
-    if random:
-        def config_generator():
-            while True:
-                # Generate random combinations of atoms
-                yield random_combination(to_addition.indices, n)
-    else:
-        config_generator = lambda: itertools.combinations(to_addition.indices, n)
-    
-    # Calculate total number of configurations for max_attempts handling
-    total_configs = factorial(len(to_addition.indices)) // (factorial(n) * factorial(len(to_addition.indices) - n))
-    
-    # Set the actual number of configurations to try
-    if max_attempts > 0:
-        attempts_left = min(max_attempts, total_configs)
-    else:
-        attempts_left = total_configs
-    
     # Process each configuration
-    for ac in config_generator():
+    for ac in addconfs:
         # Skip if we've already tried enough configurations
-        if attempts_left <= 0:
+        if attempts_left <= 0 and max_attempts > 0:
             break
-            
-        try:
-            # Map from the original atom indices to indices in the filtered attach_v array
-            chosen_v = [attach_v[atom_to_attach_v_index[i]] for i in ac]
-        except KeyError as e:
-            # Skip configurations with atoms that don't have attachment vectors
-            continue
-            
+        # Map from the original atom indices to indices in the filtered attach_v array
+        chosen_v = [attach_v[iac] for iac in ac]
+
         # Generate positions for adding atoms
         if random:
             addpos = random_product(*chosen_v)
