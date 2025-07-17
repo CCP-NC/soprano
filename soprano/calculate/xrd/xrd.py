@@ -221,7 +221,7 @@ class XRDCalculator:
                                         XRD powder spectrum"""
                 )
         else:
-            latt_abc = np.array(latt_abc, copy=False)
+            latt_abc = np.asarray(latt_abc)
             if latt_abc.shape != (2, 3):
                 raise ValueError("Invalid argument latt_abc passed to xrd_pwd_peaks")
             try:
@@ -310,8 +310,8 @@ class XRDCalculator:
         """
 
         # Sanity checks as usual
-        th2_axis = np.array(th2_axis, copy=False)
-        int_axis = np.array(int_axis, copy=False)
+        th2_axis = np.asarray(th2_axis)
+        int_axis = np.asarray(int_axis)
 
         if th2_axis.shape != int_axis.shape or len(th2_axis.shape) != 1:
             raise ValueError("Invalid dataset passed to xrd_exp_dataset")
@@ -386,9 +386,9 @@ class XRDCalculator:
 
         # Sanity checks here
 
-        peaks_th2 = np.array(xpeaks.theta2, copy=False)
-        peaks_int = np.array(xpeaks.intensity, copy=False)
-        th2_axis = np.array(th2_axis, copy=False)
+        peaks_th2 = np.asarray(xpeaks.theta2)
+        peaks_int = np.asarray(xpeaks.intensity)
+        th2_axis = np.asarray(th2_axis)
         if len(th2_axis.shape) != 1:
             raise ValueError("Invalid th2_axis passed to spec_simul")
 
@@ -444,8 +444,8 @@ class XRDCalculator:
         xpeaks = copy.deepcopy(xpeaks)
 
         # Fetch the data
-        th2_axis = np.array(exp_spec.theta2, copy=False)
-        int_axis = np.array(exp_spec.intensity, copy=False)
+        th2_axis = np.asarray(exp_spec.theta2)
+        int_axis = np.asarray(exp_spec.intensity)
         # Find a suitable starting height for the peaks
         peaks_int = (xpeaks.intensity * 0.0) + np.amax(int_axis) / 4.0
 
