@@ -382,7 +382,11 @@ class AtomsCollection:
         if name not in self._arrays:
             raise ValueError(f"Array '{name}' does not exist")
         else:
-            return np.array(self._arrays[name], copy=copy)
+            if copy:
+                return np.array(self._arrays[name])
+            else:
+                # For NumPy 2.0 compatibility, use asarray to avoid copy when possible
+                return np.asarray(self._arrays[name])
 
     def has(self, name):
         """Check if array of given name exists"""
@@ -406,13 +410,17 @@ class AtomsCollection:
         # First, a check
         from ase.calculators.calculator import Calculator as cCalculator
         from ase.calculators.calculator import FileIOCalculator as ioCalculator
-        from ase.calculators.general import Calculator as gCalculator
+        
+        # Check if calctype is a subclass of ASE Calculator
+        # In newer ASE versions, ase.calculators.general doesn't exist
+        try:
+            from ase.calculators.general import Calculator as gCalculator
+            valid_bases = (gCalculator, cCalculator, ioCalculator)
+        except ImportError:
+            # Fallback for newer ASE versions
+            valid_bases = (cCalculator, ioCalculator)
 
-        if (
-            (gCalculator not in calctype.__bases__)
-            and (cCalculator not in calctype.__bases__)
-            and (ioCalculator not in calctype.__bases__)
-        ):
+        if not any(issubclass(calctype, base) for base in valid_bases):
             raise TypeError("calctype must be a type of ASE Calculator")
 
         if labels is not None and len(labels) != self.length:

@@ -78,6 +78,83 @@ class TestCollection(unittest.TestCase):
 
         self.assertTrue(np.all(testcoll.get_array("testarr") == arr))
 
+    def test_array_copy_reference(self):
+        from soprano.collection import AtomsCollection
+
+        # Generate a few random structures
+        elrnd = ["H", "C", "O", "N"]
+        asernd = []
+
+        rng = np.random.default_rng(0)
+
+        for n in range(4):
+            aselen = rng.integers(1, 10)
+            asernd.append(
+                Atoms(
+                    symbols=rng.choice(elrnd, aselen),
+                    positions=rng.random((aselen, 3)),
+                )
+            )
+
+        testcoll = AtomsCollection(asernd)
+        
+        # Set up a test array
+        original_arr = np.arange(testcoll.length)
+        testcoll.set_array("test_copy_ref", original_arr, shape=(1,))
+        
+        # Test default behavior (copy=True)
+        arr_copy_default = testcoll.get_array("test_copy_ref")
+        arr_copy_explicit = testcoll.get_array("test_copy_ref", copy=True)
+        
+        # Test reference behavior (copy=False)
+        arr_reference = testcoll.get_array("test_copy_ref", copy=False)
+        
+        # Verify values are initially equal
+        self.assertTrue(np.all(arr_copy_default == original_arr))
+        self.assertTrue(np.all(arr_copy_explicit == original_arr))
+        self.assertTrue(np.all(arr_reference == original_arr))
+        
+        # Modify the reference array
+        arr_reference[0] = 999
+        
+        # Check that the original internal array was modified when copy=False
+        internal_arr = testcoll._arrays["test_copy_ref"]
+        self.assertEqual(internal_arr[0], 999)
+        
+        # Check that copies were not affected
+        self.assertNotEqual(arr_copy_default[0], 999)
+        self.assertNotEqual(arr_copy_explicit[0], 999)
+        
+        # Verify that getting the array again with copy=False returns the modified version
+        arr_reference_2 = testcoll.get_array("test_copy_ref", copy=False)
+        self.assertEqual(arr_reference_2[0], 999)
+        
+        # Verify that getting the array with copy=True returns the modified version but as a copy
+        arr_copy_after_mod = testcoll.get_array("test_copy_ref", copy=True)
+        self.assertEqual(arr_copy_after_mod[0], 999)
+        
+        # Modify the copy to ensure it doesn't affect the internal array
+        arr_copy_after_mod[0] = 888
+        internal_arr_after = testcoll._arrays["test_copy_ref"]
+        self.assertEqual(internal_arr_after[0], 999)  # Should still be 999, not 888
+        
+        # Test with multi-dimensional arrays
+        multi_arr = np.random.random((testcoll.length, 3))
+        testcoll.set_array("test_multi", multi_arr, shape=(3,))
+        
+        multi_reference = testcoll.get_array("test_multi", copy=False)
+        multi_copy = testcoll.get_array("test_multi", copy=True)
+        
+        # Modify the reference
+        multi_reference[0, 0] = 999.0
+        
+        # Check that internal array was modified
+        internal_multi = testcoll._arrays["test_multi"]
+        self.assertEqual(internal_multi[0, 0], 999.0)
+        
+        # Check that copy was not affected
+        self.assertNotEqual(multi_copy[0, 0], 999.0)
+
     def test_calculator(self):
         from ase.calculators.lj import LennardJones
 
