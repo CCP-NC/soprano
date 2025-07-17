@@ -71,6 +71,15 @@ They can also be run using the free cloud-based virtual machine: Binder wherever
     quadrupolar couplings, and finally produce powder spectra in the
     dilute (=non-interacting nuclear spins) limit.
 
+-   [](tutorials/05a-nmr-spin-systems.ipynb)    
+    This tutorial is a follow-up to the NMR tutorial, and it
+    focuses on the new features that have been added to Soprano to
+    support the exporting of spin systems. Spin systems are groups sites
+    and couplings between sites that are used for spectral simulations using
+    e.g. MRSimulator, Simpson or Spinach. This tutorial will show you how to
+    create spin systems from ab initio NMR calculations, and how to export them to
+    spin simulation software.
+
 -   [](tutorials/06-defect_calculations.ipynb)    
     A series of new tools
     has been developed recently, dedicated to the specific task of
