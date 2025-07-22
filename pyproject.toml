@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "A Python library to crack crystals"
 readme = "README.md"
 license = "LGPL-3.0-or-later"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     { name = "Simone Sturniolo", email = "simone.sturniolo@stfc.ac.uk" },
     { name = "J. Kane Shenton", email = "kane.shenton@stfc.ac.uk" },
@@ -34,7 +34,7 @@ dependencies = [
     "click",
     "click_log",
     "matplotlib",
-    "numpy>=1.18.5",
+    "numpy>=1.26.0",
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
@@ -47,6 +47,7 @@ dev = [
     "flake8",
     "pre-commit",
     "pytest",
+    "pytest-cov",  # Add coverage support
 ]
 docs = [
     "jupyter-book~=1.0.2",

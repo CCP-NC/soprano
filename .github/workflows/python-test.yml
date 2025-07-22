@@ -1,0 +1,136 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install UV (if needed)
+      shell: bash
+      if: runner.os != 'Windows'
+      run: |
+        if ! command -v uv &> /dev/null; then
+          echo "Installing UV..."
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        else
+          echo "UV is already installed"
+          uv --version
+        fi
+
+    - name: Install UV (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        if (!(Get-Command uv -ErrorAction SilentlyContinue)) {
+          echo "Installing UV..."
+          Invoke-WebRequest -Uri "https://astral.sh/uv/install.ps1" -OutFile "install.ps1"
+          .\install.ps1
+          echo "$env:USERPROFILE\.cargo\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+        } else {
+          echo "UV is already installed"
+          uv --version
+        }
+        
+    - name: Cache UV packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/uv
+          ~/.uv
+        key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-${{ matrix.python-version }}-
+        
+    - name: Install Hatch
+      shell: bash
+      run: |
+        pip install hatch
+        
+    - name: Create environment and run tests
+      shell: bash
+      run: |
+        hatch -e test run test-verbose
+        
+    # - name: Upload coverage to Codecov
+    #   uses: codecov/codecov-action@v3
+    #   with:
+    #     file: ./coverage.xml
+    #     fail_ci_if_error: false
+        
+  compatibility-test:
+    name: Compatibility Test
+    runs-on: ubuntu-latest
+    container:
+      image: catthehacker/ubuntu:act-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.10"
+            numpy-version: "1.26.*"
+          - python-version: "3.11"
+            numpy-version: "2.0.*"
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install UV
+      shell: bash
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+    - name: Cache UV packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/uv
+          ~/.uv
+        key: ${{ runner.os }}-uv-comp-${{ matrix.python-version }}-${{ matrix.numpy-version }}-${{ hashFiles('pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-uv-comp-${{ matrix.python-version }}-
+        
+    - name: Install Hatch
+      shell: bash
+      run: |
+        uv pip install hatch
+        
+    - name: Create custom environment with specific numpy version
+      shell: bash
+      run: |
+        hatch env create compatibility
+        hatch -e compatibility run uv pip install -e .
+        hatch -e compatibility run uv pip install numpy==${{ matrix.numpy-version }}
+        
+    - name: Test with specific numpy
+      shell: bash
+      run: |
+        hatch -e compatibility run pytest -v

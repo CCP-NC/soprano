@@ -1,6 +1,9 @@
 # soprano
 Soprano - a Python library to crack crystals!
 
+[![Python Tests](https://github.com/CCP-NC/soprano/actions/workflows/python-test.yml/badge.svg)](https://github.com/CCP-NC/soprano/actions/workflows/python-test.yml)
+[![PyPI version](https://badge.fury.io/py/Soprano.svg)](https://badge.fury.io/py/Soprano)
+
 ## Introduction
 Soprano is a Python library developed and maintained by the CCP for NMR Crystallography as a tool to help scientists
 working with crystallography and simulations to generate, manipulate, run calculations on and analyse large data sets of
