@@ -102,11 +102,24 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         
-    - name: Install UV
+    - name: Set up cache directories
       shell: bash
       run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        mkdir -p /github/home/.cache/pip
+        mkdir -p /github/home/.cache/uv
+        chown -R $(id -u):$(id -g) /github/home/.cache
+        
+    - name: Install UV (if needed)
+      shell: bash
+      run: |
+        if ! command -v uv &> /dev/null; then
+          echo "Installing UV..."
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        else
+          echo "UV is already installed"
+          uv --version
+        fi
         
     - name: Cache UV packages
       uses: actions/cache@v4
