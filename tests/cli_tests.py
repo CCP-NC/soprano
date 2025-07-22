@@ -12,6 +12,7 @@ import unittest
 from logging.handlers import MemoryHandler
 from tempfile import NamedTemporaryFile
 from unittest.mock import patch
+from pathlib import Path  # Add this import
 
 import pandas as pd
 from ase.io import read
@@ -22,15 +23,12 @@ from soprano.scripts.cli import soprano
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 )
-_TEST_DIR = os.path.dirname(os.path.abspath(__file__))
-_TESTDATA_DIR = os.path.join(_TEST_DIR, "test_data")
-_TESTSAVE_DIR = os.path.join(_TEST_DIR, "test_save")
-
-
 class TestCLI(unittest.TestCase):
-
-
     def setUp(self):
+        # Use Path for cross-platform compatibility
+        self._TEST_DIR = Path(__file__).parent
+        self._TESTDATA_DIR = self._TEST_DIR / "test_data"
+        self._TESTSAVE_DIR = self._TEST_DIR / "test_save"
         # Create an in-memory logging handler
         self.log_stream = io.StringIO()
         self.handler = MemoryHandler(1024*10, target=logging.StreamHandler(self.log_stream))
@@ -43,43 +41,50 @@ class TestCLI(unittest.TestCase):
         logger = logging.getLogger('cli')
         logger.removeHandler(self.handler)
         self.handler.close()
+        
+        # Clean up any test files
+        for file in self._TESTSAVE_DIR.glob('*.cif'):
+            file.unlink(missing_ok=True)
 
 
 
     def test_read_valid_ms(self):
         # Load the data calculated with MagresView
-        fname_data = os.path.join(_TESTDATA_DIR, "ethanol_ms.dat")
+        fname_data = self._TESTDATA_DIR / "ethanol_ms.dat"
 
+        # Handle Windows line endings in the data file
         ref_df = pd.read_csv(
-            fname_data, sep="\\s+|\t", lineterminator="\n", skiprows=7, engine="python"
+            fname_data,
+            sep=r"\s+|\t",
+            lineterminator=None,  # Let pandas detect line endings
+            skiprows=7,
+            engine="python"
         )
         nsites = len(ref_df)
 
         # get the same data use CLI
         runner = CliRunner()
         with patch('click_log.basic_config'):
-            with NamedTemporaryFile() as temp_csv:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+            with NamedTemporaryFile(delete=False) as temp_csv:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
-                    "-p",
-                    "ms",
-                    "--precision",
-                    "9",
-                    "-o",
-                    temp_csv.name,
-                    "--output-format",
-                    "csv",
+                    "-p", "ms",
+                    "--precision", "9",
+                    "-o", str(temp_csv.name),  # Convert Path to string
+                    "--output-format", "csv",
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["nmr", fname_mag] + option_flags, prog_name="nmr"
+                    soprano, ["nmr", str(fname_mag)] + option_flags,  # Convert Path to string
+                    prog_name="nmr"
                 )
                 # all went smoothly?
                 self.assertEqual(result.exit_code, 0)
 
                 # test to see that we parsed the correct file
                 output = result.output.strip().split("\n")
-                self.assertEqual(output[3], fname_mag)
+                # Convert both paths to strings for comparison
+                self.assertEqual(output[3], str(fname_mag))
 
                 # and extracted the right number of sites' results
                 df = pd.read_csv(temp_csv.name)
@@ -103,7 +108,7 @@ class TestCLI(unittest.TestCase):
         runner = CliRunner()
         with patch('click_log.basic_config'):
             with NamedTemporaryFile() as temp_csv:
-                fname_mag = os.path.join(_TESTDATA_DIR, "EDIZUM.magres")
+                fname_mag = self._TESTDATA_DIR / "EDIZUM.magres"  # Use Path
                 option_flags = [
                     "-o",
                     temp_csv.name,
@@ -111,14 +116,14 @@ class TestCLI(unittest.TestCase):
                     "csv",
                 ]
                 result = runner.invoke(
-                    soprano, ["nmr", fname_mag] + option_flags, prog_name="nmr"
+                    soprano, ["nmr", str(fname_mag)] + option_flags, prog_name="nmr"
                 )
                 # all went smoothly?
                 self.assertEqual(result.exit_code, 0)
 
                 # test to see that we parsed the correct file
                 output = result.output.strip().split("\n")
-                self.assertEqual(output[3], fname_mag)
+                self.assertEqual(output[3], str(fname_mag))
 
                 # and extracted the right number of sites' results
                 df = pd.read_csv(temp_csv.name)
@@ -139,7 +144,7 @@ class TestCLI(unittest.TestCase):
         runner = CliRunner()
         with patch('click_log.basic_config'):
             with NamedTemporaryFile() as temp_csv:
-                fname_mag = os.path.join(_TESTDATA_DIR, "nacl.magres")
+                fname_mag = self._TESTDATA_DIR / "nacl.magres"
                 option_flags = [
                     "-o",
                     temp_csv.name,
@@ -147,14 +152,14 @@ class TestCLI(unittest.TestCase):
                     "csv",
                 ]
                 result = runner.invoke(
-                    soprano, ["nmr", fname_mag] + option_flags, prog_name="nmr"
+                    soprano, ["nmr", str(fname_mag)] + option_flags, prog_name="nmr"
                 )
                 # all went smoothly?
                 self.assertEqual(result.exit_code, 0)
 
                 # test to see that we parsed the correct file
                 output = result.output.strip().split("\n")
-                self.assertEqual(output[3], fname_mag)
+                self.assertEqual(output[3], str(fname_mag))
 
                 # and extracted the right number of sites' results
                 df = pd.read_csv(temp_csv.name)
@@ -196,12 +201,18 @@ class TestCLI(unittest.TestCase):
         # one for the molecule
         runner = CliRunner()
         with patch('click_log.basic_config'):
-            fname = os.path.join(_TESTDATA_DIR, "ZSM-5_withH2O.cif")
-            # this will generate two output files, one for the framework and one for the molecule
-
-            option_flags = ["-o", _TESTSAVE_DIR, "-f", "cif", "--vdw-scale", "1.3"]
+            fname = self._TESTDATA_DIR / "ZSM-5_withH2O.cif"  # Use Path
+            # this will generate two output files
+            option_flags = [
+                "-o", 
+                str(self._TESTSAVE_DIR),  # Convert Path to string
+                "-f", 
+                "cif", 
+                "--vdw-scale", 
+                "1.3"
+            ]
             result = runner.invoke(
-                soprano, ["splitmols", fname] + option_flags, prog_name="splitmols"
+                soprano, ["splitmols", str(fname)] + option_flags, prog_name="splitmols"
             )
             # all went smoothly?
             self.assertEqual(result.exit_code, 0)
@@ -213,15 +224,15 @@ class TestCLI(unittest.TestCase):
             )
 
             # read in expected files:
-            framework = read(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_0.cif"))
-            molecule = read(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_1.cif"))
+            framework = read(self._TESTSAVE_DIR / "ZSM-5_withH2O_0.cif")
+            molecule = read(self._TESTSAVE_DIR / "ZSM-5_withH2O_1.cif")
             # check the number of atoms in each
             self.assertEqual(len(framework), 288)
             self.assertEqual(len(molecule), 3)
 
             # remove the files if they exist
-            os.remove(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_0.cif"))
-            os.remove(os.path.join(_TESTSAVE_DIR, "ZSM-5_withH2O_1.cif"))
+            (self._TESTSAVE_DIR / "ZSM-5_withH2O_0.cif").unlink(missing_ok=True)
+            (self._TESTSAVE_DIR / "ZSM-5_withH2O_1.cif").unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

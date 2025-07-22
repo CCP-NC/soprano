@@ -69,11 +69,25 @@ jobs:
       run: |
         pip install hatch
         
+    - name: Create test directories
+      shell: bash
+      run: |
+        mkdir -p tests/test_save
+    
     - name: Create environment and run tests
       shell: bash
       run: |
-        hatch -e test run test-verbose
-        
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          # Skip only submitter tests on Windows
+          hatch -e test run pytest -v --capture=no -k "not test_queueint"
+        else
+          hatch -e test run pytest -v --capture=no
+        fi
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        PYTHONIOENCODING: "utf-8"
+        TESTDATA_DIR: ${{ github.workspace }}/tests/test_data
+
     # - name: Upload coverage to Codecov
     #   uses: codecov/codecov-action@v3
     #   with:

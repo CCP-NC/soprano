@@ -27,6 +27,7 @@ __date__ = "Dec. 13, 2023"
 
 import logging
 import os
+from pathlib import Path
 
 import click
 import click_log
@@ -265,10 +266,11 @@ def splitmols(
 
     # write the molecules to individual files
     if seedname is None:
-        seedname = os.path.splitext(os.path.basename(filename))[0]
+        seedname = Path(filename).stem
     if not no_write:
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        # Create output directory using pathlib
+        output_path = Path(output_dir)
+        output_path.mkdir(exist_ok=True, parents=True)
         write_molecules(molecules, output_dir, format, seedname)
 
 
@@ -297,7 +299,7 @@ def write_molecules(molecules, output_dir, format, seedname):
             mol_temp.set_array("labels", mol.get_array("labels"))
 
         mol_temp.write(
-            os.path.join(output_dir, filename),
+            str(Path(output_dir) / filename),
             # format=format,
             # TODO - maybe add some more options here?
         )
