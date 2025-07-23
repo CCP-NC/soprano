@@ -199,40 +199,66 @@ class TestCLI(unittest.TestCase):
         # in the pore
         # - i.e. it should split into two atoms objects, one for the framework and
         # one for the molecule
-        runner = CliRunner()
-        with patch('click_log.basic_config'):
-            fname = self._TESTDATA_DIR / "ZSM-5_withH2O.cif"  # Use Path
-            # this will generate two output files
-            option_flags = [
-                "-o", 
-                str(self._TESTSAVE_DIR),  # Convert Path to string
-                "-f", 
-                "cif", 
-                "--vdw-scale", 
-                "1.3"
-            ]
-            result = runner.invoke(
-                soprano, ["splitmols", str(fname)] + option_flags, prog_name="splitmols"
-            )
-            # all went smoothly?
-            self.assertEqual(result.exit_code, 0)
+        
+        # First, ensure test_save directory exists and is writable
+        self._TESTSAVE_DIR.mkdir(exist_ok=True)
+        
+        framework_file = self._TESTSAVE_DIR / "ZSM-5_withH2O_0.cif"
+        molecule_file = self._TESTSAVE_DIR / "ZSM-5_withH2O_1.cif"
+        try:
+            # Run the actual test
+            runner = CliRunner()
+            with patch('click_log.basic_config'):
+                # Check that source file exists
+                fname = self._TESTDATA_DIR / "ZSM-5_withH2O.cif"
+                self.assertTrue(fname.exists(), f"Test data file not found: {fname}")
+                
+                # Remove any existing output files from previous test runs
+                framework_file.unlink(missing_ok=True)
+                molecule_file.unlink(missing_ok=True)
+                
+                # this will generate two output files
+                option_flags = [
+                    "-o", 
+                    str(self._TESTSAVE_DIR),  # Convert Path to string
+                    "-f", 
+                    "cif", 
+                    "--vdw-scale", 
+                    "1.3"
+                ]
+                
+                # Run the CLI command
+                result = runner.invoke(
+                    soprano, ["splitmols", str(fname)] + option_flags, prog_name="splitmols"
+                )
+                
+                # Check CLI command execution was successful
+                self.assertEqual(result.exit_code, 0, f"CLI command failed with output: {result.output}")
 
-            # there should be a warning about the lack of CH bonds:
-            self.assertEqual(
-                result.output.split("\n")[0],
-                "warning: No C-H bonds found in the structure. Are you sure this is a molecular crystal?",
-            )
+                # there should be a warning about the lack of CH bonds:
+                self.assertEqual(
+                    result.output.split("\n")[0],
+                    "warning: No C-H bonds found in the structure. Are you sure this is a molecular crystal?",
+                )
 
-            # read in expected files:
-            framework = read(self._TESTSAVE_DIR / "ZSM-5_withH2O_0.cif")
-            molecule = read(self._TESTSAVE_DIR / "ZSM-5_withH2O_1.cif")
-            # check the number of atoms in each
-            self.assertEqual(len(framework), 288)
-            self.assertEqual(len(molecule), 3)
-
-            # remove the files if they exist
-            (self._TESTSAVE_DIR / "ZSM-5_withH2O_0.cif").unlink(missing_ok=True)
-            (self._TESTSAVE_DIR / "ZSM-5_withH2O_1.cif").unlink(missing_ok=True)
+                # Verify output files were created
+                self.assertTrue(framework_file.exists(), f"Output file not created: {framework_file}")
+                self.assertTrue(molecule_file.exists(), f"Output file not created: {molecule_file}")
+                
+                # Read in expected files
+                try:
+                    framework = read(framework_file)
+                    molecule = read(molecule_file)
+                except FileNotFoundError as e:
+                    self.fail(f"Failed to read output file: {e}")
+                
+                # check the number of atoms in each
+                self.assertEqual(len(framework), 288, "Framework structure has incorrect atom count")
+                self.assertEqual(len(molecule), 3, "Molecule structure has incorrect atom count")
+        finally:
+            # Clean up: always remove the output files at the end of the test
+            framework_file.unlink(missing_ok=True)
+            molecule_file.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

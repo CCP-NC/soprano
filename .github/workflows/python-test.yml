@@ -70,11 +70,14 @@ jobs:
       run: |
         pip install hatch
         
-    - name: Create test directories
+    - name: Set up test environment directories
       shell: bash
       run: |
+        # Create test directories if they don't exist
         mkdir -p tests/test_save
-    
+        # Ensure proper permissions
+        chmod -R 777 tests/test_save
+
     - name: Create environment and run tests
       shell: bash
       run: |
@@ -156,6 +159,14 @@ jobs:
       shell: bash
       run: |
         pip install hatch
+        
+    - name: Set up test environment directories
+      shell: bash
+      run: |
+        # Create test directories if they don't exist
+        mkdir -p tests/test_save
+        # Ensure proper permissions
+        chmod -R 777 tests/test_save
 
     - name: Test with specific numpy
       shell: bash
@@ -167,3 +178,7 @@ jobs:
         # Run tests - this will automatically create the environment if needed
         hatch -e $ENV_NAME run pip list  # Show installed packages first
         hatch -e $ENV_NAME run pytest -v
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+        PYTHONIOENCODING: "utf-8"
+        TESTDATA_DIR: ${{ github.workspace }}/tests/test_data

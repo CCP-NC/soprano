@@ -29,12 +29,12 @@ classifiers = [
 ]
 dependencies = [
     "adjustText",
-    "ase @ git+https://gitlab.com/ase/ase.git@master",
+    "ase",  # Use the latest ASE version available
     "bottleneck>=1.3.6",
     "click",
     "click_log",
     "matplotlib",
-    "numpy>=1.26.0",
+    "numpy",
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
@@ -48,12 +48,22 @@ dev = [
     "pre-commit",
     "pytest",
     "pytest-cov",  # Add coverage support
+    "ase @ git+https://gitlab.com/ase/ase.git@master",  # Get the absolute latest development version from git
+    "numpy>=1.26.0",  # Allow numpy 2.x with bleeding-edge ASE
 ]
 docs = [
     "jupyter-book~=1.0.2",
     "sphinx-click", # For click command documentation
     "sphinxcontrib-bibtex", # For bibtex support
     "sphinxcontrib-mermaid", # For mermaid diagrams
+]
+bleeding-edge = [
+    "ase @ git+https://gitlab.com/ase/ase.git@master",  # Get the absolute latest development version from git
+    "numpy>=1.26.0",  # Allow numpy 2.x with bleeding-edge ASE
+]
+legacy = [
+    "ase>=3.22.0,<3.23",  # Pin to older ASE version that's known to work with legacy code
+    "numpy>=1.26.0,<2.0",  # Pin to older numpy version that's known to work with legacy code
 ]
 
 [project.scripts]
@@ -99,9 +109,6 @@ features = ["dev"]
 
 [tool.hatch.envs.test]
 features = ["dev"]
-dependencies = [
-    "numpy>=2.0",  # Force latest numpy 2.x
-]
 [tool.hatch.envs.test.scripts]
 test = "pytest {args}"
 test-verbose = "pytest -v {args}"
@@ -126,3 +133,10 @@ features = ["dev"]
 dependencies = [
     "numpy",  # Will always get the latest stable version
 ]
+
+# Test legacy dependencies
+[tool.hatch.envs.legacy]
+features = ["legacy"]
+[tool.hatch.envs.legacy.scripts]
+test = "pytest {args}"
+test-verbose = "pytest -v {args}"
