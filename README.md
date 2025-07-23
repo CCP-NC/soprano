@@ -28,7 +28,7 @@ If you need compatibility with older systems, you can use the legacy installatio
 #### Bleeding-Edge Installation
 For the latest development version of ASE directly from git:
 
-    pip install soprano[bleeding]
+    pip install soprano[bleeding-edge]
 
 **Note:** This option is recommended if you need to read MAGRES files with CIF-style labels, as ASE versions 3.23-3.25 have a regression affecting this functionality. The bleeding option installs ASE from git master which includes the fix and supports NumPy 2.x.
 
@@ -69,8 +69,8 @@ Soprano's dependencies are automatically handled by `pip` during installation. T
 Additional, optional dependencies are available through feature sets:
 
 * **docs**: Dependencies for building documentation (`jupyter-book`, `sphinx-click`, etc.)
-* **dev**: Dependencies for development (`black`, `flake8`, `pytest`, etc.)
-* **bleeding**: Latest development version of ASE from git
+* **dev**: Dependencies for development (`black`, `flake8`, `pytest`, etc.) and the latest version of ASE from git
+* **bleeding-edge**: Latest development version of ASE from git
 * **legacy**: Pinned versions of ASE and NumPy for compatibility with older systems
 
 ## Testing
@@ -81,7 +81,7 @@ Soprano uses `pytest` for testing and `hatch` for environment management. To run
 # Install hatch first if you don't have it
 pip install hatch
 
-# Run tests with the default environment
+# Run tests with the default dev environment
 hatch run test:test
 
 # Run tests with legacy dependencies
