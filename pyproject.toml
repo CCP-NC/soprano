@@ -105,3 +105,24 @@ dependencies = [
 [tool.hatch.envs.test.scripts]
 test = "pytest {args}"
 test-verbose = "pytest -v {args}"
+
+# Compatibility environments for different numpy versions
+[tool.hatch.envs.compat-numpy1x]
+features = ["dev"]
+dependencies = [
+    "numpy~=1.0",  # Latest 1.x version
+]
+
+# Use the latest version of numpy 2.x series
+[tool.hatch.envs.compat-numpy2x]
+features = ["dev"]
+dependencies = [
+    "numpy~=2.0",  # Latest 2.x version
+]
+
+# default should use the latest numpy version
+[tool.hatch.envs.compat-default]
+features = ["dev"]
+dependencies = [
+    "numpy",  # Will always get the latest stable version
+]
