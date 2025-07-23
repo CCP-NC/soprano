@@ -19,6 +19,8 @@ from ase.io import read
 from click.testing import CliRunner
 
 from soprano.scripts.cli import soprano
+# Import the decorator from the test_utils module
+from tests.test_utils import skip_if_problematic_ase
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
@@ -99,6 +101,7 @@ class TestCLI(unittest.TestCase):
                 cli_iso = df["MS_shielding/ppm"]
                 pd.testing.assert_series_equal(ref_iso, cli_iso, check_names=False)
 
+    @skip_if_problematic_ase
     def test_reduce_by_cif_labels(self):
         """
         The file EDIZUM.magres in the test_data directory has four identical molecules in the unit cell

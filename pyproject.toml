@@ -29,12 +29,12 @@ classifiers = [
 ]
 dependencies = [
     "adjustText",
-    "ase",  # Use the latest ASE version available
+    "ase>=3.25",  # Keep for pip install compatibility
     "bottleneck>=1.3.6",
     "click",
     "click_log",
     "matplotlib",
-    "numpy",
+    "numpy>=1.18.5",
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
@@ -47,9 +47,7 @@ dev = [
     "flake8",
     "pre-commit",
     "pytest",
-    "pytest-cov",  # Add coverage support
-    "ase @ git+https://gitlab.com/ase/ase.git@master",  # Get the absolute latest development version from git
-    "numpy>=1.26.0",  # Allow numpy 2.x with bleeding-edge ASE
+    "pytest-cov"
 ]
 docs = [
     "jupyter-book~=1.0.2",
@@ -57,13 +55,9 @@ docs = [
     "sphinxcontrib-bibtex", # For bibtex support
     "sphinxcontrib-mermaid", # For mermaid diagrams
 ]
-bleeding-edge = [
-    "ase @ git+https://gitlab.com/ase/ase.git@master",  # Get the absolute latest development version from git
-    "numpy>=1.26.0",  # Allow numpy 2.x with bleeding-edge ASE
-]
 legacy = [
-    "ase>=3.22.0,<3.23",  # Pin to older ASE version that's known to work with legacy code
-    "numpy>=1.26.0,<2.0",  # Pin to older numpy version that's known to work with legacy code
+    "ase>=3.22.0,<3.23",
+    "numpy>=1.26.0,<2.0",
 ]
 
 [project.scripts]
@@ -95,48 +89,79 @@ include = [
     "/soprano",
 ]
 
+# Default environment with stable versions
 [tool.hatch.envs.default]
 installer = "uv"
+# Uses project dependencies (stable ASE >=3.25)
 
-[tool.hatch.envs.docs]
-features = ["docs"]
-[tool.hatch.envs.docs.scripts]
-build = "jupyter-book build docs"
-serve = "python -m http.server -d docs/_build/html {args}"
-
+# Development environment
 [tool.hatch.envs.dev]
 features = ["dev"]
 
+[tool.hatch.envs.dev.scripts]
+# Install git ASE (can run this manually after env creation)
+install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@master"
+# Default test will use git ASE
+test = ["install-git-ase", "pytest {args}"]
+# Alternative to run without reinstalling git ASE
+test-no-git = "pytest {args}"
+
+# Test environment with git ASE
 [tool.hatch.envs.test]
 features = ["dev"]
+dependencies = [
+    "ase @ git+https://gitlab.com/ase/ase.git@master",
+]
 [tool.hatch.envs.test.scripts]
-test = "pytest {args}"
-test-verbose = "pytest -v {args}"
+install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@master"
+test = ["install-git-ase", "pytest {args}"]  # Default test uses git ASE
+test-no-git = "pytest {args}"  # Alternative to run without installing git ASE
 
-# Compatibility environments for different numpy versions
-[tool.hatch.envs.compat-numpy1x]
-features = ["dev"]
-dependencies = [
-    "numpy~=1.0",  # Latest 1.x version
-]
+# Documentation environment
+[tool.hatch.envs.docs]
+features = ["docs"]
+# Uses project dependencies (stable ASE)
+[tool.hatch.envs.docs.scripts]
+install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@master"
+build = ["install-git-ase", "jupyter-book build docs"]
+serve = "python -m http.server -d docs/_build/html {args}"
 
-# Use the latest version of numpy 2.x series
-[tool.hatch.envs.compat-numpy2x]
-features = ["dev"]
-dependencies = [
-    "numpy~=2.0",  # Latest 2.x version
-]
-
-# default should use the latest numpy version
-[tool.hatch.envs.compat-default]
-features = ["dev"]
-dependencies = [
-    "numpy",  # Will always get the latest stable version
-]
-
-# Test legacy dependencies
+# Legacy environment
 [tool.hatch.envs.legacy]
 features = ["legacy"]
 [tool.hatch.envs.legacy.scripts]
-test = "pytest {args}"
-test-verbose = "pytest -v {args}"
+test = "pytest {args}"  # For legacy environment, we don't use git ASE by default
+
+# Compatibility environments
+[tool.hatch.envs.compat-numpy1x]
+features = ["dev"]
+dependencies = [
+    "numpy~=1.0",
+    "ase @ git+https://gitlab.com/ase/ase.git@master"  # Git ASE already specified as dependency
+]
+[tool.hatch.envs.compat-numpy1x.scripts]
+install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@master"
+test = ["install-git-ase", "pytest {args}"]  # Default test now uses git ASE
+test-no-git = "pytest {args}"  # Alternative to run without reinstalling git ASE
+
+[tool.hatch.envs.compat-numpy2x]
+features = ["dev"]
+dependencies = [
+    "numpy~=2.0",
+    "ase @ git+https://gitlab.com/ase/ase.git@master"  # Git ASE already specified as dependency
+]
+[tool.hatch.envs.compat-numpy2x.scripts]
+install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@master"
+test = ["install-git-ase", "pytest {args}"]  # Default test now uses git ASE
+test-no-git = "pytest {args}"  # Alternative to run without reinstalling git ASE
+
+[tool.hatch.envs.compat-default]
+features = ["dev"]
+dependencies = [
+    "numpy",
+    "ase @ git+https://gitlab.com/ase/ase.git@master"  # Git ASE already specified as dependency
+]
+[tool.hatch.envs.compat-default.scripts]
+install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@master"
+test = ["install-git-ase", "pytest {args}"]  # Default test now uses git ASE
+test-no-git = "pytest {args}"  # Alternative to run without reinstalling git ASE

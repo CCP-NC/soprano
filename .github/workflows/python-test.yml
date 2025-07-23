@@ -83,9 +83,9 @@ jobs:
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
           # Skip only submitter tests on Windows
-          hatch -e test run pytest -v --capture=no -k "not test_queueint"
+          hatch -e test run test -v --capture=no -k "not test_queueint"
         else
-          hatch -e test run pytest -v --capture=no
+          hatch -e test run test -v --capture=no
         fi
       env:
         PYTHONPATH: ${{ github.workspace }}
@@ -177,7 +177,7 @@ jobs:
         
         # Run tests - this will automatically create the environment if needed
         hatch -e $ENV_NAME run pip list  # Show installed packages first
-        hatch -e $ENV_NAME run pytest -v
+        hatch -e $ENV_NAME run test -v
       env:
         PYTHONPATH: ${{ github.workspace }}
         PYTHONIOENCODING: "utf-8"

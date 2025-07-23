@@ -12,6 +12,8 @@ import numpy as np
 from ase import Atoms
 from ase.io import read
 
+from tests.test_utils import skip_if_problematic_ase
+
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 )
@@ -116,11 +118,13 @@ class TestSelection(unittest.TestCase):
         self.assertRaises(ValueError, AtomSelection.from_selection_string, a, "C1-3")
         self.assertRaises(ValueError, AtomSelection.from_selection_string, a, "C1.3")
 
+    @skip_if_problematic_ase
+    def test_selectors_with_labels(self):
+        from soprano.selection import AtomSelection
         # Unique atoms test
         a = read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
         Z = 4  # for this molecular crystal
         s1 = AtomSelection.unique(a)
-        print(len(s1.indices))
         self.assertEqual(len(s1) * Z, len(a))
 
     def test_arrays(self):

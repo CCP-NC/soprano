@@ -36,7 +36,19 @@ and install Soprano using pip (see below).
 
 
 
+
 ## Installation using pip
+
+
+### Installing with the latest ASE from git (recommended for magres files with CIF-style labels)
+
+ASE versions 3.23 to 3.25 (inclusive) cannot read magres files with CIF-style labels due to a regression. This will be fixed in ASE 3.26 when it is released. Until then, you can install Soprano together with the latest development version of ASE from git:
+
+```sh
+pip install soprano git+https://gitlab.com/ase/ase.git@master
+```
+
+This will ensure full compatibility with magres files using CIF-style labels.
 
 There are several ways to install and work with Soprano depending on your needs and computer setup (e.g. whether you have admin rights or not).
 

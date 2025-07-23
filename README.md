@@ -18,19 +18,22 @@ This will install Soprano with the latest available versions of ASE and NumPy.
 
 ### Installation Options
 
+#### Installing with the latest ASE from git (recommended for magres files with CIF-style labels)
+ASE versions 3.23 to 3.25 cannot read magres files with CIF-style labels due to a regression. This will be fixed in ASE 3.26 when it is released. Until then, you can install Soprano together with the latest development version of ASE from git:
+
+    pip install soprano git+https://gitlab.com/ase/ase.git@master
+
+This will ensure full compatibility with magres files using CIF-style labels.
+
+
 #### For Legacy Systems
-If you need compatibility with older systems, you can use the legacy installation which pins ASE to version 3.22.0-3.23 and NumPy to <2.0:
+If you need compatibility with older systems, you can use the legacy installation which pins ASE to version < 3.23 and NumPy to <2.0:
 
     pip install soprano[legacy]
 
 **Note:** This is useful for environments where you need more controlled dependency versions.
 
-#### Bleeding-Edge Installation
-For the latest development version of ASE directly from git:
 
-    pip install soprano[bleeding-edge]
-
-**Note:** This option is recommended if you need to read MAGRES files with CIF-style labels, as ASE versions 3.23-3.25 have a regression affecting this functionality. The bleeding option installs ASE from git master which includes the fix and supports NumPy 2.x.
 
 ### Development Installation
 To get the latest development version (not guaranteed to be stable) from GitHub:
@@ -69,8 +72,7 @@ Soprano's dependencies are automatically handled by `pip` during installation. T
 Additional, optional dependencies are available through feature sets:
 
 * **docs**: Dependencies for building documentation (`jupyter-book`, `sphinx-click`, etc.)
-* **dev**: Dependencies for development (`black`, `flake8`, `pytest`, etc.) and the latest version of ASE from git
-* **bleeding-edge**: Latest development version of ASE from git
+* **dev**: Dependencies for development (`black`, `flake8`, `pytest`, etc.)
 * **legacy**: Pinned versions of ASE and NumPy for compatibility with older systems
 
 ## Testing
@@ -88,10 +90,13 @@ hatch run test:test
 hatch run legacy:test
 
 # For more verbose output
-hatch run test:test-verbose
+hatch run test:test -v
+# To run tests without the latest ASE (if you have issues with it)
+hatch run test:test-no-git
 ```
 
-Additional, optional requirements are `pyspglib` (used for spacegroup detection in `soprano.properties.symmetry` and `soprano.calculate.xrd`) and `paramiko` (used for remote SSH operation in `soprano.hpc.submitter`).
+
+For contributors running tests locally with GitHub Actions, consider using [Act](https://github.com/nektos/act).
 
 ## Getting started
 Soprano ships with several Jupyter notebooks that illustrate its core functionality and how to use it. Being familiar with the use of `ase` - the Atomic Simulation Environment - is a good starting point. To use Jupyter notebooks you only need to have Jupyter installed, then launch the notebook server in the tutorials folder:
