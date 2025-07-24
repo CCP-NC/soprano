@@ -112,6 +112,8 @@ venv.bak/
 
 # Test stuff
 tests/test_save/*
+!/tests/test_save/.gitkeep
+!/tests/test_save/README.md
 tests/*.pkl
 
 # Temporary files from tutorial notebooks

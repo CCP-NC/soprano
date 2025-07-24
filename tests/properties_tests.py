@@ -13,6 +13,8 @@ from ase import Atom, Atoms
 from ase.build import bulk
 from ase.io import read
 
+from tests.test_utils import skip_if_problematic_ase
+
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 )
@@ -390,7 +392,11 @@ class TestPropertyLoad(unittest.TestCase):
         ] * 12
 
         self.assertEqual(HydrogenBondTypes.get(a), hbtypes)
-
+    
+    @skip_if_problematic_ase
+    def test_labelprops_with_cif_labels(self):
+        from soprano.properties.labeling import UniqueSites
+        from collections import OrderedDict
         # Now we test labelleing Unique Sites
         a = read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
         tagged_sites = UniqueSites.get(a, symprec=1e-3)

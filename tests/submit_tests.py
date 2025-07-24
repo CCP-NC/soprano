@@ -8,29 +8,34 @@ import os
 import stat
 import sys
 import unittest
+from pathlib import Path
+
+import pytest
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 )
 
-_TESTCMD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_cmds")
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
+# Use Path for cross-platform compatibility
+_TESTCMD_DIR = Path(__file__).parent / "test_cmds"
+_TESTDATA_DIR = Path(__file__).parent / "test_data"
 
 
 class TestSubmit(unittest.TestCase):
+    @pytest.mark.skipif(sys.platform == "win32", reason="Queue tests not supported on Windows")
     def test_queueint(self):
         from soprano.hpc.submitter import QueueInterface
 
         # Clean up the mock queue for any eventuality
         try:
-            os.remove(os.path.join(_TESTCMD_DIR, "queue.pkl"))
+            (_TESTCMD_DIR / "queue.pkl").unlink(missing_ok=True)
         except OSError:
             pass
 
         qInt = QueueInterface(
-            sub_cmd=os.path.join(_TESTCMD_DIR, "mocksub.py"),
-            list_cmd=os.path.join(_TESTCMD_DIR, "mocklist.py"),
-            kill_cmd=os.path.join(_TESTCMD_DIR, "mockkill.py"),
+            sub_cmd=str(_TESTCMD_DIR / "mocksub.py"),
+            list_cmd=str(_TESTCMD_DIR / "mocklist.py"),
+            kill_cmd=str(_TESTCMD_DIR / "mockkill.py"),
             sub_outre="\\<(?P<job_id>[0-9]+)\\>",
             list_outre="(?P<job_id>[0-9]+)[^(RUN|PEND)]*" "(?P<job_status>RUN|PEND)",
         )

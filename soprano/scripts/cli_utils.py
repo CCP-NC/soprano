@@ -28,6 +28,7 @@ import os
 import re
 from collections import OrderedDict, defaultdict
 from configparser import ConfigParser
+from pathlib import Path
 from typing import List, Optional
 
 import click
@@ -852,7 +853,9 @@ def print_results(
                 # each dataframe to a separate file
                 # so let's prefix the filename
                 magrespath = df["file"].iloc[0]
-                prefix = "_".join(os.path.splitext(magrespath)[0].split("/")) + "-"
+                # Use pathlib for cross-platform path handling
+                path_parts = Path(magrespath).stem.split("/")
+                prefix = "_".join(path_parts) + "-"
             else:
                 prefix = ""
             fname = prefix + output

@@ -187,7 +187,7 @@ def abc2cart(abc):
 
     """
 
-    abc = np.array(abc, copy=False)
+    abc = np.asarray(abc)
 
     if abc.shape != (2, 3):
         raise ValueError("Invalid abc passed to abc2cart")
@@ -210,7 +210,7 @@ def cart2abc(cart):
 
     """
 
-    cart = np.array(cart, copy=False)
+    cart = np.asarray(cart)
 
     if cart.shape != (3, 3):
         raise ValueError("Invalid cart passed to cart2abc")
@@ -233,7 +233,7 @@ def hkl2d2_matgen(abc):
 
     """
 
-    abc = np.array(abc, copy=False)
+    abc = np.asarray(abc)
 
     if abc.shape != (2, 3):
         raise ValueError("Invalid abc passed to hkl2d2_matgen")
@@ -276,7 +276,7 @@ def inv_plane_dist(hkl, hkl2d2):
 
     """
 
-    hkl = np.array(hkl, copy=False)
+    hkl = np.asarray(hkl)
 
     if hkl.shape != (3,):
         raise ValueError("Invalid hkl passed to inv_plane_dist")
@@ -311,12 +311,12 @@ def minimum_supcell(max_r, latt_cart=None, r_matrix=None, pbc=[True, True, True]
     """
 
     if latt_cart is not None:
-        latt_cart = np.array(latt_cart, copy=False)
+        latt_cart = np.asarray(latt_cart)
         if latt_cart.shape != (3, 3):
             raise ValueError("Invalid latt_cart passed to minimum_supcell")
         r_matrix = np.dot(latt_cart, latt_cart.T)
     elif r_matrix is not None:
-        r_matrix = np.array(r_matrix, copy=False)
+        r_matrix = np.asarray(r_matrix)
         if r_matrix.shape != (3, 3):
             raise ValueError("Invalid r_matrix passed to minimum_supcell")
     else:
@@ -384,11 +384,11 @@ def supcell_gridgen(latt_cart, shape):
 
     """
 
-    latt_cart = np.array(latt_cart, copy=False)
+    latt_cart = np.asarray(latt_cart)
     if latt_cart.shape != (3, 3):
         raise ValueError("Invalid latt_cart passed to supcell_gridgen")
 
-    shape = np.array(shape, copy=False).astype(int)
+    shape = np.asarray(shape).astype(int)
     if shape.shape != (3,):
         raise ValueError("Invalid shape passed to supcell_gridgen")
 
@@ -439,7 +439,7 @@ def minimum_periodic(v, latt_cart, exclude_self=False, pbc=[True, True, True]):
     max_r = np.amax(np.linalg.norm(v, axis=-1))
     scell_shape = minimum_supcell(max_r, latt_cart, pbc=pbc)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
-    v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
+    v_period = np.asarray(v)[:, None, :] + neigh_grid[None, :, :]
     v_norm = np.linalg.norm(v_period, axis=-1)
     if exclude_self:
         v_norm = np.where(v_norm > 0, v_norm, np.inf)
@@ -479,7 +479,7 @@ def all_periodic(v, latt_cart, max_r, pbc=[True, True, True]):
 
     scell_shape = minimum_supcell(max_r, latt_cart, pbc=pbc)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
-    v_period = np.array(v, copy=False)[:, None, :] + neigh_grid[None, :, :]
+    v_period = np.asarray(v)[:, None, :] + neigh_grid[None, :, :]
     r_copies = np.where(np.linalg.norm(v_period, axis=-1) <= max_r)
     v_period = v_period[r_copies[0], r_copies[1], :]
 

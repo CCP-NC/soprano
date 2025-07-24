@@ -18,6 +18,7 @@ from soprano.scripts.nmr import (
     merge_tagged_sites,
     tag_functional_groups,
 )
+from tests.test_utils import skip_if_problematic_ase
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -81,6 +82,7 @@ class TestExtractMolecules(unittest.TestCase):
         molecules = extract_molecules(atoms, use_cell_indices=True)
         assert len(molecules) == 1
 
+    @skip_if_problematic_ase
     def test_extract_molecules_complex(self):
         # Load another structure file from the test_data directory
         atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))

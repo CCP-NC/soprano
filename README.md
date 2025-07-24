@@ -1,6 +1,9 @@
 # soprano
 Soprano - a Python library to crack crystals!
 
+[![Python Tests](https://github.com/CCP-NC/soprano/actions/workflows/python-test.yml/badge.svg)](https://github.com/CCP-NC/soprano/actions/workflows/python-test.yml)
+[![PyPI version](https://badge.fury.io/py/Soprano.svg)](https://badge.fury.io/py/Soprano)
+
 ## Introduction
 Soprano is a Python library developed and maintained by the CCP for NMR Crystallography as a tool to help scientists
 working with crystallography and simulations to generate, manipulate, run calculations on and analyse large data sets of
@@ -9,26 +12,94 @@ crystal structures, with a particular attention to the output of ab-initio rando
 ## How to install
 Soprano is now available on the Python Package Index. You can install the latest stable release by using `pip`:
 
-    pip install soprano --user
+    pip install soprano
 
-In addition, you can get the latest version (not guaranteed to be stable) from github:
+This will install Soprano with the latest available versions of ASE and NumPy.
+
+### Installation Options
+
+#### Installing with the latest ASE from git (recommended for magres files with CIF-style labels)
+ASE versions 3.23 to 3.25 cannot read magres files with CIF-style labels due to a regression. This will be fixed in ASE 3.26 when it is released. Until then, you can install Soprano together with the latest development version of ASE from git:
+
+    pip install soprano git+https://gitlab.com/ase/ase.git@master
+
+This will ensure full compatibility with magres files using CIF-style labels.
+
+
+#### For Legacy Systems
+If you need compatibility with older systems, you can use the legacy installation which pins ASE to version < 3.23 and NumPy to <2.0:
+
+    pip install soprano[legacy]
+
+**Note:** This is useful for environments where you need more controlled dependency versions.
+
+
+
+### Development Installation
+To get the latest development version (not guaranteed to be stable) from GitHub:
 
     git clone https://github.com/CCP-NC/soprano.git
-    pip install ./soprano --user
- 
-This approach should work even on machines on which one does not possess admin privileges (such as HPC clusters), as long as Python and `pip` are present.
+    cd soprano
+    pip install -e .
+
+For development purposes, install additional tools:
+
+    pip install -e ".[dev]"
+
+This installs Soprano in development mode, where changes to the code take effect immediately without reinstallation. The `dev` option includes tools for code formatting, linting, and testing. It also includes the latest development version of ASE from git, which is necessary for reading MAGRES files with CIF-style labels. 
+
+You can also combine installation options. For example, to install the development version with the docs dependencies:
+
+    pip install -e ".[dev,docs]"
+This installs Soprano in development mode with additional dependencies for building documentation.
+
+These approaches should work even on machines without admin privileges (such as HPC clusters), as long as Python and `pip` are present. You can also use the `--user` flag with `pip` to install packages for your user account only.
 
 ## Requirements
-Soprano has a few requirements that should be installed automatically by `pip` when used. Installing with `pip` is strongly advised. The core Soprano requirements are:
+Soprano's dependencies are automatically handled by `pip` during installation. The core requirements include:
 
-* [Numpy](http://www.numpy.org/)
-* [Scipy](https://www.scipy.org/)
-* The [Atomic Simulation Environment](https://wiki.fysik.dtu.dk/ase/)
+* [NumPy](http://www.numpy.org/)
+* [SciPy](https://www.scipy.org/)
+* [ASE](https://wiki.fysik.dtu.dk/ase/) (Atomic Simulation Environment)
+* [Pandas](https://pandas.pydata.org/) (≥2.0)
+* [Matplotlib](https://matplotlib.org/)
+* [Spglib](https://spglib.github.io/spglib/) (≥2.4)
+* [Pydantic](https://docs.pydantic.dev/) (≥2.0)
+* [Click](https://click.palletsprojects.com/) (for CLI functionality)
+* [Bottleneck](https://pypi.org/project/Bottleneck/) (≥1.3.6)
+* [adjustText](https://github.com/Phlya/adjustText)
 
-Additional, optional requirements are `pyspglib` (used for spacegroup detection in `soprano.properties.symmetry` and `soprano.calculate.xrd`) and `paramiko` (used for remote SSH operation in `soprano.hpc.submitter`).
+Additional, optional dependencies are available through feature sets:
+
+* **docs**: Dependencies for building documentation (`jupyter-book`, `sphinx-click`, etc.)
+* **dev**: Dependencies for development (`black`, `flake8`, `pytest`, etc.)
+* **legacy**: Pinned versions of ASE and NumPy for compatibility with older systems
+
+## Testing
+
+Soprano uses `pytest` for testing and `hatch` for environment management. To run the test suite:
+
+```bash
+# Install hatch first if you don't have it
+pip install hatch
+
+# Run tests with the default dev environment
+hatch run test:test
+
+# Run tests with legacy dependencies
+hatch run legacy:test
+
+# For more verbose output
+hatch run test:test -v
+# To run tests without the latest ASE (if you have issues with it)
+hatch run test:test-no-git
+```
+
+
+For contributors running tests locally with GitHub Actions, consider using [Act](https://github.com/nektos/act).
 
 ## Getting started
-Soprano ships with five Jupyter notebooks that illustrate its core functionality and how to use it. Being accustomed already with the use of `ase` - the Atomic Simulation Environment - is a good starting point. To use Jupyter notebooks you only need to have Jupyter installed, then launch the notebook server in the tutorials folder:
+Soprano ships with several Jupyter notebooks that illustrate its core functionality and how to use it. Being familiar with the use of `ase` - the Atomic Simulation Environment - is a good starting point. To use Jupyter notebooks you only need to have Jupyter installed, then launch the notebook server in the tutorials folder:
 
     pip install jupyter
     cd tutorials
