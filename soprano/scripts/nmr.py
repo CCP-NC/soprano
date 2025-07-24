@@ -89,16 +89,6 @@ NMR_COLUMN_ALIASES = {
 @click.command()
 # one of more files
 @click.argument("files", nargs=-1, type=click.Path(exists=True), required=True)
-@click.option(
-    "--ms-tag",
-    default="ms",
-    help="Name of array containing MS tensors. default: 'ms'",
-)
-@click.option(
-    "--efg-tag", 
-    default="efg",
-    help="Name of array containing EFG tensors. default: 'efg'",
-)
 @add_options(NMREXTRACT_OPTIONS)
 def nmr(
     files,
@@ -246,10 +236,17 @@ def nmr_extract_multi(
             logger.error(f"Could not read file {fname}, skipping.")
             return
 
+        # Create mapping from properties to their corresponding tags
+        property_tags = {
+            'ms': kwargs.get('ms_tag', 'ms'),
+            'efg': kwargs.get('efg_tag', 'efg')
+        }
+        
         # Do they actually have any magres data?
-        if not any([atoms.has(k) for k in properties]):
+        required_tags = [property_tags[prop] for prop in properties if prop in property_tags]
+        if not any([atoms.has(tag) for tag in required_tags]):
             logger.error(
-                f"File {fname} has no {' '.join(properties)} data to extract. Skipping."
+                f"File {fname} has no {' or '.join(required_tags)} data to extract. Skipping."
             )
             continue
 
@@ -273,6 +270,7 @@ def nmr_extract_multi(
             gradients=gradients,
             properties=properties,
             euler_convention=euler_convention,
+            property_tags=property_tags,
             logger=logger,
         )
 
@@ -341,6 +339,8 @@ def nmr_extract_atoms(
         "labels": lambda x: x[0],
     },
     symprec: float = 1e-4,
+    ms_tag: str = "ms",
+    efg_tag: str = "efg",
     logger: logging.Logger = logging.getLogger("cli"),
 ):
     """
@@ -382,7 +382,7 @@ def nmr_extract_atoms(
     # check to make sure that all sites with the same tag have the same MSIsotropy
     # if not, throw a warning, suggest to turn on debug logging and --no-reduce flag
     # and then continue
-    if atoms.has("ms") and not check_equivalent_sites_ms(atoms, tags):
+    if atoms.has(ms_tag) and not check_equivalent_sites_ms(atoms, tags, tag=ms_tag):
         logger.warning(
             "    Some sites with the same symmetry tag/CIF label have different MS isotropy values."
         )
@@ -539,6 +539,7 @@ def build_nmr_df(
     gradients: dict = {},
     properties: List[str] = ["efg", "ms"],
     euler_convention: str = "zyz",
+    property_tags: dict = {},
     logger: logging.Logger = logging.getLogger("cli"),
 ):
     """
@@ -583,9 +584,10 @@ def build_nmr_df(
     # which file the data came from if merging multiple files.
     df["file"] = fname
     if "ms" in properties:
+        ms_tag = property_tags.get('ms', 'ms')
         try:
             ms_summary = pd.DataFrame(
-                get_ms_summary(atoms, euler_convention, references, gradients)
+                get_ms_summary(atoms, euler_convention, references, gradients, ms_tag)
             )
             if not references:
                 # drop shift column if no references are given
@@ -594,21 +596,22 @@ def build_nmr_df(
             df = pd.concat([df, ms_summary], axis=1)
         except RuntimeError:
             logger.warning(
-                f"No MS data found in {fname}\n"
+                f"No MS data found in {fname} with tag '{ms_tag}'\n"
                 "Set argument `-p efg` if the file(s) only contains EFG data "
             )
         except:
             logger.warning("Failed to load MS data from .magres")
             raise
     if "efg" in properties:
+        efg_tag = property_tags.get('efg', 'efg')
         try:
             efg_summary = pd.DataFrame(
-                get_efg_summary(atoms, isotopes, euler_convention)
+                get_efg_summary(atoms, isotopes, euler_convention, efg_tag)
             )
             df = df = pd.concat([df, efg_summary], axis=1)
         except RuntimeError:
             logger.warning(
-                f"No EFG data found in {fname}\n"
+                f"No EFG data found in {fname} with tag '{efg_tag}'\n"
                 "Set argument `-p ms` if the file(s) only contains MS data "
             )
         except:
@@ -628,6 +631,7 @@ def get_ms_summary(
     euler_convention: str,
     references: Optional[dict] = None,
     gradients: Optional[dict] = None,
+    ms_tag: str = "ms",
 ) -> pd.DataFrame:
     """
     For an Atoms object with ms tensor arrays, return a summary of the tensors.
@@ -637,21 +641,22 @@ def get_ms_summary(
         euler_convention (str): the euler convention to use
         references (dict, optional): the reference tensors. Defaults to None. e.g. {'C': 100}
         gradients (dict, optional): the gradient tensors. Defaults to None. e.g. {'C': -1}
+        ms_tag (str): the tag for the MS tensor array. Defaults to "ms".
 
     Returns:
         dict: a dictionary with the summary of the ms tensors
     """
     # Isotropy, Anisotropy and Asymmetry (Haeberlen convention)
-    iso = MSIsotropy.get(atoms)
-    shift = MSIsotropy.get(atoms, ref=references, grad=gradients)
-    aniso = MSAnisotropy.get(atoms)
-    red_aniso = MSReducedAnisotropy.get(atoms)
-    asymm = MSAsymmetry.get(atoms)
+    iso = MSIsotropy.get(atoms, tag=ms_tag)
+    shift = MSIsotropy.get(atoms, ref=references, grad=gradients, tag=ms_tag)
+    aniso = MSAnisotropy.get(atoms, tag=ms_tag)
+    red_aniso = MSReducedAnisotropy.get(atoms, tag=ms_tag)
+    asymm = MSAsymmetry.get(atoms, tag=ms_tag)
     # Span and skew
-    span = MSSpan.get(atoms)
-    skew = MSSkew.get(atoms)
+    span = MSSpan.get(atoms, tag=ms_tag)
+    skew = MSSkew.get(atoms, tag=ms_tag)
     # quaternion
-    quat = MSQuaternion.get(atoms)
+    quat = MSQuaternion.get(atoms, tag=ms_tag)
     # We need to be carefull with the angle averaging
     quat = average_quaternions_by_tags(quat, atoms.get_tags())
     # Euler angles
@@ -677,6 +682,7 @@ def get_efg_summary(
     atoms: Atoms,
     isotopes: dict,
     euler_convention: str,
+    tag: str = "efg",
 ) -> dict:
     """
     For an Atoms object with EFG tensor arrays, return a summary of the tensors.
@@ -685,26 +691,27 @@ def get_efg_summary(
         atoms (Atoms): the Atoms object
         isotopes (dict): the isotopes to use for the quadrupolar constants
         euler_convention (str): the euler convention to use
+        tag (str): the tag for the EFG tensor array. Defaults to "efg".
 
     Returns:
         dict: a dictionary with the summary of the EFG tensors
 
     """
-    Vzz = EFGVzz.get(atoms)
+    Vzz = EFGVzz.get(atoms, tag=tag)
     # convert Vzz from au to V/m^2
     Vzz = Vzz * (Ha / Bohr) * 1e-1
 
     # For quadrupolar constants, isotopes become relevant. This means we need to create custom Property instances to
     # specify them. There are multiple ways to do so - check the docstrings for more details - but here we set them
     # by element. When nothing is specified it defaults to the most common NMR active isotope.
-    qP = EFGQuadrupolarConstant(isotopes=isotopes)
+    qP = EFGQuadrupolarConstant(isotopes=isotopes, tag=tag)
     qC = qP(atoms) / 1e6  # To MHz
 
     # asymmetry
-    eta = EFGAsymmetry.get(atoms)
+    eta = EFGAsymmetry.get(atoms, tag=tag)
 
     # quaternion
-    quat = EFGQuaternion.get(atoms)
+    quat = EFGQuaternion.get(atoms, tag=tag)
     # We need to be carefull with the angle averaging
     quat = average_quaternions_by_tags(quat, atoms.get_tags())
     # Euler angles
@@ -713,7 +720,7 @@ def get_efg_summary(
     ).T
 
     # NQR transitions
-    nqrs = EFGNQR.get(atoms, isotopes=isotopes)
+    nqrs = EFGNQR.get(atoms, isotopes=isotopes, tag=tag)
     # unique transitions
     transition_keys = sorted(set([k for nqr in nqrs for k in nqr.keys()]))
     nqr_dict = {}
@@ -740,7 +747,7 @@ def get_efg_summary(
     return efg_summary
 
 
-def check_equivalent_sites_ms(atoms, tags, tolerance=1e-3):
+def check_equivalent_sites_ms(atoms, tags, tolerance=1e-3, tag="ms"):
     """
     Check if the sites with the same tags have the same MS isotropy to within a tolerance.
 
@@ -748,13 +755,14 @@ def check_equivalent_sites_ms(atoms, tags, tolerance=1e-3):
         atoms (Atoms): the Atoms object
         tags (list): the tags to check
         tolerance (float, optional): the tolerance. Defaults to 1e-3.
+        tag (str): the tag for the MS tensor array. Defaults to "ms".
 
     Returns:
         bool: True if the sites are equivalent, False otherwise
 
     """
     unique_sites, counts = np.unique(tags, return_counts=True)
-    ms = MSIsotropy.get(atoms)
+    ms = MSIsotropy.get(atoms, tag=tag)
     # loop over unique sites that have more than equivalent site
     for i in unique_sites[counts > 1]:
         # get the indices of the equivalent sites

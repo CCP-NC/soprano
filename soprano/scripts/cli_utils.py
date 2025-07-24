@@ -224,6 +224,18 @@ config = click.option(
     "If not set, first checks environment variable: "
     "``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``",
 )
+
+ms_tag = click.option(
+    "--ms-tag",
+    default="ms",
+    help="Name of array containing MS tensors. default: 'ms'",
+)
+efg_tag = click.option(
+    "--efg-tag", 
+    default="efg",
+    help="Name of array containing EFG tensors. default: 'efg'",
+)
+
 subset_help = """Selection string of subset of sites include. e.g. 
                 ``-s C`` for only and all carbon atoms,
                 ``-s C.1-3,H.1.2`` for carbons 1,2,3 and hydrogens 1 and 2,
@@ -727,6 +739,8 @@ DF_OPTIONS = [
 ]
 
 NMR_OPTIONS = [
+    ms_tag,
+    efg_tag,
     nmrproperties,
     isotopes,
     average_group,
