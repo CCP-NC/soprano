@@ -4,7 +4,7 @@ Test code for NMR properties
 """
 
 
-import os
+from pathlib import Path
 import unittest
 
 import numpy as np
@@ -36,100 +36,130 @@ from soprano.properties.nmr.efg import EFGAnisotropy, EFGDiagonal, EFGEuler, EFG
 from soprano.properties.nmr.ms import MSEuler, MSShielding, MSShift, MSTensor
 from soprano.selection import AtomSelection
 
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
+_TESTDATA_DIR = Path(__file__).parent.resolve() / "test_data"
 
 
 class TestNMR(unittest.TestCase):
-    def test_shielding(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+    def _check_shielding(self, atoms, ms_data: np.array, tag=None):
+        iso = MSIsotropy.get(atoms, tag=tag) if tag else MSIsotropy.get(atoms)
+        aniso = MSAnisotropy.get(atoms, tag=tag) if tag else MSAnisotropy.get(atoms)
+        r_aniso = MSReducedAnisotropy.get(atoms, tag=tag) if tag else MSReducedAnisotropy.get(atoms)
+        asymm = MSAsymmetry.get(atoms, tag=tag) if tag else MSAsymmetry.get(atoms)
+        span = MSSpan.get(atoms, tag=tag) if tag else MSSpan.get(atoms)
+        skew = MSSkew.get(atoms, tag=tag) if tag else MSSkew.get(atoms)
 
-        # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, "ethanol_ms.dat")) as f:
-            data = f.readlines()[8:]
+        np.testing.assert_allclose(iso, ms_data[:, 0], rtol=1e-6)
+        np.testing.assert_allclose(aniso, ms_data[:, 1], rtol=1e-6)
+        np.testing.assert_allclose(r_aniso, ms_data[:, 2], rtol=1e-6)
+        np.testing.assert_allclose(asymm, ms_data[:, 3], rtol=1e-6)
+        ref_span = np.max(ms_data[:, 4:7], axis=1) - np.min(ms_data[:, 4:7], axis=1)
+        np.testing.assert_allclose(span, ref_span, rtol=1e-6)
+        ref_skew = 3 * (iso - np.sort(ms_data[:, 4:7], axis=1)[:, 1]) / ref_span
+        np.testing.assert_allclose(skew, ref_skew, rtol=1e-6)
 
-        iso = MSIsotropy.get(eth)
-        aniso = MSAnisotropy.get(eth)
-        r_aniso = MSReducedAnisotropy.get(eth)
-        asymm = MSAsymmetry.get(eth)
-        span = MSSpan.get(eth)
-        skew = MSSkew.get(eth)
 
-        for i, d in enumerate(data):
-            vals = [float(x) for x in d.split()[1:]]
-            if len(vals) != 10:
-                continue
-            # And check...
-            self.assertAlmostEqual(iso[i], vals[0])
-            self.assertAlmostEqual(aniso[i], vals[1])
-            self.assertAlmostEqual(r_aniso[i], vals[2])
-            self.assertAlmostEqual(asymm[i], vals[3])
-            self.assertAlmostEqual(span[i], max(vals[4:7]) - min(vals[4:7]))
-            self.assertAlmostEqual(
-                skew[i], 3 * (iso[i] - sorted(vals[4:7])[1]) / span[i]
-            )
-
-    def test_efg(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
-
-        # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, "ethanol_efg.dat")) as f:
-            data = f.readlines()[8:]
-        # load in euler angle references - cross-referenced with
-        # TensorView for Matlab
-        euler_refs = np.loadtxt(os.path.join(_TESTDATA_DIR, "ethanol_efg_eulers.dat"), skiprows=1)
-
-        asymm = EFGAsymmetry.get(eth)
-
-        qprop = EFGQuadrupolarConstant(isotopes={"H": 2})
-        qcnst = qprop(eth)
-        efg_tensors = EFGTensor.get(eth)
-
-        euler_angles = []
-        for efg in efg_tensors:
-            euler_angles.append(efg.euler_angles() * 180 / np.pi)
-
-        # compare to reference euler angles:
+    def _check_efg(self, atoms, efg_data: np.array, euler_refs: np.array, tag=None):
+        asymm = EFGAsymmetry.get(atoms, tag=tag) if tag else EFGAsymmetry.get(atoms)
+        qcnst = EFGQuadrupolarConstant.get(atoms, isotopes={"H": 2}, tag=tag) if tag else EFGQuadrupolarConstant(isotopes={"H": 2})(atoms)
+        efg_tensors = EFGTensor.get(atoms, tag=tag) if tag else EFGTensor.get(atoms)
+        euler_angles = [efg.euler_angles() * 180 / np.pi for efg in efg_tensors]
         self.assertTrue(np.allclose(euler_angles, euler_refs))
-
-        for i, d in enumerate(data):
-            vals = [float(x) for x in d.split()[1:]]
-            if len(vals) != 8:
-                continue
-            # And check...
-            # The quadrupolar constant has some imprecision due to values
-            # of quadrupole moment, so we only ask 2 places in kHz
-            self.assertAlmostEqual(qcnst[i] * 1e-3, vals[0] * 1e-3, places=2)
-            self.assertAlmostEqual(asymm[i], vals[1])
-
-        # A more basic test for the Vzz
-        Vzz_p = EFGVzz.get(eth)
+        np.testing.assert_allclose(efg_data[:, 0], qcnst, rtol=1e-6)
+        np.testing.assert_allclose(efg_data[:, 1], asymm, rtol=1e-6)
+        Vzz_p = EFGVzz.get(atoms, tag=tag) if tag else EFGVzz.get(atoms)
         Vzz_raw = []
-        for efg in eth.get_array("efg"):
+        arr_name = tag if tag else "efg"
+        for efg in atoms.get_array(arr_name):
             evals, _ = np.linalg.eigh(efg)
             Vzz_raw.append(evals[np.argmax(abs(evals))])
+        np.testing.assert_allclose(Vzz_p, Vzz_raw)
 
-        self.assertTrue(np.isclose(Vzz_p, Vzz_raw).all())
-
-        # A basic test for NQR frequencies
-        NQR = EFGNQR.get(eth)
+        NQR = EFGNQR.get(atoms, tag=tag) if tag else EFGNQR.get(atoms)
         non_zero_NQRs = np.where(NQR)[0]
-        # Only the O has NQR & there's only one O atom
         self.assertTrue(len(non_zero_NQRs) == 1)
-        self.assertTrue(eth[non_zero_NQRs[0]].symbol == "O")
+        self.assertTrue(atoms[non_zero_NQRs[0]].symbol == "O")
         NQR_vals = [v for v in NQR[-1].values()]
         NQR_keys = [k for k in NQR[-1].keys()]
-        # the first is 0.5 -> 1.5
         self.assertTrue(NQR_keys[0] == "m=0.5->1.5")
-        # the first is 1.5 -> 2.5
         self.assertTrue(NQR_keys[1] == "m=1.5->2.5")
-        # the ratio bewtween the two transion frequencies should 2 in this case
         self.assertAlmostEqual(NQR_vals[1] / NQR_vals[0], 2.0)
 
+    def setUp(self):
+        # Load the ethanol structure once for all tests
+        self.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+        # Load the MS data
+        ms_data = np.loadtxt(_TESTDATA_DIR / "ethanol_ms.dat", skiprows=8, dtype=str)[:, 1:]
+        self.ms_data = np.astype(ms_data, float)
+        # Load the EFG data
+        efg_data = np.loadtxt(_TESTDATA_DIR / "ethanol_efg.dat", skiprows=8, dtype=str)[:, 1:]
+        self.efg_data = np.astype(efg_data, float)
+        self.efg_euler_refs = np.loadtxt(_TESTDATA_DIR / "ethanol_efg_eulers.dat", skiprows=1)
+        self.dip_data = None
+
+    def test_shielding(self):
+        self._check_shielding(self.eth, self.ms_data)
+
+    def test_efg(self):
+        self._check_efg(self.eth, self.efg_data, self.efg_euler_refs)
+
+    def test_custom_tags(self):
+        eth = self.eth.copy()
+        eth.set_array("ms_custom_tag", eth.get_array("ms"))
+        eth.set_array("ms", None)
+        eth.set_array("efg_custom_tag", eth.get_array("efg"))
+        eth.set_array("efg", None)
+        
+        self._check_shielding(eth, self.ms_data, tag="ms_custom_tag")
+        self._check_efg(eth, self.efg_data, self.efg_euler_refs, tag="efg_custom_tag")
+
+        # Now check that there's no caching issues if force_recalc is False
+        # Let's re-set an 'ms' array that is twice the 'ms_custom_tag' array
+        eth.set_array("ms", eth.get_array("ms_custom_tag") * 2)
+        # Now we have both ms and ms_custom_tag arrays, where the former is twice the latter
+        # The custom tag should be the same as the original array
+        self._check_shielding(eth, self.ms_data, tag="ms_custom_tag")
+        # Now we check the scaled one, so let's update the reference data
+        
+        ms_data_scaled = self.ms_data.copy()
+        # This is a np array of shape (n_atoms, 10)
+        # Scale columns 0,1 and 2 by 2 (iso, aniso, r_aniso)
+        #  and also 4,5,6 (s1, s2, s3)
+        ms_data_scaled[:, 0:3] *= 2
+        ms_data_scaled[:, 4:7] *= 2
+        self._check_shielding(eth, ms_data_scaled, tag="ms")
+
+        # make sure we have both ms_diagonal_evals and ms_custom_tag_diagonal_evals
+        ms_custom_tag_diagonal_evals = eth.get_array("ms_custom_tag_diagonal_evals")
+        self.assertIsNotNone(ms_custom_tag_diagonal_evals)
+        ms_diagonal_evals = eth.get_array("ms_diagonal_evals")
+        self.assertIsNotNone(ms_diagonal_evals)
+
+        # Let's reinstate the efg array but doubled
+        eth.set_array("efg", eth.get_array("efg_custom_tag") * 2)
+        # Now we have both efg and efg_custom_tag arrays, where the former is twice the latter
+        # Sanity check to make sure that we don't have caching issues
+        self._check_efg(eth, self.efg_data, self.efg_euler_refs, tag="efg_custom_tag")
+
+        # Check that the efg array matches the efg_data adjusted for the factor of 2
+        efg_data_scaled = self.efg_data.copy()
+        # # scale columns 0,2, 3 and 4 by 2 (Chi, v_1, v_2, v_3)
+        efg_data_scaled[:, 0] *= 2
+        efg_data_scaled[:, 2:4] *= 2
+        self._check_efg(eth, efg_data_scaled, self.efg_euler_refs, tag="efg")
+
+        # Make sure eth has efg_custom_tag_diagonal_evals
+        efg_custom_tag_diagonal_evals = eth.get_array("efg_custom_tag_diagonal_evals")
+        self.assertIsNotNone(efg_custom_tag_diagonal_evals)
+        # and efg_diagonal_evals
+        efg_diagonal_evals = eth.get_array("efg_diagonal_evals")
+        self.assertIsNotNone(efg_diagonal_evals)
+
+
     def test_dipolar(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, "ethanol_dip.dat")) as f:
+        with open(_TESTDATA_DIR / "ethanol_dip.dat") as f:
             data = f.readlines()[8:]
 
         dip = DipolarCoupling.get(eth)
@@ -172,7 +202,7 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij].data, v]), 2 * d)
 
     def test_tensor(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
         ms = eth.get_array("ms")
 
         iso = MSIsotropy.get(eth)
@@ -952,7 +982,7 @@ class TestNMR(unittest.TestCase):
     def test_diprotavg(self):
         # Test dipolar rotational averaging
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
 
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import transformGen
@@ -1436,7 +1466,7 @@ class TestElectricFieldGradient(unittest.TestCase):
 
     def setUp(self):
         # Setup a sample tensor for
-        atoms = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        atoms = io.read(_TESTDATA_DIR / "ethanol.magres")
         self.atoms = atoms
         data =atoms.get_array('efg')[0] # First atom is an H
 
@@ -1535,7 +1565,7 @@ class TestMSMeanProperties(unittest.TestCase):
     def setUp(self):
         """Set up a test collection with predictable MS values."""
         # Load the ethanol structure
-        self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
         # Create a copy with just the H atoms
         #  so that we can average within a structure easily
         eth_justH = self.eth.copy()
@@ -1717,8 +1747,8 @@ class TestEFGMeanProperties(unittest.TestCase):
     def setUp(self):
         """Set up a test collection with predictable EFG values."""
         # Load the ethanol structure
-        self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
-        
+        self.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+
         # Create a second structure with scaled EFG values
         from soprano.collection import AtomsCollection
         eth2 = self.eth.copy()

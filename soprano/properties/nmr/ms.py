@@ -28,15 +28,19 @@ from soprano.nmr.utils import (
     _haeb_sort,
     _skew,
     _span,
+    _get_tensor_array,
 )
 from soprano.properties import AtomsProperty
+
+DEFAULT_MS_TAG = "ms"
 
 
 def _has_ms_check(f):
     # Decorator to add a check for the magnetic shieldings array
     def decorated_f(s, *args, **kwargs):
-        if not (s.has("ms")):
-            raise RuntimeError("No magnetic shielding data found for this" " system")
+        tag = kwargs.get('tag', DEFAULT_MS_TAG)
+        if not s.has(tag):
+            raise RuntimeError(f"The Atoms object does not have a '{tag}' array.")
         return f(s, *args, **kwargs)
 
     return decorated_f
@@ -86,19 +90,21 @@ class MSTensor(AtomsProperty):
                     be 'i' (ORDER_INCREASING), 'd'
                     (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                     'n' (ORDER_NQR). Default is 'i'.
+      tag (str, optional): name of the array containing magnetic shielding tensors.
+                    Defaults to 'ms'.
 
     Returns:
       ms_tensors (list): list of MagneticShielding objects
 
     """
     default_name = "ms_tensors"
-    default_params = {"order": MagneticShielding.ORDER_INCREASING}
+    default_params = {"order": MagneticShielding.ORDER_INCREASING, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, order, **kwargs):
+    def extract(s, order, tag, **kwargs):
         symbols = s.get_chemical_symbols()
-        ms_list = s.get_array("ms")
+        ms_list = _get_tensor_array(s, tag)
 
         ref_list = [None] * len(ms_list)
         grad_list = [-1] * len(ms_list)
@@ -127,6 +133,7 @@ class MSDiagonal(AtomsProperty):
     | Parameters:
     |   save_array (bool): if True, save the diagonalised tensors in the
     |                      Atoms object as an array. By default True.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_diag (np.ndarray): list of eigenvalues and eigenvectors
@@ -138,16 +145,17 @@ class MSDiagonal(AtomsProperty):
 
     @staticmethod
     @_has_ms_check
-    def extract(s, save_array):
+    def extract(s, save_array, tag):
 
-        ms_diag = [np.linalg.eigh((ms + ms.T) / 2.0) for ms in s.get_array("ms")]
+        ms_tensors = _get_tensor_array(s, tag)
+        ms_diag = [np.linalg.eigh((ms + ms.T) / 2.0) for ms in ms_tensors]
         ms_evals, ms_evecs = (np.array(a) for a in zip(*ms_diag))
 
         if save_array:
-            s.set_array(MSDiagonal.default_name + "_evals", ms_evals)
+            s.set_array(f"{tag}_diagonal" + "_evals", ms_evals)
             # Store also the Haeberlen sorted version
-            s.set_array(MSDiagonal.default_name + "_evals_hsort", _haeb_sort(ms_evals))
-            s.set_array(MSDiagonal.default_name + "_evecs", ms_evecs)
+            s.set_array(f"{tag}_diagonal" + "_evals_hsort", _haeb_sort(ms_evals))
+            s.set_array(f"{tag}_diagonal" + "_evecs", ms_evecs)
 
         return np.array([dict(zip(("evals", "evecs"), ms)) for ms in ms_diag])
 
@@ -165,6 +173,7 @@ class MSShielding(AtomsProperty):
     | Parameters:
     |   save_array (bool): if True, save the ms_shielding array in the
     |                      Atoms object as an array. By default True.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_shielding (np.ndarray): list of shieldings
@@ -172,17 +181,18 @@ class MSShielding(AtomsProperty):
     """
 
     default_name = "ms_shielding"
-    default_params = {"save_array": True}
+    default_params = {"save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, save_array) -> np.ndarray:
+    def extract(s, save_array, tag) -> np.ndarray:
 
-        ms_shielding = np.trace(s.get_array("ms"), axis1=1, axis2=2) / 3.0
+        ms_tensors = _get_tensor_array(s, tag)
+        ms_shielding = np.trace(ms_tensors, axis1=1, axis2=2) / 3.0
 
         if save_array:
             # Save the isotropic shieldings
-            s.set_array(MSShielding.default_name, ms_shielding)
+            s.set_array(f"{tag}_shielding", ms_shielding)
 
         return ms_shielding
 
@@ -224,6 +234,7 @@ class MSShift(AtomsProperty):
     |                              Default: -1 for all elements.
     |   save_array (bool): if True, save the ms_shift array in the
     |                      Atoms object as an array. By default True.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_shift (np.ndarray): list of shifts
@@ -231,18 +242,18 @@ class MSShift(AtomsProperty):
     """
 
     default_name = "ms_shift"
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True}
+    default_params = {"ref": {}, "grad": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array)-> np.ndarray:
+    def extract(s, ref, grad, save_array, tag)-> np.ndarray:
         # make sure we have some references set!
         if not ref:
             raise ValueError("No reference provided for chemical shifts")
 
 
         # get shieldings
-        ms_shieldings = MSShielding.get(s)
+        ms_shieldings = MSShielding.get(s, tag=tag)
 
         symbols = np.array(s.get_chemical_symbols())
 
@@ -326,7 +337,7 @@ class MSShift(AtomsProperty):
 
         if save_array:
             # Save the isotropic shifts
-            s.set_array(MSShift.default_name, ms_shifts)
+            s.set_array(f"{tag}_shift", ms_shifts)
 
 
         return ms_shifts
@@ -369,6 +380,7 @@ class MSIsotropy(AtomsProperty):
     |   gradients float/list/dict: usually around -1. 
     |   save_array (bool): if True, save the diagonalised tensors in the
     |                      Atoms object as an array. By default True.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_iso (np.ndarray): list of shieldings/shifts
@@ -376,22 +388,22 @@ class MSIsotropy(AtomsProperty):
     """
 
     default_name = "ms_isotropy"
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True}
+    default_params = {"ref": {}, "grad": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array) -> np.ndarray:
+    def extract(s, ref, grad, save_array, tag) -> np.ndarray:
 
         if ref:
             # the user wants to use the chemical shift
-            ms_iso =  MSShift.extract(s, ref, grad, save_array)
+            ms_iso = MSShift.get(s, ref=ref, grad=grad, save_array=save_array, tag=tag)
         else:
             # the user wants to use the magnetic shielding
-            ms_iso =  MSShielding.extract(s, save_array)
+            ms_iso = MSShielding.get(s, save_array=save_array, tag=tag)
 
         if save_array:
             # Save the isotropic shifts
-            s.set_array(MSIsotropy.default_name, ms_iso)
+            s.set_array(f"{tag}_isotropy", ms_iso)
         return ms_iso
 
     def mean(self, s, axis=None, weights=None, **kwargs):
@@ -429,6 +441,7 @@ class MSAnisotropy(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_list (np.ndarray): list of anisotropies
@@ -436,16 +449,16 @@ class MSAnisotropy(AtomsProperty):
     """
 
     default_name = "ms_anisotropy"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc)-> np.ndarray:
+    def extract(s, force_recalc, tag)-> np.ndarray:
 
-        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
-            MSDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            MSDiagonal.get(s, tag=tag)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
+        ms_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _anisotropy(ms_evals)
 
@@ -478,6 +491,7 @@ class MSReducedAnisotropy(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_list (np.ndarray): list of reduced anisotropies
@@ -485,16 +499,16 @@ class MSReducedAnisotropy(AtomsProperty):
     """
 
     default_name = "ms_red_anisotropy"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc)-> np.ndarray:
+    def extract(s, force_recalc, tag)-> np.ndarray:
 
-        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
-            MSDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            MSDiagonal.get(s, tag=tag)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
+        ms_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _anisotropy(ms_evals, reduced=True)
 
@@ -527,6 +541,7 @@ class MSAsymmetry(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_list (np.ndarray): list of asymmetries
@@ -534,16 +549,16 @@ class MSAsymmetry(AtomsProperty):
     """
 
     default_name = "ms_asymmetry"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc)-> np.ndarray:
+    def extract(s, force_recalc, tag)-> np.ndarray:
 
-        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
-            MSDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            MSDiagonal.get(s, tag=tag)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
+        ms_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _asymmetry(ms_evals)
 
@@ -576,6 +591,7 @@ class MSSpan(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_list (np.ndarray): list of spans
@@ -583,16 +599,16 @@ class MSSpan(AtomsProperty):
     """
 
     default_name = "ms_span"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
-            MSDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            MSDiagonal.get(s, tag=tag)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
+        ms_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _span(ms_evals)
 
@@ -625,6 +641,7 @@ class MSSkew(AtomsProperty):
     | Parameters:
     |   force_recalc (bool): if True, always diagonalise the tensors even if
     |                        already present.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_list (np.ndarray): list of skews
@@ -632,16 +649,16 @@ class MSSkew(AtomsProperty):
     """
 
     default_name = "ms_skew"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(MSDiagonal.default_name + "_evals_hsort") or force_recalc:
-            MSDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            MSDiagonal.get(s, tag=tag)
 
-        ms_evals = s.get_array(MSDiagonal.default_name + "_evals_hsort")
+        ms_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _skew(ms_evals)
 
@@ -680,6 +697,7 @@ class MSEuler(AtomsProperty):
         convention (str): 'zyz' or 'zxz' accepted - the ordering of the Euler
                         angle rotation axes. Default is ZYZ 
         passive (bool):  active or passive rotations. Default is active (passive=False)
+        tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
          
 
     Returns:
@@ -690,12 +708,13 @@ class MSEuler(AtomsProperty):
     default_name = "ms_eulers"
     default_params = {"order": MagneticShielding.ORDER_HAEBERLEN,
                       "convention": "zyz",
-                      "passive": False}
+                      "passive": False,
+                      "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, order, convention, passive):
-        return np.array([t.euler_angles(convention, passive=passive) for t in MSTensor.get(s, order=order)])
+    def extract(s, order, convention, passive, tag):
+        return np.array([t.euler_angles(convention, passive=passive) for t in MSTensor.get(s, order=order, tag=tag)])
 
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
@@ -743,6 +762,7 @@ class MSQuaternion(AtomsProperty):
                         be 'i' (ORDER_INCREASING), 'd'
                         (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                         'n' (ORDER_NQR). Default is 'i'.
+    |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
     |   ms_quat (list): list of quaternions
@@ -750,12 +770,12 @@ class MSQuaternion(AtomsProperty):
     """
 
     default_name = "ms_quats"
-    default_params = {"order": MagneticShielding.ORDER_HAEBERLEN}
+    default_params = {"order": MagneticShielding.ORDER_HAEBERLEN, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, order):
-        return [t.quaternion for t in MSTensor.get(s, order=order)]
+    def extract(s, order, tag):
+        return [t.quaternion for t in MSTensor.get(s, order=order, tag=tag)]
 
     @tensor_mean_property('quaternion')
     def mean(self, s, axis=None, weights=None):

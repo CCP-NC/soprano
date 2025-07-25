@@ -31,17 +31,20 @@ from soprano.nmr.utils import (
     _haeb_sort,
     _skew,
     _span,
+    _get_tensor_array,
 )
 from soprano.properties import AtomsProperty
 
 
+DEFAULT_EFG_TAG = "efg"
+
 def _has_efg_check(f):
     # Decorator to add a check for the electric field gradient array
     def decorated_f(s, *args, **kwargs):
-        if not (s.has("efg")):
-            raise RuntimeError(
-                "No electric field gradient data found for" " this system"
-            )
+        # Extract tag from kwargs, default to DEFAULT_EFG_TAG
+        tag = kwargs.get("tag", DEFAULT_EFG_TAG)
+        if not s.has(tag):
+            raise RuntimeError(f"The Atoms object does not have a '{tag}' array.")
         return f(s, *args, **kwargs)
 
     return decorated_f
@@ -111,6 +114,8 @@ class EFGTensor(AtomsProperty):
                            present will fall back on the previous
                            definitions. Where an isotope is present it
                            overrides everything else.
+        tag (str, optional): name of the array containing electric field gradient tensors.
+                            Defaults to 'efg'.
 
     Returns:
       efg_tensors (list): list of ElectricFieldGradient objects
@@ -123,11 +128,12 @@ class EFGTensor(AtomsProperty):
         "use_q_isotopes": False,
         "isotopes": {},
         "isotope_list": None,
-                      }
+        "tag": DEFAULT_EFG_TAG,
+    }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, order, use_q_isotopes, isotopes, isotope_list, **kwargs) -> List[ElectricFieldGradient]:
+    def extract(s, order, use_q_isotopes, isotopes, isotope_list, tag, **kwargs) -> List[ElectricFieldGradient]:
 
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
@@ -142,7 +148,8 @@ class EFGTensor(AtomsProperty):
         # convert list of numbers to isotope symbols
         isotopelist = [f"{iso}{elem}" for iso, elem in zip(isotopelist, elems)]
 
-        efg_tensors = [ElectricFieldGradient(efg, species, order=order) for efg, species in zip(s.get_array("efg"), isotopelist)]
+        efg_tensors_array = _get_tensor_array(s, tag)
+        efg_tensors = [ElectricFieldGradient(efg, species, order=order) for efg, species in zip(efg_tensors_array, isotopelist)]
         return efg_tensors
 
 
@@ -160,6 +167,7 @@ class EFGDiagonal(AtomsProperty):
     Parameters:
       save_array (bool): if True, save the diagonalised tensors in the
                          Atoms object as an array. By default True.
+      tag (str): name of the array containing electric field gradient tensors. Default: 'efg'.
 
     Returns:
       efg_diag (np.ndarray): list of eigenvalues and eigenvectors
@@ -167,22 +175,26 @@ class EFGDiagonal(AtomsProperty):
     """
 
     default_name = "efg_diagonal"
-    default_params = {"save_array": True}
+    default_params = {
+        "save_array": True,
+        "tag": DEFAULT_EFG_TAG,
+    }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, save_array):
+    def extract(s, save_array, tag):
 
-        efg_diag = [np.linalg.eigh((efg + efg.T) / 2.0) for efg in s.get_array("efg")]
+        efg_tensors = _get_tensor_array(s, tag)
+        efg_diag = [np.linalg.eigh((efg + efg.T) / 2.0) for efg in efg_tensors]
         efg_evals, efg_evecs = (np.array(a) for a in zip(*efg_diag))
 
         if save_array:
-            s.set_array(EFGDiagonal.default_name + "_evals", efg_evals)
+            s.set_array(f"{tag}_diagonal" + "_evals", efg_evals)
             # Store also the Haeberlen sorted version
             s.set_array(
-                EFGDiagonal.default_name + "_evals_hsort", _haeb_sort(efg_evals)
+                f"{tag}_diagonal" + "_evals_hsort", _haeb_sort(efg_evals)
             )
-            s.set_array(EFGDiagonal.default_name + "_evecs", efg_evecs)
+            s.set_array(f"{tag}_diagonal" + "_evecs", efg_evecs)
 
         return np.array([dict(zip(("evals", "evecs"), efg)) for efg in efg_diag])
 
@@ -214,23 +226,24 @@ class EFGVzz(AtomsProperty):
     Parameters:
       force_recalc (bool): if True, always diagonalise the tensors even if
                            already present.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_list (np.ndarray): list of Vzz values
     """
 
     default_name = "efg_vzz"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s, tag=tag)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
-
+        efg_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
         return efg_evals[:, -1]
 
     @tensor_mean_property('Vzz')
@@ -262,23 +275,24 @@ class EFGAnisotropy(AtomsProperty):
     Parameters:
       force_recalc (bool): if True, always diagonalise the tensors even if
                            already present.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_list (np.ndarray): list of anisotropies
-
     """
 
     default_name = "efg_anisotropy"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s, tag=tag)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
+        efg_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _anisotropy(efg_evals)
 
@@ -311,23 +325,24 @@ class EFGReducedAnisotropy(AtomsProperty):
     Parameters:
       force_recalc (bool): if True, always diagonalise the tensors even if
                            already present.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_list (np.ndarray): list of reduced anisotropies
-
     """
 
     default_name = "efg_red_anisotropy"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s, tag=tag)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
+        efg_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _anisotropy(efg_evals, reduced=True)
 
@@ -360,23 +375,24 @@ class EFGAsymmetry(AtomsProperty):
     Parameters:
       force_recalc (bool): if True, always diagonalise the tensors even if
                            already present.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_list (np.ndarray): list of asymmetries
-
     """
 
     default_name = "efg_asymmetry"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s, tag=tag)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
+        efg_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _asymmetry(efg_evals)
 
@@ -409,23 +425,24 @@ class EFGSpan(AtomsProperty):
     Parameters:
       force_recalc (bool): if True, always diagonalise the tensors even if
                            already present.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_list (np.ndarray): list of spans
-
     """
 
     default_name = "efg_span"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s, tag=tag)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
+        efg_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _span(efg_evals)
 
@@ -458,23 +475,24 @@ class EFGSkew(AtomsProperty):
     Parameters:
       force_recalc (bool): if True, always diagonalise the tensors even if
                            already present.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_list (np.ndarray): list of skews
-
     """
 
     default_name = "efg_skew"
-    default_params = {"force_recalc": False}
+    default_params = {"force_recalc": False, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc):
+    def extract(s, force_recalc, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
+        if not s.has(f"{tag}_diagonal" + "_evals_hsort") or force_recalc:
+            EFGDiagonal.get(s, tag=tag)
 
-        efg_evals = s.get_array(EFGDiagonal.default_name + "_evals_hsort")
+        efg_evals = s.get_array(f"{tag}_diagonal" + "_evals_hsort")
 
         return _skew(efg_evals)
 
@@ -529,10 +547,11 @@ class EFGQuadrupolarConstant(AtomsProperty):
                            present will fall back on the previous
                            definitions. Where an isotope is present it
                            overrides everything else.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       q_list (np.ndarray): list of quadrupole constants in Hz
-
     """
 
     default_name = "efg_qconst"
@@ -541,14 +560,13 @@ class EFGQuadrupolarConstant(AtomsProperty):
         "use_q_isotopes": False,
         "isotopes": {},
         "isotope_list": None,
+        "tag": DEFAULT_EFG_TAG,
     }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
+    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
 
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
@@ -560,7 +578,7 @@ class EFGQuadrupolarConstant(AtomsProperty):
 
         q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
 
-        return EFG_TO_CHI * q_list * EFGVzz.get(s)
+        return EFG_TO_CHI * q_list * EFGVzz.get(s, tag=tag, force_recalc=force_recalc)
 
     @tensor_mean_property('Cq')
     def mean(self, s, axis=None, weights=None, **kwargs):
@@ -618,13 +636,14 @@ class EFGNQR(AtomsProperty):
                            present will fall back on the previous
                            definitions. Where an isotope is present it
                            overrides everything else.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       q_list (list): list of dictionaries of the possible NQR frequencies in Hz
                         The keys of the dictionary are the possible m->m+1 values
                         For example: "m=1->2" for non-quadrupole active nuclei
                         the corresponding element will be an empty dictionary.
-
     """
 
     default_name = "efg_nqr"
@@ -633,14 +652,13 @@ class EFGNQR(AtomsProperty):
         "use_q_isotopes": False,
         "isotopes": {},
         "isotope_list": None,
+        "tag": DEFAULT_EFG_TAG,
     }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
+    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
 
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
@@ -652,12 +670,12 @@ class EFGNQR(AtomsProperty):
 
         q_list = _get_isotope_data(elems, "Q", isotopes, isotope_list, use_q_isotopes)
         I_list = _get_isotope_data(elems, "I", isotopes, isotope_list, use_q_isotopes)
-        eta_list = EFGAsymmetry.get(s)
+        eta_list = EFGAsymmetry.get(s, tag=tag, force_recalc=force_recalc)
         nqr = [defaultdict(None) for i in range(len(elems))]
 
         mask = I_list > 0.5
         for i in np.where(mask)[0]:
-            A = EFG_TO_CHI * EFGVzz.get(s)[i] * q_list[i] / (4 * I_list[i] * (2 * I_list[i] - 1))
+            A = EFG_TO_CHI * EFGVzz.get(s, tag=tag, force_recalc=force_recalc)[i] * q_list[i] / (4 * I_list[i] * (2 * I_list[i] - 1))
             ms = [m for m in _frange(-I_list[i], I_list[i] + 1, 1) if m >= 0.0][:-1]
             for m in ms:
                 key = f'm={m}->{m+1}'
@@ -713,10 +731,11 @@ class EFGQuadrupolarProduct(AtomsProperty):
                            present will fall back on the previous
                            definitions. Where an isotope is present it
                            overrides everything else.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       Pq_list (np.ndarray): list of quadrupole products in Hz (units of Cq)
-
     """
 
     default_name = "efg_qprod"
@@ -725,14 +744,13 @@ class EFGQuadrupolarProduct(AtomsProperty):
         "use_q_isotopes": False,
         "isotopes": {},
         "isotope_list": None,
+        "tag": DEFAULT_EFG_TAG,
     }
 
     @staticmethod
     @_has_efg_check
-    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list):
+    def extract(s, force_recalc, use_q_isotopes, isotopes, isotope_list, tag):
 
-        if not s.has(EFGDiagonal.default_name + "_evals_hsort") or force_recalc:
-            EFGDiagonal.get(s)
 
         # First thing, build the isotope dictionary
         elems = s.get_chemical_symbols()
@@ -747,8 +765,8 @@ class EFGQuadrupolarProduct(AtomsProperty):
         return (
             EFG_TO_CHI
             * q_list
-            * EFGVzz.get(s)
-            * (1 + (EFGAsymmetry.get(s) ** 2) / 3) ** 0.5
+            * EFGVzz.get(s, tag=tag, force_recalc=force_recalc)
+            * (1 + (EFGAsymmetry.get(s, tag=tag, force_recalc=force_recalc) ** 2) / 3) ** 0.5
         )
 
     @tensor_mean_property('Pq')
@@ -787,22 +805,23 @@ class EFGEuler(AtomsProperty):
         convention (str): 'zyz' or 'zxz' accepted - the ordering of the Euler
                         angle rotation axes. Default is ZYZ 
         passive (bool):  active or passive rotations. Default is active (passive=False)
-         
+        tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                             Can be customized for non-standard tensor arrays.
 
     Returns:
         efg_eulers (np.array): array of Euler angles in radians
-
     """
 
     default_name = "efg_eulers"
     default_params = {"order": ElectricFieldGradient.ORDER_NQR,
                       "convention": "zyz",
-                      "passive": False}
+                      "passive": False,
+                      "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, order, convention, passive):
-        return np.array([t.euler_angles(convention, passive=passive) for t in EFGTensor.get(s, order=order)])
+    def extract(s, order, convention, passive, tag):
+        return np.array([t.euler_angles(convention, passive=passive) for t in EFGTensor.get(s, order=order, tag=tag)])
 
     def mean(self, s, axis=None, weights=None, **kwargs):
         """
@@ -844,19 +863,20 @@ class EFGQuaternion(AtomsProperty):
                     be 'i' (ORDER_INCREASING), 'd'
                     (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                     'n' (ORDER_NQR). Default is 'n'.
+      tag (str, optional): name of the array containing electric field gradient tensors. Defaults to 'efg'.
+                           Can be customized for non-standard tensor arrays.
 
     Returns:
       efg_quat (list): list of quaternions
-
     """
 
     default_name = "efg_quats"
-    default_params = {"order": ElectricFieldGradient.ORDER_NQR}
+    default_params = {"order": ElectricFieldGradient.ORDER_NQR, "tag": DEFAULT_EFG_TAG}
 
     @staticmethod
     @_has_efg_check
-    def extract(s, order):
-        return [t.quaternion for t in EFGTensor.get(s, order=order)]
+    def extract(s, order, tag):
+        return [t.quaternion for t in EFGTensor.get(s, order=order, tag=tag)]
 
     @tensor_mean_property('quaternion')
     def mean(self, s, axis=None, weights=None):
