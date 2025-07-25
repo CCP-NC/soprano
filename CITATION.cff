@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+title: Soprano
+message: >-
+  If you use this software, please cite it as below.
+  Additionally, please acknowledge CCP-NC support using the following:
+  'This work was facilitated by software tools (specifically Soprano) 
+  developed by the Collaborative Computing Project for NMR Crystallography,
+  funded by EPSRC grant EP/T026642/1.'
+type: software
+authors:
+  - given-names: Simone
+    family-names: Sturniolo
+    email: simone.sturniolo@stfc.ac.uk
+    affiliation: Science and Technology Facilities Council
+    orcid: 'https://orcid.org/0000-0003-4851-1144'
+  - given-names: J. Kane
+    family-names: Shenton
+    email: kane.shenton@stfc.ac.uk
+    affiliation: Science and Technology Facilities Council
+    orcid: 'https://orcid.org/0000-0003-4485-3446'
+  - name: CCP for NMR Crystallography
+    website: 'https://www.ccpnc.ac.uk/'
+    alias: CCP-NC
+repository-code: 'https://github.com/CCP-NC/soprano'
+url: 'https://ccp-nc.github.io/soprano/'
+abstract: >-
+  A Python library to crack crystals! Soprano is a tool to
+  help scientists working with crystallography and
+  simulations to generate, manipulate, run calculations on
+  and analyse large data sets of crystal structures, with a
+  particular attention to the output of ab-initio random
+  structure searching (AIRSS).
+keywords:
+  - computational chemistry
+  - crystallography
+  - crystal structure analysis
+  - NMR crystallography
+  - ab-initio random structure searching
+  - AIRSS
+  - materials science
+  - machine learning
+  - spectroscopy
+  - CCP-NC
+  - SSNMR
+license: LGPL-3.0-or-later
+version: 0.10.0
+date-released: '2025-07-24'
