@@ -174,6 +174,8 @@ class TriAvg(PowderScheme):
         return np.array([ct, st, cp, sp]).T, weights, tris
 
     def average(self, x, y, weights, tris):
+        # Fix: Remove any trailing singleton dimensions from tris
+        tris = np.squeeze(tris)
 
         triy = np.sort(y[tris], axis=1)
         triweights = np.average(weights[tris], axis=1)
