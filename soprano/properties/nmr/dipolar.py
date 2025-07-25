@@ -20,8 +20,9 @@ couplings"""
 
 import numpy as np
 
-from soprano.data.nmr import _get_isotope_data
-from soprano.nmr import NMRTensor
+from soprano.data.nmr import _get_isotope_data, _get_isotope_list
+from soprano.nmr.tensor import NMRTensor
+from soprano.nmr.coupling import DipolarCoupling as SiteDipolarCoupling
 from soprano.nmr.utils import _dip_constant, _dip_tensor
 from soprano.properties import AtomsProperty
 from soprano.rnd import Random
@@ -531,3 +532,102 @@ class DipolarEuler(AtomsProperty):
             eulerdict[ij] = eulers
 
         return eulerdict
+
+
+class DipolarCouplingList(AtomsProperty):
+
+    """
+    DipolarCouplingList
+
+    Produces a list of DipolarCoupling objects for atom pairs
+    in the system. For each pair, the closest periodic copy will be considered.
+    
+    See `DipolarTensor` for the definition of the dipolar tensor used.
+
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling. By default is None
+                                      (= all of them).
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the dipolar
+                                      coupling with the ones in sel_i. By
+                                      default is None (= same as sel_i).
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      self_coupling (bool): if True, include coupling of a nucleus with its
+                            own closest periodic copy. Otherwise excluded.
+                            Default is False.
+      block_size (int): maximum size of blocks used when processing large
+                        chunks of pairs. Necessary to avoid memory problems
+                        for very large systems. Default is 1000.
+      rotation_axis (np.ndarray): if present, return the residual dipolar
+                                  tensors after fast averaging around the
+                                  given axis. Default is None.
+      isonuclear (bool): if True, only compute couplings between nuclei of
+                         the same element. Default is False.
+
+    Returns:
+      dip_list (list): List of `DipolarCoupling` objects.
+
+    """
+
+    default_name = "dip_coupling_list"
+    default_params = {
+        "sel_i": None,
+        "sel_j": None,
+        "isotopes": {},
+        "isotope_list": None,
+        "self_coupling": False,
+        "block_size": 1000,
+        "rotation_axis": None,
+        "isonuclear": False,
+    }
+
+    @staticmethod
+    def extract(
+        s,
+        sel_i,
+        sel_j,
+        isotopes,
+        isotope_list,
+        self_coupling,
+        block_size,
+        rotation_axis,
+        isonuclear,
+    ) -> list[SiteDipolarCoupling]:
+        elements = s.get_chemical_symbols()
+        isotope_list = _get_isotope_list(elements, isotopes, isotope_list)
+        species_list = [f'{iso}{el}' for iso, el in zip(isotope_list, elements)]
+        dip_dict = DipolarTensor.extract(
+            s,
+            sel_i=sel_i,
+            sel_j=sel_j,
+            isotopes=isotopes,
+            isotope_list=isotope_list,
+            self_coupling=self_coupling,
+            block_size=block_size,
+            rotation_axis=rotation_axis,
+            isonuclear=isonuclear,
+        )
+
+        # Now build the DipolarCoupling objects
+        dip_list = []
+        for ij, T in dip_dict.items():
+            i, j = ij
+            dip_list.append(SiteDipolarCoupling(
+                site_i=i, # index i in the original structure
+                site_j=j, # index j in the original structure
+                species1=species_list[i], # e.g. '1H' or '13C'
+                species2=species_list[j],
+                tensor=T,
+                ))
+
+        return dip_list

@@ -30,6 +30,7 @@ import re
 import warnings
 from collections import OrderedDict, defaultdict
 
+from ase import Atoms
 import numpy as np
 
 from soprano.utils import customize_warnings, minimum_supcell, supcell_gridgen
@@ -606,6 +607,38 @@ class AtomSelection:
 
         return AtomSelection(atoms, sel_i)
 
+    @staticmethod
+    def from_input(atoms: Atoms, selection_input: "AtomSelection | list[int] | int | str | None") -> "Optional[AtomSelection]":
+        """Convert various input types into an AtomSelection object.
+        
+        Args:
+            atoms: The Atoms object the selection will be applied to
+            selection_input: The input to convert. Can be:
+                - None: returns None
+                - AtomSelection: returns the input unchanged
+                - list[int]: creates selection from list of indices
+                - int: creates selection containing single index
+                - str: parses selection string (see from_selection_string)
+                
+        Returns:
+            AtomSelection object or None if input was None
+            
+        Raises:
+            TypeError if the input cannot be converted to an AtomSelection
+        """
+        if selection_input is None:
+            return None
+            
+        if isinstance(selection_input, AtomSelection):
+            return selection_input
+        elif isinstance(selection_input, list):
+            return AtomSelection(atoms, selection_input)
+        elif isinstance(selection_input, int):
+            return AtomSelection(atoms, [selection_input])
+        elif isinstance(selection_input, str):
+            return AtomSelection.from_selection_string(atoms, selection_input)
+        else:
+            raise TypeError("Selection must be an AtomSelection object, list of indices, single index, or selection string.")
 
     @staticmethod
     def unique(atoms, symprec=1e-4):
