@@ -4,7 +4,7 @@ Test code for NMR properties
 """
 
 
-import os
+from pathlib import Path
 import unittest
 
 import numpy as np
@@ -36,15 +36,15 @@ from soprano.properties.nmr.efg import EFGAnisotropy, EFGDiagonal, EFGEuler, EFG
 from soprano.properties.nmr.ms import MSEuler, MSShielding, MSShift, MSTensor
 from soprano.selection import AtomSelection
 
-_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
+_TESTDATA_DIR = Path(__file__).parent.resolve() / "test_data"
 
 
 class TestNMR(unittest.TestCase):
     def test_shielding(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, "ethanol_ms.dat")) as f:
+        with open(_TESTDATA_DIR / "ethanol_ms.dat") as f:
             data = f.readlines()[8:]
 
         iso = MSIsotropy.get(eth)
@@ -69,14 +69,14 @@ class TestNMR(unittest.TestCase):
             )
 
     def test_efg(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, "ethanol_efg.dat")) as f:
+        with open(_TESTDATA_DIR / "ethanol_efg.dat") as f:
             data = f.readlines()[8:]
         # load in euler angle references - cross-referenced with
         # TensorView for Matlab
-        euler_refs = np.loadtxt(os.path.join(_TESTDATA_DIR, "ethanol_efg_eulers.dat"), skiprows=1)
+        euler_refs = np.loadtxt(_TESTDATA_DIR / "ethanol_efg_eulers.dat", skiprows=1)
 
         asymm = EFGAsymmetry.get(eth)
 
@@ -126,10 +126,10 @@ class TestNMR(unittest.TestCase):
         self.assertAlmostEqual(NQR_vals[1] / NQR_vals[0], 2.0)
 
     def test_dipolar(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
 
         # Load the data calculated with MagresView
-        with open(os.path.join(_TESTDATA_DIR, "ethanol_dip.dat")) as f:
+        with open(_TESTDATA_DIR / "ethanol_dip.dat") as f:
             data = f.readlines()[8:]
 
         dip = DipolarCoupling.get(eth)
@@ -172,7 +172,7 @@ class TestNMR(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.multi_dot([v, diptens[ij].data, v]), 2 * d)
 
     def test_tensor(self):
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
         ms = eth.get_array("ms")
 
         iso = MSIsotropy.get(eth)
@@ -952,7 +952,7 @@ class TestNMR(unittest.TestCase):
     def test_diprotavg(self):
         # Test dipolar rotational averaging
 
-        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
 
         from soprano.collection import AtomsCollection
         from soprano.collection.generate import transformGen
@@ -1436,7 +1436,7 @@ class TestElectricFieldGradient(unittest.TestCase):
 
     def setUp(self):
         # Setup a sample tensor for
-        atoms = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        atoms = io.read(_TESTDATA_DIR / "ethanol.magres")
         self.atoms = atoms
         data =atoms.get_array('efg')[0] # First atom is an H
 
@@ -1535,7 +1535,7 @@ class TestMSMeanProperties(unittest.TestCase):
     def setUp(self):
         """Set up a test collection with predictable MS values."""
         # Load the ethanol structure
-        self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
         # Create a copy with just the H atoms
         #  so that we can average within a structure easily
         eth_justH = self.eth.copy()
@@ -1717,8 +1717,8 @@ class TestEFGMeanProperties(unittest.TestCase):
     def setUp(self):
         """Set up a test collection with predictable EFG values."""
         # Load the ethanol structure
-        self.eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
-        
+        self.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+
         # Create a second structure with scaled EFG values
         from soprano.collection import AtomsCollection
         eth2 = self.eth.copy()
