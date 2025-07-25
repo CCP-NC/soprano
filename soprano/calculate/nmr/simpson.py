@@ -56,7 +56,9 @@ def write_spinsys(
     isotope_list=None,
     use_ms=False,
     ms_iso=False,
+    ms_tag='ms',
     q_order=0,
+    efg_tag='efg',
     dip_sel=None,
     path=None,
     ref={},
@@ -80,8 +82,10 @@ def write_spinsys(
     |                  shieldings.
     |   ms_iso (bool): if True, all magnetic shieldings will be made
     |                  isotropic.
+    |   ms_tag (str): tag for the magnetic shielding tensor array.
     |   q_order(int): if greater than 0, include quadrupolar interactions from
     |                   Electric Field Gradients at the given order (1 or 2).
+    |   efg_tag (str): tag for the EFG tensor array.
     |   dip_sel (AtomSelection): if not None, include dipolar couplings
     |                            between atoms belonging to this set.
     |   path (str): path to save the newly created file to. If not provided,
@@ -147,12 +151,12 @@ def write_spinsys(
                 "{element: value}, where value is the reference shielding "
                 "for that element in ppm."
             )
-        msiso = MSIsotropy.get(s, ref=ref, grad=grad)
+        msiso = MSIsotropy.get(s, ref=ref, grad=grad, tag=ms_tag)
         if not ms_iso:
-            msaniso = MSReducedAnisotropy.get(s)
-            msasymm = MSAsymmetry.get(s)
+            msaniso = MSReducedAnisotropy.get(s, tag=ms_tag)
+            msasymm = MSAsymmetry.get(s, tag=ms_tag)
             eulangs = (
-                np.array([q.euler_angles() for q in MSQuaternion.get(s)]) * 180 / np.pi
+                np.array([q.euler_angles() for q in MSQuaternion.get(s, tag=ms_tag)]) * 180 / np.pi
             )
         else:
             msaniso = np.zeros(len(s))
@@ -170,10 +174,10 @@ def write_spinsys(
     if q_order > 0:
         if q_order > 2:
             raise ValueError("Invalid quadrupolar order")
-        Cq = EFGQuadrupolarConstant(isotope_list=isotope_list)(s)
-        eta_q = EFGAsymmetry.get(s)
+        Cq = EFGQuadrupolarConstant(isotope_list=isotope_list, tag=efg_tag)(s)
+        eta_q = EFGAsymmetry.get(s, tag=efg_tag)
         eulangs = (
-            np.array([q.euler_angles() for q in EFGQuaternion.get(s)]) * 180 / np.pi
+            np.array([q.euler_angles() for q in EFGQuaternion.get(s, tag=efg_tag)]) * 180 / np.pi
         )
         for i, cq in enumerate(Cq):
             if cq == 0:
