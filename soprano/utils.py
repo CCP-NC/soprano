@@ -28,8 +28,9 @@ import os
 import sys
 import warnings
 from contextlib import contextmanager
-from typing import List
+from typing import List, TypeVar
 
+from numpy.typing import NDArray
 import numpy as np
 from ase import Atoms
 from ase.quaternions import Quaternion
@@ -38,6 +39,9 @@ from scipy.special import factorial
 
 from soprano.optional import requireNetworkX, requireScikitLearn, requireSpglib
 from soprano.rnd import Random
+
+# Type variable for float or numpy array
+FloatOrArray = TypeVar("FloatOrArray", float, NDArray[np.float64])
 
 
 def merge_mean(T):

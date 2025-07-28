@@ -9,6 +9,7 @@ import sys
 import unittest
 
 import ase
+import pytest
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
@@ -18,6 +19,8 @@ _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 
 
 class TestGenes(unittest.TestCase):
+
+    @pytest.mark.filterwarnings("ignore:crystal system 'orthorhombic'")
     def test_coordhist(self):
         from soprano.analyse.phylogen import Gene
         from soprano.collection import AtomsCollection

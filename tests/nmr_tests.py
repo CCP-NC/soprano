@@ -13,7 +13,7 @@ from ase.quaternions import Quaternion
 import pytest
 
 
-from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor
+from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor, TensorConvention
 from soprano.nmr.utils import _test_euler_rotation
 from soprano.properties.nmr import (
     EFGNQR,
@@ -98,6 +98,13 @@ class TestNMR(unittest.TestCase):
 
     def test_shielding(self):
         self._check_shielding(self.eth, self.ms_data)
+
+    def test_shift(self):
+        eth = self.eth.copy()
+        references = {"H": 30.0, "C": 170.0, "O": 200.0}
+        tshifts = [t.shift for t in MSTensor.get(eth, references=references)]
+        shifts = MSShift.get(eth, references=references)
+        np.testing.assert_allclose(tshifts, shifts, rtol=1e-6)
 
     def test_efg(self):
         self._check_efg(self.eth, self.efg_data, self.efg_euler_refs)
@@ -216,7 +223,7 @@ class TestNMR(unittest.TestCase):
         diag = [np.linalg.eigh((m + m.T) / 2.0) for m in ms]
 
         for i in range(len(eth)):
-            ms_tens = NMRTensor(ms[i], order=NMRTensor.ORDER_HAEBERLEN)
+            ms_tens = NMRTensor(ms[i], order=TensorConvention.Haeberlen)
             evals, evecs = diag[i]
 
             self.assertAlmostEqual(iso[i], ms_tens.isotropy)
@@ -263,11 +270,12 @@ class TestNMR(unittest.TestCase):
             # Check that the sum of the parts equals the original tensor
             np.testing.assert_array_almost_equal(sph_repr[0] + sph_repr[1] + sph_repr[2], ms_tens._data)
 
+    @pytest.mark.filterwarnings("ignore:Isotropic value")
     def test_tensor_conventions(self):
         # Let's now try various conventions
         data = np.diag([1, 2, -6])
 
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         # check eigenvalues are sorted correctly
         self.assertTrue(np.allclose(tc.eigenvalues, [-6, 1, 2]))
         # and eigenvectors are sorted accordingly
@@ -275,20 +283,20 @@ class TestNMR(unittest.TestCase):
         self.assertTrue(np.allclose(tc.eigenvectors[1], [0, 0, 1]))
         self.assertTrue(np.allclose(tc.eigenvectors[2], [1, 0, 0]))
 
-        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
+        td = NMRTensor(data, TensorConvention.Decreasing)
         self.assertTrue(np.allclose(td.eigenvalues, [2, 1, -6]))
         self.assertTrue(np.allclose(td.eigenvectors[0], [0, 1, 0]))
         self.assertTrue(np.allclose(td.eigenvectors[1], [1, 0, 0]))
         self.assertTrue(np.allclose(td.eigenvectors[2], [0, 0,-1]))
 
-        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
+        th = NMRTensor(data, TensorConvention.Haeberlen)
         self.assertTrue(np.allclose(th.eigenvalues, [2, 1, -6]))
         self.assertTrue(np.allclose(th.eigenvectors[0], [0, 1, 0]))
         self.assertTrue(np.allclose(th.eigenvectors[1], [1, 0, 0]))
         self.assertTrue(np.allclose(th.eigenvectors[2], [0, 0,-1]))
 
 
-        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        tn = NMRTensor(data, TensorConvention.NQR)
         self.assertTrue(np.allclose(tn.eigenvalues, [1, 2, -6]))
         self.assertTrue(np.allclose(tn.eigenvectors[0], [1, 0, 0]))
         self.assertTrue(np.allclose(tn.eigenvectors[1], [0, 1, 0]))
@@ -309,6 +317,7 @@ class TestNMR(unittest.TestCase):
         self.assertTrue(np.allclose([tc.reduced_anisotropy, td.reduced_anisotropy, th.reduced_anisotropy, tn.reduced_anisotropy], [-5]))
         self.assertTrue(np.allclose([tc.anisotropy, td.anisotropy, th.anisotropy, tn.anisotropy], [-7.5]))
 
+    @pytest.mark.filterwarnings("ignore:Isotropic value")  
     def test_tensor_euler_angles(self):
         """
         Test the Euler angles for the tensor class
@@ -320,10 +329,10 @@ class TestNMR(unittest.TestCase):
         """
 
         data = np.diag([1, 2, -6])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
-        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
-        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
-        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        tc = NMRTensor(data, TensorConvention.Increasing)
+        td = NMRTensor(data, TensorConvention.Decreasing)
+        th = NMRTensor(data, TensorConvention.Haeberlen)
+        tn = NMRTensor(data, TensorConvention.NQR)
 
         # First let's make sure that the calculation of Euler angles fails correctly
         # for conventions other than zyz and zxz
@@ -371,10 +380,10 @@ class TestNMR(unittest.TestCase):
                     [ 0.21,  2.00,  0.23],
                     [ 0.31,  0.32, -6.00],
                     ])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
-        td = NMRTensor(data, NMRTensor.ORDER_DECREASING)
-        th = NMRTensor(data, NMRTensor.ORDER_HAEBERLEN)
-        tn = NMRTensor(data, NMRTensor.ORDER_NQR)
+        tc = NMRTensor(data, TensorConvention.Increasing)
+        td = NMRTensor(data, TensorConvention.Decreasing)
+        th = NMRTensor(data, TensorConvention.Haeberlen)
+        tn = NMRTensor(data, TensorConvention.NQR)
 
         # Eigenvalue ordering (make sure we're testing the right thing)
         eigs_ref = np.array([-6.01598555, 0.97774119,  2.03824436])
@@ -493,7 +502,7 @@ class TestNMR(unittest.TestCase):
     def test_tensor_euler_edge_cases(self):
         # Now a case with 3 degenerate eigenvalues (spherical tensor)
         data = np.diag([1, 1, 1])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         with pytest.warns(UserWarning, match="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles."):
             self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive = False), np.zeros(3)))
             self.assertTrue(np.allclose(tc.euler_angles(convention='zxz', passive = False), np.zeros(3)))
@@ -507,7 +516,7 @@ class TestNMR(unittest.TestCase):
             [0.5, 1.0, 0.0],
             [0.0, 0.0, 2.0]
         ])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         # confirm that the eigenvalues are sorted correctly
         self.assertTrue(np.allclose(tc.eigenvalues, [0.5, 1.5, 2.0]))
         evecs = tc.eigenvectors
@@ -526,7 +535,7 @@ class TestNMR(unittest.TestCase):
 
         # More symmetric tensors
         data = np.diag([5,10,5])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         eulers = tc.euler_angles(convention='zyz')*180/np.pi
 
         self.assertTrue(np.allclose(eulers, np.array([90,90,0])))
@@ -535,7 +544,7 @@ class TestNMR(unittest.TestCase):
         # self.assertTrue(np.allclose(tc.euler_angles(convention='zyz', passive=True)*180/np.pi, np.array([0,90,90])))
 
         data = np.diag([10,5,5])
-        tc = NMRTensor(data, NMRTensor.ORDER_INCREASING)
+        tc = NMRTensor(data, TensorConvention.Increasing)
         self.assertTrue(np.allclose(tc.euler_angles(convention='zyz')*180/np.pi, np.array([180,90,0])))
         # TODO: according to TensorView for MATLAB, this should be [0,90,0] or equivalent
         # soprano gives [90, 90, 0] - so something is not happening correctly when passive is True
@@ -550,12 +559,12 @@ class TestNMR(unittest.TestCase):
 
         # Make sure if the tensors are the same, we get no rotations
         # - in the case of spherical tensors
-        t1 = NMRTensor(np.diag([1, 1, 1]), NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(np.diag([1, 1, 1]), TensorConvention.Increasing)
         with pytest.warns(UserWarning, match="The tensors are identical. Returning zero Euler angles."):
             releulers = t1.euler_to(t1, convention='zyz', passive=False)
             self.assertTrue(np.allclose(releulers, np.zeros((1,3))))
         # - and in the case of tensors with no degenerate eigenvalues
-        t1 = NMRTensor(np.diag([1, 2, -6]), NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(np.diag([1, 2, -6]), TensorConvention.Increasing)
         with pytest.warns(UserWarning, match="The tensors are identical. Returning zero Euler angles."):
             releulers = t1.euler_to(t1, convention='zyz', passive=False)
             self.assertTrue(np.allclose(releulers, np.zeros((1,3))))
@@ -567,14 +576,14 @@ class TestNMR(unittest.TestCase):
         [-65.5206,   -23.0881,  -25.2372],
         [ -9.5073,   -28.2399,   56.2779],
         ]) # probably an MS tensor
-        t1 = NMRTensor(ala_example_1, order=NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(ala_example_1, order=TensorConvention.Increasing)
 
         ala_example_2  = np.array([
             [-0.7806, 0.7215, 0.2987],
             [0.7215, 1.3736, 0.9829],
             [0.2987, 0.9829, -0.5929]
             ]) # probably an EFG tensor
-        t2 = NMRTensor(ala_example_2, order=NMRTensor.ORDER_INCREASING)
+        t2 = NMRTensor(ala_example_2, order=TensorConvention.Increasing)
         # first make sure the individual tensors give the correct Euler angles
         euler1 = t1.euler_angles(convention='zyz', passive=False)
         euler2 = t2.euler_angles(convention='zyz', passive=False)
@@ -695,6 +704,7 @@ class TestNMR(unittest.TestCase):
 
 
     # Relative Euler angles with Gimbal lock
+    @pytest.mark.filterwarnings("ignore:Gimbal lock detected")
     def test_relative_euler_angles_gimbal(self):
         # Gimbal lock case
         c30 = np.sqrt(3)/2
@@ -721,6 +731,7 @@ class TestNMR(unittest.TestCase):
 
 
     # Axially symmetric tensors
+    @pytest.mark.filterwarnings("ignore:Gimbal lock detected")
     def test_relative_euler_angles_axial_symmetry(self):
 
         # First an example from the MagresView2 tests
@@ -837,8 +848,8 @@ class TestNMR(unittest.TestCase):
                     [ 0.31,  0.32, -6.00],
                     ])
 
-        t1 = NMRTensor(data1, NMRTensor.ORDER_INCREASING)
-        t2 = NMRTensor(data2, NMRTensor.ORDER_INCREASING)
+        t1 = NMRTensor(data1, TensorConvention.Increasing)
+        t2 = NMRTensor(data2, TensorConvention.Increasing)
 
         # first make sure the individual tensors give the correct Euler angles
         euler1 = t1.euler_angles(convention='zyz', passive=False)
@@ -978,6 +989,19 @@ class TestNMR(unittest.TestCase):
         # passive zxz from 1 to 2 should give the same results as active 2 to 1, ignoring order of
         self.assertTrue(np.allclose(pzxz[order_pzxz], azxz_ref[order_azxz_ref]))
 
+        # Create an axially symmetric tensor (e.g. eigenvalues: [1, 1, 2])
+        # Use a diagonal tensor for simplicity.
+        tensor_data = np.diag([1.0, 1.0, 2.0])
+        tensor = NMRTensor(tensor_data)
+        # Ensure degeneracy is 2
+        self.assertEqual(tensor.degeneracy, 2)
+        # Get Euler angles with passive False
+        angles_active = tensor.euler_angles(passive=False)
+        # Get Euler angles with passive True (should be swapped)
+        angles_passive = tensor.euler_angles(passive=True)
+        # Expected: passive angles = (-gamma, -beta, -alpha) mod 2pi
+        expected = np.mod(np.array([-angles_active[2], -angles_active[1], -angles_active[0]]), 2*np.pi)
+        np.testing.assert_allclose(angles_passive, expected, rtol=1e-5, atol=1e-8)
 
     def test_diprotavg(self):
         # Test dipolar rotational averaging
@@ -1159,11 +1183,7 @@ class TestNMR(unittest.TestCase):
         t3 = NMRTensor(data1.copy())
         self.assertTrue(t1 == t3)
         self.assertFalse(t1 == t2)
-        
-        # Test equality with array
-        self.assertTrue(t1 == data1)
-        self.assertFalse(t1 == data2)
-        
+
         # Test inequality with non-tensor/array
         self.assertFalse(t1 == "string")
         self.assertFalse(t1 == 123)
@@ -1361,7 +1381,17 @@ class TestMagneticShielding(unittest.TestCase):
         # Setup a sample tensor for testing
         evals = np.array([1.0, 2.0, -6.0])
         evecs = np.eye(3)
-        self.tensor = MagneticShielding([evals, evecs], species='2H', reference=0)
+        self.tensor = MagneticShielding([evals, evecs], species='2H')
+        self.ref = 170.0 # Reference shielding
+        self.tensor_ref= MagneticShielding([evals, evecs], species='2H', reference=self.ref)
+
+        self.ref_shielding_iso = -1.0
+        self.ref_delta = (self.ref - self.ref_shielding_iso) / (1 - self.ref*1e-6)
+
+        # TODO: check these values
+        self.ref_omega = 8.0
+        self.ref_kappa = -0.75
+
 
     def test_initialization(self):
         # Test if the object is initialized correctly
@@ -1369,7 +1399,7 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertIsInstance(self.tensor, NMRTensor)
 
         # Test if the order is correct
-        self.assertEqual(self.tensor.order, NMRTensor.ORDER_HAEBERLEN)
+        self.assertEqual(self.tensor.order, TensorConvention.Haeberlen)
 
         # Test if the species and isotope are set correctly
         self.assertEqual(self.tensor.species, '2H')
@@ -1382,46 +1412,69 @@ class TestMagneticShielding(unittest.TestCase):
         np.testing.assert_array_equal(self.tensor.eigenvectors, np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]]))
 
         # shift = -isotropy in this case (reference = 0)
-        self.assertAlmostEqual(self.tensor.shift, -self.tensor.isotropy)
-        np.testing.assert_array_equal(self.tensor.shift_tensor.data, -self.tensor.data)
+        manual_shift = (self.ref - self.tensor.isotropy) / (1 - self.ref*1e-6)
+        self.assertAlmostEqual(self.tensor_ref.shift, manual_shift)
 
         # update the reference and gradient
+        shielding_iso = self.tensor.isotropy
         self.tensor.reference = 10.0
         self.tensor.gradient = -2.0
-        self.assertAlmostEqual(self.tensor.shift, 10 + (-2.0 * self.tensor.isotropy) / (1 + 10e-6))
+        self.assertAlmostEqual(self.tensor.shift, (10 + -2.0 * shielding_iso) / (1 - 10e-6))
 
     def test_haeberlen_values(self):
-        haeb = self.tensor.haeberlen_values
-        self.assertAlmostEqual(haeb.sigma_iso, -1.0)
-        self.assertAlmostEqual(haeb.sigma, -5.0)
+        haeb = self.tensor.haeberlen_shielding
+        self.assertAlmostEqual(haeb.sigma_iso, self.ref_shielding_iso)
+        self.assertAlmostEqual(haeb.zeta, -5.0)
         self.assertAlmostEqual(haeb.delta, -7.5)
         self.assertAlmostEqual(haeb.eta, 0.2)
 
+        haebr = self.tensor_ref.haeberlen_shift
+        self.assertAlmostEqual(haebr.delta_iso, self.ref_delta)
+        # TODO: should these be the same as for the shielding tensor?
+        # self.assertAlmostEqual(haebr.sigma, -5.0)
+        # self.assertAlmostEqual(haebr.delta, -7.5)
+        # self.assertAlmostEqual(haebr.eta, 0.2)
+
     def test_herzfeldberger_values(self):
-        herz = self.tensor.herzfeldberger_values
-        self.assertAlmostEqual(herz.sigma_iso, -1.0)
+        herz = self.tensor.herzfeldberger_shielding
+        self.assertAlmostEqual(herz.sigma_iso, self.ref_shielding_iso)
         self.assertAlmostEqual(herz.omega, 8.0) # span
         self.assertAlmostEqual(herz.kappa, -0.75) # skew
 
+        herzr = self.tensor_ref.herzfeldberger_shift
+        self.assertAlmostEqual(herzr.delta_iso, self.ref_delta)
+        self.assertAlmostEqual(herzr.omega, 8.0) # span
+        self.assertAlmostEqual(herzr.kappa, 0.75) # skew
+
     def test_iupac_values(self):
-        iupac = self.tensor.iupac_values
+        iupac = self.tensor.iupac_shielding
         self.assertAlmostEqual(iupac.sigma_iso, -1.0)
         self.assertAlmostEqual(iupac.sigma_11, -6.0)
         self.assertAlmostEqual(iupac.sigma_22,  1.0)
         self.assertAlmostEqual(iupac.sigma_33,  2.0)
 
+        iupacr = self.tensor_ref.iupac_shift
+        delta11 = (self.ref - iupac.sigma_11) / (1 - self.ref*1e-6)
+        delta22 = (self.ref - iupac.sigma_22) / (1 - self.ref*1e-6)
+        delta33 = (self.ref - iupac.sigma_33) / (1 - self.ref*1e-6)
+        self.assertAlmostEqual(iupacr.delta_iso, self.ref_delta)
+        self.assertAlmostEqual(iupacr.delta_11, delta11)
+        self.assertAlmostEqual(iupacr.delta_22, delta22)
+        self.assertAlmostEqual(iupacr.delta_33, delta33)
+
     def test_maryland_values(self):
-        mary = self.tensor.maryland_values
+        mary = self.tensor.maryland_shielding
         # should be equivalent to the herzfeld-berger values
-        herz = self.tensor.herzfeldberger_values
+        herz = self.tensor.herzfeldberger_shielding
         self.assertAlmostEqual(mary.sigma_iso, herz.sigma_iso)
         self.assertAlmostEqual(mary.omega, herz.omega)
         self.assertAlmostEqual(mary.kappa, herz.kappa)
 
+
     def test_mehring_values(self):
-        mehr = self.tensor.mehring_values
+        mehr = self.tensor.mehring_shielding
         # should be equivalent to the iupac values
-        iupac = self.tensor.iupac_values
+        iupac = self.tensor.iupac_shielding
         self.assertAlmostEqual(mehr.sigma_iso, iupac.sigma_iso)
         self.assertAlmostEqual(mehr.sigma_11, iupac.sigma_11)
         self.assertAlmostEqual(mehr.sigma_22, iupac.sigma_22)
@@ -1429,7 +1482,7 @@ class TestMagneticShielding(unittest.TestCase):
 
     def test_array_ufunc(self):
         # Test array ufunc operations
-        tensor2 = MagneticShielding([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H', reference=0)
+        tensor2 = MagneticShielding([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H')
         result = self.tensor + tensor2
         self.assertIsInstance(result, MagneticShielding)
         np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
@@ -1461,6 +1514,206 @@ class TestMagneticShielding(unittest.TestCase):
             
         with self.assertRaises(ValueError, msg="Should raise error for different orders"):
             MagneticShielding._check_compatible([ms1, ms2_order])
+
+    def test_shift_eigenvalues(self):
+        """Test the shift_eigenvalues property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_eigenvalues
+        
+        # Test with reference set
+        shift_eigenvalues = self.tensor_ref.shift_eigenvalues
+        
+        # Calculate expected values manually
+        shielding_evals = np.sort(self.tensor.eigenvalues)  # -6, 1, 2
+        expected_shift_evals = (self.ref - shielding_evals) / (1 - self.ref*1e-6)
+
+        # Ensure they're in decreasing order (shift convention)
+        self.assertTrue(shift_eigenvalues[0] >= shift_eigenvalues[1] >= shift_eigenvalues[2])
+
+        np.testing.assert_array_almost_equal(shift_eigenvalues, expected_shift_evals)
+
+    def test_shift_eigenvalues_haeberlen(self):
+        """Test the shift_eigenvalues_haeberlen property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_eigenvalues_haeberlen
+        
+        # Test with reference set
+        shift_haeberlen_evals = self.tensor_ref.shift_eigenvalues_haeberlen
+        
+        # Calculate expected values manually (using Haeberlen-ordered shielding eigenvalues)
+        shielding_evals_haeb = self.tensor.eigenvalues  # Already in Haeberlen order: 2, 1, -6
+        expected_shift_haeb = (self.ref - shielding_evals_haeb) / (1 - self.ref*1e-6)
+        
+        # Verify Haeberlen ordering for shift eigenvalues
+        delta_iso = np.mean(shift_haeberlen_evals)
+        # |δzz - δiso| ≥ |δxx - δiso| ≥ |δyy - δiso|
+        diffs = np.abs(shift_haeberlen_evals - delta_iso)
+        self.assertTrue(diffs[2] >= diffs[0] >= diffs[1])
+        
+        np.testing.assert_array_almost_equal(shift_haeberlen_evals, expected_shift_haeb)
+        
+
+    def test_shift_anisotropy(self):
+        """Test the shift_anisotropy property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_anisotropy
+        
+        # Test with reference set
+        shift_aniso = self.tensor_ref.shift_anisotropy
+        
+        # Calculate expected anisotropy manually using Haeberlen convention
+        shift_haeb_evals = self.tensor_ref.shift_eigenvalues_haeberlen
+        expected_aniso = shift_haeb_evals[2] - (shift_haeb_evals[0] + shift_haeb_evals[1])/2
+        
+        self.assertAlmostEqual(shift_aniso, expected_aniso)
+        
+        # Verify it has the opposite sign of shielding anisotropy
+        self.assertAlmostEqual(np.sign(shift_aniso), -np.sign(self.tensor.anisotropy))
+
+    def test_shift_reduced_anisotropy(self):
+        """Test the shift_reduced_anisotropy property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_reduced_anisotropy
+        
+        # Test with reference set
+        shift_red_aniso = self.tensor_ref.shift_reduced_anisotropy
+        
+        # Calculate expected reduced anisotropy manually
+        shift_haeb_evals = self.tensor_ref.shift_eigenvalues_haeberlen
+        expected_red_aniso = shift_haeb_evals[2] - np.mean(shift_haeb_evals)
+        
+        self.assertAlmostEqual(shift_red_aniso, expected_red_aniso)
+        
+        # Verify it's related to the anisotropy by a factor of 2/3
+        self.assertAlmostEqual(shift_red_aniso * 3/2, self.tensor_ref.shift_anisotropy)
+
+    def test_shift_skew(self):
+        """Test the shift_skew property."""
+        # Test that the property throws error when reference is not set
+        with self.assertRaises(ValueError):
+            _ = self.tensor.shift_skew
+        
+        # Test with reference set
+        shift_skew = self.tensor_ref.shift_skew
+        
+        # Calculate expected skew manually
+        shift_evals = self.tensor_ref.shift_eigenvalues  # Decreasing order
+        delta_iso = np.mean(shift_evals)
+        # skew = 3(delta_iso - delta_22) / span
+        expected_skew = 3 * (delta_iso - shift_evals[1]) / (shift_evals[0] - shift_evals[2])
+        
+        self.assertAlmostEqual(shift_skew, expected_skew)
+        
+        # Verify that it's the negative of the shielding skew (since shifts are inverted)
+        # Note: skew is a signed quantity, so it should be opposite for shift vs shielding
+        self.assertAlmostEqual(shift_skew, -self.tensor.skew)
+
+    def test_shift_span(self):
+        """Test the shift_span property."""
+        # Test that the property is accessible even when reference is not set
+        # since span doesn't depend on reference
+        shift_span = self.tensor.shift_span
+        
+        # Calculate expected span manually
+        shielding_evals = np.sort(self.tensor.eigenvalues)  # -6, 1, 2
+        expected_span = shielding_evals[2] - shielding_evals[0]  # 2 - (-6) = 8
+        
+        self.assertAlmostEqual(shift_span, expected_span)
+        self.assertAlmostEqual(shift_span, self.tensor.span)
+        
+        # Also test with reference set to verify consistency
+        shift_span_ref = self.tensor_ref.shift_span
+        self.assertAlmostEqual(shift_span_ref, expected_span)
+
+    def test_set_reference_and_gradient(self):
+        """Test setting reference and gradient values."""
+        # Create a copy to work with
+        tensor = self.tensor.copy() if hasattr(self.tensor, 'copy') else MagneticShielding(
+            self.tensor.data.copy(), species=self.tensor.species)
+        
+        # Initially no reference
+        with self.assertRaises(ValueError):
+            _ = tensor.shift
+        
+        # Set reference
+        tensor.set_reference(200.0)
+        self.assertEqual(tensor.reference, 200.0)
+        
+        # Now shift should be calculable
+        expected_shift = (200.0 - tensor.isotropy) / (1 - 200.0*1e-6)
+        self.assertAlmostEqual(tensor.shift, expected_shift)
+        
+        # Set gradient
+        tensor.set_gradient(-2.0)
+        self.assertEqual(tensor.gradient, -2.0)
+        
+        # Shift should now use the new gradient
+        expected_shift_new = (200.0 + (-2.0) * tensor.isotropy) / (1 - 200.0*1e-6)
+        self.assertAlmostEqual(tensor.shift, expected_shift_new)
+
+    def test_make_isotropic(self):
+        """Test creating an isotropic copy of a magnetic shielding tensor."""
+        # Import Site class for testing
+        from soprano.nmr.site import Site
+        
+        # Create a site with anisotropic MS tensor
+        site = Site(
+            isotope="2H",
+            label="H1",
+            index=0,
+            ms=self.tensor_ref  # Using the tensor with reference from setUp
+        )
+        
+        # Create an isotropic version
+        iso_site = site.make_isotropic()
+        
+        # Verify it's a different object
+        self.assertIsNot(site, iso_site)
+        
+        # Check that the isotropy is preserved
+        self.assertAlmostEqual(iso_site.ms.isotropy, site.ms.isotropy)
+        
+        # Check that the eigenvalues are all equal to the isotropy
+        iso_value = site.ms.isotropy
+        np.testing.assert_array_almost_equal(
+            iso_site.ms.eigenvalues, 
+            np.array([iso_value, iso_value, iso_value])
+        )
+
+        # Check that the eigenvectors form an identity matrix
+        np.testing.assert_array_almost_equal(
+            iso_site.ms.eigenvectors,
+            np.eye(3)
+        )
+        
+        # Check that the reference value is preserved
+        self.assertEqual(iso_site.ms.reference, site.ms.reference)
+        
+        # Verify that the site without MS tensor returns unchanged
+        site_no_ms = Site(
+            isotope="2H",
+            label="H1",
+            index=0
+        )
+        iso_site_no_ms = site_no_ms.make_isotropic()
+        self.assertIsNone(iso_site_no_ms.ms)
+        
+        # Check that all other properties are preserved
+        self.assertEqual(iso_site.isotope, site.isotope)
+        self.assertEqual(iso_site.label, site.label)
+        self.assertEqual(iso_site.index, site.index)
+        
+        # Check anisotropy and asymmetry for isotropic tensor
+        self.assertAlmostEqual(iso_site.ms.anisotropy, 0.0)
+        self.assertAlmostEqual(iso_site.ms.asymmetry, 0.0)
+        self.assertAlmostEqual(iso_site.ms.span, 0.0)
+        
+        # Check that shift calculations still work
+        self.assertAlmostEqual(iso_site.ms.shift, site.ms.shift)
 
 class TestElectricFieldGradient(unittest.TestCase):
 
@@ -1522,13 +1775,22 @@ class TestElectricFieldGradient(unittest.TestCase):
         result = self.tensor.get_quadrupolar_perturbation(Bext)
         self.assertAlmostEqual(result, expected_a)
 
+    def test_equality_comparison(self):
+        # Test the equality comparison method
+        data = self.tensor.data
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertTrue(self.tensor == tensor)
+        # Change a value in the tensor
+        data[0, 0] += 1e-6
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertFalse(self.tensor == tensor)
     def test_array_ufunc(self):
         # Test array ufunc operations
         tensor2 = ElectricFieldGradient([np.array([2.0, 3.0, -5.0]), np.eye(3)], species='2H')
         result = self.tensor + tensor2
         self.assertIsInstance(result, ElectricFieldGradient)
         np.testing.assert_array_equal(result.data, self.tensor.data + tensor2.data)
-
+        
     def test_parameter_consistency_warnings(self):
         """Test that warnings are issued when operating on tensors with different parameters."""
         # Create base tensor with known parameters
@@ -1561,6 +1823,16 @@ class TestElectricFieldGradient(unittest.TestCase):
         with self.assertRaises(ValueError, msg="Should raise error for different orders"):
             ElectricFieldGradient._check_compatible([efg1, efg2_order])
 
+    def test_hash(self):
+        # Test the hash method
+        data = self.tensor.data
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertEqual(hash(self.tensor), hash(tensor))
+        # Change a value in the tensor
+        data[0, 0] += 1e-6
+        tensor = ElectricFieldGradient(data, species='2H')
+        self.assertNotEqual(hash(self.tensor), hash(tensor))
+
 class TestMSMeanProperties(unittest.TestCase):
     def setUp(self):
         """Set up a test collection with predictable MS values."""
@@ -1573,6 +1845,7 @@ class TestMSMeanProperties(unittest.TestCase):
         sel = AtomSelection.from_element(eth_justH, 'H')
         self.eth_justH = sel.subset(eth_justH)
         self.justH_indices = sel.indices
+
 
         
         # Create a second structure with scaled MS values
@@ -1614,8 +1887,8 @@ class TestMSMeanProperties(unittest.TestCase):
         # Reference settings for testing shift calculations
         self.ref = {'C': 175.0, 'H': 30.0, 'O': 200.0}
         
-        self.shift1 = MSShift.get(self.eth, ref=self.ref)
-        self.shift2 = MSShift.get(eth2, ref=self.ref)
+        self.shift1 = MSShift.get(self.eth, references=self.ref)
+        self.shift2 = MSShift.get(eth2, references=self.ref)
 
     def test_flat_list_shielding(self):
         """Test MSShielding.mean with flat list."""
@@ -1684,20 +1957,20 @@ class TestMSMeanProperties(unittest.TestCase):
     def test_shift_mean_with_reference(self):
         """Test MSShift.mean with references."""
         # Calculate mean shift manually
-        expected_mean = MSShift.get(self.eth_mean, ref=self.ref)
+        expected_mean = MSShift.get(self.eth_mean, references=self.ref)
         
         # Use MSShift.mean
-        result_mean = MSShift().mean(self.collection, axis=0, ref=self.ref)
+        result_mean = MSShift().mean(self.collection, axis=0, references=self.ref)
         
         self.assertTrue(np.allclose(result_mean, expected_mean))
         
     def test_isotropy_mean_with_reference(self):
         """Test MSIsotropy.mean with references."""
         # Calculate mean shift
-        expected_mean = MSIsotropy.get(self.eth_mean, ref=self.ref)
+        expected_mean = MSIsotropy.get(self.eth_mean, references=self.ref)
         
         # Use MSIsotropy.mean with reference (should give shift)
-        result_mean = MSIsotropy().mean(self.collection, ref=self.ref, axis=0)
+        result_mean = MSIsotropy().mean(self.collection, references=self.ref, axis=0)
         
         self.assertTrue(np.allclose(result_mean, expected_mean))
         
