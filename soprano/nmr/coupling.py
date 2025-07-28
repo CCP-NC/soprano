@@ -30,6 +30,7 @@ from typing import Any, Literal, Optional, Union
 import numpy as np
 from numpy.typing import NDArray
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+import warnings
 
 from soprano.data.nmr import nmr_gamma
 from soprano.nmr.tensor import NMRTensor
@@ -462,7 +463,10 @@ class DipolarCoupling(Coupling):
         """
         result = {"dipolar": {"D": self.coupling_constant}}
         if include_angles:
-            euler_angles = self.tensor.euler_angles()
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
+                # Get the Euler angles in the convention used by MRSimulator
+                euler_angles = self.tensor.euler_angles()
             result["dipolar"]["alpha"] = euler_angles[0]
             result["dipolar"]["beta"] = euler_angles[1]
             result["dipolar"]["gamma"] = euler_angles[2]
@@ -491,7 +495,10 @@ class DipolarCoupling(Coupling):
 
         if include_angles:
             # TODO check simpson convention for euler angles
-            euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
+                # Get the Euler angles in the convention used by Simpson
+                euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
             a, b, c = euler_angles # a should be zero for dipolar couplings in simpson
             result += f" {a:.6f} {b:.6f} {c:.6f}"
         else:

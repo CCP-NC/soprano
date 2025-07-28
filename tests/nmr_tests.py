@@ -270,6 +270,7 @@ class TestNMR(unittest.TestCase):
             # Check that the sum of the parts equals the original tensor
             np.testing.assert_array_almost_equal(sph_repr[0] + sph_repr[1] + sph_repr[2], ms_tens._data)
 
+    @pytest.mark.filterwarnings("ignore:Isotropic value")
     def test_tensor_conventions(self):
         # Let's now try various conventions
         data = np.diag([1, 2, -6])
@@ -316,6 +317,7 @@ class TestNMR(unittest.TestCase):
         self.assertTrue(np.allclose([tc.reduced_anisotropy, td.reduced_anisotropy, th.reduced_anisotropy, tn.reduced_anisotropy], [-5]))
         self.assertTrue(np.allclose([tc.anisotropy, td.anisotropy, th.anisotropy, tn.anisotropy], [-7.5]))
 
+    @pytest.mark.filterwarnings("ignore:Isotropic value")  
     def test_tensor_euler_angles(self):
         """
         Test the Euler angles for the tensor class
@@ -702,6 +704,7 @@ class TestNMR(unittest.TestCase):
 
 
     # Relative Euler angles with Gimbal lock
+    @pytest.mark.filterwarnings("ignore:Gimbal lock detected")
     def test_relative_euler_angles_gimbal(self):
         # Gimbal lock case
         c30 = np.sqrt(3)/2
@@ -728,6 +731,7 @@ class TestNMR(unittest.TestCase):
 
 
     # Axially symmetric tensors
+    @pytest.mark.filterwarnings("ignore:Gimbal lock detected")
     def test_relative_euler_angles_axial_symmetry(self):
 
         # First an example from the MagresView2 tests

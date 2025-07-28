@@ -12,6 +12,7 @@ import numpy as np
 from ase import Atom, Atoms
 from ase.build import bulk
 from ase.io import read
+import pytest
 
 from tests.test_utils import skip_if_problematic_ase
 
@@ -255,6 +256,7 @@ class TestPropertyLoad(unittest.TestCase):
         s2 = Remap.extract(s1, ref, mic=True, check_species=True, tolerance=5.0)
         self.assertTrue(all(ref.symbols == s2.symbols))
 
+    @pytest.mark.filterwarnings("ignore:crystal system 'orthorhombic'")
     def test_linkageprops(self):
         from soprano.properties.linkage import (
             Bonds,
@@ -365,6 +367,7 @@ class TestPropertyLoad(unittest.TestCase):
         self.assertTrue(hbn["NH..O"] == 12)
         self.assertTrue(hbn["OH..O"] == 0)
 
+    @pytest.mark.filterwarnings("ignore:crystal system 'orthorhombic'")
     def test_labelprops(self):
         from collections import OrderedDict
 
