@@ -265,28 +265,28 @@ class TestCLI(unittest.TestCase):
         with patch('click_log.basic_config'):
             # Create a temporary file with a specific path instead of using NamedTemporaryFile
             # as the context manager might close the file before it's written to
-            temp_filename = os.path.join(_TESTSAVE_DIR, "test.spinsys")
+            temp_filename = self._TESTSAVE_DIR / "test.spinsys"
             try:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
                     "--format", "simpson",
-                    "--output", temp_filename,  # Use the temporary filename
+                    "--output", str(temp_filename),  # Use the temporary filename
                     "--subset", "C,H",
                     "--references", "C:170,H:31.7",
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags
+                    soprano, ["spinsys", str(fname_mag)] + option_flags
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
                 
                 # Make sure the file exists
-                self.assertTrue(os.path.exists(temp_filename), 
+                self.assertTrue(temp_filename.exists(), 
                                 f"Output file {temp_filename} was not created")
                 
                 # Read the output file and check content
-                with open(temp_filename, 'r') as f:
+                with open(str(temp_filename), 'r') as f:
                     content = f.read()
                 
                 # Verify Simpson spinsys format contains expected content
@@ -296,15 +296,14 @@ class TestCLI(unittest.TestCase):
                 self.assertIn("nuclei", content)
             finally:
                 # Clean up the file
-                if os.path.exists(temp_filename):
-                    os.remove(temp_filename)
+                temp_filename.unlink(missing_ok=True)
 
     def test_spinsys_mrsimulator_format(self):
         """Test the spinsys CLI command with MRSimulator format output"""
         runner = CliRunner()
         with patch('click_log.basic_config'):
             with NamedTemporaryFile(suffix='-spinsys.json') as temp_file:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
                     "--format", "mrsimulator",
                     "--output", temp_file.name,
@@ -313,7 +312,7 @@ class TestCLI(unittest.TestCase):
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags, prog_name="spinsys"
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
@@ -330,7 +329,7 @@ class TestCLI(unittest.TestCase):
         runner = CliRunner()
         with patch('click_log.basic_config'):
             with NamedTemporaryFile(suffix='.spinsys') as temp_file:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
                     "--format", "simpson",
                     "--isotopes", "2H,13C",
@@ -340,7 +339,7 @@ class TestCLI(unittest.TestCase):
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags, prog_name="spinsys"
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
@@ -357,7 +356,7 @@ class TestCLI(unittest.TestCase):
         runner = CliRunner()
         with patch('click_log.basic_config'):
             with NamedTemporaryFile(suffix='.spinsys') as temp_file:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
                     "--format", "simpson",
                     "--references", "C:170",
@@ -366,7 +365,7 @@ class TestCLI(unittest.TestCase):
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags, prog_name="spinsys"
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
@@ -389,7 +388,7 @@ class TestCLI(unittest.TestCase):
         with patch('click_log.basic_config'):
             # Test with --angles=none
             with NamedTemporaryFile(suffix='.spinsys') as temp_file:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
                     "--format", "simpson",
                     "--output", temp_file.name,
@@ -399,7 +398,7 @@ class TestCLI(unittest.TestCase):
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags, prog_name="spinsys"
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
@@ -418,7 +417,7 @@ class TestCLI(unittest.TestCase):
         runner = CliRunner()
         with patch('click_log.basic_config'):
             with NamedTemporaryFile(suffix='.spinsys') as temp_file:
-                fname_mag = os.path.join(_TESTDATA_DIR, "ethanol.magres")
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
                 option_flags = [
                     "--format", "simpson",
                     "--output", temp_file.name,
@@ -428,7 +427,7 @@ class TestCLI(unittest.TestCase):
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags, prog_name="spinsys"
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
@@ -447,7 +446,7 @@ class TestCLI(unittest.TestCase):
             # Use a file that contains quadrupolar nuclei (e.g., containing 17O)
             with NamedTemporaryFile(suffix='.spinsys') as temp_file:
                 # Use the NaCl file which contains Na (spin 3/2)
-                fname_mag = os.path.join(_TESTDATA_DIR, "nacl.magres")
+                fname_mag = self._TESTDATA_DIR / "nacl.magres"
                 option_flags = [
                     "--format", "simpson",
                     "--output", temp_file.name,
@@ -457,7 +456,7 @@ class TestCLI(unittest.TestCase):
                     "-v",
                 ]
                 result = runner.invoke(
-                    soprano, ["spinsys", fname_mag] + option_flags, prog_name="spinsys"
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
