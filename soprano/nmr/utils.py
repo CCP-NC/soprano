@@ -234,7 +234,14 @@ def _matrix_to_euler(R:Union[list[list[float]], np.ndarray],
     """
     convention = convention.upper()
     R = np.array(R)
-    # (Note that SciPy handles converting to proper rotation matrices)
+    # Ensure the matrix is right-handed 
+    # (det > 0) for recent scipy (>=1.13?) 
+    # versions
+    det = np.linalg.det(R)
+    if det < 0:
+        # Flip sign of last column to make it right-handed
+        R = R.copy()
+        R[:, -1] *= -1
     Rot = Rotation.from_matrix(R)
     R = Rot.as_matrix() # just in case it was converted
 
