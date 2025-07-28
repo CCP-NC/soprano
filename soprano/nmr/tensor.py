@@ -1579,8 +1579,9 @@ class ElectricFieldGradient(NMRTensor):
         the principal component of the EFG tensor).
         This should be in atomic units (a.u.) if read in from e.g. a magres file.
         '''
-        # The eigenvalues are already sorted in abs increasing order (NQR convention)
-        if self.order == self.ORDER_NQR:
+        # The eigenvalues are already sorted in abs increasing order 
+        # (NQR convention or Haberlen conventions (since isotropic value is zero))
+        if self.order == self.ORDER_NQR or self.order == self.ORDER_HAEBERLEN:
             return self.eigenvalues[2]
         else:
             # warn user that the eigenvalues are not sorted in NQR order

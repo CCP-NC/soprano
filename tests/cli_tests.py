@@ -27,6 +27,12 @@ sys.path.insert(
 )
 class TestCLI(unittest.TestCase):
     def setUp(self):
+        # For now let's ignore the warnings about consistent rotations
+        import warnings
+        warnings.filterwarnings(
+            "ignore",
+            message="The Euler angles do not give a consistent rotation."
+        )
         # Use Path for cross-platform compatibility
         self._TEST_DIR = Path(__file__).parent
         self._TESTDATA_DIR = self._TEST_DIR / "test_data"
