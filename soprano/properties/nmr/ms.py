@@ -92,7 +92,7 @@ class MSTensor(AtomsProperty):
                     be 'i' (ORDER_INCREASING), 'd'
                     (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                     'n' (ORDER_NQR). Default is 'i'.
-      tag (str, optional): name of the array containing magnetic shielding tensors.
+        tag (str, optional): name of the array containing magnetic shielding tensors.
                     Defaults to 'ms'.
         references: list/dict/None
                     Specification of the references to convert magnetic shielding tensors to
@@ -112,23 +112,21 @@ class MSTensor(AtomsProperty):
     default_name = "ms_tensors"
     default_params = {"order": MagneticShielding.ORDER_INCREASING,
                       "references": None,
-                      "gradients": -1.0}
-    default_params = {"order": MagneticShielding.ORDER_INCREASING, "tag": DEFAULT_MS_TAG}
+                      "gradients": -1.0,
+                      "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, order, tag, **kwargs):
-        symbols = s.get_chemical_symbols()
-        ms_list = _get_tensor_array(s, tag)
-    def extract(s, order, references, gradients):
+    def extract(s, order, references, gradients, tag):
 
+        ms_list = _get_tensor_array(s, tag)
         elements = s.get_chemical_symbols()
         reference_list = _references_to_list(references, elements)
         gradient_list = _gradients_to_list(gradients, elements)
 
         ms_tensors = [
             MagneticShielding(ms, species=symbol, order=order, reference=ref, gradient=grad)
-            for ms, symbol, ref, grad in zip(s.get_array("ms"), elements, reference_list, gradient_list)
+            for ms, symbol, ref, grad in zip(ms_list, elements, reference_list, gradient_list)
         ]
         return ms_tensors
 
@@ -154,7 +152,7 @@ class MSDiagonal(AtomsProperty):
     """
 
     default_name = "ms_diagonal"
-    default_params = {"save_array": True}
+    default_params = {"save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
@@ -258,12 +256,11 @@ class MSShift(AtomsProperty):
     """
 
     default_name = "ms_shift"
-    default_params = {"references": None, "gradients": -1.0, "save_array": True}
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
+    default_params = {"references": None, "gradients": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, references, gradients, save_array, **kwargs)-> np.ndarray:
+    def extract(s, references, gradients, save_array, tag, **kwargs) -> np.ndarray:
 
         # Backwards compatibility for ref and grad parameters
         if "ref" in kwargs:
@@ -358,13 +355,11 @@ class MSIsotropy(AtomsProperty):
     """
 
     default_name = "ms_isotropy"
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
-    default_params = {"references": None, "gradients": -1.0, "save_array": True}
+    default_params = {"references": None, "gradients": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, references, gradients, save_array, **kwargs) -> np.ndarray:
-    def extract(s, ref, grad, save_array, tag) -> np.ndarray:
+    def extract(s, references, gradients, save_array, tag, **kwargs) -> np.ndarray:
 
         # Backwards compatibility for ref and grad parameters
         if "ref" in kwargs:
@@ -377,8 +372,7 @@ class MSIsotropy(AtomsProperty):
 
         if references:
             # the user wants to use the chemical shift
-            ms_iso =  MSShift.extract(s, references, gradients, save_array)
-            ms_iso = MSShift.get(s, ref=ref, grad=grad, save_array=save_array, tag=tag)
+            ms_iso = MSShift.get(s, references=references, gradients=gradients, save_array=save_array, tag=tag, **kwargs)
         else:
             # the user wants to use the magnetic shielding
             ms_iso = MSShielding.get(s, save_array=save_array, tag=tag)
