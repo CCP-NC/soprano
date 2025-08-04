@@ -21,6 +21,7 @@ import warnings
 
 import numpy as np
 from ase.spacegroup import get_spacegroup
+from ase.spacegroup.symmetrize import check_symmetry
 
 from soprano.properties import AtomsProperty
 from soprano.properties.linkage import Bonds, HydrogenBonds, Molecules
@@ -337,13 +338,25 @@ class UniqueSites(AtomsProperty):
     def extract(s, force_recalc, save_info, symprec, override_cif = False):
         #-------------------------------------------------------------------#
         # symmetry reduction:
+
+        # Old approach
+        # sg = get_spacegroup(s, symprec=symprec)
+        # tags = sg.tag_sites(s.get_scaled_positions(), symprec=symprec)
+
         # first we need the spacegroup
-        sg = get_spacegroup(s)
+        symmetry_dataset = check_symmetry(s, symprec=symprec)
+        if symmetry_dataset is None:
+            raise ValueError("Could not find a symmetry dataset for the structure.\n"
+                             f"{s}")
+        # Check if equivalent_atoms is present
+        if not hasattr(symmetry_dataset, 'equivalent_atoms'):
+            raise ValueError("Found a symmetry dataset, but it does not contain "
+                             "the 'equivalent_atoms' attribute.\n"
+                             f"{symmetry_dataset}")
+
         # tag each symmetry group of equivaluent sites with a unique integer label
-        tags = sg.tag_sites(s.get_scaled_positions(), symprec=symprec)
-
-        unique_tags, uniqueinds = np.unique(tags, return_index=True)
-
+        equivalent_atoms = symmetry_dataset.equivalent_atoms
+        _, uniqueinds, tags = np.unique(equivalent_atoms, return_inverse=True, return_index=True)
 
         # -- check to make sure that no two elements have the same tag --#
         # unique elements

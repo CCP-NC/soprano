@@ -54,6 +54,78 @@ def _get_nmr_data():
             "wrong with this installation of Soprano"
         )
 
+def _species_list_to_isotope_dict(species_list: list[str]) -> dict[str, int]:
+    """
+    Convert a list of species to a dictionary of isotopes.
+
+    Parameters:
+    -----------
+    species_list: list
+        A list of species strings (e.g. ['1H', '13C', '18O'])
+
+    Returns:
+    --------
+    isotope_dict: dict
+        A dictionary of isotopes (e.g. {'H': 1, 'C': 13, 'O': 18})
+    """
+    isotope_dict = {}
+    for species in species_list:
+        el, iso = _el_iso(species)
+        isotope_dict[el] = int(iso)
+    return isotope_dict
+
+def _species_list_to_isotope_list(species_list: list[str]) -> list[int]:
+    """
+    Convert a list of species to a list of isotopes.
+
+    Parameters:
+    -----------
+    species_list: list
+        A list of species strings (e.g. ['1H', '13C', '18O'])
+
+    Returns:
+    --------
+    isotope_list: list
+        A list of isotopes (e.g. [1, 13, 18])
+    """
+    isotope_list = []
+    for species in species_list:
+        el, iso = _el_iso(species)
+        isotope_list.append(int(iso))
+    return isotope_list
+
+def get_isotope_list_from_species(elements: list[str], species: list[str], use_q_isotopes=False) -> np.ndarray:
+    """
+    Convert a list of species to a list of isotopes. If the elements list 
+    and the species list are of different lengths, the elements list is
+    assumed to be a list of element symbols and the species list is assumed
+    to be a list of unique species strings. i.e. you can either give one species per 
+    element (=site) or a list of unique species. The output is always a numpy array
+    with isotope numbers, one per element (=site).
+
+    Parameters:
+    -----------
+    elements: list
+        A list of element strings (e.g. ['H', 'C', 'O'])
+    species: list
+        A list of species strings (e.g. ['1H', '13C', '18O'])
+    use_q_isotopes: bool
+        If True, use the quadrupolar isotopes for the elements
+
+    Returns:
+    --------
+    isotope_list: list
+        A list of isotopes (e.g. [1, 13, 18])
+    """
+    if len(elements) != len(species):
+        isotope_dict = _species_list_to_isotope_dict(species)
+        isotope_list = None
+    else:
+        isotope_dict = None
+        isotope_list = _species_list_to_isotope_list(species)
+
+    return _get_isotope_list(elements, isotopes=isotope_dict, isotope_list=isotope_list, use_q_isotopes=use_q_isotopes)
+
 def _get_isotope_list(elems, isotopes=None, isotope_list=None, use_q_isotopes=False):
     '''
     elems can be a single element string or a list of elements

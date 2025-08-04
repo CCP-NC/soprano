@@ -27,6 +27,12 @@ sys.path.insert(
 )
 class TestCLI(unittest.TestCase):
     def setUp(self):
+        # For now let's ignore the warnings about consistent rotations
+        import warnings
+        warnings.filterwarnings(
+            "ignore",
+            message="The Euler angles do not give a consistent rotation."
+        )
         # Use Path for cross-platform compatibility
         self._TEST_DIR = Path(__file__).parent
         self._TESTDATA_DIR = self._TEST_DIR / "test_data"
@@ -262,6 +268,216 @@ class TestCLI(unittest.TestCase):
             # Clean up: always remove the output files at the end of the test
             framework_file.unlink(missing_ok=True)
             molecule_file.unlink(missing_ok=True)
+
+    def test_spinsys_simpson_format(self):
+        """Test the spinsys CLI command with Simpson format output"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            # Create a temporary file with a specific path instead of using NamedTemporaryFile
+            # as the context manager might close the file before it's written to
+            temp_filename = self._TESTSAVE_DIR / "test.spinsys"
+            try:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", str(temp_filename),  # Use the temporary filename
+                    "--subset", "C,H",
+                    "--references", "C:170,H:31.7",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Make sure the file exists
+                self.assertTrue(temp_filename.exists(), 
+                                f"Output file {temp_filename} was not created")
+                
+                # Read the output file and check content
+                with open(str(temp_filename), 'r') as f:
+                    content = f.read()
+                
+                # Verify Simpson spinsys format contains expected content
+                self.assertIn("spinsys", content)
+                self.assertIn("shift", content)
+                # Should have entries for C and H atoms
+                self.assertIn("nuclei", content)
+            finally:
+                # Clean up the file
+                temp_filename.unlink(missing_ok=True)
+
+    def test_spinsys_mrsimulator_format(self):
+        """Test the spinsys CLI command with MRSimulator format output"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='-spinsys.json') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "mrsimulator",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Read the output file and check content
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Verify MRSimulator JSON format contains expected content
+                self.assertIn("sites", content)
+                self.assertIn("isotropic_chemical_shift", content)
+
+    def test_spinsys_with_custom_isotopes(self):
+        """Test the spinsys CLI command with custom isotopes"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--isotopes", "2H,13C",
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--output", temp_file.name,
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Read the output file and verify isotopes
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Verify isotopes are correctly set
+                self.assertIn("2H", content)
+                self.assertIn("13C", content)
+
+    def test_spinsys_with_subset(self):
+        """Test the spinsys CLI command with a subset of atoms"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--references", "C:170",
+                    "--output", temp_file.name,
+                    "--subset", "C",  # Only carbon atoms
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Read the output file and verify only C atoms
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                
+                # Count number of "nuclei" entries which should match C atom count
+                # We need to check that H atoms are not included
+                nuclei_count = content.count("nuclei")
+                self.assertGreater(nuclei_count, 0)  # Should have at least one C atom
+                # Verify only carbon atoms are present (13C)
+                self.assertIn("13C", content)
+                self.assertNotIn("1H", content)
+
+    def test_spinsys_with_angles_option(self):
+        """Test the spinsys CLI command with different angles options"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            # Test with --angles=none
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--angles", "none",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Read the output file and verify no angles
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                
+                # Check no angle info is included
+                self.assertNotIn("alpha", content)
+                self.assertNotIn("beta", content)
+                self.assertNotIn("gamma", content)
+
+    def test_spinsys_with_dipolar(self):
+        """Test the spinsys CLI command with dipolar couplings"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--dip",  # Include dipolar couplings
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Read the output file and verify dipolar couplings
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                
+                # Check dipolar coupling info is included
+                self.assertIn("dipole", content)
+
+    def test_spinsys_with_quadrupolar(self):
+        """Test the spinsys CLI command with quadrupolar interactions"""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            # Use a file that contains quadrupolar nuclei (e.g., containing 17O)
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                # Use the NaCl file which contains Na (spin 3/2)
+                fname_mag = self._TESTDATA_DIR / "nacl.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "Na:0,Cl:0",
+                    "--subset", "Na,Cl",
+                    "--q-order", "2",  # 2nd order quadrupolar
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # Check command completed successfully
+                self.assertEqual(result.exit_code, 0)
+                
+                # Read the output file and verify quadrupolar settings
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                
+                # Check if quadrupolar parameter is present for Na
+                # This might be Cq or quadrupole depending on the output format
+                self.assertTrue("quad" in content.lower() or "cq" in content.lower())
 
 
 if __name__ == "__main__":

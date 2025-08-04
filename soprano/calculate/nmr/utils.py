@@ -35,6 +35,7 @@ from scipy.optimize import minimize
 from soprano.properties.labeling.labeling import MagresViewLabels
 from soprano.properties.nmr.dipolar import DipolarCoupling
 from soprano.properties.nmr.isc import JCIsotropy
+from soprano.selection import AtomSelection
 from soprano.utils import has_cif_labels
 
 
@@ -458,6 +459,22 @@ def validate_elements(atoms, xelement, yelement):
         raise ValueError(f'{xelement} not found in the file after the user-specified filters have been applied.')
     if yelement not in all_elements:
         raise ValueError(f'{yelement} not found in the file after the user-specified filters have been applied.')
+
+def filter_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> Atoms:
+    """
+    Filter the atoms object based on the specified elements.
+
+    Args:
+        atoms (Atoms): Atoms object.
+        element_list (List[str]): List of element symbols to filter.
+
+    Returns:
+        Atoms: Filtered Atoms object.
+    """
+    sel = AtomSelection(atoms, [])
+    for element in element_list:
+        sel += AtomSelection.from_element(atoms, element)
+    return sel.subset(atoms)
 
 
 def generate_peaks(
