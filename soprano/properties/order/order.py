@@ -67,7 +67,7 @@ def _steinhardt_pars(vecs, l_channels, compute_W=False, weights=None):
         mvals = np.arange(-l, l + 1)
         Qlm.append(
             np.sum(
-                sph_harm(mvals[None, :], l, pols[:, 1, None], pols[:, 0, None])
+                sph_harm_y(l, mvals[None, :], pols[:, 0, None], pols[:, 1, None])
                 * weights[:, None],
                 axis=0,
             )
