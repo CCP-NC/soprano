@@ -728,6 +728,50 @@ plot_shielding = click.option(
     "Default is to plot shifts if references are given but shielding if no references given).",
 )
 
+# ── contour data export ─────────────────────────────────────────────────────
+plot_export_files = click.option(
+    "--export-file",
+    "export_files",
+    type=click.Path(exists=False, dir_okay=False, writable=True),
+    multiple=True,
+    metavar="PATH",
+    help="Export the 2D contour data to PATH.  May be repeated for multiple "
+    "output files.  The format is inferred from the file extension: "
+    ".spe / .sim → SIMPSON TEXT (readable by ssNake); "
+    ".npz → NumPy archive; "
+    ".csv → flat CSV; "
+    ".json → ssNake-native JSON (ppm-ready, requires --x-larmor-freq). "
+    "Override with --export-format.",
+)
+plot_export_format = click.option(
+    "--export-format",
+    "export_format",
+    type=click.Choice(["simpson", "npz", "csv", "json"], case_sensitive=False),
+    default=None,
+    help="Force a specific export format, overriding extension inference. "
+    "Choices: simpson, npz, csv, json.",
+)
+plot_x_larmor_freq = click.option(
+    "--x-larmor-freq",
+    "x_larmor_freq_mhz",
+    type=float,
+    default=None,
+    metavar="MHz",
+    help="Larmor frequency (MHz) of the direct (x) dimension nucleus. "
+    "Required for ssNake JSON export so ppm is available on load. "
+    "Also converts SIMPSON sweep-widths from ppm to Hz.",
+)
+plot_y_larmor_freq = click.option(
+    "--y-larmor-freq",
+    "y_larmor_freq_mhz",
+    type=float,
+    default=None,
+    metavar="MHz",
+    help="Larmor frequency (MHz) of the indirect (y) dimension nucleus. "
+    "Defaults to --x-larmor-freq (homonuclear). "
+    "Only needed for heteronuclear experiments.",
+)
+
 
 # option to select a subset of atoms
 dip_selection_i = click.option(
@@ -839,6 +883,10 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_contour_linewidth,
     plot_output,
     plot_shielding,
+    plot_export_files,
+    plot_export_format,
+    plot_x_larmor_freq,
+    plot_y_larmor_freq,
 ]
 
 DIP_OPTIONS = [

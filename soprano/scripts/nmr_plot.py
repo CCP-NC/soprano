@@ -29,6 +29,7 @@ __date__ = "May 09, 2023"
 
 
 import logging
+from pathlib import Path
 
 import click
 import click_log
@@ -92,6 +93,10 @@ def plotnmr(
     contour_linewidth,
     plot_filename,
     plot_shielding,  ## force-plot the shielding even if references are given
+    export_files,
+    export_format,
+    x_larmor_freq_mhz,
+    y_larmor_freq_mhz,
     verbosity,
     symprec,
     precision,
@@ -199,6 +204,27 @@ def plotnmr(
             y_broadening=ybroadening,
             scale_markers=scale_markers,
         )
+
+        # Export contour data if requested
+        if export_files:
+            _EXT_TO_FMT = {
+                '.spe': 'simpson',
+                '.sim': 'simpson',
+                '.npz': 'npz',
+                '.csv': 'csv',
+                '.json': 'json',
+            }
+            for export_path in export_files:
+                fmt = export_format or _EXT_TO_FMT.get(Path(export_path).suffix.lower(), 'simpson')
+                logger.info(f"Exporting contour data to '{export_path}' (format={fmt}).")
+                nmr_data.export_contour_data(
+                    path=export_path,
+                    fmt=fmt,
+                    x_broadening=xbroadening,
+                    y_broadening=ybroadening,
+                    x_larmor_freq_mhz=x_larmor_freq_mhz,
+                    y_larmor_freq_mhz=y_larmor_freq_mhz,
+                )
 
         # Create NMRPlot2D instance
         nmr_plot = NMRPlot2D(
