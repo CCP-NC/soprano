@@ -21,8 +21,9 @@ Helper functions for NMR calculations and plotting
 import itertools
 import logging
 import re
+from collections import namedtuple
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace as dc_replace
 from functools import wraps
 from importlib.resources import files
 from typing import Dict, List, Optional, Tuple, Union
@@ -235,6 +236,7 @@ class Peak2D:
     color: str = 'C0'
     idx_x: Optional[int] = None
     idx_y: Optional[int] = None
+    multiplicity: int = 1
 
     def __repr__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
@@ -265,108 +267,229 @@ class Peak2D:
 
 
 
-def lorentzian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
+def lorentzian(
+    X: np.ndarray,
+    x0: float,
+    Y: np.ndarray,
+    y0: float,
+    x_broadening: float,
+    y_broadening: float,
+    normalise: bool = False,
+    eps: float = 1e-15,
+) -> np.ndarray:
     """
-    Calculate the Lorentzian broadening function.
+    Calculate a 2D Lorentzian (elliptical) broadening function.
 
     .. math::
-        f(x, y) = \\frac{1}{((x - x_0) / w_x)^2 + ((y - y_0) / w_y)^2 + 1}
+        f(x, y) = \\frac{1}{1 + ((x-x_0)/\\gamma_x)^2 + ((y-y_0)/\\gamma_y)^2}
 
-    where :math:`w_x` and :math:`w_y` are the broadening factors in the x and y directions, respectively. These
-    correspond to the half-width at half-maximum (HWHM) of the Lorentzian function.
+    where :math:`\\gamma = \\mathrm{FWHM}/2` is the half-width at half-maximum.
 
-    Args:
-        X (np.ndarray): Array of x values.
-        x0 (float): x-coordinate of the peak.
-        Y (np.ndarray): Array of y values.
-        y0 (float): y-coordinate of the peak.
-        x_broadening (float): Broadening factor in the x direction.
-        y_broadening (float): Broadening factor in the y direction.
+    Parameters
+    ----------
+    X : np.ndarray
+        Array of x values (meshgrid).
+    x0 : float
+        x-coordinate of the peak center.
+    Y : np.ndarray
+        Array of y values (meshgrid).
+    y0 : float
+        y-coordinate of the peak center.
+    x_broadening : float
+        FWHM measured along the x-axis cross-section (i.e. the marginal
+        linewidth with y fixed at the peak centre).
+        Converted internally to HWHM via ``γ = FWHM / 2``.
+    y_broadening : float
+        FWHM measured along the y-axis cross-section.  Same convention
+        as *x_broadening*.
+    normalise : bool, optional
+        If True, normalise such that the integral over the plane is 1.
+        If False, the peak maximum is 1.
+    eps : float, optional
+        Small number added to broadenings for numerical stability.
 
-    Returns:
-        np.ndarray: Array of intensity values.
+    Returns
+    -------
+    np.ndarray
+        Array of intensity values.
     """
-    return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
+    # Convert FWHM → HWHM (γ)
+    wx = x_broadening / 2.0 + eps
+    wy = y_broadening / 2.0 + eps
 
-def gaussian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
+    denom = (
+        1.0
+        + ((X - x0) / wx) ** 2
+        + ((Y - y0) / wy) ** 2
+    )
+
+    if normalise:
+        prefactor = 1.0 / (np.pi * wx * wy)
+        return prefactor / denom
+
+    return 1.0 / denom
+
+
+_FWHM_TO_SIGMA = 1.0 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # ≈ 0.4247
+
+
+def gaussian(
+    X: np.ndarray,
+    x0: float,
+    Y: np.ndarray,
+    y0: float,
+    x_broadening: float,
+    y_broadening: float,
+    normalise: bool = False,
+    eps: float = 1e-15,
+) -> np.ndarray:
     """
-    Calculate the Gaussian broadening function.
+    Calculate a 2D Gaussian (elliptical) broadening function.
 
     .. math::
-        f(x, y) = \\exp\\left(-\\frac{(x - x_0)^2}{2 w_x^2} - \\frac{(y - y_0)^2}{2 w_y^2}\\right)
+        f(x, y) = \\exp\\!\\left(
+            -\\frac{(x-x_0)^2}{2\\sigma_x^2}
+            -\\frac{(y-y_0)^2}{2\\sigma_y^2}
+        \\right)
 
-    where :math:`w_x` and :math:`w_y` are the broadening factors in the x and y directions, respectively. These
-    correspond to the standard deviation of the Gaussian function.
+    where :math:`\\sigma = \\mathrm{FWHM}\\,/\,(2\\sqrt{2\\ln 2})`.
 
-    Args:
-        X (np.ndarray): Array of x values.
-        x0 (float): x-coordinate of the peak.
-        Y (np.ndarray): Array of y values.
-        y0 (float): y-coordinate of the peak.
-        x_broadening (float): Broadening factor in the x direction.
-        y_broadening (float): Broadening factor in the y direction.
+    Parameters
+    ----------
+    X, Y : np.ndarray
+        Meshgrid arrays.
+    x0, y0 : float
+        Peak center.
+    x_broadening : float
+        FWHM measured along the x-axis cross-section (i.e. the marginal
+        linewidth with y fixed at the peak centre).
+        Converted internally to σ via ``σ = FWHM / (2√(2 ln 2))``.
+    y_broadening : float
+        FWHM measured along the y-axis cross-section.  Same convention
+        as *x_broadening*.
+    normalise : bool
+        If True, normalise to unit integral.
+        If False, peak maximum is 1.
+    eps : float
+        Small number added for numerical safety.
 
-    Returns:
-        np.ndarray: Array of intensity values.
+    Returns
+    -------
+    np.ndarray
     """
-    return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
+    # Convert FWHM → σ
+    sx = x_broadening * _FWHM_TO_SIGMA + eps
+    sy = y_broadening * _FWHM_TO_SIGMA + eps
+
+    exponent = (
+        ((X - x0) ** 2) / (2.0 * sx**2)
+        + ((Y - y0) ** 2) / (2.0 * sy**2)
+    )
+
+    g = np.exp(-exponent)
+
+    if normalise:
+        g /= (2.0 * np.pi * sx * sy)
+
+    return g
 
 def generate_contour_map(
     peaks: List[Peak2D],
     grid_size: int = 100,
-    broadening: str = 'gaussian',
+    broadening: str = 'lorentzian',
     x_broadening: float = 1.0,
     y_broadening: float = 1.0,
-    xlims: Optional[Tuple[float, float]] = None,
-    ylims: Optional[Tuple[float, float]] = None
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Generate a contour map based on the provided peaks and broadening parameters.
 
+    The grid extent is always derived from the peak positions plus a
+    broadening-dependent padding on each side.  Grid limits are intentionally
+    **not** exposed as a parameter: constraining the grid to a sub-range would
+    truncate Lorentzian tails from peaks near the edge and produce inconsistent
+    intensities.  Display limits should be controlled separately via
+    ``PlotSettings.xlim`` / ``PlotSettings.ylim``.
+
+    Padding factors applied beyond the outermost peak:
+
+    * **Gaussian**: 5 × FWHM — the tail at that distance is
+      :math:`\\sim 10^{-30}` (machine zero).
+    * **Lorentzian**: 50 × FWHM — the tail at that distance is
+      :math:`1/(1+100^2) \\approx 0.01\\,\\%`, acceptable for relative-intensity
+      comparisons.  5 × FWHM would leave :math:`\\sim 1\\,\\%` residual at the
+      boundary, which is non-negligible when multiplicity-weighted peaks are
+      compared.
+
     Args:
         peaks (List[Peak2D]): List of Peak2D objects containing x, y coordinates and correlation strength.
         grid_size (int, optional): Size of the grid for the contour map. Default is 100.
-        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'lorentzian'.
-        x_broadening (float, optional): Broadening factor in the x direction. Default is 1.0.
-        y_broadening (float, optional): Broadening factor in the y direction. Default is 1.0.
-        xlims (Optional[Tuple[float, float]], optional): Limits for the x-axis. Default is None.
-        ylims (Optional[Tuple[float, float]], optional): Limits for the y-axis. Default is None.
+        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'gaussian'.
+        x_broadening (float, optional): FWHM linewidth in the x direction. Default is 1.0.
+        y_broadening (float, optional): FWHM linewidth in the y direction. Default is 1.0.
 
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]: Meshgrid arrays X, Y and the intensity grid Z.
     """
     broadening = broadening.lower()
-    # Create a grid of x, y values
-    if xlims is None:
-        x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
-    else:
-        x_min, x_max = xlims
-    if ylims is None:
-        y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
-    else:
-        y_min, y_max = ylims
+    # Grid extent always derived from the actual peak positions.
+    x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
+    y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
 
-    # Create a grid of x, y values, broadening the grid by 5 times the broadening factor
-    x = np.linspace(x_min - 5 * x_broadening, x_max + 5 * x_broadening, grid_size)
-    y = np.linspace(y_min - 5 * y_broadening, y_max + 5 * y_broadening, grid_size)
+    # Gaussian tails vanish within 5 × FWHM; Lorentzian tails fall to only
+    # ~1 % at 5 × FWHM, so use a much larger pad to avoid edge truncation
+    # affecting relative intensities.
+    _PAD = 50 if broadening == 'lorentzian' else 5
+
+    x = np.linspace(x_min - _PAD * x_broadening, x_max + _PAD * x_broadening, grid_size)
+    y = np.linspace(y_min - _PAD * y_broadening, y_max + _PAD * y_broadening, grid_size)
     X, Y = np.meshgrid(x, y)
 
     # Initialize the intensity grid
     Z = np.zeros_like(X)
 
-    # Apply broadening for each peak, adding to the intensity grid
+    # Apply broadening for each peak, adding to the intensity grid.
+    # Each peak is weighted by correlation_strength × multiplicity so that
+    # merged sites (symmetry-equivalent or functional-group averaged) contribute
+    # with the correct degeneracy.
     for peak in peaks:
-        x0, y0, strength = peak.x, peak.y, peak.correlation_strength
+        x0, y0 = peak.x, peak.y
+        weight = peak.correlation_strength * peak.multiplicity
         if broadening == 'lorentzian':
-            Z += strength * lorentzian(X, x0, Y, y0, x_broadening, y_broadening)
+            Z += weight * lorentzian(X, x0, Y, y0, x_broadening, y_broadening)
         elif broadening == 'gaussian':
-            Z += strength * gaussian(X, x0, Y, y0, x_broadening, y_broadening)
+            Z += weight * gaussian(X, x0, Y, y0, x_broadening, y_broadening)
         else:
             raise ValueError(f'Unknown broadening function: {broadening}')
 
     return X, Y, Z
 
 
+# ---------------------------------------------------------------------------
+# ContourData – lightweight container for a computed 2D contour grid
+# ---------------------------------------------------------------------------
+
+ContourData = namedtuple(
+    'ContourData',
+    [
+        'X',              # np.ndarray – meshgrid x coordinates, shape (NI, NP)
+        'Y',              # np.ndarray – meshgrid y coordinates, shape (NI, NP)
+        'Z',              # np.ndarray – intensity grid, shape (NI, NP)
+        'x_broadening',   # float – broadening applied in the x (direct) dimension
+        'y_broadening',   # float – broadening applied in the y (indirect) dimension
+        'broadening_type', # str – 'gaussian' or 'lorentzian'
+        'xlims',          # Tuple[float, float] – (x_min, x_max) of the grid
+        'ylims',          # Tuple[float, float] – (y_min, y_max) of the grid
+    ],
+)
+ContourData.__doc__ = (
+    "Immutable container for a computed 2D NMR contour grid.\n\n"
+    "Fields\n------\n"
+    "X, Y : np.ndarray\n    Meshgrid coordinate arrays (shape NI × NP).\n"
+    "Z : np.ndarray\n    Intensity grid (shape NI × NP).\n"
+    "x_broadening, y_broadening : float\n    FWHM linewidth used in each dimension.\n"
+    "broadening_type : str\n    'gaussian' or 'lorentzian'.\n"
+    "xlims, ylims : tuple of float\n    Axis limits of the grid.\n"
+)
 
 
 
@@ -468,6 +591,7 @@ def generate_peaks(
     yaxis_order: str,
     xelement: str,
     yelement: str,
+    multiplicities: Optional[np.ndarray] = None,
 ) -> List[Peak2D]:
     """
     Generate peaks for the NMR data.
@@ -480,6 +604,11 @@ def generate_peaks(
         yaxis_order (str): Order of the y-axis.
         xelement (str): Element symbol for the x-axis.
         yelement (str): Element symbol for the y-axis.
+        multiplicities (np.ndarray, optional): Per-atom multiplicity array.  When
+            provided, each peak's ``multiplicity`` field is set to
+            ``multiplicities[idx_x] * multiplicities[idx_y]`` so that merged
+            sites (symmetry-equivalent or functional-group averaged) contribute
+            with the correct degeneracy weight in the heatmap.
 
     Returns:
         List[Peak2D]: List of generated peaks.
@@ -493,6 +622,11 @@ def generate_peaks(
         strength = markersizes if is_single_marker else markersizes[ipair]
         xlabel = labels[idx_x]
         ylabel = labels[idx_y]
+
+        if multiplicities is not None:
+            mult = int(multiplicities[idx_x]) * int(multiplicities[idx_y])
+        else:
+            mult = 1
 
         if yaxis_order == '2Q':
             y += x
@@ -508,7 +642,8 @@ def generate_peaks(
             xlabel=xlabel,
             ylabel=ylabel,
             idx_x=idx_x,
-            idx_y=idx_y)
+            idx_y=idx_y,
+            multiplicity=mult)
         peaks.append(peak)
     return peaks
 
@@ -533,10 +668,11 @@ def merge_peaks(
         List[Peak2D]: List of unique merged peaks.
     """
     # first, get the unique peaks
-    unique_peaks = []
+    # peak_map preserves insertion order (Python 3.7+); when a duplicate key is
+    # found, multiplicities are summed so that degenerate site-pairs contribute
+    # their full combined weight to the heatmap and marker sizes.
     unique_xlabels: Dict[str, Set[str]] = {}
     unique_ylabels: Dict[str, Set[str]] = {}
-
     peak_map: Dict[Tuple[float, float, float], Peak2D] = {}
 
     for peak in peaks:
@@ -546,11 +682,14 @@ def merge_peaks(
             int(peak.correlation_strength / corr_tol) if not ignore_correlation_strength else 0
         )
         if key in peak_map:
-            unique_peak = peak_map[key]
-            unique_xlabels[unique_peak.xlabel].add(peak.xlabel)
-            unique_ylabels[unique_peak.ylabel].add(peak.ylabel)
+            existing = peak_map[key]
+            # Accumulate multiplicity: two distinct site-pairs at the same
+            # (x, y, strength) are degenerate and their counts should add.
+            peak_map[key] = dc_replace(existing,
+                                       multiplicity=existing.multiplicity + peak.multiplicity)
+            unique_xlabels[existing.xlabel].add(peak.xlabel)
+            unique_ylabels[existing.ylabel].add(peak.ylabel)
         else:
-            unique_peaks.append(peak)
             peak_map[key] = peak
             unique_xlabels[peak.xlabel] = {peak.xlabel}
             unique_ylabels[peak.ylabel] = {peak.ylabel}
@@ -559,13 +698,14 @@ def merge_peaks(
         int_list = re.findall(r'\d+', x)
         return int(int_list[0]) if int_list else x
 
-    for unique_peak in unique_peaks:
+    result = []
+    for unique_peak in peak_map.values():
         xlabel_list = sorted(unique_xlabels[unique_peak.xlabel], key=sort_func)
         ylabel_list = sorted(unique_ylabels[unique_peak.ylabel], key=sort_func)
-        unique_peak.xlabel = '/'.join(xlabel_list)
-        unique_peak.ylabel = '/'.join(ylabel_list)
-
-    return unique_peaks
+        result.append(dc_replace(unique_peak,
+                                 xlabel='/'.join(xlabel_list),
+                                 ylabel='/'.join(ylabel_list)))
+    return result
 
 def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) -> List[Peak2D]:
     '''

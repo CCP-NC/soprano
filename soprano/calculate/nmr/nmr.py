@@ -22,10 +22,11 @@ from structures.
 
 import logging
 import re
+from abc import ABC, abstractmethod
 from collections import namedtuple
 from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -34,7 +35,20 @@ from ase import Atoms
 from matplotlib.axes import Axes
 from scipy.special import fresnel
 
+try:
+    import plotly.graph_objects as go
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
+
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    PANDAS_AVAILABLE = False
+
 from soprano.calculate.nmr.utils import (
+    ContourData,
     Peak2D,
     calculate_distances,
     extract_indices,
@@ -66,6 +80,34 @@ ANNOTATION_FONT_SCALE = 0.5 # Scale factor for annotation font size wrt to plot 
 DEFAULT_MAX_NUM_LEGEND_ELEMENTS = 6 # Default maximum number of elements to show in the legend in 2D plots
 
 _nmr_data = _get_nmr_data()
+
+# Mapping of matplotlib colormaps to Plotly colorscales
+MPL_TO_PLOTLY_COLORMAP = {
+    'bone_r': 'greys_r',
+    'bone': 'greys',
+    'viridis': 'viridis',
+    'plasma': 'plasma',
+    'inferno': 'inferno',
+    'magma': 'magma',
+    'cividis': 'cividis',
+    'hot': 'hot',
+    'cool': 'ice',
+    'gray': 'greys',
+    'grey': 'greys',
+}
+
+# Mapping of matplotlib markers to Plotly symbols (using -open for hollow markers)
+MPL_TO_PLOTLY_MARKER = {
+    'o': 'circle',
+    's': 'square',
+    '^': 'triangle-up',
+    'v': 'triangle-down',
+    'D': 'diamond',
+    'p': 'pentagon',
+    '*': 'star',
+    'x': 'x-thin',
+    '+': 'cross-thin',
+}
 
 # Conversion functions to Tesla
 # (they take element and isotope as arguments)
@@ -914,17 +956,23 @@ class NMRData2D:
         # run the main method to extract the data
         self.get_peaks()
 
-    def get_peaks(self, merge_identical=True, should_sort_peaks=False):
+    def get_peaks(self, merge_identical=True, should_sort_peaks=False, force_recompute=False):
         '''
         Get the correlation peaks.
 
         If self.peaks already exists, then we return them as is.
         If they don't exist, we make sure the required data is available 
         and then generate the peaks and merge if desired.
+
+        Set force_recompute=True to discard any cached peaks and regenerate
+        from the underlying atoms/pairs data.
         '''
 
+        if force_recompute:
+            self.peaks = None
+
         if self.peaks is not None:
-            self.logger.debug("Custom peaks provided. ")
+            self.logger.debug("Cached peaks found. Returning without recomputing. Use force_recompute=True to regenerate.")
             return self.peaks
 
         if self.atoms is None:
@@ -934,7 +982,12 @@ class NMRData2D:
         self.extract_data()
         labels = get_atom_labels(self.atoms, self.logger)
 
-        self.peaks = generate_peaks(self.data, self.pairs, labels, self.correlation_strengths, self.yaxis_order, self.xelement, self.yelement)
+        multiplicities = (
+            self.atoms.get_array('multiplicity')
+            if self.atoms is not None and self.atoms.has('multiplicity')
+            else None
+        )
+        self.peaks = generate_peaks(self.data, self.pairs, labels, self.correlation_strengths, self.yaxis_order, self.xelement, self.yelement, multiplicities=multiplicities)
 
         if merge_identical:
             self.peaks = merge_peaks(self.peaks)
@@ -983,15 +1036,14 @@ class NMRData2D:
 
             # if user provides a list of these, use it!
             # just check that it's the right length
-            if len(self.correlation_strengths) != len(self.pairs_el_idx):
-                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({len(self.pairs_el_idx)}).")
+            if len(self.correlation_strengths) != len(self.pairs):
+                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({len(self.pairs)}).")
             correlation_strengths = self.correlation_strengths
 
         elif self.correlation_strength_metric == 'fixed':
             self.logger.info("Using fixed correlation strength.")
-            # get all unique pairs of x and y indices
             # set the correlation strength to be the same for all pairs
-            correlation_strengths = np.ones(len(self.pairs_el_idx))
+            correlation_strengths = np.ones(len(self.pairs))
 
         elif self.correlation_strength_metric == 'dipolar':
             self.logger.info("Using dipolar coupling as correlation strength.")
@@ -1013,9 +1065,6 @@ class NMRData2D:
         elif self.correlation_strength_metric == 'jcoupling':
             self.logger.info("Using J-coupling as correlation strength.")
             correlation_strengths = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
-        elif self.correlation_strength_metric == 'custom':
-            self.logger.info("Using custom correlation strengths.")
-            correlation_strengths = self.correlation_strengths
         else:
             raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
 
@@ -1070,8 +1119,9 @@ class NMRData2D:
         self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
         self.pairs: a list of tuples of the form (xindex, yindex)
         '''
-        # Process pairs
-        self.pairs, self.pairs_el_idx, self.idx_x, self.idx_y = process_pairs(self.idx_x, self.idx_y, self.pairs)
+        # Process pairs; idx_x/idx_y (unique element indices) are not overwritten here —
+        # process_pairs expands them into per-pair form internally.
+        self.pairs, self.pairs_el_idx, _, _ = process_pairs(self.idx_x, self.idx_y, self.pairs)
 
         # Check for invalid pairs if correlation_strength_metric is not fixed
         if self.correlation_strength_metric != 'fixed':
@@ -1096,14 +1146,1137 @@ class NMRData2D:
             self.logger.info(f"Filtering out pairs that are further than {self.rcut} Å apart.")
             self.logger.info(f"Number of pairs before filtering: {len(self.pairs_el_idx)}")
 
-            self.pairs, self.pairs_el_idx, self.pair_distances, self.idx_x, self.idx_y = filter_pairs_by_distance(
+            self.pairs, self.pairs_el_idx, self.pair_distances, _, _ = filter_pairs_by_distance(
                 self.pairs, self.pairs_el_idx, self.pair_distances, self.rcut)
 
             self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
             self.logger.debug(f"Pairs remaining: {self.pairs}")
             self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
 
+    def to_dataframe(self, include_metadata=True):
+        """
+        Convert the NMR data to a pandas DataFrame.
+        
+        This method exports all peak data and optionally includes metadata.
+        The resulting DataFrame can be saved to CSV or other formats for
+        later use or sharing.
+        
+        Parameters
+        ----------
+        include_metadata : bool, optional
+            If True, includes columns with experimental metadata such as
+            elements, isotopes, references, etc. Default is True.
+        
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing peak positions (x, y), labels (xlabel, ylabel),
+            correlation strengths, and optionally metadata.
+        
+        Raises
+        ------
+        ImportError
+            If pandas is not installed.
+        
+        Examples
+        --------
+        >>> df = nmr_data.to_dataframe()
+        >>> df.to_csv('nmr_peaks.csv', index=False)
+        
+        >>> # Load back from CSV
+        >>> import pandas as pd
+        >>> df = pd.read_csv('nmr_peaks.csv')
+        """
+        if not PANDAS_AVAILABLE:
+            raise ImportError(
+                "pandas is required to export data to DataFrame. "
+                "Install it with: pip install pandas"
+            )
+        
+        # Get peaks (this will generate them if needed)
+        peaks = self.get_peaks()
+        
+        if not peaks:
+            self.logger.warning("No peaks to export.")
+            return pd.DataFrame()
+        
+        # Extract data from Peak2D namedtuples
+        data = {
+            'x': [peak.x for peak in peaks],
+            'y': [peak.y for peak in peaks],
+            'xlabel': [peak.xlabel for peak in peaks],
+            'ylabel': [peak.ylabel for peak in peaks],
+            'correlation_strength': [peak.correlation_strength for peak in peaks],
+        }
+        
+        if include_metadata:
+            # Add metadata columns (same value for all rows)
+            data.update({
+                'xelement': self.xelement,
+                'yelement': self.yelement,
+                'xisotope': self.xisotope if hasattr(self, 'xisotope') else None,
+                'yisotope': self.yisotope if hasattr(self, 'yisotope') else None,
+                'correlation_metric': self.correlation_strength_metric,
+                'correlation_unit': self.correlation_unit,
+                'correlation_label': self.correlation_label,
+                'yaxis_order': self.yaxis_order,
+                'is_shift': self.is_shift,
+            })
+            
+            # Add references if they exist
+            if self.references:
+                data['xreference'] = self.references.get(self.xelement, None)
+                data['yreference'] = self.references.get(self.yelement, None)
+            
+            # Add gradients if they exist
+            if self.gradients:
+                data['xgradient'] = self.gradients.get(self.xelement, None)
+                data['ygradient'] = self.gradients.get(self.yelement, None)
+            
+            # Add rcut if it was used
+            if self.rcut:
+                data['rcut'] = self.rcut
+        
+        df = pd.DataFrame(data)
+        
+        self.logger.info(f"Exported {len(df)} peaks to DataFrame.")
+        return df
 
+    def get_contour_data(
+        self,
+        x_broadening: Optional[float] = None,
+        y_broadening: Optional[float] = None,
+        broadening_type: str = 'gaussian',
+        grid_size: int = 150,
+        xlims: Optional[Tuple[float, float]] = None,
+        ylims: Optional[Tuple[float, float]] = None,
+    ) -> 'ContourData':
+        """
+        Compute (and cache) the 2D contour grid for this spectrum.
+
+        The result is stored on ``self._contour_data`` and is reused as long
+        as the same parameters are requested.  Pass any argument explicitly to
+        force recomputation with different settings.
+
+        Parameters
+        ----------
+        x_broadening : float, optional
+            FWHM linewidth in the direct (x) dimension.  Defaults to 5 % of
+            the x peak range.  Internally converted to HWHM (Lorentzian) or
+            σ (Gaussian) as appropriate.
+        y_broadening : float, optional
+            FWHM linewidth in the indirect (y) dimension.  Same default logic
+            as *x_broadening*.
+        broadening_type : str
+            ``'gaussian'`` (default) or ``'lorentzian'``.
+        grid_size : int
+            Number of points along each axis of the grid.  Default 150.
+        xlims : tuple of float, optional
+            Used **only** to compute the default 5 % broadening when
+            *x_broadening* is *None*.  The grid itself always spans the full
+            peak range plus ``5 × x_broadening`` padding on each side;
+            passing *xlims* does not clip the grid.  Use
+            ``PlotSettings.xlim`` to control the display limits.
+        ylims : tuple of float, optional
+            Same as *xlims* but for the indirect (y) dimension.
+
+        Returns
+        -------
+        ContourData
+            Named-tuple with fields ``X``, ``Y``, ``Z`` (meshgrid arrays),
+            ``x_broadening``, ``y_broadening``, ``broadening_type``,
+            ``xlims``, ``ylims``.
+        """
+        peaks = self.get_peaks()
+        if not peaks:
+            raise ValueError("No peaks available – cannot compute contour data.")
+
+        # Use absolute correlation strengths: the heatmap shows *magnitude*
+        # of correlation.  Signed metrics (e.g. negative dipolar constants)
+        # would otherwise produce a map with negative intensities.
+        import copy
+        peaks_abs = []
+        for p in peaks:
+            pa = copy.copy(p)
+            pa.correlation_strength = abs(p.correlation_strength)
+            peaks_abs.append(pa)
+
+        # Resolve default broadening from peak spread or supplied limits
+        if xlims is None:
+            x_min = min(p.x for p in peaks_abs)
+            x_max = max(p.x for p in peaks_abs)
+        else:
+            x_min, x_max = min(xlims), max(xlims)
+
+        if ylims is None:
+            y_min = min(p.y for p in peaks_abs)
+            y_max = max(p.y for p in peaks_abs)
+        else:
+            y_min, y_max = min(ylims), max(ylims)
+
+        x_range = x_max - x_min or 1.0
+        y_range = y_max - y_min or 1.0
+
+        if x_broadening is None:
+            x_broadening = 0.05 * x_range
+        if y_broadening is None:
+            y_broadening = 0.05 * y_range
+
+        # Check cache
+        cache_key = (x_broadening, y_broadening, broadening_type, grid_size,
+                     xlims, ylims)
+        if getattr(self, '_contour_cache_key', None) == cache_key:
+            return self._contour_data
+
+        X, Y, Z = generate_contour_map(
+            peaks_abs,
+            grid_size=grid_size,
+            broadening=broadening_type,
+            x_broadening=x_broadening,
+            y_broadening=y_broadening,
+        )
+
+        # Actual grid limits (may be wider than xlims due to broadening padding)
+        actual_xlims = (float(X[0, 0]), float(X[0, -1]))
+        actual_ylims = (float(Y[0, 0]), float(Y[-1, 0]))
+
+        self._contour_data = ContourData(
+            X=X,
+            Y=Y,
+            Z=Z,
+            x_broadening=x_broadening,
+            y_broadening=y_broadening,
+            broadening_type=broadening_type,
+            xlims=actual_xlims,
+            ylims=actual_ylims,
+        )
+        self._contour_cache_key = cache_key
+        return self._contour_data
+
+    def export_contour_data(
+        self,
+        path: str,
+        fmt: str = 'simpson',
+        x_broadening: Optional[float] = None,
+        y_broadening: Optional[float] = None,
+        broadening_type: str = 'gaussian',
+        grid_size: int = 150,
+        xlims: Optional[Tuple[float, float]] = None,
+        ylims: Optional[Tuple[float, float]] = None,
+        x_larmor_freq_mhz: Optional[float] = None,
+        y_larmor_freq_mhz: Optional[float] = None,
+    ) -> None:
+        """
+        Export the 2D NMR contour data to a file.
+
+        The contour grid is computed via :meth:`get_contour_data` (and cached
+        for subsequent calls).  The peak list is always included alongside the
+        grid where the format supports it.
+
+        Parameters
+        ----------
+        path : str
+            Output file path.  For ``'simpson'`` format use a ``.spe``
+            extension so that nmrglue / ssNake auto-detect the file type.
+        fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake'}
+            Export format:
+
+            ``'simpson'``
+                SIMPSON TEXT format (``TYPE=SPE``).  Readable by nmrglue
+                (``nmrglue.fileio.simpson.read``) and ssNake
+                (*Open → SIMPSON*).  The grid is written as a 2D real
+                spectrum; the imaginary channel is zero everywhere.  A
+                companion ``<path>.peaks.csv`` file is written alongside.
+
+            ``'npz'``
+                NumPy compressed archive.  Arrays ``X``, ``Y``, ``Z`` plus
+                scalar metadata are stored.  Reload with
+                ``np.load(path, allow_pickle=True)``.
+
+            ``'csv'``
+                Flat table with columns ``x``, ``y``, ``intensity``.
+                Useful for import into Origin, Excel, etc.
+
+            ``'json'``
+                ssNake native JSON format.  Stores Larmor frequency
+                (``freq``) directly, so **ppm is available immediately**
+                on load without any manual axis editing.  Requires
+                *x_larmor_freq_mhz* (and *y_larmor_freq_mhz* for
+                heteronuclear spectra).
+
+        x_larmor_freq_mhz : float, optional
+            Larmor frequency in MHz for the **direct (x)** dimension nucleus.
+            Only used by the ``'simpson'`` exporter.
+
+        y_larmor_freq_mhz : float, optional
+            Larmor frequency in MHz for the **indirect (y)** dimension nucleus.
+            For homonuclear experiments this equals *x_larmor_freq_mhz*.
+            For heteronuclear experiments (e.g. 13C on x, 1H on y) the two
+            frequencies differ and both must be provided.
+
+            *Why these matter for ssNake:*  The SIMPSON TEXT format has no
+            field for the spectrometer frequency.  ssNake therefore sets the
+            carrier to 0 MHz on load and cannot offer ppm as a unit.  When
+            Larmor frequencies are provided:
+
+            * ``SW`` is written in Hz using *x_larmor_freq_mhz*.
+            * ``SW1`` is written in Hz using *y_larmor_freq_mhz* (falls
+              back to *x_larmor_freq_mhz* when *y_larmor_freq_mhz* is None).
+
+            After loading in ssNake, go to *Axes → Edit axes* and enter the
+            appropriate Larmor frequency for each dimension; ppm will then
+            be available.
+
+            When both are *None* sweep widths are written in ppm and a
+            warning is emitted.
+
+        x_broadening, y_broadening, broadening_type, grid_size, xlims, ylims
+            Forwarded to :meth:`get_contour_data`.  If the grid has already
+            been cached with identical parameters the cached result is reused.
+
+        Raises
+        ------
+        ValueError
+            If no peaks are available or an unknown format is requested.
+        """
+        cd = self.get_contour_data(
+            x_broadening=x_broadening,
+            y_broadening=y_broadening,
+            broadening_type=broadening_type,
+            grid_size=grid_size,
+            xlims=xlims,
+            ylims=ylims,
+        )
+
+        fmt = fmt.lower().strip()
+
+        if fmt == 'simpson':
+            self._export_simpson(path, cd,
+                                 x_larmor_freq_mhz=x_larmor_freq_mhz,
+                                 y_larmor_freq_mhz=y_larmor_freq_mhz)
+        elif fmt == 'npz':
+            self._export_npz(path, cd)
+        elif fmt == 'csv':
+            self._export_csv_grid(path, cd)
+        elif fmt in ('json', 'ssnake'):
+            self._export_json_ssnake(path, cd,
+                                     x_larmor_freq_mhz=x_larmor_freq_mhz,
+                                     y_larmor_freq_mhz=y_larmor_freq_mhz)
+        else:
+            raise ValueError(
+                f"Unknown export format '{fmt}'. "
+                "Choose from 'simpson', 'npz', 'csv', 'json'."
+            )
+        self.logger.info(f"Exported contour data to '{path}' (format={fmt}).")
+
+    # ------------------------------------------------------------------
+    # Private export helpers
+    # ------------------------------------------------------------------
+
+    def _export_simpson(self, path: str, cd: 'ContourData',
+                         x_larmor_freq_mhz: Optional[float] = None,
+                         y_larmor_freq_mhz: Optional[float] = None) -> None:
+        """Write a SIMPSON TEXT (.spe) file readable by nmrglue and ssNake.
+
+        Sweep widths
+        ------------
+        SIMPSON/ssNake expect SW in Hz.  We convert: SW_hz = SW_ppm × freq_MHz.
+        For heteronuclear spectra the two dimensions can have different Larmor
+        frequencies (e.g. 13C direct, 1H indirect).  *y_larmor_freq_mhz*
+        falls back to *x_larmor_freq_mhz* when not given (homonuclear case).
+
+        A companion ``<path>.peaks.csv`` file is written with the peak list.
+        """
+        import csv
+
+        Z = cd.Z                              # shape (NI, NP)
+        NI, NP = Z.shape
+        SW_ppm  = cd.xlims[1] - cd.xlims[0]  # direct (x) sweep width in ppm
+        SW1_ppm = cd.ylims[1] - cd.ylims[0]  # indirect (y) sweep width in ppm
+
+        # y falls back to x for homonuclear case
+        y_freq = y_larmor_freq_mhz if y_larmor_freq_mhz is not None else x_larmor_freq_mhz
+
+        if x_larmor_freq_mhz is not None:
+            SW  = SW_ppm  * x_larmor_freq_mhz
+            SW1 = SW1_ppm * y_freq
+            sw_unit = 'Hz'
+        else:
+            SW  = SW_ppm
+            SW1 = SW1_ppm
+            sw_unit = 'ppm'
+            self.logger.warning(
+                "Exporting SIMPSON .spe without Larmor frequencies: SW/SW1 are "
+                "written in ppm.  ssNake cannot select ppm as a unit without "
+                "spectrometer frequencies.  Pass x_larmor_freq_mhz (and "
+                "y_larmor_freq_mhz for heteronuclear spectra) to fix this."
+            )
+
+        with open(path, 'w') as f:
+            f.write('SIMP\n')
+            f.write(f'NP={NP}\n')
+            f.write(f'NI={NI}\n')
+            f.write(f'SW={SW:.8g}\n')
+            f.write(f'SW1={SW1:.8g}\n')
+            f.write('TYPE=SPE\n')
+            f.write('# Exported by Soprano NMRData2D.export_contour_data\n')
+            f.write(f'# SW_unit={sw_unit}\n')
+            if x_larmor_freq_mhz is not None:
+                f.write(f'# SPECFREQ_x={x_larmor_freq_mhz:.6g} MHz  (direct dim)\n')
+                f.write(f'# SPECFREQ_y={y_freq:.6g} MHz  (indirect dim)\n')
+                f.write(f'# ssNake: Axes -> Edit axes, set carriers to these values\n')
+            f.write(f'# x_broadening={cd.x_broadening:.6g} ppm\n')
+            f.write(f'# y_broadening={cd.y_broadening:.6g} ppm\n')
+            f.write(f'# broadening_type={cd.broadening_type}\n')
+            f.write(f'# xlims_ppm={cd.xlims[0]:.6g} {cd.xlims[1]:.6g}\n')
+            f.write(f'# ylims_ppm={cd.ylims[0]:.6g} {cd.ylims[1]:.6g}\n')
+            f.write('DATA\n')
+            for i in range(NI):
+                for j in range(NP):
+                    f.write(f'{Z[i, j]:.8g} 0.0\n')
+            f.write('END')
+
+        # Write companion peak list
+        peaks_path = path + '.peaks.csv'
+        peaks = self.get_peaks()
+        with open(peaks_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['x_ppm', 'y_ppm', 'xlabel', 'ylabel', 'correlation_strength'])
+            for p in peaks:
+                writer.writerow([p.x, p.y, p.xlabel, p.ylabel, p.correlation_strength])
+        self.logger.info(f"Peak list written to '{peaks_path}'.")
+
+    def _export_npz(self, path: str, cd: 'ContourData') -> None:
+        """Write a NumPy compressed archive with the grid and metadata."""
+        peaks = self.get_peaks()
+        peak_x = np.array([p.x for p in peaks])
+        peak_y = np.array([p.y for p in peaks])
+        peak_strength = np.array([p.correlation_strength for p in peaks])
+        peak_xlabels = np.array([p.xlabel for p in peaks])
+        peak_ylabels = np.array([p.ylabel for p in peaks])
+
+        np.savez_compressed(
+            path,
+            X=cd.X,
+            Y=cd.Y,
+            Z=cd.Z,
+            peak_x=peak_x,
+            peak_y=peak_y,
+            peak_strength=peak_strength,
+            peak_xlabels=peak_xlabels,
+            peak_ylabels=peak_ylabels,
+            x_broadening=cd.x_broadening,
+            y_broadening=cd.y_broadening,
+            broadening_type=np.bytes_(cd.broadening_type),
+            xlims=np.array(cd.xlims),
+            ylims=np.array(cd.ylims),
+        )
+
+    def _export_csv_grid(self, path: str, cd: 'ContourData') -> None:
+        """Write a flat CSV with columns x, y, intensity."""
+        import csv
+        with open(path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['x_ppm', 'y_ppm', 'intensity'])
+            NI, NP = cd.Z.shape
+            for i in range(NI):
+                for j in range(NP):
+                    writer.writerow([cd.X[i, j], cd.Y[i, j], cd.Z[i, j]])
+
+    def _export_json_ssnake(
+        self,
+        path: str,
+        cd: 'ContourData',
+        x_larmor_freq_mhz: Optional[float],
+        y_larmor_freq_mhz: Optional[float],
+    ) -> None:
+        """Write an ssNake-native JSON file with Larmor frequencies embedded.
+
+        ssNake stores ``freq`` (Larmor frequency per dimension, in Hz) directly
+        in its JSON format.  On load this is used to compute the ppm axis
+        without any manual entry — ppm is available immediately.
+
+        The grid Z (NI × NP, purely real) is stored as a 1-D ``dataReal``
+        array (row-major) with a zero ``dataImag`` partner.
+
+        Parameters
+        ----------
+        path : str
+            Output path.  Use a ``.json`` extension.
+        cd : ContourData
+            Grid to export.
+        x_larmor_freq_mhz : float
+            Larmor frequency in MHz for the direct (x) dimension.
+        y_larmor_freq_mhz : float
+            Larmor frequency in MHz for the indirect (y) dimension.
+            Falls back to *x_larmor_freq_mhz* when None (homonuclear).
+        """
+        import json
+
+        if x_larmor_freq_mhz is None:
+            raise ValueError(
+                "x_larmor_freq_mhz is required for 'json' export so that "
+                "ssNake can display the ppm axis directly."
+            )
+        y_freq_mhz = y_larmor_freq_mhz if y_larmor_freq_mhz is not None else x_larmor_freq_mhz
+
+        x_freq_hz = x_larmor_freq_mhz * 1e6   # direct   (x) dim
+        y_freq_hz = y_freq_mhz         * 1e6   # indirect (y) dim
+
+        # Unit conversion: ppm × MHz = Hz  (1e-6 × 1e6 = 1, exact)
+        SW_x_hz = (cd.xlims[1] - cd.xlims[0]) * x_larmor_freq_mhz  # Hz
+        SW_y_hz = (cd.ylims[1] - cd.ylims[0]) * y_freq_mhz          # Hz
+
+        # ssNake ppm conversion: ppm = xax_hz * (1e6 / ref)
+        # ssNake disables ppm if ref == 0, so ref must be non-zero.
+        # With xax_hz = ppm * freq_MHz, setting ref = freq_hz gives:
+        #   ppm = xax_hz * 1e6 / freq_hz = xax_hz / freq_MHz ✓
+        ref_x = x_freq_hz   # Hz (= x_larmor_freq_mhz * 1e6)
+        ref_y = y_freq_hz   # Hz (= y_freq_mhz * 1e6)
+
+        NI, NP = cd.Z.shape
+        # ssNake stores data as shape (n_hyper, NI, NP) — for non-hypercomplex
+        # 2D data that is (1, NI, NP).  When 'hyper' is present in the JSON
+        # ssNake does np.array(dataReal) directly, so the nesting must match.
+        data_3d = cd.Z.reshape(1, NI, NP)
+        flat_real = data_3d.tolist()          # list[list[list[float]]], shape (1,NI,NP)
+        flat_imag = np.zeros((1, NI, NP)).tolist()
+
+        # xaxArray: Hz values where hz = ppm * freq_MHz (no extra factor of 1e3)
+        xax_x = (np.linspace(cd.xlims[0], cd.xlims[1], NP) * x_larmor_freq_mhz).tolist()
+        xax_y = (np.linspace(cd.ylims[0], cd.ylims[1], NI) * y_freq_mhz).tolist()
+
+        # ssNake dimension ordering follows the data array shape (1, NI, NP):
+        #   index 0 → NI → y (indirect) dimension
+        #   index 1 → NP → x (direct)   dimension
+        # So all per-dimension lists must be [y, x], not [x, y].
+        struct = {
+            'dataReal':  flat_real,
+            'dataImag':  flat_imag,
+            'hyper':     [0],
+            'freq':      [y_freq_hz, x_freq_hz],
+            'sw':        [SW_y_hz, SW_x_hz],
+            'spec':      [1, 1],
+            'wholeEcho': [0, 0],
+            'ref':       [ref_y, ref_x],
+            'xaxArray':  [xax_y, xax_x],
+            'history':   ['Exported by Soprano NMRData2D.export_contour_data'],
+            'metaData':  {
+                'x_larmor_MHz': x_larmor_freq_mhz,
+                'y_larmor_MHz': y_freq_mhz,
+                'x_broadening_ppm': cd.x_broadening,
+                'y_broadening_ppm': cd.y_broadening,
+                'broadening_type': cd.broadening_type,
+            },
+        }
+        with open(path, 'w') as f:
+            json.dump(struct, f)
+        self.logger.info(f"ssNake JSON written to '{path}' "
+                         f"(x={x_larmor_freq_mhz} MHz, y={y_freq_mhz} MHz).")
+
+
+# ============================================================================
+# Plot Backend Classes
+# ============================================================================
+
+def _resolve_levels(
+    Z: np.ndarray,
+    levels: Union[int, Iterable[float]],
+    contour_range: Tuple[float, float],
+) -> np.ndarray:
+    """Return concrete contour level values from either a count or explicit list.
+
+    Parameters
+    ----------
+    Z : np.ndarray
+        The intensity grid (used only when *levels* is an integer).
+    levels : int or iterable of float
+        *int* – generate this many evenly-spaced levels inside *contour_range*.
+        *iterable* – used directly as absolute intensity values;
+        *contour_range* is then ignored.
+    contour_range : (float, float)
+        ``(lo, hi)`` expressed as **percentages of Z.max()** (0–100 scale),
+        applied only when *levels* is an integer.
+
+    Returns
+    -------
+    np.ndarray
+        1-D array of level values.
+    """
+    if isinstance(levels, (int, float)):
+        z_max = float(Z.max())
+        lo = contour_range[0] / 100.0 * z_max
+        hi = contour_range[1] / 100.0 * z_max
+        return np.linspace(lo, hi, int(levels))
+    else:
+        return np.asarray(levels)
+
+
+class PlotBackend(ABC):
+    """Abstract base class for plot backends"""
+    
+    @abstractmethod
+    def create_figure(self):
+        """Create a new figure/chart object"""
+        pass
+    
+    @abstractmethod
+    def plot_markers(self, x: np.ndarray, y: np.ndarray, sizes: np.ndarray, 
+                    colors: Union[str, list], settings: 'PlotSettings',
+                    correlation_info: Optional[dict] = None,
+                    xlabels: Optional[list] = None,
+                    ylabels: Optional[list] = None,
+                    correlation_values: Optional[np.ndarray] = None) -> Any:
+        """Plot scatter markers
+        
+        Args:
+            x: x coordinates
+            y: y coordinates
+            sizes: marker sizes (normalized for plotting)
+            colors: marker colors (single color or list)
+            settings: PlotSettings object
+            correlation_info: Optional dict with correlation metadata for legend
+            xlabels: Optional list of x-axis labels for hover text
+            ylabels: Optional list of y-axis labels for hover text
+            correlation_values: Optional array of actual correlation values (unnormalized)
+        """
+        pass
+    
+    @abstractmethod
+    def plot_heatmap(self, X: np.ndarray, Y: np.ndarray, Z: np.ndarray, 
+                     settings: 'PlotSettings') -> Any:
+        """Plot heatmap contour fill"""
+        pass
+    
+    @abstractmethod
+    def plot_contour(self, X: np.ndarray, Y: np.ndarray, Z: np.ndarray, 
+                    settings: 'PlotSettings') -> Any:
+        """Plot contour lines"""
+        pass
+    
+    @abstractmethod
+    def plot_connectors(self, x: np.ndarray, y: np.ndarray, 
+                       settings: 'PlotSettings') -> Any:
+        """Plot connecting lines between points"""
+        pass
+    
+    @abstractmethod
+    def plot_axlines(self, x: np.ndarray, y: np.ndarray, 
+                    settings: 'PlotSettings') -> Any:
+        """Plot reference lines at peak positions"""
+        pass
+    
+    @abstractmethod
+    def plot_diagonal(self, settings: 'PlotSettings') -> Any:
+        """Plot diagonal line"""
+        pass
+    
+    @abstractmethod
+    def plot_annotations(self, x: np.ndarray, y: np.ndarray, 
+                        xlabels: list, ylabels: list, 
+                        settings: 'PlotSettings') -> Any:
+        """Plot annotations/labels"""
+        pass
+    
+    @abstractmethod
+    def set_axis_properties(self, xlabel: str, ylabel: str, 
+                          xlim: Optional[Tuple[float, float]], 
+                          ylim: Optional[Tuple[float, float]], 
+                          invert_axes: bool) -> None:
+        """Set axis labels, limits, and inversions"""
+        pass
+    
+    @abstractmethod
+    def finalize(self, filename: Optional[str] = None) -> Any:
+        """Finalize and return the plot object"""
+        pass
+
+
+class MatplotlibBackend(PlotBackend):
+    """Matplotlib backend implementation (preserves original functionality)"""
+    
+    def __init__(self, ax: Optional[Axes] = None):
+        """Initialize with optional existing axis"""
+        if ax is None:
+            self.fig, self.ax = plt.subplots()
+        elif isinstance(ax, Axes):
+            self.ax = ax
+            self.fig = ax.get_figure()
+        else:
+            raise TypeError("ax must be an Axes object or None.")
+        
+        self.logger = logging.getLogger(__name__)
+    
+    def create_figure(self):
+        """Figure already created in __init__"""
+        return self.fig, self.ax
+    
+    def plot_markers(self, x, y, sizes, colors, settings, correlation_info=None, xlabels=None, ylabels=None, correlation_values=None):
+        """Plot scatter markers using matplotlib"""
+        scatter = self.ax.scatter(
+            x, y, s=sizes, c=colors,
+            marker=settings.marker,
+            linewidths=settings.marker_linewidth,
+            zorder=10
+        )
+        
+        # Add legend if requested
+        if settings.show_legend and correlation_info:
+            kw = dict(
+                prop="sizes", 
+                num=correlation_info.get('num_legend_elements', 5),
+                color=colors if isinstance(colors, str) else colors[0],
+                fmt=correlation_info.get('fmt', '{x:.1f}') + f" {correlation_info.get('unit', '')}",
+                func=lambda s: s * correlation_info.get('max_size', 1) / settings.max_marker_size
+            )
+            handles, labels = scatter.legend_elements(**kw)
+            self.ax.legend(
+                handles, labels,
+                title=correlation_info.get('label', 'Correlation'),
+                fancybox=True,
+                framealpha=0.8
+            ).set_zorder(12)
+        
+        return scatter
+    
+    def plot_heatmap(self, X, Y, Z, settings):
+        """Plot heatmap using matplotlib contourf"""
+        levels = _resolve_levels(Z, settings.heatmap_levels, settings.contour_range)
+        return self.ax.contourf(X, Y, Z, cmap=settings.colormap,
+                               zorder=-1, levels=levels)
+
+    def plot_contour(self, X, Y, Z, settings):
+        """Plot contour lines using matplotlib"""
+        levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range)
+        return self.ax.contour(
+            X, Y, Z,
+            colors=settings.contour_color,
+            linewidths=settings.contour_linewidth,
+            levels=levels
+        )
+    
+    def plot_connectors(self, x, y, settings):
+        """Plot connecting lines between points with same y value"""
+        y_order = np.argsort(y)
+        for i, idx in enumerate(y_order):
+            if i > 0 and np.isclose(y[idx], y[y_order[i-1]], atol=1e-6):
+                self.ax.plot(
+                    [x[idx], x[y_order[i-1]]],
+                    [y[idx], y[y_order[i-1]]],
+                    c='0.25', lw=0.75, ls='-', zorder=1
+                )
+    
+    def plot_axlines(self, x, y, settings):
+        """Plot reference lines at peak positions"""
+        xticks = np.unique(np.round(x, 6))
+        yticks = np.unique(np.round(y, 6))
+        
+        for x_val in xticks:
+            self.ax.axvline(x_val, zorder=0)
+        for y_val in yticks:
+            self.ax.axhline(y_val, zorder=0)
+    
+    def plot_diagonal(self, settings):
+        """Plot diagonal line"""
+        ylims = self.ax.get_ylim()
+        xlims = self.ax.get_xlim()
+        self.ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
+    
+    def plot_annotations(self, x, y, xlabels, ylabels, settings):
+        """Plot annotations with arrows (matplotlib approach)"""
+        font_size = settings.label_fontsize
+        if font_size is None:
+            font_size = self.ax.xaxis.label.get_fontsize() * ANNOTATION_FONT_SCALE
+        
+        # Get unique labels and positions
+        xlabels_unique, xidx = np.unique(xlabels, return_index=True)
+        ylabels_unique, yidx = np.unique(ylabels, return_index=True)
+        xpos = x[xidx]
+        ypos = y[yidx]
+        
+        labels_offset = 0.10
+        armA = 15 if settings.plot_filename is None else (3 if settings.plot_filename.endswith('.pdf') else 20)
+        armB = 15 if settings.plot_filename is None else (5 if settings.plot_filename.endswith('.pdf') else 30)
+        
+        annotations = []
+        
+        # X labels at top
+        texts = []
+        for i, xlabel in enumerate(xlabels_unique):
+            an = self.ax.annotate(
+                xlabel,
+                xy=(xpos[i], 1.0),
+                xycoords=('data', 'axes fraction'),
+                xytext=(xpos[i], 1+labels_offset),
+                textcoords=('data', 'axes fraction'),
+                fontsize=font_size,
+                ha='center', va='bottom',
+                rotation=90,
+                arrowprops=dict(
+                    arrowstyle="-",
+                    connectionstyle=f"arc,angleA=-90,armA={armA},angleB=90,armB={armB},rad=0",
+                    relpos=(0.5, 0.0),
+                    lw=ANNOTATION_LINE_WIDTH,
+                    shrinkA=0.0, shrinkB=0.0,
+                ),
+            )
+            texts.append(an)
+        
+        if settings.auto_adjust_labels:
+            adjust_text(
+                texts, ensure_inside_axes=False, avoid_self=False,
+                force_pull=(0.0, 0.0), force_text=(0.3, 0.0),
+                force_explode=(1.5, 0.0), expand=(1.3, 1.0), max_move=2,
+            )
+        annotations.extend(texts)
+        
+        # Y labels at right
+        texts = []
+        for i, ylabel in enumerate(ylabels_unique):
+            an = self.ax.annotate(
+                ylabel,
+                xy=(1.0, ypos[i]),
+                xycoords=('axes fraction', 'data'),
+                xytext=(1+labels_offset, ypos[i]),
+                textcoords=('axes fraction', 'data'),
+                fontsize=font_size,
+                ha='left', va='center',
+                arrowprops=dict(
+                    arrowstyle="-",
+                    connectionstyle=f"arc,angleA=180,armA={armA},angleB=0,armB={armB},rad=0",
+                    relpos=(0.0, 0.5),
+                    lw=ANNOTATION_LINE_WIDTH,
+                    shrinkA=0.0, shrinkB=0.0,
+                ),
+            )
+            texts.append(an)
+        
+        if settings.auto_adjust_labels:
+            adjust_text(
+                texts, ensure_inside_axes=False, avoid_self=False,
+                force_pull=(0.0, 0.0), force_text=(0.4, 0.8),
+                force_explode=(0.0, 1.2), expand=(1.0, 1.8), max_move=1,
+            )
+        annotations.extend(texts)
+        
+        return annotations
+    
+    def set_axis_properties(self, xlabel, ylabel, xlim, ylim, invert_axes):
+        """Set axis properties"""
+        self.ax.set_xlabel(xlabel)
+        self.ax.set_ylabel(ylabel)
+        
+        if xlim:
+            self.ax.set_xlim(min(xlim), max(xlim))
+        if ylim:
+            self.ax.set_ylim(min(ylim), max(ylim))
+        
+        if invert_axes:
+            self.ax.invert_xaxis()
+            self.ax.invert_yaxis()
+    
+    def finalize(self, filename=None):
+        """Finalize the plot"""
+        self.fig.tight_layout()
+        
+        if filename:
+            self.fig.savefig(filename, dpi=300, bbox_inches='tight')
+        
+        return self.fig, self.ax
+
+
+class PlotlyBackend(PlotBackend):
+    """Plotly backend implementation for interactive web-based plots with full contour support"""
+    
+    def __init__(self):
+        """Initialize Plotly backend"""
+        if not PLOTLY_AVAILABLE:
+            raise ImportError("Plotly is required for PlotlyBackend. Install with: pip install plotly")
+        
+        self.xlabel = ""
+        self.ylabel = ""
+        self.xlim = None
+        self.ylim = None
+        self.invert_axes = False
+        self.logger = logging.getLogger(__name__)
+        # Create the figure immediately
+        self.fig = go.Figure()
+    
+    def create_figure(self):
+        """Create a Plotly figure"""
+        if self.fig is None:
+            self.fig = go.Figure()
+        return self.fig
+    
+    def plot_markers(self, x, y, sizes, colors, settings, correlation_info=None, xlabels=None, ylabels=None, correlation_values=None):
+        """Plot scatter markers using Plotly"""
+        # Handle colors
+        if isinstance(colors, str):
+            marker_colors = colors
+        else:
+            marker_colors = colors
+        
+        # Map matplotlib marker to Plotly symbol (using -open versions for hollow markers)
+        symbol = MPL_TO_PLOTLY_MARKER.get(settings.marker, 'circle-open')
+        
+        # Normalize sizes for Plotly (scale to reasonable pixel values)
+        size_scale = settings.max_marker_size / np.max(sizes) if np.max(sizes) > 0 else 1
+        plotly_sizes = sizes * size_scale
+        
+        # Use actual correlation values if provided, otherwise fall back to sizes
+        values_to_display = correlation_values if correlation_values is not None else sizes
+        
+        # Get format string and unit from correlation_info
+        if correlation_info:
+            fmt = correlation_info.get('fmt', '{x:.2f}')
+            unit = correlation_info.get('unit', '')
+            label = correlation_info.get('label', 'Strength')
+        else:
+            fmt = '{x:.2f}'
+            unit = ''
+            label = 'Strength'
+        
+        # Create hover text with labels if available
+        if xlabels is not None and ylabels is not None:
+            hovertext = [f"{xl}--{yl}<br>x: {xi:.2f}<br>y: {yi:.2f}<br>{label}: {fmt.format(x=vi)} {unit}" 
+                         for xl, yl, xi, yi, vi in zip(xlabels, ylabels, x, y, values_to_display)]
+        else:
+            hovertext = [f"x: {xi:.2f}<br>y: {yi:.2f}<br>{label}: {fmt.format(x=vi)} {unit}" 
+                         for xi, yi, vi in zip(x, y, values_to_display)]
+        
+        trace = go.Scatter(
+            x=x,
+            y=y,
+            mode='markers',
+            marker=dict(
+                size=plotly_sizes,
+                color='rgba(0,0,0,0)',  # Transparent fill for hollow markers
+                symbol=symbol,
+                line=dict(width=settings.marker_linewidth, color=marker_colors)
+            ),
+            hovertext=hovertext,
+            hoverinfo='text',
+            showlegend=settings.show_legend,
+            name=correlation_info.get('label', 'Correlation') if correlation_info else 'Peaks'
+        )
+        
+        self.fig.add_trace(trace)
+        return trace
+    
+    def plot_heatmap(self, X, Y, Z, settings):
+        """Plot heatmap using Plotly"""
+        colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
+        levels = _resolve_levels(Z, settings.heatmap_levels, settings.contour_range)
+
+        trace = go.Heatmap(
+            x=X[0, :],
+            y=Y[:, 0],
+            z=Z,
+            colorscale=colorscale,
+            zmin=float(levels[0]),
+            zmax=float(levels[-1]),
+            showscale=False,
+            hoverinfo='skip'
+        )
+
+        # Insert as first trace (background)
+        self.fig.add_trace(trace)
+        # Move to back
+        self.fig.data = (self.fig.data[-1],) + self.fig.data[:-1]
+        return trace
+
+    def plot_contour(self, X, Y, Z, settings):
+        """Plot contour lines using Plotly"""
+        colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
+        levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range)
+        n = len(levels)
+        size = float(levels[-1] - levels[0]) / (n - 1) if n > 1 else 0.0
+
+        trace = go.Contour(
+            x=X[0, :],
+            y=Y[:, 0],
+            z=Z,
+            colorscale=colorscale,
+            showscale=False,
+            contours=dict(
+                start=float(levels[0]),
+                end=float(levels[-1]),
+                size=size,
+                coloring='lines',
+                showlabels=True,
+                labelfont=dict(size=8)
+            ),
+            line=dict(width=settings.contour_linewidth),
+            hoverinfo='x+y+z'
+        )
+
+        self.fig.add_trace(trace)
+        return trace
+    
+    def plot_connectors(self, x, y, settings):
+        """Plot connecting lines between points with same y value"""
+        y_order = np.argsort(y)
+        
+        for i, idx in enumerate(y_order):
+            if i > 0 and np.isclose(y[idx], y[y_order[i-1]], atol=1e-6):
+                trace = go.Scatter(
+                    x=[x[y_order[i-1]], x[idx]],
+                    y=[y[y_order[i-1]], y[idx]],
+                    mode='lines',
+                    line=dict(color='gray', width=0.75),
+                    opacity=0.5,
+                    showlegend=False,
+                    hoverinfo='skip'
+                )
+                self.fig.add_trace(trace)
+    
+    def plot_axlines(self, x, y, settings):
+        """Plot reference lines at peak positions"""
+        xticks = np.unique(np.round(x, 6))
+        yticks = np.unique(np.round(y, 6))
+        
+        # Add vertical lines
+        for xt in xticks:
+            self.fig.add_vline(
+                x=xt,
+                line=dict(color='lightgray', width=0.5),
+                opacity=0.3
+            )
+        
+        # Add horizontal lines
+        for yt in yticks:
+            self.fig.add_hline(
+                y=yt,
+                line=dict(color='lightgray', width=0.5),
+                opacity=0.3
+            )
+    
+    def plot_diagonal(self, settings):
+        """Plot diagonal line"""
+        if self.xlim and self.ylim:
+            trace = go.Scatter(
+                x=[self.xlim[0], self.xlim[1]],
+                y=[self.ylim[0], self.ylim[1]],
+                mode='lines',
+                line=dict(color='black', dash='dash', width=1),
+                opacity=0.2,
+                showlegend=False,
+                hoverinfo='skip'
+            )
+            self.fig.add_trace(trace)
+            return trace
+        
+        return None
+    
+    def plot_annotations(self, x, y, xlabels, ylabels, settings):
+        """Plot text labels as annotations"""
+        # Get unique labels
+        xlabels_unique, xidx = np.unique(xlabels, return_index=True)
+        ylabels_unique, yidx = np.unique(ylabels, return_index=True)
+        xpos = x[xidx]
+        ypos = y[yidx]
+        
+        font_size = settings.label_fontsize or 10
+        
+        # X labels (top)
+        y_top = self.ylim[1] if self.ylim else max(y)
+        for xp, label in zip(xpos, xlabels_unique):
+            self.fig.add_annotation(
+                x=xp,
+                y=y_top,
+                text=label,
+                showarrow=False,
+                textangle=270,
+                xanchor='left',
+                yanchor='bottom',
+                font=dict(size=font_size)
+            )
+        
+        # Y labels (right)
+        x_right = self.xlim[1] if self.xlim else max(x)
+        for yp, label in zip(ypos, ylabels_unique):
+            self.fig.add_annotation(
+                x=x_right,
+                y=yp,
+                text=label,
+                showarrow=False,
+                xanchor='left',
+                yanchor='middle',
+                font=dict(size=font_size)
+            )
+    
+    def set_axis_properties(self, xlabel, ylabel, xlim, ylim, invert_axes):
+        """Store axis properties for later application"""
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        self.xlim = xlim
+        self.ylim = ylim
+        self.invert_axes = invert_axes
+    
+    def finalize(self, filename=None):
+        """Apply final layout settings and return figure"""
+        if self.fig is None:
+            raise ValueError("No figure to finalize")
+        
+        # Determine axis ranges
+        xrange = None
+        yrange = None
+        x_autorange = True
+        y_autorange = True
+        
+        if self.xlim:
+            xrange = [self.xlim[1], self.xlim[0]] if self.invert_axes else list(self.xlim)
+            x_autorange = False
+        
+        if self.ylim:
+            yrange = [self.ylim[1], self.ylim[0]] if self.invert_axes else list(self.ylim)
+            y_autorange = False
+        
+        # Set autorange to 'reversed' when invert_axes is True and limits are auto
+        x_autorange_setting = 'reversed' if (self.invert_axes and x_autorange) else x_autorange
+        y_autorange_setting = 'reversed' if (self.invert_axes and y_autorange) else y_autorange
+        
+        # Update layout
+        self.fig.update_layout(
+            xaxis=dict(
+                title=self.xlabel,
+                range=xrange,
+                autorange=x_autorange_setting,
+                showgrid=True,
+                gridcolor='lightgray',
+                gridwidth=0.5
+            ),
+            yaxis=dict(
+                title=self.ylabel,
+                range=yrange,
+                autorange=y_autorange_setting,
+                showgrid=True,
+                gridcolor='lightgray',
+                gridwidth=0.5
+            ),
+            width=700,
+            height=600,
+            hovermode='closest',
+            plot_bgcolor='white',
+            showlegend=True
+        )
+        
+        # Save if filename provided
+        if filename:
+            if filename.endswith('.html'):
+                self.fig.write_html(filename)
+            elif filename.endswith('.json'):
+                self.fig.write_json(filename)
+            elif filename.endswith('.png'):
+                self.fig.write_image(filename)
+            elif filename.endswith('.svg'):
+                self.fig.write_image(filename)
+            elif filename.endswith('.pdf'):
+                self.fig.write_image(filename)
+            else:
+                self.logger.warning(f"Unsupported file format: {filename}")
+        
+        return self.fig
 
 
 @dataclass
@@ -1127,6 +2300,8 @@ class PlotSettings:
     show_legend: bool = False
     num_legend_elements: Optional[int] = None
     show_heatmap: bool = False
+    # Number of filled heatmap levels (int) or explicit absolute intensity values (list).
+    # When an int, levels are spaced within the percentage range given by contour_range.
     heatmap_levels: Union[int, Iterable[float]] = 20
     show_contour: bool = False
     x_broadening: Optional[float] = None
@@ -1136,19 +2311,42 @@ class PlotSettings:
     colormap: str = 'bone_r'
     contour_color: str = 'C1'
     contour_linewidth: float = 0.2
-    # To specify the contour levels, either provide a list of values or a integer number of contours between min and max
+    # Intensity range for contour/heatmap rendering expressed as (lo, hi) percentages
+    # of the maximum grid intensity (0–100 scale).  Default (10, 100) matches ssNake.
+    # Ignored when contour_levels / heatmap_levels is an explicit list of absolute values.
+    contour_range: Tuple[float, float] = (10.0, 100.0)
+    # Number of contour lines (int, spaced within contour_range) or explicit absolute
+    # intensity values (list, contour_range is then ignored).
     contour_levels: Union[Iterable[float], int] = 10
+    # When False, all markers are drawn at max_marker_size regardless of correlation strength.
+    # The correlation strength still affects the heatmap/contour intensity.
+    scale_markers: bool = True
 
 
 class NMRPlot2D:
     '''
-    Class to plot 2D NMR data.
+    Class to plot 2D NMR data with pluggable backends.
+    
+    Parameters
+    ----------
+    nmr_data : NMRData2D
+        The NMR data to plot
+    plot_settings : Optional[PlotSettings]
+        Plot settings to use. If None, defaults are used.
+    backend : str
+        Backend to use for plotting. Options: 'matplotlib' (default), 'plotly'
+    ax : Optional[Axes]
+        For matplotlib backend: existing axis to plot on. If None, creates new figure.
     '''
     def __init__(self,
                 nmr_data: NMRData2D,
-                plot_settings: Optional[PlotSettings] = None):
+                plot_settings: Optional[PlotSettings] = None,
+                backend: str = 'matplotlib',
+                ax: Optional[Axes] = None):
 
         self.nmr_data = nmr_data
+        self.backend_name = backend
+        
         # store the data as numpy arrays for plotting
         npeaks = len(self.nmr_data.peaks)
         self.x = np.zeros(npeaks)
@@ -1158,7 +2356,7 @@ class NMRPlot2D:
         for i, peak in enumerate(self.nmr_data.peaks):
             self.x[i] = peak.x
             self.y[i] = peak.y
-            self.sizes[i] = peak.correlation_strength
+            self.sizes[i] = peak.correlation_strength * peak.multiplicity
 
 
         # Use default plot settings if none are provided
@@ -1174,342 +2372,178 @@ class NMRPlot2D:
         # minimum of number of peaks and 5
         if self.plot_settings.num_legend_elements is None:
             self.plot_settings.num_legend_elements = min(npeaks, DEFAULT_MAX_NUM_LEGEND_ELEMENTS)
+        
+        # Initialize the appropriate backend
+        if backend == 'matplotlib':
+            self.backend = MatplotlibBackend(ax=ax)
+        elif backend == 'plotly':
+            if ax is not None:
+                self.logger.warning("ax parameter is ignored for Plotly backend")
+            self.backend = PlotlyBackend()
+        else:
+            raise ValueError(f"Unknown backend: {backend}. Choose 'matplotlib' or 'plotly'.")
 
     def _initialize_plot_settings(self):
         for key, value in self.plot_settings.__dict__.items():
             setattr(self, key, value)
 
-    @styled_plot(nmr_base_style, nmr_2D_style)
-    def plot(self, ax:Optional[Axes] = None):
+    def plot(self):
         '''
-        Plot the 2D NMR data.
-
-        Parameters
-        ----------
-        ax : Optional[Axes], optional
-            The axes to plot the data on. If not provided, a new figure and axis will be created.
+        Plot the 2D NMR data using the configured backend.
 
         Returns
         -------
-        fig : Figure
-            The figure object
-        ax : Axes
-            The axis object
+        For matplotlib backend:
+            fig : Figure
+                The figure object
+            ax : Axes
+                The axis object
+        
+        For plotly backend:
+            fig : go.Figure
+                The Plotly figure object
         '''
-
-        #  Create a new figure and axis if not provided
-        if ax is None:
-            fig, ax = plt.subplots()
-        elif isinstance(ax, Axes):
-            fig = ax.get_figure()
+        
+        # For matplotlib, we need to apply the styled_plot decorator
+        if self.backend_name == 'matplotlib':
+            return self._plot_matplotlib()
         else:
-            raise TypeError("ax must be an Axes object or None.")
-
-        self.ax = ax
-        self.fig = fig
-
-
-        # --- plot lines at peak locations ---
-        if self.plot_settings.show_lines:
-            self._plot_axlines()
-
-        # --- scatter plot of peaks ---
-        if self.plot_settings.show_markers:
-            self._plot_markers()
-
-
-        # --- connectors if required ---
-        if self.plot_settings.show_connectors:
-            self._plot_connectors()
-
-        # --- plot the axis labels ---
-        # Use the x and y axis labels from the plot settings if provided, otherwise use the labels from the NMR data
+            return self._plot_generic()
+    
+    @styled_plot(nmr_base_style, nmr_2D_style)
+    def _plot_matplotlib(self):
+        """Plot using matplotlib backend with styling"""
+        return self._plot_generic()
+    
+    def _plot_generic(self):
+        """Generic plotting logic that works with any backend"""
+        
+        # Prepare axis labels
         x_axis_label = self.plot_settings.x_axis_label if self.plot_settings.x_axis_label else self.nmr_data.x_axis_label
         y_axis_label = self.plot_settings.y_axis_label if self.plot_settings.y_axis_label else self.nmr_data.y_axis_label
-        self.ax.set_xlabel(x_axis_label)
-        self.ax.set_ylabel(y_axis_label)
-
-
-        # other plot options
+        
+        # Normalize xlim and ylim
         if self.plot_settings.xlim:
             xlim = self.plot_settings.xlim
-            # we handle the inverting of the axes later
-            # so we just need to make sure the limits are in the right order here
             self.plot_settings.xlim = (min(xlim), max(xlim))
-            self.ax.set_xlim(self.plot_settings.xlim)
-
+        
         if self.plot_settings.ylim:
             ylim = self.plot_settings.ylim
-            # we handle the inverting of the axes later
-            # so we just need to make sure the limits are in the right order here
             self.plot_settings.ylim = (min(ylim), max(ylim))
-            self.ax.set_ylim(self.plot_settings.ylim)
-
-        # if shifts are plotted, invert the axes
-        if self.nmr_data.is_shift:
-            self.ax.invert_xaxis()
-            self.ax.invert_yaxis()
-
-        # --- plot the diagonal line ---
-        xelem_same_as_yelem = self.nmr_data.xelement == self.nmr_data.yelement and self.nmr_data.xelement is not None
-        if xelem_same_as_yelem and self.plot_settings.show_diagonal:
-            # use self.xlim and self.ylim to draw a diagonal line
-            ylims = self.ax.get_ylim()
-            xlims = self.ax.get_xlim()
-            self.ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
-
+        
+        # Set axis properties first (backends may need this for subsequent operations)
+        self.backend.set_axis_properties(
+            x_axis_label, y_axis_label,
+            self.plot_settings.xlim, self.plot_settings.ylim,
+            self.nmr_data.is_shift
+        )
+        
+        # Plot heatmap and contour first (background layers)
         if self.plot_settings.show_heatmap or self.plot_settings.show_contour:
-            X, Y, Z = self._get_contour_data()
-
-        # --- heatmap of peaks ---
-        if self.plot_settings.show_heatmap:
-            self._plot_heatmap(X, Y, Z)
-
-        if self.plot_settings.show_contour:
-            self._plot_contour(X, Y, Z)
-
-        # --- plot the site annotations ---
+            X, Y, Z = self._get_contour_data_for_backend()
+            
+            if self.plot_settings.show_heatmap:
+                self.backend.plot_heatmap(X, Y, Z, self.plot_settings)
+            
+            if self.plot_settings.show_contour:
+                self.backend.plot_contour(X, Y, Z, self.plot_settings)
+        
+        # Plot reference lines at peak locations
+        if self.plot_settings.show_lines:
+            self.backend.plot_axlines(self.x, self.y, self.plot_settings)
+        
+        # Plot diagonal line for homo-nuclear spectra
+        xelem_same_as_yelem = (self.nmr_data.xelement == self.nmr_data.yelement and 
+                               self.nmr_data.xelement is not None)
+        if xelem_same_as_yelem and self.plot_settings.show_diagonal:
+            self.backend.plot_diagonal(self.plot_settings)
+        
+        # Plot connectors between peaks
+        if (self.plot_settings.show_connectors and 
+            self.nmr_data.yaxis_order == '2Q' and 
+            self.nmr_data.xelement == self.nmr_data.yelement):
+            self.backend.plot_connectors(self.x, self.y, self.plot_settings)
+        
+        # Plot scatter markers
+        if self.plot_settings.show_markers:
+            colors = self._get_marker_colors()
+            if self.plot_settings.scale_markers:
+                normalized_sizes = self._normalize_marker_sizes(self.sizes)
+            else:
+                normalized_sizes = np.full(len(self.sizes), self.plot_settings.max_marker_size)
+            
+            # Prepare correlation info for legend
+            correlation_info = {
+                'label': self.nmr_data.correlation_label,
+                'unit': self.nmr_data.correlation_unit,
+                'fmt': self.nmr_data.correlation_fmt,
+                'max_size': np.abs(self.sizes).max(),
+                'num_legend_elements': self.plot_settings.num_legend_elements
+            }
+            
+            # Extract labels for hover text
+            xlabels = [peak.xlabel for peak in self.nmr_data.peaks]
+            ylabels = [peak.ylabel for peak in self.nmr_data.peaks]
+            
+            self.backend.plot_markers(
+                self.x, self.y, normalized_sizes, colors,
+                self.plot_settings, correlation_info,
+                xlabels, ylabels,
+                correlation_values=self.sizes  # Pass actual correlation values
+            )
+        
+        # Plot site annotations/labels
         if self.plot_settings.show_labels:
-            self._plot_annotations(optimise=self.plot_settings.auto_adjust_labels)
-
-
-        # Display or save the plot
-        self.fig.tight_layout()
-
-        if self.plot_settings.plot_filename:
-            self.fig.savefig(self.plot_settings.plot_filename, dpi=300, bbox_inches='tight')
-
-        return self.fig, ax
-    def _plot_axlines(self):
-        #  we don't want to plot identical lines multiple times
-        xticks = np.unique(np.round(self.x, 6))
-        yticks = np.unique(np.round(self.y, 6))
-        # Plot lines at the peak locations
-        for x in xticks:
-            self.ax.axvline(x, zorder=0)
-        for y in yticks:
-            self.ax.axhline(y, zorder=0)
-
-    def _get_contour_data(self):
-        xlims = self.ax.get_xlim()
-        ylims = self.ax.get_ylim()
-        if self.plot_settings.x_broadening is None:
-            # set the broadening to 5% of the range
-            self.plot_settings.x_broadening = 0.05 * abs(xlims[1] - xlims[0])
-        if self.plot_settings.y_broadening is None:
-            # set the broadening to 5% of the range
-            self.plot_settings.y_broadening = 0.05 * abs(ylims[1] - ylims[0])
-
-        X, Y, Z = generate_contour_map(
-                    self.nmr_data.peaks,
-                    grid_size = self.plot_settings.heatmap_grid_size,
-                    broadening = self.plot_settings.broadening_type,
-                    x_broadening=self.plot_settings.x_broadening,
-                    y_broadening=self.plot_settings.y_broadening,
-                    xlims = self.plot_settings.xlim,
-                    ylims = self.plot_settings.ylim)
-        return X, Y, Z
-
-    def _plot_heatmap(self, X, Y, Z):
-        # Plot the heatmap
-        if isinstance(self.plot_settings.heatmap_levels, int):
-            self.plot_settings.heatmap_levels = np.linspace(Z.min(), Z.max(), self.plot_settings.heatmap_levels)
-        cs = self.ax.contourf(X, Y, Z, cmap=self.plot_settings.colormap, zorder=-1, levels=self.plot_settings.heatmap_levels)
-
-    def _plot_contour(self, X, Y, Z):
-        # fig.colorbar(cs, cax=cbar_ax, orientation='vertical', label='Intensity')
-        if isinstance(self.plot_settings.contour_levels, (int, float)):
-            self.plot_settings.contour_levels = np.linspace(Z.min(), Z.max(), self.plot_settings.contour_levels)
-
-        # Add contour lines
-        if self.plot_settings.show_contour:
-            self.ax.contour(
-                X, Y, Z,
-                colors=self.plot_settings.contour_color,
-                linewidths=self.plot_settings.contour_linewidth,
-                levels=self.plot_settings.contour_levels
-                )
-
-    def _plot_connectors(self):
-        if self.plot_settings.show_connectors and self.nmr_data.yaxis_order == '2Q' and self.nmr_data.xelement == self.nmr_data.yelement:
-            x = self.x
-            y = self.y
-            y_order = np.argsort(y)
-            # loop over peaks and plot lines between peaks with the same y value
-            for i, idx in enumerate(y_order):
-                if np.isclose(y[idx], y[y_order[i-1]], atol=1e-6):
-                    self.ax.plot([x[idx], x[y_order[i-1]]],
-                            [y[idx], y[y_order[i-1]]],
-                            c='0.25',
-                            lw=0.75,
-                            ls='-',
-                            zorder=1)
-
-    def _plot_markers(self):
+            xlabels = [peak.xlabel for peak in self.nmr_data.peaks]
+            ylabels = [peak.ylabel for peak in self.nmr_data.peaks]
+            self.backend.plot_annotations(self.x, self.y, xlabels, ylabels, self.plot_settings)
+        
+        # Finalize and return
+        return self.backend.finalize(self.plot_settings.plot_filename)
+    
+    def _get_marker_colors(self):
+        """Get marker colors from peaks or use settings"""
         if self.plot_settings.marker_color is None:
-            # use peak colors
-            color = [peak.color for peak in self.nmr_data.peaks]
-            # if all colors are the same, use unique color
-            if len(set(color)) == 1:
-                color = color[0]
-
+            colors = [peak.color for peak in self.nmr_data.peaks]
+            # If all colors are the same, use single color
+            if len(set(colors)) == 1:
+                colors = colors[0]
+            return colors
         else:
-            color = self.plot_settings.marker_color
+            return self.plot_settings.marker_color
+    
+    def _get_contour_data_for_backend(self):
+        """Delegate contour generation to NMRData2D.get_contour_data().
 
-        scatter = self.ax.scatter(
-                        self.x,
-                        self.y,
-                        s=self._normalize_marker_sizes(self.sizes),
-                        c=color,
-                        marker=self.plot_settings.marker,
-                        linewidths=self.plot_settings.marker_linewidth,
-                        zorder=10)
-        if self.plot_settings.show_legend:
-            # produce a legend with a cross-section of sizes from the scatter
-            kw = dict(prop="sizes", num=self.plot_settings.num_legend_elements, color=color,
-                      fmt=self.nmr_data.correlation_fmt + f" {self.nmr_data.correlation_unit}",
-                      func=lambda s: s*np.abs(self.sizes).max() / self.plot_settings.max_marker_size)
-            handles, labels = scatter.legend_elements(**kw) # type: ignore
-            self.ax.legend(handles, labels,
-                      title=self.nmr_data.correlation_label,
-                      fancybox=True,
-                      framealpha=0.8).set_zorder(12)
+        Grid limits come from ``PlotSettings.xlim`` / ``PlotSettings.ylim``
+        when set explicitly, or are auto-computed from the peak positions when
+        those are *None*.
+
+        Note: we intentionally do NOT read the live matplotlib axis limits
+        here.  The contour is drawn as the first (background) layer, before
+        any markers or other data are plotted, so the axis has not been
+        auto-scaled yet.  Reading it would always return matplotlib's default
+        (0, 1) initialisation, producing a completely wrong grid range.
+        """
+        xlims = self.plot_settings.xlim
+        ylims = self.plot_settings.ylim
+
+        cd = self.nmr_data.get_contour_data(
+            x_broadening=self.plot_settings.x_broadening,
+            y_broadening=self.plot_settings.y_broadening,
+            broadening_type=self.plot_settings.broadening_type,
+            grid_size=self.plot_settings.heatmap_grid_size,
+            xlims=xlims,
+            ylims=ylims,
+        )
+        return cd.X, cd.Y, cd.Z
+
 
     def _normalize_marker_sizes(self, sizes):
-        # Normalize the marker sizes, making sure all sizes are positive
+        """Normalize marker sizes for consistent display"""
         sizes = np.abs(sizes)
         marker_size_range = np.max(sizes) - np.min(sizes)
         self.logger.info(f"Marker size range: {marker_size_range} {self.nmr_data.correlation_unit}")
         max_abs_marker = np.max(sizes)
-        # Normalize the marker sizes such that the maximum marker size is self.plot_settings.max_marker_size
+        # Normalize such that max marker size is self.plot_settings.max_marker_size
         return sizes / max_abs_marker * self.plot_settings.max_marker_size
-
-    def _plot_annotations(self, unique=True, optimise = True, labels_offset = 0.10):
-        '''
-        Get the annotations for the plot
-        '''
-        self.annotations = []
-
-        # scale general font size by ANNOTATION_FONT_SCALE unless plot settings are provided
-        font_size = self.plot_settings.label_fontsize
-        if font_size is None:
-            font_size = self.ax.xaxis.label.get_fontsize() * ANNOTATION_FONT_SCALE # type: ignore
-
-        xpos, ypos = self.x, self.y
-        xpos_label = xpos.copy()
-        ypos_label = ypos.copy()
-
-        xlabels = [peak.xlabel for peak in self.nmr_data.peaks] # type: ignore
-        ylabels = [peak.ylabel for peak in self.nmr_data.peaks] # type: ignore
-
-        # get the unique labels, keeping the indices
-        if unique:
-            xlabels, xidx = np.unique(xlabels, return_index=True)
-            ylabels, yidx = np.unique(ylabels, return_index=True)
-            # update the positions
-            xpos = xpos[xidx]
-            ypos = ypos[yidx]
-            xpos_label = xpos_label[xidx]
-            ypos_label = ypos_label[yidx]
-
-        # we might still have some ylabels that are not the same but are at exactly the same position
-        # so we need to check for this
-        if len(ylabels) != len(np.unique(np.round(ypos,6))):
-            # randomly perturb those y positions that are the same
-            unique_ypos, idx, counts = np.unique(np.round(ypos,6), return_index=True, return_counts=True)
-            for i, count in enumerate(counts):
-                if count > 1:
-                    ypos_label[idx[i]:idx[i]+count] += np.random.uniform(-0.5, 0.5, count)
-
-
-        self.logger.debug(f'X labels: {xlabels}')
-        self.logger.debug(f'X positions: {xpos}')
-        self.logger.debug(f'Y labels: {ylabels}')
-        self.logger.debug(f'Y positions: {ypos}')
-
-        # TODO make a dynamical way to set the armA and armB value
-        # based on the plot size
-        if self.plot_settings.plot_filename is None:
-            armA = 15
-            armB = 15
-        elif self.plot_settings.plot_filename.endswith('.pdf'):
-            armA = 3
-            armB = 5
-        else:
-            armA = 20
-            armB = 30
-
-        ######## Create x labels at the top axis ##########
-        texts = []
-        for i, xlabel in enumerate(xlabels):
-            an = self.ax.annotate(
-                xlabel,
-                xy=(xpos[i], 1.0),  # Position of the annotation
-                xycoords=('data', 'axes fraction'),  # Coordinate system for the annotation # type: ignore
-                xytext=(xpos_label[i], 1+labels_offset),  # Position of the text
-                textcoords=('data', 'axes fraction'),  # Coordinate system for the text # type: ignore
-                fontsize=font_size,  # Font size of the text
-                ha='center',  # Horizontal alignment
-                va='bottom',  # Vertical alignment
-                rotation=90,  # Rotate the text 90 degrees
-                arrowprops=dict(
-                    arrowstyle="-",  # Style of the arrow
-                    connectionstyle=f"arc,angleA=-90,armA={armA},angleB=90,armB={armB},rad=0",  # Connection style of the arrow
-                    relpos=(0.5, 0.0),  # Relative position of the arrow
-                    lw=ANNOTATION_LINE_WIDTH,  # Line width of the arrow
-                    shrinkA=0.0,  # Shrink factor at the start of the arrow
-                    shrinkB=0.0,  # Shrink factor at the end of the arrow
-                ),
-            )
-            texts.append(an)  # Add the annotation to the list
-
-        if optimise:
-            # Adjust the text annotations to avoid overlap
-            adjust_text(
-                texts,
-                ensure_inside_axes=False,
-                avoid_self=False,
-                force_pull=(0.0, 0.0),
-                force_text=(0.3, 0.0),
-                force_explode=(1.5, 0.0),
-                expand=(1.3, 1.0),
-                max_move=2,
-            )
-        self.annotations += texts  # Add the adjusted texts to the annotations
-
-        ######## Create y labels at the right axis ##########
-        texts = []
-        for i, ylabel in enumerate(ylabels):
-            an = self.ax.annotate(
-                ylabel,
-                xy=(1.0, ypos[i]),  # Position of the annotation
-                xycoords=('axes fraction', 'data'),  # Coordinate system for the annotation # type: ignore
-                xytext=(1+labels_offset, ypos_label[i]),  # Position of the text
-                textcoords=('axes fraction', 'data'),  # Coordinate system for the text # type: ignore
-                fontsize=font_size,  # Font size of the text
-                ha='left',  # Horizontal alignment
-                va='center',  # Vertical alignment
-                arrowprops=dict(
-                    arrowstyle="-",  # Style of the arrow
-                    connectionstyle=f"arc,angleA=180,armA={armA},angleB=0,armB={armB},rad=0",  # Connection style of the arrow
-                    relpos=(0.0, 0.5),  # Relative position of the arrow
-                    lw=ANNOTATION_LINE_WIDTH,  # Line width of the arrow
-                    shrinkA=0.0,  # Shrink factor at the start of the arrow
-                    shrinkB=0.0,  # Shrink factor at the end of the arrow
-                ),
-            )
-            texts.append(an)  # Add the annotation to the list
-
-        if optimise:
-            # Adjust the text annotations to avoid overlap
-            adjust_text(
-                texts,
-                ensure_inside_axes=False,
-                avoid_self=False,
-                force_pull=(0.0, 0.0),
-                force_text=(0.4, 0.8),
-                force_explode=(0.0, 1.2),
-                expand=(1.0, 1.8),
-                max_move=1,
-            )
-        self.annotations += texts  # Add the adjusted texts to the annotations
