@@ -102,13 +102,13 @@ Here are some common examples:
 * Plot C-H correlation spectrum with marker sizes proportional to the dipolar coupling strength. Plot the chemical shift rather than shielding by supplying reference values:
 
     ```bash
-    soprano plotnmr -x C -y H --scale-marker-by dipolar --references C:180,H:30 seedname.magres
+    soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 seedname.magres
     ```
 
 * As previous, but plot a heatmap and contour lines in addition to the markers:
 
     ```bash
-    soprano plotnmr -x C -y H --scale-marker-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
+    soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
     ```
 
 * Plot the H-H double quantum correlation spectrum:
@@ -141,7 +141,7 @@ Here are some common examples:
     soprano plotnmr -p 2D -x C -y H \
             -g CH3 \
             --rcut 1.5 \
-            --scale-marker-by dipolar \
+            --weight-by dipolar \
             --no-markers \
             --references C:180,H:30 \
             --heatmap \
