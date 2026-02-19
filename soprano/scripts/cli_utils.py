@@ -570,12 +570,13 @@ plot_weight_by = click.option(
     "--weight-by",
     "--scale-marker-by", # legacy alias for backward compatibility, to be removed in future release
     "weight_by",
-    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "jcoupling"]),
+    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "dipolar2", "jcoupling"]),
     default="fixed",
     help="Physical metric used to weight each cross-peak. "
     "Affects both the heatmap/contour intensity and (optionally) the marker size. "
     "``fixed`` gives all peaks equal weight. "
     "``dipolar`` weights by the dipolar coupling between the site pair. "
+    "``dipolar2`` weights by the square of the dipolar coupling between the site pair. "
     "``distance`` / ``inversedistance`` weights by inter-site distance or its inverse. "
     "Default is ``fixed``.",
 )

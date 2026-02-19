@@ -214,6 +214,11 @@ MARKER_INFO = {
         'unit': 'kHz',
         'fmt': '{x:.1f}'
     },
+    'dipolar2': {
+        'label': 'Dipolar Coupling²',
+        'unit': 'kHz²',
+        'fmt': '{x:.1f}'
+    },
     'jcoupling': {
         'label': 'J Coupling',
         'unit': 'Hz',
@@ -1045,11 +1050,13 @@ class NMRData2D:
             # set the correlation strength to be the same for all pairs
             correlation_strengths = np.ones(len(self.pairs))
 
-        elif self.correlation_strength_metric == 'dipolar':
-            self.logger.info("Using dipolar coupling as correlation strength.")
+        elif self.correlation_strength_metric in ('dipolar', 'dipolar2'):
+            self.logger.info(f"Using {self.correlation_label.lower()} as correlation strength.")
             if self.isotopes:
                 self.logger.debug(f"Using custom isotopes: {self.isotopes}")
             correlation_strengths = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
+            if self.correlation_strength_metric == 'dipolar2':
+                correlation_strengths = np.square(correlation_strengths)
         elif self.correlation_strength_metric == 'distance' or self.correlation_strength_metric == 'inversedistance':
             log_message = "Using minimum image convention {isinverse}distance as correlation strength."
             isinverse = ''
