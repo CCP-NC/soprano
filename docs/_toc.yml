@@ -17,4 +17,5 @@ sections:
 - file: submitter
 - file: api
 - file: citing
+- file: changelog
 - file: references
