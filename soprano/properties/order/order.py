@@ -18,7 +18,19 @@
 
 
 import numpy as np
-from scipy.special import sph_harm
+
+# scipy 1.15 removed sph_harm and replaced it with sph_harm_y, which also
+# swapped the argument convention: old sph_harm(m, n, theta_az, phi_pol),
+# new sph_harm_y(n, m, theta_pol, phi_az).
+try:
+    from scipy.special import sph_harm_y as _sph_harm_y
+
+    def sph_harm(m, n, theta_az, phi_pol):
+        """Compatibility wrapper: matches the old scipy sph_harm(m, n, theta, phi) signature."""
+        return _sph_harm_y(n, m, phi_pol, theta_az)
+
+except ImportError:
+    from scipy.special import sph_harm  # scipy < 1.15
 
 from soprano.properties import AtomsProperty
 from soprano.selection import AtomSelection
