@@ -20,7 +20,6 @@
 import warnings
 
 import numpy as np
-from ase.spacegroup import get_spacegroup
 
 from soprano.properties import AtomsProperty
 from soprano.properties.linkage import Bonds, HydrogenBonds, Molecules
@@ -331,16 +330,16 @@ class UniqueSites(AtomsProperty):
     """
 
     default_name = "unique_sites"
-    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4, }
+    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4, "backend": "auto"}
 
     @staticmethod
-    def extract(s, force_recalc, save_info, symprec, override_cif = False):
+    def extract(s, force_recalc, save_info, symprec, backend="auto", override_cif = False):
         #-------------------------------------------------------------------#
         # symmetry reduction:
-        # first we need the spacegroup
-        sg = get_spacegroup(s)
-        # tag each symmetry group of equivaluent sites with a unique integer label
-        tags = sg.tag_sites(s.get_scaled_positions(), symprec=symprec)
+        # find the space group and tag symmetry-equivalent sites
+        from soprano.properties.symmetry.backend import get_symmetry_dataset
+        dset = get_symmetry_dataset(s, symprec=symprec, backend=backend)
+        tags = dset.equivalent_atoms
 
         unique_tags, uniqueinds = np.unique(tags, return_index=True)
 

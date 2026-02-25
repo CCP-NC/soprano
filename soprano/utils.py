@@ -33,10 +33,9 @@ from typing import List
 import numpy as np
 from ase import Atoms
 from ase.quaternions import Quaternion
-from ase.utils import atoms_to_spglib_cell
 from scipy.special import factorial
 
-from soprano.optional import requireNetworkX, requireScikitLearn, requireSpglib
+from soprano.optional import requireNetworkX, requireScikitLearn
 from soprano.rnd import Random
 
 
@@ -995,7 +994,6 @@ def get_sklearn_clusters(points, method, params, sk=None):
 # Symmetric analysis utilities
 
 
-@requireSpglib("spg")
 def compute_asymmetric_distmat(
     struct,
     points,
@@ -1003,7 +1001,7 @@ def compute_asymmetric_distmat(
     return_images=False,
     images_centre=0,
     symprec=1e-5,
-    spg=None,
+    backend="auto",
 ):
     """Given a symmetric structure, compute a distance matrix for the given
     fractional coordinate points which contains only the distances between
@@ -1043,9 +1041,10 @@ def compute_asymmetric_distmat(
     N = points.shape[0]
 
     # Get symmetry operations
-    symm = spg.get_symmetry_dataset(atoms_to_spglib_cell(struct), symprec=symprec)
-    rots = symm["rotations"]
-    transls = symm["translations"]
+    from soprano.properties.symmetry.backend import get_symmetry_dataset
+    symm = get_symmetry_dataset(struct, symprec=symprec, backend=backend)
+    rots = symm.rotations
+    transls = symm.translations
 
     if linearized:
         distmat = np.zeros((N * (N - 1)) // 2)

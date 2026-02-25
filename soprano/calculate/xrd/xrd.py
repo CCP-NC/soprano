@@ -24,21 +24,11 @@ import copy
 from collections import namedtuple
 
 import numpy as np
-from ase.utils import atoms_to_spglib_cell
 
 # Internal imports
 from soprano import utils
 from soprano.calculate.xrd import sel_rules as xrdsel
-
-try:
-    try:
-        import spglib
-    except ImportError:
-        from pyspglib import spglib
-except ImportError:
-    raise ImportError(
-        "pySPGLIB not installed on this system, XRD" " functionality cannot be used."
-    )
+from soprano.properties.symmetry.backend import get_symmetry_dataset
 
 
 XraySpectrum = namedtuple(
@@ -62,6 +52,7 @@ class XRDCalculator:
         baseline=0.0,
         peak_func=None,
         peak_f_args=None,
+        backend="auto",
     ):
         """
         Initialize the XDRCalculator object's main parameters
@@ -92,6 +83,9 @@ class XRDCalculator:
         |                                        has been supplied by the
         |                                        user, the first value will
         |                                        be used as the Gaussian width
+        |   backend (Optional[str]): symmetry backend to use for spacegroup
+        |                            analysis.  One of ``"auto"`` (default),
+        |                            ``"moyo"``, or ``"spglib"``.
 
         """
 
@@ -99,6 +93,7 @@ class XRDCalculator:
         self.lambdax = lambdax
         self.theta2_digits = 6
         self.baseline = baseline
+        self.backend = backend
         # These ones not so much and need checking
         self.set_peak_func(peak_func, peak_f_args)
 
@@ -209,8 +204,8 @@ class XRDCalculator:
             # Define the lattice
             latt_abc = utils.cart2abc(atoms.get_cell())
             # And the symmetry
-            symm_data = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms))
-            h = int(symm_data["hall_number"])
+            symm_data = get_symmetry_dataset(atoms, backend=self.backend)
+            h = int(symm_data.hall_number)
             try:
                 sel_rule = xrdsel.get_sel_rule_from_hall(h)
             except ValueError:

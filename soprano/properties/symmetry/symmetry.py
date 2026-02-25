@@ -22,6 +22,7 @@ from collections import namedtuple
 import numpy as np
 
 from soprano.properties import AtomsProperty
+from soprano.properties.symmetry.backend import BACKENDS
 from soprano.properties.symmetry.utils import (
     _find_wyckoff_points,
     _get_symmetry_dataset,
@@ -35,26 +36,31 @@ class SymmetryDataset(AtomsProperty):
     """
     SymmetryDataset
 
-    Extracts SPGLIB's standard symmetry dataset from a given system, including
-    spacegroup symbol, symmetry operations etc.
+    Extracts the standard symmetry dataset from a given system, including
+    spacegroup symbol, symmetry operations etc.  Uses the symmetry backend
+    specified by *backend* (see ``soprano.properties.symmetry.backend``).
 
     | Parameters:
     |   symprec (float): distance tolerance, in Angstroms, applied when
     |                    searching symmetry.
+    |   backend (str): symmetry backend to use.  One of ``"auto"``
+    |                  (default; prefers moyopy if installed, else spglib),
+    |                  ``"moyo"``, or ``"spglib"``.
 
     | Returns:
-    |   symm_dataset (dict): dictionary of symmetry information
+    |   symm_dataset (SpacegroupDataset): dataclass with symmetry information
 
     """
 
     default_name = "symmetry_dataset"
     default_params = {
         "symprec": 1e-5,
+        "backend": "auto",
     }
 
     @staticmethod
-    def extract(s, symprec):
-        return _get_symmetry_dataset(s, symprec=symprec)
+    def extract(s, symprec, backend):
+        return _get_symmetry_dataset(s, symprec=symprec, backend=backend)
 
 
 class WyckoffPoints(AtomsProperty):
@@ -72,6 +78,9 @@ class WyckoffPoints(AtomsProperty):
     | Parameters:
     |   symprec (float): distance tolerance, in Angstroms, applied when
     |                    searching symmetry.
+    |   backend (str): symmetry backend to use.  One of ``"auto"``
+    |                  (default; prefers moyopy if installed, else spglib),
+    |                  ``"moyo"``, or ``"spglib"``.
 
     | Returns:
     |   wyckoff_points (list): a list of WyckoffPoint named tuples, containing
@@ -86,14 +95,15 @@ class WyckoffPoints(AtomsProperty):
     default_name = "wyckoff_points"
     default_params = {
         "symprec": 1e-5,
+        "backend": "auto",
     }
 
     @staticmethod
-    def extract(s, symprec):
+    def extract(s, symprec, backend):
 
         hprops = ["saddle", "none", "definite", "isotropic"]
 
-        fpos, ops, hess = _find_wyckoff_points(s, symprec)
+        fpos, ops, hess = _find_wyckoff_points(s, symprec, backend=backend)
         pos = np.dot(fpos, s.get_cell())
 
         wpoints = [

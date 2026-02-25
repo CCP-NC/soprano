@@ -42,7 +42,6 @@ dependencies = [
     "numpy>=1.18.5",
     "pandas>=2.0",
     "scipy",
-    "spglib>=2.4",
     "pydantic>=2.0",
 ]
 
@@ -60,6 +59,11 @@ docs = [
     "sphinxcontrib-bibtex",
     "sphinxcontrib-mermaid",
 ]
+# Symmetry backends (install at least one for crystallographic functionality)
+spglib = ["spglib>=2.4"]
+moyo = ["moyopy"]
+# Install both symmetry backends
+symmetry = ["spglib>=2.4", "moyopy"]
 # For compatibility with older numpy versions
 legacy = [
     "numpy>=1.26.0,<2.0",
@@ -93,6 +97,10 @@ include = ["/soprano"]
 # - Use 'test' environment for CI/CD with development ASE
 # - Use 'dev:test-git' or 'docs:build-git' for development ASE when needed
 
+# hatch test built-in runner environment - needs symmetry extras
+[tool.hatch.envs.hatch-test]
+features = ["symmetry"]
+
 # Default environment - stable versions for end users
 [tool.hatch.envs.default]
 installer = "uv"
@@ -101,7 +109,7 @@ description = "Default environment with stable package versions"
 # Development environment - includes dev tools
 [tool.hatch.envs.dev]
 description = "Development environment with testing and linting tools"
-features = ["dev"]
+features = ["dev", "symmetry"]
 
 [tool.hatch.envs.dev.scripts]
 # Install development ASE from git (run manually when needed)
@@ -130,6 +138,7 @@ dependencies = [
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
+    "moyopy",
     "pydantic>=2.0",
     "coverage[toml]>=6.5",
     "pytest"
@@ -169,6 +178,7 @@ dependencies = [
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
+    "moyopy",
     "pydantic>=2.0",
     # Dev dependencies
     "black",
@@ -212,6 +222,7 @@ dependencies = [
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
+    "moyopy",
     "pydantic>=2.0",
     "ase>=3.26",
     # Dev dependencies
@@ -238,6 +249,7 @@ dependencies = [
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
+    "moyopy",
     "pydantic>=2.0",
     "ase>=3.26",
     # Dev dependencies
@@ -264,6 +276,7 @@ dependencies = [
     "pandas>=2.0",
     "scipy",
     "spglib>=2.4",
+    "moyopy",
     "pydantic>=2.0",
     "ase>=3.26",
     # Dev dependencies

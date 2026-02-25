@@ -19,24 +19,25 @@
 
 
 import numpy as np
-from ase.utils import atoms_to_spglib_cell
 from scipy.linalg import null_space
 
-from soprano.optional import requireSpglib
+from soprano.properties.symmetry.backend import (
+    BackendLiteral,
+    get_symmetry_dataset,
+    get_symmetry_ops_from_hall,
+)
 
 
-@requireSpglib("spglib")
-def _get_symmetry_dataset(s, symprec, spglib=None):
-    symdata = spglib.get_symmetry_dataset(
-        atoms_to_spglib_cell(s), symprec=symprec
-    )
-    return symdata
+def _get_symmetry_dataset(s, symprec, backend: BackendLiteral = "auto"):
+    """Return a :class:`~soprano.properties.symmetry.backend.SpacegroupDataset`
+    for the given :class:`ase.Atoms` object *s*.
+    """
+    return get_symmetry_dataset(s, symprec=symprec, backend=backend)
 
 
-@requireSpglib("spglib")
-def _get_symmetry_ops(hall_no, spglib=None):
-    symdata = spglib.get_symmetry_from_database(hall_no)
-    return symdata["rotations"], symdata["translations"]
+def _get_symmetry_ops(hall_no, backend: BackendLiteral = "auto"):
+    """Return ``(rotations, translations)`` numpy arrays for *hall_no*."""
+    return get_symmetry_ops_from_hall(hall_no, backend=backend)
 
 
 def _loci_intersect(l1, l2):
@@ -64,13 +65,28 @@ def _loci_intersect(l1, l2):
         return (1, v / np.linalg.norm(v))
 
 
-def _find_wyckoff_points(a, symprec=1e-5):
+def _find_wyckoff_points(a, symprec=1e-5, backend: BackendLiteral = "auto"):
     """Find and return all Wyckoff points for a given atomic system,
     as well as the operations that each Wyckoff point is stable
     under, and whether the Hessian has local radial symmetry or is
-    definite in them."""
+    definite in them.
 
-    dset = _get_symmetry_dataset(a, symprec)
+    Note: This function uses the spglib backend internally when available,
+    because the coordinate-transform arithmetic is written against spglib's
+    convention for ``transformation_matrix`` and ``origin_shift``.  Moyo's
+    ``std_linear`` is a *different* matrix even at the same Hall number —
+    there is freedom in choosing a transformation matrix up to a Euclidean
+    normalizer, and spglib and moyo select different ones by design
+    (see https://github.com/spglib/moyo/issues/198).  The ``backend``
+    parameter is accepted for API consistency but is overridden to ``"spglib"``
+    when spglib is installed; moyo is used as a fallback only when spglib is
+    absent.
+    """
+    from soprano.optional import has_spglib
+
+    _internal_backend = "spglib" if has_spglib() else "moyo"
+
+    dset = _get_symmetry_dataset(a, symprec, backend=_internal_backend)
     hno = dset.hall_number
 
     # First, check the standard cell
@@ -84,7 +100,7 @@ def _find_wyckoff_points(a, symprec=1e-5):
     is_def = (np.sign(evals) == np.sign(e0)).all()
 
     # Operations in the non-transformed frame
-    R, T = _get_symmetry_ops(hno)
+    R, T = _get_symmetry_ops(hno, backend=_internal_backend)
     # Transformation
     P, o = dset.transformation_matrix, dset.origin_shift
     iP = np.linalg.inv(P)

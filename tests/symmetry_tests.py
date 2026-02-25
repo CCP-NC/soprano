@@ -9,6 +9,7 @@ import sys
 import unittest
 
 import numpy as np
+import pytest
 from ase import Atoms
 from ase.build import bulk
 
@@ -17,8 +18,15 @@ sys.path.insert(
 )
 
 
+def _require_symmetry_backend():
+    from soprano.optional import has_symmetry_backend
+    if not has_symmetry_backend():
+        pytest.skip("No symmetry backend (spglib or moyopy) is installed")
+
+
 class TestSymmetry(unittest.TestCase):
     def test_symdataset(self):
+        _require_symmetry_backend()
         from soprano.properties.symmetry import SymmetryDataset
 
         # Create atoms objects according to a given symmetry group, check
@@ -36,6 +44,7 @@ class TestSymmetry(unittest.TestCase):
         self.assertTrue(symdata.international == "P-1")
 
     def test_wyckoff(self):
+        _require_symmetry_backend()
         from soprano.properties.symmetry import WyckoffPoints
         from soprano.utils import minimum_supcell, supcell_gridgen
 

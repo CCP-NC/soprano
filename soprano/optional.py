@@ -22,6 +22,7 @@ checks for them.
 """
 
 
+import warnings
 from functools import wraps
 
 try:
@@ -38,9 +39,34 @@ except ImportError:
         _spglib = None
 
 try:
+    import moyopy as _moyopy
+except ImportError:
+    _moyopy = None
+
+try:
     import sklearn as _sklearn
 except ImportError:
     _sklearn = None
+
+
+# ---------------------------------------------------------------------------
+# Availability helpers
+# ---------------------------------------------------------------------------
+
+
+def has_spglib() -> bool:
+    """Return ``True`` if spglib is importable."""
+    return _spglib is not None
+
+
+def has_moyopy() -> bool:
+    """Return ``True`` if moyopy is importable."""
+    return _moyopy is not None
+
+
+def has_symmetry_backend() -> bool:
+    """Return ``True`` if at least one symmetry backend is available."""
+    return has_spglib() or has_moyopy()
 
 
 """
@@ -73,28 +99,40 @@ def requireNetworkX(import_name="networkx"):
 
 
 def requireSpglib(import_name="spglib"):
+    """Decorator that injects the spglib module into a function.
+
+    .. deprecated::
+        Use :func:`soprano.properties.symmetry.backend.get_symmetry_dataset`
+        with ``backend="spglib"`` (or ``"auto"``) instead.  This decorator
+        will be removed in a future release.
+    """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-
-            v = list(map(int, _spglib.__version__.split(".")))
-
+            warnings.warn(
+                f"@requireSpglib is deprecated.  Use "
+                f"soprano.properties.symmetry.backend.get_symmetry_dataset() "
+                f"with the desired backend instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             if _spglib is None:
                 raise RuntimeError(
                     "This function requires an installation of"
                     " spglib to work - please install it "
                     "with:\n\tpip install spglib"
                 )
-            elif v[0] < 1 or (v[0] == 1 and v[1] <= 8):
+            v = list(map(int, _spglib.__version__.split(".")))
+            if v[0] < 1 or (v[0] == 1 and v[1] <= 8):
                 raise RuntimeError(
                     "This function requires a version of"
                     " spglib superior to 1.8 to work - "
                     "please install it "
                     "with:\n\tpip install --upgrade spglib"
                 )
-            else:
-                kwargs[import_name] = _spglib
-                return func(*args, **kwargs)
+            kwargs[import_name] = _spglib
+            return func(*args, **kwargs)
 
         return wrapper
 
