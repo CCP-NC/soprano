@@ -83,7 +83,6 @@ Soprano's dependencies are automatically handled by `pip` during installation. T
 * [Matplotlib](https://matplotlib.org/)
 * [Pydantic](https://docs.pydantic.dev/) (≥2.0)
 * [Click](https://click.palletsprojects.com/) (for CLI functionality)
-* [Bottleneck](https://pypi.org/project/Bottleneck/) (≥1.3.6)
 * [adjustText](https://github.com/Phlya/adjustText)
 
 Additional, optional dependencies are available through feature sets:
