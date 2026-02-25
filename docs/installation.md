@@ -58,9 +58,19 @@ If you are using a virtual environment, make sure you have activated it before i
 
 
 ### Installation from PyPI (recommended)
-You can install the latest stable version of Soprano using pip:   
+You can install the latest stable version of Soprano using pip:
 
-```pip install soprano```
+```sh
+pip install soprano
+```
+
+To include symmetry backends (required for space-group analysis, Wyckoff positions, XRD), install the `symmetry` extra:
+
+```sh
+pip install soprano[symmetry]
+```
+
+This installs [moyopy](https://github.com/spglib/moyo), a Rust-based symmetry backend ~4× faster than spglib. See [Symmetry backends](#symmetry-backends) below for details and alternatives.
 
 ```{note}
 For now Soprano is mainly being developed on the `jkshenton` fork of the repository, which is where the latest features will be added, particularly for NMR-related functionality. For this, see the instructions below for the [bleeding edge-version](#bleeding-edge-version).
@@ -117,6 +127,40 @@ If you don't have admin rights on your computer, you can install Soprano in your
 
 `pip install --user soprano`
 
+
+## Symmetry backends
+
+Soprano's space-group analysis, Wyckoff positions, NMR site-labelling, and XRD
+functionality require a symmetry backend. As of v0.11.0, **spglib is no longer
+a hard dependency**: you can choose between two backends.
+
+| Extra | Package | Notes |
+|-------|---------|-------|
+| `soprano[moyo]` | [moyopy](https://github.com/spglib/moyo) | Rust-based successor to spglib, ~4× faster — **recommended** |
+| `soprano[spglib]` | [spglib](https://spglib.github.io/spglib/) ≥ 2.4 | Classic backend; also needed for spglib-convention Wyckoff positions |
+| `soprano[symmetry]` | both | CI / validation use |
+
+For most users, just install moyopy:
+
+```sh
+pip install soprano[moyo]
+```
+
+Soprano selects the available backend automatically (`backend="auto"`).
+You can override this per-call:
+
+```python
+from soprano.properties.symmetry import SymmetryDataset
+
+# use the fast Rust backend
+ds = SymmetryDataset.get(atoms, backend="moyo")
+
+# force classic spglib behaviour
+ds = SymmetryDataset.get(atoms, backend="spglib")
+```
+
+If neither backend is installed, functions that require symmetry will raise an
+`ImportError` with installation instructions.
 
 ## Testing your installation
 

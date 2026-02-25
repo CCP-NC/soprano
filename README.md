@@ -26,6 +26,24 @@ ASE versions 3.23 to 3.25 cannot read magres files with CIF-style labels due to 
 This will ensure full compatibility with magres files using CIF-style labels.
 
 
+#### Symmetry backends (spglib / moyopy)
+Symmetry analysis (space-group finding, Wyckoff positions, XRD) requires at
+least one symmetry backend. Neither is a hard dependency so that Soprano can
+be installed in lightweight environments that do not need crystallographic
+symmetry.
+
+Install the recommended backend:
+
+    pip install soprano[moyo]
+
+Or use the classic spglib backend:
+
+    pip install soprano[spglib]
+
+Soprano selects the available backend automatically. You can override this
+per-call with `backend="spglib"` or `backend="moyo"` on any function that
+accepts symmetry parameters.
+
 #### For Legacy Systems
 If you need compatibility with older systems, you can use the legacy installation which pins ASE to version < 3.23 and NumPy to <2.0:
 
@@ -63,7 +81,6 @@ Soprano's dependencies are automatically handled by `pip` during installation. T
 * [ASE](https://wiki.fysik.dtu.dk/ase/) (Atomic Simulation Environment)
 * [Pandas](https://pandas.pydata.org/) (≥2.0)
 * [Matplotlib](https://matplotlib.org/)
-* [Spglib](https://spglib.github.io/spglib/) (≥2.4)
 * [Pydantic](https://docs.pydantic.dev/) (≥2.0)
 * [Click](https://click.palletsprojects.com/) (for CLI functionality)
 * [Bottleneck](https://pypi.org/project/Bottleneck/) (≥1.3.6)
@@ -71,6 +88,9 @@ Soprano's dependencies are automatically handled by `pip` during installation. T
 
 Additional, optional dependencies are available through feature sets:
 
+* **moyo**: Installs [moyopy](https://github.com/spglib/moyo) (Rust-based, ~4× faster than spglib) — **recommended** for space-group and Wyckoff analysis.
+* **spglib**: Installs [spglib](https://spglib.github.io/spglib/) (≥2.4) — classic backend.
+* **symmetry**: Installs both backends (mainly useful for CI/validation).
 * **docs**: Dependencies for building documentation (`jupyter-book`, `sphinx-click`, etc.)
 * **dev**: Dependencies for development (`black`, `flake8`, `pytest`, etc.)
 * **legacy**: Pinned versions of ASE and NumPy for compatibility with older systems
