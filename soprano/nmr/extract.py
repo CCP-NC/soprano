@@ -42,6 +42,7 @@ from ase.units import Bohr, Ha
 
 from soprano.data.nmr import _get_isotope_list
 from soprano.properties.labeling import MagresViewLabels, UniqueSites
+from soprano.properties.linkage import Bonds
 from soprano.properties.nmr import (
     EFGAsymmetry,
     EFGQuadrupolarConstant,
@@ -81,6 +82,68 @@ NMR_COLUMN_ALIASES: dict = {
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+def find_XHn_groups(
+    atoms: Atoms,
+    pattern_string: str,
+    tags: Optional[np.ndarray] = None,
+    vdw_scale: float = 1.0,
+) -> list:
+    """Find groups of atoms matching a functional-group pattern such as CH₃.
+
+    The pattern is a string like ``"CH3"`` or ``"CH2"``.  Multiple patterns
+    can be given comma-separated (e.g. ``"CH3,CH2"``).
+
+    Args:
+        atoms: Atoms object to search.
+        pattern_string: Comma-separated functional-group patterns, e.g.
+            ``'CH3'`` for methyl.  Each pattern must contain an element
+            symbol, ``H`` and the H count (e.g. ``'CH3'``, ``'NH2'``).
+        tags: Optional integer tag array (one per atom).  Defaults to
+            ``np.arange(len(atoms))``.
+        vdw_scale: Scale factor for van-der-Waals radii when determining
+            connectivity.  Default ``1.0``.
+
+    Returns:
+        A list of lists of index groups, one outer list per pattern in
+        *pattern_string*.
+    """
+    if tags is None:
+        tags = np.arange(len(atoms))
+
+    bcalc = Bonds(vdw_scale=vdw_scale, return_matrix=True)
+    bonds, bmat = bcalc(atoms)
+    all_groups = []
+    for group_pattern in pattern_string.split(","):
+        if "H" not in group_pattern:
+            raise ValueError(
+                f"{group_pattern} is not a valid group pattern "
+                "(must contain an element symbol, H, and the number of H atoms. e.g. CH3)"
+            )
+        X, n = group_pattern.split("H")
+        n = int(n)
+        symbs = np.array(atoms.get_chemical_symbols())
+        hinds = np.where(symbs == "H")[0]
+        groups = []
+        xinds = np.where(symbs == X)[0]
+        xinds = xinds[np.where(np.sum(bmat[xinds][:, hinds], axis=1) == n)[0]]
+        seen_tags = []
+        for ix, xind in enumerate(xinds):
+            bonded_hinds = np.where(bmat[xind][hinds] == 1)[0]
+            group = list(hinds[bonded_hinds])
+            assert len(group) == n
+            match = []
+            if len(seen_tags) > 0:
+                match = np.where((seen_tags == tags[group]).all(axis=1))[0]
+            if len(match) == 1:
+                groups[match[0]] += group
+            elif len(match) == 0:
+                seen_tags.append(tags[group])
+                groups.append(group)
+            else:
+                raise ValueError(f"Found multiple matches for {group_pattern}")
+        all_groups.append(groups)
+    return all_groups
+
 
 def label_atoms(atoms: Atoms, logger: Optional[logging.Logger] = None) -> Atoms:
     """Ensure *atoms* has CIF-style atom labels.
@@ -125,7 +188,7 @@ def tag_functional_groups(
 ) -> Atoms:
     """Tag groups of atoms (e.g. CH₃) so they can later be averaged together.
 
-    Uses :func:`soprano.scripts.cli_utils.find_XHn_groups` to identify
+    Uses :func:`soprano.nmr.extract.find_XHn_groups` to identify
     XHₙ patterns and updates both the ``labels`` and ``tags`` arrays on the
     Atoms object in-place.
 
@@ -140,9 +203,6 @@ def tag_functional_groups(
     Returns:
         The modified Atoms object.
     """
-    # Lazy import to avoid pulling click machinery into the library core.
-    from soprano.scripts.cli_utils import find_XHn_groups  # noqa: PLC0415
-
     log = logger or _logger
 
     tags = atoms.get_tags() if atoms.has("tags") else np.arange(len(atoms))
