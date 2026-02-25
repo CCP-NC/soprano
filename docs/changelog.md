@@ -4,6 +4,17 @@ All notable changes to Soprano are documented here.
 
 ---
 
+## v0.11.1 (2026-02-25)
+
+### Changes
+
+- Removed `bottleneck` as a dependency — it was never imported by Soprano.
+- Widened the `click` version constraint from `>=8.2.1` to `>=8.0`, restoring
+  compatibility with environments that ship older click releases (e.g. Pyodide
+  0.27, which provides click 8.1.7).
+
+---
+
 ## v0.11.0 (2026-02-25)
 
 ### New features

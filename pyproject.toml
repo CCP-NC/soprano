@@ -35,7 +35,7 @@ classifiers = [
 dependencies = [
     "adjustText",
     "ase>=3.26",
-    "click>=8.2.1,<8.3",
+    "click>=8.0",
     "click_log",
     "matplotlib",
     "numpy>=1.18.5",
@@ -129,7 +129,7 @@ description = "Testing environment"
 dependencies = [
     "ase>=3.26",
     "adjustText",
-    "click>=8.2.1,<8.3",
+    "click>=8.0",
     "click_log",
     "matplotlib",
     "numpy",
@@ -168,7 +168,7 @@ detached = true
 dependencies = [
     "adjustText",
     "ase>=3.22.0,<3.23",
-    "click>=8.2.1,<8.3",
+    "click>=8.0",
     "click_log",
     "matplotlib",
     "numpy>=1.26.0,<2.0",
@@ -211,7 +211,7 @@ description = "Compatibility testing with numpy 1.x"
 detached = true
 dependencies = [
     "adjustText",
-    "click>=8.2.1,<8.3",
+    "click>=8.0",
     "click_log",
     "matplotlib",
     "numpy>=1.20,<2.0",
@@ -237,7 +237,7 @@ description = "Compatibility testing with numpy 2.x"
 detached = true
 dependencies = [
     "adjustText",
-    "click>=8.2.1,<8.3",
+    "click>=8.0",
     "click_log",
     "matplotlib",
     "numpy>=2.0,<3.0",
@@ -263,7 +263,7 @@ description = "Compatibility testing with latest package versions"
 detached = true
 dependencies = [
     "adjustText",
-    "click>=8.2.1,<8.3",
+    "click>=8.0",
     "click_log",
     "matplotlib",
     "numpy",
