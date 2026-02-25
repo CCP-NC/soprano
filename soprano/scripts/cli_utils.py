@@ -1145,65 +1145,13 @@ def average_quaternions_by_tags(quaternions, tags):
 
 
 def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
-    """Find groups of atoms based on a functional group pattern.
-    The pattern is a string such as CH3 or CH2.
-    It must contain an element symbol, H and the number of H atoms
+    """Thin wrapper re-exporting :func:`soprano.nmr.extract.find_XHn_groups`.
 
-
-    | Args:
-    |   atoms (ase.Atoms): Atoms object on which to perform selection
-    |   pattern_string (str): functional group pattern e.g. 'CH3'
-    |                        for a methyl group. Assumes the group is
-    |                        the thing(s) connected to the first atom.
-    |                        They can be combined, comma separated.
-    |                        TODO: add SMILES/SMARTS support?
-    |   vdw_scale (float): scale factor for vdw radius (used for bond searching)
+    Kept here for backward compatibility.  New code should import directly
+    from ``soprano.nmr.extract``.
     """
-    from soprano.properties.linkage import Bonds
-
-    if tags is None:
-        tags = np.arange(len(atoms))
-
-    bcalc = Bonds(vdw_scale=vdw_scale, return_matrix=True)
-    bonds, bmat = bcalc(atoms)
-    all_groups = []
-    for group_pattern in pattern_string.split(","):
-        # split into central element and number of H atoms
-        if "H" not in group_pattern:
-            raise ValueError(
-                f"{group_pattern} is not a valid group pattern "
-                "(must contain an element symbol, H, and the number of H atoms. e.g. CH3)"
-            )
-        X, n = group_pattern.split("H")
-        n = int(n)
-        # Find XHn groups
-        symbs = np.array(atoms.get_chemical_symbols())
-        hinds = np.where(symbs == "H")[0]
-        groups = []
-        xinds = np.where(symbs == X)[0]
-        xinds = xinds[np.where(np.sum(bmat[xinds][:, hinds], axis=1) == n)[0]]
-        # group_tags = np.ones((len(xinds), n), dtype=int)
-        seen_tags = []
-        for ix, xind in enumerate(xinds):
-            bonded_hinds = np.where(bmat[xind][hinds] == 1)[0]
-            group = list(hinds[bonded_hinds])
-            assert len(group) == n
-            match = []
-            if len(seen_tags) > 0:
-                match = np.where((seen_tags == tags[group]).all(axis=1))[0]
-
-            if len(match) == 1:
-                # how to handle this?
-                groups[match[0]] += group
-            elif len(match) == 0:
-                seen_tags.append(tags[group])
-                groups.append(group)
-            else:
-                raise ValueError(f"Found multiple matches for {group_pattern}")
-
-        all_groups.append(groups)
-
-    return all_groups
+    from soprano.nmr.extract import find_XHn_groups as _impl
+    return _impl(atoms, pattern_string, tags=tags, vdw_scale=vdw_scale)
 
 
 def reload_as_molecular_crystal(atoms: Atoms, force=False) -> Atoms:
