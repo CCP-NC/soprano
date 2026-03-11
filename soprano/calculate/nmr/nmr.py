@@ -911,6 +911,7 @@ class NMRData2D:
                 yaxis_order: str = '1Q',
                 x_axis_label: Optional[str] = None,
                 y_axis_label: Optional[str] = None,
+                average_group: str = "",
                 ):
 
         self.atoms = atoms
@@ -957,9 +958,109 @@ class NMRData2D:
 
         self.x_axis_label = x_axis_label
         self.y_axis_label = y_axis_label
+        self.average_group = average_group
 
         # run the main method to extract the data
         self.get_peaks()
+
+    def _average_group_peaks(self, peaks: list) -> list:
+        """Merge peaks from the same functional group (e.g. CH₃) post-hoc.
+
+        This method operates on
+        peaks generated from the *original*, unmodified atoms object so that
+        every coupling is evaluated at the true inter-atomic distance.
+
+        Peaks that belong to the same functional group and are paired with the
+        same counter-atom are replaced by a single representative peak:
+
+        * **position** (x, y) — mean of the group members' positions,
+        * **correlation_strength** — mean of the members' coupling values
+          (the multiplicity weight accounts for group size separately),
+        * **multiplicity** — sum of the members' multiplicities
+          (equals the group size when starting from the default of 1),
+        * **label** — comma-separated sorted concatenation of member labels,
+          matching the CLI ``--average-group`` convention.
+
+        Args:
+            peaks: Peak list from :func:`generate_peaks` (before
+                :func:`merge_peaks`).
+
+        Returns:
+            New peak list with functional-group members merged.
+        """
+        import re  # noqa: PLC0415
+        from collections import defaultdict  # noqa: PLC0415
+        from dataclasses import replace as _replace  # noqa: PLC0415
+
+        from soprano.nmr.extract import find_XHn_groups, label_atoms  # noqa: PLC0415
+
+        # --- build atom → group-id mapping ---------------------------------
+        atoms = label_atoms(self.atoms.copy(), logger=self.logger)
+        all_groups = find_XHn_groups(atoms, self.average_group)
+
+        atom_to_group: dict = {}
+        for ipat, pattern_groups in enumerate(all_groups):
+            for igrp, group in enumerate(pattern_groups):
+                gid = (ipat, igrp)
+                for aidx in group:
+                    atom_to_group[int(aidx)] = gid
+
+        if not atom_to_group:
+            self.logger.warning(
+                f"average_group='{self.average_group}' matched no groups; "
+                "returning peaks unchanged."
+            )
+            return peaks
+
+        def gkey(idx: int):
+            """Group-id if atom is in a group, else its own index as sentinel."""
+            return atom_to_group.get(int(idx), int(idx))
+
+        # --- bucket peaks by merged-pair key --------------------------------
+        peer_map: dict = defaultdict(list)
+        for peak in peaks:
+            key = (gkey(peak.idx_x), gkey(peak.idx_y))
+            peer_map[key].append(peak)
+
+        # --- combine each bucket --------------------------------------------
+        def _sort_key(label: str):
+            m = re.search(r'\d+', label)
+            return int(m.group()) if m else label
+
+        result = []
+        for group_peaks in peer_map.values():
+            if len(group_peaks) == 1:
+                result.append(group_peaks[0])
+                continue
+
+            avg_x = float(np.mean([p.x for p in group_peaks]))
+            avg_y = float(np.mean([p.y for p in group_peaks]))
+            total_mult = sum(p.multiplicity for p in group_peaks)
+            # Use multiplicity-weighted mean so that the invariant
+            # merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ)
+            # is preserved — consistent with merge_peaks.
+            total_weight = sum(p.correlation_strength * p.multiplicity for p in group_peaks)
+            avg_strength = total_weight / total_mult if total_mult != 0 else 0.0
+
+            xlabels = sorted({p.xlabel for p in group_peaks}, key=_sort_key)
+            ylabels = sorted({p.ylabel for p in group_peaks}, key=_sort_key)
+            result.append(_replace(
+                group_peaks[0],
+                x=avg_x,
+                y=avg_y,
+                correlation_strength=avg_strength,
+                xlabel=','.join(xlabels),
+                ylabel=','.join(ylabels),
+                multiplicity=total_mult,
+            ))
+
+        n_before, n_after = len(peaks), len(result)
+        if n_before != n_after:
+            self.logger.debug(
+                f"average_group='{self.average_group}': "
+                f"merged {n_before} → {n_after} peaks."
+            )
+        return result
 
     def get_peaks(self, merge_identical=True, should_sort_peaks=False, force_recompute=False):
         '''
@@ -994,8 +1095,11 @@ class NMRData2D:
         )
         self.peaks = generate_peaks(self.data, self.pairs, labels, self.correlation_strengths, self.yaxis_order, self.xelement, self.yelement, multiplicities=multiplicities)
 
+        if self.average_group:
+            self.peaks = self._average_group_peaks(self.peaks)
+
         if merge_identical:
-            self.peaks = merge_peaks(self.peaks)
+            self.peaks = merge_peaks(self.peaks, corr_rel_tol=0.05)
 
         if should_sort_peaks:
             self.peaks = sort_peaks(self.peaks)
@@ -1130,14 +1234,44 @@ class NMRData2D:
         # process_pairs expands them into per-pair form internally.
         self.pairs, self.pairs_el_idx, _, _ = process_pairs(self.idx_x, self.idx_y, self.pairs)
 
-        # Check for invalid pairs if correlation_strength_metric is not fixed
+        # In a DQ/SQ experiment the diagonal peaks arise from two *distinct*
+        # atoms of the same chemical shift — not from a spin correlated with
+        # itself.  The literal self-pair (i, i) is unphysical: the inter-nuclear
+        # distance is zero so the dipolar coupling diverges, and it contributes
+        # nothing to the real spectrum.  Remove all self-pairs unconditionally
+        # in DQ mode so that diagonal peaks emerge naturally from the physics.
+        if self.yaxis_order == '2Q':
+            n_before = len(self.pairs)
+            valid = [(i, p) for i, p in enumerate(self.pairs) if p[0] != p[1]]
+            if not valid:
+                raise ValueError(
+                    "No valid (non-self) pairs found for DQ/SQ spectrum. "
+                    "Diagonal peaks in a DQ experiment come from distinct atoms "
+                    "with the same shift — check that the structure contains "
+                    "coupled pairs of the requested elements."
+                )
+            idxs, self.pairs = zip(*valid)
+            self.pairs = list(self.pairs)
+            self.pairs_el_idx = [self.pairs_el_idx[i] for i in idxs]
+            n_removed = n_before - len(self.pairs)
+            if n_removed:
+                self.logger.debug(
+                    f"Removed {n_removed} self-pair(s) (i==i) — unphysical in DQ/SQ."
+                )
+
+        # For distance-based metrics, self-pairs would cause division by zero;
+        # after the DQ filter above they are already gone for 2Q mode.
+        # For SQ/homonuclear mode we still want to flag them rather than silently
+        # produce NaN couplings.
         if self.correlation_strength_metric != 'fixed':
-            for pair in self.pairs:
-                if len(set(pair)) != 2:
-                    raise ValueError("""
-                    Two indices in a pair are the same but
-                    the correlation_strength_metric is based on distance between sites.
-                    It's unclear """)
+            self_pairs = [p for p in self.pairs if p[0] == p[1]]
+            if self_pairs:
+                self.logger.warning(
+                    f"{len(self_pairs)} self-pair(s) remain after filtering with "
+                    f"metric='{self.correlation_strength_metric}'. "
+                    "Distance/coupling for a self-pair is undefined. "
+                    "Consider using --rcut or passing explicit pairs."
+                )
 
         if len(self.pairs) == 0:
             raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
@@ -1253,8 +1387,8 @@ class NMRData2D:
         self,
         x_broadening: Optional[float] = None,
         y_broadening: Optional[float] = None,
-        broadening_type: str = 'gaussian',
-        grid_size: int = 150,
+        broadening_type: str = 'lorentzian',
+        grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
         ylims: Optional[Tuple[float, float]] = None,
     ) -> 'ContourData':
@@ -1301,12 +1435,11 @@ class NMRData2D:
         # Use absolute correlation strengths: the heatmap shows *magnitude*
         # of correlation.  Signed metrics (e.g. negative dipolar constants)
         # would otherwise produce a map with negative intensities.
-        import copy
-        peaks_abs = []
-        for p in peaks:
-            pa = copy.copy(p)
-            pa.correlation_strength = abs(p.correlation_strength)
-            peaks_abs.append(pa)
+        from dataclasses import replace as _dc_replace
+        peaks_abs = [
+            _dc_replace(p, correlation_strength=abs(p.correlation_strength))
+            for p in peaks
+        ]
 
         # Resolve default broadening from peak spread or supplied limits
         if xlims is None:
@@ -1366,8 +1499,8 @@ class NMRData2D:
         fmt: str = 'simpson',
         x_broadening: Optional[float] = None,
         y_broadening: Optional[float] = None,
-        broadening_type: str = 'gaussian',
-        grid_size: int = 150,
+        broadening_type: str = 'lorentzian',
+        grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
         ylims: Optional[Tuple[float, float]] = None,
         x_larmor_freq_mhz: Optional[float] = None,
@@ -1884,10 +2017,19 @@ class MatplotlibBackend(PlotBackend):
             self.ax.axhline(y_val, zorder=0)
     
     def plot_diagonal(self, settings):
-        """Plot diagonal line"""
-        ylims = self.ax.get_ylim()
+        """Plot diagonal line.
+
+        For 2Q (DQ/SQ) mode the diagonal marks the auto-correlation condition
+        DQ = 2 × SQ, i.e. y = 2x.  For all other modes the conventional
+        y = x identity line is drawn.
+        """
         xlims = self.ax.get_xlim()
-        self.ax.plot(xlims, ylims, ls='--', c='k', lw=1, alpha=0.2)
+        if getattr(settings, 'yaxis_order', None) == '2Q':
+            # DQ/SQ diagonal: y = 2x
+            y_vals = [2 * xlims[0], 2 * xlims[1]]
+        else:
+            y_vals = list(self.ax.get_ylim())
+        self.ax.plot(xlims, y_vals, ls='--', c='k', lw=1, alpha=0.2)
     
     def plot_annotations(self, x, y, xlabels, ylabels, settings):
         """Plot annotations with arrows (matplotlib approach)"""
@@ -2159,11 +2301,24 @@ class PlotlyBackend(PlotBackend):
             )
     
     def plot_diagonal(self, settings):
-        """Plot diagonal line"""
-        if self.xlim and self.ylim:
+        """Plot diagonal line.
+
+        For 2Q (DQ/SQ) mode the diagonal marks the auto-correlation condition
+        DQ = 2 × SQ, i.e. y = 2x.  For all other modes the conventional
+        y = x identity line is drawn.
+        """
+        if self.xlim:
+            x_vals = [self.xlim[0], self.xlim[1]]
+            if getattr(settings, 'yaxis_order', None) == '2Q':
+                # DQ/SQ diagonal: y = 2x
+                y_vals = [2 * self.xlim[0], 2 * self.xlim[1]]
+            elif self.ylim:
+                y_vals = [self.ylim[0], self.ylim[1]]
+            else:
+                y_vals = x_vals
             trace = go.Scatter(
-                x=[self.xlim[0], self.xlim[1]],
-                y=[self.ylim[0], self.ylim[1]],
+                x=x_vals,
+                y=y_vals,
                 mode='lines',
                 line=dict(color='black', dash='dash', width=1),
                 opacity=0.2,
@@ -2313,8 +2468,8 @@ class PlotSettings:
     show_contour: bool = False
     x_broadening: Optional[float] = None
     y_broadening: Optional[float] = None
-    broadening_type: str = 'gaussian' # 'gaussian', 'lorentzian'
-    heatmap_grid_size: int = 150
+    broadening_type: str = 'lorentzian' # 'gaussian', 'lorentzian'
+    heatmap_grid_size: Optional[int] = None # default to finer grid for lorentzian broadening
     colormap: str = 'bone_r'
     contour_color: str = 'C1'
     contour_linewidth: float = 0.2
@@ -2328,7 +2483,16 @@ class PlotSettings:
     # When False, all markers are drawn at max_marker_size regardless of correlation strength.
     # The correlation strength still affects the heatmap/contour intensity.
     scale_markers: bool = True
+    # Mirror of NMRData2D.yaxis_order so backends can adapt the diagonal line.
+    yaxis_order: Optional[str] = None
 
+    # Set the default heatmap grid size based on broadening type if not explicitly provided
+    def __post_init__(self):
+        if self.heatmap_grid_size is None:
+            if self.broadening_type == 'lorentzian':
+                self.heatmap_grid_size = 600  # Finer grid for sharper Lorentzian peaks
+            else:
+                self.heatmap_grid_size = 150  # Default grid size for Gaussian or no broadening
 
 class NMRPlot2D:
     '''
@@ -2369,6 +2533,9 @@ class NMRPlot2D:
         # Use default plot settings if none are provided
         if plot_settings is None:
             plot_settings = PlotSettings()
+        # Let backends know about yaxis_order so they can draw the correct diagonal
+        if plot_settings.yaxis_order is None:
+            plot_settings.yaxis_order = nmr_data.yaxis_order
         self.plot_settings = plot_settings
 
         self._initialize_plot_settings()
@@ -2437,7 +2604,28 @@ class NMRPlot2D:
         if self.plot_settings.ylim:
             ylim = self.plot_settings.ylim
             self.plot_settings.ylim = (min(ylim), max(ylim))
-        
+
+        # Auto-compute axis limits from peak positions when not user-specified.
+        # This MUST happen before drawing the contour/heatmap: the contour grid
+        # is padded by up to 50× the broadening beyond the outermost peak, so if
+        # we don't set explicit limits first, matplotlib autoscales to the grid
+        # extent and the visible area ends up far wider than the peak range.
+        # Buffer = 2× the FWHM broadening so the outermost line shape is fully
+        # visible with a little breathing room.
+        if not self.plot_settings.xlim and len(self.x):
+            x_buf = (self.plot_settings.x_broadening or 1.0) * 2
+            self.plot_settings.xlim = (
+                float(self.x.min()) - x_buf,
+                float(self.x.max()) + x_buf,
+            )
+
+        if not self.plot_settings.ylim and len(self.y):
+            y_buf = (self.plot_settings.y_broadening or 1.0) * 2
+            self.plot_settings.ylim = (
+                float(self.y.min()) - y_buf,
+                float(self.y.max()) + y_buf,
+            )
+
         # Set axis properties first (backends may need this for subsequent operations)
         self.backend.set_axis_properties(
             x_axis_label, y_axis_label,

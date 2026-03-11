@@ -26,7 +26,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, replace as dc_replace
 from functools import wraps
 from importlib.resources import files
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +36,7 @@ from scipy.optimize import minimize
 from soprano.properties.labeling.labeling import MagresViewLabels
 from soprano.properties.nmr.dipolar import DipolarCoupling
 from soprano.properties.nmr.isc import JCIsotropy
-from soprano.utils import has_cif_labels
+from soprano.utils import has_cif_labels, minimum_periodic
 
 
 def get_force_matrix(
@@ -80,27 +80,6 @@ def get_force_matrix(
     # spring force from original position
     Fmat[diag_mask] = -2*k * (positions - positions_original)
     return Fmat
-
-def get_total_forces(
-            positions: np.ndarray,
-            positions_original: np.ndarray,
-            C:float = 0.01,
-            k:float = 0.00001):
-    '''
-    Parameters
-    ----------
-    positions : np.array
-        The y coordinates of the annotations
-    positions_original : np.array
-        The original y coordinates of the annotations
-    C : float, optional
-        The repulsive force constant between annotations, by default 0.01
-    k : float, optional
-        The spring force constant for the spring holding the annotation to it's original position, by default 0.00001
-    '''
-    Fmat = get_force_matrix(positions, positions_original, C, k)
-    # sum over the columns to get the total force on each annotation
-    return np.sum(Fmat, axis=1)
 
 def get_total_forces(
             positions: np.ndarray,
@@ -274,7 +253,7 @@ def lorentzian(
     y0: float,
     x_broadening: float,
     y_broadening: float,
-    normalise: bool = False,
+    normalise: bool = True,
     eps: float = 1e-15,
 ) -> np.ndarray:
     """
@@ -340,7 +319,7 @@ def gaussian(
     y0: float,
     x_broadening: float,
     y_broadening: float,
-    normalise: bool = False,
+    normalise: bool = True,
     eps: float = 1e-15,
 ) -> np.ndarray:
     """
@@ -352,7 +331,7 @@ def gaussian(
             -\\frac{(y-y_0)^2}{2\\sigma_y^2}
         \\right)
 
-    where :math:`\\sigma = \\mathrm{FWHM}\\,/\,(2\\sqrt{2\\ln 2})`.
+    where :math:`\\sigma = \\mathrm{FWHM}\\,/\\,(2\\sqrt{2\\ln 2})`.
 
     Parameters
     ----------
@@ -414,12 +393,7 @@ def generate_contour_map(
 
     * **Gaussian**: 5 × FWHM — the tail at that distance is
       :math:`\\sim 10^{-30}` (machine zero).
-    * **Lorentzian**: 50 × FWHM — the tail at that distance is
-      :math:`1/(1+100^2) \\approx 0.01\\,\\%`, acceptable for relative-intensity
-      comparisons.  5 × FWHM would leave :math:`\\sim 1\\,\\%` residual at the
-      boundary, which is non-negligible when multiplicity-weighted peaks are
-      compared.
-
+    * **Lorentzian**: 10 × FWHM — as it has longer tails.
     Args:
         peaks (List[Peak2D]): List of Peak2D objects containing x, y coordinates and correlation strength.
         grid_size (int, optional): Size of the grid for the contour map. Default is 100.
@@ -631,10 +605,16 @@ def generate_peaks(
         if yaxis_order == '2Q':
             y += x
             if xelement == yelement:
-                # then we might have both e.g. H1 + H2 and H2 + H1
-                # let's set them both to be H1 + H2 by sorting the labels
-                xlabel, ylabel = sorted([xlabel, ylabel])
-            ylabel = f'{xlabel} + {ylabel}'
+                # Both orderings of a pair (i,j) and (j,i) exist in the peak
+                # list, giving roofing peaks at x=δ_i and x=δ_j respectively.
+                # The DQ ylabel must be identical for both so that merge_peaks
+                # can recognise them as describing the same DQ correlation.
+                # Sort the two labels alphabetically to get a canonical ylabel,
+                # but keep xlabel = labels[idx_x] so it always matches x = data[idx_x].
+                dq_a, dq_b = sorted([xlabel, ylabel])
+                ylabel = f'{dq_a} + {dq_b}'
+            else:
+                ylabel = f'{xlabel} + {ylabel}'
         peak = Peak2D(
             x=x,
             y=y,
@@ -652,45 +632,88 @@ def merge_peaks(
     xtol: float = 1e-5,
     ytol: float = 1e-5,
     corr_tol: float = 1e-5,
-    ignore_correlation_strength: bool = False
+    ignore_correlation_strength: bool = False,
+    corr_rel_tol: Optional[float] = None,
 ) -> List[Peak2D]:
     """
     Merge peaks that are identical.
+
+    The merged peak's ``correlation_strength`` is the **weighted mean** of the
+    constituent peaks' strengths (weighted by their multiplicities), so that the
+    invariant ``total_weight = correlation_strength × multiplicity = Σ sᵢ mᵢ``
+    is preserved.  The ``multiplicity`` field of the merged peak is the sum of
+    the constituents' multiplicities.
 
     Args:
         peaks (Iterable[Peak2D]): List of peaks to merge.
         xtol (float): Tolerance for x-axis comparison.
         ytol (float): Tolerance for y-axis comparison.
-        corr_tol (float): Tolerance for correlation strength comparison.
-        ignore_correlation_strength (bool): Whether to ignore correlation strength in comparison.
+        corr_tol (float): Absolute tolerance for correlation strength comparison.
+            Only used when *corr_rel_tol* is ``None``.
+        ignore_correlation_strength (bool): Whether to ignore correlation strength
+            entirely when comparing peaks.
+        corr_rel_tol (float, optional): Relative tolerance for coupling-strength
+            comparison, expressed as a fraction on a log scale.  When set, two
+            peaks with strengths *a* and *b* (both > 0) are considered equivalent
+            when ``|log(a) - log(b)| < corr_rel_tol``, which corresponds roughly
+            to requiring the strengths to agree within ``corr_rel_tol × 100 %``.
+            For example ``corr_rel_tol=0.01`` tolerates ~1 % differences, which
+            handles tiny numerical discrepancies caused by limited coordinate
+            precision in input files while still keeping genuinely different
+            couplings separate.  When ``None`` (default) the absolute *corr_tol*
+            is used instead.
 
     Returns:
         List[Peak2D]: List of unique merged peaks.
     """
-    # first, get the unique peaks
+    def _coupling_key(s: float) -> object:
+        """Return a hashable key for coupling strength *s*."""
+        if ignore_correlation_strength:
+            return 0
+        if corr_rel_tol is not None and corr_rel_tol > 0:
+            # Relative log-scale tolerance: |log(|s|) - log(|t|)| < corr_rel_tol
+            # maps each value to an integer bin on the natural-log axis.
+            if s == 0.0:
+                return (0, 0)
+            sign = 1 if s > 0 else -1
+            return (sign, int(np.log(abs(s)) / corr_rel_tol))
+        else:
+            return int(s / corr_tol)
+
     # peak_map preserves insertion order (Python 3.7+); when a duplicate key is
-    # found, multiplicities are summed so that degenerate site-pairs contribute
-    # their full combined weight to the heatmap and marker sizes.
+    # found, multiplicities are summed and the correlation_strength is updated
+    # to the running weighted mean so that the invariant
+    #   total_weight = merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ)
+    # is preserved exactly.
     unique_xlabels: Dict[str, Set[str]] = {}
     unique_ylabels: Dict[str, Set[str]] = {}
-    peak_map: Dict[Tuple[float, float, float], Peak2D] = {}
+    peak_map: Dict[Tuple[float, float, object], Peak2D] = {}
+    # Track the running sum of (strength × multiplicity) for each key so we
+    # can compute the proper weighted-mean strength when finalising.
+    _weight_sum: Dict[Tuple, float] = {}
 
     for peak in peaks:
         key = (
             int(peak.x / xtol),
             int(peak.y / ytol),
-            int(peak.correlation_strength / corr_tol) if not ignore_correlation_strength else 0
+            _coupling_key(peak.correlation_strength),
         )
+        w = peak.correlation_strength * peak.multiplicity
         if key in peak_map:
             existing = peak_map[key]
-            # Accumulate multiplicity: two distinct site-pairs at the same
-            # (x, y, strength) are degenerate and their counts should add.
+            new_mult = existing.multiplicity + peak.multiplicity
+            _weight_sum[key] += w
+            # Update strength to weighted mean so far; keep other fields from
+            # the first-seen peak (position, color, idx_x/idx_y, …).
+            new_strength = _weight_sum[key] / new_mult if new_mult != 0 else existing.correlation_strength
             peak_map[key] = dc_replace(existing,
-                                       multiplicity=existing.multiplicity + peak.multiplicity)
+                                       multiplicity=new_mult,
+                                       correlation_strength=new_strength)
             unique_xlabels[existing.xlabel].add(peak.xlabel)
             unique_ylabels[existing.ylabel].add(peak.ylabel)
         else:
             peak_map[key] = peak
+            _weight_sum[key] = w
             unique_xlabels[peak.xlabel] = {peak.xlabel}
             unique_ylabels[peak.ylabel] = {peak.ylabel}
 
@@ -721,16 +744,118 @@ def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) ->
     return peaks
 
 
+def _build_equiv_groups(atoms: Atoms) -> Dict:
+    """Return a mapping from equivalence key → list of atom indices.
+
+    Delegates entirely to :class:`soprano.properties.labeling.UniqueSites`,
+    which handles both CIF-label-based and symmetry-based reduction internally.
+    If that fails (e.g. spglib not installed, or a non-periodic structure),
+    each atom is placed in its own group.
+
+    Parameters
+    ----------
+    atoms : Atoms
+
+    Returns
+    -------
+    dict
+        Keys are integer symmetry tags; values are lists of atom indices that
+        share that key.
+    """
+    try:
+        from soprano.properties.labeling import UniqueSites  # noqa: PLC0415
+        tags = UniqueSites.get(atoms, save_info=False)
+    except Exception:  # spglib not installed or non-periodic structure
+        tags = np.arange(len(atoms))
+
+    groups: Dict = {}
+    for idx, tag in enumerate(tags):
+        groups.setdefault(int(tag), []).append(idx)
+    return groups
+
+
+def _nearest_equiv_site(atoms: Atoms, idx: int, equiv_groups: Dict) -> Tuple[int, float]:
+    """Return ``(partner_idx, distance_Ang)`` for the nearest equivalent site.
+
+    Candidate sites are all atoms that share an equivalence key with *idx*
+    (same CIF label or same symmetry tag).  For each candidate *j*:
+
+    * ``j == idx``: nearest periodic-image distance computed via
+      :func:`minimum_periodic` with ``exclude_self=True``.
+    * ``j != idx``: minimum-image-convention distance via
+      :meth:`ase.Atoms.get_distance`.
+
+    The candidate with the smallest non-zero distance is returned.
+
+    Parameters
+    ----------
+    atoms : Atoms
+    idx : int
+        Index of the query atom.
+    equiv_groups : dict
+        Output of :func:`_build_equiv_groups`.
+
+    Returns
+    -------
+    partner_idx : int
+        Index of the nearest equivalent atom (may equal *idx* when the nearest
+        equivalent is reached only via a periodic image).
+    distance : float
+        Distance in Å.
+    """
+    # Locate the equivalence group that contains idx
+    equiv_indices = None
+    for members in equiv_groups.values():
+        if idx in members:
+            equiv_indices = members
+            break
+    if equiv_indices is None:
+        equiv_indices = [idx]
+
+    cell = atoms.get_cell()
+    best_j: int = idx
+    best_dist: float = np.inf
+
+    for j in equiv_indices:
+        if j == idx:
+            # Nearest periodic image of the same atom.
+            # Displacement is zero; minimum_periodic handles this edge case
+            # when exclude_self=True (returns the nearest lattice-translated copy).
+            r = np.zeros((1, 3))
+            r_mic, _ = minimum_periodic(r, cell, exclude_self=True)
+            dist = float(np.linalg.norm(r_mic))
+        else:
+            dist = float(atoms.get_distance(idx, j, mic=True))
+
+        if dist < best_dist:
+            best_dist = dist
+            best_j = j
+
+    return best_j, best_dist
+
+
 def get_pair_dipolar_couplings(
         atoms: Atoms,
         pairs: Iterable[Tuple[int, int]],
         isotopes: Optional[dict[str, int]] = None,
-        unit: str = 'kHz'
+        unit: str = 'kHz',
+        use_equiv_sites: bool = True,
     ) -> List[float]:
     """
     Get the dipolar couplings for a list of pairs of atoms.
-    For pairs where i == j, the dipolar coupling is set to zero.
-    
+
+    For self-pairs (i == j) the coupling to the **nearest equivalent site** is
+    returned by default (``use_equiv_sites=True``).  Equivalent sites are
+    identified via :class:`soprano.properties.labeling.UniqueSites` (which
+    handles both CIF-label and symmetry-based reduction).  The nearest
+    candidate may be a different atom *j ≠ i* (same label/tag) reached
+    directly via the MIC, or the same atom *i* reached via a periodic image —
+    whichever is closer.  This gives a physically meaningful correlation
+    strength for diagonal peaks in homonuclear spectra.
+
+    When ``use_equiv_sites=False``, self-pairs always use the nearest periodic
+    image of atom *i* itself (``self_coupling=True``).
+
     Parameters
     ----------
     atoms : ASE Atoms object
@@ -738,7 +863,11 @@ def get_pair_dipolar_couplings(
     pairs : list of tuples
         List of pairs of atom indices.
     isotopes : dict, optional
-    
+    use_equiv_sites : bool, optional
+        If True (default), self-pairs find the nearest symmetry-equivalent site
+        (which may be a different atom reached via the MIC).  If False, self-pairs
+        always use the nearest periodic image of the same atom.
+
     Returns
     -------
     dipolar_couplings : list of float
@@ -759,18 +888,28 @@ def get_pair_dipolar_couplings(
 
     conversion_factor = conversion_factors[unit]
 
+    # Equiv groups are built lazily — only if at least one self-pair is present
+    # and use_equiv_sites is enabled.
+    equiv_groups: Optional[Dict] = None
+
     dipolar_couplings = []
-    # This is an explicit loop because we need to get the J coupling for each pair
-    # - these might not be the same as the set of pairs that we would get by combining indices
-    #   {i} and {j} from the pairs list
     for i, j in pairs:
         if i == j:
-            # set the dipolar coupling to zero for pairs where i == j
-            dipolar_couplings.append(0)
+            if use_equiv_sites:
+                if equiv_groups is None:
+                    equiv_groups = _build_equiv_groups(atoms)
+                best_j, _ = _nearest_equiv_site(atoms, i, equiv_groups)
+            else:
+                best_j = i
+            coupling = list(DipolarCoupling.get(
+                atoms, sel_i=[i], sel_j=[best_j],
+                self_coupling=(best_j == i), isotopes=isotopes
+            ).values())[0][0]
         else:
-            coupling = list(DipolarCoupling.get(atoms, sel_i=[i], sel_j=[j], isotopes=isotopes).values())[0][0]
-            dipolar_couplings.append(coupling * conversion_factor)
-
+            coupling = list(DipolarCoupling.get(
+                atoms, sel_i=[i], sel_j=[j], isotopes=isotopes
+            ).values())[0][0]
+        dipolar_couplings.append(coupling * conversion_factor)
 
     return dipolar_couplings
 
@@ -779,11 +918,22 @@ def get_pair_j_couplings(
         pairs: Iterable[Tuple[int, int]],
         isotopes: Optional[dict[str, int]] = None,
         unit: str = 'Hz',
-        tag: str = 'isc'
+        tag: str = 'isc',
+        use_equiv_sites: bool = True,
     ) -> List[float]:
     """
     Get the J couplings for a list of pairs of atoms.
-    For pairs where i == j, the J coupling is set to zero.
+
+    For self-pairs (i == j) the coupling to the **nearest equivalent site** is
+    returned by default (``use_equiv_sites=True``).  Equivalent sites are
+    identified via :class:`soprano.properties.labeling.UniqueSites` (which
+    handles both CIF-label and symmetry-based reduction).  The nearest
+    candidate may be a different atom *j ≠ i* (same label/tag) reached
+    directly via the MIC, or the same atom *i* reached via a periodic image —
+    whichever is closer.
+
+    When ``use_equiv_sites=False``, self-pairs always return 0 (no
+    intramolecular/self J coupling).
 
     Parameters
     ----------
@@ -798,6 +948,10 @@ def get_pair_j_couplings(
     tag : str, optional
         Name of the J coupling component to return. Default is 'isc'. Magres files
         usually contain isc, isc_spin, isc_fc, isc_orbital_p and isc_orbital_d.
+    use_equiv_sites : bool, optional
+        If True (default), self-pairs find the nearest symmetry-equivalent site
+        (which may be a different atom reached via the MIC).  If False, self-pairs
+        return 0.
 
     Returns
     -------
@@ -819,14 +973,28 @@ def get_pair_j_couplings(
 
     conversion_factor = conversion_factors[unit]
 
+    # Equiv groups are built lazily — only if at least one self-pair is present
+    # and use_equiv_sites is enabled.
+    equiv_groups: Optional[Dict] = None
+
     j_couplings = []
     # This is an explicit loop because we need to get the J coupling for each pair
     # - these might not be the same as the set of pairs that we would get by combining indices
     #   {i} and {j} from the pairs list
     for i, j in pairs:
         if i == j:
-            # set the J coupling to zero for pairs where i == j
-            j_couplings.append(0)
+            if use_equiv_sites:
+                if equiv_groups is None:
+                    equiv_groups = _build_equiv_groups(atoms)
+                best_j, _ = _nearest_equiv_site(atoms, i, equiv_groups)
+                coupling = list(JCIsotropy.get(
+                    atoms, sel_i=[i], sel_j=[best_j],
+                    tag=tag, self_coupling=(best_j == i), isotopes=isotopes
+                ).values())[0]
+                j_couplings.append(coupling * conversion_factor)
+            else:
+                # set the J coupling to zero for pairs where i == j
+                j_couplings.append(0)
         else:
             coupling = list(JCIsotropy.get(atoms, sel_i=[i], sel_j=[j], tag=tag, isotopes=isotopes).values())[0]
             j_couplings.append(coupling * conversion_factor)
@@ -870,21 +1038,46 @@ def process_pairs(
     idx_y = np.array(pairs)[:, 1]
     return pairs, pairs_el_idx, idx_x, idx_y
 
-def calculate_distances(pairs: List[Tuple[int, int]], atoms: Atoms) -> np.ndarray:
+def calculate_distances(
+    pairs: List[Tuple[int, int]],
+    atoms: Atoms,
+    use_equiv_sites: bool = True,
+) -> np.ndarray:
     """
     Calculate the distances between pairs of atoms.
+
+    For self-pairs (i == j) the distance to the **nearest equivalent site** is
+    returned by default (``use_equiv_sites=True``), consistent with
+    :func:`get_pair_dipolar_couplings`.  See those docs for the equivalence
+    definition.
+
+    When ``use_equiv_sites=False``, self-pair distances are computed as the
+    nearest periodic-image distance of the atom with itself.
 
     Args:
         pairs (List[Tuple[int, int]]): List of tuples representing pairs of atom indices.
         atoms (Atoms): Atoms object that provides the get_distance method.
+        use_equiv_sites (bool): If True (default), self-pairs use the nearest
+            symmetry-equivalent site distance.  If False, use the nearest
+            periodic image of the same atom.
 
     Returns:
         np.ndarray: Array of distances corresponding to the pairs.
     """
+    equiv_groups: Optional[Dict] = None
+
     pair_distances = np.zeros(len(pairs))
     for i, pair in enumerate(pairs):
         if pair[0] == pair[1]:
-            pair_distances[i] = 0.0
+            if use_equiv_sites:
+                if equiv_groups is None:
+                    equiv_groups = _build_equiv_groups(atoms)
+                _, dist = _nearest_equiv_site(atoms, pair[0], equiv_groups)
+            else:
+                r = np.zeros((1, 3))
+                r_mic, _ = minimum_periodic(r, atoms.get_cell(), exclude_self=True)
+                dist = float(np.linalg.norm(r_mic))
+            pair_distances[i] = dist
         else:
             pair_distances[i] = atoms.get_distance(*pair, mic=True)
     return pair_distances
