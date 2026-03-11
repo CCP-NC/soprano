@@ -1,6 +1,8 @@
 # soprano
 Soprano - a Python library to crack crystals!
 
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18955496.svg)](https://doi.org/10.5281/zenodo.18955496)
 [![Python Tests](https://github.com/CCP-NC/soprano/actions/workflows/python-test.yml/badge.svg)](https://github.com/CCP-NC/soprano/actions/workflows/python-test.yml)
 [![PyPI version](https://badge.fury.io/py/Soprano.svg)](https://badge.fury.io/py/Soprano)
 
