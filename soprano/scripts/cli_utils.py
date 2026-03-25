@@ -570,7 +570,7 @@ plot_weight_by = click.option(
     "--weight-by",
     "--scale-marker-by", # legacy alias for backward compatibility, to be removed in future release
     "weight_by",
-    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "dipolar2", "jcoupling"]),
+    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "dipolar2", "jcoupling", "dipolar_rss"]),
     default="fixed",
     help="Physical metric used to weight each cross-peak. "
     "Affects both the heatmap/contour intensity and (optionally) the marker size. "
@@ -578,7 +578,30 @@ plot_weight_by = click.option(
     "``dipolar`` weights by the dipolar coupling between the site pair. "
     "``dipolar2`` weights by the square of the dipolar coupling between the site pair. "
     "``distance`` / ``inversedistance`` weights by inter-site distance or its inverse. "
+    "``dipolar_rss`` weights by the root-sum-squared dipolar coupling from each site to its neighbours (useful for DQ/SQ spectra). "
     "Default is ``fixed``.",
+)
+# RSS cutoff - only used when weight_by='dipolar_rss'
+plot_rss_cutoff = click.option(
+    "--rss-cutoff",
+    "rss_cutoff",
+    type=float,
+    default=5.0,
+    help="Cutoff radius (Å) for the dipolar RSS sum used when ``--weight-by dipolar_rss``. "
+    "Default is 5.0 Å.",
+)
+# how to expand the j neighbour set for dipolar_rss
+plot_rss_expand_j = click.option(
+    "--rss-expand-j",
+    "rss_expand_j",
+    type=click.Choice(["periodic_images", "symmetry", "cif_labels"]),
+    default="periodic_images",
+    help="How to expand the set of j-neighbours for the dipolar RSS sum "
+    "(only used when ``--weight-by dipolar_rss``). "
+    "``periodic_images`` includes neighbours from periodic images only. "
+    "``symmetry`` additionally includes all symmetry-equivalent sites. "
+    "``cif_labels`` uses CIF atom labels to group equivalent sites (requires CIF label info in the .magres file). "
+    "Default is ``periodic_images``.",
 )
 # whether to also scale marker sizes by the weight
 plot_scale_markers = click.option(
@@ -864,6 +887,8 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_max_marker_size,
     plot_marker_linewidth,
     plot_weight_by,
+    plot_rss_cutoff,
+    plot_rss_expand_j,
     plot_scale_markers,
     plot_marker_color,
     plot_marker_legend,
