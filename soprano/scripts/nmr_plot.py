@@ -72,6 +72,8 @@ def plotnmr(
     show_markers,
     marker_symbol,
     weight_by,
+    rss_cutoff,
+    rss_expand_j,
     scale_markers,
     max_marker_size,
     marker_color,
@@ -175,6 +177,8 @@ def plotnmr(
             include_quadrupolar=False,
             yaxis_order=yaxis_order,
             correlation_strength_metric=weight_by,
+            rss_cutoff=rss_cutoff,
+            rss_expand_j=rss_expand_j,
         )
 
         # Define plot settings

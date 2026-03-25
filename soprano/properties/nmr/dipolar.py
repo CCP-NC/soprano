@@ -436,6 +436,44 @@ class DipolarRSS(AtomsProperty):
         return np.array(dip_rss)
 
 
+def _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec):
+    """Expand *sel_j* to include all crystallographically equivalent sites.
+
+    Uses :class:`~soprano.properties.labeling.UniqueSites` to obtain
+    equivalence tags, which internally prefers CIF-label-based grouping over
+    symmetry analysis when CIF labels are present (i.e. the same behaviour as
+    ``_build_equiv_groups`` in the NMR utilities).
+
+    Parameters
+    ----------
+    s : ase.Atoms
+    sel_j : AtomSelection
+    expand_j : {'periodic_images', 'symmetry', 'cif_labels'}
+    symprec : float
+
+    Returns
+    -------
+    AtomSelection
+        *sel_j* expanded to include all equivalent-site members.
+    """
+    if expand_j == "periodic_images":
+        return sel_j
+    if expand_j not in ("symmetry", "cif_labels"):
+        raise ValueError(
+            f"expand_j must be 'periodic_images', 'symmetry', or "
+            f"'cif_labels', got '{expand_j}'")
+    if expand_j == "cif_labels" and not has_cif_labels(s):
+        raise ValueError(
+            "expand_j='cif_labels' requires CIF labels on the "
+            "atoms object (set via atoms.set_array('labels', ...))")
+    # UniqueSites already prefers CIF-label groups when present, so both
+    # 'symmetry' and 'cif_labels' reduce to the same tag-expansion step.
+    tags = UniqueSites.get(s, symprec=symprec, save_info=False)
+    j_tags = {int(tags[i]) for i in sel_j.indices}
+    expanded = np.where(np.isin(tags, list(j_tags)))[0]
+    return AtomSelection(s, sorted(set(sel_j.indices) | set(map(int, expanded))))
+
+
 class DipolarRSSByAtom(AtomsProperty):
 
     """
