@@ -111,6 +111,16 @@ Here are some common examples:
     soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
     ```
 
+    * Control intensity windows cleanly: `--intensity-range` sets a shared default for both contour and heatmap. Override only one layer with `--contour-range` or `--heatmap-range` when needed:
+
+        ```bash
+        soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 \
+            --heatmap --contour \
+            --intensity-range 10 100 \
+            --heatmap-range 5 60 \
+            seedname.magres
+        ```
+
     * If you need the generated contour grid to match the intensity scale expected by external tools (for example when comparing with experimental files in ssNake), rescale the synthetic grid maximum with `--grid-max`:
 
         ```bash

@@ -90,7 +90,9 @@ class PlotSettings(BaseModel):
     colormap: str = "bone_r"
     contour_color: str = "C1"
     contour_linewidth: float = 0.2
-    contour_range: Tuple[float, float] = (10.0, 100.0)
+    intensity_range: Tuple[float, float] = (10.0, 100.0)
+    contour_range: Optional[Tuple[float, float]] = None
+    heatmap_range: Optional[Tuple[float, float]] = None
     contour_levels: Union[Iterable[float], int] = 10
     scale_markers: bool = True
     yaxis_order: Optional[str] = None
@@ -135,9 +137,24 @@ class PlotSettings(BaseModel):
 
     @model_validator(mode="after")
     def _validate_ranges(self) -> "PlotSettings":
-        lo, hi = self.contour_range
+        lo, hi = self.intensity_range
         if lo >= hi:
-            raise ValueError("contour_range lower bound must be < upper bound")
+            raise ValueError("intensity_range lower bound must be < upper bound")
+
+        if self.contour_range is not None:
+            clo, chi = self.contour_range
+            if clo >= chi:
+                raise ValueError("contour_range lower bound must be < upper bound")
+        else:
+            self.contour_range = self.intensity_range
+
+        if self.heatmap_range is not None:
+            hlo, hhi = self.heatmap_range
+            if hlo >= hhi:
+                raise ValueError("heatmap_range lower bound must be < upper bound")
+        else:
+            self.heatmap_range = self.intensity_range
+
         if self.heatmap_grid_size is None:
             self.heatmap_grid_size = 600 if self.broadening_type == "lorentzian" else 150
         return self
