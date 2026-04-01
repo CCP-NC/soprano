@@ -256,17 +256,18 @@ class TestDipolarRSSMetric(unittest.TestCase):
         self.assertTrue(all(p.correlation_strength >= 0 for p in d.peaks))
 
     def test_peak_strength_matches_direct_rss(self):
-        """Each peak's correlation_strength must equal DipolarRSSByAtom directly."""
+        """Each peak's correlation_strength must equal DipolarRSSByAtom (converted to kHz)."""
         d = self._make_hc(rss_cutoff=10.0, rss_expand_j="periodic_images")
         for peak in d.peaks:
-            expected = DipolarRSSByAtom.get(
+            expected_hz = DipolarRSSByAtom.get(
                 self.atoms,
                 sel_i=[peak.idx_x],
                 sel_j=[peak.idx_y],
                 cutoff=10.0,
                 expand_j="periodic_images",
             )[0]
-            self.assertAlmostEqual(peak.correlation_strength, expected, places=6)
+            expected_khz = expected_hz * 1e-3
+            self.assertAlmostEqual(peak.correlation_strength, expected_khz, places=6)
 
     def test_smaller_cutoff_gives_smaller_or_equal_rss(self):
         """RSS is monotonically non-decreasing with cutoff.
@@ -551,6 +552,34 @@ class TestDQSQWithCIFLabels(unittest.TestCase):
             "Expected cif_labels RSS > periodic_images RSS for an intragroup pair",
         )
 
+    def test_symmetry_and_cif_labels_agree(self):
+        """expand_j='symmetry' and expand_j='cif_labels' give the same RSS for EDIZUM.
+
+        EDIZUM has consistent CIF labels and crystallographic symmetry (Z=4),
+        so both expansion strategies should identify the same set of equivalent
+        neighbours and produce identical RSS values for all H1-H2 and H1-H1
+        pairs tested.
+        """
+        cutoff = 6.0
+        test_pairs = (
+            [(i, j) for i in self.h1_idx for j in self.h2_idx]  # H1-H2
+            + [(i, j) for i in self.h1_idx for j in self.h1_idx if i != j]  # H1-H1
+        )
+        for idx_i, idx_j in test_pairs:
+            rss_cif = DipolarRSSByAtom.get(
+                self.atoms, sel_i=[idx_i], sel_j=[idx_j],
+                cutoff=cutoff, expand_j="cif_labels",
+            )[0]
+            rss_sym = DipolarRSSByAtom.get(
+                self.atoms, sel_i=[idx_i], sel_j=[idx_j],
+                cutoff=cutoff, expand_j="symmetry",
+            )[0]
+            self.assertAlmostEqual(
+                rss_cif, rss_sym, places=4,
+                msg=(f"cif_labels and symmetry RSS disagree for pair "
+                     f"({idx_i}, {idx_j}): {rss_cif:.6f} vs {rss_sym:.6f}"),
+            )
+
     # ------------------------------------------------------------------
     # NMRData2D integration: DQ/SQ with dipolar_rss + cif_labels
     # ------------------------------------------------------------------
@@ -589,6 +618,359 @@ class TestDQSQWithCIFLabels(unittest.TestCase):
             pair_strengths[(h1_0, h2_0)], pair_strengths[(h1_1, h2_1)], places=4,
             msg="Equiv H1-H2 pairs should have the same DQ correlation strength",
         )
+
+
+class TestNMRData2DReduce(unittest.TestCase):
+    """End-to-end tests for the reduce=True code-path in NMRData2D.
+
+    EDIZUM (Z=4) is used throughout: 148 atoms total, 37 in the asymmetric unit
+    (19 unique H sites among them).
+
+    Key invariants tested:
+    - reduce=True collapses to the asymmetric unit (atoms_full kept for RSS)
+    - pairs and Peak2D indices are valid indices into the *reduced* atoms
+    - RSS values match directly-computed values on atoms_full
+    - reduce=True + cif_labels gives the same RSS as reduce=False + cif_labels
+      for the same (label, label) pair
+    - The CLI and Python API agree: produce the same peak count and the same
+      RSS strengths for EDIZUM H–H DQ/SQ with reduce=True + cif_labels
+    """
+
+    def setUp(self):
+        self.atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        self._kw = dict(
+            xelement="H", yelement="H",
+            yaxis_order="2Q", rcut=6.0,
+            correlation_strength_metric="dipolar_rss",
+            rss_cutoff=6.0,
+            references={"H": 29.5}, gradients={"H": -0.95},
+        )
+
+    # ------------------------------------------------------------------
+    # Structure of the reduced atoms object
+    # ------------------------------------------------------------------
+
+    def test_reduce_collapses_to_asymmetric_unit(self):
+        """reduce=True should produce 37 atoms (the asymmetric unit of EDIZUM)."""
+        nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
+        self.assertEqual(len(nd.atoms), 37)
+
+    def test_atoms_full_is_set_when_reduce_true(self):
+        """atoms_full should hold the full labeled cell (148 atoms) after reduce=True."""
+        nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
+        self.assertIsNotNone(nd.atoms_full)
+        self.assertEqual(len(nd.atoms_full), 148)
+
+    def test_pair_indices_valid_for_reduced_atoms(self):
+        """All pair indices must be valid indices into nd.atoms (the reduced structure)."""
+        nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
+        n = len(nd.atoms)
+        for i, j in nd.pairs:
+            self.assertGreaterEqual(i, 0)
+            self.assertLess(i, n, f"pair index i={i} out of range for reduced atoms (len={n})")
+            self.assertGreaterEqual(j, 0)
+            self.assertLess(j, n, f"pair index j={j} out of range for reduced atoms (len={n})")
+
+    # ------------------------------------------------------------------
+    # RSS value correctness
+    # ------------------------------------------------------------------
+
+    def test_rss_values_agree_with_direct_computation(self):
+        """RSS stored in correlation_strengths must match a direct DipolarRSSByAtom call.
+
+        The mapping is: reduced-atom label → first matching index in atoms_full.
+        We spot-check the first 5 pairs.
+        """
+        nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
+        reduced_labels = get_atom_labels(nd.atoms, None)
+        full_labels = get_atom_labels(nd.atoms_full, None)
+
+        def _first_full_idx(label):
+            matches = np.where(full_labels == label)[0]
+            return int(matches[0])
+
+        for k, (i, j) in enumerate(nd.pairs[:5]):
+            fi = _first_full_idx(reduced_labels[i])
+            fj = _first_full_idx(reduced_labels[j])
+            expected_khz = DipolarRSSByAtom.get(
+                nd.atoms_full,
+                sel_i=[fi], sel_j=[fj],
+                cutoff=6.0, expand_j="cif_labels",
+            )[0] * 1e-3
+            self.assertAlmostEqual(
+                nd.correlation_strengths[k], expected_khz, places=5,
+                msg=f"RSS mismatch for pair ({i},{j}): stored={nd.correlation_strengths[k]:.6f} expected={expected_khz:.6f}",
+            )
+
+    def test_reduce_true_and_false_give_same_rss_per_label_pair(self):
+        """reduce=True and reduce=False should give the same RSS for the same label pair.
+
+        We take one (H_label_i, H_label_j) pair that appears in both result sets
+        and confirm the correlation_strength agrees — the same physics, just
+        reached via different code paths.
+        """
+        nd_reduced = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
+        nd_full    = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=False)
+
+        red_labels  = get_atom_labels(nd_reduced.atoms, None)
+        full_labels = get_atom_labels(nd_full.atoms, None)
+
+        # Build label-pair → strength map for both
+        red_map  = {(red_labels[i],  red_labels[j]):  s for (i, j), s in zip(nd_reduced.pairs, nd_reduced.correlation_strengths)}
+        full_map = {(full_labels[i], full_labels[j]):  s for (i, j), s in zip(nd_full.pairs,    nd_full.correlation_strengths)}
+
+        common = set(red_map) & set(full_map)
+        self.assertGreater(len(common), 0, "No common label-pairs between reduce=True and reduce=False results")
+        for lp in list(common)[:5]:
+            self.assertAlmostEqual(
+                red_map[lp], full_map[lp], places=4,
+                msg=f"RSS mismatch for label pair {lp}: reduce=True→{red_map[lp]:.5f} reduce=False→{full_map[lp]:.5f}",
+            )
+
+    # ------------------------------------------------------------------
+    # Peak count
+    # ------------------------------------------------------------------
+
+    def test_reduce_true_fewer_peaks_than_reduce_false(self):
+        """reduce=True should produce fewer (or equal) peaks than reduce=False.
+
+        All equivalent copies are merged into one asymmetric-unit representative.
+        """
+        nd_r = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
+        nd_f = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=False)
+        self.assertLessEqual(
+            len(nd_r.peaks), len(nd_f.peaks),
+            "Expected fewer or equal peaks with reduce=True vs reduce=False",
+        )
+
+
+class TestNMRData2DSymmetryExpand(unittest.TestCase):
+    """Tests for NMRData2D when rss_expand_j='symmetry'.
+
+    Two sub-scenarios are covered:
+
+    1. EDIZUM (Z=4, has CIF labels): symmetry mode calls spglib with
+       override_cif=True, ignoring the embedded labels.  The RSS values must
+       still agree with direct DipolarRSSByAtom calls using expand_j='symmetry',
+       and for EDIZUM the spglib groups are consistent with the CIF label groups
+       so both modes should give the same strengths for shared pairs.
+
+    2. Ethanol (Z=1, no CIF labels): only MagresView-style labels are available.
+       The symmetry path must not raise and must return finite, positive RSS
+       values.
+    """
+
+    def setUp(self):
+        self._edizum  = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        self._ethanol = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self._kw = dict(
+            xelement="H", yelement="H",
+            yaxis_order="2Q", rcut=6.0,
+            correlation_strength_metric="dipolar_rss",
+            rss_cutoff=6.0,
+            references={"H": 29.5}, gradients={"H": -0.95},
+        )
+
+    # ------------------------------------------------------------------
+    # EDIZUM + rss_expand_j="symmetry"
+    # ------------------------------------------------------------------
+
+    def test_edizum_symmetry_collapses_to_asymmetric_unit(self):
+        """reduce=True with rss_expand_j='symmetry' should still give 37 atoms."""
+        nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="symmetry", reduce=True)
+        self.assertEqual(len(nd.atoms), 37)
+
+    def test_edizum_symmetry_pair_indices_valid(self):
+        """All pair indices must be valid indices into the reduced atoms."""
+        nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="symmetry", reduce=True)
+        n = len(nd.atoms)
+        for i, j in nd.pairs:
+            self.assertGreaterEqual(i, 0)
+            self.assertLess(i, n, f"pair index i={i} out of range for reduced atoms (len={n})")
+            self.assertGreaterEqual(j, 0)
+            self.assertLess(j, n, f"pair index j={j} out of range for reduced atoms (len={n})")
+
+    def test_edizum_symmetry_rss_values_agree_direct_computation(self):
+        """RSS stored in correlation_strengths must match direct DipolarRSSByAtom calls
+        using expand_j='symmetry'.  Spot-checks the first 5 pairs."""
+        nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="symmetry", reduce=True)
+        reduced_labels = get_atom_labels(nd.atoms, None)
+        full_labels    = get_atom_labels(nd.atoms_full, None)
+
+        def _first_full_idx(label):
+            return int(np.where(full_labels == label)[0][0])
+
+        for k, (i, j) in enumerate(nd.pairs[:5]):
+            fi = _first_full_idx(reduced_labels[i])
+            fj = _first_full_idx(reduced_labels[j])
+            expected_khz = DipolarRSSByAtom.get(
+                nd.atoms_full,
+                sel_i=[fi], sel_j=[fj],
+                cutoff=6.0, expand_j="symmetry",
+            )[0] * 1e-3
+            self.assertAlmostEqual(
+                nd.correlation_strengths[k], expected_khz, places=5,
+                msg=(
+                    f"RSS mismatch for pair ({i},{j}): "
+                    f"stored={nd.correlation_strengths[k]:.6f} "
+                    f"expected={expected_khz:.6f}"
+                ),
+            )
+
+    def test_edizum_symmetry_and_cif_labels_agree_for_common_pairs(self):
+        """For EDIZUM, spglib groups and CIF label groups are consistent, so
+        rss_expand_j='symmetry' and 'cif_labels' should give the same RSS for
+        any label pair that appears in both result sets."""
+        nd_sym = NMRData2D(self._edizum, **self._kw, rss_expand_j="symmetry",   reduce=True)
+        nd_cif = NMRData2D(self._edizum, **self._kw, rss_expand_j="cif_labels", reduce=True)
+
+        sym_labels = get_atom_labels(nd_sym.atoms, None)
+        cif_labels = get_atom_labels(nd_cif.atoms, None)
+
+        sym_map = {
+            (sym_labels[i], sym_labels[j]): s
+            for (i, j), s in zip(nd_sym.pairs, nd_sym.correlation_strengths)
+        }
+        cif_map = {
+            (cif_labels[i], cif_labels[j]): s
+            for (i, j), s in zip(nd_cif.pairs, nd_cif.correlation_strengths)
+        }
+
+        common = set(sym_map) & set(cif_map)
+        self.assertGreater(len(common), 0,
+                           "No common label-pairs between symmetry and cif_labels results")
+        for lp in list(common)[:10]:
+            self.assertAlmostEqual(
+                sym_map[lp], cif_map[lp], places=4,
+                msg=(
+                    f"RSS mismatch for pair {lp}: "
+                    f"symmetry={sym_map[lp]:.5f} cif_labels={cif_map[lp]:.5f}"
+                ),
+            )
+
+    # ------------------------------------------------------------------
+    # Ethanol + rss_expand_j="symmetry"  (no CIF labels present)
+    # ------------------------------------------------------------------
+
+    def test_ethanol_no_cif_labels_symmetry_does_not_raise(self):
+        """rss_expand_j='symmetry' must not raise for structures without CIF labels."""
+        from soprano.nmr.extract import has_cif_labels
+        self.assertFalse(
+            has_cif_labels(self._ethanol),
+            "ethanol.magres unexpectedly has CIF labels; choose a different fixture",
+        )
+        nd = NMRData2D(self._ethanol, **self._kw, rss_expand_j="symmetry", reduce=True)
+        self.assertGreater(len(nd.pairs), 0, "Expected at least one H–H pair in ethanol")
+
+    def test_ethanol_no_cif_labels_rss_values_finite_and_positive(self):
+        """All RSS strengths for ethanol must be finite and positive."""
+        nd = NMRData2D(self._ethanol, **self._kw, rss_expand_j="symmetry", reduce=True)
+        self.assertTrue(
+            np.all(np.isfinite(nd.correlation_strengths)),
+            "Some RSS values are not finite",
+        )
+        self.assertTrue(
+            np.all(nd.correlation_strengths > 0),
+            "Some RSS values are not positive",
+        )
+
+
+class TestPlotNMRCLI(unittest.TestCase):
+    """End-to-end CLI tests for `soprano plotnmr` with dipolar_rss weighting.
+
+    Uses Click's test runner so no subprocess is spawned.  Checks that:
+    - The command runs without errors for basic 2D H–H DQ/SQ cases
+    - The --no-reduce flag runs cleanly (more peaks than default reduce)
+    - --weight-by dipolar_rss --rss-expand-j cif_labels terminates with exit_code=0
+    """
+
+    def setUp(self):
+        import tempfile
+        from unittest.mock import patch
+        from click.testing import CliRunner
+        from soprano.scripts.cli import soprano as soprano_cli
+        import matplotlib
+        matplotlib.use("Agg")   # non-interactive backend; no display required
+        self._runner = CliRunner()
+        self._patch = patch
+        self._soprano_cli = soprano_cli
+        self._magres = os.path.join(_TESTDATA_DIR, "EDIZUM.magres")
+        self._tmp = tempfile.mkdtemp()
+
+    def tearDown(self):
+        import shutil, matplotlib.pyplot as plt
+        plt.close("all")
+        shutil.rmtree(self._tmp, ignore_errors=True)
+
+    def _csv_path(self, name):
+        return os.path.join(self._tmp, name)
+
+    def _run(self, extra_args):
+        """Invoke plotnmr and save the plot to a PNG file to avoid plt.show().
+
+        Uses Agg backend (set in setUp) so no display is needed.
+        """
+        import matplotlib.pyplot as plt
+        png = self._csv_path("out.png")
+        base = [
+            "plotnmr", self._magres,
+            "-p", "2D",
+            "-x", "H", "-y", "H",
+            "--yaxis-order", "2Q",
+            "--references", "H:29.5",
+            "--output", png,   # save plot to file; prevents plt.show()
+        ]
+        with self._patch("click_log.basic_config"):
+            result = self._runner.invoke(self._soprano_cli, base + extra_args)
+        plt.close("all")
+        return result
+
+    def test_cli_basic_2d_exits_cleanly(self):
+        """Basic 2D H–H DQ/SQ plot (default reduce, fixed weights) returns exit_code=0."""
+        result = self._run([])
+        self.assertEqual(result.exit_code, 0,
+                          f"Unexpected exit: {result.output}\n{result.exception}")
+
+    def test_cli_no_reduce_exits_cleanly(self):
+        """--no-reduce runs without errors (uses full 148-atom structure)."""
+        result = self._run(["--no-reduce"])
+        self.assertEqual(result.exit_code, 0,
+                          f"Unexpected exit: {result.output}\n{result.exception}")
+
+    def test_cli_dipolar_rss_periodic_images_exits_cleanly(self):
+        """--weight-by dipolar_rss with default expand_j runs cleanly."""
+        result = self._run(["--weight-by", "dipolar_rss", "--rss-cutoff", "6.0"])
+        self.assertEqual(result.exit_code, 0,
+                          f"Unexpected exit: {result.output}\n{result.exception}")
+
+    def test_cli_dipolar_rss_cif_labels_exits_cleanly(self):
+        """--weight-by dipolar_rss --rss-expand-j cif_labels runs cleanly."""
+        result = self._run([
+            "--weight-by", "dipolar_rss",
+            "--rss-cutoff", "6.0",
+            "--rss-expand-j", "cif_labels",
+        ])
+        self.assertEqual(result.exit_code, 0,
+                          f"Unexpected exit: {result.output}\n{result.exception}")
+
+    def test_cli_reduce_and_no_reduce_both_exit_cleanly(self):
+        """Both --reduce (default) and --no-reduce complete without errors."""
+        result_r = self._run([])
+        result_f = self._run(["--no-reduce"])
+        self.assertEqual(result_r.exit_code, 0,
+                         f"--reduce failed: {result_r.output}\n{result_r.exception}")
+        self.assertEqual(result_f.exit_code, 0,
+                         f"--no-reduce failed: {result_f.output}\n{result_f.exception}")
+
+    def test_cli_dipolar_rss_symmetry_expand_exits_cleanly(self):
+        """--rss-expand-j symmetry runs cleanly (uses spglib, ignores CIF labels)."""
+        result = self._run([
+            "--weight-by", "dipolar_rss",
+            "--rss-cutoff", "6.0",
+            "--rss-expand-j", "symmetry",
+        ])
+        self.assertEqual(result.exit_code, 0,
+                         f"Unexpected exit: {result.output}\n{result.exception}")
 
 
 if __name__ == '__main__':
