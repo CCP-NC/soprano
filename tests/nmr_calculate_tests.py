@@ -743,6 +743,117 @@ class TestNMRData2DReduce(unittest.TestCase):
             "Expected fewer or equal peaks with reduce=True vs reduce=False",
         )
 
+    # ------------------------------------------------------------------
+    # return_index_map from nmr_extract_atoms
+    # ------------------------------------------------------------------
+
+    def test_nmr_extract_atoms_return_index_map(self):
+        """nmr_extract_atoms should return a valid index map when requested."""
+        from soprano.nmr.extract import label_atoms, nmr_extract_atoms
+
+        atoms = label_atoms(self.atoms.copy())
+        reduced, index_map = nmr_extract_atoms(
+            atoms.copy(), reduce=True, symprec=1e-4, return_index_map=True,
+        )
+
+        # Map should cover all input atoms
+        self.assertEqual(len(index_map), len(self.atoms))
+        # All mapped indices should be valid for the reduced structure
+        self.assertTrue(np.all(index_map >= 0))
+        self.assertTrue(np.all(index_map < len(reduced)))
+        # Equivalent atoms must map to the same reduced index
+        n_unique = len(np.unique(index_map))
+        self.assertEqual(n_unique, len(reduced))
+
+    def test_nmr_extract_atoms_index_map_identity_no_reduce(self):
+        """With reduce=False the index map should be the identity."""
+        from soprano.nmr.extract import label_atoms, nmr_extract_atoms
+
+        atoms = label_atoms(self.atoms.copy())
+        result, index_map = nmr_extract_atoms(
+            atoms.copy(), reduce=False, return_index_map=True,
+        )
+        np.testing.assert_array_equal(index_map, np.arange(len(self.atoms)))
+
+    # ------------------------------------------------------------------
+    # User-supplied pairs remapping with reduce=True
+    # ------------------------------------------------------------------
+
+    def test_user_pairs_remapped_when_reduce_true(self):
+        """User-supplied full-cell pairs should be remapped to reduced indices."""
+        import warnings
+        from soprano.nmr.extract import label_atoms, nmr_extract_atoms
+
+        atoms = label_atoms(self.atoms.copy())
+        reduced, reduce_map = nmr_extract_atoms(
+            atoms.copy(), reduce=True, symprec=1e-4, return_index_map=True,
+        )
+
+        # Pick two full-cell H indices that map to *different* reduced atoms
+        h_full = [i for i, s in enumerate(self.atoms.get_chemical_symbols()) if s == "H"]
+        a, b = None, None
+        for i in h_full:
+            for j in h_full:
+                if i != j and reduce_map[i] != reduce_map[j]:
+                    a, b = i, j
+                    break
+            if a is not None:
+                break
+        self.assertIsNotNone(a, "Could not find two H atoms mapping to different reduced sites")
+        expected_remapped = [(int(reduce_map[a]), int(reduce_map[b]))]
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            nd = NMRData2D(
+                self.atoms, **self._kw,
+                rss_expand_j="cif_labels", reduce=True,
+                pairs=[(a, b)],
+            )
+
+        # Check pairs were remapped
+        self.assertEqual(nd.pairs, expected_remapped)
+        # A warning should have been emitted if indices actually changed
+        if [(a, b)] != expected_remapped:
+            self.assertTrue(
+                any("remapped" in str(warning.message) for warning in w),
+                "Expected a warning about pairs being remapped",
+            )
+
+    def test_user_pairs_remapped_produces_valid_peaks(self):
+        """Full-cell pairs with reduce=True should remap and produce valid peaks."""
+        import warnings
+        from soprano.nmr.extract import label_atoms, nmr_extract_atoms
+
+        atoms = label_atoms(self.atoms.copy())
+        reduced, reduce_map = nmr_extract_atoms(
+            atoms.copy(), reduce=True, symprec=1e-4, return_index_map=True,
+        )
+
+        # Find two full-cell H atoms that map to *different* reduced atoms
+        h_full = [i for i, s in enumerate(self.atoms.get_chemical_symbols()) if s == "H"]
+        a, b = None, None
+        for i in h_full:
+            for j in h_full:
+                if i != j and reduce_map[i] != reduce_map[j]:
+                    a, b = i, j
+                    break
+            if a is not None:
+                break
+        self.assertIsNotNone(a, "Could not find two H atoms mapping to different reduced sites")
+
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("always")
+            nd = NMRData2D(
+                self.atoms, **self._kw,
+                rss_expand_j="cif_labels", reduce=True,
+                pairs=[(a, b)],
+            )
+
+        # Pipeline should complete and produce at least one peak
+        self.assertGreater(len(nd.peaks), 0)
+        # Pairs should be in reduced-cell indices
+        self.assertEqual(nd.pairs, [(int(reduce_map[a]), int(reduce_map[b]))])
+
 
 class TestNMRData2DSymmetryExpand(unittest.TestCase):
     """Tests for NMRData2D when rss_expand_j='symmetry'.

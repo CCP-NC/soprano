@@ -509,6 +509,7 @@ def nmr_extract_atoms(
     ms_tag: str = "ms",
     efg_tag: str = "efg",
     logger: Optional[logging.Logger] = None,
+    return_index_map: bool = False,
 ) -> Optional[Atoms]:
     """Extract and reduce NMR sites from a single :class:`ase.Atoms` object.
 
@@ -535,10 +536,17 @@ def nmr_extract_atoms(
         ms_tag: Array tag for the MS tensors.
         efg_tag: Array tag for the EFG tensors.
         logger: Logger to use.  Falls back to the module logger when *None*.
+        return_index_map: If ``True``, also return a NumPy array that maps
+            each input-atom index to the corresponding index in the
+            reduced/merged output.  The map is computed *before* any
+            ``subset`` filtering.  When ``reduce`` is ``False`` the map
+            is the identity.
 
     Returns:
         The processed Atoms object, or ``None`` if no atoms remain after
-        the selection filter.
+        the selection filter.  When ``return_index_map`` is ``True``,
+        returns a tuple ``(atoms, index_map)`` instead — ``index_map``
+        is a 1-D integer array of length ``len(input_atoms)``.
     """
     log = logger or _logger
 
@@ -576,6 +584,14 @@ def nmr_extract_atoms(
             average_group, atoms, vdw_scale=1.0, logger=log
         )
 
+    # Build index map *before* subset filtering so that it refers to the
+    # original (input) atom ordering.
+    index_map = None
+    if return_index_map:
+        final_tags = atoms.get_tags()
+        unique_tags = np.unique(final_tags)
+        index_map = np.searchsorted(unique_tags, final_tags)
+
     all_selections = AtomSelection.all(atoms)
     if subset:
         log.info(f"\nSelecting atoms based on selection subset string: {subset}")
@@ -584,11 +600,16 @@ def nmr_extract_atoms(
             all_selections *= sel
         except ValueError as e:
             log.error(f"Could not select atoms based on selection string: {e}")
+            if return_index_map:
+                return None, index_map
             return None
         log.debug(f"    Selected atoms: {all_selections.indices}")
         atoms = all_selections.subset(atoms)
 
-    return merge_tagged_sites(atoms, merging_strategies=merging_strategies)
+    result = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
+    if return_index_map:
+        return result, index_map
+    return result
 
 
 def nmr_extract_multi(

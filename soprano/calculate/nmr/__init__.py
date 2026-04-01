@@ -25,6 +25,7 @@ from soprano.calculate.nmr.data2d import NMRData2D
 from soprano.calculate.nmr.export import export_contour_data
 from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
 from soprano.calculate.nmr.plot2d import NMRPlot2D
+from soprano.calculate.nmr.utils import Peak2D
 
 __all__ = [
 	"DEFAULT_MARKER_SIZE",
@@ -32,6 +33,7 @@ __all__ = [
 	"NMRData2D",
 	"NMRFlags",
 	"NMRPlot2D",
+    "Peak2D",
 	"PlotSettings",
 	"export_contour_data",
 ]
