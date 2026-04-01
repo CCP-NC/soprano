@@ -972,6 +972,22 @@ class TestPlotNMRCLI(unittest.TestCase):
         self.assertEqual(result.exit_code, 0,
                          f"Unexpected exit: {result.output}\n{result.exception}")
 
+    def test_cli_export_simpson_writes_files(self):
+        """--export-file writes SIMPSON grid and companion peaks CSV."""
+        export_path = self._csv_path("cli_export.spe")
+        result = self._run([
+            "--export-file", export_path,
+            "--export-format", "simpson",
+            "--x-larmor-freq", "100.0",
+        ])
+        self.assertEqual(result.exit_code, 0,
+                         f"Unexpected exit: {result.output}\n{result.exception}")
+        self.assertTrue(os.path.exists(export_path), "Expected .spe export file")
+        self.assertTrue(
+            os.path.exists(export_path + ".peaks.csv"),
+            "Expected SIMPSON companion .peaks.csv file",
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
