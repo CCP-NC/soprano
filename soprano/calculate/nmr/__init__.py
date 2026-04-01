@@ -20,4 +20,18 @@ structures with simplified algorithms.
 """
 
 
-from soprano.calculate.nmr.nmr import DEFAULT_MARKER_SIZE, NMRCalculator, NMRData2D, NMRFlags, NMRPlot2D, PlotSettings
+from soprano.calculate.nmr.config import DEFAULT_MARKER_SIZE, PlotSettings
+from soprano.calculate.nmr.data2d import NMRData2D
+from soprano.calculate.nmr.export import export_contour_data
+from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
+from soprano.calculate.nmr.plot2d import NMRPlot2D
+
+__all__ = [
+	"DEFAULT_MARKER_SIZE",
+	"NMRCalculator",
+	"NMRData2D",
+	"NMRFlags",
+	"NMRPlot2D",
+	"PlotSettings",
+	"export_contour_data",
+]
