@@ -81,34 +81,6 @@ DEFAULT_MAX_NUM_LEGEND_ELEMENTS = 6 # Default maximum number of elements to show
 
 _nmr_data = _get_nmr_data()
 
-# Mapping of matplotlib colormaps to Plotly colorscales
-MPL_TO_PLOTLY_COLORMAP = {
-    'bone_r': 'greys_r',
-    'bone': 'greys',
-    'viridis': 'viridis',
-    'plasma': 'plasma',
-    'inferno': 'inferno',
-    'magma': 'magma',
-    'cividis': 'cividis',
-    'hot': 'hot',
-    'cool': 'ice',
-    'gray': 'greys',
-    'grey': 'greys',
-}
-
-# Mapping of matplotlib markers to Plotly symbols (using -open for hollow markers)
-MPL_TO_PLOTLY_MARKER = {
-    'o': 'circle',
-    's': 'square',
-    '^': 'triangle-up',
-    'v': 'triangle-down',
-    'D': 'diamond',
-    'p': 'pentagon',
-    '*': 'star',
-    'x': 'x-thin',
-    '+': 'cross-thin',
-}
-
 # Conversion functions to Tesla
 # (they take element and isotope as arguments)
 _larm_units = {
@@ -197,49 +169,6 @@ NMRFlags = NMRFlags(
     MAS=1 + 8 + 32,
 )
 
-
-MARKER_INFO = {
-    'distance': {
-        'label': 'Distance',
-        'unit': 'Å',
-        'fmt': '{x:.1f}'
-    },
-    'inversedistance': {
-        'label': '1/Distance',
-        'unit': r'Å$^{{-1}}$',
-        'fmt': '{x:.3f}'
-    },
-    'dipolar': {
-        'label': 'Dipolar Coupling',
-        'unit': 'kHz',
-        'fmt': '{x:.1f}'
-    },
-    'dipolar2': {
-        'label': 'Dipolar Coupling²',
-        'unit': 'kHz²',
-        'fmt': '{x:.1f}'
-    },
-    'jcoupling': {
-        'label': 'J Coupling',
-        'unit': 'Hz',
-        'fmt': '{x:.1f}'
-    },
-    'fixed': {
-        'label': 'Fixed',
-        'unit': '',
-        'fmt': '{x:.1f}'
-    },
-    'custom': {
-        'label': 'Correlation strength',
-        'unit': '',
-        'fmt': '{x:.1f}'
-    },
-    'dipolar_rss': {
-        'label': 'Dipolar RSS',
-        'unit': 'kHz',
-        'fmt': '{x:.1f}'
-    },
-    }
 
 class NMRCalculator:
 
@@ -897,6 +826,12 @@ class NMRCalculator:
 
 
 
-from soprano.calculate.nmr.config import DEFAULT_MARKER_SIZE, MARKER_INFO, PlotSettings
+from soprano.calculate.nmr.config import (
+    DEFAULT_MARKER_SIZE,
+    MARKER_INFO,
+    MPL_TO_PLOTLY_COLORMAP,
+    MPL_TO_PLOTLY_MARKER,
+    PlotSettings,
+)
 from soprano.calculate.nmr.data2d import NMRData2D
 from soprano.calculate.nmr.plot2d import NMRPlot2D

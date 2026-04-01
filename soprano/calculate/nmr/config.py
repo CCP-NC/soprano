@@ -37,16 +37,16 @@ MPL_TO_PLOTLY_MARKER = {
 }
 
 MARKER_INFO = {
-    "distance": {"label": "Distance", "unit": "\u00c5", "fmt": "{x:.1f}"},
+    "distance": {"label": "Distance", "unit": "A", "fmt": "{x:.1f}"},
     "inversedistance": {
         "label": "1/Distance",
-        "unit": r"\u00c5$^{{-1}}$",
+        "unit": "A^-1",
         "fmt": "{x:.3f}",
     },
     "dipolar": {"label": "Dipolar Coupling", "unit": "kHz", "fmt": "{x:.1f}"},
     "dipolar2": {
-        "label": "Dipolar Coupling\u00b2",
-        "unit": "kHz\u00b2",
+        "label": "Dipolar Coupling^2",
+        "unit": "kHz^2",
         "fmt": "{x:.1f}",
     },
     "jcoupling": {"label": "J Coupling", "unit": "Hz", "fmt": "{x:.1f}"},

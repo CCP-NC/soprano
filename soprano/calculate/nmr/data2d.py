@@ -1,6 +1,7 @@
 """2D NMR data extraction and peak generation."""
 
 import logging
+import warnings
 from typing import List, Optional, Tuple
 
 import numpy as np
@@ -86,8 +87,26 @@ class NMRData2D:
             self.atoms = label_atoms(self.atoms)
             if atoms_full is None:
                 atoms_full = self.atoms   # keep labeled full atoms for RSS
-            _reduced = nmr_extract_atoms(self.atoms.copy(), reduce=True, symprec=symprec)
+            _reduced, _reduce_map = nmr_extract_atoms(
+                self.atoms.copy(), reduce=True, symprec=symprec,
+                return_index_map=True,
+            )
             if _reduced is not None:
+                if self.pairs is not None:
+                    remapped = [
+                        (int(_reduce_map[p[0]]), int(_reduce_map[p[1]]))
+                        for p in self.pairs
+                    ]
+                    if remapped != list(self.pairs):
+                        warnings.warn(
+                            "reduce=True: user-supplied pairs have been "
+                            "remapped from full-cell to reduced "
+                            f"(asymmetric-unit) indices: {list(self.pairs)}"
+                            f" → {remapped}. Pass pairs in reduced-cell "
+                            "indices to suppress this warning.",
+                            stacklevel=2,
+                        )
+                    self.pairs = remapped
                 self.atoms = _reduced
 
 
