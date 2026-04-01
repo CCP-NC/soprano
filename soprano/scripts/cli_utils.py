@@ -668,6 +668,16 @@ plot_ybroadening = click.option(
     "Set to 0 to turn off broadening.",
 )
 
+plot_grid_max = click.option(
+    "--grid-max",
+    "grid_max",
+    type=float,
+    default=None,
+    help="If set, scale the generated contour/heatmap grid so that its maximum "
+    "intensity equals this value. Useful when matching exported intensities "
+    "to external NMR software conventions.",
+)
+
 # colour map
 plot_colormap = click.option(
     "--colormap",
@@ -900,6 +910,7 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_heatmap_levels,
     plot_xbroadening,
     plot_ybroadening,
+    plot_grid_max,
     plot_colormap,
     plot_show_contour,
     plot_contour_levels,
