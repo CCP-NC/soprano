@@ -466,9 +466,10 @@ def _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec):
         raise ValueError(
             "expand_j='cif_labels' requires CIF labels on the "
             "atoms object (set via atoms.set_array('labels', ...))")
-    # UniqueSites already prefers CIF-label groups when present, so both
-    # 'symmetry' and 'cif_labels' reduce to the same tag-expansion step.
-    tags = UniqueSites.get(s, symprec=symprec, save_info=False)
+    # For 'symmetry', force spglib-based grouping even when CIF labels exist.
+    # For 'cif_labels', let UniqueSites prefer CIF labels (its default).
+    tags = UniqueSites.get(s, symprec=symprec, save_info=False,
+                           override_cif=(expand_j == "symmetry"))
     j_tags = {int(tags[i]) for i in sel_j.indices}
     expanded = np.where(np.isin(tags, list(j_tags)))[0]
     return AtomSelection(s, sorted(set(sel_j.indices) | set(map(int, expanded))))
@@ -574,37 +575,7 @@ class DipolarRSSByAtom(AtomsProperty):
             sel_j = AtomSelection(s, sel_j)
 
         # Expand sel_j to equivalent sites if requested
-        if expand_j == "periodic_images":
-            pass  # use sel_j as-is
-        elif expand_j == "symmetry":
-            j_indices = set(sel_j.indices)
-            tags = UniqueSites.extract(s, force_recalc=False,
-                                       save_info=True, symprec=symprec)
-            # Find the tags of the selected j atoms
-            j_tags = set(tags[i] for i in sel_j.indices)
-            # Expand to all atoms that share those tags
-            expanded = np.where(np.isin(tags, list(j_tags)))[0]
-            j_indices = j_indices.union(expanded)
-            sel_j = AtomSelection(s, sorted(j_indices))
-
-        elif expand_j == "cif_labels":
-            j_indices = set(sel_j.indices)
-            if not has_cif_labels(s):
-                raise ValueError(
-                    "expand_j='cif_labels' requires CIF labels on the "
-                    "atoms object (set via atoms.set_array('labels', ...))")
-            labels = s.get_array("labels")
-            # Find labels of the selected j atoms
-            j_labels = set(labels[i] for i in sel_j.indices)
-            # Expand to all atoms sharing those labels
-            expanded = np.where(np.isin(labels, list(j_labels)))[0]
-            j_indices = j_indices.union(expanded)
-            sel_j = AtomSelection(s, sorted(j_indices))
-
-        else:
-            raise ValueError(
-                f"expand_j must be 'periodic_images', 'symmetry', or "
-                f"'cif_labels', got '{expand_j}'")
+        sel_j = _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec)
 
         j_indices_set = set(sel_j.indices)
 

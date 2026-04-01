@@ -111,19 +111,55 @@ Here are some common examples:
     soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
     ```
 
-* Plot the H-H double quantum correlation spectrum:
+* Plot the H-H double quantum (DQ/SQ) correlation spectrum:
 
     ```bash
     soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q seedname.magres
     ```
 
+* DQ/SQ spectrum with marker sizes weighted by the dipolar RSS — the root-sum-squared dipolar coupling from each site to all neighbours of the paired site (within a 5 Å cutoff). This reflects the DQ build-up efficiency better than the single nearest-neighbour coupling:
+
+    ```bash
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q \
+            --weight-by dipolar_rss \
+            --rss-cutoff 5.0 \
+            seedname.magres
+    ```
+
+* As previous, but for a structure with Z > 1 (multiple crystallographically equivalent copies per unit cell), expand the neighbour set to all sites sharing the same CIF label so the RSS sums over all equivalent copies:
+
+    ```bash
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q \
+            --weight-by dipolar_rss \
+            --rss-cutoff 5.0 \
+            --rss-expand-j cif_labels \
+            seedname.magres
+    ```
+
+    Use `--rss-expand-j symmetry` to use spglib symmetry operations instead of CIF labels. Both options give the same result for well-prepared CIF-derived structures, but `symmetry` works even without CIF label information.
+
+* DQ/SQ with RSS weighting, chemical shift references, and a heatmap/contour overlay:
+
+    ```bash
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q \
+            --weight-by dipolar_rss \
+            --rss-cutoff 5.0 \
+            --rss-expand-j cif_labels \
+            --references H:30 \
+            --heatmap \
+            --contour \
+            seedname.magres
+    ```
+
 * As previous, but averaging over dynamic CH3 and NH3 sites:
 
     ```bash
-    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 seedname.magres
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 \
+            --weight-by dipolar_rss --rss-expand-j cif_labels \
+            seedname.magres
     ```
 
-* By default, Soprano will reduce the system to the inequivalent sites first (e.g. those with the same CIF label or a symmetrically equivalent position). To prevent this, use the `--no-reduce` option:
+* By default, Soprano reduces the system to the inequivalent sites (e.g. those with the same CIF label or a symmetrically equivalent position). To prevent this, use the `--no-reduce` option:
 
     ```bash
     soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 --no-reduce seedname.magres

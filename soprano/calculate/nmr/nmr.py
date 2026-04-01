@@ -70,7 +70,7 @@ from soprano.calculate.nmr.utils import (
 from soprano.calculate.powder.triavg import TriAvg
 from soprano.data.nmr import EFG_TO_CHI, _el_iso, _get_isotope_data, _get_isotope_list, _get_nmr_data
 from soprano.nmr.utils import _dip_constant
-from soprano.properties.nmr import MSIsotropy
+from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
 from soprano.selection import AtomSelection
 from soprano.utils import minimum_supcell, supcell_gridgen
 
@@ -233,7 +233,12 @@ MARKER_INFO = {
         'label': 'Correlation strength',
         'unit': '',
         'fmt': '{x:.1f}'
-    }
+    },
+    'dipolar_rss': {
+        'label': 'Dipolar RSS',
+        'unit': 'kHz',
+        'fmt': '{x:.1f}'
+    },
     }
 
 class NMRCalculator:
@@ -903,8 +908,13 @@ class NMRData2D:
                 peaks: Optional[List[Peak2D]] = None,
                 pairs: Optional[List[Tuple[int, int]]] = None,
                 correlation_strengths: Optional[List[float]] = None,
-                correlation_strength_metric: Optional[str] = None, # 'fixed','distance', 'dipolar', 'jcoupling', 'inversedistance', 'custom'
+                correlation_strength_metric: Optional[str] = None, # 'fixed','distance', 'dipolar', 'dipolar2', 'jcoupling', 'inversedistance', 'custom', 'dipolar_rss'
                 rcut: Optional[float] = None,
+                rss_cutoff: float = 5.0,
+                rss_expand_j: str = 'periodic_images',
+                reduce: bool = False,
+                symprec: float = 1e-4,
+                atoms_full: Optional[Atoms] = None,
                 isotopes: Optional[dict[str, int]] = None,
                 is_shift: Optional[bool] = None,
                 include_quadrupolar: bool = False,
@@ -927,6 +937,19 @@ class NMRData2D:
         if self.atoms is None and self.peaks is None:
             raise ValueError("Either atoms or peaks must be given.")
 
+        # Reduce to unique sites if requested — mirrors the CLI --reduce flag.
+        # For dipolar_rss the full-cell atoms are needed so the expand_j
+        # expansion can find all equivalent neighbours; store them before
+        # merging duplicate sites away.
+        if reduce and self.atoms is not None:
+            from soprano.nmr.extract import label_atoms, nmr_extract_atoms  # lazy import
+            self.atoms = label_atoms(self.atoms)
+            if atoms_full is None:
+                atoms_full = self.atoms   # keep labeled full atoms for RSS
+            _reduced = nmr_extract_atoms(self.atoms.copy(), reduce=True, symprec=symprec)
+            if _reduced is not None:
+                self.atoms = _reduced
+
 
         # Either provide correlation strengths or calculate them based on the metric
         # If both are provided, the provided values will be used
@@ -944,6 +967,10 @@ class NMRData2D:
         self.correlation_strength_metric = correlation_strength_metric
 
         self.rcut = rcut
+        self.rss_cutoff = rss_cutoff
+        self.rss_expand_j = rss_expand_j
+        self.symprec = symprec
+        self.atoms_full = atoms_full
         self.isotopes = isotopes if isotopes is not None else {}
         # is_shift is a boolean.  If undefined, it will be set to True if references are provided, False otherwise
         #  If defined, it will be used as is
@@ -1133,6 +1160,11 @@ class NMRData2D:
 
 
     def get_correlation_strengths(self):
+
+        # Check that self.atoms is not None unless the metric is 'custom' or 'fixed', which don't require atoms
+        if self.atoms is None and self.correlation_strength_metric not in ('custom', 'fixed'):
+            raise ValueError(f"atoms must be provided to calculate correlation strengths for metric '{self.correlation_strength_metric}'.")
+        
         if self.pairs is None:
             raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
 
@@ -1176,6 +1208,65 @@ class NMRData2D:
         elif self.correlation_strength_metric == 'jcoupling':
             self.logger.info("Using J-coupling as correlation strength.")
             correlation_strengths = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
+        elif self.correlation_strength_metric == 'dipolar_rss':
+            self.logger.info(
+                f"Using dipolar RSS (cutoff={self.rss_cutoff} Å, "
+                f"expand_j='{self.rss_expand_j}') as correlation strength."
+            )
+            if self.isotopes:
+                self.logger.debug(f"Using custom isotopes: {self.isotopes}")
+
+            if self.rss_expand_j != 'periodic_images' and self.atoms_full is not None:
+                # When the structure has been reduced to the asymmetric unit
+                # (reduce=True), equivalent sites have been merged away, so
+                # expand_j='cif_labels'/'symmetry' would find nothing to expand
+                # in self.atoms.  Instead, map pair indices to the full (unmerged)
+                # atoms via CIF labels, then let DipolarRSSByAtom expand there.
+                reduced_labels = get_atom_labels(self.atoms, self.logger)
+                full_labels = get_atom_labels(self.atoms_full, self.logger)
+
+                def _first_full_idx(label):
+                    matches = np.where(full_labels == label)[0]
+                    if len(matches) == 0:
+                        raise ValueError(
+                            f"Label '{label}' from reduced atoms not found in "
+                            "atoms_full. Ensure atoms_full is labeled consistently."
+                        )
+                    return int(matches[0])
+
+                correlation_strengths = np.array([
+                    DipolarRSSByAtom.get(
+                        self.atoms_full,
+                        sel_i=[_first_full_idx(reduced_labels[i])],
+                        sel_j=[_first_full_idx(reduced_labels[j])],
+                        cutoff=self.rss_cutoff,
+                        isotopes=self.isotopes,
+                        expand_j=self.rss_expand_j,
+                        symprec=self.symprec,
+                    )[0]
+                    for i, j in self.pairs
+                ]) * 1e-3  # convert Hz → kHz to match MARKER_INFO and dipolar metric
+            else:
+                if self.rss_expand_j != 'periodic_images':
+                    self.logger.warning(
+                        f"rss_expand_j='{self.rss_expand_j}' requested but atoms_full "
+                        "was not provided. If the structure has been reduced to the "
+                        "asymmetric unit, the expansion will find no additional sites. "
+                        "Pass atoms_full (the full unit-cell atoms) to NMRData2D, or "
+                        "use reduce=True to let NMRData2D handle this automatically."
+                    )
+                correlation_strengths = np.array([
+                    DipolarRSSByAtom.get(
+                        self.atoms,
+                        sel_i=[i],
+                        sel_j=[j],
+                        cutoff=self.rss_cutoff,
+                        isotopes=self.isotopes,
+                        expand_j=self.rss_expand_j,
+                        symprec=self.symprec,
+                    )[0]
+                    for i, j in self.pairs
+                ]) * 1e-3  # convert Hz → kHz to match MARKER_INFO and dipolar metric
         else:
             raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
 

@@ -40,8 +40,9 @@ from soprano.calculate.nmr import NMRCalculator
 from soprano.calculate.nmr.nmr import NMRData2D, NMRPlot2D, PlotSettings
 from soprano.properties.nmr import MSIsotropy
 from soprano.nmr.extract import nmr_extract_multi
-from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, print_results, viewimages
+from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, print_results, viewimages, reload_as_molecular_crystal
 from soprano.selection import AtomSelection
+import ase.io as _ase_io
 
 # logging
 logging.captureWarnings(True)
@@ -158,6 +159,22 @@ def plotnmr(
         return 1
     atoms = images[0]
 
+    # For 2D plots with reduce=True, pass the raw (unmerged) unit-cell atoms
+    # to NMRData2D and let it handle reduction internally.  NMRData2D stores
+    # the pre-reduction atoms as atoms_full so RSS expansion can find all Z
+    # copies of each site.  When reduce=False, images[0] already contains all
+    # atoms so we can pass it directly.
+    atoms_for_2d = atoms
+    if reduce:
+        try:
+            _raw = _ase_io.read(files[0])
+            atoms_for_2d = reload_as_molecular_crystal(_raw)
+        except Exception as e:
+            logger.warning(
+                f"Could not reload raw atoms for 2D: {e}. "
+                "Using pre-reduced atoms; RSS expansion may be incomplete for Z > 1."
+            )
+
     if plot_type == "2D":
         if not y_element:
             y_element = x_element
@@ -166,7 +183,7 @@ def plotnmr(
 
         # Create NMRData2D instance
         nmr_data = NMRData2D(
-            atoms=atoms,
+            atoms=atoms_for_2d,
             xelement=x_element,
             yelement=y_element,
             rcut=rcut,
@@ -179,6 +196,7 @@ def plotnmr(
             correlation_strength_metric=weight_by,
             rss_cutoff=rss_cutoff,
             rss_expand_j=rss_expand_j,
+            reduce=reduce,
         )
 
         # Define plot settings
