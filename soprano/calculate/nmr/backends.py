@@ -186,7 +186,7 @@ class MatplotlibBackend(PlotBackend):
     
     def plot_heatmap(self, X, Y, Z, settings):
         """Plot heatmap using matplotlib contourf"""
-        levels = _resolve_levels(Z, settings.heatmap_levels, settings.contour_range)
+        levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range)
         return self.ax.contourf(X, Y, Z, cmap=settings.colormap,
                                zorder=-1, levels=levels)
 
@@ -420,7 +420,7 @@ class PlotlyBackend(PlotBackend):
     def plot_heatmap(self, X, Y, Z, settings):
         """Plot heatmap using Plotly"""
         colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
-        levels = _resolve_levels(Z, settings.heatmap_levels, settings.contour_range)
+        levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range)
 
         trace = go.Heatmap(
             x=X[0, :],

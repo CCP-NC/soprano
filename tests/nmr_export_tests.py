@@ -10,6 +10,7 @@ import unittest
 import numpy as np
 from ase import io
 
+from soprano.calculate.nmr.config import PlotSettings
 from soprano.calculate.nmr.data2d import NMRData2D
 from soprano.calculate.nmr.export import export_contour_data
 
@@ -21,6 +22,26 @@ class TestNMRExportPublicAPI(unittest.TestCase):
         from soprano.calculate.nmr import export_contour_data as package_export
 
         self.assertIs(package_export, export_contour_data)
+
+
+class TestPlotSettingsRanges(unittest.TestCase):
+    def test_shared_intensity_range_with_optional_overrides(self):
+        default_shared = PlotSettings()
+        self.assertEqual(default_shared.intensity_range, (10.0, 100.0))
+        self.assertEqual(default_shared.contour_range, (10.0, 100.0))
+        self.assertEqual(default_shared.heatmap_range, (10.0, 100.0))
+
+        shared_custom = PlotSettings(intensity_range=(5.0, 80.0))
+        self.assertEqual(shared_custom.contour_range, (5.0, 80.0))
+        self.assertEqual(shared_custom.heatmap_range, (5.0, 80.0))
+
+        split_layers = PlotSettings(
+            intensity_range=(5.0, 80.0),
+            contour_range=(20.0, 90.0),
+            heatmap_range=(2.0, 50.0),
+        )
+        self.assertEqual(split_layers.contour_range, (20.0, 90.0))
+        self.assertEqual(split_layers.heatmap_range, (2.0, 50.0))
 
 
 class TestNMRExportModule(unittest.TestCase):

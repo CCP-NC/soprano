@@ -704,14 +704,37 @@ plot_contour_levels = click.option(
          "Default is 10.",
 )
 
-# contour range (percentages of Z.max, matching ssNake default of 10–100 %)
-plot_contour_range = click.option(
-    "--contour-range",
+# shared intensity range (percentages of Z.max)
+plot_intensity_range = click.option(
+    "--intensity-range",
     type=(float, float),
     default=(10.0, 100.0),
     show_default=True,
+    help="Shared intensity range for both contour and heatmap rendering as (lo hi) percentages "
+         "of the maximum grid intensity (0-100 scale). "
+         "Use --contour-range or --heatmap-range to override per layer.",
+)
+
+# contour range (percentages of Z.max)
+plot_contour_range = click.option(
+    "--contour-range",
+    type=(float, float),
+    default=None,
     help="Intensity range for contour/heatmap rendering as (lo hi) percentages "
-         "of the maximum grid intensity (0-100 scale). Ignored when --contour-levels is an explicit list of absolute values.",
+         "of the maximum grid intensity (0-100 scale), for contour lines only. "
+         "Defaults to --intensity-range when unset. "
+         "Ignored when --contour-levels is an explicit list of absolute values.",
+)
+
+# heatmap range (percentages of Z.max)
+plot_heatmap_range = click.option(
+    "--heatmap-range",
+    type=(float, float),
+    default=None,
+    help="Intensity range for heatmap rendering as (lo hi) percentages "
+         "of the maximum grid intensity (0-100 scale), for heatmap only. "
+         "Defaults to --intensity-range when unset. "
+         "Ignored when --heatmap-levels is an explicit list of absolute values.",
 )
 
 # contour color
@@ -914,7 +937,9 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_colormap,
     plot_show_contour,
     plot_contour_levels,
+    plot_intensity_range,
     plot_contour_range,
+    plot_heatmap_range,
     plot_contour_color,
     plot_contour_linewidth,
     plot_output,
