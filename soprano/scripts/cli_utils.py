@@ -651,7 +651,7 @@ plot_xbroadening = click.option(
     default=None,
     help="FWHM linewidth measured along the x-axis cross-section, in ppm "
     "(i.e. the marginal linewidth with the y coordinate fixed at the peak centre). "
-    "Internally converted to HWHM (Lorentzian) or \u03c3 (Gaussian) as appropriate. "
+    "Internally converted to HWHM (Lorentzian) or sigma (Gaussian) as appropriate. "
     "Defaults to 5\u2009% of the x-axis range. "
     "Set to 0 to turn off broadening.",
 )
@@ -663,7 +663,7 @@ plot_ybroadening = click.option(
     default=None,
     help="FWHM linewidth measured along the y-axis cross-section, in ppm "
     "(i.e. the marginal linewidth with the x coordinate fixed at the peak centre). "
-    "Internally converted to HWHM (Lorentzian) or \u03c3 (Gaussian) as appropriate. "
+    "Internally converted to HWHM (Lorentzian) or sigma (Gaussian) as appropriate. "
     "Defaults to 5\u2009% of the y-axis range. "
     "Set to 0 to turn off broadening.",
 )
