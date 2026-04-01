@@ -25,6 +25,7 @@ class _NMRData2DExportProtocol(Protocol):
         self,
         x_broadening: Optional[float] = None,
         y_broadening: Optional[float] = None,
+        grid_max: Optional[float] = None,
         broadening_type: str = "lorentzian",
         grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
@@ -52,6 +53,7 @@ def export_contour_data(
     fmt: str = "simpson",
     x_broadening: Optional[float] = None,
     y_broadening: Optional[float] = None,
+    grid_max: Optional[float] = None,
     broadening_type: str = "lorentzian",
     grid_size: int = 500,
     xlims: Optional[Tuple[float, float]] = None,
@@ -63,6 +65,7 @@ def export_contour_data(
     cd = nmr_data.get_contour_data(
         x_broadening=x_broadening,
         y_broadening=y_broadening,
+        grid_max=grid_max,
         broadening_type=broadening_type,
         grid_size=grid_size,
         xlims=xlims,

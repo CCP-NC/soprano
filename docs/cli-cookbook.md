@@ -111,6 +111,17 @@ Here are some common examples:
     soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
     ```
 
+    * If you need the generated contour grid to match the intensity scale expected by external tools (for example when comparing with experimental files in ssNake), rescale the synthetic grid maximum with `--grid-max`:
+
+        ```bash
+        soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 \
+            --heatmap --contour --grid-max 1e6 \
+            --export-file soprano_scaled.spe --export-format simpson \
+            seedname.magres
+        ```
+
+        This keeps the relative peak intensities unchanged, but multiplies the whole grid so that `max(Z)` equals the chosen value.
+
 * Plot the H-H double quantum (DQ/SQ) correlation spectrum:
 
     ```bash
@@ -181,6 +192,7 @@ Here are some common examples:
             --no-markers \
             --references C:180,H:30 \
             --heatmap \
+            --grid-max 1e6 \
             --colormap "viridis" \
             --contour \
             --contour-levels 15 \

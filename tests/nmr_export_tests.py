@@ -66,6 +66,22 @@ class TestNMRExportModule(unittest.TestCase):
         for key in ("X", "Y", "Z", "peak_x", "peak_y", "xlims", "ylims"):
             self.assertIn(key, data.files)
 
+    def test_export_npz_respects_grid_max_scaling(self):
+        out = self._path("scaled.npz")
+        target_max = 1.0e6
+        export_contour_data(
+            self.nmr_data,
+            out,
+            fmt="npz",
+            grid_size=40,
+            grid_max=target_max,
+        )
+        self.assertTrue(os.path.exists(out))
+
+        data = np.load(out, allow_pickle=True)
+        zmax = float(np.max(data["Z"]))
+        self.assertAlmostEqual(zmax, target_max, places=6)
+
     def test_export_json_requires_larmor(self):
         out = self._path("out.json")
         with self.assertRaises(ValueError):

@@ -237,6 +237,7 @@ class NMRPlot2D:
         cd = self.nmr_data.get_contour_data(
             x_broadening=self.plot_settings.x_broadening,
             y_broadening=self.plot_settings.y_broadening,
+            grid_max=self.plot_settings.grid_max,
             broadening_type=self.plot_settings.broadening_type,
             grid_size=self.plot_settings.heatmap_grid_size,
             xlims=xlims,

@@ -618,6 +618,7 @@ class NMRData2D:
         self,
         x_broadening: Optional[float] = None,
         y_broadening: Optional[float] = None,
+        grid_max: Optional[float] = None,
         broadening_type: str = 'lorentzian',
         grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
@@ -639,6 +640,10 @@ class NMRData2D:
         y_broadening : float, optional
             FWHM linewidth in the indirect (y) dimension.  Same default logic
             as *x_broadening*.
+        grid_max : float, optional
+            If provided, scale the computed contour grid so that ``Z.max()``
+            equals this value. Useful when exporting to external tools that
+            assume a particular intensity magnitude.
         broadening_type : str
             ``'gaussian'`` (default) or ``'lorentzian'``.
         grid_size : int
@@ -694,7 +699,7 @@ class NMRData2D:
             y_broadening = 0.05 * y_range
 
         # Check cache
-        cache_key = (x_broadening, y_broadening, broadening_type, grid_size,
+        cache_key = (x_broadening, y_broadening, grid_max, broadening_type, grid_size,
                      xlims, ylims)
         if getattr(self, '_contour_cache_key', None) == cache_key:
             return self._contour_data
@@ -706,6 +711,16 @@ class NMRData2D:
             x_broadening=x_broadening,
             y_broadening=y_broadening,
         )
+
+        if grid_max is not None:
+            z_current_max = float(np.max(Z))
+            if z_current_max > 0:
+                Z = Z * (grid_max / z_current_max)
+            else:
+                self.logger.warning(
+                    "grid_max requested but contour grid maximum is non-positive; "
+                    "skipping grid scaling."
+                )
 
         # Actual grid limits (may be wider than xlims due to broadening padding)
         actual_xlims = (float(X[0, 0]), float(X[0, -1]))
@@ -730,6 +745,7 @@ class NMRData2D:
         fmt: str = 'simpson',
         x_broadening: Optional[float] = None,
         y_broadening: Optional[float] = None,
+        grid_max: Optional[float] = None,
         broadening_type: str = 'lorentzian',
         grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
@@ -818,6 +834,7 @@ class NMRData2D:
             fmt=fmt,
             x_broadening=x_broadening,
             y_broadening=y_broadening,
+            grid_max=grid_max,
             broadening_type=broadening_type,
             grid_size=grid_size,
             xlims=xlims,

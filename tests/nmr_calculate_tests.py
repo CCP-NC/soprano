@@ -988,6 +988,22 @@ class TestPlotNMRCLI(unittest.TestCase):
             "Expected SIMPSON companion .peaks.csv file",
         )
 
+    def test_cli_export_npz_respects_grid_max(self):
+        """--grid-max rescales exported NPZ contour grid to requested max intensity."""
+        export_path = self._csv_path("cli_export_scaled.npz")
+        target_max = 1.0e6
+        result = self._run([
+            "--export-file", export_path,
+            "--export-format", "npz",
+            "--grid-max", str(target_max),
+        ])
+        self.assertEqual(result.exit_code, 0,
+                         f"Unexpected exit: {result.output}\n{result.exception}")
+        self.assertTrue(os.path.exists(export_path), "Expected .npz export file")
+
+        payload = np.load(export_path, allow_pickle=True)
+        self.assertAlmostEqual(float(np.max(payload["Z"])), target_max, places=6)
+
 
 if __name__ == '__main__':
     unittest.main()

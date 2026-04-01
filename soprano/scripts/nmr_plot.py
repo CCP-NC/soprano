@@ -88,6 +88,7 @@ def plotnmr(
     heatmap_levels,
     xbroadening,
     ybroadening,
+    grid_max,
     colormap,
     show_contour,
     contour_levels,
@@ -224,6 +225,7 @@ def plotnmr(
             contour_linewidth=contour_linewidth,
             x_broadening=xbroadening,
             y_broadening=ybroadening,
+            grid_max=grid_max,
             scale_markers=scale_markers,
         )
 
@@ -244,6 +246,7 @@ def plotnmr(
                     fmt=fmt,
                     x_broadening=xbroadening,
                     y_broadening=ybroadening,
+                    grid_max=grid_max,
                     x_larmor_freq_mhz=x_larmor_freq_mhz,
                     y_larmor_freq_mhz=y_larmor_freq_mhz,
                 )

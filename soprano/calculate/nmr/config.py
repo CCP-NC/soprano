@@ -3,7 +3,7 @@
 from collections.abc import Iterable
 from typing import Optional, Tuple, Union
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 DEFAULT_MARKER_SIZE = 50
 ANNOTATION_LINE_WIDTH = 0.15
@@ -84,6 +84,7 @@ class PlotSettings(BaseModel):
     show_contour: bool = False
     x_broadening: Optional[float] = None
     y_broadening: Optional[float] = None
+    grid_max: Optional[float] = None
     broadening_type: str = "lorentzian"
     heatmap_grid_size: Optional[int] = None
     colormap: str = "bone_r"
@@ -107,6 +108,13 @@ class PlotSettings(BaseModel):
     def _validate_max_marker_size(cls, value: int) -> int:
         if value <= 0:
             raise ValueError("max_marker_size must be > 0")
+        return value
+
+    @field_validator("grid_max")
+    @classmethod
+    def _validate_grid_max(cls, value: Optional[float]) -> Optional[float]:
+        if value is not None and value <= 0:
+            raise ValueError("grid_max must be > 0")
         return value
 
     @field_validator("marker")
