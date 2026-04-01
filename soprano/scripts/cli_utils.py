@@ -587,8 +587,8 @@ plot_rss_cutoff = click.option(
     "rss_cutoff",
     type=float,
     default=5.0,
-    help="Cutoff radius (Å) for the dipolar RSS sum used when ``--weight-by dipolar_rss``. "
-    "Default is 5.0 Å.",
+    help="Cutoff radius (Angstrom) for the dipolar RSS sum used when ``--weight-by dipolar_rss``. "
+    "Default is 5.0 Angstrom.",
 )
 # how to expand the j neighbour set for dipolar_rss
 plot_rss_expand_j = click.option(
@@ -652,7 +652,7 @@ plot_xbroadening = click.option(
     help="FWHM linewidth measured along the x-axis cross-section, in ppm "
     "(i.e. the marginal linewidth with the y coordinate fixed at the peak centre). "
     "Internally converted to HWHM (Lorentzian) or sigma (Gaussian) as appropriate. "
-    "Defaults to 5\u2009% of the x-axis range. "
+    "Defaults to 5% of the x-axis range. "
     "Set to 0 to turn off broadening.",
 )
 
@@ -664,7 +664,7 @@ plot_ybroadening = click.option(
     help="FWHM linewidth measured along the y-axis cross-section, in ppm "
     "(i.e. the marginal linewidth with the x coordinate fixed at the peak centre). "
     "Internally converted to HWHM (Lorentzian) or sigma (Gaussian) as appropriate. "
-    "Defaults to 5\u2009% of the y-axis range. "
+    "Defaults to 5% of the y-axis range. "
     "Set to 0 to turn off broadening.",
 )
 
@@ -711,7 +711,7 @@ plot_contour_range = click.option(
     default=(10.0, 100.0),
     show_default=True,
     help="Intensity range for contour/heatmap rendering as (lo hi) percentages "
-         "of the maximum grid intensity (0–100 scale). Ignored when --contour-levels is an explicit list of absolute values.",
+         "of the maximum grid intensity (0-100 scale). Ignored when --contour-levels is an explicit list of absolute values.",
 )
 
 # contour color
@@ -770,10 +770,10 @@ plot_export_files = click.option(
     metavar="PATH",
     help="Export the 2D contour data to PATH.  May be repeated for multiple "
     "output files.  The format is inferred from the file extension: "
-    ".spe / .sim → SIMPSON TEXT (readable by ssNake); "
-    ".npz → NumPy archive; "
-    ".csv → flat CSV; "
-    ".json → ssNake-native JSON (ppm-ready, requires --x-larmor-freq). "
+    ".spe / .sim -> SIMPSON TEXT (readable by ssNake); "
+    ".npz -> NumPy archive; "
+    ".csv -> flat CSV; "
+    ".json -> ssNake-native JSON (ppm-ready, requires --x-larmor-freq). "
     "Override with --export-format.",
 )
 plot_export_format = click.option(
