@@ -19,6 +19,8 @@ from soprano.properties.nmr import (
     EFGNQR,
     DipolarCoupling,
     DipolarDiagonal,
+    DipolarRSS,
+    DipolarRSSByAtom,
     DipolarTensor,
     EFGAsymmetry,
     EFGQuadrupolarConstant,
@@ -1897,6 +1899,160 @@ class TestEFGMeanProperties(unittest.TestCase):
         result_weighted_mean = EFGVzz().mean(self.collection, weights=weights, axis=0)
         
         self.assertTrue(np.allclose(result_weighted_mean, expected_weighted_mean))
+
+    def test_dipolar_rss_by_atom_errors(self):
+        """Test that DipolarRSSByAtom raises errors for invalid parameters."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+
+        # sel_i must be specified
+        with self.assertRaises(ValueError):
+            DipolarRSSByAtom.get(eth, sel_i=None, sel_j=[0])
+
+        # sel_j must be specified
+        with self.assertRaises(ValueError):
+            DipolarRSSByAtom.get(eth, sel_i=[0], sel_j=None)
+
+        # Invalid expand_j value
+        with self.assertRaises(ValueError):
+            DipolarRSSByAtom.get(eth, sel_i=[0], sel_j=[1], expand_j="invalid")
+
+    def test_dipolar_rss_by_atom_matches_full_rss(self):
+        """When sel_i and sel_j are all atoms, DipolarRSSByAtom should match DipolarRSS."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+        cutoff = 10.0
+
+        all_indices = list(range(len(eth)))
+        rss_full = DipolarRSS.get(eth, cutoff=cutoff)
+        rss_by_atom = DipolarRSSByAtom.get(
+            eth, sel_i=all_indices, sel_j=all_indices, cutoff=cutoff
+        )
+
+        np.testing.assert_allclose(rss_by_atom, rss_full, rtol=1e-10)
+
+    def test_dipolar_rss_by_atom_subset(self):
+        """Test RSS computed for a subset of atoms."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+        cutoff = 5.0
+
+        # RSS for first H atom (index 0) against all atoms
+        all_indices = list(range(len(eth)))
+        rss_one = DipolarRSSByAtom.get(
+            eth, sel_i=[0], sel_j=all_indices, cutoff=cutoff
+        )
+
+        # Should match the first element of the full DipolarRSS
+        rss_full = DipolarRSS.get(eth, cutoff=cutoff)
+        np.testing.assert_allclose(rss_one[0], rss_full[0], rtol=1e-10)
+
+    def test_dipolar_rss_by_atom_restricted_j(self):
+        """Test that restricting sel_j reduces the RSS."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+        cutoff = 5.0
+
+        all_indices = list(range(len(eth)))
+        # RSS for atom 0 vs all atoms
+        rss_all = DipolarRSSByAtom.get(
+            eth, sel_i=[0], sel_j=all_indices, cutoff=cutoff
+        )
+        # RSS for atom 0 vs only carbons (indices 6, 7)
+        rss_c = DipolarRSSByAtom.get(
+            eth, sel_i=[0], sel_j=[6, 7], cutoff=cutoff
+        )
+
+        # Restricting neighbours should give a smaller or equal RSS
+        self.assertLessEqual(rss_c[0], rss_all[0])
+        # And it should be non-zero (H is within 5 Ang of C in ethanol)
+        self.assertGreater(rss_c[0], 0.0)
+
+    def test_dipolar_rss_by_atom_atom_selection(self):
+        """Test that AtomSelection objects work as sel_i / sel_j."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+        cutoff = 5.0
+
+        sel_i = AtomSelection.from_element(eth, "C")
+        sel_j = AtomSelection.from_element(eth, "H")
+
+        rss = DipolarRSSByAtom.get(
+            eth, sel_i=sel_i, sel_j=sel_j, cutoff=cutoff
+        )
+
+        # Should have one value per C atom
+        n_c = sum(1 for s in eth.get_chemical_symbols() if s == "C")
+        self.assertEqual(len(rss), n_c)
+        # All values should be positive (H atoms are nearby)
+        self.assertTrue(np.all(rss > 0))
+
+    def test_dipolar_rss_by_atom_expand_cif_labels(self):
+        """Test expand_j='cif_labels' expands to all atoms with the same label."""
+        ala = io.read(_TESTDATA_DIR / "alanine_manual_labels.magres")
+        cutoff = 5.0
+        labels = ala.get_array("labels")
+
+        # Pick first C1 atom as sel_j seed
+        c1_indices = [i for i, l in enumerate(labels) if l == "C1"]
+        seed_j = [c1_indices[0]]
+
+        # Expand by CIF labels: should include all C1 atoms
+        rss_expanded = DipolarRSSByAtom.get(
+            ala, sel_i=[0], sel_j=seed_j, cutoff=cutoff, expand_j="cif_labels"
+        )
+        # Manually passing all C1 indices without expansion
+        rss_manual = DipolarRSSByAtom.get(
+            ala, sel_i=[0], sel_j=c1_indices, cutoff=cutoff, expand_j="periodic_images"
+        )
+
+        np.testing.assert_allclose(rss_expanded, rss_manual, rtol=1e-10)
+
+    def test_dipolar_rss_by_atom_expand_cif_labels_error(self):
+        """expand_j='cif_labels' should error without CIF labels."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+        # ethanol.magres has labels that are just element symbols, not CIF labels
+        # Check if it actually has cif-style labels; if not, expect ValueError
+        from soprano.utils import has_cif_labels
+        if not has_cif_labels(eth):
+            with self.assertRaises(ValueError):
+                DipolarRSSByAtom.get(
+                    eth, sel_i=[0], sel_j=[1], expand_j="cif_labels"
+                )
+
+    def test_dipolar_rss_by_atom_expand_symmetry(self):
+        """Test expand_j='symmetry' expands to symmetry-equivalent sites."""
+        nacl = io.read(_TESTDATA_DIR / "nacl.magres")
+        cutoff = 5.0
+
+        # NaCl has 4 Na + 4 Cl, all Na are equivalent, all Cl are equivalent
+        # Expanding from one Na should include all Na
+        na_indices = [i for i, s in enumerate(nacl.get_chemical_symbols()) if s == "Na"]
+
+        rss_expanded = DipolarRSSByAtom.get(
+            nacl, sel_i=[4], sel_j=[na_indices[0]], cutoff=cutoff,
+            expand_j="symmetry"
+        )
+        rss_all_na = DipolarRSSByAtom.get(
+            nacl, sel_i=[4], sel_j=na_indices, cutoff=cutoff,
+            expand_j="periodic_images"
+        )
+
+        np.testing.assert_allclose(rss_expanded, rss_all_na, rtol=1e-10)
+
+    def test_dipolar_rss_by_atom_empty_neighbours(self):
+        """Test that an atom with no valid neighbours returns RSS of 0 and warns."""
+        eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+
+        # Use a tiny cutoff so no neighbours are within range
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            rss = DipolarRSSByAtom.get(
+                eth, sel_i=[0], sel_j=[8], cutoff=0.01
+            )
+            self.assertEqual(rss[0], 0.0)
+            # Should have emitted a warning about no neighbours
+            self.assertEqual(len(w), 1)
+            self.assertIn("no neighbours", str(w[0].message).lower())
+            self.assertIn("cutoff=0.01", str(w[0].message))
+            # Warning should mention the selected neighbour and its distance
+            self.assertIn("O (index 8)", str(w[0].message))
 
 if __name__ == "__main__":
     unittest.main()

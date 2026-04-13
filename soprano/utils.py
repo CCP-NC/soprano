@@ -418,8 +418,14 @@ def minimum_periodic(v, latt_cart, exclude_self=False, pbc=[True, True, True]):
     |   latt_cart (np.ndarray): unit cell in cartesian form
     |   exclude_self (bool): if True, any vector that is equal to zero will be
     |                        excluded, and its closest non-zero periodic
-    |                        version will be considered instead. Default is
-    |                        False
+    |                        version will be considered instead. This is
+    |                        useful for finding nearest-neighbour images when
+    |                        computing self-pairs. When all vectors are zero
+    |                        (e.g. an atom paired with itself), the search
+    |                        radius is determined from the shortest non-zero
+    |                        lattice vector found by enumerating immediate
+    |                        {-1,0,1}^3 neighbours in fractional space.
+    |                        Default is False.
     |   pbc ([bool, bool, bool]): periodic boundary conditions - if
     |                             a boundary is not periodic the
     |                             range returned will always be zero
@@ -436,6 +442,16 @@ def minimum_periodic(v, latt_cart, exclude_self=False, pbc=[True, True, True]):
     """
 
     max_r = np.amax(np.linalg.norm(v, axis=-1))
+    if max_r == 0 and exclude_self:
+        # Enumerate immediate lattice neighbours in fractional space,
+        # convert to Cartesian, and take the shortest non-zero one.
+        # Mirrors the fractional-space image search used in compute_asymmetric_distmat.
+        frac_neighbors = np.array(
+            np.meshgrid(*[[-1, 0, 1]] * 3, indexing='ij')
+        ).reshape(3, -1).T  # shape (27, 3)
+        cart_neighbors = np.dot(frac_neighbors, latt_cart)
+        norms = np.linalg.norm(cart_neighbors, axis=1)
+        max_r = float(np.min(norms[norms > 0]))
     scell_shape = minimum_supcell(max_r, latt_cart, pbc=pbc)
     neigh_i_grid, neigh_grid = supcell_gridgen(latt_cart, scell_shape)
     v_period = np.asarray(v)[:, None, :] + neigh_grid[None, :, :]

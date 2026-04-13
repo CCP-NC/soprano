@@ -18,15 +18,18 @@
 couplings"""
 
 
+import warnings
+
 import numpy as np
 
 from soprano.data.nmr import _get_isotope_data
 from soprano.nmr import NMRTensor
 from soprano.nmr.utils import _dip_constant, _dip_tensor
 from soprano.properties import AtomsProperty
+from soprano.properties.labeling.labeling import UniqueSites
 from soprano.rnd import Random
 from soprano.selection import AtomSelection
-from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
+from soprano.utils import has_cif_labels, minimum_periodic, minimum_supcell, supcell_gridgen
 
 
 class DipolarCoupling(AtomsProperty):
@@ -432,6 +435,216 @@ class DipolarRSS(AtomsProperty):
 
         return np.array(dip_rss)
 
+
+def _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec):
+    """Expand *sel_j* to include all crystallographically equivalent sites.
+
+    Uses :class:`~soprano.properties.labeling.UniqueSites` to obtain
+    equivalence tags, which internally prefers CIF-label-based grouping over
+    symmetry analysis when CIF labels are present (i.e. the same behaviour as
+    ``_build_equiv_groups`` in the NMR utilities).
+
+    Parameters
+    ----------
+    s : ase.Atoms
+    sel_j : AtomSelection
+    expand_j : {'periodic_images', 'symmetry', 'cif_labels'}
+    symprec : float
+
+    Returns
+    -------
+    AtomSelection
+        *sel_j* expanded to include all equivalent-site members.
+    """
+    if expand_j == "periodic_images":
+        return sel_j
+    if expand_j not in ("symmetry", "cif_labels"):
+        raise ValueError(
+            f"expand_j must be 'periodic_images', 'symmetry', or "
+            f"'cif_labels', got '{expand_j}'")
+    if expand_j == "cif_labels" and not has_cif_labels(s):
+        raise ValueError(
+            "expand_j='cif_labels' requires CIF labels on the "
+            "atoms object (set via atoms.set_array('labels', ...))")
+    # For 'symmetry', force spglib-based grouping even when CIF labels exist.
+    # For 'cif_labels', let UniqueSites prefer CIF labels (its default).
+    tags = UniqueSites.get(s, symprec=symprec, save_info=False,
+                           override_cif=(expand_j == "symmetry"))
+    j_tags = {int(tags[i]) for i in sel_j.indices}
+    expanded = np.where(np.isin(tags, list(j_tags)))[0]
+    return AtomSelection(s, sorted(set(sel_j.indices) | set(map(int, expanded))))
+
+
+class DipolarRSSByAtom(AtomsProperty):
+
+    """
+    DipolarRSSByAtom
+
+    Compute the Dipolar constant Root Sum Square for selected atoms (sel_i),
+    summing only over contributions from specified neighbour atoms (sel_j),
+    including their periodic images within a cutoff.
+
+    This is useful in solid-state NMR for analysing site-specific dipolar
+    interactions, e.g. when constructing double-quantum/single-quantum
+    (DQ/SQ) correlation plots where the RSS to a particular neighbour site
+    (or set of symmetry-equivalent sites) determines the expected DQ
+    build-up rate.
+
+    For each atom *i* in ``sel_i``, the RSS is defined as:
+
+    .. math::
+
+        \\text{RSS}_i = \\sqrt{\\sum_{j \\in J,\\, \\mathbf{n}} d_{ij\\mathbf{n}}^2}
+
+    where the sum runs over all atoms *j* in the (possibly expanded) ``sel_j``
+    set *J* and their periodic images **n**, subject to
+    :math:`0 < |\\mathbf{r}_{ij\\mathbf{n}}| \\leq r_\\text{cut}`, and the
+    dipolar coupling constant is:
+
+    .. math::
+
+        d_{ij} = -\\frac{\\mu_0 \\hbar \\gamma_i \\gamma_j}{8 \\pi^2 r_{ij}^3}
+
+    Optionally, ``sel_j`` can be expanded to include all symmetry-equivalent
+    sites or all sites sharing the same CIF label.
+
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the RSS. Required.
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      to include as neighbours in the RSS sum.
+                                      Required.
+      cutoff (float): cutoff radius in Angstroms at which the sum stops.
+                      By default 5 Ang.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      expand_j (str or None): how to expand sel_j to include equivalent sites.
+                              'periodic_images': no expansion, use sel_j as-is
+                                                 (only periodic images of the
+                                                 specified atoms are included).
+                              'symmetry': expand to all symmetry-equivalent
+                                          sites (using UniqueSites tags) and
+                                          their periodic images.
+                              'cif_labels': expand to all sites sharing the
+                                            same CIF label and their periodic
+                                            images.
+                              By default is 'periodic_images'.
+      symprec (float): symmetry precision for UniqueSites when expand_j is
+                       'symmetry'. Default is 1e-4.
+
+    Returns:
+      dip_rss (np.ndarray): dipolar constant RSS for each atom in sel_i
+
+    """
+
+    default_name = "dip_rss_by_atom"
+    default_params = {
+        "sel_i": None,
+        "sel_j": None,
+        "cutoff": 5.0,
+        "isotopes": {},
+        "isotope_list": None,
+        "expand_j": "periodic_images",
+        "symprec": 1e-4,
+    }
+
+    @staticmethod
+    def extract(s, sel_i, sel_j, cutoff, isotopes, isotope_list,
+                expand_j, symprec):
+        if sel_i is None:
+            raise ValueError(
+                "sel_i must be specified for DipolarRSSByAtom. "
+                "Use DipolarRSS for the unfiltered RSS over all atoms.")
+        if sel_j is None:
+            raise ValueError(
+                "sel_j must be specified for DipolarRSSByAtom. "
+                "Use DipolarRSS for the unfiltered RSS over all atoms.")
+
+        # Resolve selections
+        if not isinstance(sel_i, AtomSelection):
+            sel_i = AtomSelection(s, sel_i)
+
+        if not isinstance(sel_j, AtomSelection):
+            sel_j = AtomSelection(s, sel_j)
+
+        # Expand sel_j to equivalent sites if requested
+        sel_j = _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec)
+
+        j_indices_set = set(sel_j.indices)
+
+        # Supercell size
+        scell_shape = minimum_supcell(cutoff, s.get_cell())
+        _, scell = supcell_gridgen(s.get_cell(), scell_shape)
+
+        pos = s.get_positions()
+        elems = np.array(s.get_chemical_symbols())
+        n_atoms = len(elems)
+
+        gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
+
+        dip_rss = []
+
+        for i in sel_i.indices:
+            # Filter to only j atoms
+            j_mask = np.array([k in j_indices_set for k in range(n_atoms)])
+            j_inds = np.where(j_mask)[0]
+
+            if len(j_inds) == 0:
+                dip_rss.append(0.0)
+                continue
+
+            rij = pos[j_inds]
+            gj = np.tile(gammas[j_inds], len(scell))
+
+            # All periodic images of j positions relative to atom i
+            rij = rij[None, :, :] + scell[:, None, :] - pos[i, None, None]
+            Rij = np.linalg.norm(rij.reshape((-1, 3)), axis=-1)
+
+            # Valid indices: non-zero distance and within cutoff
+            ij = np.where((Rij > 0) & (Rij <= cutoff))
+
+            if len(ij[0]) == 0:
+                # Build a description of the selected j neighbours
+                j_elems = elems[j_inds]
+                # Minimum image distances (closest periodic image per j atom)
+                Rij_per_j = Rij.reshape(len(scell), len(j_inds))
+                min_dists = np.min(Rij_per_j[Rij_per_j.reshape(len(scell), len(j_inds)) > 0]
+                                   .reshape(-1)) if np.any(Rij_per_j > 0) else float('inf')
+                # More useful: minimum distance per j atom across images
+                min_per_j = []
+                for jj in range(len(j_inds)):
+                    col = Rij_per_j[:, jj]
+                    valid = col[col > 0]
+                    min_per_j.append(np.min(valid) if len(valid) > 0 else float('inf'))
+                neighbour_lines = []
+                for jj, ji in enumerate(j_inds):
+                    neighbour_lines.append(
+                        f"  {elems[ji]} (index {ji}): nearest image at "
+                        f"{min_per_j[jj]:.4f} Ang")
+                warnings.warn(
+                    f"Atom {elems[i]} (index {i}) has no neighbours from "
+                    f"sel_j within cutoff={cutoff} Ang. "
+                    f"Selected neighbours and their nearest-image distances:\n"
+                    + "\n".join(neighbour_lines),
+                    stacklevel=2,
+                )
+                dip_rss.append(0.0)
+                continue
+
+            Rij = Rij[ij] * 1e-10
+            gj = gj[ij]
+
+            dip = _dip_constant(Rij, gammas[i], gj)
+            dip_rss.append(np.sqrt(np.sum(dip**2)))
+
+        return np.array(dip_rss)
 
 
 class DipolarEuler(AtomsProperty):

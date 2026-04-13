@@ -25,6 +25,7 @@ from soprano.properties.nmr.dipolar import (
     DipolarDiagonal,
     DipolarEuler,
     DipolarRSS,
+    DipolarRSSByAtom,
     DipolarTensor,
 )
 from soprano.properties.nmr.efg import (
