@@ -57,6 +57,8 @@ docs = [
     "sphinx-click",
     "sphinxcontrib-bibtex",
     "sphinxcontrib-mermaid",
+    "weas-widget",
+    "spglib>=2.4",
 ]
 marimo = [
     "marimo>=0.23.0",

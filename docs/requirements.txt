@@ -1,3 +1,5 @@
 jupyter-book
 matplotlib
 numpy
+weas-widget
+spglib>=2.4
