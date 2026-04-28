@@ -11,9 +11,15 @@ An interactive WebAssembly-powered app for exploring NMR properties from `.magre
 - Explore relative Euler angles between MS and EFG tensors
 
 ```{raw} html
-<div style="position: relative; padding-bottom: 0; height: 900px; margin: 1rem 0; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+<div style="text-align: right; margin-bottom: 0.25rem;">
+  <a href="_static/apps/magres_analysis.html" target="_blank" rel="noopener"
+     style="font-size: 0.85rem; text-decoration: none;">
+    ↗ Open in new tab
+  </a>
+</div>
+<div style="position: relative; height: calc(100vh - 100px); margin: 1rem 0; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
   <iframe
-    src="../_static/apps/magres_analysis.html"
+    src="_static/apps/magres_analysis.html"
     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
     allow="cross-origin-isolated"
     loading="lazy"
@@ -25,3 +31,21 @@ An interactive WebAssembly-powered app for exploring NMR properties from `.magre
 :::{note}
 First load fetches Python packages (~50 MB) via Pyodide. Allow a minute on first visit. File is processed locally in your browser; nothing is sent to a server.
 :::
+
+## Run locally
+
+For better performance, run the app locally with a full Python environment:
+
+```bash
+pip install soprano[marimo]
+pip install marimo weas-widget altair
+marimo run path/to/magres_analysis.py
+```
+
+Or with [uv](https://docs.astral.sh/uv/) (dependencies are declared inline in the file):
+
+```bash
+uvx marimo run --sandbox magres_analysis.py
+```
+
+The source file is available in the [soprano repository](https://github.com/CCP-NC/soprano/blob/master/docs/apps/magres_analysis.py).

@@ -1117,9 +1117,10 @@ def _(
 @app.cell
 def _(EFGTensor, MSTensor, sel_subset):
     # get a list of NMRTensor objects with Haeberlen ordering:
+    has_efg = sel_subset.has('efg')
     ms_tensors = MSTensor.get(sel_subset)
-    efg_tensors = EFGTensor.get(sel_subset)
-    return efg_tensors, ms_tensors
+    efg_tensors = EFGTensor.get(sel_subset) if has_efg else None
+    return efg_tensors, has_efg, ms_tensors
 
 
 @app.cell
@@ -1154,13 +1155,16 @@ def _(mo):
 @app.cell
 def _(filtered_indices, mo):
     euler_angle_convention_ui = mo.ui.dropdown(options={'ZYZ (active)': ('zyz', False), 'ZYZ (passive)': ('zyz', True), 'ZXZ (active)': ('zxz', False), 'ZXZ (passive)': ('zxz', True)}, label='Euler angle convention:', value='ZYZ (active)')
-    if len(filtered_indices) > 1:
-        euler_selection_start_ui = mo.ui.dropdown(options=filtered_indices, label='MS tensor from:', value=filtered_indices.tolist()[0])
-        euler_selection_end_ui = mo.ui.dropdown(options=filtered_indices, label='MS tensor to:', value=filtered_indices.tolist()[1])
-        mo.output.append(mo.vstack([
-            mo.hstack([euler_selection_start_ui, euler_selection_end_ui], justify='start'),
-            euler_angle_convention_ui
-        ]))
+    mo.stop(
+        len(filtered_indices) <= 1,
+        mo.md("_Select at least 2 atoms to compare MS tensors._")
+    )
+    euler_selection_start_ui = mo.ui.dropdown(options=filtered_indices, label='MS tensor from:', value=filtered_indices.tolist()[0])
+    euler_selection_end_ui = mo.ui.dropdown(options=filtered_indices, label='MS tensor to:', value=filtered_indices.tolist()[1])
+    mo.vstack([
+        mo.hstack([euler_selection_start_ui, euler_selection_end_ui], justify='start'),
+        euler_angle_convention_ui
+    ])
     return (
         euler_angle_convention_ui,
         euler_selection_end_ui,
@@ -1171,50 +1175,52 @@ def _(filtered_indices, mo):
 @app.cell
 def _(
     euler_angle_convention_ui,
-    euler_columns,
     euler_selection_end_ui,
     euler_selection_start_ui,
-    filtered_indices,
     mo,
     ms_tensors,
     np,
     pd,
 ):
     euler_convention, euler_passive = euler_angle_convention_ui.value
-    if len(filtered_indices) > 1:
-        euler_selection_start_index = euler_selection_start_ui.value
-        euler_selection_end_index = euler_selection_end_ui.value
-        equivalent_eulers_0_to_1 = ms_tensors[euler_selection_start_index].equivalent_euler_to(ms_tensors[euler_selection_end_index], euler_convention, passive=euler_passive)
-
-        equivalent_eulers_0_to_1_vis = np.round(equivalent_eulers_0_to_1 * 180 / np.pi, 3)
-
-        df_equivalent_eulers = pd.DataFrame({
-            'α (deg)': equivalent_eulers_0_to_1_vis[:,0],
-            'β (deg)': equivalent_eulers_0_to_1_vis[:,1],
-            'γ (deg)': equivalent_eulers_0_to_1_vis[:,2],
-        })
-
-        mo.output.append(mo.vstack([
-            mo.md(f"""The equivalent Euler angles (in degrees) to rotate from the MS tensor of site {euler_selection_start_index} to the MS tensor of site {euler_selection_end_index} according to the chosen convention."""),
-            mo.ui.table(
-                df_equivalent_eulers,
-                page_size=16,
-                selection=None,
-                format_mapping={col: "{:.1f}".format for col in euler_columns},
-                text_justify_columns={col: 'right' for col in euler_columns},
-                show_column_summaries=True)
-        ]))
+    euler_selection_start_index = euler_selection_start_ui.value
+    euler_selection_end_index = euler_selection_end_ui.value
+    equivalent_eulers_0_to_1 = ms_tensors[euler_selection_start_index].equivalent_euler_to(
+        ms_tensors[euler_selection_end_index], euler_convention, passive=euler_passive
+    )
+    equivalent_eulers_0_to_1_vis = np.round(equivalent_eulers_0_to_1 * 180 / np.pi, 3)
+    _euler_cols = ['α (deg)', 'β (deg)', 'γ (deg)']
+    df_equivalent_eulers = pd.DataFrame({
+        'α (deg)': equivalent_eulers_0_to_1_vis[:,0],
+        'β (deg)': equivalent_eulers_0_to_1_vis[:,1],
+        'γ (deg)': equivalent_eulers_0_to_1_vis[:,2],
+    })
+    mo.vstack([
+        mo.md(f"The equivalent Euler angles (in degrees) to rotate from the MS tensor of site **{euler_selection_start_index}** to site **{euler_selection_end_index}** according to the chosen convention."),
+        mo.ui.table(
+            df_equivalent_eulers,
+            page_size=16,
+            selection=None,
+            format_mapping={col: "{:.1f}".format for col in _euler_cols},
+            text_justify_columns={col: 'right' for col in _euler_cols},
+            show_column_summaries=True
+        )
+    ])
     return euler_convention, euler_passive
 
 
 @app.cell
-def _(efg_tensors, filtered_indices, filtered_labels, mo, ms_tensors, np, pd):
+def _(efg_tensors, filtered_indices, filtered_labels, has_efg, mo, ms_tensors, np, pd):
+    mo.stop(
+        not has_efg,
+        mo.callout(mo.md("**No EFG data in this file.** MS→EFG Euler angles are not available."), kind="warn")
+    )
     ms_to_efg_eulers = [ms.euler_to(efg) for ms, efg in zip(ms_tensors, efg_tensors)]
     # convert to numpy array and to degrees
     ms_to_efg_eulers = np.degrees(ms_to_efg_eulers)[filtered_indices]
     # Display as dataframe
-    euler_columns = ['α (deg)', 'β (deg)', 'γ (deg)']
-    df_ms_to_efg_eulers = pd.DataFrame(ms_to_efg_eulers, columns=euler_columns, index=filtered_labels)
+    _euler_columns = ['α (deg)', 'β (deg)', 'γ (deg)']
+    df_ms_to_efg_eulers = pd.DataFrame(ms_to_efg_eulers, columns=_euler_columns, index=filtered_labels)
     mo.vstack([
         mo.md(r"""### Relative Euler angles between MS and EFG tensors"""),
         mo.md(r"""The table below shows the Euler angles (in degrees) to rotate from the MS tensor to the EFG tensor for each of the selected atoms."""),
@@ -1222,12 +1228,12 @@ def _(efg_tensors, filtered_indices, filtered_labels, mo, ms_tensors, np, pd):
             df_ms_to_efg_eulers,
             page_size=50,
             selection=None,
-            format_mapping={col: "{:.1f}".format for col in euler_columns},
-            text_justify_columns={col: 'right' for col in euler_columns},
+            format_mapping={col: "{:.1f}".format for col in _euler_columns},
+            text_justify_columns={col: 'right' for col in _euler_columns},
             show_column_summaries=True
         ),
     ])
-    return (euler_columns,)
+    return ()
 
 
 if __name__ == "__main__":

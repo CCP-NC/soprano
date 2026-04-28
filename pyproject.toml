@@ -59,7 +59,7 @@ docs = [
     "sphinxcontrib-mermaid",
 ]
 marimo = [
-    "marimo>=0.10.0",
+    "marimo>=0.23.0",
 ]
 # Symmetry backends (install at least one for crystallographic functionality)
 spglib = ["spglib>=2.4"]

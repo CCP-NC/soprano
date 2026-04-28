@@ -1,0 +1,7 @@
+/* Full-width article on pages with no secondary sidebar content */
+@media (min-width: 1200px) {
+    .bd-main:has(.bd-sidebar-secondary:empty) .bd-content .bd-article-container,
+    .bd-main:not(:has(.bd-sidebar-secondary > *)) .bd-content .bd-article-container {
+        max-width: 100%;
+    }
+}
