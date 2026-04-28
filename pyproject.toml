@@ -57,6 +57,11 @@ docs = [
     "sphinx-click",
     "sphinxcontrib-bibtex",
     "sphinxcontrib-mermaid",
+    "weas-widget",
+    "spglib>=2.4",
+]
+marimo = [
+    "marimo>=0.23.0",
 ]
 # Symmetry backends (install at least one for crystallographic functionality)
 spglib = ["spglib>=2.4"]
@@ -158,6 +163,10 @@ install-git-ase = "uv pip install --upgrade git+https://gitlab.com/ase/ase.git@m
 build = "jupyter-book build docs"
 # Build with development ASE (run install-git-ase first)
 build-git = ["install-git-ase", "jupyter-book build docs"]
+# Export marimo apps to WASM HTML (requires uv/uvx on PATH)
+build-apps = "uvx marimo export html-wasm --sandbox --mode run --no-show-code docs/apps/magres_analysis.py -o docs/_static/apps/magres_analysis.html"
+# Full docs build: export marimo apps then build jupyter-book
+build-all = ["build-apps", "jupyter-book build docs"]
 serve = "python -m http.server -d docs/_build/html {args}"
 clean = "jupyter-book clean docs"
 

@@ -68,3 +68,8 @@ sphinx:
     autodoc_typehints: 'description'  # Or 'both' if you want them in both the signature and description
 
     bibtex_bibfiles: ['references.bib']
+    html_css_files:
+      - custom.css
+    html_theme_options:
+      secondary_sidebar_items:
+        interactive: []

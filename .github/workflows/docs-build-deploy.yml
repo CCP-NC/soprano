@@ -37,6 +37,10 @@ jobs:
     - name: Install Hatch
       run: pip install hatch
 
+    # Install uv (provides uvx for marimo export)
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
     # (optional) Cache your executed notebooks between runs
     # if you have config:
     # execute:
@@ -46,6 +50,12 @@ jobs:
       with:
         path: docs/_build/.jupyter_cache
         key: jupyter-book-cache-${{ hashFiles('requirements.txt') }}
+
+    # Export marimo apps to WASM HTML
+    - name: Export marimo apps to WASM
+      run: |
+        mkdir -p docs/_static/apps
+        hatch run docs:build-apps
 
     # Build the book
     - name: Build the book
