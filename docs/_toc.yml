@@ -14,6 +14,7 @@ sections:
   - file: tutorials/05-nmr.ipynb
   - file: tutorials/06-defect_calculations.ipynb
   - file: tutorials/07-soprano-cli.ipynb
+- file: interactive
 - file: submitter
 - file: api
 - file: citing
