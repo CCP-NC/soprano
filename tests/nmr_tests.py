@@ -14,7 +14,7 @@ import pytest
 
 
 from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor, TensorConvention
-from soprano.nmr.utils import _test_euler_rotation
+from soprano.nmr.utils import _matrix_to_euler, _test_euler_rotation
 from soprano.properties.nmr import (
     EFGNQR,
     DipolarCoupling,
@@ -37,6 +37,68 @@ from soprano.properties.nmr.ms import MSEuler, MSShielding, MSShift, MSTensor
 from soprano.selection import AtomSelection
 
 _TESTDATA_DIR = Path(__file__).parent.resolve() / "test_data"
+
+
+class TestMatrixToEuler(unittest.TestCase):
+    """Direct unit tests for _matrix_to_euler."""
+
+    def _rotation_from_euler(self, angles, convention="ZYZ"):
+        from scipy.spatial.transform import Rotation
+        return Rotation.from_euler(convention, angles).as_matrix()
+
+    def test_identity_gives_zero_angles(self):
+        """Identity matrix → all Euler angles should be zero (or equivalent)."""
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)  # identity is gimbal-locked
+            angles = _matrix_to_euler(np.eye(3))
+        # R(0,0,0) is identity for any ZYZ convention
+        from scipy.spatial.transform import Rotation
+        R_back = Rotation.from_euler("ZYZ", angles).as_matrix()
+        self.assertTrue(np.allclose(R_back, np.eye(3), atol=1e-10))
+
+    def test_roundtrip_proper_rotation(self):
+        """A proper rotation matrix should survive a roundtrip."""
+        from scipy.spatial.transform import Rotation
+        R = Rotation.from_euler("ZYZ", [0.3, 0.8, 1.2]).as_matrix()
+        angles = _matrix_to_euler(R, convention="zyz", passive=False)
+        R_back = Rotation.from_euler("ZYZ", angles).as_matrix()
+        self.assertTrue(np.allclose(R_back, R, atol=1e-10))
+
+    def test_passive_is_inverse_of_active(self):
+        """Passive angles should represent the inverse rotation."""
+        from scipy.spatial.transform import Rotation
+        R = Rotation.from_euler("ZYZ", [0.5, 1.0, 0.7]).as_matrix()
+        active = _matrix_to_euler(R, convention="zyz", passive=False)
+        passive = _matrix_to_euler(R, convention="zyz", passive=True)
+        R_active = Rotation.from_euler("ZYZ", active).as_matrix()
+        R_passive = Rotation.from_euler("ZYZ", passive).as_matrix()
+        # passive rotation = inverse of active rotation
+        self.assertTrue(np.allclose(R_active @ R_passive, np.eye(3), atol=1e-10))
+
+    def test_zxz_convention(self):
+        """ZXZ convention should also produce a valid roundtrip."""
+        from scipy.spatial.transform import Rotation
+        R = Rotation.from_euler("ZXZ", [1.1, 0.4, 2.3]).as_matrix()
+        angles = _matrix_to_euler(R, convention="zxz", passive=False)
+        R_back = Rotation.from_euler("ZXZ", angles).as_matrix()
+        self.assertTrue(np.allclose(R_back, R, atol=1e-10))
+
+    def test_improper_rotation_corrected(self):
+        """A matrix with det < 0 should be silently corrected and return finite angles."""
+        # Build an improper matrix by negating the last column of a non-degenerate rotation
+        from scipy.spatial.transform import Rotation
+        R_proper = Rotation.from_euler("ZYZ", [0.3, 0.8, 1.2]).as_matrix()
+        R_improper = R_proper.copy()
+        R_improper[:, -1] *= -1  # det < 0
+        angles = _matrix_to_euler(R_improper)
+        self.assertTrue(np.all(np.isfinite(angles)))
+
+    def test_accepts_list_input(self):
+        """Should accept a nested list, not just ndarray."""
+        R = [[0, 0, 1], [0, 1, 0], [-1, 0, 0]]  # 90° rotation about y (non-degenerate in ZYZ)
+        angles = _matrix_to_euler(R)
+        self.assertEqual(angles.shape, (3,))
 
 
 class TestNMR(unittest.TestCase):

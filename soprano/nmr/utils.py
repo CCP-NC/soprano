@@ -201,60 +201,56 @@ def _J_constant(Kij, gi, gj) -> FloatOrArray:
 
     return cnst.h * gi * gj * Kij / (4 * np.pi ** 2) * 1e19
 
-def _matrix_to_euler(R:Union[list[list[float]], np.ndarray],
+def _matrix_to_euler(R: Union[list[list[float]], np.ndarray],
                      convention: str = "zyz",
                      passive: bool = False
                      ) -> np.ndarray:
-    """Convert a rotation matrix to Euler angles (in radians)
-    
-    We use the scipy Rotation class to do this, but we need to make sure that
-    the angles are in the conventional ranges for NMR. This function does that.
+    """Convert an NMR tensor eigenframe matrix to NMR-canonical Euler angles (in radians).
 
-    Note that SciPy uses the convention that upper case letters are extrinsic rotations
-    and lower case letters are intrinsic rotations (note this distinction
-    is not that same as active vs passive. We enforce extrinsic rotations here
-    by converting all to upper case.
+    **NMR-specific function.** This function is designed for use with NMR tensor
+    eigenframes, where eigenvector signs are physically arbitrary. It applies
+    :func:`_normalise_euler_angles` after extracting angles from scipy, which
+    restricts β to [0, π/2] by exploiting the sign freedom of eigenvectors.
+    This transformation does *not* preserve a general rotation matrix: for
+    arbitrary rotations with β > π/2 the returned angles reconstruct a different
+    matrix. Do not use this function for general rotation matrices.
 
-    We use an explicit keyword argument to specify passive rotations, and
-    transpose the rotation matrix if necessary.
+    SciPy's upper-case convention strings denote intrinsic rotations; all
+    input convention strings are converted to upper case so the behaviour is
+    always intrinsic.
 
     Args:
-        R (Union[list[list[float]], np.ndarray]): Rotation matrix. Note that SciPy
-                                                    will convert this to a proper rotation matrix
-                                                    if it is not already one.
-                                                    (i.e. det(R) = 1)
-        convention (str, optional): Euler angle convention. Defaults to "zyz".
-                                    This will be converted to upper case to enforce
-                                    extrinsic rotations.
-        passive (bool, optional): Whether the angles are passive rotations. Defaults to False.
+        R: Rotation matrix (3×3), typically the eigenvector matrix of an NMR
+           tensor. Array-like inputs are accepted.
+           If ``det(R) < 0``, the last column is negated before proceeding.
+           For eigenvector matrices this is valid because eigenvector signs are
+           arbitrary; for general improper rotations it is not the nearest
+           proper rotation in a metric sense.
+        convention: Euler-angle convention, e.g. ``"zyz"`` or ``"zxz"``.
+                    Converted to upper case internally.  Defaults to ``"zyz"``.
+        passive: If ``True``, return the *passive* (alias) angles, i.e. those
+                 describing the rotation of the coordinate frame rather than
+                 the object.  Defaults to ``False``.
 
     Returns:
-        np.ndarray: Euler angles in radians
-
+        np.ndarray: NMR-canonical Euler angles in radians, shape ``(3,)``.
     """
-    convention = convention.upper()
-    R = np.array(R)
-    # Ensure the matrix is right-handed 
-    # (det > 0) for recent scipy (>=1.13?) 
-    # versions
-    det = np.linalg.det(R)
-    if det < 0:
-        # Flip sign of last column to make it right-handed
-        R = R.copy()
+    # Rotation.from_matrix silently approximates non-special-orthogonal matrices,
+    # but the approximation for improper (det < 0) matrices discards the reflection
+    # and returns an incorrect result. Correct explicitly before passing to SciPy.
+    # For NMR eigenvector matrices this is always valid since eigenvector signs
+    # are arbitrary.
+    if np.linalg.det(np.asarray(R)) < 0:
+        R = np.array(R, dtype=float)
         R[:, -1] *= -1
-    Rot = Rotation.from_matrix(R)
-    R = Rot.as_matrix() # just in case it was converted
 
-    # If passive, we need to transpose the matrix
+    Rot = Rotation.from_matrix(R)
+
     if passive:
         Rot = Rot.inv()
-    # Use scipy to get the euler angles
-    euler_angles = Rot.as_euler(convention, degrees=False)
-    # Now we need to make sure the angles are in the right range
-    # for NMR
-    euler_angles = _normalise_euler_angles(euler_angles, passive=passive)
 
-    return euler_angles
+    euler_angles = Rot.as_euler(convention.upper(), degrees=False)
+    return _normalise_euler_angles(euler_angles, passive=passive)
 
 def _test_euler_rotation(
         euler_angles: np.ndarray,
@@ -447,6 +443,9 @@ def _normalise_euler_angles(
 
     if passive:
         # Note this assumes we've already transposed the R matrix
+        # beta > pi is reachable when called from _handle_euler_edge_cases
+        # with manually constructed angles (e.g. [-c, -b, -a] where b may be
+        # negative, landing in (pi, 2pi] after the modulo above).
         if beta > np.pi:
             beta = 2 * np.pi - beta
             gamma = gamma - np.pi
@@ -463,6 +462,8 @@ def _normalise_euler_angles(
         if alpha >= np.pi - eps:
             alpha = alpha - np.pi
     else:
+        # beta > pi is reachable when called from _handle_euler_edge_cases
+        # with manually constructed angles.
         if beta > np.pi:
             beta = 2 * np.pi - beta
             alpha = alpha - np.pi
