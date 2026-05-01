@@ -803,6 +803,122 @@ class TestSimpsonConventions(unittest.TestCase):
         self.assertAlmostEqual(float(parts[3]), 150.0, places=5)
 
 
+class TestSimpsonCrossTerms(unittest.TestCase):
+    """Tests for SpinSystem.to_simpson() cross-term emission."""
+
+    def _make_efg(self, species="2H", Vzz=1e5):
+        """Build an axial EFG tensor with the given Vzz (in a.u.)."""
+        return ElectricFieldGradient(
+            np.diag([-0.5 * Vzz, -0.5 * Vzz, Vzz]), species=species
+        )
+
+    def _make_ms(self, species="13C", iso=0.0):
+        """Build an isotropic magnetic shielding tensor."""
+        return MagneticShielding(
+            np.diag([iso, iso, iso]), species=species, reference=0.0, gradient=-1.0
+        )
+
+    def _make_dipole(self, site_i=0, site_j=1, d=-500.0):
+        """Build a DipolarCoupling with coupling constant d (Hz)."""
+        D = d * np.diag([-1, -1, 2])
+        return DipolarCoupling(
+            site_i=site_i,
+            site_j=site_j,
+            species1="13C",
+            species2="2H",
+            tensor=NMRTensor(D, order="n"),
+        )
+
+    def test_cross_terms_included_by_default(self):
+        """When EFG+dipole and EFG+MS are present, cross-terms are emitted."""
+        sites = [
+            Site(isotope="13C", label="C1", index=0,
+                 ms=self._make_ms(), efg=None),
+            Site(isotope="2H", label="H1", index=1,
+                 ms=self._make_ms(species="2H"), efg=self._make_efg()),
+        ]
+        couplings = [self._make_dipole(0, 1)]
+        spin = SpinSystem(sites=sites, couplings=couplings)
+        simpson = spin.to_simpson(observed_nucleus="13C")
+
+        self.assertIn("quadrupole_x_dipole 2 1", simpson)
+        self.assertIn("quadrupole_x_shift 2", simpson)
+
+    def test_cross_terms_disabled(self):
+        """include_cross_terms=False suppresses all cross-terms."""
+        sites = [
+            Site(isotope="13C", label="C1", index=0,
+                 ms=self._make_ms(), efg=None),
+            Site(isotope="2H", label="H1", index=1,
+                 ms=self._make_ms(species="2H"), efg=self._make_efg()),
+        ]
+        couplings = [self._make_dipole(0, 1)]
+        spin = SpinSystem(sites=sites, couplings=couplings)
+        simpson = spin.to_simpson(observed_nucleus="13C",
+                                   include_cross_terms=False)
+
+        self.assertNotIn("quadrupole_x_dipole", simpson)
+        self.assertNotIn("quadrupole_x_shift", simpson)
+
+    def test_cross_terms_respects_q_order_zero(self):
+        """q_order=0 suppresses quadrupole lines and therefore cross-terms."""
+        sites = [
+            Site(isotope="13C", label="C1", index=0, efg=None),
+            Site(isotope="2H", label="H1", index=1, efg=self._make_efg()),
+        ]
+        couplings = [self._make_dipole(0, 1)]
+        spin = SpinSystem(sites=sites, couplings=couplings)
+        simpson = spin.to_simpson(observed_nucleus="13C", q_order=0)
+
+        self.assertNotIn("quadrupole_x_dipole", simpson)
+        self.assertNotIn("quadrupole_x_shift", simpson)
+
+    def test_multiple_dipoles_to_same_quadrupole(self):
+        """Multiple dipolar couplings involving the same quadrupolar nucleus
+        each get their own quadrupole_x_dipole line."""
+        sites = [
+            Site(isotope="13C", label="C1", index=0, efg=None),
+            Site(isotope="13C", label="C2", index=1, efg=None),
+            Site(isotope="2H", label="H1", index=2, efg=self._make_efg()),
+        ]
+        couplings = [
+            self._make_dipole(0, 2, d=-400.0),
+            self._make_dipole(1, 2, d=-600.0),
+        ]
+        spin = SpinSystem(sites=sites, couplings=couplings)
+        simpson = spin.to_simpson(observed_nucleus="13C")
+
+        self.assertIn("quadrupole_x_dipole 3 1", simpson)
+        self.assertIn("quadrupole_x_dipole 3 2", simpson)
+
+    def test_both_partners_quadrupolar(self):
+        """When both dipolar partners are quadrupolar, two cross-term lines
+        are emitted (one for each quadrupole nucleus)."""
+        sites = [
+            Site(isotope="2H", label="H1", index=0, efg=self._make_efg()),
+            Site(isotope="2H", label="H2", index=1, efg=self._make_efg()),
+        ]
+        couplings = [self._make_dipole(0, 1)]
+        spin = SpinSystem(sites=sites, couplings=couplings)
+        simpson = spin.to_simpson(observed_nucleus="2H")
+
+        self.assertIn("quadrupole_x_dipole 1 2", simpson)
+        self.assertIn("quadrupole_x_dipole 2 1", simpson)
+
+    def test_no_cross_terms_without_efg(self):
+        """If no EFG is present, no cross-terms are emitted."""
+        sites = [
+            Site(isotope="13C", label="C1", index=0, efg=None),
+            Site(isotope="1H", label="H1", index=1, efg=None),
+        ]
+        couplings = [self._make_dipole(0, 1)]
+        spin = SpinSystem(sites=sites, couplings=couplings)
+        simpson = spin.to_simpson(observed_nucleus="13C")
+
+        self.assertNotIn("quadrupole_x_dipole", simpson)
+        self.assertNotIn("quadrupole_x_shift", simpson)
+
+
 class TestSpinSystem(unittest.TestCase):
     """
     Test the SpinSystem class
