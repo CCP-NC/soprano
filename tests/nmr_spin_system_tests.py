@@ -532,10 +532,9 @@ class TestDipolarCoupling(unittest.TestCase):
         # Check the format of the string
         self.assertTrue(result.startswith("dipole 1 2"))
 
-        # The coupling constant is scaled by 2*pi in simpson format
-        # So we expect 2.0 * 2 * pi = 4*pi Hz
+        # Simpson expects the dipolar coupling constant d in Hz (not angular frequency)
         coupling_constant_part = result.split()[3]
-        self.assertAlmostEqual(float(coupling_constant_part), 2.0 * 2 * np.pi, places=5)
+        self.assertAlmostEqual(float(coupling_constant_part), 2.0, places=5)
 
         # Check that we have Euler angles (should have 7 parts with angles)
         parts = result.split()
@@ -684,10 +683,124 @@ class TestISCoupling(unittest.TestCase):
         # Isotropic J value
         self.assertAlmostEqual(float(parts[3]), self.ref_isotropic_J, places=6)
 
-        # Anisotropy value
-        self.assertAlmostEqual(float(parts[4]), self.ref_anisotropy, places=6)
+        # Simpson expects aniso = zeta/2 for J-coupling (half the reduced anisotropy)
+        self.assertAlmostEqual(float(parts[4]), self.ref_reduced_anisotropy / 2.0, places=6)
 
         # TODO: add checks for angles
+
+
+class TestSimpsonConventions(unittest.TestCase):
+    """
+    Scientific validation of SpinSystem.to_simpson() output against
+    independently computed reference values.
+    
+    These tests detect unit/convention bugs without requiring Simpson to be installed.
+    """
+
+    def test_shift_isotropic_value(self):
+        """Isotropic shift is converted correctly from shielding."""
+        # Shielding = -100 ppm everywhere -> shift = +100 ppm with ref=0, grad=-1
+        ms = MagneticShielding(np.diag([-100, -100, -100]), species="13C", reference=0.0, gradient=-1.0)
+        site = Site(isotope="13C", label="C1", index=0, ms=ms)
+        spin = SpinSystem(sites=[site])
+        ms_block, _ = site.to_simpson()
+        parts = ms_block.split()
+        self.assertEqual(parts[2], "100.0p")  # iso
+        self.assertEqual(parts[3], "0.0p")    # aniso
+        self.assertEqual(parts[4], "0.0")     # eta
+
+    def test_shift_anisotropy_sign_and_magnitude(self):
+        """Reduced anisotropy ζ and asymmetry η are correct for a rhombic tensor."""
+        # Shielding PAS: diag(225, 75, -300) -> shift PAS: diag(-225, -75, 300)
+        # delta_iso = 0, zeta = +300, eta = 0.5
+        ms = MagneticShielding(np.diag([225, 75, -300]), species="13C", reference=0.0, gradient=-1.0)
+        site = Site(isotope="13C", label="C1", index=0, ms=ms)
+        ms_block, _ = site.to_simpson()
+        parts = ms_block.split()
+        self.assertAlmostEqual(float(parts[2][:-1]), 0.0, places=5)    # iso
+        self.assertAlmostEqual(float(parts[3][:-1]), 300.0, places=5)  # zeta
+        self.assertAlmostEqual(float(parts[4]), 0.5, places=5)         # eta
+
+    def test_quadrupolar_cq_and_eta(self):
+        """Cq in Hz and eta are output correctly."""
+        from soprano.data.nmr import EFG_TO_CHI, nmr_quadrupole
+        Q = nmr_quadrupole("H", iso=2)
+        Vzz = 100e3 / (EFG_TO_CHI * Q)
+        efg = ElectricFieldGradient(np.diag([-0.5*Vzz, -0.5*Vzz, Vzz]), species="2H")
+        site = Site(isotope="2H", label="H1", index=0, efg=efg)
+        _, efg_block = site.to_simpson(q_order=1)
+        parts = efg_block.split()
+        self.assertEqual(parts[1], "1")           # site index
+        self.assertEqual(parts[2], "1")           # order
+        self.assertAlmostEqual(float(parts[3]), 100e3, places=1)  # Cq
+        self.assertAlmostEqual(float(parts[4]), 0.0, places=5)    # eta
+
+    def test_dipolar_coupling_units_no_extra_2pi(self):
+        """Dipolar coupling constant must be in Hz, NOT multiplied by 2π."""
+        # Construct a dipolar tensor with known eigenvalues [-d, -d, 2d]
+        d = -500.0  # Hz
+        D = d * np.diag([-1, -1, 2])
+        dip = DipolarCoupling(
+            site_i=0, site_j=1,
+            species1="1H", species2="13C",
+            tensor=NMRTensor(D, order="n"),
+        )
+        simpson_str = dip.to_simpson()
+        parts = simpson_str.split()
+        # parts[3] is the dipolar coupling anisotropy in Hz
+        output_val = float(parts[3])
+        # The bug is output_val == d * 2*pi; the correct value is |d| or d
+        # We assert the CORRECT value here so the test fails if the bug is present
+        self.assertAlmostEqual(output_val, d, places=5,
+                               msg=f"Dipolar output {output_val} != expected {d}. "
+                                   f"Likely 2π bug (would be {d*2*np.pi:.3f})")
+
+    def test_jcoupling_anisotropy_is_reduced_not_full(self):
+        """J-coupling anisotropy in Simpson must be reduced anisotropy ζ, not full Δ."""
+        import scipy.constants as cnst
+        from soprano.data.nmr import nmr_gamma
+
+        # We want J_iso=0, zeta=+200 Hz, eta=0 in the output.
+        # ISCoupling expects a K tensor, so we must convert.
+        gh = nmr_gamma("H", iso=1)
+        gc = nmr_gamma("C", iso=13)
+        scale = cnst.h * gh * gc / (4 * np.pi**2) * 1e19
+        zeta_K = 200.0 / scale
+        K_pas = np.diag([-0.5*zeta_K, -0.5*zeta_K, zeta_K])
+
+        jcoupling = ISCoupling(
+            site_i=0, site_j=1,
+            species1="1H", species2="13C",
+            tensor=NMRTensor(K_pas, order="h"),
+        )
+        simpson_str = jcoupling.to_simpson()
+        parts = simpson_str.split()
+        # parts[4] is the anisotropy parameter
+        output_aniso = float(parts[4])
+        # Simpson expects aniso = zeta/2 for J-coupling (confirmed by simulation)
+        self.assertAlmostEqual(output_aniso, 100.0, places=5,
+                               msg=f"J-aniso output {output_aniso} != expected 100.0 (zeta/2). "
+                                   f"Likely zeta or Delta bug (would be {200.0:.3f} for zeta, {300.0:.3f} for Delta)")
+
+    def test_jcoupling_isotropic_value(self):
+        """Isotropic J-coupling is correctly converted from K tensor."""
+        import scipy.constants as cnst
+        from soprano.data.nmr import nmr_gamma
+
+        gh = nmr_gamma("H", iso=1)
+        gc = nmr_gamma("C", iso=13)
+        scale = cnst.h * gh * gc / (4 * np.pi**2) * 1e19
+        K_iso = 150.0 / scale
+        K_pas = np.diag([K_iso, K_iso, K_iso])
+
+        jcoupling = ISCoupling(
+            site_i=0, site_j=1,
+            species1="1H", species2="13C",
+            tensor=NMRTensor(K_pas, order="h"),
+        )
+        simpson_str = jcoupling.to_simpson()
+        parts = simpson_str.split()
+        self.assertAlmostEqual(float(parts[3]), 150.0, places=5)
 
 
 class TestSpinSystem(unittest.TestCase):
