@@ -257,7 +257,7 @@ class SpinSystem(BaseModel):
             with open(filename, "w") as f:
                 f.write(output_string)
         else:
-            print(output_string)
+            return output_string
 
     def __eq__(self, other: 'SpinSystem') -> bool:
         # Check attributes
@@ -461,13 +461,13 @@ class SpinSystem(BaseModel):
                 ))
         dipolar_string = "\n".join(dipolar_blocks)
 
-        jcouping_blocks = []
+        jcoupling_blocks = []
         for coupling in self.couplings:
             if coupling.type == "J":
-                jcouping_blocks.append(coupling.to_simpson(
+                jcoupling_blocks.append(coupling.to_simpson(
                     include_angles=include_jcoupling_angles,
                 ))
-        jcouping_string = "\n".join(jcouping_blocks)
+        jcoupling_string = "\n".join(jcoupling_blocks)
 
         # Combine the header and blocks into a formatted string
         output_string = f"""spinsys {{
@@ -476,7 +476,7 @@ nuclei {" ".join(nuclei)}
 {ms_string}
 {efg_string}
 {dipolar_string}
-{jcouping_string}
+{jcoupling_string}
 }}
 """
         # Trim blank lines from the end of the string
