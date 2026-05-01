@@ -1740,7 +1740,9 @@ class ElectricFieldGradient(NMRTensor):
         '''
         result = defaultdict(None)
 
-        if self.spin == 0:
+        if self.spin <= 0.5:
+            # NQR requires spin > 1/2; spin-0 has no transitions, and
+            # spin-1/2 has no quadrupole moment (formula denominator is zero).
             return result
 
         A = EFG_TO_CHI * self.Vzz * self.quadrupole_moment / (4 * self.spin * (2 * self.spin - 1))
