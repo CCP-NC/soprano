@@ -13,7 +13,8 @@ import tempfile
 from logging.handlers import MemoryHandler
 from tempfile import NamedTemporaryFile
 from unittest.mock import patch
-from pathlib import Path  # Add this import
+from pathlib import Path
+import warnings
 
 import pandas as pd
 from ase.io import read
@@ -29,7 +30,6 @@ sys.path.insert(
 class TestCLI(unittest.TestCase):
     def setUp(self):
         # For now let's ignore the warnings about consistent rotations
-        import warnings
         warnings.filterwarnings(
             "ignore",
             message="The Euler angles do not give a consistent rotation."
@@ -461,9 +461,18 @@ class TestCLI(unittest.TestCase):
                     "--q-order", "2",  # 2nd order quadrupolar
                     "-v",
                 ]
-                result = runner.invoke(
-                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
-                )
+                # NaCl Na sites are axially symmetric (β≈0), which causes
+                # gimbal lock in the Euler angle extraction. This is expected
+                # and handled correctly by the code.
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
+                        "ignore",
+                        message="Gimbal lock detected",
+                        category=UserWarning,
+                    )
+                    result = runner.invoke(
+                        soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                    )
                 # Check command completed successfully
                 self.assertEqual(result.exit_code, 0)
                 
