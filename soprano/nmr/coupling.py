@@ -306,6 +306,15 @@ class ISCoupling(Coupling):
         - `eta_ij` is the asymmetry parameter of the J-coupling tensor.
         - `alpha`, `beta`, and `gamma` are the Euler angles of the J-coupling tensor in radians.
 
+        **Note on anisotropy scaling:**
+        For SIMPSON v6.0.2, the anisotropic J Hamiltonian is assembled internally
+        with a factor of 2 (``Rmol_c(2.0)`` in the source) combined with
+        spherical-tensor normalisations (``Dtensor2`` and the spin operators).
+        The net result is that SIMPSON's ``aniso`` parameter must be **half the
+        reduced anisotropy** (``ζ/2``) in order to produce the correct physical
+        splitting ``ζ``.  For example, a reduced anisotropy of ``ζ = 200 Hz``
+        must be entered as ``aniso = 100.0`` in the SIMPSON ``jcoupling`` line.
+
         Args:
             include_angles: bool, optional
                 If True, include the Euler angles in the output. Default is True.
@@ -330,7 +339,7 @@ class ISCoupling(Coupling):
         return (
             f"jcoupling {self.site_i + 1} {self.site_j + 1} "
             f"{self.Jisotropy:.6f} "
-            f"{self.J_anisotropy:.6f} "
+            f"{self.J_reduced_anisotropy / 2.0:.6f} "
             f"{self.J_asymmetry:.6f} "
             f"{angles[0]:.6f} {angles[1]:.6f} {angles[2]:.6f}"
         )
@@ -491,7 +500,7 @@ class DipolarCoupling(Coupling):
 
         """
         i, j = self.site_i, self.site_j
-        result = f"dipole {i+1} {j+1} {self.coupling_constant * 2 * np.pi:.6f}"
+        result = f"dipole {i+1} {j+1} {self.coupling_constant:.6f}"
 
         if include_angles:
             # TODO check simpson convention for euler angles
