@@ -84,6 +84,8 @@ class NMRSpinSystem(AtomsProperty):
         "include_j": False,
         "use_q_isotopes": False,
         "coupling_kwargs": None,
+        "ms_tag": "ms",
+        "efg_tag": "efg",
     }
 
     @staticmethod
@@ -98,6 +100,8 @@ class NMRSpinSystem(AtomsProperty):
         include_j,
         use_q_isotopes,
         coupling_kwargs,
+        ms_tag,
+        efg_tag,
     ):
         
         if coupling_kwargs is None:
@@ -134,6 +138,8 @@ class NMRSpinSystem(AtomsProperty):
             include_shielding=include_shielding,
             include_efg=include_efg,
             use_q_isotopes=use_q_isotopes,
+            ms_tag=ms_tag,
+            efg_tag=efg_tag,
         )
 
         # --- Couplings: ---
@@ -221,10 +227,12 @@ class NMRSites(AtomsProperty):
         "include_shielding": True,
         "include_efg": True,
         "use_q_isotopes": False,
+        "ms_tag": "ms",
+        "efg_tag": "efg",
     }
 
     @staticmethod
-    def extract(s, isotopes, references, gradients, include_shielding, include_efg, use_q_isotopes) -> list[Site]:
+    def extract(s, isotopes, references, gradients, include_shielding, include_efg, use_q_isotopes, ms_tag, efg_tag) -> list[Site]:
 
         elements = s.get_chemical_symbols()
 
@@ -252,7 +260,7 @@ class NMRSites(AtomsProperty):
         sites = [Site(isotope=species_list[i], label=label_list[i], index=i) for i in range(len(s))]
 
         if include_shielding:
-            ms_tensors = MSTensor.get(s, references=references, gradients=gradients)
+            ms_tensors = MSTensor.get(s, references=references, gradients=gradients, tag=ms_tag)
             if ms_tensors is not None:
                 if len(ms_tensors) != len(sites):
                     raise ValueError(
@@ -261,7 +269,7 @@ class NMRSites(AtomsProperty):
                 for site, ms_tensor in zip(sites, ms_tensors):
                     site.ms = ms_tensor
         if include_efg:
-            efg_tensors = EFGTensor.get(s, isotope_list=isotope_list)
+            efg_tensors = EFGTensor.get(s, isotope_list=isotope_list, tag=efg_tag)
             if efg_tensors is not None:
                 if len(efg_tensors) != len(sites):
                     raise ValueError(
@@ -431,6 +439,8 @@ def get_spin_system(
         include_j: bool = False,
         use_q_isotopes: bool = False,
         coupling_kwargs: Optional[dict] = None,
+        ms_tag: str = "ms",
+        efg_tag: str = "efg",
     ) -> SpinSystem:
     """
     Extract the information needed to output a SpinSystem object from an Atoms object.
@@ -450,6 +460,8 @@ def get_spin_system(
         use_q_isotopes (bool): Whether to use quadrupolar isotopes for elements that have them. This is 
             only relevant if isotopes is None.
         coupling_kwargs (dict): A dictionary of keyword arguments to pass to the Coupling constructor.
+        ms_tag (str): Name of the array containing magnetic shielding tensors. Default: 'ms'.
+        efg_tag (str): Name of the array containing electric field gradient tensors. Default: 'efg'.
 
     Returns:
         spin_system (SpinSystem): The SpinSystem object containing the extracted information.
@@ -466,4 +478,6 @@ def get_spin_system(
         include_j=include_j,
         use_q_isotopes=use_q_isotopes,
         coupling_kwargs=coupling_kwargs,
+        ms_tag=ms_tag,
+        efg_tag=efg_tag,
     )
