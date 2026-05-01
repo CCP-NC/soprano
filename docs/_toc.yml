@@ -16,6 +16,7 @@ sections:
   - file: tutorials/05a-nmr-spin-systems.ipynb
   - file: tutorials/06-defect_calculations.ipynb
   - file: tutorials/07-soprano-cli.ipynb
+- file: simpson-conventions
 - file: interactive
 - file: submitter
 - file: api
