@@ -391,6 +391,7 @@ class SpinSystem(BaseModel):
             include_efg_angles: Optional[bool] = None,
             include_dipolar_angles: Optional[bool] = None,
             include_jcoupling_angles: Optional[bool] = None,
+            include_cross_terms: bool = True,
             ) -> str:
         """
         Convert the SpinSystem to a string that can be used to create a
@@ -418,6 +419,10 @@ class SpinSystem(BaseModel):
                 Whether to include dipolar angles. Default is None.
             include_jcoupling_angles: bool
                 Whether to include J-coupling angles. Default is None.
+            include_cross_terms: bool
+                Whether to include second-order cross-terms
+                (``quadrupole_x_dipole`` and ``quadrupole_x_shift``).
+                Default is True.
 
         Returns:
             str: The SpinSystem in Simpson format.
@@ -469,6 +474,39 @@ class SpinSystem(BaseModel):
                 ))
         jcoupling_string = "\n".join(jcoupling_blocks)
 
+        # Build cross-term lines if requested
+        cross_term_lines = []
+        if include_cross_terms:
+            # Helper: does a site actually emit a quadrupole line?
+            def _site_has_quadrupole(site) -> bool:
+                if site.efg is None or not site.is_quadrupole_active:
+                    return False
+                effective_q_order = 2 if q_order is None else q_order
+                return effective_q_order > 0
+
+            # quadrupole_x_dipole: for each dipolar coupling where one
+            # partner is quadrupolar
+            for coupling in self.couplings:
+                if coupling.type == "D":
+                    i, j = coupling.site_i, coupling.site_j
+                    if _site_has_quadrupole(self.sites[i]):
+                        cross_term_lines.append(
+                            f"quadrupole_x_dipole {i + 1} {j + 1}"
+                        )
+                    if _site_has_quadrupole(self.sites[j]):
+                        cross_term_lines.append(
+                            f"quadrupole_x_dipole {j + 1} {i + 1}"
+                        )
+
+            # quadrupole_x_shift: for each site with both EFG and MS
+            for site in self.sites:
+                if _site_has_quadrupole(site) and site.ms is not None:
+                    cross_term_lines.append(
+                        f"quadrupole_x_shift {site.index + 1}"
+                    )
+
+        cross_term_string = "\n".join(cross_term_lines)
+
         # Combine the header and blocks into a formatted string
         output_string = f"""spinsys {{
 channels {" ".join(channels)}
@@ -477,6 +515,7 @@ nuclei {" ".join(nuclei)}
 {efg_string}
 {dipolar_string}
 {jcoupling_string}
+{cross_term_string}
 }}
 """
         # Trim blank lines from the end of the string
