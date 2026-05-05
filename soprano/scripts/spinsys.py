@@ -66,6 +66,7 @@ def spinsys(
     include_j,
     ms_isotropic,
     q_order,
+    include_cross_terms,
     include_angles,
     include_ms_angles,
     include_efg_angles,
@@ -179,6 +180,7 @@ def spinsys(
         "include_dipolar_angles": include_dipolar_angles,
         "include_jcoupling_angles": include_jcoupling_angles,
         "q_order": q_order,
+        "include_cross_terms": include_cross_terms,
     }
 
     if not split:

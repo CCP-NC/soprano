@@ -484,6 +484,254 @@ class TestCLI(unittest.TestCase):
                 # This might be Cq or quadrupole depending on the output format
                 self.assertTrue("quad" in content.lower() or "cq" in content.lower())
 
+    def test_spinsys_cross_terms(self):
+        """Test that quadrupole_x_dipole is emitted when both EFG and dipole are present."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                # NaCl has Na (quadrupole) and Cl (no quadrupole), no dipolar couplings
+                # because the isotopes are not NMR-active by default.
+                # Use ethanol with custom isotopes to get 2H and 13C with both EFG and dipole.
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--isotopes", "2H,13C",
+                    "--efg",
+                    "--dip",
+                    "-v",
+                ]
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message="Gimbal lock")
+                    result = runner.invoke(
+                        soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                    )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # With both EFG and dipolar, cross-term should be present by default
+                self.assertIn("quadrupole_x_dipole", content)
+
+    def test_spinsys_no_cross_terms(self):
+        """Test that --no-cross-terms suppresses cross-term keywords."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--isotopes", "2H,13C",
+                    "--efg",
+                    "--dip",
+                    "--no-cross-terms",
+                    "-v",
+                ]
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message="Gimbal lock")
+                    result = runner.invoke(
+                        soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                    )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                self.assertNotIn("quadrupole_x_dipole", content)
+
+    def test_spinsys_average_group_ch3(self):
+        """Test --average-group CH3 merges methyl hydrogens into one site."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--average-group", "CH3",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Ethanol has 2 C, 1 O, 6 H. With CH3 averaging, 3 H merge to 1 site.
+                # So nuclei count should be 2 C + 1 O + (6-3+1) H = 2 + 1 + 4 = 7? Wait, O is not in subset.
+                # Subset is C,H only, so: 2 C + (6-3+1) H = 2 + 4 = 6 sites.
+                # Count nuclei lines: should be 6 words after "nuclei"
+                nuclei_line = [line for line in content.splitlines() if line.startswith("nuclei")][0]
+                nuclei_count = len(nuclei_line.split()) - 1
+                self.assertEqual(nuclei_count, 6)
+
+    def test_spinsys_reduce_by_symmetry(self):
+        """Test --reduce reduces symmetry-equivalent sites."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "nacl.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "Na:0,Cl:0",
+                    "--subset", "Na,Cl",
+                    "--reduce",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # NaCl has 4 Na and 4 Cl in the cubic cell.
+                # With --reduce, symmetry should collapse to 1 Na + 1 Cl.
+                nuclei_line = [line for line in content.splitlines() if line.startswith("nuclei")][0]
+                nuclei_count = len(nuclei_line.split()) - 1
+                self.assertEqual(nuclei_count, 2)
+
+    def test_spinsys_no_reduce(self):
+        """Test --no-reduce keeps all sites."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "nacl.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "Na:0,Cl:0",
+                    "--subset", "Na,Cl",
+                    "--no-reduce",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Without reduction, all 8 sites should be present.
+                nuclei_line = [line for line in content.splitlines() if line.startswith("nuclei")][0]
+                nuclei_count = len(nuclei_line.split()) - 1
+                self.assertEqual(nuclei_count, 8)
+
+    def test_spinsys_ms_isotropic(self):
+        """Test --ms-iso strips anisotropy from shift tensors."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C",
+                    "--ms-iso",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Isotropic shifts should have aniso=0 and eta=0
+                for line in content.splitlines():
+                    if line.startswith("shift"):
+                        parts = line.split()
+                        self.assertEqual(parts[3], "0.0p")  # anisotropy
+                        self.assertEqual(parts[4], "0.0")   # eta
+
+    def test_spinsys_q_order_default_second_order(self):
+        """Test that default q_order produces second-order quadrupole for 2H."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "H",
+                    "--isotopes", "2H",
+                    "--efg",
+                    "-v",
+                ]
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", message="Gimbal lock")
+                    result = runner.invoke(
+                        soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                    )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Default q_order should be 2 for 2H (spin 1)
+                # Filter out cross-term lines (quadrupole_x_dipole etc.)
+                quad_lines = [
+                    line for line in content.splitlines()
+                    if line.startswith("quadrupole ") and line.split()[1].isdigit()
+                ]
+                self.assertGreater(len(quad_lines), 0)
+                for line in quad_lines:
+                    parts = line.split()
+                    self.assertEqual(parts[2], "2")  # order = 2
+
+    def test_spinsys_split(self):
+        """Test --split creates one file per site."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            base_name = self._TESTSAVE_DIR / "split_test.spinsys"
+            fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+            option_flags = [
+                "--format", "simpson",
+                "--output", str(base_name),
+                "--references", "C:170,H:31.7",
+                "--subset", "C",
+                "--split",
+                "-v",
+            ]
+            result = runner.invoke(
+                soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+            )
+            self.assertEqual(result.exit_code, 0)
+            # Ethanol has 2 C atoms, so we expect 2 output files
+            expected_files = [
+                self._TESTSAVE_DIR / "split_test_0.spinsys",
+                self._TESTSAVE_DIR / "split_test_1.spinsys",
+            ]
+            for fpath in expected_files:
+                self.assertTrue(fpath.exists(), f"Expected file {fpath} not found")
+                with open(fpath, 'r') as f:
+                    content = f.read()
+                self.assertIn("spinsys", content)
+                # Each file should have exactly one nucleus
+                nuclei_line = [line for line in content.splitlines() if line.startswith("nuclei")][0]
+                nuclei_count = len(nuclei_line.split()) - 1
+                self.assertEqual(nuclei_count, 1)
+
+    def test_spinsys_missing_references_error(self):
+        """Test that missing references produces an error when --ms is enabled."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--subset", "C,H",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                # The CLI logs an error and returns without writing output
+                self.assertIn("does not contain all references", result.output)
+
 
 if __name__ == "__main__":
     unittest.main()

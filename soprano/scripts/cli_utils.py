@@ -731,9 +731,9 @@ spinsys_split = click.option(
     "--split",
     is_flag=True,
     default=False,
-    help="Split the spinsys into separate files for each element. "
+    help="Split the spinsys into separate files — one per site. "
     "Default is False. "
-    "If True, the output will be written to separate files for each element. "
+    "If True, the output will be written to separate files for each site. "
     "The files will be named using the output filename and an index for each site.",
 )
 spinsys_format = click.option(
@@ -786,10 +786,18 @@ spinsys_q_order = click.option(
     "--q-order",
     "q_order",
     type=click.IntRange(1, 2),
-    default=1,
+    default=None,
     help="Include quadrupolar interactions from Electric Field Gradients at the given order (1 or 2). "
-         "Default is 1 (first-order) for quadrupolar active nuclei. You can specify the isotopes using the "
-         "--isotopes option, for example: ``--isotopes 2H``. "
+         "Default is None, which lets the library choose 2 for quadrupole-active nuclei and 0 otherwise. "
+         "You can specify the isotopes using the --isotopes option, for example: ``--isotopes 2H``. "
+)
+# cross-terms option
+spinsys_cross_terms = click.option(
+    "--cross-terms/--no-cross-terms",
+    "include_cross_terms",
+    default=True,
+    help="Include second-order cross-terms (quadrupole_x_dipole, quadrupole_x_shift) "
+         "in Simpson output. Default is True.",
 )
 # Main angles option
 spinsys_angles = click.option(
@@ -948,6 +956,7 @@ SPINSYS_OPTIONS = [
     spinsys_include_j,
     spinsys_ms_isotropic,
     spinsys_q_order,
+    spinsys_cross_terms,
     spinsys_angles,
     spinsys_ms_angles,
     spinsys_efg_angles,
