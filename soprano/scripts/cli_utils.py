@@ -308,6 +308,16 @@ reduce = click.option(
     "Note that this doesn't take into account magnetic symmetry! "
     "Defaults to True, so use ``--no-reduce`` to turn off symmetry reduction.",
 )
+# flag option to use merge_mean for symmetry reduction
+mean_merge = click.option(
+    "--mean-merge/--no-mean-merge",
+    is_flag=True,
+    default=False,
+    help="Use ``merge_mean`` for NMR tensors (ms, efg) when reducing equivalent sites. "
+    "Default is False, which uses ``merge_first`` to avoid corrupting Euler angles "
+    "for non-translation symmetries (e.g. C₂ rotations, mirror planes). "
+    "Only applies when ``--reduce`` is enabled.",
+)
 # symprec flag
 symprec = click.option(
     "--symprec",
@@ -872,6 +882,7 @@ NMR_OPTIONS = [
     isotopes,
     average_group,
     reduce,
+    mean_merge,
     euler,
     references,
     gradients,
@@ -893,6 +904,7 @@ PLOT_SPECIFIC_OPTIONS = [
     gradients,
     subset,
     reduce,
+    mean_merge,
     df_query,
     plot_type,
     plot_xelement,
@@ -946,6 +958,7 @@ SPINSYS_OPTIONS = [
     isotopes,
     average_group,
     reduce,
+    mean_merge,
     references,
     gradients,
     subset,
@@ -969,7 +982,7 @@ SPINSYS_OPTIONS = [
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
 DIPOLAR_OPTIONS = COMMON_OPTIONS + DIP_OPTIONS + DF_OPTIONS
 PLOT_OPTIONS = COMMON_OPTIONS + PLOT_SPECIFIC_OPTIONS
-VIEW_OPTIONS = [config, average_group, subset, reduce, symprec]
+VIEW_OPTIONS = [config, average_group, subset, reduce, mean_merge, symprec]
 SPINSYS_OPTIONS += COMMON_OPTIONS
 
 

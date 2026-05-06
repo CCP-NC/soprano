@@ -59,6 +59,7 @@ def spinsys(
     subset,
     average_group,
     reduce,
+    mean_merge,
     split,
     include_ms,
     include_efg,
@@ -116,6 +117,7 @@ def spinsys(
         reduce=reduce,
         average_group=average_group,
         symprec=symprec,
+        mean_merge=mean_merge,
         logger=logger,
     )
 

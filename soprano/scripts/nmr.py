@@ -59,7 +59,7 @@ from soprano.scripts.cli_utils import (
     viewimages,
 )
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels, merge_sites
+from soprano.utils import has_cif_labels, merge_first, merge_mean, merge_sites
 
 # logging
 logging.captureWarnings(True)
@@ -102,6 +102,7 @@ def nmr(
     gradients={},
     reduce=True,
     average_group=None,
+    mean_merge=False,
     symprec=1e-4,
     properties=["efg", "ms"],
     precision=3,
@@ -145,6 +146,7 @@ def nmr(
         gradients=gradients,
         reduce=reduce,
         average_group=average_group,
+        mean_merge=mean_merge,
         symprec=symprec,
         properties=properties,
         euler_convention=euler_convention,
@@ -204,6 +206,8 @@ def nmr_extract_multi(
         average_group (str): comma-separated list of functional groups to average over e.g. methyl groups. e.g. "CH3" averages over H atoms in methyl groups.
         merging_strategies (dict): dictionary of merging strategies to use for each property. e.g. {"positions": lambda x: x[0]}.
         symprec (float): tolerance for symmetry operations. Default is 1e-4.
+        mean_merge (bool): if True, use ``merge_mean`` for NMR tensors when reducing
+            symmetry-equivalent sites. Default is False (uses ``merge_first``).
 
 
 
@@ -349,6 +353,7 @@ def nmr_extract_atoms(
     symprec: float = 1e-4,
     ms_tag: str = "ms",
     efg_tag: str = "efg",
+    mean_merge: bool = False,
     logger: logging.Logger = logging.getLogger("cli"),
 ):
     """
@@ -361,6 +366,10 @@ def nmr_extract_atoms(
         average_group (str): comma-separated list of functional groups to average over e.g. methyl groups. e.g. "CH3" averages over H atoms in methyl groups.
         merging_strategies (dict): dictionary of merging strategies to use for each property. e.g. {"positions": lambda x: x[0]}.
         symprec (float): tolerance for symmetry operations. Default is 1e-4.
+        mean_merge (bool): if True, use ``merge_mean`` for NMR tensors (ms, efg) when
+            reducing symmetry-equivalent sites. Default is False, which uses
+            ``merge_first`` for tensors to avoid corrupting Euler angles for
+            non-translation symmetries (e.g. C₂ rotations, mirror planes).
         logger (logging.Logger): logger to use for logging. If not provided, we use the default logger for the cli.
 
     Returns:
@@ -425,7 +434,26 @@ def nmr_extract_atoms(
         ## apply selection string to atoms object
         atoms = all_selections.subset(atoms)
 
-    atoms = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
+    # Build symmetry-specific merging strategies.
+    # By default we use merge_first for NMR tensors to avoid corrupting Euler
+    # angles under non-translation symmetries (C2, mirrors, etc.).
+    # Functional-group averaging (negative tags) keeps the default strategies.
+    if mean_merge:
+        symmetry_merging_strategies = None
+    else:
+        symmetry_merging_strategies = {
+            **merging_strategies,
+            "ms": merge_first,
+            "ms_isotropy": merge_first,
+            "ms_shielding": merge_first,
+            "efg": merge_first,
+        }
+
+    atoms = merge_tagged_sites(
+        atoms,
+        merging_strategies=merging_strategies,
+        symmetry_merging_strategies=symmetry_merging_strategies,
+    )
 
     return atoms
 
@@ -507,13 +535,20 @@ def tag_functional_groups(
     return atoms
 
 
-def merge_tagged_sites(atoms_in: Atoms, merging_strategies: dict = {}) -> Atoms:
+def merge_tagged_sites(
+    atoms_in: Atoms,
+    merging_strategies: dict = {},
+    symmetry_merging_strategies: dict = None,
+) -> Atoms:
     """
     Merge sites that are tagged with the same tag.
 
     Args:
         atoms (Atoms): Atoms object. Must have tags.
         merging_strategies (dict): dictionary of merging strategies. See merge_sites for more details.
+        symmetry_merging_strategies (dict): optional dictionary of merging strategies for
+            symmetry-equivalent sites (non-negative tags). If provided, these strategies
+            are used for non-negative tags instead of ``merging_strategies``.
     """
     atoms = atoms_in.copy()
     # if there are no tags present, return the atoms object
@@ -528,9 +563,15 @@ def merge_tagged_sites(atoms_in: Atoms, merging_strategies: dict = {}) -> Atoms:
     for tag in multi_group_tags:
         # where are these tags in the current tags?
         tag_idx = np.where(atoms.get_tags() == tag)[0]
+        # Use symmetry-specific strategies for non-negative tags (symmetry reduction)
+        # and default strategies for negative tags (functional-group averaging).
+        if tag >= 0 and symmetry_merging_strategies is not None:
+            strategies = symmetry_merging_strategies
+        else:
+            strategies = merging_strategies
         # merge the sites
         atoms = merge_sites(
-            atoms, tag_idx, merging_strategies=merging_strategies, keep_all=False
+            atoms, tag_idx, merging_strategies=strategies, keep_all=False
         )
 
     # sort by tag

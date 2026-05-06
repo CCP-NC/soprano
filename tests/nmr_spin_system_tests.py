@@ -6,6 +6,7 @@ A spin system is made up of a collection of Site and Coupling objects. There is 
 but there are several types of Coupling objects, each representing a different type of interaction between two sites.
 """
 
+import json
 import os
 import unittest
 
@@ -1044,6 +1045,41 @@ class TestSpinSystem(unittest.TestCase):
         sel_gamma2s = [coupling['gamma2'] for coupling in sel_dict['couplings'] ]
         self.assertTrue(all(gamma == sel_gamma1s[0] for gamma in sel_gamma1s))
         self.assertTrue(all(gamma == sel_gamma2s[0] for gamma in sel_gamma2s))
+
+    def test_to_string_mrsimulator_no_simpson_kwargs_leak(self):
+        """Test that Simpson-specific kwargs don't leak into MRSimulator JSON output."""
+        # Set references on sites so MRSimulator export works
+        for site in self.sites:
+            if site.ms is not None:
+                site.ms.set_reference(0.0)
+        spin_system = SpinSystem(sites=self.sites, couplings=[])
+        json_str = spin_system.to_string(
+            format="mrsimulator",
+            q_order=2,
+            include_cross_terms=True,
+        )
+        result = json.loads(json_str)
+        self.assertNotIn("q_order", result)
+        self.assertNotIn("include_cross_terms", result)
+        self.assertIn("sites", result)
+        self.assertIn("couplings", result)
+
+    def test_to_string_mrsimulator_kwargs_passthrough(self):
+        """Test that legitimate MRSimulator kwargs are still passed through."""
+        for site in self.sites:
+            if site.ms is not None:
+                site.ms.set_reference(0.0)
+        spin_system = SpinSystem(sites=self.sites, couplings=[])
+        json_str = spin_system.to_string(
+            format="mrsimulator",
+            name="test_system",
+            description="A test spin system",
+        )
+        result = json.loads(json_str)
+        self.assertEqual(result["name"], "test_system")
+        self.assertEqual(result["description"], "A test spin system")
+        self.assertIn("sites", result)
+        self.assertIn("couplings", result)
 
 
 if __name__ == '__main__':

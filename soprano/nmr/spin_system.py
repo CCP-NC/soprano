@@ -223,7 +223,10 @@ class SpinSystem(BaseModel):
         if format == "simpson":
             return self.to_simpson(**kwargs)
         elif format == "mrsimulator":
-            mrsimulator_dict = self.to_mrsimulator(**kwargs)
+            # Strip Simpson-specific kwargs so they don't leak into the MRSimulator dict
+            simpson_keys = ("q_order", "include_cross_terms")
+            mrsimulator_kwargs = {k: v for k, v in kwargs.items() if k not in simpson_keys}
+            mrsimulator_dict = self.to_mrsimulator(**mrsimulator_kwargs)
             import json
             json_string = json.dumps(mrsimulator_dict, ensure_ascii=False, sort_keys=False, allow_nan=False)
             return json_string

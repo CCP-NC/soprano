@@ -620,6 +620,32 @@ class TestCLI(unittest.TestCase):
                 nuclei_count = len(nuclei_line.split()) - 1
                 self.assertEqual(nuclei_count, 8)
 
+    def test_spinsys_mean_merge(self):
+        """Test --mean-merge runs without error on a symmetry-reduced structure."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "nacl.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "Na:0,Cl:0",
+                    "--subset", "Na,Cl",
+                    "--reduce",
+                    "--mean-merge",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # Should still reduce to 1 Na + 1 Cl.
+                nuclei_line = [line for line in content.splitlines() if line.startswith("nuclei")][0]
+                nuclei_count = len(nuclei_line.split()) - 1
+                self.assertEqual(nuclei_count, 2)
+
     def test_spinsys_ms_isotropic(self):
         """Test --ms-iso strips anisotropy from shift tensors."""
         runner = CliRunner()

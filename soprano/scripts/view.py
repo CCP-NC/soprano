@@ -71,6 +71,7 @@ def view(
     reduce,
     average_group,
     symprec,
+    mean_merge,
     verbosity,
 ):
     """
@@ -108,6 +109,7 @@ def view(
                 reduce=reduce,
                 average_group=average_group,
                 symprec=symprec,
+                mean_merge=mean_merge,
                 logger=logger,
             )
             # add the atoms to the list

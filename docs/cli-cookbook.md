@@ -192,6 +192,29 @@ Here are some examples of how you might use this command:
     soprano spinsys seedname.magres -s H --ref H:30 -i 2H
     ```
 
+* Average methyl (CH₃) groups into a single site using dynamic-averaging of the NMR tensors. This is useful for fast-rotating methyl groups where the three protons are chemically equivalent on the NMR timescale:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3
+    ```
+
+    When using `--average-group`, you usually want to disable symmetry reduction with `--no-reduce`. By default, `--reduce` merges symmetry-equivalent sites before averaging, which can cause atoms from multiple equivalent methyl groups to be merged into a single averaged site. Use `--no-reduce` to keep each methyl group as a separate averaged site:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3 --no-reduce
+    ```
+
+* Reduce by symmetry using ``merge_first`` for NMR tensors (the default). This is the safest choice for non-translation symmetries (e.g. C₂ rotations, mirror planes) because averaging Cartesian tensor components can corrupt Euler angles:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30
+    ```
+
+* Reduce by symmetry using ``merge_mean`` for NMR tensors. This averages the tensor components of symmetry-equivalent sites, which can be useful for translation-equivalent sites to smooth out numerical noise, but may give incorrect orientations for C₂ or mirror symmetries:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --mean-merge
+    ```
 
 ## Dipolar Couplings
 
