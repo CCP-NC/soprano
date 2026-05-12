@@ -385,7 +385,6 @@ class Site(BaseModel):
                 # Replace the MS tensor with its isotropic version
                 ms = ms.make_isotropic_like()
 
-            # TODO: what angle conventions are used?
             euler_angles = ms.euler_angles()
             shielding_symmetric = {
                 "zeta": ms.reduced_anisotropy,
@@ -466,7 +465,6 @@ class Site(BaseModel):
             ms_block = f"shift {self.index + 1} {cs_iso}p {cs_aniso}p {cs_asymmetry}"
             
             if include_ms_angles:
-                # TODO check simpson euler angle convention here
                 euler_angles = ms.euler_angles(convention='zyz', passive=True, degrees=True)
             else:
                 euler_angles = (0.0, 0.0, 0.0)
