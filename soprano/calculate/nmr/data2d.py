@@ -2,7 +2,7 @@
 
 import logging
 import warnings
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from ase import Atoms
@@ -20,6 +20,7 @@ from soprano.calculate.nmr.utils import (
     Peak2D,
     calculate_distances,
     extract_indices,
+    filter_atoms_by_elements,
     filter_pairs_by_distance,
     generate_contour_map,
     generate_peaks,
@@ -45,7 +46,7 @@ class NMRData2D:
                 xelement: Optional[str] = None,
                 yelement: Optional[str] = None,
                 references: Optional[dict[str, float]] = None,
-                gradients: Optional[dict[str, float]] = None,
+                gradients: Optional[Union[dict[str, float], float]] = -1.0,
                 peaks: Optional[List[Peak2D]] = None,
                 pairs: Optional[List[Tuple[int, int]]] = None,
                 correlation_strengths: Optional[List[float]] = None,
@@ -77,6 +78,10 @@ class NMRData2D:
         # if neither atoms nor peaks are provided, raise an error
         if self.atoms is None and self.peaks is None:
             raise ValueError("Either atoms or peaks must be given.")
+
+        # if atoms are provided, let's use the subset of atoms that have the xelement and yelement
+        if self.atoms is not None:
+            self.atoms = filter_atoms_by_elements(self.atoms, [self.xelement, self.yelement])
 
         # Reduce to unique sites if requested — mirrors the CLI --reduce flag.
         # For dipolar_rss the full-cell atoms are needed so the expand_j

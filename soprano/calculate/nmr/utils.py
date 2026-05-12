@@ -36,6 +36,7 @@ from scipy.optimize import minimize
 from soprano.properties.labeling.labeling import MagresViewLabels
 from soprano.properties.nmr.dipolar import DipolarCoupling
 from soprano.properties.nmr.isc import JCIsotropy
+from soprano.selection import AtomSelection
 from soprano.utils import has_cif_labels, minimum_periodic
 
 
@@ -547,6 +548,23 @@ def extract_indices(atoms, xelement, yelement):
     idx_y = np.array([atom.index for atom in atoms if atom.symbol == yelement])
 
     return idx_x, idx_y
+
+
+def filter_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> Atoms:
+    """
+    Filter the atoms object based on the specified elements.
+
+    Args:
+        atoms (Atoms): Atoms object.
+        element_list (List[str]): List of element symbols to filter.
+
+    Returns:
+        Atoms: Filtered Atoms object.
+    """
+    sel = AtomSelection(atoms, [])
+    for element in element_list:
+        sel += AtomSelection.from_element(atoms, element)
+    return sel.subset(atoms)
 
 
 def validate_elements(atoms, xelement, yelement):

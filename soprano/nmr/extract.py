@@ -54,11 +54,12 @@ from soprano.properties.nmr import (
     MSIsotropy,
     MSQuaternion,
     MSReducedAnisotropy,
+    MSShift,
     MSSkew,
     MSSpan,
 )
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels, merge_sites
+from soprano.utils import has_cif_labels, merge_first, merge_mean, merge_sites
 
 # ---------------------------------------------------------------------------
 # Module-level logger (callers can silence/configure via logging.getLogger)
@@ -230,7 +231,11 @@ def tag_functional_groups(
     return atoms
 
 
-def merge_tagged_sites(atoms_in: Atoms, merging_strategies: dict = {}) -> Atoms:
+def merge_tagged_sites(
+    atoms_in: Atoms,
+    merging_strategies: dict = {},
+    symmetry_merging_strategies: dict = None,
+) -> Atoms:
     """Merge atoms that share the same tag into a single representative site.
 
     Args:
@@ -239,6 +244,9 @@ def merge_tagged_sites(atoms_in: Atoms, merging_strategies: dict = {}) -> Atoms:
         merging_strategies: Passed verbatim to
             :func:`soprano.utils.merge_sites`.  Defines how to combine
             per-atom arrays when multiple atoms are collapsed into one.
+        symmetry_merging_strategies: Optional dictionary of merging strategies for
+            symmetry-equivalent sites (non-negative tags). If provided, these strategies
+            are used for non-negative tags instead of ``merging_strategies``.
 
     Returns:
         A new Atoms object with duplicate-tag sites merged and sorted by tag.
@@ -250,8 +258,14 @@ def merge_tagged_sites(atoms_in: Atoms, merging_strategies: dict = {}) -> Atoms:
     unique_tags, unique_counts = np.unique(atoms.get_tags(), return_counts=True)
     for tag in unique_tags[unique_counts > 1]:
         tag_idx = np.where(atoms.get_tags() == tag)[0]
+        # Use symmetry-specific strategies for non-negative tags (symmetry reduction)
+        # and default strategies for negative tags (functional-group averaging).
+        if tag >= 0 and symmetry_merging_strategies is not None:
+            strategies = symmetry_merging_strategies
+        else:
+            strategies = merging_strategies
         atoms = merge_sites(
-            atoms, tag_idx, merging_strategies=merging_strategies, keep_all=False
+            atoms, tag_idx, merging_strategies=strategies, keep_all=False
         )
 
     return atoms[np.argsort(atoms.get_tags())]
@@ -314,7 +328,6 @@ def get_ms_summary(
     from soprano.scripts.cli_utils import average_quaternions_by_tags  # noqa: PLC0415
 
     iso = MSIsotropy.get(atoms, tag=ms_tag)
-    shift = MSIsotropy.get(atoms, ref=references, grad=gradients, tag=ms_tag)
     aniso = MSAnisotropy.get(atoms, tag=ms_tag)
     red_aniso = MSReducedAnisotropy.get(atoms, tag=ms_tag)
     asymm = MSAsymmetry.get(atoms, tag=ms_tag)
@@ -326,9 +339,8 @@ def get_ms_summary(
         [q.euler_angles(mode=euler_convention) * 180 / np.pi for q in quat]
     ).T
 
-    return {
+    ms_summary = {
         "MS_shielding": iso,
-        "MS_shift": shift,
         "MS_anisotropy": aniso,
         "MS_reduced_anisotropy": red_aniso,
         "MS_asymmetry": asymm,
@@ -338,6 +350,10 @@ def get_ms_summary(
         "MS_beta": beta,
         "MS_gamma": gamma,
     }
+    if references:
+        # convert shift from ppm to MHz
+        ms_summary["MS_shift"] = MSShift.get(atoms, references=references, gradients=gradients)
+    return ms_summary
 
 
 def get_efg_summary(
@@ -461,8 +477,6 @@ def build_nmr_df(
             ms_summary = pd.DataFrame(
                 get_ms_summary(atoms, euler_convention, references, gradients, ms_tag)
             )
-            if not references:
-                ms_summary.drop(columns=["MS_shift"], inplace=True)
             df = pd.concat([df, ms_summary], axis=1)
         except RuntimeError:
             log.warning(
@@ -508,6 +522,7 @@ def nmr_extract_atoms(
     symprec: float = 1e-4,
     ms_tag: str = "ms",
     efg_tag: str = "efg",
+    mean_merge: bool = False,
     logger: Optional[logging.Logger] = None,
     return_index_map: bool = False,
 ) -> Optional[Atoms]:
@@ -535,6 +550,10 @@ def nmr_extract_atoms(
         symprec: Symmetry tolerance for SPGLIB operations.
         ms_tag: Array tag for the MS tensors.
         efg_tag: Array tag for the EFG tensors.
+        mean_merge: If ``True``, use ``merge_mean`` for NMR tensors (ms, efg) when
+            reducing symmetry-equivalent sites. Default is ``False``, which uses
+            ``merge_first`` for tensors to avoid corrupting Euler angles for
+            non-translation symmetries (e.g. C₂ rotations, mirror planes).
         logger: Logger to use.  Falls back to the module logger when *None*.
         return_index_map: If ``True``, also return a NumPy array that maps
             each input-atom index to the corresponding index in the
@@ -606,7 +625,26 @@ def nmr_extract_atoms(
         log.debug(f"    Selected atoms: {all_selections.indices}")
         atoms = all_selections.subset(atoms)
 
-    result = merge_tagged_sites(atoms, merging_strategies=merging_strategies)
+    # Build symmetry-specific merging strategies.
+    # By default we use merge_first for NMR tensors to avoid corrupting Euler
+    # angles under non-translation symmetries (C2, mirrors, etc.).
+    # Functional-group averaging (negative tags) keeps the default strategies.
+    if mean_merge:
+        symmetry_merging_strategies = None
+    else:
+        symmetry_merging_strategies = {
+            **merging_strategies,
+            "ms": merge_first,
+            "ms_isotropy": merge_first,
+            "ms_shielding": merge_first,
+            "efg": merge_first,
+        }
+
+    result = merge_tagged_sites(
+        atoms,
+        merging_strategies=merging_strategies,
+        symmetry_merging_strategies=symmetry_merging_strategies,
+    )
     if return_index_map:
         return result, index_map
     return result
@@ -727,9 +765,18 @@ def nmr_extract_multi(
             _include.pop(_include.index("minimal"))
             _include += list(properties)
 
+        # apply filters
+        cols_to_include_list = expand_aliases(_include, NMR_COLUMN_ALIASES)
+        # if MS_shielding in the list _and_ references are provided, add the MS_shift column
+        if "MS_shielding" in cols_to_include_list and references:
+            log.debug(
+                "Adding MS_shift column to dataframe as references are provided."
+            )
+            cols_to_include_list.append("MS_shift")
+
         df = apply_df_filtering(
             df,
-            expand_aliases(_include, NMR_COLUMN_ALIASES),
+            cols_to_include_list,
             exclude,
             query,
             essential_columns=NMR_COLUMN_ALIASES["essential"],
