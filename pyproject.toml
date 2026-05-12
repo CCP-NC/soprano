@@ -109,6 +109,7 @@ features = ["symmetry"]
 [tool.hatch.envs.default]
 installer = "uv"
 description = "Default environment with stable package versions"
+features = ["symmetry"]
 
 # Development environment - includes dev tools
 [tool.hatch.envs.dev]

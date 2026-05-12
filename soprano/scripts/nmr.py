@@ -416,6 +416,10 @@ def nmr_extract_atoms(
     atoms.set_tags(tags)
 
     if average_group:
+        # TODO: once the branch that reorders reduce/average_group is merged so that
+        # functional-group averaging runs before symmetry reduction (preventing
+        # symmetry-equivalent methyls from being fused), update the --average-group
+        # + --no-reduce note in docs/cli-cookbook.md accordingly.
         atoms = tag_functional_groups(average_group, atoms, vdw_scale=1.0)
 
 

@@ -154,66 +154,65 @@ Here are some common examples:
     ```
 
 ## Spin Systems
-The `spinsys` subcommand can be used to extract spin systems from a magres file. You can see the full help by running `soprano spinsys --help`. 
-If you include the magnetic shielding information, you have to specify the shielding reference values for each isotope you want to include in the spin system.
+The `spinsys` subcommand extracts spin systems from a magres file and writes them in Simpson or MRSimulator format. Run `soprano spinsys --help` for the full option list.
 
-Here are some examples of how you might use this command:
+Magnetic shielding (`--ms`, on by default) requires reference values for each isotope (`--ref ISOTOPE:VALUE`); use `--no-ms` to disable it. EFG/quadrupolar terms are also on by default and are included automatically for quadrupolar-active isotopes — use `--no-efg` to suppress them. Dipolar and J-couplings are opt-in via `--dip` and `--jcoupling`.
 
-* Extract a spin system in Simpson format for all the H sites in the magres file:
-
-    ```bash
-    soprano spinsys seedname.magres -s H --ref H:30
-    ```
-
-* Extract a spin system in MRSimulator format for all the H sites in the magres file:
+* **Basic ¹H spin system → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 -f mrsimulator
+    soprano spinsys seedname.magres -s H --ref H:30 -o spinsys.in
     ```
 
-* Extract a set of individual spin systems for each of the H sites in the magres file, outputting to separate files:
+* **¹³C/¹H spin system with C–H dipolar couplings → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s C,H --ref C:170,H:30 --dip --select-i C --select-j H -o spinsys.in
+    ```
+    `-s C,H` includes both species in the spin system; `--select-i C --select-j H` restricts dipolar couplings to C–H pairs only (skipping H–H).
+
+* **Quadrupolar nucleus (²H, 2nd order) → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s H -i 2H --ref H:0 --q-order 2 -o spinsys_2H.in
+    ```
+
+* **¹⁷O quadrupolar spin system → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s O -i 17O --q-order 2 --obs 17O --no-ms -o spinsys_17O.in
+    ```
+    `--obs` sets which nucleus is observed in the simulation — needed when the spin system contains more than one isotope. `--no-ms` suppresses shielding.
+
+* **Include J-couplings:**
+
+    ```bash
+    soprano spinsys seedname.magres -s C --ref C:170 --dip --jcoupling -o spinsys.in
+    ```
+
+* **MRSimulator format:**
+
+    ```bash
+    soprano spinsys seedname.magres -s C --ref C:170 --dip -f mrsimulator -o spinsys.json
+    ```
+
+* **Output individual spin systems to separate files (one per site):**
 
     ```bash
     soprano spinsys seedname.magres -s H --ref H:30 --split
     ```
-* Include the dipolar couplings in the spin system output:
+    With `--split`, output filenames are generated automatically from the site labels.
+
+* **Average methyl (CH₃) groups** into a single site. Use `--no-reduce` to prevent symmetry-equivalent methyls from being merged together before averaging:
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --dip
-    ```
-* Include only the dipolar couplings between the C and H sites in the spin system output:
-
-    ```bash
-    soprano spinsys seedname.magres -s H.1-4 --ref H:30 --dip --select_i C --select_j H
-    ```
-* Set the isotope to use for the spin system:
-
-    ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 -i 2H
+    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3 --no-reduce -o spinsys.in
     ```
 
-* Average methyl (CH₃) groups into a single site using dynamic-averaging of the NMR tensors. This is useful for fast-rotating methyl groups where the three protons are chemically equivalent on the NMR timescale:
+* **Custom isotope** — `-i` controls which isotope is used for the dipolar coupling constant, EFG quadrupolar coupling, and J-coupling. It does **not** affect the MS tensor. For example, to compute ²H dipolar couplings for a deuterium-labelled sample (MS disabled since no reference is available):
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3
-    ```
-
-    When using `--average-group`, you usually want to disable symmetry reduction with `--no-reduce`. By default, `--reduce` merges symmetry-equivalent sites before averaging, which can cause atoms from multiple equivalent methyl groups to be merged into a single averaged site. Use `--no-reduce` to keep each methyl group as a separate averaged site:
-
-    ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3 --no-reduce
-    ```
-
-* Reduce by symmetry using ``merge_first`` for NMR tensors (the default). This is the safest choice for non-translation symmetries (e.g. C₂ rotations, mirror planes) because averaging Cartesian tensor components can corrupt Euler angles:
-
-    ```bash
-    soprano spinsys seedname.magres -s H --ref H:30
-    ```
-
-* Reduce by symmetry using ``merge_mean`` for NMR tensors. This averages the tensor components of symmetry-equivalent sites, which can be useful for translation-equivalent sites to smooth out numerical noise, but may give incorrect orientations for C₂ or mirror symmetries:
-
-    ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --mean-merge
+    soprano spinsys seedname.magres -s H -i 2H --dip --no-ms -o spinsys_2H_dip.in
     ```
 
 ## Dipolar Couplings
