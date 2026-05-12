@@ -9,18 +9,18 @@ The conventions described below have been verified for **SIMPSON v6.0.2** throug
 Unless otherwise stated, anisotropy parameters are expressed using the **Haeberlen convention**, with reduced anisotropy
 
 $$
-\zeta = \delta_{zz} - \delta_{\mathrm{iso}}
+\zeta = \delta_{ZZ} - \delta_{\mathrm{iso}}
 $$
 
 and asymmetry parameter
 
 $$
-\eta = \frac{\delta_{yy}-\delta_{xx}}{\zeta},
+\eta = \frac{\delta_{YY}-\delta_{XX}}{\zeta},
 $$
 
-where $|\delta_{zz}-\delta_{\mathrm{iso}}| \ge |\delta_{xx}-\delta_{\mathrm{iso}}| \ge |\delta_{yy}-\delta_{\mathrm{iso}}|$.
+where $|\delta_{ZZ}-\delta_{\mathrm{iso}}| \ge |\delta_{XX}-\delta_{\mathrm{iso}}| \ge |\delta_{YY}-\delta_{\mathrm{iso}}|$.
 
-SIMPSON uses **right-handed passive ZYZ Euler angles** (in degrees) to specify the orientation of the interaction principal-axis system relative to the molecular/crystal frame.
+SIMPSON uses **right-handed passive ZYZ Euler angles** (in degrees) to specify the orientation of the interaction principal-axis system ($X$, $Y$, $Z$) relative to the molecular/crystal frame.
 
 ## Overview
 
@@ -72,11 +72,11 @@ $$
 \nu_C = \frac{\gamma_C}{\gamma_H} \times 400\,\text{MHz} \approx 100.60\,\text{MHz}
 $$
 
-So 100 ppm for $^{13}$C = $100 \times 10^{-6} \times 100.60\,\text{MHz} \approx$ **10,060 Hz** (not 40,000 Hz).
+So 100 ppm for $^{13}$C = $100 \times 10^{-6} \times 100.60\,\text{MHz} \approx$ **10,060 Hz**.
 
 ### CSA anisotropy
 
-The `aniso` parameter corresponds to the **reduced anisotropy** ($\zeta$), i.e. the $V_{zz}$ component of the traceless shielding tensor in Haeberlen convention.  It is **not** the full span-like anisotropy $\Delta = 3\zeta/2$.
+The `aniso` parameter corresponds to the **reduced anisotropy** ($\zeta$).  It is **not** the full span-like anisotropy $\Delta = 3\zeta/2$.
 
 The frequency shift for a single crystal is:
 
@@ -84,7 +84,6 @@ $$
 \delta(\beta,\gamma) = \delta_\text{iso} + \frac{\zeta}{2}\bigl(3\cos^2\beta - 1 - \eta\sin^2\beta\cos 2\gamma\bigr)
 $$
 
-Note the factor of $1/2$ in front of $\zeta$ — this is consistent with SIMPSON using the reduced anisotropy, not the full anisotropy $\Delta = 3\zeta/2$.
 
 ### Magnetic shielding vs. chemical shift
 
@@ -111,7 +110,7 @@ where:
 
 The denominator $(1 - \sigma_\text{ref} \times 10^{-6})$ is a negligible correction (of order $10^{-4}$ for typical $\sigma_\text{ref} \sim 100$ ppm) and is essentially 1 for all practical purposes.
 
-Both `references` and `gradients` accept a single float (applied to all sites), a per-element dictionary (e.g. `{"C": 170.0, "H": 30.0}`), or a per-site list.
+Both `references` and `gradients` accept a single numerical value (applied to all sites), a per-element dictionary (e.g. `{"C": 170.0, "H": 30.0}`), or a per-site list.
 
 ---
 
@@ -135,7 +134,7 @@ $$
 $$
 
 At $\beta = 0^\circ$: splitting = $3C_q/4$ (two peaks at $\pm 3C_q/8$).
-At $\beta = 90^\circ$: splitting = $-3C_q/8$ (two peaks at $\mp 3C_q/8$).
+At $\beta = 90^\circ$: splitting = $3C_q/8$ (two peaks at $\pm 3C_q/8$).
 
 ---
 
