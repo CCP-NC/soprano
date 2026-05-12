@@ -335,9 +335,11 @@ class NMRTensor(NDArrayOperatorsMixin):
                                     convention,
                                     passive)
         if not consistent_rotation:
-            warnings.warn("The Euler angles do not give a consistent rotation. "
-                            "This is likely due to a degeneracy in the tensor. "
-                            "Care must be taken when comparing the Euler angles of degenerate tensors.")
+            if self.degeneracy == 1:
+                # Only warn when the tensor is non-degenerate: inconsistency is unexpected there.
+                warnings.warn("The Euler angles do not give a consistent rotation. "
+                                "This is likely due to a degeneracy in the tensor. "
+                                "Care must be taken when comparing the Euler angles of degenerate tensors.")
 
             # Re-running the Euler angle calculation with -self.eigenvectors
             self._evecs = -self.eigenvectors
