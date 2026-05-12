@@ -91,10 +91,27 @@ Note the factor of $1/2$ in front of $\zeta$ — this is consistent with SIMPSON
 Soprano stores tensors internally as **magnetic shielding** ($\sigma$), where more positive values correspond to stronger shielding (more diamagnetic).  SIMPSON expects **chemical shifts** ($\delta$), defined as:
 
 $$
-\delta = \sigma_\text{ref} - \sigma
+\delta \approx \sigma_\text{ref} - \sigma
 $$
 
 Soprano performs this sign change automatically when exporting to SIMPSON format, so a shielding tensor with principal values $\sigma_{zz} < \sigma_{xx} < \sigma_{yy}$ becomes a chemical shift tensor with $\delta_{zz} > \delta_{xx} > \delta_{yy}$ (assuming $\sigma_\text{ref}=0$).
+
+#### `references` and `gradients` arguments
+
+In practice, DFT-computed shieldings are linearly related to experimental shifts via a calibration:
+
+$$
+\delta = \frac{\sigma_\text{ref} + m\,\sigma}{1 - \sigma_\text{ref} \times 10^{-6}}
+$$
+
+where:
+
+* **`references`** ($\sigma_\text{ref}$, ppm) — the **computed** magnetic shielding of a reference compound (e.g. TMS for $^{13}$C, not an experimental ppm value).  When `references` is not supplied, it defaults to 0 and the exported shift is simply $\delta = -\sigma$.
+* **`gradients`** ($m$, dimensionless, default $-1$) — slope of the linear fit between computed shieldings and experimental shifts from a calibration set.  The ideal theoretical value is $-1$; deviations arise from systematic DFT errors and basis-set incompleteness.  A per-element gradient can be supplied to correct for these errors.
+
+The denominator $(1 - \sigma_\text{ref} \times 10^{-6})$ is a negligible correction (of order $10^{-4}$ for typical $\sigma_\text{ref} \sim 100$ ppm) and is essentially 1 for all practical purposes.
+
+Both `references` and `gradients` accept a single float (applied to all sites), a per-element dictionary (e.g. `{"C": 170.0, "H": 30.0}`), or a per-site list.
 
 ---
 
