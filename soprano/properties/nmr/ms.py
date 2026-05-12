@@ -25,7 +25,9 @@ from soprano.nmr import MagneticShielding
 from soprano.nmr.utils import (
     _anisotropy,
     _asymmetry,
+    _gradients_to_list,
     _haeb_sort,
+    _references_to_list,
     _skew,
     _span,
     _get_tensor_array,
@@ -86,37 +88,46 @@ class MSTensor(AtomsProperty):
     .magres file containing the relevant information.
 
     Parameters:
-      order (str):  Order to use for eigenvalues/eigenvectors. Can
+        order (str):  Order to use for eigenvalues/eigenvectors. Can
                     be 'i' (ORDER_INCREASING), 'd'
                     (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
                     'n' (ORDER_NQR). Default is 'i'.
-      tag (str, optional): name of the array containing magnetic shielding tensors.
+        tag (str, optional): name of the array containing magnetic shielding tensors.
                     Defaults to 'ms'.
+        references: list/dict/None
+                    Specification of the references to convert magnetic shielding tensors to
+                    chemical shifts. Can be a dict like {'H': 30, 'C': 170} or a list like
+                    [30, 170]. If list, you must specify one reference per site in the system.
+                    If None, no conversion is done and the outputs will be shieldings.
+        gradients: list/dict/float
+            Specification of the gradients to convert magnetic shielding tensors to
+            chemical shifts. Default is -1.0 corresponding as in the typical formula:
+            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+
 
     Returns:
       ms_tensors (list): list of MagneticShielding objects
 
     """
     default_name = "ms_tensors"
-    default_params = {"order": MagneticShielding.ORDER_INCREASING, "tag": DEFAULT_MS_TAG}
+    default_params = {"order": MagneticShielding.ORDER_INCREASING,
+                      "references": None,
+                      "gradients": -1.0,
+                      "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, order, tag, **kwargs):
-        symbols = s.get_chemical_symbols()
+    def extract(s, order, references, gradients, tag):
+
         ms_list = _get_tensor_array(s, tag)
+        elements = s.get_chemical_symbols()
+        reference_list = _references_to_list(references, elements)
+        gradient_list = _gradients_to_list(gradients, elements)
 
-        ref_list = [None] * len(ms_list)
-        grad_list = [-1] * len(ms_list)
-        if "ref" in kwargs:
-            ref = kwargs.pop("ref")
-            ref_list = [ref[symbol] if isinstance(ref, dict) else ref for symbol in symbols]
-        if "grad" in kwargs:
-            grad = kwargs.pop("grad")
-            grad_list = [grad[symbol] if isinstance(grad, dict) else grad for symbol in symbols]
-
-        ms_tensors = [MagneticShielding(ms, species=symbol, order=order, reference=ref, gradient=grad)
-                        for ms, symbol, ref, grad in zip(ms_list, symbols, ref_list, grad_list)]
+        ms_tensors = [
+            MagneticShielding(ms, species=symbol, order=order, reference=ref, gradient=grad)
+            for ms, symbol, ref, grad in zip(ms_list, elements, reference_list, gradient_list)
+        ]
         return ms_tensors
 
 class MSDiagonal(AtomsProperty):
@@ -141,7 +152,7 @@ class MSDiagonal(AtomsProperty):
     """
 
     default_name = "ms_diagonal"
-    default_params = {"save_array": True}
+    default_params = {"save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
@@ -221,14 +232,17 @@ class MSShift(AtomsProperty):
     Optionally, the you can also specify the gradient, m
     
     .. math::
-        \\delta = \\sigma_{ref} - m\\sigma
+        \\delta = \\frac{\\sigma_{ref} + m\\sigma}{1 - \\sigma_{ref} \\times 10^{-6}}
     
+    where :math:`\\delta` is the chemical shift, :math:`\\sigma_{ref}` is the reference
+    shielding, :math:`\\sigma` is the magnetic shielding and :math:`m` is the gradient, 
+    most often this is -1.
 
     Requires the Atoms object to have been loaded from a .magres file
     containing the relevant information.
 
     | Parameters:
-    |   ref (list/float/dict): reference frequency per element. Must
+    |   references (list/float/dict): reference frequency per element. Must
     |                          be provided.
     |   gradients float/list/dict: usually around -1. Optional.
     |                              Default: -1 for all elements.
@@ -242,98 +256,50 @@ class MSShift(AtomsProperty):
     """
 
     default_name = "ms_shift"
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
+    default_params = {"references": None, "gradients": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array, tag)-> np.ndarray:
+    def extract(s, references, gradients, save_array, tag, **kwargs) -> np.ndarray:
+
+        # Backwards compatibility for ref and grad parameters
+        if "ref" in kwargs:
+            references = kwargs.pop("ref")
+            warnings.warn("The 'ref' parameter is deprecated. Use 'references' instead.", DeprecationWarning)
+        if "grad" in kwargs:
+            gradients = kwargs.pop("grad")
+            warnings.warn("The 'grad' parameter is deprecated. Use 'gradients' instead.", DeprecationWarning)
+
         # make sure we have some references set!
-        if not ref:
+        if not references:
             raise ValueError("No reference provided for chemical shifts")
 
 
         # get shieldings
         ms_shieldings = MSShielding.get(s, tag=tag)
 
-        symbols = np.array(s.get_chemical_symbols())
+        symbols = s.get_chemical_symbols()
 
-        # --- REFERENCES --- #
-        # array to store the reference for each site
-        # defaults to zeros
-        references = np.zeros(len(s))
+        # --- REFERENCES and GRADIENTS --- #
+        reference_list = _references_to_list(references, symbols)
+        gradients_list = _gradients_to_list(gradients, symbols)
 
-        #-- FLOAT --#
-        # if we have a single float, we use it for all sites
-        if isinstance(ref, float):
-            references[:] = ref
-            # if the strucure has more than one type of element, we
-            # a single reference is probably not what we want
-            # so we raise a warning.
-            if len(set(symbols)) > 1:
-                warnings.warn('Using the same reference for all elements.\n'
-                    'That is probably not what you want.')
-        #-- DICT --#
-        ## Assuming a format like {'C': 100.0, 'H': 200.0}
-        elif isinstance(ref, dict):
-            for el, val in ref.items():
-                references[symbols == el] = val
-            # throw a warning if there are any elements not in the dictionary
-            missing_refs = set(symbols) - set(ref.keys())
-            if missing_refs:
-                warnings.warn(f"Elements {missing_refs} are not in the references dictionary"
-                                " and their reference will be set to zero.")
-        #-- LIST --#
-        ## Assuming a format like [100.0, 100.0, 200.0] with one item per site
-        elif isinstance(ref, list):
-            if len(ref) != len(s):
-                raise ValueError("Reference list must have one item per site/\n"
-                "Alternatively, use a dictionary with the element as key and the reference as value")
-            references[:] = ref[:]
-        else:
-            raise ValueError("Reference must be a dictionary element: reference"
-                                " or a float or a list of"
-                                " floats")
+        # convert to numpy arrays
+        references_list = np.array(reference_list)
+        gradients_list = np.array(gradients_list)
 
-        # --- GRADIENTS --- #
-        # default gradient of -1 for each site
-        gradients = -1 * np.ones(len(s))
-
-        # Do we have gradients set explicitly?
-        if grad:
-            ## FLOAT ##
-            ## the same gradient for all sites
-            if isinstance(grad, float):
-                gradients[:] = grad
-                if len(set(symbols)) > 1:
-                    warnings.warn('You are using the same gradient for all '
-                    'elements while referencing the chemical shift.')
-            ## DICT ##
-            ## Assuming a format like {'C': -1, 'H': -0.98}
-            elif isinstance(grad, dict):
-                for el, val in grad.items():
-                    gradients[symbols == el] = val
-            ## LIST ##
-            ## Assuming a format like [-1, -1, -0.98] with one item per site
-            elif isinstance(grad, list):
-                if len(grad) != len(s):
-                    raise ValueError("Gradient list must be the same length as the system"
-                    "Or use a dictionary with the element as key and the gradient as value")
-                gradients[:] = grad[:]
-            else:
-                raise ValueError("Gradients must be a dictionary element: gradient"
-                                " or a float or a list of"
-                                " floats")
+        
         # if any of the gradients is outside -1.5 to -0.5 we need to
         # raise a warning
-        if np.any(gradients < -1.5) or np.any(gradients > -0.5):
+        if np.any(gradients_list < -1.5) or np.any(gradients_list > -0.5):
             warnings.warn("Gradients are outside the range: -1.5 to -0.5.\n"
                             "That's a surprising value! Please double check the"
                             "gradients.\n"
-                            f"You provided:\n {grad}")
+                            f"You provided:\n {gradients}")
 
 
         # Convert from shielding to chemical shift
-        ms_shifts = references + (np.array(gradients) * np.array(ms_shieldings)) / (1 + references * 1e-6)
+        ms_shifts = (references_list + gradients_list * ms_shieldings) / (1 - references_list * 1e-6)
 
         if save_array:
             # Save the isotropic shifts
@@ -351,8 +317,9 @@ class MSShift(AtomsProperty):
           s (AtomsCollection): The collection of structures to calculate the mean for.
           axis (int or None): Axis along which to calculate the mean. Default is None.
           weights (array-like or None): Weights for each structure. Default is None.
-          **kwParameters: ref and grad parameters for the MSShift calculation. For example,
-                    ref={'C': 100.0, 'H': 200.0} and grad=-1.0.
+          **kwParameters: references and gradients parameters for the MSShift calculation. 
+                    For example,
+                    references={'C': 100.0, 'H': 200.0} and gradients=-1.0.
 
         Returns:
           ms_shift_mean (np.ndarray): The mean of the MSShift property.
@@ -375,7 +342,7 @@ class MSIsotropy(AtomsProperty):
     compatibility.
 
     | Parameters:
-    |   ref (float/dict): reference frequency per element. If provided, the chemical shift
+    |   references (float/dict): reference frequency per element. If provided, the chemical shift
     |                will be returned instead of the magnetic shielding.
     |   gradients float/list/dict: usually around -1. 
     |   save_array (bool): if True, save the diagonalised tensors in the
@@ -388,15 +355,24 @@ class MSIsotropy(AtomsProperty):
     """
 
     default_name = "ms_isotropy"
-    default_params = {"ref": {}, "grad": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
+    default_params = {"references": None, "gradients": -1.0, "save_array": True, "tag": DEFAULT_MS_TAG}
 
     @staticmethod
     @_has_ms_check
-    def extract(s, ref, grad, save_array, tag) -> np.ndarray:
+    def extract(s, references, gradients, save_array, tag, **kwargs) -> np.ndarray:
 
-        if ref:
+        # Backwards compatibility for ref and grad parameters
+        if "ref" in kwargs:
+            references = kwargs["ref"]
+            warnings.warn("The 'ref' parameter is deprecated. Use 'references' instead.", DeprecationWarning)
+        if "grad" in kwargs:
+            gradients = kwargs["grad"]
+            warnings.warn("The 'grad' parameter is deprecated. Use 'gradients' instead.", DeprecationWarning)
+
+
+        if references:
             # the user wants to use the chemical shift
-            ms_iso = MSShift.get(s, ref=ref, grad=grad, save_array=save_array, tag=tag)
+            ms_iso = MSShift.get(s, references=references, gradients=gradients, save_array=save_array, tag=tag, **kwargs)
         else:
             # the user wants to use the magnetic shielding
             ms_iso = MSShielding.get(s, save_array=save_array, tag=tag)
@@ -414,14 +390,14 @@ class MSIsotropy(AtomsProperty):
           s (AtomsCollection): The collection of structures to calculate the mean for.
           axis (int or None): Axis along which to calculate the mean. Default is None.
           weights (array-like or None): Weights for each structure. Default is None.
-          **kwParameters: ref and grad parameters for the MSIsotropy calculation. For example,
-                    ref={'C': 100.0, 'H': 200.0} and grad=-1.0.
+          **kwParameters: references and gradients parameters for the MSIsotropy calculation. For example,
+                    references={'C': 100.0, 'H': 200.0} and gradients=-1.0.
 
         Returns:
           ms_iso_mean (np.ndarray): The mean of the MSIsotropy property.
         """
         # if references are provided in kwargs, we need to calculate the chemical shift
-        if kwargs.get("ref"):
+        if kwargs.get("references"):
             return MSShift().mean(s, axis=axis, weights=weights, **kwargs)
         # otherwise we return the isotropic shielding
         else:

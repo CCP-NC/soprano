@@ -19,7 +19,7 @@
 
 import re
 import warnings
-from typing import List, Tuple, Union
+from typing import Union, Optional
 
 import numpy as np
 import scipy.constants as cnst
@@ -28,8 +28,9 @@ from scipy.spatial.transform import Rotation
 
 # Left here for backwards compatibility
 from soprano.data.nmr import _get_isotope_data, _get_nmr_data, _el_iso
+from soprano.utils import FloatOrArray
 
-def _split_species(species: str) -> Tuple[int, str]:
+def _split_species(species: str) -> tuple[int, str]:
         """
         Validate the species string and extract the isotope number and element.
 
@@ -46,9 +47,33 @@ def _split_species(species: str) -> Tuple[int, str]:
         return int(isotope_number), element
 
 
-def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
-    """Sort a list of eigenvalue triplets by varios conventions"""
+def _evals_sort(evals, convention="i", return_indices=False) -> Union[np.ndarray, tuple[np.ndarray, np.ndarray]]:
+    """Sort a list of eigenvalue triplets by various conventions
+
+    The sorting conventions are:
+    - i: increasing order
+    - d: decreasing order
+    - h: Haeberlen order
+    - n: NQR order (absolute values)
+    
+    Args:
+        evals (np.ndarray): Array of eigenvalue triplets to sort.
+        convention (str): The sorting convention to use ('i', 'd', 'h', 'n').
+        return_indices (bool): Whether to return the sorting indices.
+
+        Returns:
+            Union[np.ndarray, tuple[np.ndarray, np.ndarray]]: Sorted eigenvalues, and optionally the sorting indices.
+    """
     evals = np.array(evals)
+    # Handle special case of all eigenvalues being the same (within tolerance)
+    if np.all(np.abs(evals - evals[:, 0:1]) < 1e-16):
+        # Return indices matching the input shape (0,1,2 for each eigenvalue)
+        if not return_indices:
+            return evals
+        else:
+            indices = np.tile(np.arange(evals.shape[1]), (evals.shape[0], 1))
+            return evals, indices
+        
     iso = np.average(evals, axis=1)
 
     if convention in ("i", "d"):
@@ -60,8 +85,8 @@ def _evals_sort(evals, convention="c", return_indices=False) -> Union[np.ndarray
         # we should really just sort by the absolute values of the eigenvalues
 
         # We can warn the user if the isotropic value is not zero
-        if np.any(np.abs(iso) > 1e-10):
-            warnings.warn("Isotropic value(s) are not zero but NQR order is requested.\n"
+        if np.any(np.abs(iso) > 1e-6):
+            warnings.warn(f"Isotropic value(s) are not zero ({iso}) but NQR order is requested.\n"
                 "If you're dealing with an EFG tensor, "
                 "then check it carefully since these should be traceless.\n"
                 "Sorting by absolute values.\n"
@@ -86,7 +111,7 @@ def _haeb_sort(evals, return_indices=False):
     return _evals_sort(evals, "h", return_indices)
 
 
-def _anisotropy(haeb_evals, reduced=False):
+def _anisotropy(haeb_evals, reduced=False) -> FloatOrArray:
     """Calculate anisotropy given eigenvalues sorted with Haeberlen
     convention"""
 
@@ -95,7 +120,7 @@ def _anisotropy(haeb_evals, reduced=False):
     return (haeb_evals[:, 2] - (haeb_evals[:, 0] + haeb_evals[:, 1]) / 2.0) * f
 
 
-def _asymmetry(haeb_evals):
+def _asymmetry(haeb_evals) -> FloatOrArray:
     """Calculate asymmetry"""
 
     aniso = _anisotropy(haeb_evals, reduced=True)
@@ -105,7 +130,7 @@ def _asymmetry(haeb_evals):
     return (haeb_evals[:, 1] - haeb_evals[:, 0]) / aniso
 
 
-def _span(evals):
+def _span(evals) -> FloatOrArray:
     """Calculate span
     
     .. math::
@@ -119,7 +144,7 @@ def _span(evals):
     return np.amax(evals, axis=-1) - np.amin(evals, axis=-1)
 
 
-def _skew(evals):
+def _skew(evals) -> FloatOrArray:
     """Calculate skew
 
     .. math::
@@ -146,7 +171,7 @@ def _evecs_2_quat(evecs):
     return [Quaternion.from_matrix(evs.T) for evs in evecs]
 
 
-def _dip_constant(Rij, gi, gj):
+def _dip_constant(Rij, gi, gj) -> FloatOrArray:
     """Dipolar constants for pairs ij, with distances Rij and gyromagnetic
     ratios gi and gj"""
 
@@ -170,59 +195,62 @@ def _dip_tensor(d, r, rotation_axis=None):
     return D
 
 
-def _J_constant(Kij, gi, gj):
+def _J_constant(Kij, gi, gj) -> FloatOrArray:
     """J coupling constants for pairs ij, with reduced constant Kij and
     gyromagnetic ratios gi and gj"""
 
     return cnst.h * gi * gj * Kij / (4 * np.pi ** 2) * 1e19
 
-def _matrix_to_euler(R:Union[List[List[float]], np.ndarray],
+def _matrix_to_euler(R: Union[list[list[float]], np.ndarray],
                      convention: str = "zyz",
                      passive: bool = False
                      ) -> np.ndarray:
-    """Convert a rotation matrix to Euler angles (in radians)
-    
-    We use the scipy Rotation class to do this, but we need to make sure that
-    the angles are in the conventional ranges for NMR. This function does that.
+    """Convert an NMR tensor eigenframe matrix to NMR-canonical Euler angles (in radians).
 
-    Note that SciPy uses the convention that upper case letters are extrinsic rotations
-    and lower case letters are intrinsic rotations (note this distinction
-    is not that same as active vs passive. We enforce extrinsic rotations here
-    by converting all to upper case.
+    **NMR-specific function.** This function is designed for use with NMR tensor
+    eigenframes, where eigenvector signs are physically arbitrary. It applies
+    :func:`_normalise_euler_angles` after extracting angles from scipy, which
+    restricts β to [0, π/2] by exploiting the sign freedom of eigenvectors.
+    This transformation does *not* preserve a general rotation matrix: for
+    arbitrary rotations with β > π/2 the returned angles reconstruct a different
+    matrix. Do not use this function for general rotation matrices.
 
-    We use an explicit keyword argument to specify passive rotations, and
-    transpose the rotation matrix if necessary.
+    SciPy's upper-case convention strings denote intrinsic rotations; all
+    input convention strings are converted to upper case so the behaviour is
+    always intrinsic.
 
     Args:
-        R (Union[List[List[float]], np.ndarray]): Rotation matrix. Note that SciPy
-                                                    will convert this to a proper rotation matrix
-                                                    if it is not already one.
-                                                    (i.e. det(R) = 1)
-        convention (str, optional): Euler angle convention. Defaults to "zyz".
-                                    This will be converted to upper case to enforce
-                                    extrinsic rotations.
-        passive (bool, optional): Whether the angles are passive rotations. Defaults to False.
+        R: Rotation matrix (3×3), typically the eigenvector matrix of an NMR
+           tensor. Array-like inputs are accepted.
+           If ``det(R) < 0``, the last column is negated before proceeding.
+           For eigenvector matrices this is valid because eigenvector signs are
+           arbitrary; for general improper rotations it is not the nearest
+           proper rotation in a metric sense.
+        convention: Euler-angle convention, e.g. ``"zyz"`` or ``"zxz"``.
+                    Converted to upper case internally.  Defaults to ``"zyz"``.
+        passive: If ``True``, return the *passive* (alias) angles, i.e. those
+                 describing the rotation of the coordinate frame rather than
+                 the object.  Defaults to ``False``.
 
     Returns:
-        np.ndarray: Euler angles in radians
-
+        np.ndarray: NMR-canonical Euler angles in radians, shape ``(3,)``.
     """
-    convention = convention.upper()
-    R = np.array(R)
-    # (Note that SciPy handles converting to proper rotation matrices)
-    Rot = Rotation.from_matrix(R)
-    R = Rot.as_matrix() # just in case it was converted
+    # Rotation.from_matrix silently approximates non-special-orthogonal matrices,
+    # but the approximation for improper (det < 0) matrices discards the reflection
+    # and returns an incorrect result. Correct explicitly before passing to SciPy.
+    # For NMR eigenvector matrices this is always valid since eigenvector signs
+    # are arbitrary.
+    if np.linalg.det(np.asarray(R)) < 0:
+        R = np.array(R, dtype=float)
+        R[:, -1] *= -1
 
-    # If passive, we need to transpose the matrix
+    Rot = Rotation.from_matrix(R)
+
     if passive:
         Rot = Rot.inv()
-    # Use scipy to get the euler angles
-    euler_angles = Rot.as_euler(convention, degrees=False)
-    # Now we need to make sure the angles are in the right range
-    # for NMR
-    euler_angles = _normalise_euler_angles(euler_angles, passive=passive)
 
-    return euler_angles
+    euler_angles = Rot.as_euler(convention.upper(), degrees=False)
+    return _normalise_euler_angles(euler_angles, passive=passive)
 
 def _test_euler_rotation(
         euler_angles: np.ndarray,
@@ -415,6 +443,9 @@ def _normalise_euler_angles(
 
     if passive:
         # Note this assumes we've already transposed the R matrix
+        # beta > pi is reachable when called from _handle_euler_edge_cases
+        # with manually constructed angles (e.g. [-c, -b, -a] where b may be
+        # negative, landing in (pi, 2pi] after the modulo above).
         if beta > np.pi:
             beta = 2 * np.pi - beta
             gamma = gamma - np.pi
@@ -431,6 +462,8 @@ def _normalise_euler_angles(
         if alpha >= np.pi - eps:
             alpha = alpha - np.pi
     else:
+        # beta > pi is reachable when called from _handle_euler_edge_cases
+        # with manually constructed angles.
         if beta > np.pi:
             beta = 2 * np.pi - beta
             alpha = alpha - np.pi
@@ -450,7 +483,7 @@ def _normalise_euler_angles(
     return np.array([alpha, beta, gamma])
 
 
-def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False):
+def _equivalent_euler(euler_angles: np.ndarray, passive: bool = False) -> np.ndarray:
     """
     Find the equivalent Euler angles for a given set of Euler angles.
 
@@ -603,7 +636,7 @@ def _compute_rotation(euler_angles: np.ndarray,
                       pas1: np.ndarray,
                       convention: str,
                       rotation_type: int
-                      )-> Tuple[np.ndarray, np.ndarray]:
+                      )-> tuple[np.ndarray, np.ndarray]:
     rrel_check = Rotation.from_euler(convention.upper(), euler_angles).as_matrix()
     mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
 
@@ -667,3 +700,73 @@ def _get_tensor_array(s, tensor_tag):
     
     tensors = s.get_array(tensor_tag)
     return _ensure_tensor_format(tensors)
+
+
+    
+    
+
+def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], elements: list[str]) -> list[float]:
+    """
+    Convert gradients input to a list with one value per element in elements.
+
+    Parameters:
+    gradients (Union[float, dict[str, float], list[float]]): The gradients input, which can be a float, a dictionary, or a list.
+    elements (list[str]): The list of elements.
+
+    Returns:
+    Optional[list[Optional[float]]]: A list of gradients corresponding to the elements, or None if gradients is None.
+
+    Raises:
+    ValueError: If the gradients input is not a float, dictionary, or list, or if the length of the gradients list does not match the length of elements.
+    """
+    DEFAULT_GRADIENT = -1.0
+    if isinstance(gradients, float):
+        return [gradients] * len(elements)
+    elif isinstance(gradients, dict):
+        return [gradients.get(el, DEFAULT_GRADIENT) for el in elements]
+    elif isinstance(gradients, list):
+        if len(gradients) == len(elements):
+            return gradients
+        else:
+            raise ValueError(
+                "Mismatch between number of sites and number of gradients given."
+            )
+    else:
+        raise ValueError(
+            "gradients must be either a float, a dictionary, or a list of gradients"
+        )
+
+def _references_to_list(references: Union[None, dict[str, float], list[float]], elements: list[str]) -> list[Union[float, None]]:
+    """
+    Convert references input to a list with one value per element in elements.
+
+    Parameters:
+    references (Union[None, dict[str, float], list[float]]): The references input, which can be None, a dictionary, or a list.
+    elements (list[str]): The list of elements.
+
+    Returns:
+    Optional[list[Optional[float]]]: A list of references corresponding to the elements, or None if references is None.
+
+    Raises:
+    ValueError: If the references input is not None, a dictionary, or a list, or if the length of the references list does not match the length of elements.
+    """
+    if references is None:
+        return [None] * len(elements)
+    elif isinstance(references, dict):
+        if not all(el in references for el in elements):
+            raise ValueError(
+                "Mismatch between sites and references given."
+                f"Missing elements: {set(elements) - set(references.keys())}"
+            )
+        return [references[el] for el in elements]
+    elif isinstance(references, list):
+        if len(references) == len(elements):
+            return references # type: ignore
+        else:
+            raise ValueError(
+                "Mismatch between number of sites and number of references given."
+            )
+    else:
+        raise ValueError(
+            "references must be either None, a dictionary, or a list of references"
+        )

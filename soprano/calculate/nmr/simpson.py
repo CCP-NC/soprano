@@ -21,6 +21,7 @@ Classes and functions for interfacing with the SIMPSON spin dynamics software.
 
 import re
 import warnings
+warnings.filterwarnings("always", category=DeprecationWarning, module="soprano")
 from collections import namedtuple
 
 import numpy as np
@@ -36,6 +37,7 @@ from soprano.properties.nmr import (
     MSQuaternion,
     MSReducedAnisotropy,
 )
+from soprano.properties.nmr import get_spin_system
 
 _spinsys_template = """spinsys {{
 {header}
@@ -51,66 +53,24 @@ nuclei {nuclei}
 """
 
 
-def write_spinsys(
+def _write_spinsys_legacy(
     s,
-    isotope_list=None,
-    use_ms=False,
-    ms_iso=False,
-    ms_tag='ms',
-    q_order=0,
-    efg_tag='efg',
-    dip_sel=None,
-    path=None,
-    ref={},
-    grad=-1.0,
-    obs_nuc=None,
+    isotope_list,
+    use_ms,
+    ms_iso,
+    ms_tag,
+    q_order,
+    efg_tag,
+    dip_sel,
+    path,
+    ref,
+    grad,
+    obs_nuc,
 ):
-    """
-    Write a .spinsys input file for use with SIMPSON, given the details of a
-    system. This is meant to be a low-level function, used by other higher
-    level interfaces in NMRCalculator.
+    """Legacy backend for write_spinsys. Uses per-property extraction directly."""
 
-    | Args:
-    |   s (ase.Atoms): atomic structure containing the desired spins. All
-    |                  atoms will be included - if that is not the desired
-    |                  result, this should be accomplished by making this a
-    |                  subset of the full structure.
-    |   isotope_list ([int]): list of isotopes for each element in the system.
-    |                         If left to None, default NMR-active isotopes
-    |                         will be used.
-    |   use_ms (bool): if True, include shift interactions from magnetic
-    |                  shieldings.
-    |   ms_iso (bool): if True, all magnetic shieldings will be made
-    |                  isotropic.
-    |   ms_tag (str): tag for the magnetic shielding tensor array.
-    |   q_order(int): if greater than 0, include quadrupolar interactions from
-    |                   Electric Field Gradients at the given order (1 or 2).
-    |   efg_tag (str): tag for the EFG tensor array.
-    |   dip_sel (AtomSelection): if not None, include dipolar couplings
-    |                            between atoms belonging to this set.
-    |   path (str): path to save the newly created file to. If not provided,
-    |               the contents will be simply returned as a string.
-    |   ref (dict): dictionary of reference values for the calculation. This
-    |               is used to convert from raw shielding values to chemical
-    |               shifts. The dictionary should be in the form
-    |               {element: value}, where value is the reference shielding
-    |               for that element in ppm.
-    |   grad (float|dict|list): gradient to use when converting from raw
-    |                           shielding values to chemical shifts. If a
-    |                           float is provided, it will be used for all
-    |                           elements. If a dictionary is provided, it
-    |                           should be in the form {element: value}, where
-    |                           value is the gradient for that element. If a
-    |                           list is provided, it should be have one value
-    |                           per site. Defaults to a gradient of -1.0 for
-    |                           all elements.
-    |   obs_nuc (str) : specify the nucleus to be observed, e.g. 1H.  
-    
-    | Returns:
-    |   file_contents (str): spinsys file in string format. Only returned if
-    |                        no save path is provided.
-
-    """
+    if ref is None:
+        ref = {}
 
     # Start by creating a proper isotope_list
     nmr_data = _get_nmr_data()
@@ -124,7 +84,6 @@ def write_spinsys(
 
     # Ensure obs_nuc appears first in channels
     if obs_nuc is not None:
-        # Check if obs_nuc is in nuclei
         if obs_nuc not in nuclei:
             raise ValueError(
                 f"{obs_nuc} not found in the list of nuclei"
@@ -209,6 +168,156 @@ def write_spinsys(
         with open(path, "w") as of:
             of.write(out_file)
 
+
+def _write_spinsys_spinsys(
+    s,
+    isotope_list,
+    use_ms,
+    ms_iso,
+    ms_tag,
+    q_order,
+    efg_tag,
+    dip_sel,
+    path,
+    ref,
+    grad,
+    obs_nuc,
+    include_cross_terms=True,
+):
+    """SpinSystem backend for write_spinsys."""
+
+    # Make sure q_order is sensible
+    if not isinstance(q_order, int):
+        raise TypeError("Quadrupolar order must be an integer")
+    if q_order < 0 or q_order > 2:
+        raise ValueError("Quadrupolar order must be 0, 1, or 2")
+
+    # Convert isotope_list to a dictionary
+    isotope_dict = None
+    if isinstance(isotope_list, list):
+        isotope_dict = {n: iso for n, iso in zip(s.get_chemical_symbols(), isotope_list)}
+
+    coupling_kwargs = {"sel_i": dip_sel}
+    spinsys = get_spin_system(
+        atoms=s,
+        isotopes=isotope_dict,
+        references=ref,
+        gradients=grad,
+        include_shielding=use_ms,
+        include_efg=q_order > 0,
+        include_dipolar=dip_sel is not None and len(dip_sel) > 1,
+        include_j=False,
+        ms_tag=ms_tag,
+        efg_tag=efg_tag,
+        coupling_kwargs=coupling_kwargs,
+    )
+
+    simpson_kwargs = {
+        "observed_nucleus": obs_nuc,
+        "q_order": q_order,
+        "ms_isotropic": ms_iso,
+        "include_angles": True,
+        "include_cross_terms": include_cross_terms,
+    }
+
+    output_string = spinsys.to_string(format="simpson", **simpson_kwargs)
+    if path:
+        with open(path, "w") as f:
+            f.write(output_string)
+    else:
+        return output_string
+
+
+def write_spinsys(
+    s,
+    isotope_list=None,
+    use_ms=False,
+    ms_iso=False,
+    ms_tag='ms',
+    q_order=0,
+    efg_tag='efg',
+    dip_sel=None,
+    path=None,
+    ref=None,
+    grad=-1.0,
+    obs_nuc=None,
+    backend='spinsys',
+    include_cross_terms=True,
+):
+    """
+    Write a .spinsys input file for use with SIMPSON, given the details of a
+    system. This is meant to be a low-level function, used by other higher
+    level interfaces in NMRCalculator.
+
+    Args:
+      s (ase.Atoms): atomic structure containing the desired spins. All
+                     atoms will be included - if that is not the desired
+                     result, this should be accomplished by making this a
+                     subset of the full structure.
+      isotope_list ([int]): list of isotopes for each element in the system.
+                            If left to None, default NMR-active isotopes
+                            will be used.
+      use_ms (bool): if True, include shift interactions from magnetic
+                     shieldings.
+      ms_iso (bool): if True, all magnetic shieldings will be made
+                     isotropic.
+      ms_tag (str): tag for the magnetic shielding tensor array. Default: 'ms'.
+      q_order (int): if greater than 0, include quadrupolar interactions from
+                     Electric Field Gradients at the given order (1 or 2).
+      efg_tag (str): tag for the EFG tensor array. Default: 'efg'.
+      dip_sel (AtomSelection): if not None, include dipolar couplings
+                               between atoms belonging to this set.
+      path (str): path to save the newly created file to. If not provided,
+                  the contents will be simply returned as a string.
+      ref (dict): dictionary of reference values for the calculation. This
+                  is used to convert from raw shielding values to chemical
+                  shifts. The dictionary should be in the form
+                  {element: value}, where value is the reference shielding
+                  for that element in ppm.
+      grad (float|dict|list): gradient to use when converting from raw
+                              shielding values to chemical shifts. If a
+                              float is provided, it will be used for all
+                              elements. If a dictionary is provided, it
+                              should be in the form {element: value}, where
+                              value is the gradient for that element. If a
+                              list is provided, it should have one value
+                              per site. Defaults to a gradient of -1.0 for
+                              all elements.
+      obs_nuc (str): specify the nucleus to be observed, e.g. '1H'.
+      backend (str): backend to use. Options are 'spinsys' (default) or
+                     'legacy'. The 'legacy' backend is deprecated and will
+                     be removed in a future version.
+      include_cross_terms (bool): if True (default), include second-order
+                     cross-term keywords (``quadrupole_x_dipole`` and
+                     ``quadrupole_x_shift``) when the system contains both
+                     quadrupolar and dipolar/shift interactions. Set to False
+                     to suppress them (e.g. for single-crystal simulations
+                     where only first-order terms are needed). Only used with
+                     the 'spinsys' backend.
+
+    Returns:
+      file_contents (str): spinsys file in string format. Only returned if
+                           no save path is provided.
+    """
+    if backend == 'legacy':
+        warnings.warn(
+            "The 'legacy' backend for write_spinsys is deprecated and will be removed "
+            "in a future version. Use the default 'spinsys' backend instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _write_spinsys_legacy(
+            s, isotope_list, use_ms, ms_iso, ms_tag, q_order, efg_tag,
+            dip_sel, path, ref, grad, obs_nuc,
+        )
+    elif backend == 'spinsys':
+        return _write_spinsys_spinsys(
+            s, isotope_list, use_ms, ms_iso, ms_tag, q_order, efg_tag,
+            dip_sel, path, ref, grad, obs_nuc,
+            include_cross_terms=include_cross_terms,
+        )
+    else:
+        raise ValueError(f"Unknown backend: '{backend}'. Choose 'spinsys' or 'legacy'.")
 
 def load_simpson_dat(filename):
     """Load a SIMPSON output .dat file and return it as a numpy array."""

@@ -73,6 +73,32 @@ class TestCLIUtils(unittest.TestCase):
         labels = eth_merged.get_array("labels")
         self.assertTrue(np.all(labels == expected_labels))
 
+    def test_merge_tagged_sites_symmetry_strategies(self):
+        """Test that symmetry_merging_strategies is used for non-negative tags
+        and default strategies for negative tags."""
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        # Set up fake tensor data so we can check merging behaviour
+        ms = np.random.rand(len(eth), 3, 3)
+        eth.set_array("ms", ms)
+
+        # Tags: 0,0 = symmetry group (non-negative); -1,-1 = functional group (negative)
+        tags = [0, 0, -1, -1, 1, 2, 3, 4, 5]
+        eth.set_tags(tags)
+
+        merged = merge_tagged_sites(
+            eth,
+            merging_strategies={"ms": lambda x: np.mean(x, axis=0)},
+            symmetry_merging_strategies={"ms": lambda x: x[0]},
+        )
+
+        # Check that symmetry group (tag 0) used merge_first (x[0])
+        sym_idx = np.where(merged.get_tags() == 0)[0][0]
+        np.testing.assert_array_equal(merged.get_array("ms")[sym_idx], ms[0])
+
+        # Check that functional group (tag -1) used merge_mean
+        fg_idx = np.where(merged.get_tags() == -1)[0][0]
+        np.testing.assert_array_equal(merged.get_array("ms")[fg_idx], np.mean(ms[2:4], axis=0))
+
 
 class TestExtractMolecules(unittest.TestCase):
     def test_extract_molecules_simple(self):

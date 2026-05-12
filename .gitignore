@@ -120,3 +120,4 @@ tests/*.pkl
 tutorials/_temp_output/*
 # Generated marimo WASM exports (built by CI, not committed)
 docs/_static/apps
+.DS_Store

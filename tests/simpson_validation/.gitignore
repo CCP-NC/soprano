@@ -1,0 +1,6 @@
+# Generated test files
+*.in
+*.spinsys
+*_fid.dat
+*_spe.dat
+__pycache__/

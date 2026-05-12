@@ -38,7 +38,6 @@ from ase import Atoms
 from ase.visualize import view as aseview
 
 from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
-from soprano.calculate.nmr.simpson import SimpsonTemplates
 from soprano.data.nmr import _el_iso
 from soprano.properties.linkage import ElementPairs, Molecules
 from soprano.utils import average_quaternions
@@ -128,9 +127,7 @@ cif2cell mystructure.cif --export-cif-labels -p castep
 """
 
 # Function to expand aliases
-def expand_aliases(input_list, alias_dict):
-    if input_list is None:
-        return None
+def expand_aliases(input_list, alias_dict) -> List[str]:
     output_list = []
     for item in input_list:
         if item in alias_dict:
@@ -311,6 +308,16 @@ reduce = click.option(
     "Note that this doesn't take into account magnetic symmetry! "
     "Defaults to True, so use ``--no-reduce`` to turn off symmetry reduction.",
 )
+# flag option to use merge_mean for symmetry reduction
+mean_merge = click.option(
+    "--mean-merge/--no-mean-merge",
+    is_flag=True,
+    default=False,
+    help="Use ``merge_mean`` for NMR tensors (ms, efg) when reducing equivalent sites. "
+    "Default is False, which uses ``merge_first`` to avoid corrupting Euler angles "
+    "for non-translation symmetries (e.g. C₂ rotations, mirror planes). "
+    "Only applies when ``--reduce`` is enabled.",
+)
 # symprec flag
 symprec = click.option(
     "--symprec",
@@ -362,19 +369,23 @@ df_sort_order = click.option(
 )
 # dictionary option to specify reference for each element
 references = click.option(
+    "--ref",
     "--references",
+    "references",
     callback=keyvalue_parser,
     default="",
     help="Reference shielding for each element (in ppm). "
-    "The format is ``--references C:170,H:123``. ",
+    "The format is ``--ref C:170,H:123``. ",
 )
 gradients = click.option(
+    "--grad",
     "--gradients",
+    "gradients",
     callback=keyvalue_parser,
     default="",
     help="Reference shielding gradients for each element. "
     "Defaults to -1 for all elements. Set it like this: "
-    "``--gradients H:-1,C:-0.97``. ",
+    "``--grad H:-1,C:-0.97``. ",
 )
 # TODO: have an option to set a file/env variable for the references...
 # flag to include certain columns only
@@ -693,11 +704,11 @@ plot_shielding = click.option(
 
 
 # option to select a subset of atoms
-dip_selection_i = click.option(
-    "--select_i", "-i", "selection_i", type=str, default=None, help=subset_help
+coupling_selection_i = click.option(
+    "--select-i", "selection_i", type=str, default=None, help=subset_help
 )
-dip_selection_j = click.option(
-    "--select_j", "-j", "selection_j", type=str, default=None, help=subset_help
+coupling_selection_j = click.option(
+    "--select-j", "selection_j", type=str, default=None, help=subset_help
 )
 dip_rss_flag = click.option(
     "--rss",
@@ -725,6 +736,132 @@ dip_isonuclear = click.option(
 )
 
 
+## Spinsys options
+spinsys_split = click.option(
+    "--split",
+    is_flag=True,
+    default=False,
+    help="Split the spinsys into separate files — one per site. "
+    "Default is False. "
+    "If True, the output will be written to separate files for each site. "
+    "The files will be named using the output filename and an index for each site.",
+)
+spinsys_format = click.option(
+    "--format",
+    "--program",
+    "-f",
+    "format",
+    type=click.Choice(["mrsimulator", "simpson"]),
+    default="simpson",
+    help="Which program to prepare the spinsys for. "
+)
+spinsys_include_ms = click.option(
+    "--ms/--no-ms",
+    "include_ms",
+    default=True,
+    help="Include magnetic shift values in SpinSys output. Default is True.",
+)
+spinsys_include_efg = click.option(
+    "--efg/--no-efg",
+    "include_efg",
+    default=True,
+    help="Include EFG values in SpinSys output for quadrupolar nuclei. "
+    "If you don't see quadrupole lines in your spin system, "
+    "you might want to specify the isotope explicitly like: "
+    "``--isotopes 2H``. "
+    "Default is True.",
+)
+spinsys_include_dip = click.option(
+    "--dip/--no-dip",
+    "include_dip",
+    default=False,
+    help="Include dipolar coupling values in SpinSys output. Default is False.",
+)
+spinsys_include_j = click.option(
+    "--jcoupling/--no-jcoupling",
+    "include_j",
+    default=False,
+    help="Include J coupling values in SpinSys output. Default is False.",
+)
+# Treat MS as isotropic?
+spinsys_ms_isotropic = click.option(
+    "--ms-iso",
+    "ms_isotropic",
+    is_flag=True,
+    default=False,
+    help="Treat magnetic shieldings as isotropic? Default is False.",
+)
+# quadrupolar order integer options between 1 and 2
+spinsys_q_order = click.option(
+    "--q-order",
+    "q_order",
+    type=click.IntRange(1, 2),
+    default=None,
+    help="Include quadrupolar interactions from Electric Field Gradients at the given order (1 or 2). "
+         "Default is None, which lets the library choose 2 for quadrupole-active nuclei and 0 otherwise. "
+         "You can specify the isotopes using the --isotopes option, for example: ``--isotopes 2H``. "
+)
+# cross-terms option
+spinsys_cross_terms = click.option(
+    "--cross-terms/--no-cross-terms",
+    "include_cross_terms",
+    default=True,
+    help="Include second-order cross-terms (quadrupole_x_dipole, quadrupole_x_shift) "
+         "in Simpson output. Default is True.",
+)
+# Main angles option
+spinsys_angles = click.option(
+    "--angles",
+    "include_angles",
+    type=click.Choice(["all", "none", "default"]),
+    default="default",
+    help="Overall control for all angle types: 'all' enables all angles, 'none' disables all angles, 'default' respects individual flags"
+)
+
+# Individual angle options
+spinsys_ms_angles = click.option(
+    "--ms-angles/--no-ms-angles",
+    "include_ms_angles",
+    default=True,
+    help="Include magnetic shielding tensor angles. Default is True.",
+)
+spinsys_efg_angles = click.option(
+    "--efg-angles/--no-efg-angles",
+    "include_efg_angles",
+    default=True,
+    help="Include EFG tensor angles. Default is True.",
+)
+spinsys_dipolar_angles = click.option(
+    "--dipolar-angles/--no-dipolar-angles",
+    "include_dipolar_angles",
+    default=True,
+    help="Include dipolar coupling angles. Default is True.",
+)
+spinsys_jcoupling_angles = click.option(
+    "--jcoupling-angles/--no-jcoupling-angles",
+    "include_jcoupling_angles",
+    default=True,
+    help="Include J-coupling angles. Default is True.",
+)
+output_filename = click.option(
+    "--output",
+    "-o",
+    "output_filename",
+    type=click.Path(exists=False, dir_okay=False, writable=True),
+    default=None,
+    help="Output filename. Default is None. "
+    "If not specified, the output will be written to stdout.",
+)
+# Observed nucleus
+observed_nucleus = click.option(
+    "--observed-nucleus",
+    "--obs",
+    "observed_nucleus",
+    type=str,
+    default="",
+    help="Observed nucleus. Default is ''. This is used to set the observed nucleus in the Simpson input file."
+    "If not specified, the observed nucleus is set to the first nucleus in the spinsys file.",
+)
 #### Groups of CLI options
 # options that apply to pandas dataframes
 DF_OPTIONS = [
@@ -745,10 +882,12 @@ NMR_OPTIONS = [
     isotopes,
     average_group,
     reduce,
+    mean_merge,
     euler,
     references,
     gradients,
     subset,
+    precision,
 ]
 
 COMMON_OPTIONS = [
@@ -756,7 +895,6 @@ COMMON_OPTIONS = [
     verbosity,
     view,
     symprec,
-    precision,
 ]
 PLOT_SPECIFIC_OPTIONS = [
     isotopes,
@@ -766,6 +904,7 @@ PLOT_SPECIFIC_OPTIONS = [
     gradients,
     subset,
     reduce,
+    mean_merge,
     df_query,
     plot_type,
     plot_xelement,
@@ -804,17 +943,49 @@ PLOT_SPECIFIC_OPTIONS = [
 DIP_OPTIONS = [
     isotopes,
     average_group,
-    dip_selection_i,
-    dip_selection_j,
+    coupling_selection_i,
+    coupling_selection_j,
     dip_rss_flag,
     dip_rss_cutoff,
     dip_isonuclear,
+    precision,
+]
+
+SPINSYS_OPTIONS = [
+    output_filename,
+    spinsys_format,
+    observed_nucleus,
+    isotopes,
+    average_group,
+    reduce,
+    mean_merge,
+    references,
+    gradients,
+    subset,
+    spinsys_split,
+    spinsys_include_ms,
+    spinsys_include_efg,
+    spinsys_include_dip,
+    spinsys_include_j,
+    spinsys_ms_isotropic,
+    spinsys_q_order,
+    spinsys_cross_terms,
+    spinsys_angles,
+    spinsys_ms_angles,
+    spinsys_efg_angles,
+    spinsys_dipolar_angles,
+    spinsys_jcoupling_angles,
+    coupling_selection_i,
+    coupling_selection_j,
+    ms_tag,
+    efg_tag,
 ]
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
 DIPOLAR_OPTIONS = COMMON_OPTIONS + DIP_OPTIONS + DF_OPTIONS
 PLOT_OPTIONS = COMMON_OPTIONS + PLOT_SPECIFIC_OPTIONS
-VIEW_OPTIONS = [config, average_group, subset, reduce, symprec]
+VIEW_OPTIONS = [config, average_group, subset, reduce, mean_merge, symprec]
+SPINSYS_OPTIONS += COMMON_OPTIONS
 
 
 # function to add options to a subcommand
@@ -1102,7 +1273,7 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
             assert len(group) == n
             match = []
             if len(seen_tags) > 0:
-                match = np.where((seen_tags == tags[group]).all(axis=1))[0]
+                match = np.where((np.array(seen_tags) == tags[group]).all(axis=1))[0]
 
             if len(match) == 1:
                 # how to handle this?

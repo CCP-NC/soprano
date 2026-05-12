@@ -32,6 +32,15 @@ except ImportError:
 
 try:
     import spglib as _spglib
+
+    # Opt-in to new spglib exception-based error handling (spglib >= 2.7.0)
+    # This silences the OLD_ERROR_HANDLING deprecation warnings
+    try:
+        import spglib.error
+
+        spglib.error.OLD_ERROR_HANDLING = False
+    except (AttributeError, ImportError):
+        pass  # Older spglib versions don't have this
 except ImportError:
     try:
         from pyspglib import spglib as _spglib

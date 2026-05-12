@@ -109,6 +109,7 @@ features = ["symmetry"]
 [tool.hatch.envs.default]
 installer = "uv"
 description = "Default environment with stable package versions"
+features = ["symmetry"]
 
 # Development environment - includes dev tools
 [tool.hatch.envs.dev]
@@ -329,9 +330,17 @@ extend-exclude = '''
 minversion = "6.0"
 addopts = "-ra -q"
 testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
+python_files = ["*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+filterwarnings = [
+    # scipy Gimbal lock warning from Rotation.euler_angles
+    "ignore:Gimbal lock detected:UserWarning",
+    # Division warnings in tensor calculations (expected for edge cases)
+    "ignore:invalid value encountered in scalar divide:RuntimeWarning",
+    # Intentional species mismatch warning in map.py
+    "ignore:Warning.*species do not match:UserWarning",
+]
 
 [tool.coverage.run]
 source = ["soprano"]

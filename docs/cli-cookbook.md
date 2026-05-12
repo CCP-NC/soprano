@@ -153,7 +153,67 @@ Here are some common examples:
             seedname.magres
     ```
 
+## Spin Systems
+The `spinsys` subcommand extracts spin systems from a magres file and writes them in Simpson or MRSimulator format. Run `soprano spinsys --help` for the full option list.
 
+Magnetic shielding (`--ms`, on by default) requires reference values for each isotope (`--ref ISOTOPE:VALUE`); use `--no-ms` to disable it. EFG/quadrupolar terms are also on by default and are included automatically for quadrupolar-active isotopes — use `--no-efg` to suppress them. Dipolar and J-couplings are opt-in via `--dip` and `--jcoupling`.
+
+* **Basic ¹H spin system → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 -o spinsys.in
+    ```
+
+* **¹³C/¹H spin system with C–H dipolar couplings → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s C,H --ref C:170,H:30 --dip --select-i C --select-j H -o spinsys.in
+    ```
+    `-s C,H` includes both species in the spin system; `--select-i C --select-j H` restricts dipolar couplings to C–H pairs only (skipping H–H).
+
+* **Quadrupolar nucleus (²H, 2nd order) → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s H -i 2H --ref H:0 --q-order 2 -o spinsys_2H.in
+    ```
+
+* **¹⁷O quadrupolar spin system → Simpson file:**
+
+    ```bash
+    soprano spinsys seedname.magres -s O -i 17O --q-order 2 --obs 17O --no-ms -o spinsys_17O.in
+    ```
+    `--obs` sets which nucleus is observed in the simulation — needed when the spin system contains more than one isotope. `--no-ms` suppresses shielding.
+
+* **Include J-couplings:**
+
+    ```bash
+    soprano spinsys seedname.magres -s C --ref C:170 --dip --jcoupling -o spinsys.in
+    ```
+
+* **MRSimulator format:**
+
+    ```bash
+    soprano spinsys seedname.magres -s C --ref C:170 --dip -f mrsimulator -o spinsys.json
+    ```
+
+* **Output individual spin systems to separate files (one per site):**
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --split
+    ```
+    With `--split`, output filenames are generated automatically from the site labels.
+
+* **Average methyl (CH₃) groups** into a single site. Use `--no-reduce` to prevent symmetry-equivalent methyls from being merged together before averaging:
+
+    ```bash
+    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3 --no-reduce -o spinsys.in
+    ```
+
+* **Custom isotope** — `-i` controls which isotope is used for the dipolar coupling constant, EFG quadrupolar coupling, and J-coupling. It does **not** affect the MS tensor. For example, to compute ²H dipolar couplings for a deuterium-labelled sample (MS disabled since no reference is available):
+
+    ```bash
+    soprano spinsys seedname.magres -s H -i 2H --dip --no-ms -o spinsys_2H_dip.in
+    ```
 
 ## Dipolar Couplings
 

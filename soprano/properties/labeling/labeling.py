@@ -343,7 +343,6 @@ class UniqueSites(AtomsProperty):
 
         unique_tags, uniqueinds = np.unique(tags, return_index=True)
 
-
         # -- check to make sure that no two elements have the same tag --#
         # unique elements
         elems = set(s.get_chemical_symbols())
