@@ -550,6 +550,29 @@ class TestDipolarCoupling(unittest.TestCase):
         self.assertEqual(parts[5], "0")
         self.assertEqual(parts[6], "0")
 
+    def test_from_distance_vector_sign_and_magnitude(self):
+        """Regression test: from_distance_vector must use NQR tensor order.
+
+        Prior bug used order='i' (increasing) which yielded coupling_constant = -d/2
+        instead of d for the typical case of two positive-γ nuclei.
+        """
+        from soprano.nmr.coupling import dipolar_coupling_from_distance_vector
+        # 1H-1H along z, 1 Å apart
+        r_vec = np.array([0.0, 0.0, 1.0])  # Å
+        d_expected = dipolar_coupling_from_distance_vector(r_vec,
+                                                           nmr_gamma("H", iso=1),
+                                                           nmr_gamma("H", iso=1))
+        coupling = DipolarCoupling.from_distance_vector(r_vec, "1H", "1H")
+        self.assertAlmostEqual(coupling.coupling_constant, d_expected, places=3,
+                               msg=f"coupling_constant {coupling.coupling_constant} != "
+                                   f"expected {d_expected}; likely order='i' bug")
+        # For two positive-γ nuclei the constant must be negative
+        self.assertLess(d_expected, 0,
+                        "dipolar_coupling_from_distance_vector should be negative for 1H-1H")
+        self.assertLess(coupling.coupling_constant, 0,
+                        "DipolarCoupling.coupling_constant must be negative for 1H-1H")
+
+
 class TestISCoupling(unittest.TestCase):
 
     def setUp(self):
@@ -1007,6 +1030,43 @@ class TestSpinSystem(unittest.TestCase):
         spin_system.remove_coupling(0, 1, coupling_type='D')
         self.assertEqual(len(spin_system.couplings), len(self.couplings) - 1)
 
+    def test_remove_coupling_does_not_corrupt_other_pair_indices(self):
+        """Regression test: coupling_indices for unrelated pairs must
+        remain correct after a coupling is deleted from a different pair.
+
+        The old implementation updated coupling_indices[key] in-place but did not
+        adjust the stored indices for any other key, so they could point to the
+        wrong coupling after the list shifted.
+        """
+        # Build a minimal 3-site system with one dipolar coupling per pair.
+        d = lambda i, j: DipolarCoupling(
+            site_i=i, site_j=j,
+            species1="1H", species2="1H",
+            tensor=NMRTensor(np.diag([-1.0, -1.0, 2.0]), order="n"),
+        )
+        sites_3 = self.sites[:3]
+        c01 = d(0, 1)
+        c12 = d(1, 2)
+        c02 = d(0, 2)
+
+        spin = SpinSystem(sites=sites_3, couplings=[c01, c12, c02])
+        # self.couplings is [c01 at idx 0, c12 at idx 1, c02 at idx 2]
+
+        # Remove coupling (0, 1) — list becomes [c12 at idx 0, c02 at idx 1]
+        spin.remove_coupling(0, 1, coupling_type="D")
+
+        # coupling_indices for (1, 2) must now point to index 0
+        retrieved_12 = spin.get_couplings(1, 2)
+        self.assertEqual(len(retrieved_12), 1)
+        self.assertEqual(retrieved_12[0].site_i, 1)
+        self.assertEqual(retrieved_12[0].site_j, 2)
+
+        # coupling_indices for (0, 2) must now point to index 1
+        retrieved_02 = spin.get_couplings(0, 2)
+        self.assertEqual(len(retrieved_02), 1)
+        self.assertEqual(retrieved_02[0].site_i, 0)
+        self.assertEqual(retrieved_02[0].site_j, 2)
+
     def test_spin_system_equality(self):
         spin_system = SpinSystem(sites=self.sites, couplings=self.couplings)
         spin_system_copy = spin_system.copy()
@@ -1080,6 +1140,45 @@ class TestSpinSystem(unittest.TestCase):
         self.assertEqual(result["description"], "A test spin system")
         self.assertIn("sites", result)
         self.assertIn("couplings", result)
+
+
+class TestNMRTensorDegeneracy(unittest.TestCase):
+    """Regression test: NMRTensor.degeneracy pairwise comparison.
+
+    The old implementation compared all eigenvalues against evals[0] only,
+    which returned 1 for NQR-sorted tensors of the form [a, b, b] (unique axis
+    last) even though they are 2-fold degenerate.
+    """
+
+    def test_all_distinct(self):
+        T = NMRTensor(np.diag([1.0, 2.0, 3.0]), order="i")
+        self.assertEqual(T.degeneracy, 1)
+
+    def test_first_two_equal(self):
+        """Pattern [a, a, b] (Haeberlen axially-symmetric)"""
+        T = NMRTensor(np.diag([2.0, 2.0, -4.0]), order="i")
+        self.assertEqual(T.degeneracy, 2)
+
+    def test_last_two_equal_nqr(self):
+        """Pattern [a, b, b] — NQR-sorted axially-symmetric, e.g. dipolar.
+        The old bug returned 1 here because evals[0] != evals[1] != evals[2].
+        """
+        # NQR order: sort by absolute value ascending
+        T = NMRTensor(np.diag([-1.0, -1.0, 2.0]), order="n")  # eigenvalues: [-1,-1, 2]
+        self.assertEqual(T.degeneracy, 2,
+                         "degeneracy must be 2 for NQR-sorted [-1,-1,2] tensor")
+
+    def test_all_equal(self):
+        T = NMRTensor(np.diag([5.0, 5.0, 5.0]), order="i")
+        self.assertEqual(T.degeneracy, 3)
+
+    def test_dipolar_axial_nqr(self):
+        """Typical axially-symmetric dipolar tensor in NQR order: [-d, -d, 2d].
+        degeneracy = 2 is required so euler_angles() takes the right branch.
+        """
+        d = -500.0  # Hz
+        T = NMRTensor(d * np.diag([-1.0, -1.0, 2.0]), order="n")
+        self.assertEqual(T.degeneracy, 2)
 
 
 if __name__ == '__main__':

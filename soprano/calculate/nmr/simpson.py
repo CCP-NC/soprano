@@ -182,6 +182,7 @@ def _write_spinsys_spinsys(
     ref,
     grad,
     obs_nuc,
+    include_cross_terms=True,
 ):
     """SpinSystem backend for write_spinsys."""
 
@@ -216,6 +217,7 @@ def _write_spinsys_spinsys(
         "q_order": q_order,
         "ms_isotropic": ms_iso,
         "include_angles": True,
+        "include_cross_terms": include_cross_terms,
     }
 
     output_string = spinsys.to_string(format="simpson", **simpson_kwargs)
@@ -240,6 +242,7 @@ def write_spinsys(
     grad=-1.0,
     obs_nuc=None,
     backend='spinsys',
+    include_cross_terms=True,
 ):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
@@ -284,6 +287,13 @@ def write_spinsys(
       backend (str): backend to use. Options are 'spinsys' (default) or
                      'legacy'. The 'legacy' backend is deprecated and will
                      be removed in a future version.
+      include_cross_terms (bool): if True (default), include second-order
+                     cross-term keywords (``quadrupole_x_dipole`` and
+                     ``quadrupole_x_shift``) when the system contains both
+                     quadrupolar and dipolar/shift interactions. Set to False
+                     to suppress them (e.g. for single-crystal simulations
+                     where only first-order terms are needed). Only used with
+                     the 'spinsys' backend.
 
     Returns:
       file_contents (str): spinsys file in string format. Only returned if
@@ -304,6 +314,7 @@ def write_spinsys(
         return _write_spinsys_spinsys(
             s, isotope_list, use_ms, ms_iso, ms_tag, q_order, efg_tag,
             dip_sel, path, ref, grad, obs_nuc,
+            include_cross_terms=include_cross_terms,
         )
     else:
         raise ValueError(f"Unknown backend: '{backend}'. Choose 'spinsys' or 'legacy'.")

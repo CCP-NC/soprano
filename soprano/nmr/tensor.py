@@ -199,7 +199,10 @@ class NMRTensor(NDArrayOperatorsMixin):
         A tensor with eigenvalues [1, 2, 3] has a degeneracy of 1.
         '''
         if self._degeneracy is None:
-            self._degeneracy = np.sum(np.abs(self._evals - self._evals[0]) < DEGENERACY_TOLERANCE)
+            # Pairwise comparison so that patterns like [a, b, b] or [a, a, b]
+            # return 2 regardless of which value is at index 0.
+            diffs = np.abs(self._evals[:, None] - self._evals[None, :])
+            self._degeneracy = int(np.max(np.sum(diffs < DEGENERACY_TOLERANCE, axis=1)))
         return self._degeneracy
 
     @property

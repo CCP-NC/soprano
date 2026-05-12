@@ -427,8 +427,9 @@ class DipolarCoupling(Coupling):
         )
 
         # Create the dipolar coupling tensor
+        # NQR order (abs-ascending) is required: coupling_constant reads eigenvalues[2]/2
         dipolar_tensor = NMRTensor(
-            _dip_tensor(dipolar_coupling, distance_vector), order="i"
+            _dip_tensor(dipolar_coupling, distance_vector), order="n"
         )
 
         # Create the DipolarCoupling object
@@ -531,8 +532,8 @@ def dipolar_coupling_from_distance_vector(r: np.ndarray, gamma1, gamma2) -> floa
         The dipolar coupling constant in Hz.
 
     """
-    # Calculate the dipolar coupling constant
-    return _dip_constant(r * 1e-10, gamma1, gamma2)
+    # Calculate the dipolar coupling constant from the scalar distance (norm of r)
+    return _dip_constant(np.linalg.norm(r) * 1e-10, gamma1, gamma2)
 
 
 

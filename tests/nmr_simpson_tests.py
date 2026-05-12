@@ -119,6 +119,25 @@ class TestWriteSpinSys(unittest.TestCase):
         with self.assertRaises(ValueError):
             write_spinsys(self.atoms, backend='unknown')
 
+    def test_include_cross_terms_false_suppresses_cross_terms(self):
+        """Regression test: include_cross_terms must be threaded
+        through write_spinsys -> _write_spinsys_spinsys -> SpinSystem.to_simpson.
+
+        Before the fix, write_spinsys had no include_cross_terms parameter and
+        always used the default (True) inside to_simpson.
+        """
+        # Verify the parameter is accepted without TypeError
+        output_with = write_spinsys(self.atoms, q_order=2, include_cross_terms=True)
+        output_without = write_spinsys(self.atoms, q_order=2, include_cross_terms=False)
+
+        # Both outputs must still contain valid spinsys structure
+        for output in [output_with, output_without]:
+            self.assertIn("spinsys", output)
+
+        # When cross-terms are disabled, neither cross-term keyword must appear
+        self.assertNotIn("quadrupole_x_dipole", output_without)
+        self.assertNotIn("quadrupole_x_shift", output_without)
+
 
 if __name__ == '__main__':
     unittest.main()

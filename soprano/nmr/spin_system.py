@@ -126,6 +126,16 @@ class SpinSystem(BaseModel):
 
 
     
+    def _rebuild_coupling_indices(self):
+        """Rebuild coupling_indices from self.couplings. Call after any deletion."""
+        coupling_indices: dict[tuple[int, int], list[int]] = {}
+        for index, coupling in enumerate(self.couplings):
+            k = (coupling.site_i, coupling.site_j)
+            if k not in coupling_indices:
+                coupling_indices[k] = []
+            coupling_indices[k].append(index)
+        self.coupling_indices = coupling_indices
+
     def add_coupling(self, coupling: Coupling):
         self.couplings.append(coupling)
         key = (coupling.site_i, coupling.site_j)
@@ -172,9 +182,9 @@ class SpinSystem(BaseModel):
             if indices_to_remove:
                 for i in sorted(indices_to_remove, reverse=True):
                     del self.couplings[i]
-                    self.coupling_indices[key].remove(i)
-                if not self.coupling_indices[key]:  # Remove the key if the list is empty
-                    del self.coupling_indices[key]
+                # Rebuild all coupling_indices from scratch so that indices
+                # into self.couplings remain correct for every site pair.
+                self._rebuild_coupling_indices()
                 return
         raise KeyError(f"No coupling found for sites {site_i} and {site_j} with type {coupling_type}")
     
@@ -521,7 +531,7 @@ nuclei {" ".join(nuclei)}
 {cross_term_string}
 }}
 """
-        # Trim blank lines from the end of the string
+        # Remove blank/whitespace-only lines throughout (empty strings, efg, dipolar blocks etc.)
         output_string = "\n".join(line.rstrip() for line in output_string.splitlines() if line.strip())
         # Add a final line break
         output_string += "\n"
