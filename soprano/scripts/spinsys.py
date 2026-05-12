@@ -28,6 +28,7 @@ __date__ = "Nov 15, 2023"
 
 import logging
 import os
+from pathlib import Path
 
 from ase import Atoms
 import click
@@ -81,11 +82,10 @@ def spinsys(
     verbosity,
     symprec,
     view,
+    ms_tag,
+    efg_tag,
 ):
-    """Extract a spin system from a .magres file for use as input to a Simpson simulation.
-
-    The script can also run Simpson and plot the resulting spectrum.
-    """
+    """Extract a spin system from a .magres file for use as input to a Simpson or MRSimulator simulation."""
 
     # Set up logging
     if verbosity == 0:
@@ -95,9 +95,17 @@ def spinsys(
     elif verbosity == 2:
         logger.setLevel(logging.DEBUG)
 
-    # Load the magres file
+    # Load the input file
+    supported_extensions = {'.magres', '.extxyz', '.xyz'}
+    file_ext = Path(file).suffix.lower()
+    if file_ext not in supported_extensions:
+        logger.error(
+            f"Unsupported file type '{file_ext}'. "
+            f"Supported formats: {', '.join(sorted(supported_extensions))}"
+        )
+        return
     try:
-        atoms = read(file, format="magres")
+        atoms = read(file)
     except Exception as e:
         logger.error(f"Error reading file {file}: {e}")
         return
@@ -107,10 +115,20 @@ def spinsys(
         logger.error("The file contains multiple structures. Please select one.")
         return
 
+    # Validate that required arrays are present
+    missing = []
+    if include_ms and not atoms.has(ms_tag):
+        missing.append(f"MS array '{ms_tag}' (disable with --no-ms or change tag with --ms-tag)")
+    if include_efg and not atoms.has(efg_tag):
+        missing.append(f"EFG array '{efg_tag}' (disable with --no-efg or change tag with --efg-tag)")
+    if missing:
+        logger.error(
+            f"The input file is missing required data arrays:\n" +
+            "\n".join(f"  - {m}" for m in missing)
+        )
+        return
+
     # Extract the spin system
-    # TODO what should the correct behaviour be if
-    # average group is selected?
-    #  - 1 or 3 H atoms in the spinsys per CH3 group?
     spinsys_atoms = nmr_extract_atoms(
         atoms,
         subset=subset,
@@ -167,6 +185,8 @@ def spinsys(
         references=references,
         gradients=gradients,
         coupling_kwargs=coupling_kwargs,
+        ms_tag=ms_tag,
+        efg_tag=efg_tag,
     )
 
     # Process the angles option
@@ -183,6 +203,7 @@ def spinsys(
         "include_jcoupling_angles": include_jcoupling_angles,
         "q_order": q_order,
         "include_cross_terms": include_cross_terms,
+        "observed_nucleus": observed_nucleus or None,
     }
 
     if not split:

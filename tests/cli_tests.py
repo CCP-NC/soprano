@@ -758,6 +758,85 @@ class TestCLI(unittest.TestCase):
                 # The CLI logs an error and returns without writing output
                 self.assertIn("does not contain all references", result.output)
 
+    def test_spinsys_observed_nucleus(self):
+        """Test that --observed-nucleus places the nucleus first in Simpson channels."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            with NamedTemporaryFile(suffix='.spinsys') as temp_file:
+                fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+                option_flags = [
+                    "--format", "simpson",
+                    "--output", temp_file.name,
+                    "--references", "C:170,H:31.7",
+                    "--subset", "C,H",
+                    "--observed-nucleus", "13C",
+                    "-v",
+                ]
+                result = runner.invoke(
+                    soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
+                )
+                self.assertEqual(result.exit_code, 0)
+                with open(temp_file.name, 'r') as f:
+                    content = f.read()
+                # The observed nucleus should be the first channel
+                channels_line = [line for line in content.splitlines() if line.startswith("channels")][0]
+                channel_parts = channels_line.split()
+                self.assertEqual(channel_parts[1], "13C")
+
+    def test_spinsys_custom_ms_tag(self):
+        """Test that a custom ms_tag is read from an extxyz file."""
+        from ase.io import read as ase_read, write as ase_write
+        from soprano.properties.nmr import get_spin_system
+
+        atoms = ase_read(str(self._TESTDATA_DIR / "ethanol.magres"))
+        # Flatten the MS tensor and store under a custom tag
+        ms = atoms.arrays["ms"]
+        atoms.set_array("custom_ms", ms.reshape(ms.shape[0], -1))
+        # Remove arrays that ASE extxyz cannot serialise
+        for key in list(atoms.arrays.keys()):
+            if key not in ["numbers", "positions", "custom_ms"]:
+                del atoms.arrays[key]
+
+        extxyz_path = self._TESTSAVE_DIR / "ethanol_custom_ms.extxyz"
+        ase_write(str(extxyz_path), atoms)
+
+        atoms2 = ase_read(str(extxyz_path))
+        spin_system = get_spin_system(
+            atoms2,
+            references={"C": 170, "H": 31.7, "O": 0},
+            include_efg=False,
+            ms_tag="custom_ms",
+        )
+        simpson_str = spin_system.to_simpson()
+        self.assertIn("shift", simpson_str)
+
+    def test_spinsys_custom_efg_tag(self):
+        """Test that a custom efg_tag is read from an extxyz file."""
+        from ase.io import read as ase_read, write as ase_write
+        from soprano.properties.nmr import get_spin_system
+
+        atoms = ase_read(str(self._TESTDATA_DIR / "nacl.magres"))
+        # Flatten the EFG tensor and store under a custom tag
+        efg = atoms.arrays["efg"]
+        atoms.set_array("custom_efg", efg.reshape(efg.shape[0], -1))
+        for key in list(atoms.arrays.keys()):
+            if key not in ["numbers", "positions", "custom_efg"]:
+                del atoms.arrays[key]
+
+        extxyz_path = self._TESTSAVE_DIR / "nacl_custom_efg.extxyz"
+        ase_write(str(extxyz_path), atoms)
+
+        atoms2 = ase_read(str(extxyz_path))
+        spin_system = get_spin_system(
+            atoms2,
+            references={"Na": 0, "Cl": 0},
+            include_shielding=False,
+            include_efg=True,
+            efg_tag="custom_efg",
+        )
+        simpson_str = spin_system.to_simpson()
+        self.assertTrue("quad" in simpson_str.lower() or "cq" in simpson_str.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

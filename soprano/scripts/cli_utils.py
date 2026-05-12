@@ -977,6 +977,8 @@ SPINSYS_OPTIONS = [
     spinsys_jcoupling_angles,
     coupling_selection_i,
     coupling_selection_j,
+    ms_tag,
+    efg_tag,
 ]
 
 NMREXTRACT_OPTIONS = COMMON_OPTIONS + NMR_OPTIONS + DF_OPTIONS
@@ -1271,7 +1273,7 @@ def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
             assert len(group) == n
             match = []
             if len(seen_tags) > 0:
-                match = np.where((seen_tags == tags[group]).all(axis=1))[0]
+                match = np.where((np.array(seen_tags) == tags[group]).all(axis=1))[0]
 
             if len(match) == 1:
                 # how to handle this?
