@@ -79,10 +79,6 @@ class NMRData2D:
         if self.atoms is None and self.peaks is None:
             raise ValueError("Either atoms or peaks must be given.")
 
-        # if atoms are provided, let's use the subset of atoms that have the xelement and yelement
-        if self.atoms is not None:
-            self.atoms = filter_atoms_by_elements(self.atoms, [self.xelement, self.yelement])
-
         # Reduce to unique sites if requested — mirrors the CLI --reduce flag.
         # For dipolar_rss the full-cell atoms are needed so the expand_j
         # expansion can find all equivalent neighbours; store them before
@@ -113,6 +109,10 @@ class NMRData2D:
                         )
                     self.pairs = remapped
                 self.atoms = _reduced
+
+        # if atoms are provided, let's use the subset of atoms that have the xelement and yelement
+        if self.atoms is not None:
+            self.atoms = filter_atoms_by_elements(self.atoms, [self.xelement, self.yelement])
 
 
         # Either provide correlation strengths or calculate them based on the metric

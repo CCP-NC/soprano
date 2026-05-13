@@ -651,9 +651,9 @@ class TestNMRData2DReduce(unittest.TestCase):
     # ------------------------------------------------------------------
 
     def test_reduce_collapses_to_asymmetric_unit(self):
-        """reduce=True should produce 37 atoms (the asymmetric unit of EDIZUM)."""
+        """reduce=True should produce 19 H atoms (the unique H sites in the asymmetric unit of EDIZUM)."""
         nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
-        self.assertEqual(len(nd.atoms), 37)
+        self.assertEqual(len(nd.atoms), 19)
 
     def test_atoms_full_is_set_when_reduce_true(self):
         """atoms_full should hold the full labeled cell (148 atoms) after reduce=True."""
@@ -887,9 +887,9 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
     # ------------------------------------------------------------------
 
     def test_edizum_symmetry_collapses_to_asymmetric_unit(self):
-        """reduce=True with rss_expand_j='symmetry' should still give 37 atoms."""
+        """reduce=True with rss_expand_j='symmetry' should still give 19 H atoms."""
         nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="symmetry", reduce=True)
-        self.assertEqual(len(nd.atoms), 37)
+        self.assertEqual(len(nd.atoms), 19)
 
     def test_edizum_symmetry_pair_indices_valid(self):
         """All pair indices must be valid indices into the reduced atoms."""

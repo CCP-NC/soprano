@@ -54,10 +54,11 @@ from soprano.properties.nmr import (
     MSIsotropy,
     MSQuaternion,
     MSReducedAnisotropy,
-    MSShift,
     MSSkew,
     MSSpan,
 )
+
+from soprano.properties.nmr.ms import MSShift
 from soprano.selection import AtomSelection
 from soprano.utils import has_cif_labels, merge_first, merge_mean, merge_sites
 
@@ -350,9 +351,14 @@ def get_ms_summary(
         "MS_beta": beta,
         "MS_gamma": gamma,
     }
+
     if references:
-        # convert shift from ppm to MHz
-        ms_summary["MS_shift"] = MSShift.get(atoms, references=references, gradients=gradients)
+        # Fill missing references with 0.0 so MSShift doesn't raise
+        symbols = atoms.get_chemical_symbols()
+        complete_refs = {el: references.get(el, 0.0) for el in symbols}
+        complete_grads = {el: gradients.get(el, -1.0) for el in symbols} if gradients else {el: -1.0 for el in symbols}
+        ms_summary["MS_shift"] = MSShift.get(atoms, references=complete_refs, gradients=complete_grads)
+
     return ms_summary
 
 
