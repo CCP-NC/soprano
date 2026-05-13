@@ -72,7 +72,7 @@ class NMRPlot2D:
         else:
             raise ValueError(f"Unknown backend: {backend}. Choose 'matplotlib' or 'plotly'.")
 
-    def plot(self):
+    def plot(self) -> Any:
         '''
         Plot the 2D NMR data using the configured backend.
 
@@ -96,11 +96,11 @@ class NMRPlot2D:
             return self._plot_generic()
     
     @styled_plot(nmr_base_style, nmr_2D_style)
-    def _plot_matplotlib(self):
+    def _plot_matplotlib(self) -> Any:
         """Plot using matplotlib backend with styling"""
         return self._plot_generic()
-    
-    def _plot_generic(self):
+
+    def _plot_generic(self) -> Any:
         """Generic plotting logic that works with any backend"""
         
         # Prepare axis labels
@@ -207,7 +207,7 @@ class NMRPlot2D:
         # Finalize and return
         return self.backend.finalize(self.plot_settings.plot_filename)
     
-    def _get_marker_colors(self):
+    def _get_marker_colors(self) -> Union[str, List[str]]:
         """Get marker colors from peaks or use settings"""
         if self.plot_settings.marker_color is None:
             colors = [peak.color for peak in self.nmr_data.peaks]
@@ -217,8 +217,8 @@ class NMRPlot2D:
             return colors
         else:
             return self.plot_settings.marker_color
-    
-    def _get_contour_data_for_backend(self):
+
+    def _get_contour_data_for_backend(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Delegate contour generation to NMRData2D.get_contour_data().
 
         Grid limits come from ``PlotSettings.xlim`` / ``PlotSettings.ylim``
@@ -242,11 +242,12 @@ class NMRPlot2D:
             grid_size=self.plot_settings.heatmap_grid_size,
             xlims=xlims,
             ylims=ylims,
+            use_signed=self.plot_settings.use_signed,
         )
         return cd.X, cd.Y, cd.Z
 
 
-    def _normalize_marker_sizes(self, sizes):
+    def _normalize_marker_sizes(self, sizes: np.ndarray) -> np.ndarray:
         """Normalize marker sizes for consistent display"""
         sizes = np.abs(sizes)
         marker_size_range = np.max(sizes) - np.min(sizes)

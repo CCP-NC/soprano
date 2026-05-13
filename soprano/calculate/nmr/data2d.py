@@ -46,7 +46,7 @@ class NMRData2D:
                 xelement: Optional[str] = None,
                 yelement: Optional[str] = None,
                 references: Optional[dict[str, float]] = None,
-                gradients: Optional[Union[dict[str, float], float]] = -1.0,
+                gradients: Optional[Union[dict[str, float], float]] = None,
                 peaks: Optional[List[Peak2D]] = None,
                 pairs: Optional[List[Tuple[int, int]]] = None,
                 correlation_strengths: Optional[List[float]] = None,
@@ -253,7 +253,7 @@ class NMRData2D:
             )
         return result
 
-    def get_peaks(self, merge_identical=True, should_sort_peaks=False, force_recompute=False):
+    def get_peaks(self, merge_identical=True, should_sort_peaks=False, force_recompute=False) -> List['Peak2D']:
         '''
         Get the correlation peaks.
 
@@ -297,7 +297,7 @@ class NMRData2D:
 
         return self.peaks
 
-    def extract_data(self):
+    def extract_data(self) -> None:
         validate_elements(self.atoms, self.xelement, self.yelement)
         self.idx_x, self.idx_y = extract_indices(self.atoms, self.xelement, self.yelement)
         isotopes = _get_isotope_list(self.atoms.get_chemical_symbols(), isotopes=self.isotopes, use_q_isotopes=False)
@@ -323,7 +323,7 @@ class NMRData2D:
         self.logger.debug(f'Y values: {self.data[self.idx_y]}')
 
 
-    def get_correlation_strengths(self):
+    def get_correlation_strengths(self) -> np.ndarray:
 
         # Check that self.atoms is not None unless the metric is 'custom' or 'fixed', which don't require atoms
         if self.atoms is None and self.correlation_strength_metric not in ('custom', 'fixed'):
@@ -386,23 +386,28 @@ class NMRData2D:
                 # expand_j='cif_labels'/'symmetry' would find nothing to expand
                 # in self.atoms.  Instead, map pair indices to the full (unmerged)
                 # atoms via CIF labels, then let DipolarRSSByAtom expand there.
+                #
+                # Important: a single CIF label can appear multiple times in the
+                # full cell (Z > 1 or supercell).  We collect *all* matching
+                # indices so that RSS includes contributions from every symmetry-
+                # equivalent copy, not just the first one.
                 reduced_labels = get_atom_labels(self.atoms, self.logger)
                 full_labels = get_atom_labels(self.atoms_full, self.logger)
 
-                def _first_full_idx(label):
+                def _all_full_indices(label):
                     matches = np.where(full_labels == label)[0]
                     if len(matches) == 0:
                         raise ValueError(
                             f"Label '{label}' from reduced atoms not found in "
                             "atoms_full. Ensure atoms_full is labeled consistently."
                         )
-                    return int(matches[0])
+                    return matches.tolist()
 
                 correlation_strengths = np.array([
                     DipolarRSSByAtom.get(
                         self.atoms_full,
-                        sel_i=[_first_full_idx(reduced_labels[i])],
-                        sel_j=[_first_full_idx(reduced_labels[j])],
+                        sel_i=_all_full_indices(reduced_labels[i]),
+                        sel_j=_all_full_indices(reduced_labels[j]),
                         cutoff=self.rss_cutoff,
                         isotopes=self.isotopes,
                         expand_j=self.rss_expand_j,
@@ -460,7 +465,7 @@ class NMRData2D:
 
         return correlation_strengths
 
-    def get_axis_labels(self):
+    def get_axis_labels(self) -> Tuple[str, str]:
         if self.is_shift:
             axis_label = r"$\delta$"
         else:
@@ -475,7 +480,7 @@ class NMRData2D:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
 
 
-    def get_pairs(self):
+    def get_pairs(self) -> List[Tuple[int, int]]:
         '''
         Get the pairs of x and y indices to plot
 
@@ -549,7 +554,7 @@ class NMRData2D:
             self.logger.debug(f"Pairs remaining: {self.pairs}")
             self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
 
-    def to_dataframe(self, include_metadata=True):
+    def to_dataframe(self, include_metadata=True) -> 'pd.DataFrame':
         """
         Convert the NMR data to a pandas DataFrame.
         
@@ -647,6 +652,7 @@ class NMRData2D:
         grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
         ylims: Optional[Tuple[float, float]] = None,
+        use_signed: bool = False,
     ) -> 'ContourData':
         """
         Compute (and cache) the 2D contour grid for this spectrum.
@@ -680,6 +686,10 @@ class NMRData2D:
             ``PlotSettings.xlim`` to control the display limits.
         ylims : tuple of float, optional
             Same as *xlims* but for the indirect (y) dimension.
+        use_signed : bool, optional
+            If ``True``, preserve the sign of correlation strengths when
+            building the contour grid.  The default ``False`` takes the
+            absolute value, which is appropriate for magnitude spectra.
 
         Returns
         -------
@@ -692,25 +702,29 @@ class NMRData2D:
         if not peaks:
             raise ValueError("No peaks available – cannot compute contour data.")
 
-        # Use absolute correlation strengths: the heatmap shows *magnitude*
-        # of correlation.  Signed metrics (e.g. negative dipolar constants)
-        # would otherwise produce a map with negative intensities.
+        # By default take absolute correlation strengths so the heatmap shows
+        # *magnitude* of correlation.  Signed metrics (e.g. negative dipolar
+        # constants) would otherwise produce negative intensities.  When
+        # use_signed=True the caller wants the signed map.
         from dataclasses import replace as _dc_replace
-        peaks_abs = [
-            _dc_replace(p, correlation_strength=abs(p.correlation_strength))
-            for p in peaks
-        ]
+        if use_signed:
+            peaks_for_grid = peaks
+        else:
+            peaks_for_grid = [
+                _dc_replace(p, correlation_strength=abs(p.correlation_strength))
+                for p in peaks
+            ]
 
         # Resolve default broadening from peak spread or supplied limits
         if xlims is None:
-            x_min = min(p.x for p in peaks_abs)
-            x_max = max(p.x for p in peaks_abs)
+            x_min = min(p.x for p in peaks_for_grid)
+            x_max = max(p.x for p in peaks_for_grid)
         else:
             x_min, x_max = min(xlims), max(xlims)
 
         if ylims is None:
-            y_min = min(p.y for p in peaks_abs)
-            y_max = max(p.y for p in peaks_abs)
+            y_min = min(p.y for p in peaks_for_grid)
+            y_max = max(p.y for p in peaks_for_grid)
         else:
             y_min, y_max = min(ylims), max(ylims)
 
@@ -724,12 +738,12 @@ class NMRData2D:
 
         # Check cache
         cache_key = (x_broadening, y_broadening, grid_max, broadening_type, grid_size,
-                     xlims, ylims)
+                     xlims, ylims, use_signed)
         if getattr(self, '_contour_cache_key', None) == cache_key:
             return self._contour_data
 
         X, Y, Z = generate_contour_map(
-            peaks_abs,
+            peaks_for_grid,
             grid_size=grid_size,
             broadening=broadening_type,
             x_broadening=x_broadening,
@@ -776,6 +790,7 @@ class NMRData2D:
         ylims: Optional[Tuple[float, float]] = None,
         x_larmor_freq_mhz: Optional[float] = None,
         y_larmor_freq_mhz: Optional[float] = None,
+        use_signed: bool = False,
     ) -> None:
         """
         Export the 2D NMR contour data to a file.
@@ -865,5 +880,6 @@ class NMRData2D:
             ylims=ylims,
             x_larmor_freq_mhz=x_larmor_freq_mhz,
             y_larmor_freq_mhz=y_larmor_freq_mhz,
+            use_signed=use_signed,
         )
 

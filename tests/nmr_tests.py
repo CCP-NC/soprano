@@ -1482,8 +1482,14 @@ class TestMagneticShielding(unittest.TestCase):
         # update the reference and gradient
         shielding_iso = self.tensor.isotropy
         self.tensor.reference = 10.0
+        # With gradient=None (default), full NMR formula is used
+        self.assertAlmostEqual(
+            self.tensor_ref.shift,
+            (self.ref - shielding_iso) / (1 - self.ref * 1e-6)
+        )
+        # With explicit gradient, simple linear form is used
         self.tensor.gradient = -2.0
-        self.assertAlmostEqual(self.tensor.shift, (10 + -2.0 * shielding_iso) / (1 - 10e-6))
+        self.assertAlmostEqual(self.tensor.shift, 10 + -2.0 * shielding_iso)
 
     def test_haeberlen_values(self):
         haeb = self.tensor.haeberlen_shielding
@@ -1715,8 +1721,8 @@ class TestMagneticShielding(unittest.TestCase):
         tensor.set_gradient(-2.0)
         self.assertEqual(tensor.gradient, -2.0)
         
-        # Shift should now use the new gradient
-        expected_shift_new = (200.0 + (-2.0) * tensor.isotropy) / (1 - 200.0*1e-6)
+        # With explicit gradient, simple linear form is used
+        expected_shift_new = 200.0 + (-2.0) * tensor.isotropy
         self.assertAlmostEqual(tensor.shift, expected_shift_new)
 
     def test_make_isotropic(self):

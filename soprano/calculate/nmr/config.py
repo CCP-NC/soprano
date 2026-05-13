@@ -100,6 +100,7 @@ class PlotSettings(BaseModel):
     heatmap_range: Optional[Tuple[float, float]] = None
     contour_levels: Union[Sequence[float], int] = 10
     scale_markers: bool = True
+    use_signed: bool = False
     yaxis_order: Optional[str] = None
 
     @field_validator("broadening_type")

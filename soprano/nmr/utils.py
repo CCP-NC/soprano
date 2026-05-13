@@ -719,6 +719,8 @@ def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], e
     Raises:
     ValueError: If the gradients input is not a float, dictionary, or list, or if the length of the gradients list does not match the length of elements.
     """
+    if gradients is None:
+        return None
     DEFAULT_GRADIENT = -1.0
     if isinstance(gradients, float):
         return [gradients] * len(elements)
@@ -733,7 +735,7 @@ def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], e
             )
     else:
         raise ValueError(
-            "gradients must be either a float, a dictionary, or a list of gradients"
+            "gradients must be either None, a float, a dictionary, or a list of gradients"
         )
 
 def _references_to_list(references: Union[None, dict[str, float], list[float]], elements: list[str]) -> list[Union[float, None]]:

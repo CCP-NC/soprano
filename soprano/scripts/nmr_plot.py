@@ -184,7 +184,7 @@ def plotnmr(
         if not y_element:
             y_element = x_element
 
-        shift = not plot_shielding if plot_shielding is not None else references != {}
+        shift = not plot_shielding if plot_shielding is not None else bool(references)
 
         # Create NMRData2D instance
         nmr_data = NMRData2D(
@@ -275,7 +275,7 @@ def plotnmr(
             plt.show()
         return 0
     elif plot_type == "1D":
-        shift = not plot_shielding if plot_shielding is not None else references != {}
+        shift = not plot_shielding if plot_shielding is not None else bool(references)
         sel = AtomSelection.all(atoms)
         element_sel = AtomSelection.from_element(atoms, x_element)
         sel = sel * element_sel

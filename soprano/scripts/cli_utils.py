@@ -175,19 +175,21 @@ def keyvalue_parser(ctx, parameter, value):
         parameter: click parameter
         value (str): The references specification, in the form ``"C:100,H:123"``.
                      If value is a single float, that will returned instead of a dict.
+                     If value is empty, returns None.
     Returns:
-        dict: The values for each key specified. Formatted as::
-            {key: value}.
+        dict or None: The values for each key specified. Formatted as::
+            {key: value}.  Returns None when input is empty.
     """
 
+    if value == "":
+        return None
     keyvaluedict = {}
-    if value != "":
-        for sym in re.split(",", value):
-            try:
-                el, reference = re.split(":|=", sym)
-                keyvaluedict[el] = float(reference)
-            except Exception as e:
-                raise e
+    for sym in re.split(",", value):
+        try:
+            el, reference = re.split(":|=", sym)
+            keyvaluedict[el] = float(reference)
+        except Exception as e:
+            raise e
     return keyvaluedict
 
 
@@ -382,7 +384,9 @@ gradients = click.option(
     callback=keyvalue_parser,
     default="",
     help="Reference shielding gradients for each element. "
-    "Defaults to -1 for all elements. Set it like this: "
+    "When omitted, the full NMR formula is used (implicit gradient = -1). "
+    "When provided, a simple linear calibration is used instead: "
+    "δ = reference + gradient × σ. Set it like this: "
     "``--gradients H:-1,C:-0.97``. ",
 )
 # TODO: have an option to set a file/env variable for the references...

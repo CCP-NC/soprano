@@ -30,6 +30,7 @@ class _NMRData2DExportProtocol(Protocol):
         grid_size: int = 500,
         xlims: Optional[Tuple[float, float]] = None,
         ylims: Optional[Tuple[float, float]] = None,
+        use_signed: bool = False,
     ) -> "ContourData": ...
 
     def get_peaks(self) -> list["Peak2D"]: ...
@@ -60,6 +61,7 @@ def export_contour_data(
     ylims: Optional[Tuple[float, float]] = None,
     x_larmor_freq_mhz: Optional[float] = None,
     y_larmor_freq_mhz: Optional[float] = None,
+    use_signed: bool = False,
 ) -> None:
     """Export contour data for an NMRData2D instance."""
     cd = nmr_data.get_contour_data(
@@ -70,6 +72,7 @@ def export_contour_data(
         grid_size=grid_size,
         xlims=xlims,
         ylims=ylims,
+        use_signed=use_signed,
     )
 
     fmt = fmt.lower().strip()

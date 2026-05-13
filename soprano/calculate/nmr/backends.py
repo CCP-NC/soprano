@@ -152,11 +152,11 @@ class MatplotlibBackend(PlotBackend):
         
         self.logger = logging.getLogger(__name__)
     
-    def create_figure(self):
+    def create_figure(self) -> Tuple[Any, Any]:
         """Figure already created in __init__"""
         return self.fig, self.ax
-    
-    def plot_markers(self, x, y, sizes, colors, settings, correlation_info=None, xlabels=None, ylabels=None, correlation_values=None):
+
+    def plot_markers(self, x, y, sizes, colors, settings, correlation_info=None, xlabels=None, ylabels=None, correlation_values=None) -> Any:
         """Plot scatter markers using matplotlib"""
         scatter = self.ax.scatter(
             x, y, s=sizes, c=colors,
@@ -184,13 +184,13 @@ class MatplotlibBackend(PlotBackend):
         
         return scatter
     
-    def plot_heatmap(self, X, Y, Z, settings):
+    def plot_heatmap(self, X, Y, Z, settings) -> Any:
         """Plot heatmap using matplotlib contourf"""
         levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range)
         return self.ax.contourf(X, Y, Z, cmap=settings.colormap,
                                zorder=-1, levels=levels)
 
-    def plot_contour(self, X, Y, Z, settings):
+    def plot_contour(self, X, Y, Z, settings) -> Any:
         """Plot contour lines using matplotlib"""
         levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range)
         return self.ax.contour(
@@ -199,8 +199,8 @@ class MatplotlibBackend(PlotBackend):
             linewidths=settings.contour_linewidth,
             levels=levels
         )
-    
-    def plot_connectors(self, x, y, settings):
+
+    def plot_connectors(self, x, y, settings) -> None:
         """Plot connecting lines between points with same y value"""
         y_order = np.argsort(y)
         for i, idx in enumerate(y_order):
@@ -210,18 +210,18 @@ class MatplotlibBackend(PlotBackend):
                     [y[idx], y[y_order[i-1]]],
                     c='0.25', lw=0.75, ls='-', zorder=1
                 )
-    
-    def plot_axlines(self, x, y, settings):
+
+    def plot_axlines(self, x, y, settings) -> None:
         """Plot reference lines at peak positions"""
         xticks = np.unique(np.round(x, 6))
         yticks = np.unique(np.round(y, 6))
-        
+
         for x_val in xticks:
             self.ax.axvline(x_val, zorder=0)
         for y_val in yticks:
             self.ax.axhline(y_val, zorder=0)
-    
-    def plot_diagonal(self, settings):
+
+    def plot_diagonal(self, settings) -> None:
         """Plot diagonal line.
 
         For 2Q (DQ/SQ) mode the diagonal marks the auto-correlation condition
@@ -235,8 +235,8 @@ class MatplotlibBackend(PlotBackend):
         else:
             y_vals = list(self.ax.get_ylim())
         self.ax.plot(xlims, y_vals, ls='--', c='k', lw=1, alpha=0.2)
-    
-    def plot_annotations(self, x, y, xlabels, ylabels, settings):
+
+    def plot_annotations(self, x, y, xlabels, ylabels, settings) -> None:
         """Plot annotations with arrows (matplotlib approach)"""
         font_size = settings.label_fontsize
         if font_size is None:
@@ -315,7 +315,7 @@ class MatplotlibBackend(PlotBackend):
         
         return annotations
     
-    def set_axis_properties(self, xlabel, ylabel, xlim, ylim, invert_axes):
+    def set_axis_properties(self, xlabel, ylabel, xlim, ylim, invert_axes) -> None:
         """Set axis properties"""
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
@@ -329,7 +329,7 @@ class MatplotlibBackend(PlotBackend):
             self.ax.invert_xaxis()
             self.ax.invert_yaxis()
     
-    def finalize(self, filename=None):
+    def finalize(self, filename=None) -> Tuple[Any, Any]:
         """Finalize the plot"""
         self.fig.tight_layout()
         
@@ -356,13 +356,13 @@ class PlotlyBackend(PlotBackend):
         # Create the figure immediately
         self.fig = go.Figure()
     
-    def create_figure(self):
+    def create_figure(self) -> Any:
         """Create a Plotly figure"""
         if self.fig is None:
             self.fig = go.Figure()
         return self.fig
-    
-    def plot_markers(self, x, y, sizes, colors, settings, correlation_info=None, xlabels=None, ylabels=None, correlation_values=None):
+
+    def plot_markers(self, x, y, sizes, colors, settings, correlation_info=None, xlabels=None, ylabels=None, correlation_values=None) -> Any:
         """Plot scatter markers using Plotly"""
         # Handle colors
         if isinstance(colors, str):
@@ -417,7 +417,7 @@ class PlotlyBackend(PlotBackend):
         self.fig.add_trace(trace)
         return trace
     
-    def plot_heatmap(self, X, Y, Z, settings):
+    def plot_heatmap(self, X, Y, Z, settings) -> Any:
         """Plot heatmap using Plotly"""
         colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
         levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range)
@@ -439,7 +439,7 @@ class PlotlyBackend(PlotBackend):
         self.fig.data = (self.fig.data[-1],) + self.fig.data[:-1]
         return trace
 
-    def plot_contour(self, X, Y, Z, settings):
+    def plot_contour(self, X, Y, Z, settings) -> Any:
         """Plot contour lines using Plotly"""
         colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
         levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range)
@@ -467,7 +467,7 @@ class PlotlyBackend(PlotBackend):
         self.fig.add_trace(trace)
         return trace
     
-    def plot_connectors(self, x, y, settings):
+    def plot_connectors(self, x, y, settings) -> None:
         """Plot connecting lines between points with same y value"""
         y_order = np.argsort(y)
         
@@ -484,7 +484,7 @@ class PlotlyBackend(PlotBackend):
                 )
                 self.fig.add_trace(trace)
     
-    def plot_axlines(self, x, y, settings):
+    def plot_axlines(self, x, y, settings) -> None:
         """Plot reference lines at peak positions"""
         xticks = np.unique(np.round(x, 6))
         yticks = np.unique(np.round(y, 6))
@@ -505,7 +505,7 @@ class PlotlyBackend(PlotBackend):
                 opacity=0.3
             )
     
-    def plot_diagonal(self, settings):
+    def plot_diagonal(self, settings) -> Any:
         """Plot diagonal line.
 
         For 2Q (DQ/SQ) mode the diagonal marks the auto-correlation condition
@@ -535,7 +535,7 @@ class PlotlyBackend(PlotBackend):
         
         return None
     
-    def plot_annotations(self, x, y, xlabels, ylabels, settings):
+    def plot_annotations(self, x, y, xlabels, ylabels, settings) -> None:
         """Plot text labels as annotations"""
         # Get unique labels
         xlabels_unique, xidx = np.unique(xlabels, return_index=True)
@@ -572,15 +572,15 @@ class PlotlyBackend(PlotBackend):
                 font=dict(size=font_size)
             )
     
-    def set_axis_properties(self, xlabel, ylabel, xlim, ylim, invert_axes):
+    def set_axis_properties(self, xlabel, ylabel, xlim, ylim, invert_axes) -> None:
         """Store axis properties for later application"""
         self.xlabel = xlabel
         self.ylabel = ylabel
         self.xlim = xlim
         self.ylim = ylim
         self.invert_axes = invert_axes
-    
-    def finalize(self, filename=None):
+
+    def finalize(self, filename=None) -> Any:
         """Apply final layout settings and return figure"""
         if self.fig is None:
             raise ValueError("No figure to finalize")

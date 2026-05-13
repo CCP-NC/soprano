@@ -356,7 +356,13 @@ def get_ms_summary(
         # Fill missing references with 0.0 so MSShift doesn't raise
         symbols = atoms.get_chemical_symbols()
         complete_refs = {el: references.get(el, 0.0) for el in symbols}
-        complete_grads = {el: gradients.get(el, -1.0) for el in symbols} if gradients else {el: -1.0 for el in symbols}
+        # When gradients is None (default), pass None to use full NMR formula.
+        # When gradients is provided, fill missing elements with -1.0 default
+        # (though ideally the user provides all elements they care about).
+        if gradients is None:
+            complete_grads = None
+        else:
+            complete_grads = {el: gradients.get(el, -1.0) for el in symbols}
         ms_summary["MS_shift"] = MSShift.get(atoms, references=complete_refs, gradients=complete_grads)
 
     return ms_summary
