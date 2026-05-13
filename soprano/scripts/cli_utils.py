@@ -844,10 +844,10 @@ plot_y_larmor_freq = click.option(
 
 # option to select a subset of atoms
 dip_selection_i = click.option(
-    "--select_i", "-i", "selection_i", type=str, default=None, help=subset_help
+    "--select_i", "selection_i", type=str, default=None, help=subset_help
 )
 dip_selection_j = click.option(
-    "--select_j", "-j", "selection_j", type=str, default=None, help=subset_help
+    "--select_j", "selection_j", type=str, default=None, help=subset_help
 )
 dip_rss_flag = click.option(
     "--rss",
