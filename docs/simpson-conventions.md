@@ -1,8 +1,8 @@
 # SIMPSON Tensor Conventions
 
-This page documents the conventions used by [SIMPSON](https://inano.au.dk/about/research-centers-and-projects/spinengineering/simpson) for representing NMR interaction tensors in `.spinsys` files, and how Soprano maps its internal tensors to them.
+This page documents the conventions used by [SIMPSON](https://inano.au.dk/about/research-centers-and-projects/nmr/software/simpson) for representing NMR interaction tensors in `.spinsys` files, and how Soprano maps its internal tensors to them.
 
-The conventions described below have been verified for **SIMPSON v6.0.2** through source-code inspection and numerical validation.  Internal implementation details may change in future SIMPSON releases; users should revalidate version-specific behaviour where noted.
+The conventions described below have been verified for **[SIMPSON v6.0.2](https://gitlab.au.dk/nmr/simpson)** through source-code inspection and numerical validation.  Internal implementation details may change in future SIMPSON releases; users should revalidate version-specific behaviour where noted.
 
 ## Tensor and Sign Conventions
 
@@ -33,11 +33,9 @@ SIMPSON uses **right-handed passive ZYZ Euler angles** (in degrees) to specify t
 | Isotropic J-coupling | `jcoupling` | $J_\text{iso}$ (Hz) | `iso` (Hz) | $J_\text{iso}$ (Hz) |
 | Anisotropic J-coupling | `jcoupling` | Reduced anisotropy $\zeta$ (Hz) | `aniso` (Hz) | **$\zeta/2$** (Hz, SIMPSON v6.0.2) |
 
-**Key points:**
+**Note:** 
 
-* SIMPSON internally converts all frequencies to **angular frequencies** (rad s$^{-1}$) by multiplication with $2\pi$, **except** for the dipolar coupling constant $d$, which is stored in Hz and scaled via an internal prefactor in the spatial tensor assembly (see {ref}`dipolar-section`).
-* For CSA, the `aniso` parameter is the **reduced anisotropy** $\zeta$ (the principal value $V_{zz}$ of the traceless tensor), *not* the full anisotropy $\Delta = 3\zeta/2$.
-* For J-coupling anisotropy, the `aniso` parameter must be **half the reduced anisotropy** ($\zeta/2$).  This is an implementation-specific scaling of how SIMPSON assembles the bilinear Hamiltonian (see {ref}`jcoupling-aniso-section`).
+For J-coupling anisotropy, the `aniso` parameter must be **half the reduced anisotropy** ($\zeta/2$).  This seems to be an implementation-specific scaling of how SIMPSON assembles the bilinear Hamiltonian (see {ref}`jcoupling-aniso-section`).
 
 ---
 
@@ -87,30 +85,140 @@ $$
 
 ### Magnetic shielding vs. chemical shift
 
-Soprano stores tensors internally as **magnetic shielding** ($\sigma$), where more positive values correspond to stronger shielding (more diamagnetic).  SIMPSON expects **chemical shifts** ($\delta$), defined as:
+Soprano stores NMR tensors as **magnetic shielding tensors** ($\sigma$), where larger values correspond to greater electronic shielding. In contrast, programs such as SIMPSON use **chemical shifts** ($\delta$).
+
+The chemical shift is defined as the fractional difference between the resonance frequency of a nucleus and that of a reference compound:
 
 $$
-\delta \approx \sigma_\text{ref} - \sigma
+\delta = \frac{\nu - \nu_{\mathrm{ref}}}{\nu_{\mathrm{ref}}}
 $$
 
-Soprano performs this sign change automatically when exporting to SIMPSON format, so a shielding tensor with principal values $\sigma_{zz} < \sigma_{xx} < \sigma_{yy}$ becomes a chemical shift tensor with $\delta_{zz} > \delta_{xx} > \delta_{yy}$ (assuming $\sigma_\text{ref}=0$).
+Here, $\nu_{\mathrm{ref}}$ is the resonance frequency of the chosen reference.
+
+Because the resonance frequency depends on the shielding according to
+
+$$
+\nu = \nu_0 (1 - \sigma),
+$$
+
+where $\nu_0$ is the bare Larmor frequency of the nucleus, the chemical shift can be written as
+
+$$
+\delta = \frac{\sigma_{\mathrm{ref}} - \sigma}{1 - \sigma_{\mathrm{ref}}}.
+$$
+
+Since $\sigma_{\mathrm{ref}}$ is typically only tens to hundreds of ppm ($10^{-4}$–$10^{-3}$), the denominator differs from 1 by less than 0.1%. In practice, the usual approximation is therefore
+
+$$
+\delta \approx \sigma_{\mathrm{ref}} - \sigma.
+$$
+
+This means that chemical shift is inversely related to shielding:
+
+* Larger shielding ($\sigma$) corresponds to smaller chemical shift ($\delta$) (more upfield).
+* Smaller shielding ($\sigma$) corresponds to larger chemical shift ($\delta$) (more downfield).
+
+If the shielding principal values are ordered as
+
+$$
+\sigma_{11} \le \sigma_{22} \le \sigma_{33},
+$$
+
+then the corresponding chemical shift values are ordered as
+
+$$
+\delta_{11} \ge \delta_{22} \ge \delta_{33}.
+$$
+
+The tensor axes are unchanged; only the numerical ordering is reversed.
+
+---
 
 #### `references` and `gradients` arguments
 
-In practice, DFT-computed shieldings are linearly related to experimental shifts via a calibration:
+##### `references`
+
+The `references` argument specifies the constant term in the conversion from magnetic shielding to chemical shift.
+
+Its interpretation depends on whether `gradients` is supplied:
+
+* **Direct referencing** (`gradients` omitted):
+  `reference` is the shielding of the reference compound, $\sigma_{\mathrm{ref}}$, and the expression is:
+
+   $$
+   \delta = \frac{\sigma_{\mathrm{ref}} - \sigma}{1 - \sigma_{\mathrm{ref}}}.
+   $$
+
+
+* **DFT calibration** (`gradients` explicitly supplied):
+  `reference` is the intercept $a$ of a linear regression of **experimental chemical shifts** ($\delta_{\mathrm{exp}}$, y-axis) against **computed shieldings** ($\sigma_{\mathrm{calc}}$, x-axis):
+
+  $$
+  \delta_{\mathrm{exp}} = a + m\,\sigma_{\mathrm{calc}}.
+  $$
+
+  In this form:
+
+  * `reference = a`
+  * `gradient = m`
+
+  The intercept $a$ is the predicted chemical shift for a nucleus with zero calculated shielding.
+
+  If your regression was performed in the opposite direction (i.e. with experimental shifts on the x-axis),
+
+  $$
+  \sigma_{\mathrm{calc}} = m'\,\delta_{\mathrm{exp}} + a',
+  $$
+
+  then the equivalent Soprano parameters are
+
+  $$
+  \text{gradient} = \frac{1}{m'}, \qquad \text{reference} = -\frac{a'}{m'}.
+  $$
+
+Typical values are provided per element, for example:
+
+```python
+references = {"C": 170.0, "H": 30.0}
+```
+
+If `references` is not provided, the `MagneticShielding` object contains only raw shielding values. Any attempt to export chemical shifts (for example, with `to_simpson()`) will raise a `ValueError`.
+
+---
+
+##### `gradients`
+
+The `gradients` argument specifies the slope $m$ in the conversion
 
 $$
-\delta = \frac{\sigma_\text{ref} + m\,\sigma}{1 - \sigma_\text{ref} \times 10^{-6}}
+\delta = \text{reference} + m\,\sigma.
 $$
 
-where:
+Its default value is $-1$, corresponding to the ideal relationship between shielding and chemical shift. Note the above discussion on the convention of the calibration plot assumed by Soprano. 
 
-* **`references`** ($\sigma_\text{ref}$, ppm) — the **computed** magnetic shielding of a reference compound (e.g. TMS for $^{13}$C, not an experimental ppm value).  When `references` is not supplied, it defaults to 0 and the exported shift is simply $\delta = -\sigma$.
-* **`gradients`** ($m$, dimensionless, default $-1$) — slope of the linear fit between computed shieldings and experimental shifts from a calibration set.  The ideal theoretical value is $-1$; deviations arise from systematic DFT errors and basis-set incompleteness.  A per-element gradient can be supplied to correct for these errors.
+When calibrating against experiment, the fitted slope may deviate slightly from $-1$ because of systematic errors in the computational method. Providing per-element gradients allows these deviations to be corrected.
 
-The denominator $(1 - \sigma_\text{ref} \times 10^{-6})$ is a negligible correction (of order $10^{-4}$ for typical $\sigma_\text{ref} \sim 100$ ppm) and is essentially 1 for all practical purposes.
+---
 
-Both `references` and `gradients` accept a single numerical value (applied to all sites), a per-element dictionary (e.g. `{"C": 170.0, "H": 30.0}`), or a per-site list.
+Both `references` and `gradients` can be provided as:
+
+* A single numeric value
+* A dictionary keyed by element
+* A list of per-site values
+
+Examples:
+
+```python
+references = 170.0
+references = {"C": 170.0, "H": 30.0}
+```
+
+If a single value is supplied for a system containing multiple nuclear species, Soprano issues a `UserWarning`, since different nuclei generally require different reference shieldings. For example:
+
+* $^{13}\mathrm{C}$: approximately 170 ppm
+* $^{1}\mathrm{H}$: approximately 30 ppm
+
+Applying one value to all species is usually incorrect.
 
 ---
 
@@ -133,8 +241,8 @@ $$
 \nu_\pm = \pm\frac{3C_q}{8}\bigl(3\cos^2\beta - 1\bigr)
 $$
 
-At $\beta = 0^\circ$: splitting = $3C_q/4$ (two peaks at $\pm 3C_q/8$).
-At $\beta = 90^\circ$: splitting = $3C_q/8$ (two peaks at $\pm 3C_q/8$).
+At $\beta = 0^\circ$: splitting = $3C_q/2$ (two peaks at $\pm 3C_q/4$).
+At $\beta = 90^\circ$: splitting = $3C_q/4$ (two peaks at $\pm 3C_q/8$).
 
 ---
 
@@ -155,18 +263,6 @@ Here $d$ denotes the conventional secular dipolar coupling constant in frequency
 $$
 d = -\frac{\mu_0}{4\pi}\frac{\gamma_1\gamma_2\hbar}{2\pi r^3}.
 $$
-
-### Why no $2\pi$ for dipole?
-
-Looking at SIMPSON's source (`readsys.cpp`):
-
-```cpp
-s->DD[(s->nDD)] = new Dipole(n1,n2,asym_param,orientation);
-s->DD[(s->nDD)]->delta(dipole_aniso);   // stored in Hz, NOT multiplied by 2π
-s->DD[(s->nDD)]->Rmol_c(4.0*M_PI);      // 4π prefactor
-```
-
-The Hamiltonian is assembled as `HQ_multod` with `T = IzIz_sqrt2by3` (heteronuclear) or `T20` (homonuclear).  Combined with `Dtensor2`'s $\sqrt{3/2}$ scaling, the net result is that the input $d$ Hz reproduces the conventional secular dipolar splitting $d|3\cos^2\beta - 1|$.
 
 **Do not apply any extra $2\pi$ factor to the dipolar coupling constant when exporting to SIMPSON.**
 
@@ -221,7 +317,14 @@ The anisotropic J-coupling implementation is less transparently documented than 
 Combining these factors:
 
 $$
-\text{physical coefficient} = \underbrace{\sqrt{\frac{2}{3}}}_{\text{spin op.}} \times \underbrace{\sqrt{\frac{3}{2}}}_{\text{Dtensor2}} \times \underbrace{2.0}_{\text{Rmol\_c}} \times J_\text{aniso} = 2 \, J_\text{aniso}
+\begin{aligned}
+\text{physical coefficient}
+  &= \underbrace{\sqrt{\tfrac{2}{3}}}_{\text{spin op.}}
+   \times \underbrace{\sqrt{\tfrac{3}{2}}}_{\text{Dtensor2}}
+   \times \underbrace{2}_{\text{Rmol}_{c}}
+   \times J_\text{aniso} \\
+  &= 2 \, J_\text{aniso}
+\end{aligned}
 $$
 
 The secular heteronuclear Hamiltonian at angle $\beta$ is therefore:
@@ -235,7 +338,14 @@ For the two transitions of the observed spin, the splitting is $2 J_\text{aniso}
 #### Net scaling (homonuclear)
 
 $$
-\text{physical coefficient} = \underbrace{\sqrt{\frac{1}{6}}}_{\text{spin op.}} \times \underbrace{\sqrt{\frac{3}{2}}}_{\text{Dtensor2}} \times \underbrace{2.0}_{\text{Rmol\_c}} \times J_\text{aniso} = J_\text{aniso}
+\begin{aligned}
+\text{physical coefficient}
+  &= \underbrace{\sqrt{\tfrac{1}{6}}}_{\text{spin op.}}
+   \times \underbrace{\sqrt{\tfrac{3}{2}}}_{\text{Dtensor2}}
+   \times \underbrace{2}_{\text{Rmol}_{c}}
+   \times J_\text{aniso} \\
+  &= J_\text{aniso}
+\end{aligned}
 $$
 
 The secular homonuclear Hamiltonian is:
@@ -295,11 +405,28 @@ python verify.py              # check peak positions
 
 ## References
 
-* M. Bak, J. T. Rasmussen, N. C. Nielsen, *J. Magn. Reson.* **2000**, *147*, 296–330. (SIMPSON original paper)
-* D. L. Goodwin, J. P. Carvalho, A. B. Nielsen, N. Wili, T. Vosegaard, Z. Tosner, and N. C. Nielsen, arXiv:2602.15793 (2026). (SIMPSON next-generation paper)
-* SIMPSON source code (v6.0.2), particularly `src/readsys.cpp`, `src/wigner.cpp`, `src/spinsys.cpp`, `src/ham.cpp`, and `include/sim.h`.
+* M. Bak, J. T. Rasmussen, N. C. Nielsen, [*J. Magn. Reson.* **2000**, *147*, 296–330](https://doi.org/10.1006/jmre.2000.2179). (SIMPSON original paper)
+* D. L. Goodwin, J. P. Carvalho, A. B. Nielsen, N. Wili, T. Vosegaard, Z. Tosner, and N. C. Nielsen, [arXiv:2602.15793](https://doi.org/10.48550/arXiv.2602.15793) (2026). (SIMPSON next-generation paper)
+* SIMPSON source code (v6.0.2), particularly [`src/readsys.cpp`](https://gitlab.au.dk/nmr/simpson/-/blob/main/src/readsys.cpp?ref_type=heads), [`src/wigner.cpp`](https://gitlab.au.dk/nmr/simpson/-/blob/main/src/wigner.cpp?ref_type=heads), [`src/spinsys.cpp`](https://gitlab.au.dk/nmr/simpson/-/blob/main/src/spinsys.cpp?ref_type=heads), [`src/ham.cpp`](https://gitlab.au.dk/nmr/simpson/-/blob/main/src/ham.cpp?ref_type=heads), and [`include/sim.h`](https://gitlab.au.dk/nmr/simpson/-/blob/main/include/sim.h?ref_type=heads).
 
 ---
 
-**Implementation Note:**
+## Implementation Notes
+
+SIMPSON internally converts all input frequencies (Hz) to angular frequencies (rad s⁻¹) by multiplying by $2\pi$ before assembling the Hamiltonian.  The dipolar coupling constant is a notable exception — see below.
+
+### Why no $2\pi$ for dipole?
+
+Looking at SIMPSON's source (`readsys.cpp`):
+
+```cpp
+s->DD[(s->nDD)] = new Dipole(n1,n2,asym_param,orientation);
+s->DD[(s->nDD)]->delta(dipole_aniso);   // stored in Hz, NOT multiplied by 2π
+s->DD[(s->nDD)]->Rmol_c(4.0*M_PI);      // 4π prefactor
+```
+
+The Hamiltonian is assembled as `HQ_multod` with `T = IzIz_sqrt2by3` (heteronuclear) or `T20` (homonuclear).  Combined with `Dtensor2`'s $\sqrt{3/2}$ scaling, the net result is that the input $d$ Hz reproduces the conventional secular dipolar splitting $d|3\cos^2\beta - 1|$.
+
+### Version-specific behaviour
+
 Several conventions described here—particularly the treatment of dipolar and anisotropic J-coupling scaling—are inferred from SIMPSON v6.0.2 source code and validated numerically.  These behaviours reflect the implementation of that version and may change in future releases.
