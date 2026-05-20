@@ -20,7 +20,7 @@ SIMPSON converts chemical shift ppm to Hz using the **observed nucleus's Larmor 
 ν_C = (γ_C / γ_H) × 400 MHz ≈ 100.60 MHz
 ```
 
-Therefore, 100 ppm for ¹³C = 100 × 10⁻⁶ × 100.60 MHz ≈ **10,060 Hz** (not 40,000 Hz).
+Therefore, 100 ppm for ¹³C = 100 × 10⁻⁶ × 100.60 MHz ≈ **10,060 Hz**.
 
 ---
 
@@ -183,7 +183,7 @@ Splitting = |2d| ≈ 60.4 kHz
 ```
 dipole 1 2 -30210.667268 90.000000 0.000000 0.000000
 ```
-✓ Correct (d in Hz, no erroneous 2π factor).
+✓ Correct (d in Hz).
 
 ### 05b — β = 90° (tensor z-axis ⊥ B₀)
 ```

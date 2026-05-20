@@ -60,7 +60,7 @@ def write_in_file(path, spinsys_file, par_extra, pulseq, main):
         f.write("\n".join(lines))
 
 
-def make_shift_tensor(pas_evals, beta_deg=0, gamma_deg=0):
+def make_shielding_tensor(pas_evals, beta_deg=0, gamma_deg=0):
     """Create a shielding tensor in the lab frame from PAS eigenvalues + Euler angles.
 
     pas_evals: shielding eigenvalues [sigma_xx, sigma_yy, sigma_zz] in Haeberlen PAS
@@ -117,7 +117,7 @@ def make_j_tensor(J_iso, zeta, eta=0.0, beta_deg=0, gamma_deg=0):
 # =============================================================================
 def generate_test_01():
     """Single 13C with isotropic shift +100 ppm."""
-    ms = make_shift_tensor([-100, -100, -100], beta_deg=0)  # shielding = -shift
+    ms = make_shielding_tensor([-100, -100, -100], beta_deg=0)  # shielding = -shift
     site = Site(isotope="13C", label="C1", index=0, ms=ms)
     spin = SpinSystem(sites=[site])
 
@@ -149,7 +149,7 @@ def generate_test_02():
     # Shielding PAS eigenvalues: sigma = -delta  =>  [100, 100, -200]
     pas = [100, 100, -200]
     for suffix, beta in [("a", 0), ("b", 90), ("c", 54.73561032)]:
-        ms = make_shift_tensor(pas, beta_deg=beta)
+        ms = make_shielding_tensor(pas, beta_deg=beta)
         site = Site(isotope="13C", label="C1", index=0, ms=ms)
         spin = SpinSystem(sites=[site])
 
@@ -182,7 +182,7 @@ def generate_test_03():
     # Shielding PAS: sigma_xx=225, sigma_yy=75, sigma_zz=-300
     pas = [225, 75, -300]
     for suffix, gamma in [("a", 0), ("b", 90)]:
-        ms = make_shift_tensor(pas, beta_deg=90, gamma_deg=gamma)
+        ms = make_shielding_tensor(pas, beta_deg=90, gamma_deg=gamma)
         site = Site(isotope="13C", label="C1", index=0, ms=ms)
         spin = SpinSystem(sites=[site])
 
