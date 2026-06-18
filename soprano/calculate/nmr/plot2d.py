@@ -1,7 +1,7 @@
 """2D NMR plotting orchestrator."""
 
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 from matplotlib.axes import Axes
