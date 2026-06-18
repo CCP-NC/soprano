@@ -818,7 +818,28 @@ plot_export_format = click.option(
     type=click.Choice(["simpson", "npz", "csv", "json"], case_sensitive=False),
     default=None,
     help="Force a specific export format, overriding extension inference. "
-    "Choices: simpson, npz, csv, json.",
+    "Choices: simpson, npz, csv, json, plain, ssnake (alias for json).",
+)
+plot_b0_field = click.option(
+    "--b0-field-tesla",
+    "b0_field_tesla",
+    type=float,
+    default=None,
+    metavar="T",
+    help="Magnetic field strength in Tesla. "
+    "Used to auto-compute Larmor frequencies from gyromagnetic ratios. "
+    "Mutually exclusive with --spectrometer-freq. "
+    "Override per-dimension with --x-larmor-freq / --y-larmor-freq.",
+)
+plot_spectrometer_freq = click.option(
+    "--spectrometer-freq",
+    "spectrometer_freq_mhz",
+    type=float,
+    default=None,
+    metavar="MHz",
+    help="Spectrometer (¹H) frequency in MHz (e.g. 600 for a 600 MHz instrument). "
+    "Converted to Tesla internally; alternative to --b0-field-tesla. "
+    "Override per-dimension with --x-larmor-freq / --y-larmor-freq.",
 )
 plot_x_larmor_freq = click.option(
     "--x-larmor-freq",
@@ -827,6 +848,7 @@ plot_x_larmor_freq = click.option(
     default=None,
     metavar="MHz",
     help="Larmor frequency (MHz) of the direct (x) dimension nucleus. "
+    "Overrides auto-computation from --b0-field-tesla. "
     "Required for ssNake JSON export so ppm is available on load. "
     "Also converts SIMPSON sweep-widths from ppm to Hz.",
 )
@@ -838,7 +860,7 @@ plot_y_larmor_freq = click.option(
     metavar="MHz",
     help="Larmor frequency (MHz) of the indirect (y) dimension nucleus. "
     "Defaults to --x-larmor-freq (homonuclear). "
-    "Only needed for heteronuclear experiments.",
+    "Overrides auto-computation from --b0-field-tesla.",
 )
 
 
@@ -960,6 +982,8 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_shielding,
     plot_export_files,
     plot_export_format,
+    plot_b0_field,
+    plot_spectrometer_freq,
     plot_x_larmor_freq,
     plot_y_larmor_freq,
 ]

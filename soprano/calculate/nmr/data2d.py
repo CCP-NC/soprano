@@ -780,17 +780,20 @@ class NMRData2D:
     def export_contour_data(
         self,
         path: str,
-        fmt: str = 'simpson',
+        fmt: Optional[str] = None,
         x_broadening: Optional[float] = None,
         y_broadening: Optional[float] = None,
         grid_max: Optional[float] = None,
-        broadening_type: str = 'lorentzian',
-        grid_size: int = 500,
+        broadening_type: Optional[str] = None,
+        grid_size: Optional[int] = None,
         xlims: Optional[Tuple[float, float]] = None,
         ylims: Optional[Tuple[float, float]] = None,
         x_larmor_freq_mhz: Optional[float] = None,
         y_larmor_freq_mhz: Optional[float] = None,
-        use_signed: bool = False,
+        b0_field_tesla: Optional[float] = None,
+        spectrometer_freq_mhz: Optional[float] = None,
+        use_signed: Optional[bool] = None,
+        config: Optional["ExportConfig"] = None,
     ) -> None:
         """
         Export the 2D NMR contour data to a file.
@@ -802,10 +805,12 @@ class NMRData2D:
         Parameters
         ----------
         path : str
-            Output file path.  For ``'simpson'`` format use a ``.spe``
-            extension so that nmrglue / ssNake auto-detect the file type.
-        fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake'}
-            Export format:
+            Output file path.  The format is inferred from the extension
+            unless *fmt* is given explicitly.  Supported extensions:
+            ``.spe``/``.sim`` → simpson, ``.npz`` → npz, ``.csv`` → csv,
+            ``.json``/``.ssnake`` → json, ``.txt`` → plain.
+        fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake', 'plain'}, optional
+            Export format.  If *None*, inferred from *path* extension.
 
             ``'simpson'``
                 SIMPSON TEXT format (``TYPE=SPE``).  Readable by nmrglue
@@ -826,13 +831,20 @@ class NMRData2D:
             ``'json'``
                 ssNake native JSON format.  Stores Larmor frequency
                 (``freq``) directly, so **ppm is available immediately**
-                on load without any manual axis editing.  Requires
-                *x_larmor_freq_mhz* (and *y_larmor_freq_mhz* for
-                heteronuclear spectra).
+                on load without any manual axis editing.  Larmor
+                frequencies are auto-computed from element gyromagnetic
+                ratios when possible; provide *x_larmor_freq_mhz* to
+                override.
+
+            ``'plain'``
+                Simple space-separated text file (x y z columns) with a
+                header comment block.  Useful for gnuplot or quick
+                inspection.
 
         x_larmor_freq_mhz : float, optional
             Larmor frequency in MHz for the **direct (x)** dimension nucleus.
-            Only used by the ``'simpson'`` exporter.
+            Overrides auto-computation.  Only used by ``'simpson'`` and
+            ``'json'`` exporters.
 
         y_larmor_freq_mhz : float, optional
             Larmor frequency in MHz for the **indirect (y)** dimension nucleus.
@@ -843,7 +855,7 @@ class NMRData2D:
             *Why these matter for ssNake:*  The SIMPSON TEXT format has no
             field for the spectrometer frequency.  ssNake therefore sets the
             carrier to 0 MHz on load and cannot offer ppm as a unit.  When
-            Larmor frequencies are provided:
+            Larmor frequencies are provided (or auto-computed):
 
             * ``SW`` is written in Hz using *x_larmor_freq_mhz*.
             * ``SW1`` is written in Hz using *y_larmor_freq_mhz* (falls
@@ -853,33 +865,63 @@ class NMRData2D:
             appropriate Larmor frequency for each dimension; ppm will then
             be available.
 
-            When both are *None* sweep widths are written in ppm and a
-            warning is emitted.
+            When both are *None* and auto-computation fails, sweep widths
+            are written in ppm and a warning is emitted.
 
-        x_broadening, y_broadening, broadening_type, grid_size, xlims, ylims
-            Forwarded to :meth:`get_contour_data`.  If the grid has already
-            been cached with identical parameters the cached result is reused.
+        b0_field_tesla : float, optional
+            Magnetic field strength in Tesla.  Used to auto-compute Larmor
+            frequencies from gyromagnetic ratios.  Overridden by explicit
+            *x_larmor_freq_mhz* / *y_larmor_freq_mhz*.  If neither this nor
+            *spectrometer_freq_mhz* is given, auto-computation is skipped and
+            a warning is emitted.
+
+        spectrometer_freq_mhz : float, optional
+            Proton (¹H) spectrometer frequency in MHz (e.g. 600 for a 600 MHz
+            instrument).  Converted to Tesla internally; alternative to
+            *b0_field_tesla*.  *b0_field_tesla* takes precedence if both are
+            given.
+
+        config : ExportConfig, optional
+            Full configuration object.  Keyword arguments take precedence
+            over any values in *config*.
+
+        x_broadening, y_broadening, broadening_type, grid_size, xlims, ylims, use_signed
+            Forwarded to :meth:`get_contour_data`.
 
         Raises
         ------
         ValueError
-            If no peaks are available or an unknown format is requested.
+            If no peaks are available, the format cannot be inferred, or an
+            unknown format is requested.
         """
-        from soprano.calculate.nmr.export import export_contour_data
+        from soprano.calculate.nmr.export import ExportConfig, export_contour_data
 
-        export_contour_data(
-            nmr_data=self,
-            path=path,
-            fmt=fmt,
-            x_broadening=x_broadening,
-            y_broadening=y_broadening,
-            grid_max=grid_max,
-            broadening_type=broadening_type,
-            grid_size=grid_size,
-            xlims=xlims,
-            ylims=ylims,
-            x_larmor_freq_mhz=x_larmor_freq_mhz,
-            y_larmor_freq_mhz=y_larmor_freq_mhz,
-            use_signed=use_signed,
+        # Start from provided config (or defaults), then apply explicit kwargs
+        base = config if config is not None else ExportConfig()
+        effective = ExportConfig(
+            x_broadening=x_broadening if x_broadening is not None else base.x_broadening,
+            y_broadening=y_broadening if y_broadening is not None else base.y_broadening,
+            grid_max=grid_max if grid_max is not None else base.grid_max,
+            broadening_type=broadening_type if broadening_type is not None else base.broadening_type,
+            grid_size=grid_size if grid_size is not None else base.grid_size,
+            xlims=xlims if xlims is not None else base.xlims,
+            ylims=ylims if ylims is not None else base.ylims,
+            x_larmor_freq_mhz=x_larmor_freq_mhz if x_larmor_freq_mhz is not None else base.x_larmor_freq_mhz,
+            y_larmor_freq_mhz=y_larmor_freq_mhz if y_larmor_freq_mhz is not None else base.y_larmor_freq_mhz,
+            b0_field_tesla=b0_field_tesla if b0_field_tesla is not None else base.b0_field_tesla,
+            spectrometer_freq_mhz=spectrometer_freq_mhz if spectrometer_freq_mhz is not None else base.spectrometer_freq_mhz,
+            use_signed=use_signed if use_signed is not None else base.use_signed,
+            include_peaks=base.include_peaks,
         )
+
+        # Reuse the cached grid when no rendering params were overridden.
+        # This means plot-then-export (or get_contour_data-then-export) uses
+        # the same grid the caller already computed, avoiding silent divergence.
+        precomputed = (
+            getattr(self, '_contour_data', None)
+            if not effective.has_rendering_overrides()
+            else None
+        )
+        export_contour_data(nmr_data=self, path=path, fmt=fmt, config=effective, contour_data=precomputed)
+
 

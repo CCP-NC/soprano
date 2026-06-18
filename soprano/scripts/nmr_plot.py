@@ -102,6 +102,8 @@ def plotnmr(
     plot_shielding,  ## force-plot the shielding even if references are given
     export_files,
     export_format,
+    b0_field_tesla,
+    spectrometer_freq_mhz,
     x_larmor_freq_mhz,
     y_larmor_freq_mhz,
     verbosity,
@@ -237,24 +239,23 @@ def plotnmr(
 
         # Export contour data if requested
         if export_files:
-            _EXT_TO_FMT = {
-                '.spe': 'simpson',
-                '.sim': 'simpson',
-                '.npz': 'npz',
-                '.csv': 'csv',
-                '.json': 'json',
-            }
+            from soprano.calculate.nmr.export import ExportConfig, guess_format_from_path
             for export_path in export_files:
-                fmt = export_format or _EXT_TO_FMT.get(Path(export_path).suffix.lower(), 'simpson')
+                fmt = export_format or guess_format_from_path(export_path)
                 logger.info(f"Exporting contour data to '{export_path}' (format={fmt}).")
-                nmr_data.export_contour_data(
-                    path=export_path,
-                    fmt=fmt,
+                config = ExportConfig(
                     x_broadening=xbroadening,
                     y_broadening=ybroadening,
                     grid_max=grid_max,
                     x_larmor_freq_mhz=x_larmor_freq_mhz,
                     y_larmor_freq_mhz=y_larmor_freq_mhz,
+                    b0_field_tesla=b0_field_tesla,
+                    spectrometer_freq_mhz=spectrometer_freq_mhz,
+                )
+                nmr_data.export_contour_data(
+                    path=export_path,
+                    fmt=fmt,
+                    config=config,
                 )
 
         # Create NMRPlot2D instance

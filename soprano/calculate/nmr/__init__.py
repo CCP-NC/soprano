@@ -22,7 +22,13 @@ structures with simplified algorithms.
 
 from soprano.calculate.nmr.config import DEFAULT_MARKER_SIZE, PlotSettings
 from soprano.calculate.nmr.data2d import NMRData2D
-from soprano.calculate.nmr.export import export_contour_data
+from soprano.calculate.nmr.export import (
+    ExportConfig,
+    compute_b0_from_spectrometer_freq,
+    compute_larmor_frequency,
+    export_contour_data,
+    guess_format_from_path,
+)
 from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
 from soprano.calculate.nmr.plot2d import NMRPlot2D
 from soprano.calculate.nmr.utils import Peak2D
@@ -35,5 +41,9 @@ __all__ = [
 	"NMRPlot2D",
     "Peak2D",
 	"PlotSettings",
+	"ExportConfig",
+	"compute_b0_from_spectrometer_freq",
+	"compute_larmor_frequency",
 	"export_contour_data",
+	"guess_format_from_path",
 ]
