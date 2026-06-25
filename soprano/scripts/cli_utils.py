@@ -38,6 +38,7 @@ from ase import Atoms
 from ase.visualize import view as aseview
 
 from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
+from soprano.calculate.nmr.simpson import SimpsonTemplates
 from soprano.data.nmr import _el_iso
 from soprano.properties.linkage import ElementPairs, Molecules
 from soprano.utils import average_quaternions
@@ -127,7 +128,9 @@ cif2cell mystructure.cif --export-cif-labels -p castep
 """
 
 # Function to expand aliases
-def expand_aliases(input_list, alias_dict) -> List[str]:
+def expand_aliases(input_list, alias_dict):
+    if input_list is None:
+        return None
     output_list = []
     for item in input_list:
         if item in alias_dict:
@@ -172,19 +175,21 @@ def keyvalue_parser(ctx, parameter, value):
         parameter: click parameter
         value (str): The references specification, in the form ``"C:100,H:123"``.
                      If value is a single float, that will returned instead of a dict.
+                     If value is empty, returns None.
     Returns:
-        dict: The values for each key specified. Formatted as::
-            {key: value}.
+        dict or None: The values for each key specified. Formatted as::
+            {key: value}.  Returns None when input is empty.
     """
 
+    if value == "":
+        return None
     keyvaluedict = {}
-    if value != "":
-        for sym in re.split(",", value):
-            try:
-                el, reference = re.split(":|=", sym)
-                keyvaluedict[el] = float(reference)
-            except Exception as e:
-                raise e
+    for sym in re.split(",", value):
+        try:
+            el, reference = re.split(":|=", sym)
+            keyvaluedict[el] = float(reference)
+        except Exception as e:
+            raise e
     return keyvaluedict
 
 
@@ -308,7 +313,6 @@ reduce = click.option(
     "Note that this doesn't take into account magnetic symmetry! "
     "Defaults to True, so use ``--no-reduce`` to turn off symmetry reduction.",
 )
-# flag option to use merge_mean for symmetry reduction
 mean_merge = click.option(
     "--mean-merge/--no-mean-merge",
     is_flag=True,
@@ -369,23 +373,21 @@ df_sort_order = click.option(
 )
 # dictionary option to specify reference for each element
 references = click.option(
-    "--ref",
     "--references",
-    "references",
     callback=keyvalue_parser,
     default="",
     help="Reference shielding for each element (in ppm). "
-    "The format is ``--ref C:170,H:123``. ",
+    "The format is ``--references C:170,H:123``. ",
 )
 gradients = click.option(
-    "--grad",
     "--gradients",
-    "gradients",
     callback=keyvalue_parser,
     default="",
     help="Reference shielding gradients for each element. "
-    "Defaults to -1 for all elements. Set it like this: "
-    "``--grad H:-1,C:-0.97``. ",
+    "When omitted, the full NMR formula is used (implicit gradient = -1). "
+    "When provided, a simple linear calibration is used instead: "
+    "δ = reference + gradient × σ. Set it like this: "
+    "``--gradients H:-1,C:-0.97``. ",
 )
 # TODO: have an option to set a file/env variable for the references...
 # flag to include certain columns only
@@ -447,7 +449,7 @@ verbosity = click.option(
 ## plotting options
 # plot type argument
 plot_type = click.option(
-    "--plot_type", "-p", type=click.Choice(["2D", "1D"]), default="2D", help="Plot type"
+    "--plot-type", "-p", type=click.Choice(["2D", "1D"]), default="2D", help="Plot type"
 )
 # x-element
 plot_xelement = click.option(
@@ -472,8 +474,9 @@ plot_rcut = click.option(
     "--rcut",
     "rcut",
     type=float,
-    default=10,
-    help="Cutoff distance for plotting. Defaults to 10 Angstrom.",
+    default=None,
+    help="Cutoff distance for correlation pairs in Angstrom. "
+         "Defaults to None (all pairs included).",
 )
 plot_yaxis_order = click.option(
     "--yaxis-order",
@@ -502,7 +505,7 @@ plot_show_ticklabels = click.option(
     default=True,
     help="Show tick labels. " "Defaults to True (i.e. showing the tick labels).",
 )
-plot_showconnecors = click.option(
+plot_showconnectors = click.option(
     "--connectors/--no-connectors",
     "show_connectors",
     default=True,
@@ -571,21 +574,56 @@ plot_marker_color = click.option(
     "--marker-color",
     "marker_color",
     type=str,
-    default='C0',
-    help="Marker color. Default is 'C0'.",
+    default=None,
+    help="Marker color. Defaults to None (auto-colour by peak group).",
 )
 
-# scale marker size by value
-plot_scale_marker_by = click.option(
-    "--scale-marker-by",
-    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "jcoupling"]),
+# weight peaks (correlation strength / heatmap intensity) by chosen metric
+plot_weight_by = click.option(
+    "--weight-by",
+    "--scale-marker-by", # legacy alias for backward compatibility, to be removed in future release
+    "weight_by",
+    type=click.Choice(["fixed", "distance", "inversedistance", "dipolar", "dipolar2", "jcoupling", "dipolar_rss"]),
     default="fixed",
-    help="Scale marker size by chosen property. "
-    "``fixed`` means that all the markers will have the same size. "
-    "``distance`` means that the marker size will be proportional to the distance between the sites. "
-    "``inversedistance`` means that the marker size will be proportional to the inverse of the distance between the sites. "
-    "``dipolar`` means that the marker size will be proportional to the dipolar coupling between the sites. "
+    help="Physical metric used to weight each cross-peak. "
+    "Affects both the heatmap/contour intensity and (optionally) the marker size. "
+    "``fixed`` gives all peaks equal weight. "
+    "``dipolar`` weights by the dipolar coupling between the site pair. "
+    "``dipolar2`` weights by the square of the dipolar coupling between the site pair. "
+    "``distance`` / ``inversedistance`` weights by inter-site distance or its inverse. "
+    "``dipolar_rss`` weights by the root-sum-squared dipolar coupling from each site to its neighbours (useful for DQ/SQ spectra). "
     "Default is ``fixed``.",
+)
+# RSS cutoff - only used when weight_by='dipolar_rss'
+plot_rss_cutoff = click.option(
+    "--rss-cutoff",
+    "rss_cutoff",
+    type=float,
+    default=5.0,
+    help="Cutoff radius (Angstrom) for the dipolar RSS sum used when ``--weight-by dipolar_rss``. "
+    "Default is 5.0 Angstrom.",
+)
+# how to expand the j neighbour set for dipolar_rss
+plot_rss_expand_j = click.option(
+    "--rss-expand-j",
+    "rss_expand_j",
+    type=click.Choice(["periodic_images", "symmetry", "cif_labels"]),
+    default="periodic_images",
+    help="How to expand the set of j-neighbours for the dipolar RSS sum "
+    "(only used when ``--weight-by dipolar_rss``). "
+    "``periodic_images`` includes neighbours from periodic images only. "
+    "``symmetry`` additionally includes all symmetry-equivalent sites. "
+    "``cif_labels`` uses CIF atom labels to group equivalent sites (requires CIF label info in the .magres file). "
+    "Default is ``periodic_images``.",
+)
+# whether to also scale marker sizes by the weight
+plot_scale_markers = click.option(
+    "--scale-markers/--fixed-markers",
+    "scale_markers",
+    default=True,
+    help="Scale marker sizes by the weight metric (``--weight-by``). "
+    "Use ``--fixed-markers`` to draw all markers at the same size "
+    "regardless of the weight. Default is to scale markers.",
 )
 # marker size
 plot_max_marker_size = click.option(
@@ -609,7 +647,7 @@ plot_marker_legend = click.option(
     "--legend/--no-legend",
     "show_marker_legend",
     default=False,
-    help="Show marker legend? Default is True.",
+    help="Show marker legend? Default is False.",
 )
 # show heatmap?
 plot_show_heatmap = click.option(
@@ -619,33 +657,46 @@ plot_show_heatmap = click.option(
     help="Show heatmap? Default is False.",
 )
 
-# x broadening - None means default to 5% of the range. Otherwise float in ppm
+# x broadening - None means default to 5% of the range. Otherwise FWHM in ppm.
 plot_xbroadening = click.option(
     "--xbroadening",
     type=float,
     default=None,
-    help="Broadening of the x-axis in ppm. "
-    "Defaults to 5% of the range. "
+    help="FWHM linewidth measured along the x-axis cross-section, in ppm "
+    "(i.e. the marginal linewidth with the y coordinate fixed at the peak centre). "
+    "Internally converted to HWHM (Lorentzian) or sigma (Gaussian) as appropriate. "
+    "Defaults to 5% of the x-axis range. "
     "Set to 0 to turn off broadening.",
 )
 
-# y broadening - None means default to 5% of the range. Otherwise float in ppm
+# y broadening - None means default to 5% of the range. Otherwise FWHM in ppm.
 plot_ybroadening = click.option(
     "--ybroadening",
     type=float,
     default=None,
-    help="Broadening of the y-axis in ppm. "
-    "Defaults to 5% of the range. "
+    help="FWHM linewidth measured along the y-axis cross-section, in ppm "
+    "(i.e. the marginal linewidth with the x coordinate fixed at the peak centre). "
+    "Internally converted to HWHM (Lorentzian) or sigma (Gaussian) as appropriate. "
+    "Defaults to 5% of the y-axis range. "
     "Set to 0 to turn off broadening.",
+)
+
+plot_grid_max = click.option(
+    "--grid-max",
+    "grid_max",
+    type=float,
+    default=None,
+    help="If set, scale the generated contour/heatmap grid so that its maximum "
+    "intensity equals this value. Useful when matching exported intensities "
+    "to external NMR software conventions.",
 )
 
 # colour map
 plot_colormap = click.option(
     "--colormap",
-    "-cmap",
     type=str,
-    default="bone",
-    help="Colour map for the heatmap. Default is 'bone'. "
+    default="bone_r",
+    help="Colour map for the heatmap. Default is 'bone_r'. "
     "See https://matplotlib.org/stable/tutorials/colors/colormaps.html for more options. "
     "Try adding '_r' to the end of the colormap name to reverse it.",
 )
@@ -662,7 +713,41 @@ plot_contour_levels = click.option(
     "--contour-levels",
     type=int,
     default=10,
-    help="Number of contour levels. Default is 10.",
+    help="Number of contour lines between the lo and hi values of --contour-range. "
+         "Default is 10.",
+)
+
+# shared intensity range (percentages of Z.max)
+plot_intensity_range = click.option(
+    "--intensity-range",
+    type=(float, float),
+    default=(10.0, 100.0),
+    show_default=True,
+    help="Shared intensity range for both contour and heatmap rendering as (lo hi) percentages "
+         "of the maximum grid intensity (0-100 scale). "
+         "Use --contour-range or --heatmap-range to override per layer.",
+)
+
+# contour range (percentages of Z.max)
+plot_contour_range = click.option(
+    "--contour-range",
+    type=(float, float),
+    default=None,
+    help="Intensity range for contour/heatmap rendering as (lo hi) percentages "
+         "of the maximum grid intensity (0-100 scale), for contour lines only. "
+         "Defaults to --intensity-range when unset. "
+         "Ignored when --contour-levels is an explicit list of absolute values.",
+)
+
+# heatmap range (percentages of Z.max)
+plot_heatmap_range = click.option(
+    "--heatmap-range",
+    type=(float, float),
+    default=None,
+    help="Intensity range for heatmap rendering as (lo hi) percentages "
+         "of the maximum grid intensity (0-100 scale), for heatmap only. "
+         "Defaults to --intensity-range when unset. "
+         "Ignored when --heatmap-levels is an explicit list of absolute values.",
 )
 
 # contour color
@@ -678,7 +763,17 @@ plot_contour_linewidth = click.option(
     "--contour-linewidth",
     type=float,
     default=0.2,
-    help="Contour linewidth. Default is 0.5.",
+    help="Contour linewidth. Default is 0.2.",
+)
+
+# heatmap levels
+plot_heatmap_levels = click.option(
+    "--heatmap-levels",
+    type=int,
+    default=20,
+    show_default=True,
+    help="Number of filled colour bands in the heatmap "
+         "(between the lo and hi values of --contour-range). Default is 20.",
 )
 
 
@@ -702,13 +797,79 @@ plot_shielding = click.option(
     "Default is to plot shifts if references are given but shielding if no references given).",
 )
 
+# ── contour data export ─────────────────────────────────────────────────────
+plot_export_files = click.option(
+    "--export-file",
+    "export_files",
+    type=click.Path(exists=False, dir_okay=False, writable=True),
+    multiple=True,
+    metavar="PATH",
+    help="Export the 2D contour data to PATH.  May be repeated for multiple "
+    "output files.  The format is inferred from the file extension: "
+    ".spe / .sim -> SIMPSON TEXT (readable by ssNake); "
+    ".npz -> NumPy archive; "
+    ".csv -> flat CSV; "
+    ".json -> ssNake-native JSON (ppm-ready, requires --x-larmor-freq). "
+    "Override with --export-format.",
+)
+plot_export_format = click.option(
+    "--export-format",
+    "export_format",
+    type=click.Choice(["simpson", "npz", "csv", "json"], case_sensitive=False),
+    default=None,
+    help="Force a specific export format, overriding extension inference. "
+    "Choices: simpson, npz, csv, json, plain, ssnake (alias for json).",
+)
+plot_b0_field = click.option(
+    "--b0-field-tesla",
+    "b0_field_tesla",
+    type=float,
+    default=None,
+    metavar="T",
+    help="Magnetic field strength in Tesla. "
+    "Used to auto-compute Larmor frequencies from gyromagnetic ratios. "
+    "Mutually exclusive with --spectrometer-freq. "
+    "Override per-dimension with --x-larmor-freq / --y-larmor-freq.",
+)
+plot_spectrometer_freq = click.option(
+    "--spectrometer-freq",
+    "spectrometer_freq_mhz",
+    type=float,
+    default=None,
+    metavar="MHz",
+    help="Spectrometer (¹H) frequency in MHz (e.g. 600 for a 600 MHz instrument). "
+    "Converted to Tesla internally; alternative to --b0-field-tesla. "
+    "Override per-dimension with --x-larmor-freq / --y-larmor-freq.",
+)
+plot_x_larmor_freq = click.option(
+    "--x-larmor-freq",
+    "x_larmor_freq_mhz",
+    type=float,
+    default=None,
+    metavar="MHz",
+    help="Larmor frequency (MHz) of the direct (x) dimension nucleus. "
+    "Overrides auto-computation from --b0-field-tesla. "
+    "Required for ssNake JSON export so ppm is available on load. "
+    "Also converts SIMPSON sweep-widths from ppm to Hz.",
+)
+plot_y_larmor_freq = click.option(
+    "--y-larmor-freq",
+    "y_larmor_freq_mhz",
+    type=float,
+    default=None,
+    metavar="MHz",
+    help="Larmor frequency (MHz) of the indirect (y) dimension nucleus. "
+    "Defaults to --x-larmor-freq (homonuclear). "
+    "Overrides auto-computation from --b0-field-tesla.",
+)
+
 
 # option to select a subset of atoms
-coupling_selection_i = click.option(
-    "--select-i", "selection_i", type=str, default=None, help=subset_help
+dip_selection_i = click.option(
+    "--select_i", "selection_i", type=str, default=None, help=subset_help
 )
-coupling_selection_j = click.option(
-    "--select-j", "selection_j", type=str, default=None, help=subset_help
+dip_selection_j = click.option(
+    "--select_j", "selection_j", type=str, default=None, help=subset_help
 )
 dip_rss_flag = click.option(
     "--rss",
@@ -736,7 +897,107 @@ dip_isonuclear = click.option(
 )
 
 
-## Spinsys options
+#### Groups of CLI options
+# options that apply to pandas dataframes
+DF_OPTIONS = [
+    df_output_format,
+    df_output,
+    df_merge,
+    df_sortby,
+    df_sort_order,
+    df_include,
+    df_exclude,
+    df_query,
+]
+
+NMR_OPTIONS = [
+    ms_tag,
+    efg_tag,
+    nmrproperties,
+    isotopes,
+    average_group,
+    reduce,
+    euler,
+    references,
+    gradients,
+    subset,
+]
+
+COMMON_OPTIONS = [
+    config,
+    verbosity,
+    view,
+    symprec,
+    precision,
+]
+PLOT_SPECIFIC_OPTIONS = [
+    isotopes,
+    average_group,
+    euler,
+    references,
+    gradients,
+    subset,
+    reduce,
+    mean_merge,
+    df_query,
+    plot_type,
+    plot_xelement,
+    plot_yelement,
+    plot_rcut,
+    plot_yaxis_order,
+    # plot_flipx,
+    # plot_flipy,
+    # plot_xlabel,
+    # plot_ylabel,
+    plot_xlims,
+    plot_ylims,
+    plot_show_markers,
+    plot_marker,
+    plot_max_marker_size,
+    plot_marker_linewidth,
+    plot_weight_by,
+    plot_rss_cutoff,
+    plot_rss_expand_j,
+    plot_scale_markers,
+    plot_marker_color,
+    plot_marker_legend,
+    plot_showdiagonal,
+    plot_showgrid,
+    plot_showconnectors,
+    plot_show_ticklabels,
+    plot_show_heatmap,
+    plot_heatmap_levels,
+    plot_xbroadening,
+    plot_ybroadening,
+    plot_grid_max,
+    plot_colormap,
+    plot_show_contour,
+    plot_contour_levels,
+    plot_intensity_range,
+    plot_contour_range,
+    plot_heatmap_range,
+    plot_contour_color,
+    plot_contour_linewidth,
+    plot_output,
+    plot_shielding,
+    plot_export_files,
+    plot_export_format,
+    plot_b0_field,
+    plot_spectrometer_freq,
+    plot_x_larmor_freq,
+    plot_y_larmor_freq,
+]
+
+DIP_OPTIONS = [
+    isotopes,
+    average_group,
+    dip_selection_i,
+    dip_selection_j,
+    dip_rss_flag,
+    dip_rss_cutoff,
+    dip_isonuclear,
+]
+
 spinsys_split = click.option(
     "--split",
     is_flag=True,
@@ -783,7 +1044,6 @@ spinsys_include_j = click.option(
     default=False,
     help="Include J coupling values in SpinSys output. Default is False.",
 )
-# Treat MS as isotropic?
 spinsys_ms_isotropic = click.option(
     "--ms-iso",
     "ms_isotropic",
@@ -791,7 +1051,6 @@ spinsys_ms_isotropic = click.option(
     default=False,
     help="Treat magnetic shieldings as isotropic? Default is False.",
 )
-# quadrupolar order integer options between 1 and 2
 spinsys_q_order = click.option(
     "--q-order",
     "q_order",
@@ -801,7 +1060,6 @@ spinsys_q_order = click.option(
          "Default is None, which lets the library choose 2 for quadrupole-active nuclei and 0 otherwise. "
          "You can specify the isotopes using the --isotopes option, for example: ``--isotopes 2H``. "
 )
-# cross-terms option
 spinsys_cross_terms = click.option(
     "--cross-terms/--no-cross-terms",
     "include_cross_terms",
@@ -809,7 +1067,6 @@ spinsys_cross_terms = click.option(
     help="Include second-order cross-terms (quadrupole_x_dipole, quadrupole_x_shift) "
          "in Simpson output. Default is True.",
 )
-# Main angles option
 spinsys_angles = click.option(
     "--angles",
     "include_angles",
@@ -817,8 +1074,6 @@ spinsys_angles = click.option(
     default="default",
     help="Overall control for all angle types: 'all' enables all angles, 'none' disables all angles, 'default' respects individual flags"
 )
-
-# Individual angle options
 spinsys_ms_angles = click.option(
     "--ms-angles/--no-ms-angles",
     "include_ms_angles",
@@ -852,7 +1107,6 @@ output_filename = click.option(
     help="Output filename. Default is None. "
     "If not specified, the output will be written to stdout.",
 )
-# Observed nucleus
 observed_nucleus = click.option(
     "--observed-nucleus",
     "--obs",
@@ -862,94 +1116,6 @@ observed_nucleus = click.option(
     help="Observed nucleus. Default is ''. This is used to set the observed nucleus in the Simpson input file."
     "If not specified, the observed nucleus is set to the first nucleus in the spinsys file.",
 )
-#### Groups of CLI options
-# options that apply to pandas dataframes
-DF_OPTIONS = [
-    df_output_format,
-    df_output,
-    df_merge,
-    df_sortby,
-    df_sort_order,
-    df_include,
-    df_exclude,
-    df_query,
-]
-
-NMR_OPTIONS = [
-    ms_tag,
-    efg_tag,
-    nmrproperties,
-    isotopes,
-    average_group,
-    reduce,
-    mean_merge,
-    euler,
-    references,
-    gradients,
-    subset,
-    precision,
-]
-
-COMMON_OPTIONS = [
-    config,
-    verbosity,
-    view,
-    symprec,
-]
-PLOT_SPECIFIC_OPTIONS = [
-    isotopes,
-    average_group,
-    euler,
-    references,
-    gradients,
-    subset,
-    reduce,
-    mean_merge,
-    df_query,
-    plot_type,
-    plot_xelement,
-    plot_yelement,
-    plot_rcut,
-    plot_yaxis_order,
-    # plot_flipx,
-    # plot_flipy,
-    # plot_xlabel,
-    # plot_ylabel,
-    plot_xlims,
-    plot_ylims,
-    plot_show_markers,
-    plot_marker,
-    plot_max_marker_size,
-    plot_marker_linewidth,
-    plot_scale_marker_by,
-    plot_marker_color,
-    plot_marker_legend,
-    plot_showdiagonal,
-    plot_showgrid,
-    plot_showconnecors,
-    plot_show_ticklabels,
-    plot_show_heatmap,
-    plot_xbroadening,
-    plot_ybroadening,
-    plot_colormap,
-    plot_show_contour,
-    plot_contour_levels,
-    plot_contour_color,
-    plot_contour_linewidth,
-    plot_output,
-    plot_shielding,
-]
-
-DIP_OPTIONS = [
-    isotopes,
-    average_group,
-    coupling_selection_i,
-    coupling_selection_j,
-    dip_rss_flag,
-    dip_rss_cutoff,
-    dip_isonuclear,
-    precision,
-]
 
 SPINSYS_OPTIONS = [
     output_filename,
@@ -975,8 +1141,8 @@ SPINSYS_OPTIONS = [
     spinsys_efg_angles,
     spinsys_dipolar_angles,
     spinsys_jcoupling_angles,
-    coupling_selection_i,
-    coupling_selection_j,
+    dip_selection_i,
+    dip_selection_j,
     ms_tag,
     efg_tag,
 ]
@@ -1228,65 +1394,13 @@ def average_quaternions_by_tags(quaternions, tags):
 
 
 def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
-    """Find groups of atoms based on a functional group pattern.
-    The pattern is a string such as CH3 or CH2.
-    It must contain an element symbol, H and the number of H atoms
+    """Thin wrapper re-exporting :func:`soprano.nmr.extract.find_XHn_groups`.
 
-
-    | Args:
-    |   atoms (ase.Atoms): Atoms object on which to perform selection
-    |   pattern_string (str): functional group pattern e.g. 'CH3'
-    |                        for a methyl group. Assumes the group is
-    |                        the thing(s) connected to the first atom.
-    |                        They can be combined, comma separated.
-    |                        TODO: add SMILES/SMARTS support?
-    |   vdw_scale (float): scale factor for vdw radius (used for bond searching)
+    Kept here for backward compatibility.  New code should import directly
+    from ``soprano.nmr.extract``.
     """
-    from soprano.properties.linkage import Bonds
-
-    if tags is None:
-        tags = np.arange(len(atoms))
-
-    bcalc = Bonds(vdw_scale=vdw_scale, return_matrix=True)
-    bonds, bmat = bcalc(atoms)
-    all_groups = []
-    for group_pattern in pattern_string.split(","):
-        # split into central element and number of H atoms
-        if "H" not in group_pattern:
-            raise ValueError(
-                f"{group_pattern} is not a valid group pattern "
-                "(must contain an element symbol, H, and the number of H atoms. e.g. CH3)"
-            )
-        X, n = group_pattern.split("H")
-        n = int(n)
-        # Find XHn groups
-        symbs = np.array(atoms.get_chemical_symbols())
-        hinds = np.where(symbs == "H")[0]
-        groups = []
-        xinds = np.where(symbs == X)[0]
-        xinds = xinds[np.where(np.sum(bmat[xinds][:, hinds], axis=1) == n)[0]]
-        # group_tags = np.ones((len(xinds), n), dtype=int)
-        seen_tags = []
-        for ix, xind in enumerate(xinds):
-            bonded_hinds = np.where(bmat[xind][hinds] == 1)[0]
-            group = list(hinds[bonded_hinds])
-            assert len(group) == n
-            match = []
-            if len(seen_tags) > 0:
-                match = np.where((np.array(seen_tags) == tags[group]).all(axis=1))[0]
-
-            if len(match) == 1:
-                # how to handle this?
-                groups[match[0]] += group
-            elif len(match) == 0:
-                seen_tags.append(tags[group])
-                groups.append(group)
-            else:
-                raise ValueError(f"Found multiple matches for {group_pattern}")
-
-        all_groups.append(groups)
-
-    return all_groups
+    from soprano.nmr.extract import find_XHn_groups as _impl
+    return _impl(atoms, pattern_string, tags=tags, vdw_scale=vdw_scale)
 
 
 def reload_as_molecular_crystal(atoms: Atoms, force=False) -> Atoms:

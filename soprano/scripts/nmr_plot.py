@@ -29,6 +29,7 @@ __date__ = "May 09, 2023"
 
 
 import logging
+from pathlib import Path
 
 import click
 import click_log
@@ -37,11 +38,11 @@ import numpy as np
 
 from soprano.calculate.nmr import NMRCalculator
 from soprano.calculate.nmr.nmr import NMRData2D, NMRPlot2D, PlotSettings
-from soprano.properties.nmr import *
 from soprano.properties.nmr import MSIsotropy
-from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, viewimages
-from soprano.scripts.nmr import nmr_extract_multi, print_results
+from soprano.nmr.extract import nmr_extract_multi
+from soprano.scripts.cli_utils import PLOT_OPTIONS, add_options, print_results, viewimages, reload_as_molecular_crystal
 from soprano.selection import AtomSelection
+import ase.io as _ase_io
 
 # logging
 logging.captureWarnings(True)
@@ -72,7 +73,10 @@ def plotnmr(
     ylim,
     show_markers,
     marker_symbol,
-    scale_marker_by,
+    weight_by,
+    rss_cutoff,
+    rss_expand_j,
+    scale_markers,
     max_marker_size,
     marker_color,
     marker_linewidth,
@@ -82,15 +86,26 @@ def plotnmr(
     show_connectors,
     show_ticklabels,
     show_heatmap,
+    heatmap_levels,
     xbroadening,
     ybroadening,
+    grid_max,
     colormap,
     show_contour,
     contour_levels,
+    intensity_range,
+    contour_range,
+    heatmap_range,
     contour_color,
     contour_linewidth,
     plot_filename,
     plot_shielding,  ## force-plot the shielding even if references are given
+    export_files,
+    export_format,
+    b0_field_tesla,
+    spectrometer_freq_mhz,
+    x_larmor_freq_mhz,
+    y_larmor_freq_mhz,
     verbosity,
     symprec,
     precision,
@@ -106,9 +121,6 @@ def plotnmr(
         include.append("MS_shift")
     exclude = None
     merge = True  # if multiple files are given, we have to merge them
-    sortby = None
-    sort_order = "ascending"
-    combine_rule = "mean"
 
     # set verbosity
     if verbosity == 0:
@@ -131,8 +143,8 @@ def plotnmr(
         symprec=symprec,
         properties=properties,
         euler_convention=euler_convention,
-        sortby=sortby,
-        sort_order=sort_order,
+        sortby=None,
+        sort_order="ascending",
         include=include,
         exclude=exclude,
         query=query,
@@ -154,15 +166,31 @@ def plotnmr(
         return 1
     atoms = images[0]
 
+    # For 2D plots with reduce=True, pass the raw (unmerged) unit-cell atoms
+    # to NMRData2D and let it handle reduction internally.  NMRData2D stores
+    # the pre-reduction atoms as atoms_full so RSS expansion can find all Z
+    # copies of each site.  When reduce=False, images[0] already contains all
+    # atoms so we can pass it directly.
+    atoms_for_2d = atoms
+    if reduce:
+        try:
+            _raw = _ase_io.read(files[0])
+            atoms_for_2d = reload_as_molecular_crystal(_raw)
+        except Exception as e:
+            logger.warning(
+                f"Could not reload raw atoms for 2D: {e}. "
+                "Using pre-reduced atoms; RSS expansion may be incomplete for Z > 1."
+            )
+
     if plot_type == "2D":
         if not y_element:
             y_element = x_element
 
-        shift = not plot_shielding if plot_shielding is not None else references != {}
+        shift = not plot_shielding if plot_shielding is not None else bool(references)
 
         # Create NMRData2D instance
         nmr_data = NMRData2D(
-            atoms=atoms,
+            atoms=atoms_for_2d,
             xelement=x_element,
             yelement=y_element,
             rcut=rcut,
@@ -172,7 +200,10 @@ def plotnmr(
             is_shift=shift,
             include_quadrupolar=False,
             yaxis_order=yaxis_order,
-            correlation_strength_metric=scale_marker_by,
+            correlation_strength_metric=weight_by,
+            rss_cutoff=rss_cutoff,
+            rss_expand_j=rss_expand_j,
+            reduce=reduce,
         )
 
         # Define plot settings
@@ -189,17 +220,43 @@ def plotnmr(
             show_connectors=show_connectors,
             show_labels=show_ticklabels,
             show_heatmap=show_heatmap,
+            heatmap_levels=heatmap_levels,
             show_contour=show_contour,
             colormap=colormap,
             marker_color=marker_color,
             show_legend=show_marker_legend,
             contour_levels=contour_levels,
+            intensity_range=intensity_range,
+            contour_range=contour_range,
+            heatmap_range=heatmap_range,
             contour_color=contour_color,
             contour_linewidth=contour_linewidth,
             x_broadening=xbroadening,
             y_broadening=ybroadening,
-
+            grid_max=grid_max,
+            scale_markers=scale_markers,
         )
+
+        # Export contour data if requested
+        if export_files:
+            from soprano.calculate.nmr.export import ExportConfig, guess_format_from_path
+            for export_path in export_files:
+                fmt = export_format or guess_format_from_path(export_path)
+                logger.info(f"Exporting contour data to '{export_path}' (format={fmt}).")
+                config = ExportConfig(
+                    x_broadening=xbroadening,
+                    y_broadening=ybroadening,
+                    grid_max=grid_max,
+                    x_larmor_freq_mhz=x_larmor_freq_mhz,
+                    y_larmor_freq_mhz=y_larmor_freq_mhz,
+                    b0_field_tesla=b0_field_tesla,
+                    spectrometer_freq_mhz=spectrometer_freq_mhz,
+                )
+                nmr_data.export_contour_data(
+                    path=export_path,
+                    fmt=fmt,
+                    config=config,
+                )
 
         # Create NMRPlot2D instance
         nmr_plot = NMRPlot2D(
@@ -208,12 +265,18 @@ def plotnmr(
         )
 
         # Generate the plot
-        fig, ax = nmr_plot.plot()
+        result = nmr_plot.plot()
+        # Matplotlib returns (fig, ax); Plotly returns a single Figure object
+        if isinstance(result, tuple):
+            fig, ax = result
+        else:
+            fig = result
         # if the user doesn't give an output file name, show the plot using the default matplotlib backend
         if not plot_filename:
             plt.show()
+        return 0
     elif plot_type == "1D":
-        shift = not plot_shielding if plot_shielding is not None else references != {}
+        shift = not plot_shielding if plot_shielding is not None else bool(references)
         sel = AtomSelection.all(atoms)
         element_sel = AtomSelection.from_element(atoms, x_element)
         sel = sel * element_sel
@@ -222,6 +285,12 @@ def plotnmr(
         calc = NMRCalculator(atoms)
         if shift:
             logger.info(f"Setting references: {references}")
+            if x_element not in references:
+                logger.error(
+                    f"No reference found for element '{x_element}'. "
+                    "Provide one with --references or use --shielding to plot shielding instead."
+                )
+                return 1
             calc.set_reference(ref=references[x_element], element=x_element)
             use_reference = True
             xlabel = f"{x_element} shift (ppm)"
@@ -267,7 +336,9 @@ def plotnmr(
             fig.savefig(plot_filename)
         else:
             plt.show()
+        return 0
     else:
         logger.error("Invalid plot type. Aborting.")
+        return 1
 
     return 0

@@ -657,6 +657,62 @@ def _compute_rotation(euler_angles: np.ndarray,
     symrot_check = Rotation.from_euler(euler_convention, [0, 0, symrotang_check]).as_matrix()
     mcheck = np.dot(np.dot(symrot_check, mcheck), np.linalg.inv(symrot_check))
     return euler_angles, mcheck
+
+
+def compute_b0_from_spectrometer_freq(spectrometer_freq_mhz: float) -> float:
+    """Compute B0 field (Tesla) from the ¹H spectrometer frequency in MHz.
+
+    Parameters
+    ----------
+    spectrometer_freq_mhz : float
+        Proton (¹H) Larmor frequency in MHz as displayed on the spectrometer
+        (e.g. 600 for a "600 MHz" instrument).
+
+    Returns
+    -------
+    float
+        Magnetic field strength in Tesla.
+    """
+    from soprano.data.nmr import nmr_gamma
+
+    gamma_H = abs(nmr_gamma("H"))  # rad s⁻¹ T⁻¹
+    return spectrometer_freq_mhz * 1e6 * 2 * np.pi / gamma_H
+
+
+def compute_larmor_frequency(element: str, b0_tesla: float, isotope: Optional[int] = None) -> float:
+    """Compute the Larmor frequency (in MHz) for a nucleus at a given field.
+
+    Parameters
+    ----------
+    element : str
+        Element symbol (e.g. ``'H'``, ``'C'``).
+    b0_tesla : float
+        Magnetic field strength in Tesla.
+    isotope : int, optional
+        Mass number.  Defaults to the most abundant NMR-active isotope.
+
+    Returns
+    -------
+    float
+        Larmor frequency in MHz.
+
+    Raises
+    ------
+    ValueError
+        If the element has no known gyromagnetic ratio data.
+    """
+    from soprano.data.nmr import nmr_gamma
+
+    try:
+        gamma = nmr_gamma(element, iso=isotope)  # rad s⁻¹ T⁻¹
+    except (ValueError, RuntimeError) as exc:
+        raise ValueError(
+            f"Cannot compute Larmor frequency for element '{element}': "
+            f"no gyromagnetic ratio data available."
+        ) from exc
+    return abs(gamma * b0_tesla) / (2 * np.pi * 1e6)
+
+
 def _frange(a, b, x):
     while a < b:
         yield a
@@ -719,6 +775,8 @@ def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], e
     Raises:
     ValueError: If the gradients input is not a float, dictionary, or list, or if the length of the gradients list does not match the length of elements.
     """
+    if gradients is None:
+        return None
     DEFAULT_GRADIENT = -1.0
     if isinstance(gradients, float):
         return [gradients] * len(elements)
@@ -733,7 +791,7 @@ def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], e
             )
     else:
         raise ValueError(
-            "gradients must be either a float, a dictionary, or a list of gradients"
+            "gradients must be either None, a float, a dictionary, or a list of gradients"
         )
 
 def _references_to_list(references: Union[None, dict[str, float], list[float]], elements: list[str]) -> list[Union[float, None]]:

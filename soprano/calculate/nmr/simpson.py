@@ -110,7 +110,7 @@ def _write_spinsys_legacy(
                 "{element: value}, where value is the reference shielding "
                 "for that element in ppm."
             )
-        msiso = MSIsotropy.get(s, ref=ref, grad=grad, tag=ms_tag)
+        msiso = MSIsotropy.get(s, references=ref, gradients=grad, tag=ms_tag)
         if not ms_iso:
             msaniso = MSReducedAnisotropy.get(s, tag=ms_tag)
             msasymm = MSAsymmetry.get(s, tag=ms_tag)
@@ -238,11 +238,13 @@ def write_spinsys(
     efg_tag='efg',
     dip_sel=None,
     path=None,
-    ref=None,
-    grad=-1.0,
+    references=None,
+    gradients=None,
     obs_nuc=None,
     backend='spinsys',
     include_cross_terms=True,
+    ref=None,
+    grad=None,
 ):
     """
     Write a .spinsys input file for use with SIMPSON, given the details of a
@@ -269,20 +271,12 @@ def write_spinsys(
                                between atoms belonging to this set.
       path (str): path to save the newly created file to. If not provided,
                   the contents will be simply returned as a string.
-      ref (dict): dictionary of reference values for the calculation. This
-                  is used to convert from raw shielding values to chemical
-                  shifts. The dictionary should be in the form
-                  {element: value}, where value is the reference shielding
-                  for that element in ppm.
-      grad (float|dict|list): gradient to use when converting from raw
-                              shielding values to chemical shifts. If a
-                              float is provided, it will be used for all
-                              elements. If a dictionary is provided, it
-                              should be in the form {element: value}, where
-                              value is the gradient for that element. If a
-                              list is provided, it should have one value
-                              per site. Defaults to a gradient of -1.0 for
-                              all elements.
+      references (dict): dictionary of reference shielding values for the
+                  calculation, used to convert to chemical shifts.
+                  Format: {element: value} in ppm.
+      gradients (float|dict|list): gradients for the chemical shift
+                  conversion. Defaults to -1.0 for all elements when
+                  references are provided.
       obs_nuc (str): specify the nucleus to be observed, e.g. '1H'.
       backend (str): backend to use. Options are 'spinsys' (default) or
                      'legacy'. The 'legacy' backend is deprecated and will
@@ -299,6 +293,18 @@ def write_spinsys(
       file_contents (str): spinsys file in string format. Only returned if
                            no save path is provided.
     """
+    # Backward compatibility for old parameter names
+    if ref is not None:
+        if references is not None:
+            raise ValueError("Cannot use both 'ref' and 'references'. Use 'references'.")
+        references = ref
+        warnings.warn("The 'ref' parameter is deprecated. Use 'references' instead.", DeprecationWarning, stacklevel=2)
+    if grad is not None:
+        if gradients is not None:
+            raise ValueError("Cannot use both 'grad' and 'gradients'. Use 'gradients'.")
+        gradients = grad
+        warnings.warn("The 'grad' parameter is deprecated. Use 'gradients' instead.", DeprecationWarning, stacklevel=2)
+
     if backend == 'legacy':
         warnings.warn(
             "The 'legacy' backend for write_spinsys is deprecated and will be removed "
@@ -308,12 +314,12 @@ def write_spinsys(
         )
         return _write_spinsys_legacy(
             s, isotope_list, use_ms, ms_iso, ms_tag, q_order, efg_tag,
-            dip_sel, path, ref, grad, obs_nuc,
+            dip_sel, path, references, gradients, obs_nuc,
         )
     elif backend == 'spinsys':
         return _write_spinsys_spinsys(
             s, isotope_list, use_ms, ms_iso, ms_tag, q_order, efg_tag,
-            dip_sel, path, ref, grad, obs_nuc,
+            dip_sel, path, references, gradients, obs_nuc,
             include_cross_terms=include_cross_terms,
         )
     else:

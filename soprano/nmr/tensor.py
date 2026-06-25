@@ -1034,12 +1034,23 @@ class MagneticShielding(NMRTensor):
         species: str,
         order:str = default_order,
         reference:Optional[float]=None,
-        gradient: float=-1.0,
+        gradient: Optional[float]=None,
         tag = None):
         """
         Initialise the MSTensor
 
         Create an MSTensor object from a 3x3 matrix.
+
+        Two referencing modes are supported:
+
+        **Full NMR formula (default, gradient=None)**
+          The rigorous conversion accounting for the ppm scale definition:
+          ``δ = (ref - σ) / (1 - ref×10⁻⁶)``
+          This is used when ``gradient`` is *None* (default).
+
+        **Linear calibration (gradient provided)**
+          A simple linear model: ``δ = ref + grad·σ``
+          Selected when an explicit ``gradient`` is supplied.
 
         Arguments:
             species (str):      Element or isotope symbol of the atom the tensor refers to. e.g 'H', 'C', '13C'
@@ -1053,8 +1064,8 @@ class MagneticShielding(NMRTensor):
             reference (float):  Reference chemical shift for the tensor. If set,
                                 the isotropic chemical shift can be calculated.
                                 Defaults to None.
-            gradient (float):   Gradient for the magnetic shielding to shift conversion.
-                                Defaults to -1.0.
+            gradient (float or None):   Gradient for the magnetic shielding to shift conversion.
+                                Defaults to None, which uses the full NMR formula.
             tag (str):          Optional tag to identify the tensor. In a magres file, this would be the
                                 'ms_sometag' though for most magres file ms is not decomposed into contributions and the tag
                                 is simply 'ms'. By default, this is None.
@@ -1277,21 +1288,36 @@ class MagneticShielding(NMRTensor):
         return self.species.strip('1234567890')
 
     @staticmethod
-    def _get_referenced_eigenvalues(eigenvalues: Union[list, np.ndarray], reference: float, gradient: float):
+    def _get_referenced_eigenvalues(
+        eigenvalues: Union[list, np.ndarray],
+        reference: float,
+        gradient: Optional[float],
+    ):
         """
         Get the referenced eigenvalues for the magnetic shielding tensor.
+
+        Two referencing modes are supported, selected by *gradient*:
+
+        * ``gradient is None`` → full NMR formula
+          ``δ = (ref - σ) / (1 - ref×10⁻⁶)``
+        * ``gradient is not None`` → linear calibration
+          ``δ = ref + grad·σ``
 
         Args:
             eigenvalues (Union[list, np.ndarray]): Eigenvalues of the magnetic shielding tensor (ppm)
             reference (float): Reference shielding (ppm)
-            gradient (float): Gradient for the magnetic shielding to shift conversion
+            gradient (float or None): Gradient for the linear model. None selects the full formula.
+
         Returns:
             np.ndarray: Chemical shift eigenvalues (ppm)
         """
-        # Convert to numpy array if not already
         eigenvalues = np.array(eigenvalues)
-        # Reference components
-        shift_eigenvalues = (reference + gradient * eigenvalues) / (1 - reference * 1e-6)
+        if gradient is None:
+            # Full NMR formula with implicit gradient = -1
+            shift_eigenvalues = (reference - eigenvalues) / (1 - reference * 1e-6)
+        else:
+            # Linear calibration
+            shift_eigenvalues = reference + gradient * eigenvalues
         return shift_eigenvalues
 
     @property
@@ -1434,9 +1460,16 @@ class MagneticShielding(NMRTensor):
         self.reference = reference
 
     # Set/update the gradient
-    def set_gradient(self, gradient: float):
+    def set_gradient(self, gradient: Optional[float]):
         '''
         Set the gradient for this tensor.
+
+        Parameters
+        ----------
+        gradient : float or None
+            If *None* (default), the full NMR formula is used.
+            If a float is given, the simple linear model
+            ``δ = reference + gradient·σ`` is used instead.
         '''
         self.gradient = gradient
 

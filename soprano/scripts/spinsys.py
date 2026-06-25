@@ -84,6 +84,7 @@ def spinsys(
     view,
     ms_tag,
     efg_tag,
+    precision=3,
 ):
     """Extract a spin system from a .magres file for use as input to a Simpson or MRSimulator simulation."""
 
