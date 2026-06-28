@@ -838,5 +838,167 @@ class TestCLI(unittest.TestCase):
         self.assertTrue("quad" in simpson_str.lower() or "cq" in simpson_str.lower())
 
 
+class TestPlotNMRCLI(unittest.TestCase):
+    """Basic smoke tests for the `soprano plotnmr` subcommand."""
+
+    def setUp(self):
+        warnings.filterwarnings(
+            "ignore",
+            message="The Euler angles do not give a consistent rotation."
+        )
+        self._TEST_DIR = Path(__file__).parent
+        self._TESTDATA_DIR = self._TEST_DIR / "test_data"
+        self._temp_dir_obj = tempfile.TemporaryDirectory(prefix="soprano_plotnmr_test_")
+        self._TESTSAVE_DIR = Path(self._temp_dir_obj.name)
+
+    def tearDown(self):
+        try:
+            self._temp_dir_obj.cleanup()
+        except Exception:
+            pass
+
+    def _run_plotnmr(self, option_flags):
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+            result = runner.invoke(
+                soprano,
+                ["plotnmr", str(fname_mag)] + option_flags,
+                prog_name="plotnmr",
+            )
+        return result
+
+    def test_plotnmr_2d_with_references(self):
+        """2D HETCOR with partial references should not fail on other elements."""
+        output = self._TESTSAVE_DIR / "hetcor.pdf"
+        result = self._run_plotnmr([
+            "-p", "2D",
+            "-x", "C",
+            "-y", "H",
+            "--references", "C:170,H:30",
+            "--scale-marker-by", "dipolar",
+            "--no-reduce",
+            "-o", str(output),
+        ])
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue(output.exists())
+
+    def test_plotnmr_2d_shielding(self):
+        """2D plot without references should fall back to shielding."""
+        output = self._TESTSAVE_DIR / "shielding_2d.pdf"
+        result = self._run_plotnmr([
+            "-p", "2D",
+            "-x", "C",
+            "-y", "C",
+            "--no-reduce",
+            "-o", str(output),
+        ])
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue(output.exists())
+
+    def test_plotnmr_1d(self):
+        """1D plot of a single element should work."""
+        output = self._TESTSAVE_DIR / "spectrum_1d.pdf"
+        result = self._run_plotnmr([
+            "-p", "1D",
+            "-x", "C",
+            "--references", "C:170",
+            "--no-reduce",
+            "-o", str(output),
+        ])
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue(output.exists())
+
+
+class TestBasicCLICommands(unittest.TestCase):
+    """Smoke tests for the core CLI subcommands."""
+
+    def setUp(self):
+        warnings.filterwarnings(
+            "ignore",
+            message="The Euler angles do not give a consistent rotation."
+        )
+        self._TEST_DIR = Path(__file__).parent
+        self._TESTDATA_DIR = self._TEST_DIR / "test_data"
+        self._temp_dir_obj = tempfile.TemporaryDirectory(prefix="soprano_cli_basic_test_")
+        self._TESTSAVE_DIR = Path(self._temp_dir_obj.name)
+
+    def tearDown(self):
+        try:
+            self._temp_dir_obj.cleanup()
+        except Exception:
+            pass
+
+    def test_nmr_basic(self):
+        """`soprano nmr` extracts a DataFrame with expected columns."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            output = self._TESTSAVE_DIR / "nmr.csv"
+            fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+            result = runner.invoke(
+                soprano,
+                ["nmr", str(fname_mag), "-p", "ms", "-o", str(output)],
+                prog_name="nmr",
+            )
+        self.assertEqual(result.exit_code, 0, result.output)
+        df = pd.read_csv(output)
+        self.assertIn("MS_shielding/ppm", df.columns)
+
+    def test_dipolar_basic(self):
+        """`soprano dipolar` writes a CSV with coupling columns."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            output = self._TESTSAVE_DIR / "dipolar.csv"
+            fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+            result = runner.invoke(
+                soprano,
+                ["dipolar", str(fname_mag), "-o", str(output)],
+                prog_name="dipolar",
+            )
+        self.assertEqual(result.exit_code, 0, result.output)
+        df = pd.read_csv(output)
+        self.assertIn("D/kHz", df.columns)
+
+    def test_spinsys_basic(self):
+        """`soprano spinsys` writes a SIMPSON file."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            output = self._TESTSAVE_DIR / "spinsys.in"
+            fname_mag = self._TESTDATA_DIR / "ethanol.magres"
+            result = runner.invoke(
+                soprano,
+                [
+                    "spinsys", str(fname_mag),
+                    "-s", "C",
+                    "--references", "C:170",
+                    "-o", str(output),
+                ],
+                prog_name="spinsys",
+            )
+        self.assertEqual(result.exit_code, 0, result.output)
+        content = output.read_text()
+        self.assertIn("spinsys", content)
+        self.assertIn("shift", content)
+
+    def test_splitmols_basic(self):
+        """`soprano splitmols` writes one file per molecule."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            output_dir = self._TESTSAVE_DIR / "molecules"
+            fname_mag = self._TESTDATA_DIR / "EDIZUM.magres"
+            result = runner.invoke(
+                soprano,
+                [
+                    "splitmols", str(fname_mag),
+                    "-o", str(output_dir),
+                    "-f", "xyz",
+                ],
+                prog_name="splitmols",
+            )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertTrue(output_dir.exists())
+        self.assertGreater(len(list(output_dir.glob("*.xyz"))), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

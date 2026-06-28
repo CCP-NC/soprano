@@ -93,7 +93,6 @@ def plotnmr(
     plot_shielding,  ## force-plot the shielding even if references are given
     verbosity,
     symprec,
-    precision,
     view,
 ):
     """
@@ -109,6 +108,14 @@ def plotnmr(
     sortby = None
     sort_order = "ascending"
     combine_rule = "mean"
+
+    # Only extract data for the element(s) being plotted, so that partial
+    # reference dictionaries (e.g. C and H only) don't fail on other elements
+    # present in the structure (e.g. O).
+    plot_elements = [x_element]
+    if y_element and y_element != x_element:
+        plot_elements.append(y_element)
+    subset = ",".join(plot_elements)
 
     # set verbosity
     if verbosity == 0:

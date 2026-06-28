@@ -966,7 +966,7 @@ class NMRData2D:
 
         self.correlation_strengths = self.get_correlation_strengths()
 
-        self.data = MSIsotropy.get(self.atoms, ref=self.references, grad=self.gradients)
+        self.data = MSIsotropy.get(self.atoms, references=self.references, gradients=self.gradients)
         self.logger.debug(f'Indices of xelement in the atoms object: {self.idx_x}')
         self.logger.debug(f'Indices of yelement in the atoms object: {self.idx_y}')
         self.logger.debug(f'X species: {self.xspecies}')
