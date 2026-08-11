@@ -197,7 +197,15 @@ def _dip_tensor(d, r, rotation_axis=None):
 
 def _J_constant(Kij, gi, gj) -> FloatOrArray:
     """J coupling constants for pairs ij, with reduced constant Kij and
-    gyromagnetic ratios gi and gj"""
+    gyromagnetic ratios gi and gj.
+
+    Returns J in Hz:  J = h · γ_i · γ_j · K_ij / (4π²).
+
+    The trailing ``1e19`` converts the reduced coupling constant K_ij from its
+    tabulated/stored unit of ``10^19 T² J⁻¹`` (= ``10^19 kg⁻¹ m⁻² s²``) to SI
+    (T² J⁻¹).  With γ in rad s⁻¹ T⁻¹ and h in J s the product is dimensionless
+    of s⁻¹, i.e. Hz.
+    """
 
     return cnst.h * gi * gj * Kij / (4 * np.pi ** 2) * 1e19
 

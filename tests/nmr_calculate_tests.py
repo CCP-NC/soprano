@@ -1178,6 +1178,20 @@ class TestPlotNMRCLI(unittest.TestCase):
         self.assertEqual(result.exit_code, 0,
                           f"Unexpected exit: {result.output}\n{result.exception}")
 
+    def test_cli_basic_2d_writes_valid_png(self):
+        """The --output PNG must be created and be a readable, non-empty image."""
+        png = self._csv_path("out.png")
+        result = self._run([])
+        self.assertEqual(result.exit_code, 0,
+                          f"Unexpected exit: {result.output}\n{result.exception}")
+        self.assertTrue(os.path.exists(png), "Expected output PNG to be written")
+        self.assertGreater(os.path.getsize(png), 0, "Output PNG is empty")
+        # Validate it is a real raster image with sensible dimensions.
+        import matplotlib.image as mpimg
+        img = mpimg.imread(png)
+        self.assertGreaterEqual(img.shape[0], 100)
+        self.assertGreaterEqual(img.shape[1], 100)
+
     def test_cli_no_reduce_exits_cleanly(self):
         """--no-reduce runs without errors (uses full 148-atom structure)."""
         result = self._run(["--no-reduce"])

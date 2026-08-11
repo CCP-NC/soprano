@@ -58,9 +58,12 @@ class NMRPlot2D:
         # Set up the logger
         self.logger = logging.getLogger(__name__)
         # If not set, set number of legend elements to
-        # minimum of number of peaks and 5
+        # minimum of number of peaks and 5 (but at least 1 — an empty peak list
+        # must not produce an invalid num_legend_elements of 0).
         if self.plot_settings.num_legend_elements is None:
-            self.plot_settings.num_legend_elements = min(npeaks, DEFAULT_MAX_NUM_LEGEND_ELEMENTS)
+            self.plot_settings.num_legend_elements = max(
+                1, min(npeaks, DEFAULT_MAX_NUM_LEGEND_ELEMENTS)
+            )
         
         # Initialize the appropriate backend
         if backend == 'matplotlib':
@@ -171,7 +174,7 @@ class NMRPlot2D:
             self.backend.plot_connectors(self.x, self.y, self.plot_settings)
         
         # Plot scatter markers
-        if self.plot_settings.show_markers:
+        if self.plot_settings.show_markers and len(self.sizes):
             colors = self._get_marker_colors()
             if self.plot_settings.scale_markers:
                 normalized_sizes = self._normalize_marker_sizes(self.sizes)
@@ -183,7 +186,7 @@ class NMRPlot2D:
                 'label': self.nmr_data.correlation_label,
                 'unit': self.nmr_data.correlation_unit,
                 'fmt': self.nmr_data.correlation_fmt,
-                'max_size': np.abs(self.sizes).max(),
+                'max_size': float(np.abs(self.sizes).max()),
                 'num_legend_elements': self.plot_settings.num_legend_elements
             }
             
@@ -250,8 +253,13 @@ class NMRPlot2D:
     def _normalize_marker_sizes(self, sizes: np.ndarray) -> np.ndarray:
         """Normalize marker sizes for consistent display"""
         sizes = np.abs(sizes)
+        if sizes.size == 0:
+            return sizes
         marker_size_range = np.max(sizes) - np.min(sizes)
         self.logger.info(f"Marker size range: {marker_size_range} {self.nmr_data.correlation_unit}")
         max_abs_marker = np.max(sizes)
+        if max_abs_marker <= 0:
+            # All strengths zero: fall back to uniform maximum size.
+            return np.full(sizes.shape, self.plot_settings.max_marker_size)
         # Normalize such that max marker size is self.plot_settings.max_marker_size
         return sizes / max_abs_marker * self.plot_settings.max_marker_size

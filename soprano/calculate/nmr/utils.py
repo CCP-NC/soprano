@@ -265,6 +265,15 @@ def lorentzian(
 
     where :math:`\\gamma = \\mathrm{FWHM}/2` is the half-width at half-maximum.
 
+    .. note::
+        This is the non-separable ("spherical") 2D Lorentzian.  Its integral
+        over the plane **diverges**, so unlike the Gaussian it cannot be
+        normalised to unit area.  When *normalise* is True the fixed prefactor
+        :math:`1/(\\pi\\gamma_x\\gamma_y)` is applied to give a consistent
+        amplitude scale across peaks of different widths (it is **not** a
+        unit-integral normalisation).  Do not mix normalised Lorentzian and
+        Gaussian peaks and expect matching integrated areas.
+
     Parameters
     ----------
     X : np.ndarray
@@ -283,7 +292,8 @@ def lorentzian(
         FWHM measured along the y-axis cross-section.  Same convention
         as *x_broadening*.
     normalise : bool, optional
-        If True, normalise such that the integral over the plane is 1.
+        If True, apply the amplitude prefactor ``1/(π γ_x γ_y)`` (see note; this
+        is *not* a unit-integral normalisation for this 2D form).
         If False, the peak maximum is 1.
     eps : float, optional
         Small number added to broadenings for numerical stability.
@@ -394,7 +404,16 @@ def generate_contour_map(
 
     * **Gaussian**: 5 × FWHM — the tail at that distance is
       :math:`\\sim 10^{-30}` (machine zero).
-    * **Lorentzian**: 10 × FWHM — as it has longer tails.
+    * **Lorentzian**: 50 × FWHM — Lorentzian tails are long (only ~1 % of the
+      peak height has decayed by 5 × FWHM), so a much larger pad is needed to
+      avoid edge truncation biasing the relative intensities.  At 50 × FWHM the
+      relative intensity is :math:`\\sim 10^{-4}`.
+
+    The grid is sampled with exactly ``grid_size`` points per axis (the export
+    formats rely on this).  If that resolution leaves fewer than a few points
+    across the narrowest FWHM — which makes peak heights/areas grid-dependent —
+    a warning is emitted advising the caller to increase ``grid_size``.
+
     Args:
         peaks (List[Peak2D]): List of Peak2D objects containing x, y coordinates and correlation strength.
         grid_size (int, optional): Size of the grid for the contour map. Default is 100.
@@ -415,8 +434,29 @@ def generate_contour_map(
     # affecting relative intensities.
     _PAD = 50 if broadening == 'lorentzian' else 5
 
-    x = np.linspace(x_min - _PAD * x_broadening, x_max + _PAD * x_broadening, grid_size)
-    y = np.linspace(y_min - _PAD * y_broadening, y_max + _PAD * y_broadening, grid_size)
+    x_lo, x_hi = x_min - _PAD * x_broadening, x_max + _PAD * x_broadening
+    y_lo, y_hi = y_min - _PAD * y_broadening, y_max + _PAD * y_broadening
+
+    # Warn (but keep the requested grid_size, which callers and the export
+    # formats rely on) if the fixed grid under-resolves the narrowest line:
+    # fewer than _MIN_PTS_PER_FWHM points across one FWHM makes peak heights and
+    # integrated areas grid-dependent.  The user can raise grid_size to fix it.
+    _MIN_PTS_PER_FWHM = 4
+    dx = (x_hi - x_lo) / max(grid_size - 1, 1)
+    dy = (y_hi - y_lo) / max(grid_size - 1, 1)
+    if (x_broadening > 0 and x_broadening / dx < _MIN_PTS_PER_FWHM) or \
+       (y_broadening > 0 and y_broadening / dy < _MIN_PTS_PER_FWHM):
+        logging.getLogger(__name__).warning(
+            "Contour grid under-resolves the line shape: fewer than %d points "
+            "per FWHM (x: %.1f, y: %.1f).  Peak heights/areas may be "
+            "grid-dependent; increase grid_size.",
+            _MIN_PTS_PER_FWHM,
+            x_broadening / dx if dx > 0 else float('inf'),
+            y_broadening / dy if dy > 0 else float('inf'),
+        )
+
+    x = np.linspace(x_lo, x_hi, grid_size)
+    y = np.linspace(y_lo, y_hi, grid_size)
     X, Y = np.meshgrid(x, y)
 
     # Initialize the intensity grid
@@ -607,6 +647,23 @@ def generate_peaks(
     """
     peaks = []
     is_single_marker = isinstance(markersizes, float)
+
+    # A double-quantum (2Q) indirect coordinate is the *sum of two offset
+    # frequencies*.  For a homonuclear experiment both sites share one Larmor
+    # frequency, so summing their ppm shifts is well-defined and the axis is a
+    # true DQ ppm scale.  For a heteronuclear experiment the two ppm values are
+    # referenced to *different* Larmor frequencies, so their ppm sum is not a
+    # physically meaningful single-axis frequency.  Warn rather than silently
+    # producing a misleading axis.
+    if yaxis_order == '2Q' and xelement != yelement:
+        logging.getLogger(__name__).warning(
+            "Heteronuclear 2Q (DQ) axis: summing chemical shifts of different "
+            "nuclei (%s + %s) references two different Larmor frequencies, so "
+            "the resulting ppm y-axis is not physically well-defined.  Interpret "
+            "the indirect dimension with care or convert to Hz explicitly.",
+            xelement, yelement,
+        )
+
     for ipair, (idx_x, idx_y) in enumerate(pairs):
 
         x = data[idx_x]
@@ -750,8 +807,12 @@ def merge_peaks(
 
 def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) -> List[Peak2D]:
     '''
-    Sort the peaks in the order of increasing x and y values
-    TODO: This doesn't work in some cases. Investigate why.
+    Sort the peaks in the order of increasing x and y values.
+
+    Note: peaks are ordered purely by their numeric (x, y) ppm coordinates.
+    This is independent of the label text, so peaks whose labels sort
+    differently from their coordinates (e.g. custom or non-numeric labels)
+    will follow coordinate order, not label order.
     '''
     if priority == 'x':
         peaks = sorted(peaks, key=lambda x: (x.x, x.y), reverse=reverse)

@@ -28,6 +28,7 @@ def _resolve_levels(
     Z: np.ndarray,
     levels: Union[int, Iterable[float]],
     contour_range: Tuple[float, float],
+    use_signed: bool = False,
 ) -> np.ndarray:
     """Return concrete contour level values from either a count or explicit list.
 
@@ -40,19 +41,35 @@ def _resolve_levels(
         *iterable* – used directly as absolute intensity values;
         *contour_range* is then ignored.
     contour_range : (float, float)
-        ``(lo, hi)`` expressed as **percentages of Z.max()** (0–100 scale),
-        applied only when *levels* is an integer.
+        ``(lo, hi)`` expressed as **percentages of the peak magnitude**
+        (0–100 scale), applied only when *levels* is an integer.  The peak
+        magnitude is ``max(|Z|)`` so the scaling is well-defined for signed
+        grids too.
+    use_signed : bool, optional
+        When *True* the grid may contain negative lobes; symmetric negative
+        levels ``(-hi, -lo)`` are generated in addition to the positive ones
+        so both signs of correlation are drawn.  Default *False*.
 
     Returns
     -------
     np.ndarray
-        1-D array of level values.
+        1-D array of level values (sorted ascending).
     """
     if isinstance(levels, (int, float)):
-        z_max = float(Z.max())
-        lo = contour_range[0] / 100.0 * z_max
-        hi = contour_range[1] / 100.0 * z_max
-        return np.linspace(lo, hi, int(levels))
+        n = int(levels)
+        # Guard against degenerate / non-finite grids that would otherwise
+        # produce all-zero or NaN levels (e.g. every peak has zero strength).
+        finite = np.isfinite(Z)
+        z_scale = float(np.max(np.abs(Z[finite]))) if finite.any() else 0.0
+        if z_scale <= 0.0 or n < 1:
+            return np.asarray([0.0])
+        lo = contour_range[0] / 100.0 * z_scale
+        hi = contour_range[1] / 100.0 * z_scale
+        pos = np.linspace(lo, hi, n)
+        if use_signed and float(np.min(Z[finite])) < 0.0:
+            # Mirror the positive levels to cover the negative lobes.
+            return np.unique(np.concatenate([-pos[::-1], pos]))
+        return pos
     else:
         return np.asarray(levels)
 
@@ -149,7 +166,9 @@ class MatplotlibBackend(PlotBackend):
             self.fig = ax.get_figure()
         else:
             raise TypeError("ax must be an Axes object or None.")
-        
+
+        self.xlim: Optional[Tuple[float, float]] = None
+        self.ylim: Optional[Tuple[float, float]] = None
         self.logger = logging.getLogger(__name__)
     
     def create_figure(self) -> Tuple[Any, Any]:
@@ -186,13 +205,15 @@ class MatplotlibBackend(PlotBackend):
     
     def plot_heatmap(self, X, Y, Z, settings) -> Any:
         """Plot heatmap using matplotlib contourf"""
-        levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range)
+        levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range,
+                                 use_signed=getattr(settings, 'use_signed', False))
         return self.ax.contourf(X, Y, Z, cmap=settings.colormap,
                                zorder=-1, levels=levels)
 
     def plot_contour(self, X, Y, Z, settings) -> Any:
         """Plot contour lines using matplotlib"""
-        levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range)
+        levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range,
+                                 use_signed=getattr(settings, 'use_signed', False))
         return self.ax.contour(
             X, Y, Z,
             colors=settings.contour_color,
@@ -227,13 +248,18 @@ class MatplotlibBackend(PlotBackend):
         For 2Q (DQ/SQ) mode the diagonal marks the auto-correlation condition
         DQ = 2 × SQ, i.e. y = 2x.  For all other modes the conventional
         y = x identity line is drawn.
+
+        Uses the data limits recorded in :meth:`set_axis_properties` so the
+        line spans the intended range even before autoscaling; falls back to the
+        live axis limits if none were set.
         """
-        xlims = self.ax.get_xlim()
+        xlims = self.xlim if self.xlim is not None else self.ax.get_xlim()
         if getattr(settings, 'yaxis_order', None) == '2Q':
             # DQ/SQ diagonal: y = 2x
             y_vals = [2 * xlims[0], 2 * xlims[1]]
         else:
-            y_vals = list(self.ax.get_ylim())
+            # y = x identity line spanning the same range as x.
+            y_vals = [xlims[0], xlims[1]]
         self.ax.plot(xlims, y_vals, ls='--', c='k', lw=1, alpha=0.2)
 
     def plot_annotations(self, x, y, xlabels, ylabels, settings) -> None:
@@ -319,7 +345,13 @@ class MatplotlibBackend(PlotBackend):
         """Set axis properties"""
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
-        
+
+        # Remember the requested data limits so later layers (e.g. the diagonal)
+        # can reference the intended range rather than reading back the live
+        # axis, which may not reflect these limits if autoscaling intervenes.
+        self.xlim = (min(xlim), max(xlim)) if xlim else None
+        self.ylim = (min(ylim), max(ylim)) if ylim else None
+
         if xlim:
             self.ax.set_xlim(min(xlim), max(xlim))
         if ylim:
@@ -420,7 +452,8 @@ class PlotlyBackend(PlotBackend):
     def plot_heatmap(self, X, Y, Z, settings) -> Any:
         """Plot heatmap using Plotly"""
         colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
-        levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range)
+        levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range,
+                                 use_signed=getattr(settings, 'use_signed', False))
 
         trace = go.Heatmap(
             x=X[0, :],
@@ -442,7 +475,8 @@ class PlotlyBackend(PlotBackend):
     def plot_contour(self, X, Y, Z, settings) -> Any:
         """Plot contour lines using Plotly"""
         colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
-        levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range)
+        levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range,
+                                 use_signed=getattr(settings, 'use_signed', False))
         n = len(levels)
         size = float(levels[-1] - levels[0]) / (n - 1) if n > 1 else 0.0
 
@@ -517,9 +551,8 @@ class PlotlyBackend(PlotBackend):
             if getattr(settings, 'yaxis_order', None) == '2Q':
                 # DQ/SQ diagonal: y = 2x
                 y_vals = [2 * self.xlim[0], 2 * self.xlim[1]]
-            elif self.ylim:
-                y_vals = [self.ylim[0], self.ylim[1]]
             else:
+                # y = x identity line spanning the same range as x.
                 y_vals = x_vals
             trace = go.Scatter(
                 x=x_vals,

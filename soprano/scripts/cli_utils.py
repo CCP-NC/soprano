@@ -828,6 +828,8 @@ plot_b0_field = click.option(
     metavar="T",
     help="Magnetic field strength in Tesla. "
     "Used to auto-compute Larmor frequencies from gyromagnetic ratios. "
+    "Affects EXPORT only (ppm->Hz sweep-widths, ssNake/Bruker metadata); "
+    "it does not change the plot axes, which stay in ppm. "
     "Mutually exclusive with --spectrometer-freq. "
     "Override per-dimension with --x-larmor-freq / --y-larmor-freq.",
 )
@@ -839,6 +841,7 @@ plot_spectrometer_freq = click.option(
     metavar="MHz",
     help="Spectrometer (¹H) frequency in MHz (e.g. 600 for a 600 MHz instrument). "
     "Converted to Tesla internally; alternative to --b0-field-tesla. "
+    "Affects EXPORT only; it does not change the plot axes (which stay in ppm). "
     "Override per-dimension with --x-larmor-freq / --y-larmor-freq.",
 )
 plot_x_larmor_freq = click.option(
