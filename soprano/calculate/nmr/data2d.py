@@ -809,8 +809,10 @@ class NMRData2D:
             unless *fmt* is given explicitly.  Supported extensions:
             ``.spe``/``.sim`` → simpson, ``.npz`` → npz, ``.csv`` → csv,
             ``.json``/``.ssnake`` → json, ``.txt`` → plain.
-        fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake', 'plain'}, optional
+        fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake', 'plain', 'bruker'}, optional
             Export format.  If *None*, inferred from *path* extension.
+            ``'bruker'`` must be specified explicitly (no extension mapping);
+            *path* is treated as a directory, not a file.
 
             ``'simpson'``
                 SIMPSON TEXT format (``TYPE=SPE``).  Readable by nmrglue

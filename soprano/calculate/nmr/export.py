@@ -193,6 +193,14 @@ def _log_warning(nmr_data: Any, message: str) -> None:
         logger.warning(message)
 
 
+def _write_peaks_csv(peaks: list["Peak2D"], path: str) -> None:
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
+        for p in peaks:
+            writer.writerow([p.x, p.y, p.xlabel, p.ylabel, p.correlation_strength])
+
+
 # ---------------------------------------------------------------------------
 # Format inference
 # ---------------------------------------------------------------------------
@@ -247,7 +255,8 @@ def export_contour_data(
     fmt : str, optional
         Export format.  If *None*, inferred from the file extension.
         Supported: ``'simpson'``, ``'npz'``, ``'csv'``, ``'json'``,
-        ``'plain'``.  ``'ssnake'`` is an alias for ``'json'``.
+        ``'plain'``, ``'bruker'``.  ``'ssnake'`` is an alias for ``'json'``.
+        ``'bruker'`` outputs a directory tree (not a single file).
     config : ExportConfig, optional
         Export configuration.  Uses :class:`ExportConfig` defaults when
         not provided.
@@ -291,11 +300,17 @@ def export_contour_data(
         _export_json_ssnake(nmr_data, path, cd, x_larmor, y_larmor, include_peaks=effective.include_peaks)
     elif fmt == "plain":
         _export_plain(nmr_data, path, cd, include_peaks=effective.include_peaks)
+    elif fmt == "bruker":
+        x_larmor, y_larmor = effective.resolve_larmor_freqs(nmr_data)
+        _export_bruker(
+            nmr_data, path, cd, x_larmor, y_larmor,
+            include_peaks=effective.include_peaks,
+        )
     else:
         raise ValueError(
             f"Unknown export format '{fmt}'. "
             f"Choose from {', '.join(sorted(set(_EXT_TO_FMT.values())))} "
-            f"(or 'ssnake' as an alias for 'json')."
+            f"(or 'ssnake' as an alias for 'json', 'bruker' for Bruker TopSpin)."
         )
 
     _log_info(nmr_data, f"Exported contour data to '{path}' (format={fmt}).")
@@ -373,15 +388,13 @@ def _export_simpson(
 
     if include_peaks:
         peaks_path = path + ".peaks.csv"
-        peaks = nmr_data.get_peaks()
-        with open(peaks_path, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
-            for p in peaks:
-                writer.writerow([p.x, p.y, p.xlabel, p.ylabel, p.correlation_strength])
+        _write_peaks_csv(nmr_data.get_peaks(), peaks_path)
         _log_info(nmr_data, f"Peak list written to '{peaks_path}'.")
 
 
+# ---------------------------------------------------------------------------
+# Per-format exporters
+# ---------------------------------------------------------------------------
 def _export_npz(
     nmr_data: _NMRData2DExportProtocol,
     path: str,
@@ -550,4 +563,102 @@ def _export_json_ssnake(
     _log_info(
         nmr_data,
         f"ssNake JSON written to '{path}' (x={x_larmor_freq_mhz} MHz, y={y_freq_mhz} MHz)."
+    )
+
+
+def _export_bruker(
+    nmr_data: _NMRData2DExportProtocol,
+    path: str,
+    cd: "ContourData",
+    x_larmor_freq_mhz: Optional[float],
+    y_larmor_freq_mhz: Optional[float],
+    include_peaks: bool = True,
+) -> None:
+    """Write a Bruker TopSpin 2D processed data directory (pdata/1/2rr)."""
+    if x_larmor_freq_mhz is None:
+        x_el = getattr(nmr_data, "xelement", "x")
+        raise ValueError(
+            f"Cannot determine Larmor frequency for '{x_el}'. "
+            f"Provide x_larmor_freq_mhz, b0_field_tesla, or spectrometer_freq_mhz in ExportConfig."
+        )
+
+    try:
+        import nmrglue as ng
+    except ImportError:
+        raise ImportError(
+            "nmrglue is required for Bruker export. "
+            "Install it with: pip install nmrglue  or  pip install soprano[nmr-io]"
+        )
+
+    if not getattr(nmr_data, "is_shift", False):
+        raise ValueError(
+            "Bruker export requires chemical shift data (is_shift=True). "
+            "Provide references when constructing NMRData2D to convert shieldings to shifts."
+        )
+
+    # Homonuclear fallback: reuse the direct-dimension Larmor for the indirect
+    # dimension when a separate value is not supplied.  Note that multiple-
+    # quantum (e.g. 2Q) scaling of the indirect axis is NOT applied here.
+    if y_larmor_freq_mhz is None:
+        y_larmor_freq_mhz = x_larmor_freq_mhz
+
+    ni, np_ = cd.Z.shape
+
+    # Bruker stores data with descending ppm (downfield first); flip both axes.
+    Z_bruker = np.ascontiguousarray(cd.Z[::-1, ::-1], dtype=np.float64)
+
+    def _make_procs(sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int) -> dict:
+        # nmrglue/TopSpin store the processed spectral width (SW_p) in Hz, while
+        # OFFSET (downfield edge) is in ppm; convert the ppm range with SF (MHz).
+        return {
+            "_comments": [],
+            "_coreheader": ["##NMRGLUE automatically created parameter file"],
+            "SF": float(sf_mhz),
+            "SW_p": float(sw_ppm * sf_mhz),
+            "OFFSET": float(offset_ppm),
+            "SI": si,
+            "NC_proc": -6,      # intensity scaling exponent (data * 2**NC_proc)
+            "BYTORDP": 1,
+            "XDIM": si,
+            "STSI": 0,
+            "STSR": 0,
+            "FT_mod": 6,        # marks the dimension as Fourier-transformed
+            "PHC0": 0.0,
+            "PHC1": 0.0,
+        }
+
+    dic = {
+        "procs": _make_procs(
+            x_larmor_freq_mhz,
+            cd.xlims[1] - cd.xlims[0],
+            cd.xlims[1],
+            np_,
+        ),
+        "proc2s": _make_procs(
+            y_larmor_freq_mhz,
+            cd.ylims[1] - cd.ylims[0],
+            cd.ylims[1],
+            ni,
+        ),
+    }
+
+    Path(path).mkdir(parents=True, exist_ok=True)
+
+    ng.fileio.bruker.write_pdata(
+        path, dic, Z_bruker,
+        write_procs=True,
+        pdata_folder=True,
+        overwrite=True,
+        submatrix_shape=(ni, np_),
+    )
+
+    if include_peaks:
+        peaks_path = str(Path(path) / "peaks.csv")
+        _write_peaks_csv(nmr_data.get_peaks(), peaks_path)
+        _log_info(nmr_data, f"Peak list written to '{peaks_path}'.")
+
+    _log_info(
+        nmr_data,
+        f"Bruker TopSpin data written to '{path}' "
+        f"(x={x_larmor_freq_mhz} MHz, y={y_larmor_freq_mhz} MHz)."
     )

@@ -2,19 +2,24 @@
 """Focused tests for the standalone 2D NMR export module."""
 
 import csv
+import importlib.util
 import json
 import os
+import shutil
 import tempfile
 import unittest
+import warnings
 
 import numpy as np
 from ase import io
 
 from soprano.calculate.nmr.config import PlotSettings
 from soprano.calculate.nmr.data2d import NMRData2D
-from soprano.calculate.nmr.export import export_contour_data
+from soprano.calculate.nmr.export import ExportConfig, export_contour_data
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
+
+_NMRGLUE_AVAILABLE = importlib.util.find_spec("nmrglue") is not None
 
 
 class TestNMRExportPublicAPI(unittest.TestCase):
@@ -398,6 +403,154 @@ class TestNMRExportModule(unittest.TestCase):
 
         data = np.load(out, allow_pickle=True)
         self.assertEqual(data["Z"].shape[0], 50)
+
+
+@unittest.skipIf(not _NMRGLUE_AVAILABLE, "nmrglue is not installed")
+class TestBrukerExport(unittest.TestCase):
+    """Tests for the Bruker TopSpin export format."""
+
+    def setUp(self):
+        # ponytail: workaround for nmrglue numpy2 deprecation warning
+        warnings.filterwarnings(
+            "ignore",
+            message="Data type alias 'a' was deprecated",
+            category=DeprecationWarning,
+        )
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        if isinstance(atoms, list):
+            self.fail("Expected a single Atoms object from EDIZUM.magres")
+        self.atoms = atoms
+        self.nmr_data = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="H",
+            yaxis_order="2Q",
+            references={"H": 29.5},
+            correlation_strength_metric="fixed",
+        )
+        self.nmr_data_no_shift = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="H",
+            yaxis_order="2Q",
+            correlation_strength_metric="fixed",
+        )
+        self.tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _path(self, name: str) -> str:
+        return os.path.join(self.tmpdir, name)
+
+    def test_bruker_creates_expected_files(self):
+        """Bruker export should create pdata/1/2rr, procs, and proc2s."""
+        out = self._path("bruker_exp")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        self.assertTrue(os.path.exists(os.path.join(pdata, "2rr")))
+        self.assertTrue(os.path.exists(os.path.join(pdata, "procs")))
+        self.assertTrue(os.path.exists(os.path.join(pdata, "proc2s")))
+
+    def test_bruker_requires_shift_mode(self):
+        """Bruker export must raise ValueError when is_shift=False."""
+        out = self._path("bruker_no_shift")
+        with self.assertRaises(ValueError) as ctx:
+            export_contour_data(
+                self.nmr_data_no_shift, out, fmt="bruker",
+                config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+            )
+        self.assertIn("is_shift", str(ctx.exception))
+
+    def test_bruker_requires_larmor(self):
+        """Bruker export must raise ValueError when Larmor freq cannot be determined."""
+        # Override element to something without gyromagnetic data
+        original = self.nmr_data.xelement
+        self.nmr_data.xelement = "Xx"
+        try:
+            out = self._path("bruker_no_larmor")
+            with self.assertRaises(ValueError):
+                export_contour_data(
+                    self.nmr_data, out, fmt="bruker",
+                    config=ExportConfig(grid_size=40),
+                )
+        finally:
+            self.nmr_data.xelement = original
+
+    def test_bruker_grid_is_descending(self):
+        """OFFSET in procs should equal xlims[1] (highest ppm, downfield edge)."""
+        import nmrglue as ng
+        out = self._path("bruker_orient")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        dic, _ = ng.fileio.bruker.read_pdata(pdata)
+        # OFFSET must be the highest ppm value (downfield edge)
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+        self.assertAlmostEqual(dic["procs"]["OFFSET"], cd.xlims[1], places=3)
+
+    def test_bruker_ppm_axes_roundtrip(self):
+        """Reconstructed ppm axes must span the original xlims/ylims.
+
+        Guards against SW_p being written in ppm instead of Hz.  nmrglue reads
+        SW_p as Hz and derives the ppm scale as
+        ``car/obs +/- (sw/obs)/2`` with ``car = OFFSET*obs - sw/2``,
+        ``obs = SF`` (MHz), ``sw = SW_p`` (Hz).  A ppm-valued SW_p would
+        compress the reconstructed range by roughly a factor of SF.
+        """
+        import nmrglue as ng
+        out = self._path("bruker_axes")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        dic, _ = ng.fileio.bruker.read_pdata(pdata)
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+
+        def ppm_span(procs):
+            obs = procs["SF"]               # MHz
+            sw = procs["SW_p"]              # Hz (must NOT be ppm)
+            car = procs["OFFSET"] * obs - sw / 2.0
+            hi = (car + sw / 2.0) / obs     # downfield edge (ppm)
+            lo = (car - sw / 2.0) / obs     # upfield edge (ppm)
+            return lo, hi
+
+        x_lo, x_hi = ppm_span(dic["procs"])
+        y_lo, y_hi = ppm_span(dic["proc2s"])
+
+        self.assertAlmostEqual(x_hi, cd.xlims[1], places=3)
+        self.assertAlmostEqual(x_lo, cd.xlims[0], places=3)
+        self.assertAlmostEqual(y_hi, cd.ylims[1], places=3)
+        self.assertAlmostEqual(y_lo, cd.ylims[0], places=3)
+
+    def test_bruker_include_peaks_false(self):
+        """peaks.csv must NOT be created when include_peaks=False."""
+        out = self._path("bruker_no_peaks")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=False),
+        )
+        self.assertFalse(os.path.exists(os.path.join(out, "peaks.csv")))
+
+    def test_bruker_peaks_csv_created(self):
+        """peaks.csv must be created inside the experiment directory with correct columns."""
+        out = self._path("bruker_with_peaks")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=True),
+        )
+        peaks_path = os.path.join(out, "peaks.csv")
+        self.assertTrue(os.path.exists(peaks_path))
+        with open(peaks_path, newline="") as f:
+            rows = list(csv.reader(f))
+        self.assertEqual(rows[0], ["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
+        self.assertGreater(len(rows), 1)
 
 
 if __name__ == "__main__":

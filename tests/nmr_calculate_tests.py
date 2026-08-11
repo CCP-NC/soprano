@@ -171,7 +171,7 @@ class TestGetPairDipolarCouplings(unittest.TestCase):
         dipolar_couplings = get_pair_dipolar_couplings(self.atoms, self.pairs)
         self.assertTrue(np.allclose(dipolar_couplings, self.reference_dipolar_couplings))
 
-    def test_dipolar_couplings_zero_for_same_indices(self):
+    def test_dipolar_couplings_nonzero_for_self_pairs(self):
         """Self-pairs return coupling to nearest equivalent site (non-zero for periodic crystals)."""
         pairs_with_same_indices = [(0, 0), (1, 1), (2, 2)]
         dipolar_couplings = get_pair_dipolar_couplings(self.atoms, pairs_with_same_indices, self.isotopes)
@@ -251,7 +251,7 @@ class TestDipolarRSSMetric(unittest.TestCase):
 
     def test_basic_produces_positive_strengths(self):
         """All dipolar_rss correlation strengths should be non-negative."""
-        d = self._make_hc(rss_cutoff=5.0)
+        d = self._make_hc(rss_cutoff=10.0)
         self.assertGreater(len(d.peaks), 0)
         self.assertTrue(all(p.correlation_strength >= 0 for p in d.peaks))
 
@@ -260,7 +260,7 @@ class TestDipolarRSSMetric(unittest.TestCase):
         d = self._make_hc(rss_cutoff=10.0, rss_expand_j="periodic_images")
         for peak in d.peaks:
             expected_hz = DipolarRSSByAtom.get(
-                self.atoms,
+                d.atoms,
                 sel_i=[peak.idx_x],
                 sel_j=[peak.idx_y],
                 cutoff=10.0,
@@ -297,7 +297,7 @@ class TestDipolarRSSMetric(unittest.TestCase):
 
     def test_rss_metric_differs_from_dipolar_metric(self):
         """dipolar_rss and dipolar metrics should generally differ (RSS > single coupling)."""
-        d_rss = self._make_hc(rss_cutoff=5.0)
+        d_rss = self._make_hc(rss_cutoff=10.0)
         d_dip = NMRData2D(
             atoms=self.atoms,
             xelement="H",
@@ -317,16 +317,18 @@ class TestDipolarRSSMetric(unittest.TestCase):
 
     def test_expand_j_symmetry_expands_sel_j(self):
         """RSS with expand_j='symmetry' should be >= 'periodic_images' for same pair."""
-        d_pi = self._make_hc(rss_cutoff=5.0, rss_expand_j="periodic_images")
-        d_sym = self._make_hc(rss_cutoff=5.0, rss_expand_j="symmetry")
+        d_pi = self._make_hc(rss_cutoff=10.0, rss_expand_j="periodic_images")
+        d_sym = self._make_hc(rss_cutoff=10.0, rss_expand_j="symmetry")
 
         pi_map = {(p.idx_x, p.idx_y): p.correlation_strength for p in d_pi.peaks}
         sym_map = {(p.idx_x, p.idx_y): p.correlation_strength for p in d_sym.peaks}
 
         # Symmetry expansion can only add neighbours, so RSS can only increase
-        for key in pi_map:
-            if key in sym_map:
-                self.assertGreaterEqual(sym_map[key], pi_map[key] - 1e-9)
+        common_keys = set(pi_map) & set(sym_map)
+        self.assertGreater(len(common_keys), 0,
+            "No common (idx_x, idx_y) peaks between periodic_images and symmetry runs — comparison loop would be vacuous")
+        for key in common_keys:
+            self.assertGreaterEqual(sym_map[key], pi_map[key] - 1e-9)
 
     def test_dipolar_rss_in_marker_info(self):
         """'dipolar_rss' should be registered in MARKER_INFO with expected fields."""
@@ -517,7 +519,7 @@ class TestDQSQWithCIFLabels(unittest.TestCase):
             DipolarRSSByAtom.get(
                 self.atoms,
                 sel_i=[i], sel_j=[j],
-                cutoff=6.0, expand_j="cif_labels",
+                cutoff=10.0, expand_j="cif_labels",
             )[0]
             for i in self.h1_idx
             for j in self.h1_idx
@@ -541,11 +543,11 @@ class TestDQSQWithCIFLabels(unittest.TestCase):
         h1_a, h1_b = self.h1_idx[0], self.h1_idx[1]
         rss_cif = DipolarRSSByAtom.get(
             self.atoms, sel_i=[h1_a], sel_j=[h1_b],
-            cutoff=6.0, expand_j="cif_labels",
+            cutoff=10.0, expand_j="cif_labels",
         )[0]
         rss_pi = DipolarRSSByAtom.get(
             self.atoms, sel_i=[h1_a], sel_j=[h1_b],
-            cutoff=6.0, expand_j="periodic_images",
+            cutoff=10.0, expand_j="periodic_images",
         )[0]
         self.assertGreater(
             rss_cif, rss_pi,
@@ -560,7 +562,7 @@ class TestDQSQWithCIFLabels(unittest.TestCase):
         neighbours and produce identical RSS values for all H1-H2 and H1-H1
         pairs tested.
         """
-        cutoff = 6.0
+        cutoff = 10.0
         test_pairs = (
             [(i, j) for i in self.h1_idx for j in self.h2_idx]  # H1-H2
             + [(i, j) for i in self.h1_idx for j in self.h1_idx if i != j]  # H1-H1
@@ -603,7 +605,7 @@ class TestDQSQWithCIFLabels(unittest.TestCase):
             yaxis_order="2Q",
             correlation_strength_metric="dipolar_rss",
             rss_expand_j="cif_labels",
-            rss_cutoff=6.0,
+            rss_cutoff=10.0,
             pairs=explicit_pairs,
         )
         # Use d.pairs / d.correlation_strengths (pre-merge) rather than d.peaks,
@@ -642,7 +644,7 @@ class TestNMRData2DReduce(unittest.TestCase):
             xelement="H", yelement="H",
             yaxis_order="2Q", rcut=6.0,
             correlation_strength_metric="dipolar_rss",
-            rss_cutoff=6.0,
+            rss_cutoff=10.0,
             references={"H": 29.5}, gradients={"H": -0.95},
         )
 
@@ -685,17 +687,16 @@ class TestNMRData2DReduce(unittest.TestCase):
         reduced_labels = get_atom_labels(nd.atoms, None)
         full_labels = get_atom_labels(nd.atoms_full, None)
 
-        def _first_full_idx(label):
-            matches = np.where(full_labels == label)[0]
-            return int(matches[0])
+        def _all_full_idx(label):
+            return np.where(full_labels == label)[0].tolist()
 
         for k, (i, j) in enumerate(nd.pairs[:5]):
-            fi = _first_full_idx(reduced_labels[i])
-            fj = _first_full_idx(reduced_labels[j])
+            fi = _all_full_idx(reduced_labels[i])
+            fj = _all_full_idx(reduced_labels[j])
             expected_khz = DipolarRSSByAtom.get(
                 nd.atoms_full,
-                sel_i=[fi], sel_j=[fj],
-                cutoff=6.0, expand_j="cif_labels",
+                sel_i=fi, sel_j=fj,
+                cutoff=10.0, expand_j="cif_labels",
             )[0] * 1e-3
             self.assertAlmostEqual(
                 nd.correlation_strengths[k], expected_khz, places=5,
@@ -715,9 +716,14 @@ class TestNMRData2DReduce(unittest.TestCase):
         red_labels  = get_atom_labels(nd_reduced.atoms, None)
         full_labels = get_atom_labels(nd_full.atoms, None)
 
-        # Build label-pair → strength map for both
-        red_map  = {(red_labels[i],  red_labels[j]):  s for (i, j), s in zip(nd_reduced.pairs, nd_reduced.correlation_strengths)}
-        full_map = {(full_labels[i], full_labels[j]):  s for (i, j), s in zip(nd_full.pairs,    nd_full.correlation_strengths)}
+        # Build label-pair → strength map for both; keep first occurrence so that
+        # equivalent full-cell copies (EDIZUM Z=4) do not silently overwrite each other.
+        red_map: dict = {}
+        for (i, j), s in zip(nd_reduced.pairs, nd_reduced.correlation_strengths):
+            red_map.setdefault((red_labels[i], red_labels[j]), s)
+        full_map: dict = {}
+        for (i, j), s in zip(nd_full.pairs, nd_full.correlation_strengths):
+            full_map.setdefault((full_labels[i], full_labels[j]), s)
 
         common = set(red_map) & set(full_map)
         self.assertGreater(len(common), 0, "No common label-pairs between reduce=True and reduce=False results")
@@ -738,9 +744,9 @@ class TestNMRData2DReduce(unittest.TestCase):
         """
         nd_r = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
         nd_f = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=False)
-        self.assertLessEqual(
+        self.assertLess(
             len(nd_r.peaks), len(nd_f.peaks),
-            "Expected fewer or equal peaks with reduce=True vs reduce=False",
+            "Expected strictly fewer peaks with reduce=True vs reduce=False (EDIZUM Z=4 collapses equivalents)",
         )
 
     # ------------------------------------------------------------------
@@ -878,7 +884,7 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
             xelement="H", yelement="H",
             yaxis_order="2Q", rcut=6.0,
             correlation_strength_metric="dipolar_rss",
-            rss_cutoff=6.0,
+            rss_cutoff=10.0,
             references={"H": 29.5}, gradients={"H": -0.95},
         )
 
@@ -908,16 +914,16 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
         reduced_labels = get_atom_labels(nd.atoms, None)
         full_labels    = get_atom_labels(nd.atoms_full, None)
 
-        def _first_full_idx(label):
-            return int(np.where(full_labels == label)[0][0])
+        def _all_full_idx(label):
+            return np.where(full_labels == label)[0].tolist()
 
         for k, (i, j) in enumerate(nd.pairs[:5]):
-            fi = _first_full_idx(reduced_labels[i])
-            fj = _first_full_idx(reduced_labels[j])
+            fi = _all_full_idx(reduced_labels[i])
+            fj = _all_full_idx(reduced_labels[j])
             expected_khz = DipolarRSSByAtom.get(
                 nd.atoms_full,
-                sel_i=[fi], sel_j=[fj],
-                cutoff=6.0, expand_j="symmetry",
+                sel_i=fi, sel_j=fj,
+                cutoff=10.0, expand_j="symmetry",
             )[0] * 1e-3
             self.assertAlmostEqual(
                 nd.correlation_strengths[k], expected_khz, places=5,
@@ -1009,7 +1015,7 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
             xelement="H", yelement="H",
             yaxis_order="2Q", rcut=6.0,
             correlation_strength_metric="dipolar_rss",
-            rss_cutoff=6.0,
+            rss_cutoff=10.0,
             references={"H": 29.5}, gradients={"H": -0.95},
         )
 
@@ -1044,7 +1050,7 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
             expected_khz = DipolarRSSByAtom.get(
                 nd.atoms_full,
                 sel_i=fi, sel_j=fj,
-                cutoff=6.0, expand_j="cif_labels",
+                cutoff=10.0, expand_j="cif_labels",
             )[0] * 1e-3
             self.assertAlmostEqual(
                 nd.correlation_strengths[k], expected_khz, places=5,
@@ -1075,30 +1081,19 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
         # Force the same label on all four atoms
         atoms.set_array("labels", np.array(["H1", "H1", "H1", "H1"]))
 
-        # Old approach: only the first index for sel_i
-        rss_first_only = DipolarRSSByAtom.get(
-            atoms,
-            sel_i=[0],           # first atom only
-            sel_j=[0, 1, 2, 3],  # all atoms as neighbours
-            cutoff=6.0,
-            expand_j="periodic_images",
+        # Confirm the atoms are non-equivalent (prerequisite for the bug to manifest):
+        # atom 0 at [0,0,0] and atom 2 at [5,0,0] see different neighbour distances,
+        # so their RSS values must differ.
+        rss_atom0 = DipolarRSSByAtom.get(
+            atoms, sel_i=[0], sel_j=[0, 1, 2, 3], cutoff=10.0, expand_j="periodic_images",
         )[0]
-
-        # New approach: all matching indices for sel_i, take [0]
-        rss_all_indices = DipolarRSSByAtom.get(
-            atoms,
-            sel_i=[0, 1, 2, 3],  # all atoms
-            sel_j=[0, 1, 2, 3],  # all atoms as neighbours
-            cutoff=6.0,
-            expand_j="periodic_images",
+        rss_atom2 = DipolarRSSByAtom.get(
+            atoms, sel_i=[2], sel_j=[0, 1, 2, 3], cutoff=10.0, expand_j="periodic_images",
         )[0]
-
-        # For this synthetic geometry atom 0 is equivalent to atom 3 by
-        # inversion, but the old/new approaches diverge for atoms 1 and 2.
-        # The test simply asserts that the code path returns the RSS of the
-        # *first* atom in sel_i; with non-equivalent duplicates the caller
-        # must decide how to aggregate.
-        self.assertAlmostEqual(rss_first_only, rss_all_indices, places=5)
+        self.assertNotAlmostEqual(
+            rss_atom0, rss_atom2, places=3,
+            msg="Atoms 0 and 2 should have different RSS values (non-equivalent positions)",
+        )
 
         # The real difference is in sel_j when expand_j is NOT used:
         # if sel_j had been limited to the first index, neighbours 2 and 3
@@ -1107,7 +1102,7 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
             atoms,
             sel_i=[0],
             sel_j=[0],           # ONLY first atom as neighbour
-            cutoff=6.0,
+            cutoff=10.0,
             expand_j="periodic_images",
         )[0]
 
@@ -1115,11 +1110,11 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
             atoms,
             sel_i=[0],
             sel_j=[0, 1, 2, 3],  # ALL atoms as neighbours
-            cutoff=6.0,
+            cutoff=10.0,
             expand_j="periodic_images",
         )[0]
 
-        # Atom 0 couples to atoms 1, 2, and 3 within the 6 Å cutoff;
+        # Atom 0 couples to atoms 1, 2, and 3 within the 10 Å cutoff;
         # restricting sel_j to [0] gives a much smaller RSS.
         self.assertGreater(
             rss_j_all, rss_j_first_only * 1.5,
@@ -1191,7 +1186,7 @@ class TestPlotNMRCLI(unittest.TestCase):
 
     def test_cli_dipolar_rss_periodic_images_exits_cleanly(self):
         """--weight-by dipolar_rss with default expand_j runs cleanly."""
-        result = self._run(["--weight-by", "dipolar_rss", "--rss-cutoff", "6.0"])
+        result = self._run(["--weight-by", "dipolar_rss", "--rss-cutoff", "10.0"])
         self.assertEqual(result.exit_code, 0,
                           f"Unexpected exit: {result.output}\n{result.exception}")
 
@@ -1199,7 +1194,7 @@ class TestPlotNMRCLI(unittest.TestCase):
         """--weight-by dipolar_rss --rss-expand-j cif_labels runs cleanly."""
         result = self._run([
             "--weight-by", "dipolar_rss",
-            "--rss-cutoff", "6.0",
+            "--rss-cutoff", "10.0",
             "--rss-expand-j", "cif_labels",
         ])
         self.assertEqual(result.exit_code, 0,
@@ -1218,7 +1213,7 @@ class TestPlotNMRCLI(unittest.TestCase):
         """--rss-expand-j symmetry runs cleanly (uses spglib, ignores CIF labels)."""
         result = self._run([
             "--weight-by", "dipolar_rss",
-            "--rss-cutoff", "6.0",
+            "--rss-cutoff", "10.0",
             "--rss-expand-j", "symmetry",
         ])
         self.assertEqual(result.exit_code, 0,
