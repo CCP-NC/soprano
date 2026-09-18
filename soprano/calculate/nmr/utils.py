@@ -590,9 +590,34 @@ def extract_indices(atoms, xelement, yelement):
     return idx_x, idx_y
 
 
+def select_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> AtomSelection:
+    """
+    Build the selection of atoms belonging to the specified elements.
+
+    Callers that need to translate indices between the input and the filtered
+    structure should use this and build a
+    :class:`soprano.sitemap.SiteMap` from the selection, rather than
+    recomputing the selection themselves: the order is not guaranteed sorted.
+
+    Args:
+        atoms (Atoms): Atoms object.
+        element_list (List[str]): List of element symbols to filter.
+
+    Returns:
+        AtomSelection: Selection of the matching atoms.
+    """
+    sel = AtomSelection(atoms, [])
+    for element in element_list:
+        sel += AtomSelection.from_element(atoms, element)
+    return sel
+
+
 def filter_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> Atoms:
     """
     Filter the atoms object based on the specified elements.
+
+    See :func:`select_atoms_by_elements` if you also need to know where the
+    filtered atoms came from.
 
     Args:
         atoms (Atoms): Atoms object.
@@ -601,10 +626,7 @@ def filter_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> Atoms:
     Returns:
         Atoms: Filtered Atoms object.
     """
-    sel = AtomSelection(atoms, [])
-    for element in element_list:
-        sel += AtomSelection.from_element(atoms, element)
-    return sel.subset(atoms)
+    return select_atoms_by_elements(atoms, element_list).subset(atoms)
 
 
 def validate_elements(atoms, xelement, yelement):

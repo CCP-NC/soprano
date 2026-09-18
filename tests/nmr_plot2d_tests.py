@@ -289,5 +289,119 @@ class TestPlot2DRendering(unittest.TestCase):
         plt.close("all")
 
 
+class TestAverageGroup(unittest.TestCase):
+    """Functional-group averaging must see the groups' heavy atoms.
+
+    A pattern like CH3 or NH3 is anchored on its heavy atom, and both of the
+    steps that derive a structure can remove it: ``xelement``/``yelement``
+    filtering strips carbon from a homonuclear H-H plot, and ``reduce`` can
+    merge the group members away. Detection therefore runs against the source
+    structure and is translated through the site map.
+    """
+
+    def setUp(self):
+        self.alanine = io.read(os.path.join(_TESTDATA_DIR, "alanine_manual_labels.magres"))
+        self.ethanol = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self.edizum = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+
+    _HH = dict(
+        xelement="H",
+        yelement="H",
+        references={"H": 29.5},
+        rcut=6.0,
+        correlation_strength_metric="dipolar",
+    )
+
+    def test_homonuclear_hh_finds_ch3_and_nh3(self):
+        """H-H plot: CH3/NH3 groups are found even though C and N are filtered out."""
+        plain = NMRData2D(self.alanine, **self._HH)
+        grouped = NMRData2D(self.alanine, average_group="CH3,NH3", **self._HH)
+
+        self.assertLess(
+            len(grouped.peaks),
+            len(plain.peaks),
+            "Averaging CH3 and NH3 should merge peaks in an H-H spectrum. "
+            "An equal count means group detection silently found nothing.",
+        )
+
+    def test_homonuclear_hh_with_reduce(self):
+        """Reduction merges group members away, so detection cannot use it either."""
+        for atoms in (self.alanine, self.edizum):
+            with self.subTest(formula=atoms.get_chemical_formula()):
+                plain = NMRData2D(atoms.copy(), reduce=True, **self._HH)
+                grouped = NMRData2D(
+                    atoms.copy(), reduce=True, average_group="CH3", **self._HH
+                )
+                self.assertLess(
+                    len(grouped.peaks),
+                    len(plain.peaks),
+                    "average_group must still merge when reduce=True",
+                )
+
+    def test_site_map_spans_source_to_final_sites(self):
+        """The composed map relates the user's input to the peaks' index space."""
+        d = NMRData2D(self.alanine, reduce=True, **self._HH)
+        self.assertEqual(d.site_map.n_atoms, len(self.alanine))
+        self.assertEqual(d.site_map.n_sites, len(d.atoms))
+        d.site_map.validate(d.source)
+        # Only hydrogen survives, and every surviving site has at least one atom.
+        for k in range(d.site_map.n_sites):
+            members = d.site_map.members(k)
+            self.assertGreater(len(members), 0)
+            self.assertTrue(all(d.source[i].symbol == "H" for i in members))
+
+    def test_no_warning_when_groups_are_present(self):
+        """The 'matched no groups' warning must not fire for a structure that has them."""
+        with self.assertLogs("soprano.calculate.nmr.data2d", level=logging.WARNING) as ctx:
+            NMRData2D(
+                self.alanine,
+                xelement="H",
+                yelement="H",
+                references={"H": 29.5},
+                rcut=6.0,
+                correlation_strength_metric="dipolar",
+                average_group="CH3,NH3",
+            )
+            # assertLogs fails on an empty context, so emit a sentinel to keep it happy.
+            logging.getLogger("soprano.calculate.nmr.data2d").warning("sentinel")
+        self.assertFalse(
+            [r for r in ctx.records if "matched no groups" in r.getMessage()],
+            "CH3/NH3 groups exist in alanine; no 'matched no groups' warning expected",
+        )
+
+    def test_heteronuclear_grouping_unchanged(self):
+        """C-H plot: group members survive the filter, so behaviour is as before."""
+        common = dict(
+            xelement="C",
+            yelement="H",
+            references={"C": 175, "H": 30},
+            correlation_strength_metric="dipolar",
+        )
+        plain = NMRData2D(self.ethanol, **common)
+        grouped = NMRData2D(self.ethanol, average_group="CH3", **common)
+        self.assertLess(len(grouped.peaks), len(plain.peaks))
+        self.assertIn(3, {p.multiplicity for p in grouped.peaks})
+
+    def test_unmatched_pattern_still_warns(self):
+        """A pattern with no match anywhere in the structure keeps warning."""
+        with self.assertLogs("soprano.calculate.nmr.data2d", level=logging.WARNING) as ctx:
+            d = NMRData2D(
+                self.ethanol,
+                xelement="C",
+                yelement="H",
+                references={"C": 175, "H": 30},
+                correlation_strength_metric="dipolar",
+                average_group="NH3",
+            )
+        self.assertTrue(any("matched no groups" in r.getMessage() for r in ctx.records))
+        self.assertEqual(len(d.peaks), len(NMRData2D(
+            self.ethanol,
+            xelement="C",
+            yelement="H",
+            references={"C": 175, "H": 30},
+            correlation_strength_metric="dipolar",
+        ).peaks))
+
+
 if __name__ == "__main__":
     unittest.main()

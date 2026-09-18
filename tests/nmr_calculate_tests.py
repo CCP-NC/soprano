@@ -629,9 +629,9 @@ class TestNMRData2DReduce(unittest.TestCase):
     (19 unique H sites among them).
 
     Key invariants tested:
-    - reduce=True collapses to the asymmetric unit (atoms_full kept for RSS)
+    - reduce=True collapses to the asymmetric unit (source kept for RSS)
     - pairs and Peak2D indices are valid indices into the *reduced* atoms
-    - RSS values match directly-computed values on atoms_full
+    - RSS values match directly-computed values on the source structure
     - reduce=True + cif_labels gives the same RSS as reduce=False + cif_labels
       for the same (label, label) pair
     - The CLI and Python API agree: produce the same peak count and the same
@@ -657,11 +657,11 @@ class TestNMRData2DReduce(unittest.TestCase):
         nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
         self.assertEqual(len(nd.atoms), 19)
 
-    def test_atoms_full_is_set_when_reduce_true(self):
-        """atoms_full should hold the full labeled cell (148 atoms) after reduce=True."""
+    def test_source_is_set_when_reduce_true(self):
+        """source should hold the full labeled cell (148 atoms) after reduce=True."""
         nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
-        self.assertIsNotNone(nd.atoms_full)
-        self.assertEqual(len(nd.atoms_full), 148)
+        self.assertIsNotNone(nd.source)
+        self.assertEqual(len(nd.source), 148)
 
     def test_pair_indices_valid_for_reduced_atoms(self):
         """All pair indices must be valid indices into nd.atoms (the reduced structure)."""
@@ -680,12 +680,12 @@ class TestNMRData2DReduce(unittest.TestCase):
     def test_rss_values_agree_with_direct_computation(self):
         """RSS stored in correlation_strengths must match a direct DipolarRSSByAtom call.
 
-        The mapping is: reduced-atom label → first matching index in atoms_full.
+        The mapping is: reduced-site label → every matching index in the source.
         We spot-check the first 5 pairs.
         """
         nd = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
         reduced_labels = get_atom_labels(nd.atoms, None)
-        full_labels = get_atom_labels(nd.atoms_full, None)
+        full_labels = get_atom_labels(nd.source, None)
 
         def _all_full_idx(label):
             return np.where(full_labels == label)[0].tolist()
@@ -694,7 +694,7 @@ class TestNMRData2DReduce(unittest.TestCase):
             fi = _all_full_idx(reduced_labels[i])
             fj = _all_full_idx(reduced_labels[j])
             expected_khz = DipolarRSSByAtom.get(
-                nd.atoms_full,
+                nd.source,
                 sel_i=fi, sel_j=fj,
                 cutoff=10.0, expand_j="cif_labels",
             )[0] * 1e-3
@@ -702,6 +702,34 @@ class TestNMRData2DReduce(unittest.TestCase):
                 nd.correlation_strengths[k], expected_khz, places=5,
                 msg=f"RSS mismatch for pair ({i},{j}): stored={nd.correlation_strengths[k]:.6f} expected={expected_khz:.6f}",
             )
+
+    def test_rss_sums_over_every_atom_a_site_represents(self):
+        """A site stands for all the atoms merged into it, so RSS covers all of them.
+
+        This holds for every expand_j mode, including 'periodic_images'. Before
+        the site map was introduced, that mode computed on the reduced cell and
+        saw only one copy of each neighbour, undercounting the sum by the
+        symmetry multiplicity.
+        """
+        nd = NMRData2D(
+            self.atoms, **self._kw, rss_expand_j="periodic_images", reduce=True
+        )
+        i, j = nd.pairs[0]
+        members_j = nd.site_map.members(j)
+        self.assertGreater(len(members_j), 1, "EDIZUM has Z=4; expected merged sites")
+
+        # RSS over a set of neighbours is the root-sum-square of the individual
+        # contributions, so build the expectation that way.
+        individual = np.array([
+            DipolarRSSByAtom.get(
+                nd.source,
+                sel_i=[int(nd.site_map.members(i)[0])], sel_j=[int(x)],
+                cutoff=10.0, expand_j="periodic_images",
+            )[0]
+            for x in members_j
+        ])
+        expected_khz = np.sqrt((individual ** 2).sum()) * 1e-3
+        self.assertAlmostEqual(nd.correlation_strengths[0], expected_khz, places=5)
 
     def test_reduce_true_and_false_give_same_rss_per_label_pair(self):
         """reduce=True and reduce=False should give the same RSS for the same label pair.
@@ -912,7 +940,7 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
         using expand_j='symmetry'.  Spot-checks the first 5 pairs."""
         nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="symmetry", reduce=True)
         reduced_labels = get_atom_labels(nd.atoms, None)
-        full_labels    = get_atom_labels(nd.atoms_full, None)
+        full_labels    = get_atom_labels(nd.source, None)
 
         def _all_full_idx(label):
             return np.where(full_labels == label)[0].tolist()
@@ -921,7 +949,7 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
             fi = _all_full_idx(reduced_labels[i])
             fj = _all_full_idx(reduced_labels[j])
             expected_khz = DipolarRSSByAtom.get(
-                nd.atoms_full,
+                nd.source,
                 sel_i=fi, sel_j=fj,
                 cutoff=10.0, expand_j="symmetry",
             )[0] * 1e-3
@@ -993,14 +1021,12 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
 
 
 class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
-    """Tests for the _first_full_idx → _all_full_indices fix in NMRData2D.
+    """A site must contribute every atom it represents to the RSS sum.
 
-    When ``reduce=True`` is used with ``rss_expand_j='cif_labels'`` or
-    ``'symmetry'``, a single CIF label can map to multiple atoms in the full
-    cell (Z > 1 or supercells).  The old code used only the first matching
-    index, which silently omitted contributions from the remaining equivalent
-    copies.  The fix collects *all* matching indices so that every copy is
-    included in the RSS computation.
+    When ``reduce=True``, one site stands for several atoms of the full cell
+    (Z > 1 or supercells).  An early version took only the first of them,
+    silently dropping the rest from the sum.  ``SiteMap.members`` now returns
+    all of them, so the guarantee is structural rather than incidental.
 
     For EDIZUM (Z=4) the duplicates are symmetry-equivalent, so the numeric
     RSS values happen to be the same with either approach; the test therefore
@@ -1020,9 +1046,9 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
         )
 
     def test_edizum_duplicate_labels_exist_in_full_cell(self):
-        """EDIZUM has Z=4; every CIF label should appear 4 times in atoms_full."""
+        """EDIZUM has Z=4; every CIF label should appear 4 times in the source."""
         nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="cif_labels", reduce=True)
-        full_labels = get_atom_labels(nd.atoms_full, None)
+        full_labels = get_atom_labels(nd.source, None)
         reduced_labels = get_atom_labels(nd.atoms, None)
 
         # Every reduced label must appear >1 time in the full cell
@@ -1033,12 +1059,12 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
                 f"Label '{label}' expected >1 match in full cell, got {len(matches)}",
             )
 
-    def test_edizum_rss_matches_all_full_indices_computation(self):
+    def test_edizum_rss_matches_all_member_computation(self):
         """NMRData2D stored RSS must agree with direct DipolarRSSByAtom using
         all matching full-cell indices (not just the first)."""
         nd = NMRData2D(self._edizum, **self._kw, rss_expand_j="cif_labels", reduce=True)
         reduced_labels = get_atom_labels(nd.atoms, None)
-        full_labels = get_atom_labels(nd.atoms_full, None)
+        full_labels = get_atom_labels(nd.source, None)
 
         def _all_full_indices(label):
             matches = np.where(full_labels == label)[0]
@@ -1048,7 +1074,7 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
             fi = _all_full_indices(reduced_labels[i])
             fj = _all_full_indices(reduced_labels[j])
             expected_khz = DipolarRSSByAtom.get(
-                nd.atoms_full,
+                nd.source,
                 sel_i=fi, sel_j=fj,
                 cutoff=10.0, expand_j="cif_labels",
             )[0] * 1e-3
@@ -1063,7 +1089,7 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
 
     def test_synthetic_non_equivalent_duplicates_show_difference(self):
         """When the same CIF label is assigned to non-equivalent atoms,
-        _first_full_idx gives a different (wrong) answer than _all_full_indices.
+        taking only the first of them gives a different, wrong answer.
         """
         from ase import Atoms
 
