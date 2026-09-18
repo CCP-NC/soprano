@@ -173,6 +173,82 @@ class DipolarCoupling(AtomsProperty):
         return {tuple(ij): [d_ij[l], v_ij[l]] for l, ij in enumerate(pairs.T)}
 
 
+def averaged_dipolar_coupling(
+    atoms,
+    sel_i,
+    sel_j,
+    isotopes=None,
+    isotope_list=None,
+):
+    """Motionally averaged dipolar coupling between two groups of sites.
+
+    Models fast exchange (e.g. methyl rotation as a three-site hop): the
+    observed interaction is the average of the static coupling tensors over
+    every distinct pair (i, j) with i in ``sel_i``, j in ``sel_j``:
+
+    .. math::
+
+        \\bar{D} = \\frac{1}{N} \\sum_{(i,j)} d_{ij}
+                   (3 \\hat{r}_{ij} \\otimes \\hat{r}_{ij} - \\mathbb{1})
+
+    The effective coupling constant is half the eigenvalue of largest
+    magnitude of :math:`\\bar{D}`, with its sign kept.  Because the pair
+    tensors point in different directions they partially cancel, so
+    :math:`|d_{eff}|` never exceeds the mean of the static magnitudes.  For
+    the three H-H vectors within a methyl group this reproduces the familiar
+    -1/2 scaling of the intra-methyl coupling under fast rotation.
+
+    Identical index pairs (i == j) are skipped; each unordered pair is
+    counted once.  Internuclear vectors use the minimum image convention,
+    matching :class:`DipolarCoupling`.
+
+    Parameters:
+      atoms (ase.Atoms): the structure containing the sites.
+      sel_i (list[int]): indices of the first group of sites.
+      sel_j (list[int]): indices of the second group.  May be the same as
+                         ``sel_i``, in which case the average runs over the
+                         intra-group pairs.
+      isotopes (dict): isotopes by element symbol, as in
+                       :class:`DipolarCoupling`.
+      isotope_list (list): per-atom isotope list, as in
+                           :class:`DipolarCoupling`.
+
+    Returns:
+      (d_eff, D_avg): effective coupling constant in Hz (signed) and the
+                      averaged 3x3 coupling tensor in Hz.  Both are zero if
+                      no valid pairs exist.
+    """
+    if isotopes is None:
+        isotopes = {}
+
+    pairs = sorted(
+        {tuple(sorted((int(i), int(j)))) for i in sel_i for j in sel_j if i != j}
+    )
+    if not pairs:
+        return 0.0, np.zeros((3, 3))
+
+    elems = atoms.get_chemical_symbols()
+    gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
+    pos = atoms.get_positions()
+
+    idx_i = np.array([p[0] for p in pairs])
+    idx_j = np.array([p[1] for p in pairs])
+    r_ij = pos[idx_j] - pos[idx_i]
+    r_ij, _ = minimum_periodic(r_ij, atoms.get_cell(), exclude_self=True)
+    R_ij = np.linalg.norm(r_ij, axis=1)
+    v_ij = r_ij / R_ij[:, None]
+    d_ij = _dip_constant(R_ij * 1e-10, gammas[idx_i], gammas[idx_j])
+
+    # Average of d * (3 v (x) v - 1) over all pairs
+    outer = v_ij[:, :, None] * v_ij[:, None, :]
+    tensors = d_ij[:, None, None] * (3 * outer - np.eye(3)[None])
+    D_avg = tensors.mean(axis=0)
+
+    evals = np.linalg.eigvalsh(D_avg)
+    d_eff = evals[np.argmax(np.abs(evals))] / 2.0
+    return float(d_eff), D_avg
+
+
 class DipolarTensor(AtomsProperty):
 
     """

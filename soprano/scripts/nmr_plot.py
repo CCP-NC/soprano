@@ -196,6 +196,7 @@ def plotnmr(
             rss_cutoff=rss_cutoff,
             rss_expand_j=rss_expand_j,
             reduce=reduce,
+            average_group=average_group or "",
         )
 
         # Define plot settings

@@ -208,9 +208,11 @@ class NMRData2D:
         to_sites = self.site_map.to_sites
 
         site_to_group: dict = {}
+        group_source_atoms: dict = {}
         for ipat, pattern_groups in enumerate(all_groups):
             for igrp, group in enumerate(pattern_groups):
                 gid = (ipat, igrp)
+                group_source_atoms[gid] = [int(a) for a in group]
                 for aidx in group:
                     site = int(to_sites[int(aidx)])
                     if site >= 0:
@@ -238,8 +240,27 @@ class NMRData2D:
             m = re.search(r'\d+', label)
             return int(m.group()) if m else label
 
+        def _source_indices(key) -> Optional[list]:
+            """Source-atom indices behind one side of a merged-pair key.
+
+            A group id maps to every atom of the functional group; a plain
+            site index maps to its representative source atom.  Averaging
+            over symmetry copies of a *non*-group site would wrongly shrink
+            the coupling (there is no motion exchanging those copies), so
+            only the representative is used there.
+            """
+            if key in group_source_atoms:
+                return group_source_atoms[key]
+            m = self.site_map.members(int(key))
+            return [int(m[0])] if len(m) else None
+
+        use_tensor_avg = (
+            self.correlation_strength_metric == 'dipolar'
+            and self.source is not None
+        )
+
         result = []
-        for group_peaks in peer_map.values():
+        for key, group_peaks in peer_map.items():
             if len(group_peaks) == 1:
                 result.append(group_peaks[0])
                 continue
@@ -247,11 +268,37 @@ class NMRData2D:
             avg_x = float(np.mean([p.x for p in group_peaks]))
             avg_y = float(np.mean([p.y for p in group_peaks]))
             total_mult = sum(p.multiplicity for p in group_peaks)
-            # Use multiplicity-weighted mean so that the invariant
-            # merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ)
-            # is preserved — consistent with merge_peaks.
-            total_weight = sum(p.correlation_strength * p.multiplicity for p in group_peaks)
-            avg_strength = total_weight / total_mult if total_mult != 0 else 0.0
+
+            avg_strength: Optional[float] = None
+            if use_tensor_avg:
+                # Fast exchange within the group: average the coupling
+                # *tensors* over the member pairs, not the constants.  The
+                # arithmetic mean of the constants ignores the orientational
+                # cancellation between the pair tensors and overestimates
+                # the residual coupling (see docs/dipolar-averaging.md).
+                src_i = _source_indices(key[0])
+                src_j = _source_indices(key[1])
+                # A single identical atom on both sides has no valid pairs
+                has_pairs = bool(src_i) and bool(src_j) and (
+                    len(src_i) > 1 or src_i != src_j
+                )
+                if has_pairs:
+                    from soprano.properties.nmr import (  # noqa: PLC0415
+                        averaged_dipolar_coupling,
+                    )
+                    d_eff, _ = averaged_dipolar_coupling(
+                        self.source, src_i, src_j, isotopes=self.isotopes
+                    )
+                    avg_strength = d_eff * 1e-3  # Hz -> kHz, matching MARKER_INFO
+
+            if avg_strength is None:
+                # Multiplicity-weighted mean preserves the invariant
+                # merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ),
+                # consistent with merge_peaks.
+                total_weight = sum(
+                    p.correlation_strength * p.multiplicity for p in group_peaks
+                )
+                avg_strength = total_weight / total_mult if total_mult != 0 else 0.0
 
             xlabels = sorted({p.xlabel for p in group_peaks}, key=_sort_key)
             ylabels = sorted({p.ylabel for p in group_peaks}, key=_sort_key)

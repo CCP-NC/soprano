@@ -398,6 +398,92 @@ class TestAverageGroup(unittest.TestCase):
         self.assertLess(len(grouped.peaks), len(plain.peaks))
         self.assertIn(3, {p.multiplicity for p in grouped.peaks})
 
+    def test_dipolar_strengths_are_tensor_averaged(self):
+        """Merged dipolar strengths must come from the averaged tensor.
+
+        Fast methyl rotation averages the coupling *tensors* over the three
+        H sites, and orientational cancellation makes the residual coupling
+        smaller than the arithmetic mean of the static constants.  The old
+        multiplicity-weighted mean therefore systematically overestimated
+        merged dipolar strengths.
+        """
+        from soprano.properties.nmr import averaged_dipolar_coupling
+
+        grouped = NMRData2D(self.ethanol, average_group="CH3", **self._HH)
+
+        methyl = [0, 1, 2]  # CH3 hydrogens in ethanol.magres
+        merged = [p for p in grouped.peaks if p.multiplicity >= 3]
+        self.assertTrue(merged, "expected at least one merged methyl peak")
+
+        # Every merged strength must equal a tensor-averaged coupling of the
+        # methyl group with one of the external protons (3, 4, 5) or with
+        # itself (the intra-methyl diagonal peak).
+        expected = {
+            round(abs(averaged_dipolar_coupling(self.ethanol, [k], methyl)[0])
+                  * 1e-3, 6)
+            for k in (3, 4, 5)
+        }
+        expected.add(
+            round(abs(averaged_dipolar_coupling(self.ethanol, methyl, methyl)[0])
+                  * 1e-3, 6)
+        )
+        for peak in merged:
+            self.assertIn(
+                round(abs(peak.correlation_strength), 6),
+                expected,
+                f"merged peak {peak.xlabel}/{peak.ylabel} does not carry a "
+                "tensor-averaged coupling",
+            )
+
+        # And the cancellation property: the external-H couplings must lie
+        # below the arithmetic mean of their static member couplings.
+        from soprano.properties.nmr import DipolarCoupling
+        for k in (3, 4, 5):
+            statics = [
+                abs(list(DipolarCoupling.get(
+                    self.ethanol, sel_i=[k], sel_j=[h]).values())[0][0])
+                for h in methyl
+            ]
+            d_eff, _ = averaged_dipolar_coupling(self.ethanol, [k], methyl)
+            self.assertLess(abs(d_eff), np.mean(statics))
+
+    def test_intra_methyl_coupling_scaled_by_minus_half(self):
+        """Intra-methyl H-H pairs must show the -1/2 residual scaling.
+
+        The three H-H vectors are perpendicular to the C3 axis, so the
+        rotationally averaged tensor is axial along the axis with
+        d_eff = -d_static/2.  The tensor average over the three edges
+        reproduces this without any special-casing.
+        """
+        from soprano.properties.nmr import (
+            DipolarCoupling,
+            averaged_dipolar_coupling,
+        )
+
+        methyl = [0, 1, 2]
+        statics = [
+            list(DipolarCoupling.get(self.ethanol, sel_i=[i], sel_j=[j]).values())[0][0]
+            for i, j in ((0, 1), (0, 2), (1, 2))
+        ]
+        d_eff, _ = averaged_dipolar_coupling(self.ethanol, methyl, methyl)
+
+        # Static couplings are negative (like gammas); the residual is
+        # positive and close to half the mean static magnitude.  The methyl
+        # in a real crystal is not perfectly equilateral, so allow 5%.
+        mean_static = np.mean(np.abs(statics))
+        self.assertGreater(d_eff, 0.0)
+        self.assertAlmostEqual(
+            d_eff / (mean_static / 2.0), 1.0, delta=0.05,
+        )
+
+    def test_averaged_coupling_empty_and_self_pairs(self):
+        """No valid pairs (same single atom on both sides) must yield zero."""
+        from soprano.properties.nmr import averaged_dipolar_coupling
+
+        d_eff, D = averaged_dipolar_coupling(self.ethanol, [0], [0])
+        self.assertEqual(d_eff, 0.0)
+        self.assertTrue(np.all(D == 0.0))
+
     def test_unmatched_pattern_still_warns(self):
         """A pattern with no match anywhere in the structure keeps warning."""
         with self.assertLogs("soprano.calculate.nmr.data2d", level=logging.WARNING) as ctx:
