@@ -389,25 +389,18 @@ def generate_contour_map(
     broadening: str = 'lorentzian',
     x_broadening: float = 1.0,
     y_broadening: float = 1.0,
+    xlims: Optional[Tuple[float, float]] = None,
+    ylims: Optional[Tuple[float, float]] = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Generate a contour map based on the provided peaks and broadening parameters.
 
-    The grid extent is always derived from the peak positions plus a
-    broadening-dependent padding on each side.  Grid limits are intentionally
-    **not** exposed as a parameter: constraining the grid to a sub-range would
-    truncate Lorentzian tails from peaks near the edge and produce inconsistent
-    intensities.  Display limits should be controlled separately via
-    ``PlotSettings.xlim`` / ``PlotSettings.ylim``.
+    The grid extent is derived from the peak positions plus a broadening-dependent
+    padding on each side. If *xlims* / *ylims* are supplied, the grid is expanded
+    to fully cover those display limits.
 
-    Padding factors applied beyond the outermost peak:
-
-    * **Gaussian**: 5 × FWHM — the tail at that distance is
-      :math:`\\sim 10^{-30}` (machine zero).
-    * **Lorentzian**: 50 × FWHM — Lorentzian tails are long (only ~1 % of the
-      peak height has decayed by 5 × FWHM), so a much larger pad is needed to
-      avoid edge truncation biasing the relative intensities.  At 50 × FWHM the
-      relative intensity is :math:`\\sim 10^{-4}`.
+    Padding factor applied beyond the outermost peak: 5 × FWHM. At 5 × FWHM,
+    Gaussian tails are ~10^-30 (machine zero) and Lorentzian tails have decayed to ~1%.
 
     The grid is sampled with exactly ``grid_size`` points per axis (the export
     formats rely on this).  If that resolution leaves fewer than a few points
@@ -420,22 +413,30 @@ def generate_contour_map(
         broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'gaussian'.
         x_broadening (float, optional): FWHM linewidth in the x direction. Default is 1.0.
         y_broadening (float, optional): FWHM linewidth in the y direction. Default is 1.0.
+        xlims (Tuple[float, float], optional): Explicit x limits to cover.
+        ylims (Tuple[float, float], optional): Explicit y limits to cover.
 
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]: Meshgrid arrays X, Y and the intensity grid Z.
     """
     broadening = broadening.lower()
-    # Grid extent always derived from the actual peak positions.
+    # Grid extent derived from actual peak positions and explicit display limits when provided.
     x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
     y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
 
-    # Gaussian tails vanish within 5 × FWHM; Lorentzian tails fall to only
-    # ~1 % at 5 × FWHM, so use a much larger pad to avoid edge truncation
-    # affecting relative intensities.
-    _PAD = 50 if broadening == 'lorentzian' else 5
+    # Padding applied beyond the outermost peak (5 × FWHM).
+    _PAD = 5
 
     x_lo, x_hi = x_min - _PAD * x_broadening, x_max + _PAD * x_broadening
     y_lo, y_hi = y_min - _PAD * y_broadening, y_max + _PAD * y_broadening
+
+    if xlims is not None:
+        x_lo = min(x_lo, min(xlims))
+        x_hi = max(x_hi, max(xlims))
+
+    if ylims is not None:
+        y_lo = min(y_lo, min(ylims))
+        y_hi = max(y_hi, max(ylims))
 
     # Warn (but keep the requested grid_size, which callers and the export
     # formats rely on) if the fixed grid under-resolves the narrowest line:

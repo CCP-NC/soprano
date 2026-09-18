@@ -696,21 +696,14 @@ class NMRData2D:
                 for p in peaks
             ]
 
-        # Resolve default broadening from peak spread or supplied limits
-        if xlims is None:
-            x_min = min(p.x for p in peaks_for_grid)
-            x_max = max(p.x for p in peaks_for_grid)
-        else:
-            x_min, x_max = min(xlims), max(xlims)
+        # Resolve default broadening from peak spread
+        peak_x_min = min(p.x for p in peaks_for_grid)
+        peak_x_max = max(p.x for p in peaks_for_grid)
+        peak_y_min = min(p.y for p in peaks_for_grid)
+        peak_y_max = max(p.y for p in peaks_for_grid)
 
-        if ylims is None:
-            y_min = min(p.y for p in peaks_for_grid)
-            y_max = max(p.y for p in peaks_for_grid)
-        else:
-            y_min, y_max = min(ylims), max(ylims)
-
-        x_range = x_max - x_min or 1.0
-        y_range = y_max - y_min or 1.0
+        x_range = peak_x_max - peak_x_min or 1.0
+        y_range = peak_y_max - peak_y_min or 1.0
 
         if x_broadening is None:
             x_broadening = 0.05 * x_range
@@ -729,6 +722,8 @@ class NMRData2D:
             broadening=broadening_type,
             x_broadening=x_broadening,
             y_broadening=y_broadening,
+            xlims=xlims,
+            ylims=ylims,
         )
 
         if grid_max is not None:

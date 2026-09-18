@@ -288,6 +288,22 @@ class TestPlot2DRendering(unittest.TestCase):
         self.assertAlmostEqual(xdata[1], ydata[1], places=6)
         plt.close("all")
 
+    def test_lorentzian_heatmap_grid_size_contours(self):
+        """Explicit heatmap_grid_size with Lorentzian broadening should generate valid contours."""
+        settings = PlotSettings(
+            show_contour=True,
+            show_heatmap=True,
+            broadening_type="lorentzian",
+            heatmap_grid_size=600,
+            xlim=(6, -2),
+            ylim=(12, -4),
+        )
+        plot = NMRPlot2D(self.d, plot_settings=settings)
+        fig, ax = plot.plot()
+        num_paths = sum(len(c.get_paths()) for c in ax.collections)
+        self.assertGreater(num_paths, 0, "Contours should be drawn when heatmap_grid_size is explicitly set")
+        plt.close("all")
+
 
 class TestAverageGroup(unittest.TestCase):
     """Functional-group averaging must see the groups' heavy atoms.
