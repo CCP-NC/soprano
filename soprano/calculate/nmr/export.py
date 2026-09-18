@@ -607,18 +607,45 @@ def _export_bruker(
     # Bruker stores data with descending ppm (downfield first); flip both axes.
     Z_bruker = np.ascontiguousarray(cd.Z[::-1, ::-1], dtype=np.float64)
 
-    def _make_procs(sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int) -> dict:
+    # Determine NC_proc so that data scaled by 2**NC_proc matches the integer
+    # scaling applied by nmrglue's array_to_int (multiplying by 2 until the
+    # maximum intensity is in [2**28, 2**29]).
+    max_abs = float(np.max(np.abs(Z_bruker)))
+    k = 0
+    if max_abs > 0:
+        val = max_abs
+        for _ in range(30):
+            if val < 2**28:
+                val *= 2.0
+                k += 1
+            else:
+                break
+    nc_proc = -k
+
+    def _bruker_sw_ppm(sw_ppm: float, si: int) -> float:
+        # Bruker frequency axes are endpoint-EXCLUSIVE: point i sits at
+        #   ppm(i) = OFFSET - i * (SW_p / SF) / SI
+        # whereas the contour grid is an endpoint-inclusive linspace with
+        # step sw_ppm / (SI - 1).  Scale SW_p by SI/(SI-1) so the per-point
+        # step matches and the last point lands exactly on the upfield limit.
+        return sw_ppm * si / (si - 1) if si > 1 else sw_ppm
+
+    def _make_procs(
+        sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str
+    ) -> dict:
         # nmrglue/TopSpin store the processed spectral width (SW_p) in Hz, while
         # OFFSET (downfield edge) is in ppm; convert the ppm range with SF (MHz).
         return {
             "_comments": [],
             "_coreheader": ["##NMRGLUE automatically created parameter file"],
             "SF": float(sf_mhz),
-            "SW_p": float(sw_ppm * sf_mhz),
+            "SW_p": float(_bruker_sw_ppm(sw_ppm, si) * sf_mhz),
             "OFFSET": float(offset_ppm),
             "SI": si,
-            "NC_proc": -6,      # intensity scaling exponent (data * 2**NC_proc)
+            "NC_proc": nc_proc,      # intensity scaling exponent (data * 2**NC_proc)
             "BYTORDP": 1,
+            "DTYPP": 0,         # data type: 0 = int32
+            "AXNUC": f"<{nucleus}>",
             "XDIM": si,
             "STSI": 0,
             "STSR": 0,
@@ -627,18 +654,77 @@ def _export_bruker(
             "PHC1": 0.0,
         }
 
+    def _make_acqus(
+        sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int,
+        nucleus: str, indirect: bool,
+    ) -> dict:
+        # Minimal acquisition-parameter set so that TopSpin can open the
+        # dataset and nmrglue's guess_udic can reconstruct the axes.
+        # The carrier sits at the centre of the spectral window:
+        # guess_udic derives car = (SFO1 - SF) * 1e6 Hz.
+        sw_ppm_b = _bruker_sw_ppm(sw_ppm, si)
+        center_ppm = offset_ppm - sw_ppm_b / 2.0
+        o1_hz = center_ppm * sf_mhz          # ppm * MHz = Hz
+        acqus = {
+            "_comments": [],
+            "_coreheader": ["##NMRGLUE automatically created parameter file"],
+            "SFO1": float(sf_mhz + o1_hz * 1e-6),
+            "BF1": float(sf_mhz),
+            "O1": float(o1_hz),
+            "SW_h": float(sw_ppm_b * sf_mhz),
+            "SW": float(sw_ppm_b),
+            "TD": 2 * si,
+            "NUC1": f"<{nucleus}>",
+            "BYTORDA": 1,
+            "DTYPA": 0,
+            "PARMODE": 1,       # 2D dataset (PARMODE = ndim - 1)
+        }
+        if indirect:
+            acqus["FnMODE"] = 1     # QF (magnitude): simulated real data
+        else:
+            acqus["AQ_mod"] = 0     # qf: simulated real data
+        return acqus
+
+    def _nucleus_label(element: Optional[str], isotope: Optional[int]) -> str:
+        # Isotope label in TopSpin convention, e.g. '1H', '13C'.
+        if element is None:
+            return "off"
+        if isotope is not None:
+            return f"{isotope}{element}"
+        isotopes = getattr(nmr_data, "isotopes", None)
+        if isinstance(isotopes, dict) and element in isotopes:
+            return f"{isotopes[element]}{element}"
+        return str(element)
+
+    x_nuc = _nucleus_label(
+        getattr(nmr_data, "xelement", None), getattr(nmr_data, "xisotope", None)
+    )
+    y_nuc = _nucleus_label(
+        getattr(nmr_data, "yelement", None), getattr(nmr_data, "yisotope", None)
+    )
+
     dic = {
         "procs": _make_procs(
             x_larmor_freq_mhz,
             cd.xlims[1] - cd.xlims[0],
             cd.xlims[1],
             np_,
+            x_nuc,
         ),
         "proc2s": _make_procs(
             y_larmor_freq_mhz,
             cd.ylims[1] - cd.ylims[0],
             cd.ylims[1],
             ni,
+            y_nuc,
+        ),
+        "acqus": _make_acqus(
+            x_larmor_freq_mhz, cd.xlims[1] - cd.xlims[0], cd.xlims[1],
+            np_, x_nuc, indirect=False,
+        ),
+        "acqu2s": _make_acqus(
+            y_larmor_freq_mhz, cd.ylims[1] - cd.ylims[0], cd.ylims[1],
+            ni, y_nuc, indirect=True,
         ),
     }
 
@@ -650,6 +736,29 @@ def _export_bruker(
         pdata_folder=True,
         overwrite=True,
         submatrix_shape=(ni, np_),
+        big=True,
+    )
+
+    # write_pdata only writes the procs files; write acqus/acqu2s (and the
+    # acqu/acqu2 copies TopSpin expects) at the experiment root ourselves.
+    # TopSpin needs them to open the dataset and nmrglue's guess_udic reads
+    # axis information from them.
+    for src_name, dst_names in (
+        ("acqus", ("acqus", "acqu")),
+        ("acqu2s", ("acqu2s", "acqu2")),
+    ):
+        for dst in dst_names:
+            ng.fileio.bruker.write_jcamp(
+                dic[src_name], str(Path(path) / dst), overwrite=True
+            )
+
+    # Human-readable title shown in the TopSpin browser
+    title_path = Path(path) / "pdata" / "1" / "title"
+    title_path.write_text(
+        "Soprano simulated 2D NMR spectrum\n"
+        f"x: {x_nuc} ({x_larmor_freq_mhz:.4f} MHz)  "
+        f"y: {y_nuc} ({y_larmor_freq_mhz:.4f} MHz)\n"
+        f"exported {datetime.now(timezone.utc).isoformat()}\n"
     )
 
     if include_peaks:

@@ -830,10 +830,13 @@ plot_export_files = click.option(
 plot_export_format = click.option(
     "--export-format",
     "export_format",
-    type=click.Choice(["simpson", "npz", "csv", "json"], case_sensitive=False),
+    type=click.Choice(
+        ["simpson", "npz", "csv", "json", "plain", "ssnake", "bruker"],
+        case_sensitive=False,
+    ),
     default=None,
     help="Force a specific export format, overriding extension inference. "
-    "Choices: simpson, npz, csv, json, plain, ssnake (alias for json).",
+    "Choices: simpson, npz, csv, json, plain, ssnake (alias for json), bruker.",
 )
 plot_b0_field = click.option(
     "--b0-field-tesla",

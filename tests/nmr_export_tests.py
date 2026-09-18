@@ -495,13 +495,14 @@ class TestBrukerExport(unittest.TestCase):
         self.assertAlmostEqual(dic["procs"]["OFFSET"], cd.xlims[1], places=3)
 
     def test_bruker_ppm_axes_roundtrip(self):
-        """Reconstructed ppm axes must span the original xlims/ylims.
+        """Per-point ppm axes reconstructed from procs must match the grid.
 
-        Guards against SW_p being written in ppm instead of Hz.  nmrglue reads
-        SW_p as Hz and derives the ppm scale as
-        ``car/obs +/- (sw/obs)/2`` with ``car = OFFSET*obs - sw/2``,
-        ``obs = SF`` (MHz), ``sw = SW_p`` (Hz).  A ppm-valued SW_p would
-        compress the reconstructed range by roughly a factor of SF.
+        Bruker axes are endpoint-exclusive: point i sits at
+        ``OFFSET - i * (SW_p/SF)/SI``.  The contour grid is an endpoint-
+        inclusive linspace, so SW_p must carry the SI/(SI-1) correction;
+        without it peak positions drift by up to one grid step at the
+        upfield edge.  Guards both against ppm-valued SW_p and against the
+        off-by-one-bin stretch.
         """
         import nmrglue as ng
         out = self._path("bruker_axes")
@@ -513,21 +514,68 @@ class TestBrukerExport(unittest.TestCase):
         dic, _ = ng.fileio.bruker.read_pdata(pdata)
         cd = self.nmr_data.get_contour_data(grid_size=40)
 
-        def ppm_span(procs):
-            obs = procs["SF"]               # MHz
-            sw = procs["SW_p"]              # Hz (must NOT be ppm)
-            car = procs["OFFSET"] * obs - sw / 2.0
-            hi = (car + sw / 2.0) / obs     # downfield edge (ppm)
-            lo = (car - sw / 2.0) / obs     # upfield edge (ppm)
-            return lo, hi
+        def ppm_axis(procs):
+            si = procs["SI"]
+            step_ppm = (procs["SW_p"] / procs["SF"]) / si
+            return procs["OFFSET"] - np.arange(si) * step_ppm
 
-        x_lo, x_hi = ppm_span(dic["procs"])
-        y_lo, y_hi = ppm_span(dic["proc2s"])
+        # Bruker stores downfield-first; the grid is ascending -> reverse.
+        x_expected = np.linspace(cd.xlims[1], cd.xlims[0], 40)
+        y_expected = np.linspace(cd.ylims[1], cd.ylims[0], 40)
 
-        self.assertAlmostEqual(x_hi, cd.xlims[1], places=3)
-        self.assertAlmostEqual(x_lo, cd.xlims[0], places=3)
-        self.assertAlmostEqual(y_hi, cd.ylims[1], places=3)
-        self.assertAlmostEqual(y_lo, cd.ylims[0], places=3)
+        np.testing.assert_allclose(ppm_axis(dic["procs"]), x_expected, atol=1e-6)
+        np.testing.assert_allclose(ppm_axis(dic["proc2s"]), y_expected, atol=1e-6)
+
+    def test_bruker_acqus_and_title_written(self):
+        """acqus/acqu2s (+ acqu/acqu2) and pdata/1/title must be written.
+
+        TopSpin requires acquisition parameter files at the experiment root
+        to open a dataset; nmrglue's guess_udic also reads axis info from
+        them.  Their SW_h/SFO1 must be consistent with procs.
+        """
+        import nmrglue as ng
+        out = self._path("bruker_acqus")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        for fname in ("acqus", "acqu", "acqu2s", "acqu2"):
+            self.assertTrue(
+                os.path.exists(os.path.join(out, fname)), f"{fname} missing"
+            )
+        self.assertTrue(os.path.exists(os.path.join(out, "pdata", "1", "title")))
+
+        dic, data = ng.fileio.bruker.read_pdata(os.path.join(out, "pdata", "1"))
+        acqus = ng.fileio.bruker.read_jcamp(os.path.join(out, "acqus"))
+        # BF1 is the reference frequency (= procs SF); SFO1 carries the O1 offset
+        self.assertAlmostEqual(acqus["BF1"], dic["procs"]["SF"], places=6)
+        self.assertAlmostEqual(
+            acqus["SFO1"], acqus["BF1"] + acqus["O1"] * 1e-6, places=8
+        )
+        self.assertAlmostEqual(acqus["SW_h"], dic["procs"]["SW_p"], places=3)
+        self.assertIn("NUC1", acqus)
+
+        # The carrier (O1/BF1, in ppm) must sit at the centre of the window
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+        sw_ppm = dic["procs"]["SW_p"] / dic["procs"]["SF"]
+        center_ppm = dic["procs"]["OFFSET"] - sw_ppm / 2.0
+        self.assertAlmostEqual(acqus["O1"] / acqus["BF1"], center_ppm, places=4)
+
+        # guess_udic must succeed (no fallback defaults) and give ppm axes
+        # matching the simulated grid through the standard nmrglue workflow.
+        import warnings as _warnings
+        full_dic, full_data = ng.bruker.read_pdata(
+            os.path.join(out, "pdata", "1"), read_acqus=True
+        )
+        with _warnings.catch_warnings():
+            _warnings.simplefilter("error")
+            udic = ng.bruker.guess_udic(full_dic, full_data)
+        uc_x = ng.fileiobase.uc_from_udic(udic, dim=1)
+        np.testing.assert_allclose(
+            uc_x.ppm_scale(),
+            np.linspace(cd.xlims[1], cd.xlims[0], 40),
+            atol=1e-6,
+        )
 
     def test_bruker_include_peaks_false(self):
         """peaks.csv must NOT be created when include_peaks=False."""
@@ -537,6 +585,36 @@ class TestBrukerExport(unittest.TestCase):
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=False),
         )
         self.assertFalse(os.path.exists(os.path.join(out, "peaks.csv")))
+
+    def test_bruker_data_roundtrip(self):
+        """Bruker exported 2rr matrix must match contour grid intensities.
+
+        Guards against endianness mismatches (which produce negative or
+        byte-swapped values) and verifies that NC_proc dynamic scaling preserves
+        intensities with sub-permille relative error.
+        """
+        import nmrglue as ng
+        out = self._path("bruker_data")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        dic, data = ng.fileio.bruker.read_pdata(pdata, scale_data=True)
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+
+        # Bruker flips both axes so downfield (higher ppm) is index 0
+        expected = cd.Z[::-1, ::-1]
+
+        # Guard against endianness corruption: simulated intensities are all positive
+        self.assertTrue(np.all(data >= 0.0), "Bruker data contains negative intensities")
+
+        # NC_proc must be set appropriately (negative exponent for scaling up to int32 range)
+        self.assertLessEqual(dic["procs"]["NC_proc"], 0)
+
+        # Intensities must match the original simulation within int32 quantization noise
+        rel_error = np.max(np.abs(data - expected) / np.maximum(expected, 1e-10))
+        self.assertLess(rel_error, 1e-4)
 
     def test_bruker_peaks_csv_created(self):
         """peaks.csv must be created inside the experiment directory with correct columns."""
