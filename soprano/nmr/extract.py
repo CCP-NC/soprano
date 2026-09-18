@@ -686,6 +686,7 @@ def nmr_extract_multi(
     include: Optional[List[str]] = None,
     exclude: Optional[List[str]] = None,
     query: str = "",
+    return_sources: bool = False,
     **kwargs,
 ):
     """Extract NMR data from one or more magres/XYZ files.
@@ -709,6 +710,10 @@ def nmr_extract_multi(
         include: Column aliases/names to *keep* after extraction.
         exclude: Column names to *drop* after extraction.
         query: Pandas query string applied to each DataFrame.
+        return_sources: If ``True``, also return the structures as they were
+            read, before reduction or subsetting.  Callers that need the
+            unreduced cell should use this rather than reading the files a
+            second time.
         **kwargs: Forwarded to :func:`nmr_extract_atoms`.  Common keys:
             ``subset``, ``reduce``, ``average_group``, ``symprec``,
             ``ms_tag``, ``efg_tag``.
@@ -716,6 +721,7 @@ def nmr_extract_multi(
     Returns:
         Tuple ``(dfs, images)`` where *dfs* is a list of DataFrames and
         *images* is a list of the corresponding processed Atoms objects.
+        With ``return_sources=True``, returns ``(dfs, images, sources)``.
     """
     # Lazy imports to avoid pulling CLI dependencies at module level.
     from soprano.scripts.cli_utils import (  # noqa: PLC0415
@@ -740,6 +746,7 @@ def nmr_extract_multi(
 
     dfs = []
     images = []
+    sources = []
 
     for fname in files:
         log.info(_HEADER)
@@ -752,7 +759,11 @@ def nmr_extract_multi(
             atoms = label_atoms(atoms, logger=log)
         except OSError:
             log.error(f"Could not read file {fname}, skipping.")
-            return dfs, images
+            return (dfs, images, sources) if return_sources else (dfs, images)
+
+        # Keep the structure as read: reduction below discards the symmetry
+        # copies, and callers such as the 2D plotter need them back.
+        source = atoms.copy()
 
         property_tags = {
             "ms": kwargs.get("ms_tag", "ms"),
@@ -816,6 +827,7 @@ def nmr_extract_multi(
 
         dfs.append(df)
         images.append(atoms)
+        sources.append(source)
         log.info(_FOOTER)
 
     if merge and dfs:
@@ -827,4 +839,4 @@ def nmr_extract_multi(
     for df in dfs:
         df.rename(columns=units_rename, inplace=True)
 
-    return dfs, images
+    return (dfs, images, sources) if return_sources else (dfs, images)
