@@ -251,6 +251,11 @@ def merge_tagged_sites(
 
     Returns:
         A new Atoms object with duplicate-tag sites merged and sorted by tag.
+
+    Sites come out ordered by sorted unique tag, which is what
+    ``SiteMap.from_tags(atoms_in.get_tags())`` describes.  Build that map
+    before calling if you need to know which atoms each site stands for; see
+    :class:`soprano.sitemap.SiteMap`.
     """
     atoms = atoms_in.copy()
     if not atoms.has("tags"):
@@ -576,8 +581,13 @@ def nmr_extract_atoms(
     Returns:
         The processed Atoms object, or ``None`` if no atoms remain after
         the selection filter.  When ``return_index_map`` is ``True``,
-        returns a tuple ``(atoms, index_map)`` instead — ``index_map``
+        returns a tuple ``(atoms, index_map)`` instead.  ``index_map``
         is a 1-D integer array of length ``len(input_atoms)``.
+
+    Wrap the returned map as ``SiteMap(index_map, len(result))`` to chain it
+    with further derivations; see :class:`soprano.sitemap.SiteMap`.  Note the
+    map does not account for ``subset``, so compose it with a second map built
+    from that selection if you use both.
     """
     log = logger or _logger
 

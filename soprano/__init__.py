@@ -36,6 +36,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
+from soprano.sitemap import SiteMap
+
 # Version definition
 __version__ = "0.11.3"
 __release__ = "beta (Boggess)"
+
+__all__ = ["SiteMap", "__release__", "__version__"]
