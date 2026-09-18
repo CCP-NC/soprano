@@ -38,6 +38,10 @@ from ase import Atoms
 from ase.visualize import view as aseview
 
 from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
+from soprano.calculate.nmr.config import (
+    DEFAULT_GRID_SIZE_GAUSSIAN,
+    DEFAULT_GRID_SIZE_LORENTZIAN,
+)
 from soprano.calculate.nmr.simpson import SimpsonTemplates
 from soprano.data.nmr import _el_iso
 from soprano.properties.linkage import ElementPairs, Molecules
@@ -776,6 +780,17 @@ plot_heatmap_levels = click.option(
          "(between the lo and hi values of --contour-range). Default is 20.",
 )
 
+# heatmap grid size
+plot_heatmap_grid_size = click.option(
+    "--heatmap-grid-size",
+    "heatmap_grid_size",
+    type=int,
+    default=None,
+    help="Grid size for heatmap and contour line calculation. "
+         f"Default is {DEFAULT_GRID_SIZE_LORENTZIAN} for Lorentzian broadening "
+         f"or {DEFAULT_GRID_SIZE_GAUSSIAN} for Gaussian broadening.",
+)
+
 
 # plot filename
 plot_output = click.option(
@@ -970,6 +985,7 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_show_ticklabels,
     plot_show_heatmap,
     plot_heatmap_levels,
+    plot_heatmap_grid_size,
     plot_xbroadening,
     plot_ybroadening,
     plot_grid_max,
