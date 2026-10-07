@@ -52,6 +52,9 @@ dev = [
     "pytest",
     "pytest-cov"
 ]
+# nmrglue < 0.12 imports np.dtype('a8'), removed in numpy 2.0, so it cannot be
+# imported at all alongside a numpy 2.x install.
+nmr-io = ["nmrglue>=0.12"]
 docs = [
     "jupyter-book~=1.0.2",
     "sphinx-click",

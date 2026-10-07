@@ -21,11 +21,12 @@ Helper functions for NMR calculations and plotting
 import itertools
 import logging
 import re
+from collections import namedtuple
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace as dc_replace
 from functools import wraps
 from importlib.resources import files
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +37,7 @@ from soprano.properties.labeling.labeling import MagresViewLabels
 from soprano.properties.nmr.dipolar import DipolarCoupling
 from soprano.properties.nmr.isc import JCIsotropy
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels
+from soprano.utils import has_cif_labels, minimum_periodic
 
 
 def get_force_matrix(
@@ -80,27 +81,6 @@ def get_force_matrix(
     # spring force from original position
     Fmat[diag_mask] = -2*k * (positions - positions_original)
     return Fmat
-
-def get_total_forces(
-            positions: np.ndarray,
-            positions_original: np.ndarray,
-            C:float = 0.01,
-            k:float = 0.00001):
-    '''
-    Parameters
-    ----------
-    positions : np.array
-        The y coordinates of the annotations
-    positions_original : np.array
-        The original y coordinates of the annotations
-    C : float, optional
-        The repulsive force constant between annotations, by default 0.01
-    k : float, optional
-        The spring force constant for the spring holding the annotation to it's original position, by default 0.00001
-    '''
-    Fmat = get_force_matrix(positions, positions_original, C, k)
-    # sum over the columns to get the total force on each annotation
-    return np.sum(Fmat, axis=1)
 
 def get_total_forces(
             positions: np.ndarray,
@@ -236,6 +216,7 @@ class Peak2D:
     color: str = 'C0'
     idx_x: Optional[int] = None
     idx_y: Optional[int] = None
+    multiplicity: int = 1
 
     def __repr__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
@@ -266,108 +247,280 @@ class Peak2D:
 
 
 
-def lorentzian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
+def lorentzian(
+    X: np.ndarray,
+    x0: float,
+    Y: np.ndarray,
+    y0: float,
+    x_broadening: float,
+    y_broadening: float,
+    normalise: bool = True,
+    eps: float = 1e-15,
+) -> np.ndarray:
     """
-    Calculate the Lorentzian broadening function.
+    Calculate a 2D Lorentzian (elliptical) broadening function.
 
     .. math::
-        f(x, y) = \\frac{1}{((x - x_0) / w_x)^2 + ((y - y_0) / w_y)^2 + 1}
+        f(x, y) = \\frac{1}{1 + ((x-x_0)/\\gamma_x)^2 + ((y-y_0)/\\gamma_y)^2}
 
-    where :math:`w_x` and :math:`w_y` are the broadening factors in the x and y directions, respectively. These
-    correspond to the half-width at half-maximum (HWHM) of the Lorentzian function.
+    where :math:`\\gamma = \\mathrm{FWHM}/2` is the half-width at half-maximum.
 
-    Args:
-        X (np.ndarray): Array of x values.
-        x0 (float): x-coordinate of the peak.
-        Y (np.ndarray): Array of y values.
-        y0 (float): y-coordinate of the peak.
-        x_broadening (float): Broadening factor in the x direction.
-        y_broadening (float): Broadening factor in the y direction.
+    .. note::
+        This is the non-separable ("spherical") 2D Lorentzian.  Its integral
+        over the plane **diverges**, so unlike the Gaussian it cannot be
+        normalised to unit area.  When *normalise* is True the fixed prefactor
+        :math:`1/(\\pi\\gamma_x\\gamma_y)` is applied to give a consistent
+        amplitude scale across peaks of different widths (it is **not** a
+        unit-integral normalisation).  Do not mix normalised Lorentzian and
+        Gaussian peaks and expect matching integrated areas.
 
-    Returns:
-        np.ndarray: Array of intensity values.
+    Parameters
+    ----------
+    X : np.ndarray
+        Array of x values (meshgrid).
+    x0 : float
+        x-coordinate of the peak center.
+    Y : np.ndarray
+        Array of y values (meshgrid).
+    y0 : float
+        y-coordinate of the peak center.
+    x_broadening : float
+        FWHM measured along the x-axis cross-section (i.e. the marginal
+        linewidth with y fixed at the peak centre).
+        Converted internally to HWHM via ``γ = FWHM / 2``.
+    y_broadening : float
+        FWHM measured along the y-axis cross-section.  Same convention
+        as *x_broadening*.
+    normalise : bool, optional
+        If True, apply the amplitude prefactor ``1/(π γ_x γ_y)`` (see note; this
+        is *not* a unit-integral normalisation for this 2D form).
+        If False, the peak maximum is 1.
+    eps : float, optional
+        Small number added to broadenings for numerical stability.
+
+    Returns
+    -------
+    np.ndarray
+        Array of intensity values.
     """
-    return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
+    # Convert FWHM → HWHM (γ)
+    wx = x_broadening / 2.0 + eps
+    wy = y_broadening / 2.0 + eps
 
-def gaussian(X: np.ndarray, x0: float, Y: np.ndarray, y0: float, x_broadening: float, y_broadening: float) -> np.ndarray:
+    denom = (
+        1.0
+        + ((X - x0) / wx) ** 2
+        + ((Y - y0) / wy) ** 2
+    )
+
+    if normalise:
+        prefactor = 1.0 / (np.pi * wx * wy)
+        return prefactor / denom
+
+    return 1.0 / denom
+
+
+_FWHM_TO_SIGMA = 1.0 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # ≈ 0.4247
+
+
+def gaussian(
+    X: np.ndarray,
+    x0: float,
+    Y: np.ndarray,
+    y0: float,
+    x_broadening: float,
+    y_broadening: float,
+    normalise: bool = True,
+    eps: float = 1e-15,
+) -> np.ndarray:
     """
-    Calculate the Gaussian broadening function.
+    Calculate a 2D Gaussian (elliptical) broadening function.
 
     .. math::
-        f(x, y) = \\exp\\left(-\\frac{(x - x_0)^2}{2 w_x^2} - \\frac{(y - y_0)^2}{2 w_y^2}\\right)
+        f(x, y) = \\exp\\!\\left(
+            -\\frac{(x-x_0)^2}{2\\sigma_x^2}
+            -\\frac{(y-y_0)^2}{2\\sigma_y^2}
+        \\right)
 
-    where :math:`w_x` and :math:`w_y` are the broadening factors in the x and y directions, respectively. These
-    correspond to the standard deviation of the Gaussian function.
+    where :math:`\\sigma = \\mathrm{FWHM}\\,/\\,(2\\sqrt{2\\ln 2})`.
 
-    Args:
-        X (np.ndarray): Array of x values.
-        x0 (float): x-coordinate of the peak.
-        Y (np.ndarray): Array of y values.
-        y0 (float): y-coordinate of the peak.
-        x_broadening (float): Broadening factor in the x direction.
-        y_broadening (float): Broadening factor in the y direction.
+    Parameters
+    ----------
+    X, Y : np.ndarray
+        Meshgrid arrays.
+    x0, y0 : float
+        Peak center.
+    x_broadening : float
+        FWHM measured along the x-axis cross-section (i.e. the marginal
+        linewidth with y fixed at the peak centre).
+        Converted internally to σ via ``σ = FWHM / (2√(2 ln 2))``.
+    y_broadening : float
+        FWHM measured along the y-axis cross-section.  Same convention
+        as *x_broadening*.
+    normalise : bool
+        If True, normalise to unit integral.
+        If False, peak maximum is 1.
+    eps : float
+        Small number added for numerical safety.
 
-    Returns:
-        np.ndarray: Array of intensity values.
+    Returns
+    -------
+    np.ndarray
     """
-    return np.exp(-((X - x0)**2 / (2 * x_broadening**2) + (Y - y0)**2 / (2 * y_broadening**2)))
+    # Convert FWHM → σ
+    sx = x_broadening * _FWHM_TO_SIGMA + eps
+    sy = y_broadening * _FWHM_TO_SIGMA + eps
+
+    exponent = (
+        ((X - x0) ** 2) / (2.0 * sx**2)
+        + ((Y - y0) ** 2) / (2.0 * sy**2)
+    )
+
+    g = np.exp(-exponent)
+
+    if normalise:
+        g /= (2.0 * np.pi * sx * sy)
+
+    return g
 
 def generate_contour_map(
     peaks: List[Peak2D],
     grid_size: int = 100,
-    broadening: str = 'gaussian',
+    broadening: str = 'lorentzian',
     x_broadening: float = 1.0,
     y_broadening: float = 1.0,
     xlims: Optional[Tuple[float, float]] = None,
-    ylims: Optional[Tuple[float, float]] = None
+    ylims: Optional[Tuple[float, float]] = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Generate a contour map based on the provided peaks and broadening parameters.
 
+    The grid extent is derived from the peak positions plus a broadening-dependent
+    padding on each side. If *xlims* / *ylims* are supplied, the grid is expanded
+    to fully cover those display limits.
+
+    Padding factor applied beyond the outermost peak: 5 × FWHM. At 5 × FWHM,
+    Gaussian tails are ~10^-30 (machine zero) and Lorentzian tails have decayed to ~1%.
+
+    The grid is sampled with exactly ``grid_size`` points per axis (the export
+    formats rely on this).  If that resolution leaves fewer than a few points
+    across the narrowest FWHM — which makes peak heights/areas grid-dependent —
+    a warning is emitted advising the caller to increase ``grid_size``.
+
     Args:
         peaks (List[Peak2D]): List of Peak2D objects containing x, y coordinates and correlation strength.
         grid_size (int, optional): Size of the grid for the contour map. Default is 100.
-        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'lorentzian'.
-        x_broadening (float, optional): Broadening factor in the x direction. Default is 1.0.
-        y_broadening (float, optional): Broadening factor in the y direction. Default is 1.0.
-        xlims (Optional[Tuple[float, float]], optional): Limits for the x-axis. Default is None.
-        ylims (Optional[Tuple[float, float]], optional): Limits for the y-axis. Default is None.
+        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'gaussian'.
+        x_broadening (float, optional): FWHM linewidth in the x direction. Default is 1.0.
+        y_broadening (float, optional): FWHM linewidth in the y direction. Default is 1.0.
+        xlims (Tuple[float, float], optional): Explicit x limits to cover.
+        ylims (Tuple[float, float], optional): Explicit y limits to cover.
 
     Returns:
         Tuple[np.ndarray, np.ndarray, np.ndarray]: Meshgrid arrays X, Y and the intensity grid Z.
     """
     broadening = broadening.lower()
-    # Create a grid of x, y values
-    if xlims is None:
-        x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
-    else:
-        x_min, x_max = xlims
-    if ylims is None:
-        y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
-    else:
-        y_min, y_max = ylims
+    # Grid extent derived from actual peak positions and explicit display limits when provided.
+    x_min, x_max = min(peak.x for peak in peaks), max(peak.x for peak in peaks)
+    y_min, y_max = min(peak.y for peak in peaks), max(peak.y for peak in peaks)
 
-    # Create a grid of x, y values, broadening the grid by 5 times the broadening factor
-    x = np.linspace(x_min - 5 * x_broadening, x_max + 5 * x_broadening, grid_size)
-    y = np.linspace(y_min - 5 * y_broadening, y_max + 5 * y_broadening, grid_size)
+    # Padding applied beyond the outermost peak (5 × FWHM).
+    _PAD = 5
+
+    x_lo, x_hi = x_min - _PAD * x_broadening, x_max + _PAD * x_broadening
+    y_lo, y_hi = y_min - _PAD * y_broadening, y_max + _PAD * y_broadening
+
+    if xlims is not None:
+        x_lo = min(x_lo, min(xlims))
+        x_hi = max(x_hi, max(xlims))
+
+    if ylims is not None:
+        y_lo = min(y_lo, min(ylims))
+        y_hi = max(y_hi, max(ylims))
+
+    # Warn (but keep the requested grid_size, which callers and the export
+    # formats rely on) if the fixed grid under-resolves the narrowest line:
+    # fewer than _MIN_PTS_PER_FWHM points across one FWHM makes peak heights and
+    # integrated areas grid-dependent.  The user can raise grid_size to fix it.
+    _MIN_PTS_PER_FWHM = 4
+    dx = (x_hi - x_lo) / max(grid_size - 1, 1)
+    dy = (y_hi - y_lo) / max(grid_size - 1, 1)
+    if (x_broadening > 0 and x_broadening / dx < _MIN_PTS_PER_FWHM) or \
+       (y_broadening > 0 and y_broadening / dy < _MIN_PTS_PER_FWHM):
+        logging.getLogger(__name__).warning(
+            "Contour grid under-resolves the line shape: fewer than %d points "
+            "per FWHM (x: %.1f, y: %.1f).  Peak heights/areas may be "
+            "grid-dependent; increase grid_size.",
+            _MIN_PTS_PER_FWHM,
+            x_broadening / dx if dx > 0 else float('inf'),
+            y_broadening / dy if dy > 0 else float('inf'),
+        )
+
+    x = np.linspace(x_lo, x_hi, grid_size)
+    y = np.linspace(y_lo, y_hi, grid_size)
     X, Y = np.meshgrid(x, y)
+
+    # The coordinate grids are read-only while the line shapes are accumulated.
+    # NumPy's "temporary elision" optimisation rewrites `X - x0` into an in-place
+    # subtraction when it believes X is a throw-away temporary, which it decides
+    # from the reference count.  On Python 3.14 locals are passed as borrowed
+    # references, so a caller-owned array can look like a temporary to NumPy
+    # (< 2.3) and the coordinates get destructively shifted by -x0 on every
+    # iteration — silently moving the whole grid away from the peaks.  A
+    # read-only flag blocks the elision, and turns any future in-place write
+    # into an exception rather than a wrong spectrum.
+    X.flags.writeable = False
+    Y.flags.writeable = False
 
     # Initialize the intensity grid
     Z = np.zeros_like(X)
 
-    # Apply broadening for each peak, adding to the intensity grid
+    # Apply broadening for each peak, adding to the intensity grid.
+    # Each peak is weighted by correlation_strength × multiplicity so that
+    # merged sites (symmetry-equivalent or functional-group averaged) contribute
+    # with the correct degeneracy.
     for peak in peaks:
-        x0, y0, strength = peak.x, peak.y, peak.correlation_strength
+        x0, y0 = peak.x, peak.y
+        weight = peak.correlation_strength * peak.multiplicity
         if broadening == 'lorentzian':
-            Z += strength * lorentzian(X, x0, Y, y0, x_broadening, y_broadening)
+            Z += weight * lorentzian(X, x0, Y, y0, x_broadening, y_broadening)
         elif broadening == 'gaussian':
-            Z += strength * gaussian(X, x0, Y, y0, x_broadening, y_broadening)
+            Z += weight * gaussian(X, x0, Y, y0, x_broadening, y_broadening)
         else:
             raise ValueError(f'Unknown broadening function: {broadening}')
+
+    X.flags.writeable = True
+    Y.flags.writeable = True
 
     return X, Y, Z
 
 
+# ---------------------------------------------------------------------------
+# ContourData – lightweight container for a computed 2D contour grid
+# ---------------------------------------------------------------------------
+
+ContourData = namedtuple(
+    'ContourData',
+    [
+        'X',              # np.ndarray – meshgrid x coordinates, shape (NI, NP)
+        'Y',              # np.ndarray – meshgrid y coordinates, shape (NI, NP)
+        'Z',              # np.ndarray – intensity grid, shape (NI, NP)
+        'x_broadening',   # float – broadening applied in the x (direct) dimension
+        'y_broadening',   # float – broadening applied in the y (indirect) dimension
+        'broadening_type', # str – 'gaussian' or 'lorentzian'
+        'xlims',          # Tuple[float, float] – (x_min, x_max) of the grid
+        'ylims',          # Tuple[float, float] – (y_min, y_max) of the grid
+    ],
+)
+ContourData.__doc__ = (
+    "Immutable container for a computed 2D NMR contour grid.\n\n"
+    "Fields\n------\n"
+    "X, Y : np.ndarray\n    Meshgrid coordinate arrays (shape NI × NP).\n"
+    "Z : np.ndarray\n    Intensity grid (shape NI × NP).\n"
+    "x_broadening, y_broadening : float\n    FWHM linewidth used in each dimension.\n"
+    "broadening_type : str\n    'gaussian' or 'lorentzian'.\n"
+    "xlims, ylims : tuple of float\n    Axis limits of the grid.\n"
+)
 
 
 
@@ -453,16 +606,34 @@ def extract_indices(atoms, xelement, yelement):
     return idx_x, idx_y
 
 
-def validate_elements(atoms, xelement, yelement):
-    all_elements = atoms.get_chemical_symbols()
-    if xelement not in all_elements:
-        raise ValueError(f'{xelement} not found in the file after the user-specified filters have been applied.')
-    if yelement not in all_elements:
-        raise ValueError(f'{yelement} not found in the file after the user-specified filters have been applied.')
+def select_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> AtomSelection:
+    """
+    Build the selection of atoms belonging to the specified elements.
+
+    Callers that need to translate indices between the input and the filtered
+    structure should use this and build a
+    :class:`soprano.sitemap.SiteMap` from the selection, rather than
+    recomputing the selection themselves: the order is not guaranteed sorted.
+
+    Args:
+        atoms (Atoms): Atoms object.
+        element_list (List[str]): List of element symbols to filter.
+
+    Returns:
+        AtomSelection: Selection of the matching atoms.
+    """
+    sel = AtomSelection(atoms, [])
+    for element in element_list:
+        sel += AtomSelection.from_element(atoms, element)
+    return sel
+
 
 def filter_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> Atoms:
     """
     Filter the atoms object based on the specified elements.
+
+    See :func:`select_atoms_by_elements` if you also need to know where the
+    filtered atoms came from.
 
     Args:
         atoms (Atoms): Atoms object.
@@ -471,10 +642,15 @@ def filter_atoms_by_elements(atoms: Atoms, element_list: List[str]) -> Atoms:
     Returns:
         Atoms: Filtered Atoms object.
     """
-    sel = AtomSelection(atoms, [])
-    for element in element_list:
-        sel += AtomSelection.from_element(atoms, element)
-    return sel.subset(atoms)
+    return select_atoms_by_elements(atoms, element_list).subset(atoms)
+
+
+def validate_elements(atoms, xelement, yelement):
+    all_elements = atoms.get_chemical_symbols()
+    if xelement not in all_elements:
+        raise ValueError(f'{xelement} not found in the file after the user-specified filters have been applied.')
+    if yelement not in all_elements:
+        raise ValueError(f'{yelement} not found in the file after the user-specified filters have been applied.')
 
 
 def generate_peaks(
@@ -485,6 +661,7 @@ def generate_peaks(
     yaxis_order: str,
     xelement: str,
     yelement: str,
+    multiplicities: Optional[np.ndarray] = None,
 ) -> List[Peak2D]:
     """
     Generate peaks for the NMR data.
@@ -497,12 +674,34 @@ def generate_peaks(
         yaxis_order (str): Order of the y-axis.
         xelement (str): Element symbol for the x-axis.
         yelement (str): Element symbol for the y-axis.
+        multiplicities (np.ndarray, optional): Per-atom multiplicity array.  When
+            provided, each peak's ``multiplicity`` field is set to
+            ``multiplicities[idx_x] * multiplicities[idx_y]`` so that merged
+            sites (symmetry-equivalent or functional-group averaged) contribute
+            with the correct degeneracy weight in the heatmap.
 
     Returns:
         List[Peak2D]: List of generated peaks.
     """
     peaks = []
     is_single_marker = isinstance(markersizes, float)
+
+    # A double-quantum (2Q) indirect coordinate is the *sum of two offset
+    # frequencies*.  For a homonuclear experiment both sites share one Larmor
+    # frequency, so summing their ppm shifts is well-defined and the axis is a
+    # true DQ ppm scale.  For a heteronuclear experiment the two ppm values are
+    # referenced to *different* Larmor frequencies, so their ppm sum is not a
+    # physically meaningful single-axis frequency.  Warn rather than silently
+    # producing a misleading axis.
+    if yaxis_order == '2Q' and xelement != yelement:
+        logging.getLogger(__name__).warning(
+            "Heteronuclear 2Q (DQ) axis: summing chemical shifts of different "
+            "nuclei (%s + %s) references two different Larmor frequencies, so "
+            "the resulting ppm y-axis is not physically well-defined.  Interpret "
+            "the indirect dimension with care or convert to Hz explicitly.",
+            xelement, yelement,
+        )
+
     for ipair, (idx_x, idx_y) in enumerate(pairs):
 
         x = data[idx_x]
@@ -511,13 +710,24 @@ def generate_peaks(
         xlabel = labels[idx_x]
         ylabel = labels[idx_y]
 
+        if multiplicities is not None:
+            mult = int(multiplicities[idx_x]) * int(multiplicities[idx_y])
+        else:
+            mult = 1
+
         if yaxis_order == '2Q':
             y += x
             if xelement == yelement:
-                # then we might have both e.g. H1 + H2 and H2 + H1
-                # let's set them both to be H1 + H2 by sorting the labels
-                xlabel, ylabel = sorted([xlabel, ylabel])
-            ylabel = f'{xlabel} + {ylabel}'
+                # Both orderings of a pair (i,j) and (j,i) exist in the peak
+                # list, giving roofing peaks at x=δ_i and x=δ_j respectively.
+                # The DQ ylabel must be identical for both so that merge_peaks
+                # can recognise them as describing the same DQ correlation.
+                # Sort the two labels alphabetically to get a canonical ylabel,
+                # but keep xlabel = labels[idx_x] so it always matches x = data[idx_x].
+                dq_a, dq_b = sorted([xlabel, ylabel])
+                ylabel = f'{dq_a} + {dq_b}'
+            else:
+                ylabel = f'{xlabel} + {ylabel}'
         peak = Peak2D(
             x=x,
             y=y,
@@ -525,7 +735,8 @@ def generate_peaks(
             xlabel=xlabel,
             ylabel=ylabel,
             idx_x=idx_x,
-            idx_y=idx_y)
+            idx_y=idx_y,
+            multiplicity=mult)
         peaks.append(peak)
     return peaks
 
@@ -534,41 +745,88 @@ def merge_peaks(
     xtol: float = 1e-5,
     ytol: float = 1e-5,
     corr_tol: float = 1e-5,
-    ignore_correlation_strength: bool = False
+    ignore_correlation_strength: bool = False,
+    corr_rel_tol: Optional[float] = None,
 ) -> List[Peak2D]:
     """
     Merge peaks that are identical.
+
+    The merged peak's ``correlation_strength`` is the **weighted mean** of the
+    constituent peaks' strengths (weighted by their multiplicities), so that the
+    invariant ``total_weight = correlation_strength × multiplicity = Σ sᵢ mᵢ``
+    is preserved.  The ``multiplicity`` field of the merged peak is the sum of
+    the constituents' multiplicities.
 
     Args:
         peaks (Iterable[Peak2D]): List of peaks to merge.
         xtol (float): Tolerance for x-axis comparison.
         ytol (float): Tolerance for y-axis comparison.
-        corr_tol (float): Tolerance for correlation strength comparison.
-        ignore_correlation_strength (bool): Whether to ignore correlation strength in comparison.
+        corr_tol (float): Absolute tolerance for correlation strength comparison.
+            Only used when *corr_rel_tol* is ``None``.
+        ignore_correlation_strength (bool): Whether to ignore correlation strength
+            entirely when comparing peaks.
+        corr_rel_tol (float, optional): Relative tolerance for coupling-strength
+            comparison, expressed as a fraction on a log scale.  When set, two
+            peaks with strengths *a* and *b* (both > 0) are considered equivalent
+            when ``|log(a) - log(b)| < corr_rel_tol``, which corresponds roughly
+            to requiring the strengths to agree within ``corr_rel_tol × 100 %``.
+            For example ``corr_rel_tol=0.01`` tolerates ~1 % differences, which
+            handles tiny numerical discrepancies caused by limited coordinate
+            precision in input files while still keeping genuinely different
+            couplings separate.  When ``None`` (default) the absolute *corr_tol*
+            is used instead.
 
     Returns:
         List[Peak2D]: List of unique merged peaks.
     """
-    # first, get the unique peaks
-    unique_peaks = []
+    def _coupling_key(s: float) -> object:
+        """Return a hashable key for coupling strength *s*."""
+        if ignore_correlation_strength:
+            return 0
+        if corr_rel_tol is not None and corr_rel_tol > 0:
+            # Relative log-scale tolerance: |log(|s|) - log(|t|)| < corr_rel_tol
+            # maps each value to an integer bin on the natural-log axis.
+            if s == 0.0:
+                return (0, 0)
+            sign = 1 if s > 0 else -1
+            return (sign, int(np.log(abs(s)) / corr_rel_tol))
+        else:
+            return int(s / corr_tol)
+
+    # peak_map preserves insertion order (Python 3.7+); when a duplicate key is
+    # found, multiplicities are summed and the correlation_strength is updated
+    # to the running weighted mean so that the invariant
+    #   total_weight = merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ)
+    # is preserved exactly.
     unique_xlabels: Dict[str, Set[str]] = {}
     unique_ylabels: Dict[str, Set[str]] = {}
-
-    peak_map: Dict[Tuple[float, float, float], Peak2D] = {}
+    peak_map: Dict[Tuple[float, float, object], Peak2D] = {}
+    # Track the running sum of (strength × multiplicity) for each key so we
+    # can compute the proper weighted-mean strength when finalising.
+    _weight_sum: Dict[Tuple, float] = {}
 
     for peak in peaks:
         key = (
             int(peak.x / xtol),
             int(peak.y / ytol),
-            int(peak.correlation_strength / corr_tol) if not ignore_correlation_strength else 0
+            _coupling_key(peak.correlation_strength),
         )
+        w = peak.correlation_strength * peak.multiplicity
         if key in peak_map:
-            unique_peak = peak_map[key]
-            unique_xlabels[unique_peak.xlabel].add(peak.xlabel)
-            unique_ylabels[unique_peak.ylabel].add(peak.ylabel)
+            existing = peak_map[key]
+            new_mult = existing.multiplicity + peak.multiplicity
+            _weight_sum[key] += w
+            # Update strength to weighted mean so far; keep other fields from
+            # the first-seen peak (position, color, idx_x/idx_y, …).
+            new_strength = _weight_sum[key] / new_mult if new_mult != 0 else existing.correlation_strength
+            peak_map[key] = dc_replace(existing,
+                                       multiplicity=new_mult,
+                                       correlation_strength=new_strength)
+            unique_xlabels[existing.xlabel].add(peak.xlabel)
+            unique_ylabels[existing.ylabel].add(peak.ylabel)
         else:
-            unique_peaks.append(peak)
             peak_map[key] = peak
+            _weight_sum[key] = w
             unique_xlabels[peak.xlabel] = {peak.xlabel}
             unique_ylabels[peak.ylabel] = {peak.ylabel}
 
@@ -576,18 +834,23 @@ def merge_peaks(
         int_list = re.findall(r'\d+', x)
         return int(int_list[0]) if int_list else x
 
-    for unique_peak in unique_peaks:
+    result = []
+    for unique_peak in peak_map.values():
         xlabel_list = sorted(unique_xlabels[unique_peak.xlabel], key=sort_func)
         ylabel_list = sorted(unique_ylabels[unique_peak.ylabel], key=sort_func)
-        unique_peak.xlabel = '/'.join(xlabel_list)
-        unique_peak.ylabel = '/'.join(ylabel_list)
-
-    return unique_peaks
+        result.append(dc_replace(unique_peak,
+                                 xlabel='/'.join(xlabel_list),
+                                 ylabel='/'.join(ylabel_list)))
+    return result
 
 def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) -> List[Peak2D]:
     '''
-    Sort the peaks in the order of increasing x and y values
-    TODO: This doesn't work in some cases. Investigate why.
+    Sort the peaks in the order of increasing x and y values.
+
+    Note: peaks are ordered purely by their numeric (x, y) ppm coordinates.
+    This is independent of the label text, so peaks whose labels sort
+    differently from their coordinates (e.g. custom or non-numeric labels)
+    will follow coordinate order, not label order.
     '''
     if priority == 'x':
         peaks = sorted(peaks, key=lambda x: (x.x, x.y), reverse=reverse)
@@ -598,16 +861,118 @@ def sort_peaks(peaks: List[Peak2D], priority: str = 'x', reverse: bool=False) ->
     return peaks
 
 
+def _build_equiv_groups(atoms: Atoms) -> Dict:
+    """Return a mapping from equivalence key → list of atom indices.
+
+    Delegates entirely to :class:`soprano.properties.labeling.UniqueSites`,
+    which handles both CIF-label-based and symmetry-based reduction internally.
+    If that fails (e.g. spglib not installed, or a non-periodic structure),
+    each atom is placed in its own group.
+
+    Parameters
+    ----------
+    atoms : Atoms
+
+    Returns
+    -------
+    dict
+        Keys are integer symmetry tags; values are lists of atom indices that
+        share that key.
+    """
+    try:
+        from soprano.properties.labeling import UniqueSites  # noqa: PLC0415
+        tags = UniqueSites.get(atoms, save_info=False)
+    except Exception:  # spglib not installed or non-periodic structure
+        tags = np.arange(len(atoms))
+
+    groups: Dict = {}
+    for idx, tag in enumerate(tags):
+        groups.setdefault(int(tag), []).append(idx)
+    return groups
+
+
+def _nearest_equiv_site(atoms: Atoms, idx: int, equiv_groups: Dict) -> Tuple[int, float]:
+    """Return ``(partner_idx, distance_Ang)`` for the nearest equivalent site.
+
+    Candidate sites are all atoms that share an equivalence key with *idx*
+    (same CIF label or same symmetry tag).  For each candidate *j*:
+
+    * ``j == idx``: nearest periodic-image distance computed via
+      :func:`minimum_periodic` with ``exclude_self=True``.
+    * ``j != idx``: minimum-image-convention distance via
+      :meth:`ase.Atoms.get_distance`.
+
+    The candidate with the smallest non-zero distance is returned.
+
+    Parameters
+    ----------
+    atoms : Atoms
+    idx : int
+        Index of the query atom.
+    equiv_groups : dict
+        Output of :func:`_build_equiv_groups`.
+
+    Returns
+    -------
+    partner_idx : int
+        Index of the nearest equivalent atom (may equal *idx* when the nearest
+        equivalent is reached only via a periodic image).
+    distance : float
+        Distance in Å.
+    """
+    # Locate the equivalence group that contains idx
+    equiv_indices = None
+    for members in equiv_groups.values():
+        if idx in members:
+            equiv_indices = members
+            break
+    if equiv_indices is None:
+        equiv_indices = [idx]
+
+    cell = atoms.get_cell()
+    best_j: int = idx
+    best_dist: float = np.inf
+
+    for j in equiv_indices:
+        if j == idx:
+            # Nearest periodic image of the same atom.
+            # Displacement is zero; minimum_periodic handles this edge case
+            # when exclude_self=True (returns the nearest lattice-translated copy).
+            r = np.zeros((1, 3))
+            r_mic, _ = minimum_periodic(r, cell, exclude_self=True)
+            dist = float(np.linalg.norm(r_mic))
+        else:
+            dist = float(atoms.get_distance(idx, j, mic=True))
+
+        if dist < best_dist:
+            best_dist = dist
+            best_j = j
+
+    return best_j, best_dist
+
+
 def get_pair_dipolar_couplings(
         atoms: Atoms,
         pairs: Iterable[Tuple[int, int]],
         isotopes: Optional[dict[str, int]] = None,
-        unit: str = 'kHz'
+        unit: str = 'kHz',
+        use_equiv_sites: bool = True,
     ) -> List[float]:
     """
     Get the dipolar couplings for a list of pairs of atoms.
-    For pairs where i == j, the dipolar coupling is set to zero.
-    
+
+    For self-pairs (i == j) the coupling to the **nearest equivalent site** is
+    returned by default (``use_equiv_sites=True``).  Equivalent sites are
+    identified via :class:`soprano.properties.labeling.UniqueSites` (which
+    handles both CIF-label and symmetry-based reduction).  The nearest
+    candidate may be a different atom *j ≠ i* (same label/tag) reached
+    directly via the MIC, or the same atom *i* reached via a periodic image —
+    whichever is closer.  This gives a physically meaningful correlation
+    strength for diagonal peaks in homonuclear spectra.
+
+    When ``use_equiv_sites=False``, self-pairs always use the nearest periodic
+    image of atom *i* itself (``self_coupling=True``).
+
     Parameters
     ----------
     atoms : ASE Atoms object
@@ -615,7 +980,11 @@ def get_pair_dipolar_couplings(
     pairs : list of tuples
         List of pairs of atom indices.
     isotopes : dict, optional
-    
+    use_equiv_sites : bool, optional
+        If True (default), self-pairs find the nearest symmetry-equivalent site
+        (which may be a different atom reached via the MIC).  If False, self-pairs
+        always use the nearest periodic image of the same atom.
+
     Returns
     -------
     dipolar_couplings : list of float
@@ -636,18 +1005,28 @@ def get_pair_dipolar_couplings(
 
     conversion_factor = conversion_factors[unit]
 
+    # Equiv groups are built lazily — only if at least one self-pair is present
+    # and use_equiv_sites is enabled.
+    equiv_groups: Optional[Dict] = None
+
     dipolar_couplings = []
-    # This is an explicit loop because we need to get the J coupling for each pair
-    # - these might not be the same as the set of pairs that we would get by combining indices
-    #   {i} and {j} from the pairs list
     for i, j in pairs:
         if i == j:
-            # set the dipolar coupling to zero for pairs where i == j
-            dipolar_couplings.append(0)
+            if use_equiv_sites:
+                if equiv_groups is None:
+                    equiv_groups = _build_equiv_groups(atoms)
+                best_j, _ = _nearest_equiv_site(atoms, i, equiv_groups)
+            else:
+                best_j = i
+            coupling = list(DipolarCoupling.get(
+                atoms, sel_i=[i], sel_j=[best_j],
+                self_coupling=(best_j == i), isotopes=isotopes
+            ).values())[0][0]
         else:
-            coupling = list(DipolarCoupling.get(atoms, sel_i=[i], sel_j=[j], isotopes=isotopes).values())[0][0]
-            dipolar_couplings.append(coupling * conversion_factor)
-
+            coupling = list(DipolarCoupling.get(
+                atoms, sel_i=[i], sel_j=[j], isotopes=isotopes
+            ).values())[0][0]
+        dipolar_couplings.append(coupling * conversion_factor)
 
     return dipolar_couplings
 
@@ -656,11 +1035,22 @@ def get_pair_j_couplings(
         pairs: Iterable[Tuple[int, int]],
         isotopes: Optional[dict[str, int]] = None,
         unit: str = 'Hz',
-        tag: str = 'isc'
+        tag: str = 'isc',
+        use_equiv_sites: bool = True,
     ) -> List[float]:
     """
     Get the J couplings for a list of pairs of atoms.
-    For pairs where i == j, the J coupling is set to zero.
+
+    For self-pairs (i == j) the coupling to the **nearest equivalent site** is
+    returned by default (``use_equiv_sites=True``).  Equivalent sites are
+    identified via :class:`soprano.properties.labeling.UniqueSites` (which
+    handles both CIF-label and symmetry-based reduction).  The nearest
+    candidate may be a different atom *j ≠ i* (same label/tag) reached
+    directly via the MIC, or the same atom *i* reached via a periodic image —
+    whichever is closer.
+
+    When ``use_equiv_sites=False``, self-pairs always return 0 (no
+    intramolecular/self J coupling).
 
     Parameters
     ----------
@@ -675,6 +1065,10 @@ def get_pair_j_couplings(
     tag : str, optional
         Name of the J coupling component to return. Default is 'isc'. Magres files
         usually contain isc, isc_spin, isc_fc, isc_orbital_p and isc_orbital_d.
+    use_equiv_sites : bool, optional
+        If True (default), self-pairs find the nearest symmetry-equivalent site
+        (which may be a different atom reached via the MIC).  If False, self-pairs
+        return 0.
 
     Returns
     -------
@@ -696,14 +1090,28 @@ def get_pair_j_couplings(
 
     conversion_factor = conversion_factors[unit]
 
+    # Equiv groups are built lazily — only if at least one self-pair is present
+    # and use_equiv_sites is enabled.
+    equiv_groups: Optional[Dict] = None
+
     j_couplings = []
     # This is an explicit loop because we need to get the J coupling for each pair
     # - these might not be the same as the set of pairs that we would get by combining indices
     #   {i} and {j} from the pairs list
     for i, j in pairs:
         if i == j:
-            # set the J coupling to zero for pairs where i == j
-            j_couplings.append(0)
+            if use_equiv_sites:
+                if equiv_groups is None:
+                    equiv_groups = _build_equiv_groups(atoms)
+                best_j, _ = _nearest_equiv_site(atoms, i, equiv_groups)
+                coupling = list(JCIsotropy.get(
+                    atoms, sel_i=[i], sel_j=[best_j],
+                    tag=tag, self_coupling=(best_j == i), isotopes=isotopes
+                ).values())[0]
+                j_couplings.append(coupling * conversion_factor)
+            else:
+                # set the J coupling to zero for pairs where i == j
+                j_couplings.append(0)
         else:
             coupling = list(JCIsotropy.get(atoms, sel_i=[i], sel_j=[j], tag=tag, isotopes=isotopes).values())[0]
             j_couplings.append(coupling * conversion_factor)
@@ -747,21 +1155,46 @@ def process_pairs(
     idx_y = np.array(pairs)[:, 1]
     return pairs, pairs_el_idx, idx_x, idx_y
 
-def calculate_distances(pairs: List[Tuple[int, int]], atoms: Atoms) -> np.ndarray:
+def calculate_distances(
+    pairs: List[Tuple[int, int]],
+    atoms: Atoms,
+    use_equiv_sites: bool = True,
+) -> np.ndarray:
     """
     Calculate the distances between pairs of atoms.
+
+    For self-pairs (i == j) the distance to the **nearest equivalent site** is
+    returned by default (``use_equiv_sites=True``), consistent with
+    :func:`get_pair_dipolar_couplings`.  See those docs for the equivalence
+    definition.
+
+    When ``use_equiv_sites=False``, self-pair distances are computed as the
+    nearest periodic-image distance of the atom with itself.
 
     Args:
         pairs (List[Tuple[int, int]]): List of tuples representing pairs of atom indices.
         atoms (Atoms): Atoms object that provides the get_distance method.
+        use_equiv_sites (bool): If True (default), self-pairs use the nearest
+            symmetry-equivalent site distance.  If False, use the nearest
+            periodic image of the same atom.
 
     Returns:
         np.ndarray: Array of distances corresponding to the pairs.
     """
+    equiv_groups: Optional[Dict] = None
+
     pair_distances = np.zeros(len(pairs))
     for i, pair in enumerate(pairs):
         if pair[0] == pair[1]:
-            pair_distances[i] = 0.0
+            if use_equiv_sites:
+                if equiv_groups is None:
+                    equiv_groups = _build_equiv_groups(atoms)
+                _, dist = _nearest_equiv_site(atoms, pair[0], equiv_groups)
+            else:
+                r = np.zeros((1, 3))
+                r_mic, _ = minimum_periodic(r, atoms.get_cell(), exclude_self=True)
+                dist = float(np.linalg.norm(r_mic))
+            pair_distances[i] = dist
         else:
             pair_distances[i] = atoms.get_distance(*pair, mic=True)
     return pair_distances
