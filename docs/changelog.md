@@ -4,6 +4,76 @@ All notable changes to Soprano are documented here.
 
 ---
 
+## Unreleased
+
+### Fixes
+
+#### Tensor orientations in the SIMPSON and mrsimulator exports
+
+Several bugs made the exported Euler angles wrong whenever more than one oriented
+interaction was present (single-interaction powder spectra do not depend on orientation, so
+these went unnoticed). Re-export any spin systems you generated with earlier versions.
+
+- **mrsimulator angles.** `Site.to_mrsimulator()`, `ISCoupling.to_mrsimulator()` and
+  `DipolarCoupling.to_mrsimulator()` now write the angles in the convention of mrsimulator's
+  own code (`E = Rz(gamma) Ry(beta) Rz(alpha)`, as in `mrsimulator.utils.cartesian_tensor`), via
+  the new `NMRTensor.mrsimulator_euler_angles()`. Previously they wrote active ZYZ angles, which
+  interchange `alpha` and `gamma` relative to what mrsimulator expects and so describe a different
+  relative orientation. These are *not* the numbers `to_simpson()` writes: SIMPSON uses passive
+  angles in degrees.
+- **Axial tensors (SIMPSON and mrsimulator).** For axial tensors (every dipolar coupling, and
+  any CSA, EFG or J tensor with `eta = 0`) the passive angles had the wrong angle zeroed, so
+  the unique axis kept its polar angle but lost its azimuth. A dipole at azimuth 40° was
+  written as pointing at 180°. Spectra with an axial tensor tilted out of the
+  xz-plane relative to another tensor were wrong in both programs.
+- **mrsimulator `zeta` and referencing.** `zeta` now follows the same referencing as the
+  isotropic shift and `to_simpson()` (`-shift_reduced_anisotropy`). With a custom `gradient`
+  it was previously unscaled; with the default full formula it changes by a factor
+  `1 / (1 - reference * 1e-6)` (about 3e-5 for ¹H, 1e-4 for ¹³C).
+- **mrsimulator and tensor order.** `Site.to_mrsimulator()` now uses Haeberlen ordering for the
+  shielding angles, as `to_simpson()` does, so they refer to the same axes as `zeta` and
+  `eta` for tensors built with another `order`.
+- `ElectricFieldGradient.__str__` and a comment gave the quadrupole moment units as barns; it is millibarn.
+
+#### Relative Euler angles (`euler_to`) and axial tensors
+
+- `NMRTensor.euler_to` and `equivalent_euler_to` returned the rotation from the second tensor
+  to the first for triaxial and for mixed axial/triaxial pairs, i.e. both active and passive
+  angles described the inverse rotation. They now return the rotation carrying the first
+  tensor's PAS onto the second's (`E_other = E_self R(alpha, beta, gamma)`), the orientation of
+  the second tensor in the PAS of the first (Eq. 31 of the TensorView paper). TensorView's own
+  `RelativeAngles(Tensor1, Tensor2)` gives Tensor 1 in the PAS of Tensor 2, so `A.euler_to(B)`
+  matches TensorView with Tensor 1 = `B`, Tensor 2 = `A` (the previous output matched it with the
+  arguments in the other order). Anything computed from relative angles with an earlier version
+  (for example, to set up mrsimulator couplings) should be recomputed.
+- Two axial tensors: the angle between the unique axes was wrong when either tensor has its
+  unique axis along x (as for increasing order), and two tensors whose axes were not aligned could
+  be reported as "perfectly aligned" for particular geometries.
+- A tensor with its unique axis along x (e.g. eigenvalues `[1, 2, 2]` in increasing order) is now
+  given TensorView's gauge, active `alpha = 0`, followed by the usual range normalisation (so
+  `alpha` is 0 or pi), exactly as TensorView reports it; before, the code for this was never reached.
+- When exactly one of the two tensors in `euler_to` is axial, its free angle is now fixed as for a
+  single tensor (written in the PAS of the other), which also covers a unique axis along x.
+- All angles, including the relative ones of two axial tensors (Table 1 of the paper), are now
+  reported in TensorView's range: beta in [0, pi/2), then gamma (active) or alpha (passive) in
+  [0, pi). Table 1's `(0, 90°, g)` is therefore returned as `(180°, 90°, 180° - g)`, and the passive
+  ZYZ angles of two axial tensors as `(0, beta, 180°)`. These are equivalent angle sets; only the
+  numbers change.
+- The meaning of the angles is now defined in the `euler_angles` and `euler_to` docstrings and in
+  `docs/simpson-conventions.md` in TensorView's terms. `tests/nmr_euler_convention_tests.py` checks
+  the conventions against matrices and angle sets written out from the paper, and against output
+  of TensorView itself (`tests/test_data/tensorview_reference.json`, made by running TensorView in
+  Octave with `tests/reference_generators/tensorview.py`).
+
+The exact angle convention is now documented in {doc}`simpson-conventions`, with a test
+suite (`tests/nmr_export_orientation_tests.py`) that rebuilds each tensor from the written
+angles, and checks the formulas it uses against stored SIMPSON and mrsimulator spectra of the
+written spin systems. Note that mrsimulator's default octant powder integration is wrong for
+spin systems with tensors in general relative orientations; use
+`sim.config.integration_volume = "hemisphere"`.
+
+---
+
 ## v0.11.1 (2026-02-25)
 
 ### Changes
