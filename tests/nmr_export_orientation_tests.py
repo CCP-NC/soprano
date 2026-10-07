@@ -336,7 +336,7 @@ class TestWriterOrientation(unittest.TestCase):
         # sigma_iso = 80, reduced shielding anisotropy = +60
         for gradient, expected in [(-1.0, 60.0), (-0.9, 54.0)]:
             ms = MagneticShielding(np.diag([40.0, 60.0, 140.0]), species="13C",
-                                   reference=0.0, gradient=gradient)
+                                   reference=170.0, gradient=gradient)
             zeta = Site(isotope="13C", label="C", index=0, ms=ms).to_mrsimulator()["shielding_symmetric"]["zeta"]
             self.assertAlmostEqual(zeta, expected, places=6)
 

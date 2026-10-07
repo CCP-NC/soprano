@@ -25,8 +25,10 @@ from soprano.properties.nmr.dipolar import (
     DipolarDiagonal,
     DipolarEuler,
     DipolarRSS,
+    DipolarRSSByAtom,
     DipolarTensor,
-    DipolarCouplingList
+    DipolarCouplingList,
+    averaged_dipolar_coupling,
 )
 from soprano.properties.nmr.efg import (
     EFGNQR,
