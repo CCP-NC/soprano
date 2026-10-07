@@ -604,7 +604,7 @@ def build_nmr_df(
         all_selections (AtomSelection): the AtomSelection object containing all selections.
         isotopes (dict): dictionary of isotopes to use for each element. e.g. {'H': 2, 'C': 13}
         references (dict): dictionary of shielding references for each element. e.g. {'H': 20.0, 'C': 100.0}
-        gradients (dict): dictionary of gradients for each element. e.g. {'H': -1.0, 'C': -0.95} defaults to {} == -1 for all elements.
+        gradients (dict): dictionary of gradients for each element. e.g. {'H': -1.0, 'C': -0.95}. When omitted or None, the full NMR formula is used.
         average_group (str): string of comma-separated patterns to average over. e.g. 'CH3,CH2'
         properties (list): list of properties to extract. e.g. ['efg', 'ms']
         euler_convention (str): the euler convention to use for the EFG tensor. Options are 'zyz' or 'zxz'
