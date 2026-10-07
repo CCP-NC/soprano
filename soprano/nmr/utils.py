@@ -298,24 +298,106 @@ def _test_euler_rotation(
 
 
 
+def _degeneracy_pattern(eigenvalues, eps: float = 1e-6):
+    """Classify the eigenvalue pattern of a tensor in its stored (sorted) order.
+
+    Returns ``(degeneracy, unique_axis)``: ``degeneracy`` is 1 (triaxial), 2 (axial) or
+    3 (spherical); ``unique_axis`` is the index (0, 1, 2 for x, y, z) of the eigenvalue
+    that differs from the other two when ``degeneracy == 2``, else ``None``.
+    Every pair is compared, so ``[a, b, b]`` is recognised (a unique axis along x), which
+    comparing everything to ``eigenvalues[0]`` would miss.
+    """
+    e = np.asarray(eigenvalues, dtype=float)
+    close = {
+        2: abs(e[0] - e[1]) < eps,  # x ~ y: unique axis along z
+        0: abs(e[1] - e[2]) < eps,  # y ~ z: unique axis along x
+        1: abs(e[0] - e[2]) < eps,  # x ~ z: unique axis along y
+    }
+    n_close = sum(close.values())
+    if n_close == 0:
+        return 1, None
+    if n_close == 1:
+        return 2, next(axis for axis, is_close in close.items() if is_close)
+    return 3, None
+
+
+def _alpha_zero_gauge(E: np.ndarray, convention: str = "zyz") -> np.ndarray:
+    """Pick the PAS frame of a tensor with a unique x axis that makes the active alpha zero.
+
+    A tensor with eigenvalues ``[a, b, b]`` is symmetric under any rotation about its PAS x
+    axis, so ``E -> E Rx(phi)`` describes the same tensor. TensorView fixes this freedom by
+    asking for ``alpha = 0`` in the active ZYZ/ZXZ angles (Eq. 70 of Svenningsson & Mueller,
+    Solid State Nucl. Magn. Reson. 123 (2023) 101849). Here the same ``phi`` is found directly
+    from the matrix: ``alpha`` is the azimuth of the third column of ``E``, so ``phi`` rotates
+    that column into the xz plane (ZYZ) or the yz plane (ZXZ), on the side with the sign that
+    gives ``alpha = 0`` rather than ``pi``. There are no divisions by ``sin(gamma) cos(gamma)``
+    or square roots, so there are no singular orientations.
+    """
+    E = np.array(E, dtype=float)
+    v1, v2 = E[:, 1], E[:, 2]  # third column of E Rx(phi) is cos(phi) v2 - sin(phi) v1
+    # (u, w): component that must vanish (ZYZ: y, ZXZ: x) and the one whose sign is fixed
+    u, w = (1, 0) if convention.lower() == "zyz" else (0, 1)
+    if np.hypot(v1[u], v2[u]) > 1e-12:
+        phi = np.arctan2(v2[u], v1[u])
+    else:  # the component vanishes for every phi: just orient the other one
+        phi = np.arctan2(-v1[w], v2[w])
+    col = np.cos(phi) * v2 - np.sin(phi) * v1
+    # ZYZ: alpha = atan2(R12, R02) = 0 needs R02 >= 0; ZXZ: alpha = atan2(R02, -R12) = 0 needs R12 <= 0
+    wrong_side = col[w] < -1e-12 if convention.lower() == "zyz" else col[w] > 1e-12
+    if wrong_side:
+        phi += np.pi
+    c, s = np.cos(phi), np.sin(phi)
+    return E @ np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
+
+
+def _alpha_zero_euler_angles(R: np.ndarray, convention: str = "zyz", eps: float = 1e-9) -> np.ndarray:
+    """Active ZYZ/ZXZ angles of ``R`` with ``alpha == 0`` (``R`` from :func:`_alpha_zero_gauge`).
+
+    No range normalisation is applied here: beta is in [0, pi] and gamma in [0, 2 pi).
+    ``NMRTensor.euler_angles`` normalises afterwards, as TensorView does, which turns
+    ``alpha = 0`` into ``pi`` when beta >= pi/2. At gimbal lock (beta = 0 or pi) only a combination of
+    alpha and gamma is defined, and it is all put into gamma.
+    """
+    zyz = convention.lower() == "zyz"
+    sin_beta = np.hypot(R[0, 2], R[1, 2]) if zyz else np.hypot(R[2, 0], R[2, 1])
+    beta = np.arctan2(sin_beta, R[2, 2])
+    if sin_beta < eps:
+        if R[2, 2] > 0:
+            gamma = np.arctan2(R[1, 0], R[0, 0])
+        else:
+            gamma = np.arctan2(R[1, 0], -R[0, 0]) if zyz else np.arctan2(-R[1, 0], R[0, 0])
+    else:
+        gamma = np.arctan2(R[2, 1], -R[2, 0]) if zyz else np.arctan2(R[2, 0], R[2, 1])
+    return np.array([0.0, beta, gamma % (2 * np.pi)])
+
+
 def _handle_euler_edge_cases(
         euler_angles: np.ndarray,
         eigenvalues: np.ndarray,
         original_tensor: np.ndarray,
         convention: str = "zyz",
         passive: bool = False,
-        eps: float=1e-6):
+        eps: float=1e-6,
+        angles_are_passive: bool = False):
     """Handle edge cases in the Euler angle conventions for degenerate tensors.
+
+    Handled here: spherical tensors (all angles zero) and tensors with the unique axis
+    along z (the free angle is set to zero). Tensors with the unique axis along x need the
+    PAS frame to be chosen *before* the angles are extracted
+    (:func:`_alpha_zero_gauge`, done by ``NMRTensor.euler_angles``); if they arrive here
+    their angles are just normalised.
 
     Args:
         euler_angles (np.ndarray): Euler angles in radians
         eigenvalues (np.ndarray): Eigenvalues of the tensor
-        original_tensor (np.ndarray): Original symmetric tensor
+        original_tensor (np.ndarray): Original symmetric tensor (unused, kept for the signature)
         convention (str, optional): Euler angle convention. Defaults to "zyz".
+        passive (bool, optional): Whether the angles are passive. Defaults to False.
         eps (float, optional): Tolerance for degeneracy. Defaults to 1e-6.
+        angles_are_passive (bool, optional): Whether ``euler_angles`` are passive angles on
+            entry. Only affects which angle is the free one for a tensor with its unique axis
+            along z: gamma if the angles are active, alpha if they are passive. Defaults to False.
     """
-    A = original_tensor.copy() # alias for convenience
-
     # only handle zyz or zxz for now
     if convention.lower() not in ["zyz", "zxz"]:
         warnings.warn(
@@ -324,93 +406,23 @@ def _handle_euler_edge_cases(
         )
         return euler_angles
 
-    # Check for degeneracy
-    degeneracy = np.sum(np.abs(eigenvalues - eigenvalues[0]) < eps)
-    e1, e2, e3 = eigenvalues
+    degeneracy, unique_axis = _degeneracy_pattern(eigenvalues, eps)
     if degeneracy == 1:
         # No degeneracy, just check that we're in the right range
-        euler_angles = _normalise_euler_angles(euler_angles, passive=passive)
+        return _normalise_euler_angles(euler_angles, passive=passive)
+    if degeneracy == 3:
+        # All eigenvalues are the same: we can set all angles to zero
+        return np.zeros(3)
+    if unique_axis == 2:
+        # Unique axis along z: the last rotation (active) or first (passive) is about the
+        # unique axis and is free, so set it to zero.
+        euler_angles[0 if angles_are_passive else 2] = 0
         return euler_angles
-
-    # this is the tricky one - doubly degenerate
-    elif degeneracy == 2:
-        if np.abs(e1 - e2) < eps:
-            # We have the unique axis along z
-            # we are free to set gamma to zero
-            euler_angles[2] = 0
-
-        elif np.abs(e2 - e3) < eps:
-            # We have the unique axis along x
-            # we are free to set alpha to zero
-            euler_angles[0] = 0
-
-            # But now we have to be careful
-            if convention.lower() == "zyz":
-                gamma = np.arcsin(np.sqrt((A[1,1] - e2) / (e1 - e2) )) # +/- this
-                gamma = abs(gamma) # we can choose the sign to be positive
-                if abs(gamma - np.pi/2) < eps:
-                    # We're free to choose beta to be zero
-                    beta = 0.0
-                elif (np.abs([A[1,2], A[0,1]]) < eps).all():
-                    beta = np.arcsin(np.sqrt( (A[2,2] - e3) / (e1 - e3 + (e2 - e1)*np.sin(gamma)**2) ))
-                    beta = abs(beta) # we can choose the sign to be positive
-                else:
-                    beta = np.arctan2(
-                        -1*A[1,2] / (np.sin(gamma) * np.cos(gamma)*(e1 - e2)),
-                           A[0,1] / (np.sin(gamma) * np.cos(gamma)*(e1 - e2))
-                        )
-                # Done with zyz
-                euler_angles[1] = beta
-                euler_angles[2] = gamma
-
-                if passive:
-                    a,b,c = euler_angles
-                    euler_angles = _normalise_euler_angles(
-                                        np.array([-c,-b,-a]),
-                                        passive=passive)
-                return euler_angles
-
-            if convention.lower() == "zxz":
-                gamma = np.arcsin(np.sqrt((A[0,0] - e1) / (e2 - e1) )) # +/- this
-                gamma = abs(gamma) # we can choose the sign to be positive
-                if abs(gamma) < eps or abs(gamma - np.pi) < eps:
-                    # We're free to choose beta to be zero
-                    beta = 0.0
-                elif (np.abs([A[2,0], A[1,0]]) < eps).all():
-                    beta = np.arcsin(
-                                np.sqrt(
-                                    (A[1,1] - e2 + (e2 - e1)*np.sin(gamma)**2) /
-                                    (e3 - e2 + (e2 - e1)*np.sin(gamma)**2)
-                                )
-                            )
-                    beta = abs(beta) # we can choose the sign to be positive
-                else:
-                    beta = np.arctan2(
-                        A[2,0] / (np.sin(gamma) * np.cos(gamma)*(e1 - e2)),
-                        A[1,0] / (np.sin(gamma) * np.cos(gamma)*(e1 - e2))
-                        )
-                # Done with zxz
-                euler_angles[1] = beta
-                euler_angles[2] = gamma
-
-                if passive:
-                    a,b,c = euler_angles
-                    euler_angles = _normalise_euler_angles(
-                                        np.array([-c,-b,-a]),
-                                        passive=passive)
-                return euler_angles
-        else:
-            # We shouldn't have the unique axis along y for
-            # reasonably sorted eigenvalues
-            raise ValueError("Unexpected degeneracy when computing Euler angles.\n"
-                             "Eigenvalues are ordered: ", eigenvalues)
-    elif degeneracy == 3:
-        # All eigenvalues are the same
-        # We can set all angles to zero
-        euler_angles = np.zeros(3)
-    else:
-        raise ValueError("Degeneracy must be 1, 2, or 3.")
-    return euler_angles
+    if unique_axis == 0:
+        return _normalise_euler_angles(euler_angles, passive=passive)
+    # We shouldn't have the unique axis along y for reasonably sorted eigenvalues
+    raise ValueError("Unexpected degeneracy when computing Euler angles.\n"
+                     "Eigenvalues are ordered: ", eigenvalues)
 
 
 def _normalise_euler_angles(
@@ -419,9 +431,14 @@ def _normalise_euler_angles(
         eps: float = 1e-6,
         )-> np.ndarray:
     """
-    Normalise Euler angles to standard ranges for NMR as 
-    defined in: 
-    TensorView for MATLAB :cite:p:`Svenningsson2023`
+    Normalise Euler angles to the orientation-equivalent set with beta in [0, pi/2).
+
+    The four equivalent sets of a tensor (a half turn about each PAS axis) are those of
+    TensorView for MATLAB :cite:p:`Svenningsson2023`, Eqs. 16-23. The paper allows
+    ``0 <= beta <= pi``; the member chosen here is the one TensorView's code reports
+    (``MFtoEuler.m`` and ``RelativeAngles.m``): beta in [0, pi/2), then gamma in [0, pi) for
+    active angles or alpha in [0, pi) for passive ones. The result always describes the same
+    tensor.
 
     Args:
         euler_angles (np.ndarray): Euler angles in radians

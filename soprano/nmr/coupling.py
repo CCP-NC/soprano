@@ -103,6 +103,9 @@ class Coupling(BaseModel, ABC):
 
     def euler_angles(self, **kwargs):
         return self.tensor.euler_angles(**kwargs)
+
+    def mrsimulator_euler_angles(self, **kwargs):
+        return self.tensor.mrsimulator_euler_angles(**kwargs)
     
     def copy(self, deep: bool = True, **kwargs) -> 'Coupling':
         """
@@ -272,7 +275,7 @@ class ISCoupling(Coupling):
         """
         angles = {}
         if include_angles:
-            euler_angles = self.euler_angles()
+            euler_angles = self.mrsimulator_euler_angles()
             angles = {
                 "alpha": euler_angles[0],
                 "beta": euler_angles[1],
@@ -304,7 +307,8 @@ class ISCoupling(Coupling):
         - `Jiso_ij` is the isotropic J-coupling constant in Hz.
         - `Janiso_ij` is the reduced anisotropic J-coupling constant in Hz.
         - `eta_ij` is the asymmetry parameter of the J-coupling tensor.
-        - `alpha`, `beta`, and `gamma` are the Euler angles of the J-coupling tensor in radians.
+        - `alpha`, `beta`, and `gamma` are the passive ZYZ Euler angles of the J-coupling tensor
+          in **degrees** (see ``docs/simpson-conventions.md``).
 
         **Note on anisotropy scaling:**
         For SIMPSON v6.0.2, the anisotropic J Hamiltonian is assembled internally
@@ -454,7 +458,9 @@ class DipolarCoupling(Coupling):
         Notes:
         ------
         - Coupling constant is reported in Hz
-        - Euler angles are in the convention used by the MRSimulator library (TODO: double check this!)
+        - Euler angles are in radians, in the convention of mrsimulator's own code
+          (see :meth:`NMRTensor.mrsimulator_euler_angles` and ``docs/simpson-conventions.md``).
+          They are not the numbers written by :meth:`to_simpson`.
 
         Args:
         ----
@@ -476,7 +482,7 @@ class DipolarCoupling(Coupling):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
                 # Get the Euler angles in the convention used by MRSimulator
-                euler_angles = self.tensor.euler_angles()
+                euler_angles = self.tensor.mrsimulator_euler_angles()
             result["dipolar"]["alpha"] = euler_angles[0]
             result["dipolar"]["beta"] = euler_angles[1]
             result["dipolar"]["gamma"] = euler_angles[2]
@@ -504,12 +510,11 @@ class DipolarCoupling(Coupling):
         result = f"dipole {i+1} {j+1} {self.coupling_constant:.6f}"
 
         if include_angles:
-            # TODO check simpson convention for euler angles
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
-                # Get the Euler angles in the convention used by Simpson
+                # SIMPSON takes passive ZYZ angles in degrees (see docs/simpson-conventions.md)
                 euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
-            a, b, c = euler_angles # a should be zero for dipolar couplings in simpson
+            a, b, c = euler_angles # alpha is the free angle of an axial tensor, so it is zero here
             result += f" {a:.6f} {b:.6f} {c:.6f}"
         else:
             result += " 0 0 0"

@@ -24,6 +24,20 @@ from soprano.properties.nmr import DipolarCouplingList, JCouplingList
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
+
+def _mrsimulator_tensor(angles, evals):
+    """E diag(evals) E^T with mrsimulator's E = Rz(gamma) Ry(beta) Rz(alpha) (checked against
+    mrsimulator itself in nmr_export_orientation_tests.py)."""
+    def rz(t):
+        return np.array([[np.cos(t), -np.sin(t), 0], [np.sin(t), np.cos(t), 0], [0, 0, 1]])
+
+    def ry(t):
+        return np.array([[np.cos(t), 0, np.sin(t)], [0, 1, 0], [-np.sin(t), 0, np.cos(t)]])
+
+    alpha, beta, gamma = angles
+    E = rz(gamma) @ ry(beta) @ rz(alpha)
+    return E @ np.diag(evals) @ E.T
+
 # def compare_spin_system_dumps(obj1: Any, obj2: Any) -> bool:
 #     """
 #     Recursively compare two objects, handling various nested data types.
@@ -187,7 +201,10 @@ class TestSite(unittest.TestCase):
 
         # From MRSimulator's to_haeberlen_params function:
         ref_ms_iso = 29.5926190591
-        ref_ms_zeta = 5.961009887515737
+        # MRSimulator's shielding zeta of the raw tensor is 5.961009887515737 ppm. Soprano writes the
+        # shielding-sense anisotropy of the referenced shift, delta = (sigma_ref - sigma)/(1 - sigma_ref),
+        # i.e. zeta_sigma / (1 - 31.7e-6) = 5.961198857519521 ppm (computed by hand, not by Soprano)
+        ref_ms_zeta = 5.961198857519521
         ref_ms_eta = 0.1419680007811347
         ref_ms_eulers = [ 2.67320545,  2.35027756, -2.65355747]
         # chemical shift reference
@@ -218,10 +235,12 @@ class TestSite(unittest.TestCase):
         self.assertAlmostEqual(result["isotropic_chemical_shift"], ref_cs_iso, places=5)
         self.assertAlmostEqual(result["shielding_symmetric"]["zeta"], ref_ms_zeta, places=5)
         self.assertAlmostEqual(result["shielding_symmetric"]["eta"], ref_ms_eta, places=5)
-        # The angles are unlikely to agree due to our choice of normalisations... (TODO)
-        # self.assertAlmostEqual(result["shielding_symmetric"]["alpha"], ref_ms_eulers[0], places=5)
-        # self.assertAlmostEqual(result["shielding_symmetric"]["beta"], ref_ms_eulers[1], places=5)
-        # self.assertAlmostEqual(result["shielding_symmetric"]["gamma"], ref_ms_eulers[2], places=5)
+        # The numbers differ from MRSimulator's (another of the four equivalent sets), but both must
+        # describe the same PAS in MRSimulator's convention, E = Rz(gamma) Ry(beta) Rz(alpha)
+        sigma_evals = NMRTensor((ms_data + ms_data.T) / 2, order="h").eigenvalues
+        written = [result["shielding_symmetric"][k] for k in ("alpha", "beta", "gamma")]
+        np.testing.assert_allclose(_mrsimulator_tensor(written, sigma_evals),
+                                   _mrsimulator_tensor(ref_ms_eulers, sigma_evals), atol=1e-5)
 
         # Check EFG fields present
         self.assertIn("quadrupolar", result)
@@ -234,10 +253,10 @@ class TestSite(unittest.TestCase):
         # Check EFG values
         self.assertAlmostEqual(result["quadrupolar"]["Cq"], ref_efg_Cq, places=5)
         self.assertAlmostEqual(result["quadrupolar"]["eta"], ref_efg_eta, places=5)
-        # The angles are unlikely to agree due to our choice of normalisations... (TODO)
-        # self.assertAlmostEqual(result["quadrupolar"]["alpha"], ref_efg_eulers[0], places=5)
-        # self.assertAlmostEqual(result["quadrupolar"]["beta"], ref_efg_eulers[1], places=5)
-        # self.assertAlmostEqual(result["quadrupolar"]["gamma"], ref_efg_eulers[2], places=5)
+        efg_evals = NMRTensor(efg_data, order="h").eigenvalues
+        written = [result["quadrupolar"][k] for k in ("alpha", "beta", "gamma")]
+        np.testing.assert_allclose(_mrsimulator_tensor(written, efg_evals),
+                                   _mrsimulator_tensor(ref_efg_eulers, efg_evals), atol=1e-7)
 
         # Test with excluding magnetic shielding
         result = site.to_mrsimulator(include_ms=False)

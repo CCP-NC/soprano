@@ -381,13 +381,18 @@ class Site(BaseModel):
         }
         if self.ms is not None and include_ms:
             ms = self.ms.copy()
+            # The angles must refer to the same axes as zeta and eta (Haeberlen)
+            ms.order = TensorConvention.Haeberlen
             if ms_isotropic:
                 # Replace the MS tensor with its isotropic version
                 ms = ms.make_isotropic_like()
 
-            euler_angles = ms.euler_angles()
+            # mrsimulator's own angle convention (see docs/simpson-conventions.md)
+            euler_angles = ms.mrsimulator_euler_angles()
             shielding_symmetric = {
-                "zeta": ms.reduced_anisotropy,
+                # mrsimulator wants the shielding-sense anisotropy (-zeta_delta), so that it
+                # follows the same referencing as isotropic_chemical_shift
+                "zeta": -ms.shift_reduced_anisotropy,
                 "eta": ms.asymmetry}
             if include_ms_angles:
                 shielding_symmetric.update({
@@ -404,7 +409,7 @@ class Site(BaseModel):
 
             Cq = self.efg.Cq
             eta = self.efg.asymmetry
-            euler_angles = self.efg.euler_angles()
+            euler_angles = self.efg.mrsimulator_euler_angles()
             data['quadrupolar'] = {
                 "Cq": Cq,
                 "eta": eta,}
@@ -482,7 +487,7 @@ class Site(BaseModel):
             
             efg_block = f"quadrupole {self.index + 1} {q_order} {efg.Cq} {efg.asymmetry}"
             if include_efg_angles:
-                # TODO check simpson euler angle convention here
+                # SIMPSON takes passive ZYZ angles in degrees (see docs/simpson-conventions.md)
                 euler_angles = efg.euler_angles(convention='zyz', passive=True, degrees=True)
             else:
                 euler_angles = (0.0, 0.0, 0.0)
