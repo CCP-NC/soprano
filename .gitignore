@@ -121,3 +121,13 @@ tutorials/_temp_output/*
 # Generated marimo WASM exports (built by CI, not committed)
 docs/_static/apps
 .DS_Store
+
+.serena/
+# Agent tooling (machine-local)
+.claude/
+AGENTS.md
+
+# Tutorial and test export artefacts
+tutorials/tutorial_data/_tmp_output/
+tutorials/*.json
+tutorials/*.npz
