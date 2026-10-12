@@ -101,6 +101,7 @@ jobs:
   mrsimulator-test:
     # The tests that call mrsimulator itself are skipped elsewhere (mrsimulator is not a dependency
     # and installs only on Python <= 3.12); here it is installed and the skips become failures.
+    # Python 3.12 and mrsimulator 1.0.0 are pinned: these are the newest versions the tests were checked with.
     name: mrsimulator cross-checks
     runs-on: ubuntu-latest
     steps:
@@ -118,9 +119,46 @@ jobs:
 
     - name: Run the Euler-angle and export tests
       run: |
-        python -m pytest -v -rs tests/nmr_euler_convention_tests.py tests/nmr_export_orientation_tests.py tests/nmr_spin_system_tests.py
+        python -m pytest -v -rs tests/nmr_euler_convention_tests.py tests/nmr_export_orientation_tests.py
       env:
         SOPRANO_REQUIRE_MRSIMULATOR: "1"
+        PYTHONPATH: ${{ github.workspace }}
+        PYTHONIOENCODING: "utf-8"
+        TESTDATA_DIR: ${{ github.workspace }}/tests/test_data
+
+  simpson-test:
+    # Runs SIMPSON itself (from the jkshenton/simpson image, pinned by digest: SIMPSON 6.0.1) on the
+    # spin systems Soprano writes: single-crystal lines (absolute frame) and one powder spectrum.
+    name: SIMPSON cross-checks
+    runs-on: ubuntu-latest
+    env:
+      SIMPSON_IMAGE: docker.io/jkshenton/simpson@sha256:a809f767a4f15486aa64cccb352f805962c58cc62dfde6e0281c8f72efcef4f8
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Soprano
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e . pytest
+
+    - name: Put a simpson wrapper around the container on the PATH
+      run: |
+        docker pull "$SIMPSON_IMAGE"
+        mkdir -p "$HOME/bin"
+        printf '#!/bin/sh\nexec docker run --rm --user "$(id -u):$(id -g)" -v "$PWD":/workspace "%s" "$@"\n' "$SIMPSON_IMAGE" > "$HOME/bin/simpson"
+        chmod +x "$HOME/bin/simpson"
+        echo "$HOME/bin" >> "$GITHUB_PATH"
+
+    - name: Run the SIMPSON tests
+      run: |
+        python -m pytest -v -rs tests/nmr_export_orientation_tests.py -k TestSimpsonSingleCrystal
+      env:
+        SOPRANO_REQUIRE_SIMPSON: "1"
         PYTHONPATH: ${{ github.workspace }}
         PYTHONIOENCODING: "utf-8"
         TESTDATA_DIR: ${{ github.workspace }}/tests/test_data

@@ -30,10 +30,22 @@ against the programs, with stored output so that neither program is needed to ru
 Each stored spectrum is compared with an analytic powder spectrum computed directly from the
 lab-frame tensors, which involves no Euler angles. Regenerate the files with
 ``tests/reference_generators/simulators.py``.
+
+Powder spectra cannot tell SIMPSON's frame from its mirror image (a pi rotation about x), so
+``TestSimpsonSingleCrystal`` also checks the absolute frame with single-crystal simulations:
+the field direction in the written frame for a crystallite ``(alpha, beta)`` is
+``Rz(alpha) Ry(beta) z``, and the two lines of a CSA + dipolar pair are ``larmor * n.delta.n
++- n.D.n / 2`` for the lab-frame tensors Soprano started from. The stored lines are in
+``simpson_reference.json``; the live tests run SIMPSON itself if it is on the PATH (set
+``SOPRANO_REQUIRE_SIMPSON`` to fail instead of skip; the CI job puts a ``simpson`` wrapper around
+the ``jkshenton/simpson`` container image on the PATH).
 """
 
 import json
 import os
+import shutil
+import subprocess
+import tempfile
 import unittest
 import warnings
 from pathlib import Path
@@ -208,6 +220,20 @@ class TestWriterOrientation(unittest.TestCase):
 
         q = site.to_mrsimulator()["quadrupolar"]
         np.testing.assert_allclose(_lab_mrsimulator(evals, *_angles(q)), efg, atol=1e-9 * vzz)
+
+    def test_writers_do_not_change_the_site_tensors(self):
+        vzz = 20000.0 / (EFG_TO_CHI * nmr_quadrupole("H", iso=2))
+        efg = _lab_simpson(_haeberlen(0.0, vzz, 0.3), *np.radians([70.0, 40.0, 15.0]))
+        ms = _lab_simpson([10.0, 20.0, 50.0], *np.radians([30.0, 50.0, 20.0]))
+        site = Site(isotope="2H", label="H1", index=0,
+                    ms=MagneticShielding(ms, species="2H", reference=0.0, gradient=-1.0),
+                    efg=ElectricFieldGradient(efg, species="2H"))
+        before = (site.ms.order, site.efg.order, site.ms.data, site.efg.data)
+        site.to_mrsimulator()
+        site.to_simpson(q_order=1)
+        self.assertEqual((site.ms.order, site.efg.order), before[:2])
+        np.testing.assert_array_equal(site.ms.data, before[2])
+        np.testing.assert_array_equal(site.efg.data, before[3])
 
     def test_axial_tensors_keep_their_azimuth(self):
         # Axial tensors have a free angle; it must be the one that does not move the
@@ -419,6 +445,130 @@ class TestAgainstSimulators(unittest.TestCase):
         for now, then in zip(_tensors_from_mrsimulator(spin_system, _mrsimulator_frame),
                              _tensors_from_mrsimulator(self.mrs["spectrum"]["spin_system"], _mrsimulator_frame)):
             np.testing.assert_allclose(now, then, atol=1e-6)
+
+
+# ---- single-crystal SIMPSON runs ----
+
+SINGLE_CRYSTAL_ORIENTATIONS = [(20, 30), (70, 55), (130, 80), (200, 40), (300, 110), (45, 65)]  # (alpha, beta), deg
+SINGLE_CRYSTAL_TOL_HZ = 2.0  # frequency grid of the simulation is 0.6 Hz
+
+SINGLE_CRYSTAL_INPUT = """\
+spinsys {{
+    channels 13C 1H
+    nuclei 13C 1H
+    {shift}
+    {dipole}
+}}
+
+par {{
+    proton_frequency {proton_hz}
+    spin_rate 0
+    start_operator I1x
+    detect_operator I1p
+    np 8192
+    sw 80000
+    crystal_file xtal
+    gamma_angles 1
+    verbose 0
+}}
+
+proc pulseq {{}} {{
+    global par
+    acq_block {{
+        delay [expr 1e6/$par(sw)]
+    }}
+}}
+
+proc main {{}} {{
+    global par
+    set f [fsimpson]
+    fsave $f out.fid -xreim
+}}
+"""
+
+
+def simpson_available():
+    return shutil.which("simpson") is not None
+
+
+def field_direction(alpha, beta, mirror=False):
+    """Field direction in the written frame for SIMPSON crystallite (alpha, beta) in degrees."""
+    a, b = np.radians(alpha), np.radians(beta)
+    return np.array([np.sin(b) * np.cos(a), (-1 if mirror else 1) * np.sin(b) * np.sin(a), np.cos(b)])
+
+
+def single_crystal_lines(shift_ppm, D, larmor_hz, n):
+    """The two lines (Hz, sorted) of a CSA coupled to a heteronucleus for field direction n."""
+    centre = larmor_hz * 1e-6 * n @ shift_ppm @ n
+    half_splitting = 0.5 * n @ D @ n
+    return sorted([centre + half_splitting, centre - half_splitting])
+
+
+def simpson_single_crystal_input(carbon, coupling):
+    return SINGLE_CRYSTAL_INPUT.format(shift=carbon.to_simpson()[0], dipole=coupling.to_simpson(),
+                                       proton_hz=SPECTRUM_PROTON_HZ)
+
+
+def simpson_single_crystal_lines(text, alpha, beta):
+    """Run SIMPSON for the single crystallite (alpha, beta) and return the two strongest lines (Hz, sorted)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "t.in").write_text(text)
+        (Path(tmp) / "xtal").write_text(f"1\n{alpha} {beta} 1\n")
+        subprocess.run(["simpson", "t.in"], cwd=tmp, check=True, capture_output=True)
+        fid = np.loadtxt(Path(tmp) / "out.fid")
+    sw, nfft = 80000.0, 2 ** 17
+    signal = fid[:, 1] + 1j * fid[:, 2]
+    signal[0] *= 0.5
+    spec = np.fft.fftshift(np.fft.fft(signal, nfft)).real
+    freqs = np.fft.fftshift(np.fft.fftfreq(nfft, 1 / sw))
+    peaks = [i for i in range(1, nfft - 1)
+             if spec[i] > spec[i - 1] and spec[i] > spec[i + 1] and spec[i] > 0.2 * spec.max()]
+    strongest = sorted(peaks, key=lambda i: -spec[i])[:2]
+    return sorted(freqs[strongest])
+
+
+class TestSimpsonSingleCrystal(unittest.TestCase):
+    """Absolute frame of the SIMPSON writers: single crystallites, where the powder average cannot hide it."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.stored = json.loads((TEST_DATA / "simpson_reference.json").read_text())["single_crystal"]
+
+    def setUp(self):
+        warnings.simplefilter("ignore")
+        self.sigma, self.D, self.carbon, _, self.coupling = spectrum_case()
+        self.larmor = carbon_larmor_hz()
+
+    def predicted(self, alpha, beta, mirror=False):
+        return single_crystal_lines(-self.sigma, self.D, self.larmor, field_direction(alpha, beta, mirror))
+
+    def test_stored_lines_are_those_of_the_lab_frame_tensors(self):
+        for (alpha, beta), lines in zip(self.stored["orientations_deg"], self.stored["lines_hz"]):
+            np.testing.assert_allclose(self.predicted(alpha, beta), lines, atol=SINGLE_CRYSTAL_TOL_HZ)
+
+    def test_stored_lines_exclude_the_mirrored_frame(self):
+        # the mirror image (y -> -y) is what a powder spectrum cannot exclude
+        errors = [np.max(np.abs(np.array(self.predicted(a, b, mirror=True)) - lines))
+                  for (a, b), lines in zip(self.stored["orientations_deg"], self.stored["lines_hz"])]
+        self.assertGreater(min(errors), 100 * SINGLE_CRYSTAL_TOL_HZ)
+
+    def test_stored_input_is_what_the_writers_write_now(self):
+        self.assertEqual(self.stored["input"], simpson_single_crystal_input(self.carbon, self.coupling))
+
+    @unittest.skipUnless(simpson_available() or os.environ.get("SOPRANO_REQUIRE_SIMPSON"), "simpson is not available")
+    def test_simpson_single_crystal_live(self):
+        text = simpson_single_crystal_input(self.carbon, self.coupling)
+        for alpha, beta in [(70, 55), (300, 110)]:
+            np.testing.assert_allclose(simpson_single_crystal_lines(text, alpha, beta),
+                                       self.predicted(alpha, beta), atol=SINGLE_CRYSTAL_TOL_HZ)
+
+    @unittest.skipUnless(simpson_available() or os.environ.get("SOPRANO_REQUIRE_SIMPSON"), "simpson is not available")
+    def test_simpson_powder_spectrum_live(self):
+        from tests.reference_generators.simulators import simpson_spectrum  # imports this module: not at top level
+
+        freqs, spec = simpson_spectrum()[:2]
+        exact = analytic_powder(-self.sigma, self.D, freqs, self.larmor)
+        self.assertLess(spectrum_mismatch(freqs, spec, exact), TestAgainstSimulators.MATCH)
 
 
 if __name__ == "__main__":
