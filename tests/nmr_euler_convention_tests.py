@@ -1289,7 +1289,7 @@ class TestRelativeOrientationAxial(QuietTestCase):
 
     def test_both_axial_zxz_with_unique_x_first_tensor(self):
         # Not covered by the paper: its asin formula uses B written along A's PAS z, which for A unique along
-        # x is one of A's arbitrary perpendicular axes (TensorView's output is then wrong, see
+        # x is one of A's arbitrary perpendicular axes (TensorView's output then does not reproduce the tensors, see
         # TestAgainstTensorViewSoftware). Physical check (|R[axis_a, axis_b]| = cos theta) instead.
         rng = np.random.default_rng(123)
         for kb in ("axz", "axx"):
@@ -1521,7 +1521,7 @@ class TestAgainstTensorViewSoftware(QuietTestCase):
     def test_euler_to_is_tensorview_with_tensor1_as_other(self):
         # Which of the 16 equivalent sets each program reports depends on the eigenvector signs of its
         # eigensolver, so the comparison is up to those 16 (the same formulas for every mode, Eqs. 48-63).
-        # Excluded: two axial tensors with A's unique axis along x, where TensorView is wrong (next test).
+        # Excluded: two axial tensors with A's unique axis along x, where TensorView does not reproduce the tensors (next test).
         for case, A, B, ua, ub in self._relative_cases():
             if ua == 0 and ub is not None:
                 continue
@@ -1547,7 +1547,7 @@ class TestAgainstTensorViewSoftware(QuietTestCase):
                     n += 1
         self.assertGreater(n, 20)
 
-    def test_both_axial_with_a_unique_along_x_tensorview_is_wrong_and_soprano_is_not(self):
+    def test_both_axial_with_a_unique_along_x_tensorview_does_not_reproduce_the_tensors_but_soprano_does(self):
         # TensorView's asin formula (Eq. 79, Table 1) reads B along A's PAS z. With A's unique axis along x,
         # that is an arbitrary perpendicular axis of A, so TensorView's angles fail the physical invariant
         # |R[axis_a, axis_b]| = cos(theta) (theta from the tensor data with eigh), whereas Soprano's satisfy it.
@@ -1746,6 +1746,18 @@ class TestEulerErrorHandling(unittest.TestCase):
             for conv, passive in COMBOS:
                 with self.assertRaises(ValueError):
                     t.euler_angles(conv, passive)
+
+    def test_both_axial_euler_to_with_unique_y_is_rejected(self):
+        # Same pattern as above ([a, b, a], NQR order). euler_to must raise like euler_angles
+        # rather than fall through to the generic decomposition.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            t_y = NMRTensor((np.array([1.0, -1.0, 1.0]), np.eye(3)), order="n")
+            t_z = NMRTensor(np.diag([-1.0, -1.0, 2.0]), order="i")
+            for conv, passive in COMBOS:
+                for a, b in ((t_y, t_z), (t_z, t_y)):
+                    with self.assertRaises(ValueError):
+                        a.euler_to(b, conv, passive)
 
     def test_invalid_orders_and_shapes_raise(self):
         with self.assertRaises(ValueError):

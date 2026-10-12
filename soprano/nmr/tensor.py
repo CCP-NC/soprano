@@ -405,7 +405,6 @@ class NMRTensor(NDArrayOperatorsMixin):
             return _handle_euler_edge_cases(
                 angles,
                 self.eigenvalues,
-                self._symm,
                 convention = convention,
                 passive = passive,
                 angles_are_passive = passive
@@ -566,6 +565,10 @@ class NMRTensor(NDArrayOperatorsMixin):
                 # zero (ZYZ) or from its Table 1 (ZXZ).
                 axis_a = _degeneracy_pattern(self.eigenvalues, eps)[1]
                 axis_b = _degeneracy_pattern(other.eigenvalues, eps)[1]
+                if 1 in (axis_a, axis_b):
+                    # same as euler_angles: not reachable with the supported orders
+                    raise ValueError("Unexpected degeneracy when computing Euler angles.\n"
+                                     "Eigenvalues are ordered: ", self.eigenvalues, other.eigenvalues)
                 if axis_a in (0, 2) and axis_b in (0, 2):
                     R = _proper(self.eigenvectors).T @ _proper(other.eigenvectors)
                     cos_theta = min(abs(R[axis_a, axis_b]), 1.0)

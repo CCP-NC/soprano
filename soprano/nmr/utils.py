@@ -374,7 +374,6 @@ def _alpha_zero_euler_angles(R: np.ndarray, convention: str = "zyz", eps: float 
 def _handle_euler_edge_cases(
         euler_angles: np.ndarray,
         eigenvalues: np.ndarray,
-        original_tensor: np.ndarray,
         convention: str = "zyz",
         passive: bool = False,
         eps: float=1e-6,
@@ -390,7 +389,6 @@ def _handle_euler_edge_cases(
     Args:
         euler_angles (np.ndarray): Euler angles in radians
         eigenvalues (np.ndarray): Eigenvalues of the tensor
-        original_tensor (np.ndarray): Original symmetric tensor (unused, kept for the signature)
         convention (str, optional): Euler angle convention. Defaults to "zyz".
         passive (bool, optional): Whether the angles are passive. Defaults to False.
         eps (float, optional): Tolerance for degeneracy. Defaults to 1e-6.
@@ -590,90 +588,6 @@ def _equivalent_relative_euler(euler_angles: np.ndarray, passive: bool = False) 
     return equiv_angles
 
 
-def _tryallanglestest(
-        euler_angles: np.ndarray,
-        pas1: np.ndarray,
-        pasv2: np.ndarray,
-        arel1: np.ndarray,
-        convention: str,
-        eps: float = 1e-3
-        ) -> np.ndarray:
-    """
-    For relative Euler angles from tensor A to B, if B is axially symmetric,
-    we need to try all equivalent Euler angles of the symmetric tensor to
-    find the conventional one. 
-
-    Go through the 4 equivalent passive angles since we're using 
-    the trick of calculating the A relative angles in the frame of B 
-    by calculating the B relative angles in the frame of A with the *passive* convention.
-
-    Credit: function adapted from TensorView for MATLAB: :cite:p:`Svenningsson2023`
-    """
-
-    # make copy of the input angles
-    euler_angles_out = euler_angles.copy()
-    rrel_check = Rotation.from_euler(convention.upper(), euler_angles).as_matrix()
-    mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
-    # Define the ways in which the angles should be updated
-    alpha, beta, gamma = euler_angles
-    updates = [
-        lambda: (alpha + np.pi, beta, gamma),
-        lambda: (2*np.pi - alpha, np.pi - beta, gamma + np.pi),
-        lambda: (np.pi-alpha, np.pi-beta, gamma + np.pi),
-    ]
-    # if pasv2[0] == pasv2[1]:
-    if np.allclose(pasv2[0], pasv2[1], atol=eps):
-        # Iterate over the updates, updating only if the angles don't match
-        for update in updates:
-            if not np.all(np.isclose(arel1, mcheck, atol=eps)):
-                alpha_out, beta_out, gamma_out = update()
-                euler_angles_out, mcheck = _compute_rotation([alpha_out, beta_out, gamma_out], arel1, pas1, convention, 1)
-            else:
-                break # If the angles match, we're done
-
-        # If the last condition is still true, print a message
-        if not np.all(np.isclose(arel1, mcheck, atol=eps)):
-            raise 'Failed isequal check at (_tryallanglestest) please contact the developers for to help resolve this issue.'
-
-    elif np.allclose(pasv2[0], pasv2[1], atol=eps):
-        # Iterate over the updates, updating only if the angles don't match
-        for update in updates:
-            if not np.all(np.isclose(arel1, mcheck, atol=eps)):
-                alpha_out, beta_out, gamma_out = update()
-                euler_angles_out, mcheck = _compute_rotation([alpha_out, beta_out, gamma_out], arel1, pas1, convention, 2)
-            else:
-                break
-
-    return euler_angles_out
-
-
-
-def _compute_rotation(euler_angles: np.ndarray,
-                      arel1: np.ndarray,
-                      pas1: np.ndarray,
-                      convention: str,
-                      rotation_type: int
-                      )-> tuple[np.ndarray, np.ndarray]:
-    rrel_check = Rotation.from_euler(convention.upper(), euler_angles).as_matrix()
-    mcheck = np.round(np.dot(np.dot(rrel_check, pas1), np.linalg.inv(rrel_check)), 14)
-
-    if rotation_type == 1:
-        component1 = arel1[2, 0] + arel1[2, 1]*mcheck[2, 1]/mcheck[2, 0]
-        component2 = mcheck[2, 0] + mcheck[2, 1]*mcheck[2, 1]/mcheck[2, 0]
-        component3 = arel1[2, 1] - arel1[2, 0]*mcheck[2, 1]/mcheck[2, 0]
-        component4 = mcheck[2, 0] + mcheck[2, 1]*mcheck[2, 1]/mcheck[2, 0]
-        euler_convention = "ZYZ"
-    elif rotation_type == 2:
-        component1 = arel1[2, 0] + arel1[1, 0]*mcheck[1, 0]/mcheck[2, 0]
-        component2 = mcheck[2, 0] + mcheck[1, 0]*mcheck[1, 0]/mcheck[2, 0]
-        component3 = arel1[2, 0] - arel1[1, 0]*mcheck[2, 0]/mcheck[1, 0]
-        component4 = mcheck[1, 0] + mcheck[2, 0]*mcheck[2, 0]/mcheck[1, 0]
-        euler_convention = "ZXZ"
-
-    symrotang_check = np.arctan2(component3/component4, component1/component2)
-    symrot_check = Rotation.from_euler(euler_convention, [0, 0, symrotang_check]).as_matrix()
-    mcheck = np.dot(np.dot(symrot_check, mcheck), np.linalg.inv(symrot_check))
-    return euler_angles, mcheck
 def _frange(a, b, x):
     while a < b:
         yield a

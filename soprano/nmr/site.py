@@ -404,12 +404,13 @@ class Site(BaseModel):
             data['shielding_symmetric'] = shielding_symmetric
 
         if self.efg is not None and self.is_quadrupole_active and include_efg:
-            # The Haeberlen ordering convention is used here
-            self.efg.order = TensorConvention.Haeberlen
+            # The Haeberlen ordering convention is used here (on a copy: don't alter the site)
+            efg = self.efg.copy()
+            efg.order = TensorConvention.Haeberlen
 
-            Cq = self.efg.Cq
-            eta = self.efg.asymmetry
-            euler_angles = self.efg.mrsimulator_euler_angles()
+            Cq = efg.Cq
+            eta = efg.asymmetry
+            euler_angles = efg.mrsimulator_euler_angles()
             data['quadrupolar'] = {
                 "Cq": Cq,
                 "eta": eta,}
