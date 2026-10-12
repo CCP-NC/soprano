@@ -454,11 +454,13 @@ class NMRTensor(NDArrayOperatorsMixin):
         mrsimulator builds the eigenvector matrix (the PAS axes as columns) as
         ``Rz(gamma) Ry(beta) Rz(alpha)`` with ordinary active rotation matrices; this is
         what ``mrsimulator.utils.cartesian_tensor`` does (``Rotation.from_euler("zyz", ...)``).
-        In TensorView's terms (see :meth:`euler_angles`) these are the *active* ZYZ angles
-        with ``alpha`` and ``gamma`` interchanged. They are not the passive angles from
-        :meth:`euler_angles`, which satisfy ``Rz(-gamma) Ry(-beta) Rz(-alpha)``, and not the
-        active angles either: Appendix B of the mrsimulator paper writes the active order, which
-        the code does not follow.
+        In TensorView's terms (see :meth:`euler_angles`) this is the *active* ZYZ form with the
+        roles of ``alpha`` and ``gamma`` exchanged. It is neither of TensorView's two angle
+        sets: not the passive one, ``Rz(-gamma) Ry(-beta) Rz(-alpha)``, and not the active one,
+        ``Rz(alpha) Ry(beta) Rz(gamma)``, which is the order Appendix B of the mrsimulator paper
+        writes. The code (checked against ``from_haeberlen_params`` and mrsimulator's powder
+        spectra) uses the order above. mrsimulator's own text calls its convention passive, which
+        is not TensorView's meaning of the word.
 
         Both describe the same tensor frame; this method converts the (canonicalised)
         passive angles exactly, as ``(-alpha - pi, beta, pi - gamma)``. For a tensor

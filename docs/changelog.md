@@ -4,7 +4,21 @@ All notable changes to Soprano are documented here.
 
 ---
 
-## Unreleased
+## v0.12.0 (unreleased)
+
+### Breaking changes
+
+- **`NMRTensor.euler_to` and `equivalent_euler_to` now return the inverse rotation** for
+  triaxial and mixed axial/triaxial pairs. `A.euler_to(B)` is now the orientation of `B` in
+  the PAS of `A` (`E_B = E_A R`), which is TensorView's `RelativeAngles` with Tensor 1 = `B`
+  and Tensor 2 = `A`. The old output was the rotation from `B` to `A`. Code that uses relative
+  angles (for example to set up mrsimulator couplings) must be recomputed, or the arguments
+  swapped. There is no deprecation period. Details are under "Relative Euler angles" below.
+- **Exported Euler angles change** (`to_simpson()` for axial tensors; `to_mrsimulator()` for
+  every tensor). Re-export any spin systems generated with earlier versions. See below.
+- `NMRTensor.euler_to` with two axial tensors, either of which has its unique axis along y,
+  now raises `ValueError` as `euler_angles` does (this order is not reachable with the supported
+  tensor orders).
 
 ### Fixes
 
@@ -17,9 +31,10 @@ these went unnoticed). Re-export any spin systems you generated with earlier ver
 - **mrsimulator angles.** `Site.to_mrsimulator()`, `ISCoupling.to_mrsimulator()` and
   `DipolarCoupling.to_mrsimulator()` now write the angles in the convention of mrsimulator's
   own code (`E = Rz(gamma) Ry(beta) Rz(alpha)`, as in `mrsimulator.utils.cartesian_tensor`), via
-  the new `NMRTensor.mrsimulator_euler_angles()`. Previously they wrote active ZYZ angles, which
-  interchange `alpha` and `gamma` relative to what mrsimulator expects and so describe a different
-  relative orientation. These are *not* the numbers `to_simpson()` writes: SIMPSON uses passive
+  the new `NMRTensor.mrsimulator_euler_angles()`. Previously they wrote TensorView's active ZYZ angles,
+  `E = Rz(alpha) Ry(beta) Rz(gamma)`. mrsimulator's code uses the same matrices with `alpha` and `gamma`
+  in each other's places, so those numbers described a different relative orientation in mrsimulator.
+  This is a difference between two conventions, not a bug in mrsimulator. These are *not* the numbers `to_simpson()` writes: SIMPSON uses passive
   angles in degrees.
 - **Axial tensors (SIMPSON and mrsimulator).** For axial tensors (every dipolar coupling, and
   any CSA, EFG or J tensor with `eta = 0`) the passive angles had the wrong angle zeroed, so
@@ -33,6 +48,7 @@ these went unnoticed). Re-export any spin systems you generated with earlier ver
 - **mrsimulator and tensor order.** `Site.to_mrsimulator()` now uses Haeberlen ordering for the
   shielding angles, as `to_simpson()` does, so they refer to the same axes as `zeta` and
   `eta` for tensors built with another `order`.
+- `Site.to_mrsimulator()` no longer changes the order of the site's own EFG tensor (it works on a copy, as `to_simpson()` does).
 - `ElectricFieldGradient.__str__` and a comment gave the quadrupole moment units as barns; it is millibarn.
 
 #### Relative Euler angles (`euler_to`) and axial tensors
@@ -68,7 +84,7 @@ these went unnoticed). Re-export any spin systems you generated with earlier ver
 The exact angle convention is now documented in {doc}`simpson-conventions`, with a test
 suite (`tests/nmr_export_orientation_tests.py`) that rebuilds each tensor from the written
 angles, and checks the formulas it uses against stored SIMPSON and mrsimulator spectra of the
-written spin systems. Note that mrsimulator's default octant powder integration is wrong for
+written spin systems, and single-crystal SIMPSON simulations that fix the absolute frame of the SIMPSON angles (run in CI from the `jkshenton/simpson` container). Note that mrsimulator's default octant powder integration is wrong for
 spin systems with tensors in general relative orientations; use
 `sim.config.integration_volume = "hemisphere"`.
 

@@ -37,5 +37,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # Version definition
-__version__ = "0.11.4"
+__version__ = "0.12.0"
 __release__ = "beta (Boggess)"
