@@ -646,6 +646,12 @@ class TestNMR(unittest.TestCase):
         euler2 = t2.euler_angles(convention='zyz', passive=False)
         self.assertTrue(np.allclose(euler1*180/np.pi, np.array([ 300.4327, 30.3820, 112.0611])))
         self.assertTrue(np.allclose(euler2*180/np.pi, np.array([ 73.0924, 68.3864, 46.7300])))
+        # The reference arrays below are TensorView for MATLAB's ALA example output (they are not
+        # Soprano output). Before euler_to was changed to return the orientation of t2 in the PAS of t1,
+        # the active and passive arrays were the other way round; they were swapped, not regenerated,
+        # because the new euler_to is the inverse parametrisation of the old one. They agree with a
+        # fresh TensorView run (tests/reference_generators/tensorview.py) with Tensor 1 = t2, Tensor 2 = t1.
+
         # relative Euler angles - ZYZ active convention
         releulers = t1.equivalent_euler_to(t2, convention='zyz', passive=False)
         releulers   = releulers * 180 / np.pi

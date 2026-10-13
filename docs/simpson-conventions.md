@@ -81,6 +81,14 @@ In those terms the three conventions that appear here are:
 
 `euler_to` returns the angles of $R_\mathrm{rel}=E_A^{\mathsf T}E_B$ (Eq. 31), the orientation of tensor $B$ in the PAS of $A$. TensorView's `RelativeAngles(Tensor1, Tensor2)` decomposes `U2^-1 U1`, the orientation of Tensor 1 in the PAS of Tensor 2, so **`A.euler_to(B)` corresponds to TensorView with Tensor 1 = B and Tensor 2 = A**. For relative angles the two programs can report different members of the 16 equivalent sets, because the choice depends on the signs of the eigenvectors their eigensolvers return.
 
+#### Which way round is `euler_to`?
+
+- `A.euler_to(B)` is the orientation of $B$ in the PAS of $A$: $E_B=E_A R(\alpha,\beta,\gamma)$ for the active angles, so rotating the axes of $A$ intrinsically by $(\alpha,\beta,\gamma)$ gives the axes of $B$.
+- For the orientation of $A$ in the PAS of $B$, call `B.euler_to(A)`. This is the inverse rotation, and it gives the same rotation as `A.euler_to(B, passive=True)`, though possibly as a different member of the 16 equivalent sets.
+- *Passive* is TensorView's word for the inverse parametrisation, $R=R_z(-\gamma)R_y(-\beta)R_z(-\alpha)$. It does **not** mean "rotate the axes"; that is the active form.
+- The argument order is the **reverse** of TensorView's `RelativeAngles(Tensor1, Tensor2)`. To compare with TensorView, put $B$ first.
+- Before 0.12.0, `euler_to` gave TensorView's positional order for triaxial and mixed axial/triaxial pairs (the orientation of $A$ in the PAS of $B$). Use `B.euler_to(A)` to get equivalent values.
+
 ### Axial tensors and the free angle
 
 For an axial tensor (every dipolar coupling, and any CSA, EFG or J tensor with $\eta=0$) the rotation about the PAS $Z$ axis has no effect, so one angle is free. Soprano sets it to zero (the active $\gamma$ or the passive $\alpha$, as in TensorView), which for a bond at polar angle $\theta$ and azimuth $\phi$ gives `0  θ  180-φ` for SIMPSON (e.g. `dipole 1 2 d 0 70 140` for $\theta=70^\circ$, $\phi=40^\circ$) and $(0, \theta, \phi)$ in radians for mrsimulator.

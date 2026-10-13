@@ -538,9 +538,16 @@ class NMRTensor(NDArrayOperatorsMixin):
         returned (:meth:`equivalent_euler_to` returns all), normalised to the same range as
         :meth:`euler_angles`.
 
-        In TensorView's software, ``RelativeAngles(Tensor1, Tensor2)`` gives the orientation
-        of Tensor 1 in the PAS of Tensor 2 (it decomposes ``U2^-1 U1``), so
-        ``A.euler_to(B)`` is TensorView with Tensor 1 = ``B`` and Tensor 2 = ``A``.
+        Which way round: ``A.euler_to(B)`` is the orientation of ``B`` in the PAS of ``A``.
+        For the orientation of ``A`` in the PAS of ``B`` call ``B.euler_to(A)`` (the inverse
+        rotation, equal to ``A.euler_to(B, passive=True)`` up to the equivalent sets).
+        "Passive" is TensorView's term for the inverse parametrisation, not "rotate the axes".
+
+        The argument order is the reverse of TensorView's ``RelativeAngles(Tensor1, Tensor2)``,
+        which gives the orientation of Tensor 1 in the PAS of Tensor 2 (it decomposes
+        ``U2^-1 U1``). To compare with TensorView, put ``B`` first: ``A.euler_to(B)`` is
+        TensorView with Tensor 1 = ``B`` and Tensor 2 = ``A``. Before 0.12.0 ``euler_to`` used
+        TensorView's order for triaxial and mixed axial/triaxial pairs.
 
         A rotation about the unique axis of an axial tensor changes nothing. If exactly one
         tensor is axial, it is written in the PAS of the other and given the single-tensor

@@ -9,11 +9,16 @@ All notable changes to Soprano are documented here.
 ### Breaking changes
 
 - **`NMRTensor.euler_to` and `equivalent_euler_to` now return the inverse rotation** for
-  triaxial and mixed axial/triaxial pairs. `A.euler_to(B)` is now the orientation of `B` in
-  the PAS of `A` (`E_B = E_A R`), which is TensorView's `RelativeAngles` with Tensor 1 = `B`
-  and Tensor 2 = `A`. The old output was the rotation from `B` to `A`. Code that uses relative
-  angles (for example to set up mrsimulator couplings) must be recomputed, or the arguments
-  swapped. There is no deprecation period. Details are under "Relative Euler angles" below.
+  triaxial and mixed axial/triaxial pairs, and the same call gives different numbers. This is a
+  change of convention, not a bug fix. `A.euler_to(B)` is now the orientation of `B` in the PAS of
+  `A` (`E_B = E_A R`), as the method name reads. It used to be the orientation of `A` in the PAS of
+  `B`, which is TensorView's positional order for `RelativeAngles(Tensor1, Tensor2)`. The argument
+  order is now the reverse of TensorView's: to compare with TensorView, put `B` first.
+  To reproduce old values, call `B.euler_to(A)`; the result is equivalent but may be a different
+  one of the 16 equivalent angle sets. Code that uses relative angles (for example to set up
+  mrsimulator couplings) must be recomputed or have its arguments swapped. There is no deprecation
+  period, because a warning cannot tell old callers from new ones. Details are under "Relative Euler
+  angles" below.
 - **Exported Euler angles change** (`to_simpson()` for axial tensors; `to_mrsimulator()` for
   every tensor). Re-export any spin systems generated with earlier versions. See below.
 - `NMRTensor.euler_to` with two axial tensors, either of which has its unique axis along y,
@@ -53,15 +58,15 @@ these went unnoticed). Re-export any spin systems you generated with earlier ver
 
 #### Relative Euler angles (`euler_to`) and axial tensors
 
-- `NMRTensor.euler_to` and `equivalent_euler_to` returned the rotation from the second tensor
-  to the first for triaxial and for mixed axial/triaxial pairs, i.e. both active and passive
-  angles described the inverse rotation. They now return the rotation carrying the first
-  tensor's PAS onto the second's (`E_other = E_self R(alpha, beta, gamma)`), the orientation of
-  the second tensor in the PAS of the first (Eq. 31 of the TensorView paper). TensorView's own
-  `RelativeAngles(Tensor1, Tensor2)` gives Tensor 1 in the PAS of Tensor 2, so `A.euler_to(B)`
-  matches TensorView with Tensor 1 = `B`, Tensor 2 = `A` (the previous output matched it with the
-  arguments in the other order). Anything computed from relative angles with an earlier version
-  (for example, to set up mrsimulator couplings) should be recomputed.
+- `NMRTensor.euler_to` and `equivalent_euler_to` returned the orientation of the first tensor in
+  the PAS of the second for triaxial and for mixed axial/triaxial pairs (TensorView's positional
+  order), i.e. both active and passive angles described the inverse of what they now return. They
+  now return the rotation carrying the first tensor's PAS onto the second's
+  (`E_other = E_self R(alpha, beta, gamma)`), the orientation of the second tensor in the PAS of
+  the first (Eq. 31 of the TensorView paper). `A.euler_to(B)` therefore matches TensorView's
+  `RelativeAngles(Tensor1, Tensor2)` with Tensor 1 = `B`, Tensor 2 = `A`. Anything computed from
+  relative angles with an earlier version (for example, to set up mrsimulator couplings) should be
+  recomputed. The docstring and `docs/simpson-conventions.md` now say which way round this is.
 - Two axial tensors: the angle between the unique axes was wrong when either tensor has its
   unique axis along x (as for increasing order), and two tensors whose axes were not aligned could
   be reported as "perfectly aligned" for particular geometries.
