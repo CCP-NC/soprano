@@ -553,7 +553,20 @@ class TestSimpsonSingleCrystal(unittest.TestCase):
         self.assertGreater(min(errors), 100 * SINGLE_CRYSTAL_TOL_HZ)
 
     def test_stored_input_is_what_the_writers_write_now(self):
-        self.assertEqual(self.stored["input"], simpson_single_crystal_input(self.carbon, self.coupling))
+        # The numbers on the interaction lines are compared numerically: the isotropic shift is zero
+        # up to rounding noise that differs between BLAS/LAPACK builds (e.g. macOS and Linux).
+        stored = self.stored["input"].splitlines()
+        written = simpson_single_crystal_input(self.carbon, self.coupling).splitlines()
+        self.assertEqual(len(stored), len(written))
+        for stored_line, written_line in zip(stored, written):
+            stored_tokens, written_tokens = stored_line.split(), written_line.split()
+            if stored_tokens[:1] in (["shift"], ["dipole"]):
+                self.assertEqual(stored_tokens[:2], written_tokens[:2])
+                np.testing.assert_allclose([float(t.rstrip("p")) for t in written_tokens[2:]],
+                                           [float(t.rstrip("p")) for t in stored_tokens[2:]],
+                                           rtol=1e-9, atol=1e-8)
+            else:
+                self.assertEqual(stored_line, written_line)
 
     @unittest.skipUnless(simpson_available() or os.environ.get("SOPRANO_REQUIRE_SIMPSON"), "simpson is not available")
     def test_simpson_single_crystal_live(self):
