@@ -53,12 +53,12 @@ EXPECTED = {
         "tol_hz": 50.0,
     },
     "test_03a": {
-        "description": "CSA η=0.5, β=90°, γ=0° → −225 ppm",
+        "description": "CSA η=0.5, SIMPSON α=0°, β=90° → −225 ppm",
         "peaks_hz": [-225 * _PPM_TO_HZ_13C],
         "tol_hz": 50.0,
     },
     "test_03b": {
-        "description": "CSA η=0.5, β=90°, γ=90° → −75 ppm",
+        "description": "CSA η=0.5, SIMPSON α=90°, β=90° → −75 ppm",
         "peaks_hz": [-75 * _PPM_TO_HZ_13C],
         "tol_hz": 50.0,
     },

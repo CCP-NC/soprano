@@ -64,8 +64,10 @@ def make_shielding_tensor(pas_evals, beta_deg=0, gamma_deg=0):
     """Create a shielding tensor in the lab frame from PAS eigenvalues + Euler angles.
 
     pas_evals: shielding eigenvalues [sigma_xx, sigma_yy, sigma_zz] in Haeberlen PAS
-    beta_deg:  passive ZYZ beta angle (rotation about Y')
-    gamma_deg: passive ZYZ gamma angle (rotation about Z'')
+    beta_deg, gamma_deg: *active* ZYZ angles, E = Rz(0) Ry(beta) Rz(gamma) (scipy's upper-case
+        "ZYZ" is intrinsic). Soprano writes the passive angles of this frame for SIMPSON,
+        which are (gamma, beta, 0) up to the equivalent sets, so ``gamma_deg`` appears as
+        SIMPSON's alpha.
     """
     pas = np.diag(pas_evals)
     R = Rotation.from_euler("ZYZ", [0, beta_deg, gamma_deg], degrees=True).as_matrix()
@@ -77,6 +79,7 @@ def make_efg_tensor(pas_evals, beta_deg=0, gamma_deg=0):
     """Create an EFG tensor in the lab frame from PAS eigenvalues + Euler angles.
 
     pas_evals: EFG eigenvalues [V_xx, V_yy, V_zz] in Haeberlen PAS (traceless)
+    beta_deg, gamma_deg: active ZYZ angles, as in make_shielding_tensor
     """
     pas = np.diag(pas_evals)
     R = Rotation.from_euler("ZYZ", [0, beta_deg, gamma_deg], degrees=True).as_matrix()
@@ -175,10 +178,14 @@ def generate_test_02():
 
 
 # =============================================================================
-# TEST 3: CSA Asymmetry + Euler gamma
+# TEST 3: CSA Asymmetry + in-plane angle
 # =============================================================================
 def generate_test_03():
-    """Single 13C with delta_iso=0, zeta=+300 ppm, eta=0.5 at beta=90, two gammas."""
+    """Single 13C with delta_iso=0, zeta=+300 ppm, eta=0.5 at beta=90, two in-plane angles.
+
+    The active gamma used to build the tensor is written as SIMPSON's (passive) alpha, which is
+    the angle a static single-crystal frequency depends on (see expected_results.md).
+    """
     # Shielding PAS: sigma_xx=225, sigma_yy=75, sigma_zz=-300
     pas = [225, 75, -300]
     for suffix, gamma in [("a", 0), ("b", 90)]:
@@ -217,7 +224,7 @@ def generate_test_04():
     # We need to compute V_zz for 2H to get Cq=100 kHz.
     from soprano.data.nmr import EFG_TO_CHI, nmr_quadrupole
 
-    Q = nmr_quadrupole("H", iso=2)  # quadrupole moment in barns
+    Q = nmr_quadrupole("H", iso=2)  # quadrupole moment in millibarn
     Vzz = 100e3 / (EFG_TO_CHI * Q)  # in atomic units
 
     pas = [-0.5 * Vzz, -0.5 * Vzz, Vzz]  # traceless, eta=0

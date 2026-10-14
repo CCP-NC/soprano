@@ -3,7 +3,7 @@
 All tests use `crystal_file alpha0beta0` (single crystal) so the spectrum consists of
 sharp delta-function lines at analytically predictable frequencies.
 
-Tests were run against **SIMPSON v6.0.2**.
+Tests were run against **SIMPSON v6.0.2**, and all pass with **SIMPSON v6.1.4**.
 
 **SIMPSON conventions used:**
 - `proton_frequency = 400e6` Hz (400 MHz spectrometer)
@@ -85,16 +85,21 @@ shift 1 4.7e-15p 200.0p 7.1e-17 0.0 54.7356 0.0
 
 ---
 
-## Test 03 — CSA Asymmetry + Euler γ
+## Test 03 — CSA Asymmetry + in-plane angle
 
-**System**: Single ¹³C, δ_iso = 0 ppm, ζ = +300 ppm, η = 0.5
+**System**: Single ¹³C, δ_iso = 0 ppm, ζ = +300 ppm, η = 0.5. The lab-frame tensor is built
+with the *active* ZYZ rotation `Rz(0) Ry(β) Rz(φ)` (scipy's intrinsic `"ZYZ"`), so φ sets the
+direction of B0 in the PAS XY plane. Soprano writes the passive (SIMPSON) angles of that frame,
+which are α = φ (up to the equivalent sets), β, γ = 0.
 
-**Formula**:
+**Formula** (SIMPSON's passive angles, crystallite at α = β = γ = 0): the field direction in
+the PAS is the third row of `E = Rz(−γ) Ry(−β) Rz(−α)`, `(sin β cos α, sin β sin α, cos β)`, so
 ```
-δ = δ_iso + (ζ/2)(3cos²β − 1 − η sin²β cos 2γ)
+δ = δ_iso + (ζ/2)(3cos²β − 1 − η sin²β cos 2α)
 ```
+The γ of SIMPSON's angles does not enter a static single-crystal frequency.
 
-### 03a — β = 90°, γ = 0°
+### 03a — β = 90°, φ = 0°
 ```
 δ = 0 + (300/2)(0 − 1 − 0.5·1·1) = −225 ppm = −22,635 Hz
 ```
@@ -104,9 +109,9 @@ shift 1 4.7e-15p 200.0p 7.1e-17 0.0 54.7356 0.0
 ```
 shift 1 0.0p 300.0p 0.5 0.0 89.99999999999999 180.0
 ```
-✓ Correct (γ = 180° is equivalent to γ = 0° for this tensor because cos(2·180°) = cos(0°) = 1).
+✓ Correct (α = 0°: cos 2α = 1; the written γ = 180° does not enter).
 
-### 03b — β = 90°, γ = 90°
+### 03b — β = 90°, φ = 90°
 ```
 δ = 0 + (300/2)(0 − 1 − 0.5·1·(−1)) = −75 ppm = −7,545 Hz
 ```
@@ -116,8 +121,9 @@ shift 1 0.0p 300.0p 0.5 0.0 89.99999999999999 180.0
 ```
 shift 1 0.0p 300.0p 0.5 90.0 90.00000000000001 0.0
 ```
-✓ Correct (α = 90°, γ = 0° is equivalent to α = 0°, γ = 90° for this tensor;
-cos(2·90°) = −1 gives the right shift).
+✓ Correct (α = 90°: cos 2α = −1). That SIMPSON puts this peak at −7,545 Hz, and not at
+−22,635 Hz as it would if its γ set the in-plane direction, is direct evidence that its
+angles are the passive ones.
 
 ---
 
@@ -217,7 +223,7 @@ jcoupling 1 2 100.000000 0.000000 0.000000 0.000000 0.000000 0.000000
 
 **System**: ¹H–¹³C pair, J_iso = 0 Hz, ζ = +200 Hz, η = 0
 
-For J-coupling, SIMPSON v6.0.2's `aniso` parameter is **ζ/2** (half the reduced anisotropy).
+For J-coupling, SIMPSON's `aniso` parameter (v6.0.2 and v6.1.4) is **ζ/2** (half the reduced anisotropy).
 The effective splitting is:
 ```
 Splitting = |aniso × (3cos²β − 1)|

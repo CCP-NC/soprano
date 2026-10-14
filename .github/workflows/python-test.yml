@@ -98,6 +98,72 @@ jobs:
     #     file: ./coverage.xml
     #     fail_ci_if_error: false
         
+  mrsimulator-test:
+    # The tests that call mrsimulator itself are skipped elsewhere (mrsimulator is not a dependency
+    # and installs only on Python <= 3.12); here it is installed and the skips become failures.
+    # Python 3.12 and mrsimulator 1.0.0 are pinned: these are the newest versions the tests were checked with.
+    name: mrsimulator cross-checks
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Soprano with mrsimulator
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e . "mrsimulator==1.0.0" pytest
+
+    - name: Run the Euler-angle and export tests
+      run: |
+        python -m pytest -v -rs tests/nmr_euler_convention_tests.py tests/nmr_export_orientation_tests.py
+      env:
+        SOPRANO_REQUIRE_MRSIMULATOR: "1"
+        PYTHONPATH: ${{ github.workspace }}
+        PYTHONIOENCODING: "utf-8"
+        TESTDATA_DIR: ${{ github.workspace }}/tests/test_data
+
+  simpson-test:
+    # Runs SIMPSON itself (from the jkshenton/simpson image, pinned by digest: SIMPSON 6.1.4) on the
+    # spin systems Soprano writes: single-crystal lines (absolute frame) and one powder spectrum.
+    # The amd64 variant is used explicitly: the arm64 variant of this build stops with SIGILL.
+    name: SIMPSON cross-checks
+    runs-on: ubuntu-latest
+    env:
+      SIMPSON_IMAGE: docker.io/jkshenton/simpson@sha256:85db36db833e1443c611c55bef6ad256361986d9d2c734adbce92775a8113d08
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Soprano
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e . pytest
+
+    - name: Put a simpson wrapper around the container on the PATH
+      run: |
+        docker pull --platform linux/amd64 "$SIMPSON_IMAGE"
+        mkdir -p "$HOME/bin"
+        printf '#!/bin/sh\nexec docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" -v "$PWD":/workspace -w /workspace "%s" "$@"\n' "$SIMPSON_IMAGE" > "$HOME/bin/simpson"
+        chmod +x "$HOME/bin/simpson"
+        echo "$HOME/bin" >> "$GITHUB_PATH"
+
+    - name: Run the SIMPSON tests
+      run: |
+        python -m pytest -v -rs tests/nmr_export_orientation_tests.py -k TestSimpsonSingleCrystal
+      env:
+        SOPRANO_REQUIRE_SIMPSON: "1"
+        PYTHONPATH: ${{ github.workspace }}
+        PYTHONIOENCODING: "utf-8"
+        TESTDATA_DIR: ${{ github.workspace }}/tests/test_data
+
   compatibility-test:
     name: Compatibility Test
     runs-on: ubuntu-latest

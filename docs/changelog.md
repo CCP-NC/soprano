@@ -4,6 +4,108 @@ All notable changes to Soprano are documented here.
 
 ---
 
+## v0.12.0 (unreleased)
+
+### Breaking changes
+
+- **`NMRTensor.euler_to` and `equivalent_euler_to` now return the inverse rotation** for
+  triaxial and mixed axial/triaxial pairs, and the same call gives different numbers. This is a
+  change of convention, not a bug fix. `A.euler_to(B)` is now the orientation of `B` in the PAS of
+  `A` (`E_B = E_A R`), as the method name reads. It used to be the orientation of `A` in the PAS of
+  `B`, which is TensorView's positional order for `RelativeAngles(Tensor1, Tensor2)`. The argument
+  order is now the reverse of TensorView's: to compare with TensorView, put `B` first.
+  To reproduce old values, call `B.euler_to(A)`; the result is equivalent but may be a different
+  one of the 16 equivalent angle sets. Code that uses relative angles (for example to set up
+  mrsimulator couplings) must be recomputed or have its arguments swapped. There is no deprecation
+  period, because a warning cannot tell old callers from new ones. Details are under "Relative Euler
+  angles" below.
+- **Exported Euler angles change** (`to_simpson()` for axial tensors; `to_mrsimulator()` for
+  every tensor). Re-export any spin systems generated with earlier versions. See below.
+- `NMRTensor.euler_to` with two axial tensors, either of which has its unique axis along y,
+  now raises `ValueError` as `euler_angles` does (this order is not reachable with the supported
+  tensor orders).
+
+### Fixes
+
+#### Tensor orientations in the SIMPSON and mrsimulator exports
+
+Several bugs made the exported Euler angles wrong whenever more than one oriented
+interaction was present (single-interaction powder spectra do not depend on orientation, so
+these went unnoticed). Re-export any spin systems you generated with earlier versions.
+
+- **mrsimulator angles.** `Site.to_mrsimulator()`, `ISCoupling.to_mrsimulator()` and
+  `DipolarCoupling.to_mrsimulator()` now write the angles in the convention of mrsimulator's
+  own code (`E = Rz(gamma) Ry(beta) Rz(alpha)`, as in `mrsimulator.utils.cartesian_tensor`), via
+  the new `NMRTensor.mrsimulator_euler_angles()`. Previously they wrote TensorView's active ZYZ angles,
+  `E = Rz(alpha) Ry(beta) Rz(gamma)`. mrsimulator's code uses the same matrices with `alpha` and `gamma`
+  in each other's places, so those numbers described a different relative orientation in mrsimulator.
+  This is a difference between two conventions, not a bug in mrsimulator. These are *not* the numbers `to_simpson()` writes: SIMPSON uses passive
+  angles in degrees.
+- **Axial tensors (SIMPSON and mrsimulator).** For axial tensors (every dipolar coupling, and
+  any CSA, EFG or J tensor with `eta = 0`) the passive angles had the wrong angle zeroed, so
+  the unique axis kept its polar angle but lost its azimuth. A dipole at azimuth 40° was
+  written as pointing at 180°. Spectra with an axial tensor tilted out of the
+  xz-plane relative to another tensor were wrong in both programs.
+- **mrsimulator `zeta` and referencing.** `zeta` now follows the same referencing as the
+  isotropic shift and `to_simpson()` (`-shift_reduced_anisotropy`). With a custom `gradient`
+  it was previously unscaled; with the default full formula it changes by a factor
+  `1 / (1 - reference * 1e-6)` (about 3e-5 for ¹H, 1e-4 for ¹³C).
+- **mrsimulator and tensor order.** `Site.to_mrsimulator()` now uses Haeberlen ordering for the
+  shielding angles, as `to_simpson()` does, so they refer to the same axes as `zeta` and
+  `eta` for tensors built with another `order`.
+- **Coupling exports and tensor order.** `ISCoupling.to_simpson()` and `to_mrsimulator()` took
+  the Euler angles in the tensor's own eigenvalue order, while `zeta` and `eta` are always
+  Haeberlen, so the angles could refer to different axes. They now use Haeberlen order.
+  `DipolarCoupling.coupling_constant`, `to_simpson()` and `to_mrsimulator()` assumed NQR order
+  (the unique eigenvalue last). A tensor in another order gave a wrong coupling constant, for
+  example `d/2` with the opposite sign in increasing order with `d < 0`, and wrong angles. The
+  coupling constant is now half the tensor's reduced anisotropy, which doesn't depend on the order,
+  and the angles use Haeberlen order like the other exports. The angles are taken from a copy, and
+  the coupling's own tensor is not changed. Couplings from
+  `JCouplingList`, `DipolarCouplingList` and `DipolarCoupling.from_distance_vector` already used
+  these orders and are unaffected. Only couplings built from an `NMRTensor` in another order change.
+- `Site.to_mrsimulator()` no longer changes the order of the site's own EFG tensor (it works on a copy, as `to_simpson()` does).
+- `ElectricFieldGradient.__str__` and a comment gave the quadrupole moment units as barns; it is millibarn.
+
+#### Relative Euler angles (`euler_to`) and axial tensors
+
+- `NMRTensor.euler_to` and `equivalent_euler_to` returned the orientation of the first tensor in
+  the PAS of the second for triaxial and for mixed axial/triaxial pairs (TensorView's positional
+  order), i.e. both active and passive angles described the inverse of what they now return. They
+  now return the rotation carrying the first tensor's PAS onto the second's
+  (`E_other = E_self R(alpha, beta, gamma)`), the orientation of the second tensor in the PAS of
+  the first (Eq. 31 of the TensorView paper). `A.euler_to(B)` therefore matches TensorView's
+  `RelativeAngles(Tensor1, Tensor2)` with Tensor 1 = `B`, Tensor 2 = `A`. Anything computed from
+  relative angles with an earlier version (for example, to set up mrsimulator couplings) should be
+  recomputed. The docstring and `docs/simpson-conventions.md` now say which way round this is.
+- Two axial tensors: the angle between the unique axes was wrong when either tensor has its
+  unique axis along x (as for increasing order), and two tensors whose axes were not aligned could
+  be reported as "perfectly aligned" for particular geometries.
+- A tensor with its unique axis along x (e.g. eigenvalues `[1, 2, 2]` in increasing order) is now
+  given TensorView's gauge, active `alpha = 0`, followed by the usual range normalisation (so
+  `alpha` is 0 or pi), exactly as TensorView reports it; before, the code for this was never reached.
+- When exactly one of the two tensors in `euler_to` is axial, its free angle is now fixed as for a
+  single tensor (written in the PAS of the other), which also covers a unique axis along x.
+- All angles, including the relative ones of two axial tensors (Table 1 of the paper), are now
+  reported in TensorView's range: beta in [0, pi/2), then gamma (active) or alpha (passive) in
+  [0, pi). Table 1's `(0, 90°, g)` is therefore returned as `(180°, 90°, 180° - g)`, and the passive
+  ZYZ angles of two axial tensors as `(0, beta, 180°)`. These are equivalent angle sets; only the
+  numbers change.
+- The meaning of the angles is now defined in the `euler_angles` and `euler_to` docstrings and in
+  `docs/simpson-conventions.md` in TensorView's terms. `tests/nmr_euler_convention_tests.py` checks
+  the conventions against matrices and angle sets written out from the paper, and against output
+  of TensorView itself (`tests/test_data/tensorview_reference.json`, made by running TensorView in
+  Octave with `tests/reference_generators/tensorview.py`).
+
+The exact angle convention is now documented in {doc}`simpson-conventions`, with a test
+suite (`tests/nmr_export_orientation_tests.py`) that rebuilds each tensor from the written
+angles, and checks the formulas it uses against stored SIMPSON and mrsimulator spectra of the
+written spin systems, and single-crystal SIMPSON simulations that fix the absolute frame of the SIMPSON angles for a CSA with a dipolar or a J coupling (run in CI with SIMPSON 6.1.4 from the `jkshenton/simpson` container). Note that mrsimulator's default octant powder integration is wrong for
+spin systems with tensors in general relative orientations; use
+`sim.config.integration_volume = "hemisphere"`.
+
+---
+
 ## v0.11.1 (2026-02-25)
 
 ### Changes

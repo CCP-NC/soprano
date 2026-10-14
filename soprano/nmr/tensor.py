@@ -28,7 +28,6 @@ from numpy.typing import NDArray
 import numpy as np
 from ase.quaternions import Quaternion
 from numpy.lib.mixins import NDArrayOperatorsMixin
-from scipy.spatial.transform import Rotation
 
 from soprano.data.nmr import EFG_TO_CHI, _get_isotope_data, nmr_gamma, nmr_quadrupole, nmr_spin
 from soprano.nmr.utils import (
@@ -41,16 +40,63 @@ from soprano.nmr.utils import (
     _evecs_2_quat,
     _frange,
     _haeb_sort,
+    _alpha_zero_euler_angles,
+    _alpha_zero_gauge,
+    _degeneracy_pattern,
     _handle_euler_edge_cases,
     _matrix_to_euler,
+    _normalise_euler_angles,
     _skew,
     _span,
     _split_species,
     _test_euler_rotation,
-    _tryallanglestest,
 )
 
 DEGENERACY_TOLERANCE = 1e-6
+
+
+def _proper(E):
+    """Eigenvector matrix as a proper rotation (the sign of an axis is arbitrary)."""
+    E = np.array(E, dtype=float)
+    if np.linalg.det(E) < 0:
+        E[:, 2] *= -1
+    return E
+
+
+def _both_axial_euler_angles(theta, axis_a, axis_b, convention, passive):
+    """Relative Euler angles of two axial tensors whose unique axes make the angle ``theta``.
+
+    ``axis_a`` and ``axis_b`` are the PAS axes (0 = x, 2 = z) that carry the unique
+    eigenvalue of the first and second tensor. Rotating either tensor about its unique axis
+    changes nothing, so any rotation ``R`` with ``|R[axis_a, axis_b]| = cos(theta)`` describes
+    the pair. Following TensorView (Svenningsson & Mueller 2023, Section 6, Table 1):
+
+    * ZYZ: ``(0, beta, 0)``, ``R = Ry(beta)``; ``beta = theta`` if the unique axes have the
+      same label and ``pi/2 - theta`` otherwise (the paper's ``asin(...)`` formula).
+    * ZXZ, first tensor unique along z: ``(pi/2, theta, 0)`` if the second is unique along z,
+      ``(0, pi/2, pi/2 - theta)`` if it is unique along x (Table 1).
+    * ZXZ, first tensor unique along x (not covered by the paper): ``(0, 0, theta)`` or
+      ``(pi/2, pi/2 - theta, 0)``.
+
+    ``passive=True`` returns the passive angles of the same rotation (``R_passive(a, b, g) =
+    R_active(-g, -b, -a)``, TensorView Eq. 9) with a non-negative beta. The caller
+    normalises the range.
+    """
+    half_pi = np.pi / 2
+    if convention == "zyz":
+        beta = theta if axis_a == axis_b else half_pi - theta
+        active = [0.0, beta, 0.0]
+    elif axis_a == 2:
+        active = [half_pi, theta, 0.0] if axis_b == 2 else [0.0, half_pi, half_pi - theta]
+    else:
+        active = [0.0, 0.0, theta] if axis_b == 0 else [half_pi, half_pi - theta, 0.0]
+    if not passive:
+        return np.array(active)
+    a, b, g = -active[2], -active[1], -active[0]
+    if b < 0:  # R(a, b, g) = R(a + pi, -b, g + pi) (TensorView Eq. 8)
+        a, b, g = a + np.pi, -b, g + np.pi
+    return np.array([a, b, g]) % (2 * np.pi)
+
 
 class TensorConvention(str, Enum):
     Haeberlen = "h"
@@ -307,26 +353,64 @@ class NMRTensor(NDArrayOperatorsMixin):
         Return Euler angles of the PAS for this tensor in the
         required convention (currently supported: zyz, zxz).
 
+        With ``E`` the eigenvector matrix (the PAS axes as columns, in this tensor's
+        eigenvalue order) the tensor is ``E diag(eigenvalues) E^T``, and the angles are
+        defined as in TensorView for MATLAB :cite:p:`Svenningsson2023` (Eqs. 3, 9, 65, 75),
+        with ``Rz``, ``Ry``, ``Rx`` ordinary right-handed rotation matrices:
+
+        * *active* (``passive=False``): ``E = Rz(alpha) Ry(beta) Rz(gamma)`` for ``zyz``
+          and ``E = Rz(alpha) Rx(beta) Rz(gamma)`` for ``zxz``;
+        * *passive* (``passive=True``): the angles of the inverse rotation,
+          ``E = Rz(-gamma) Ry(-beta) Rz(-alpha)`` (``Rx`` for ``zxz``). This is the
+          convention SIMPSON uses.
+
+        A tensor is unchanged by a half turn about any PAS axis, so four angle sets describe
+        it (see :meth:`equivalent_euler_angles`). The paper allows ``0 <= beta <= pi``; this
+        method returns the same member as TensorView's code (``MFtoEuler.m``): beta in
+        [0, pi/2), and then gamma in [0, pi) for active angles or alpha in [0, pi) for passive
+        ones.
+
+        Degenerate tensors have a free angle, which is chosen as in TensorView. With the
+        unique axis along z (the Haeberlen order), the active gamma is zero and the passive
+        alpha is zero. With the unique axis along x (e.g. increasing order), the frame with
+        active alpha = 0 is chosen and the range is then normalised as above, so the active
+        alpha is 0 or pi and the passive gamma is 0 or pi. A spherical tensor has all angles
+        zero.
+
         Args:
             convention {Literal["zyz", "zxz"]} -- Euler angles convention to use
             (default: {'zyz'})
             passive {bool} -- Whether to return the passive Euler angles
             (default: {False})
+            degrees {bool} -- Return degrees rather than radians (default: {False})
 
         Returns:
             np.ndarray -- Euler angles in radians. Size of the array is (3,)
+
+        .. footbibliography::
         """
 
 
-        angles = _matrix_to_euler(self.eigenvectors, convention, passive)
+        def pas_angles():
+            if convention.lower() in ("zyz", "zxz") and _degeneracy_pattern(self.eigenvalues)[1] == 0:
+                # Unique axis along x: the PAS can be turned freely about x. Choose the frame
+                # with alpha = 0 (TensorView), then read the angles off that frame.
+                # TensorView then normalises the range as usual, which turns alpha into pi
+                # whenever beta >= pi/2.
+                frame = _alpha_zero_gauge(_proper(self.eigenvectors), convention)
+                if not passive:
+                    return _normalise_euler_angles(_alpha_zero_euler_angles(frame, convention))
+                return _matrix_to_euler(frame, convention, passive)
+            angles = _matrix_to_euler(self.eigenvectors, convention, passive)
+            return _handle_euler_edge_cases(
+                angles,
+                self.eigenvalues,
+                convention = convention,
+                passive = passive,
+                angles_are_passive = passive
+                )
 
-        angles = _handle_euler_edge_cases(
-                    angles,
-                    self.eigenvalues,
-                    self._symm,
-                    convention = convention,
-                    passive = passive
-                    )
+        angles = pas_angles()
         # finally, test that the angles give a consistent rotation
         consistent_rotation = _test_euler_rotation(
                                     angles,
@@ -343,14 +427,7 @@ class NMRTensor(NDArrayOperatorsMixin):
 
             # Re-running the Euler angle calculation with -self.eigenvectors
             self._evecs = -self.eigenvectors
-            angles = _matrix_to_euler(self.eigenvectors, convention, passive)
-            angles = _handle_euler_edge_cases(
-                        angles,
-                        self.eigenvalues,
-                        self._symm,
-                        convention = convention,
-                        passive = passive
-                        )
+            angles = pas_angles()
 
             # check again
             consistent_rotation = _test_euler_rotation(
@@ -364,6 +441,47 @@ class NMRTensor(NDArrayOperatorsMixin):
             #     raise ValueError("The Euler angles do not give a consistent rotation. "
             #                     "This is likely due to a degeneracy in the tensor. "
             #                     "Care must be taken when comparing the Euler angles of degenerate tensors.")
+
+        if degrees:
+            angles = np.degrees(angles)
+
+        return angles
+
+    def mrsimulator_euler_angles(self, degrees: bool = False) -> NDArray[np.float64]:
+        """
+        Euler angles of the PAS in the convention used by mrsimulator's code.
+
+        mrsimulator builds the eigenvector matrix (the PAS axes as columns) as
+        ``Rz(gamma) Ry(beta) Rz(alpha)`` with ordinary active rotation matrices; this is
+        what ``mrsimulator.utils.cartesian_tensor`` does (``Rotation.from_euler("zyz", ...)``).
+        In TensorView's terms (see :meth:`euler_angles`) this is the *active* ZYZ form with the
+        roles of ``alpha`` and ``gamma`` exchanged. It is neither of TensorView's two angle
+        sets: not the passive one, ``Rz(-gamma) Ry(-beta) Rz(-alpha)``, and not the active one,
+        ``Rz(alpha) Ry(beta) Rz(gamma)``, which is the order Appendix B of the mrsimulator paper
+        writes. The code (checked against ``from_haeberlen_params`` and mrsimulator's powder
+        spectra) uses the order above. mrsimulator's own text calls its convention passive, which
+        is not TensorView's meaning of the word.
+
+        Both describe the same tensor frame; this method converts the (canonicalised)
+        passive angles exactly, as ``(-alpha - pi, beta, pi - gamma)``. For a tensor
+        with its unique axis along z the first angle is free and is set to zero.
+
+        Args:
+            degrees {bool} -- Return degrees rather than radians (default: {False})
+
+        Returns:
+            np.ndarray -- Euler angles, shape (3,), in the range [0, 2*pi)
+        """
+        if self.degeneracy == 3:
+            return np.zeros(3)
+
+        alpha, beta, gamma = self.euler_angles(convention="zyz", passive=True)
+        evals = self.eigenvalues
+        unique_axis_is_z = abs(evals[0] - evals[1]) < DEGENERACY_TOLERANCE
+        alpha_mrs = 0.0 if unique_axis_is_z else -alpha - np.pi
+        angles = np.array([alpha_mrs, beta, np.pi - gamma]) % (2 * np.pi)
+        # a value that is 2*pi within rounding is zero
+        angles[angles > 2 * np.pi - 1e-12] = 0.0
 
         if degrees:
             angles = np.degrees(angles)
@@ -391,8 +509,11 @@ class NMRTensor(NDArrayOperatorsMixin):
 
     def rotation_to(self, other):
         '''
-        Returns the rotation matrix that rotates the tensor to the other tensor.
-
+        Returns the relative rotation ``R = E_selfᵀ E_other`` (TensorView Eq. 31 with
+        A = self, B = other): the rotation that carries this tensor's PAS onto ``other``'s,
+        so ``E_other = E_self R``. Here ``E`` is the matrix of PAS axes (eigenvectors as columns)
+        and the result is made a proper rotation. ``euler_to`` returns the Euler angles of
+        this rotation.
         '''
         R1 = self.eigenvectors
         R2 = other.eigenvectors
@@ -406,7 +527,38 @@ class NMRTensor(NDArrayOperatorsMixin):
 
     def euler_to(self, other, convention="zyz", passive=False, eps = 1e-6):
         '''
-        Returns the Euler angles that rotate the tensor to the other tensor.
+        Returns the Euler angles of the rotation carrying this tensor's PAS onto ``other``'s.
+
+        The rotation is ``R = E_selfᵀ E_other`` (see :meth:`rotation_to`), i.e. the orientation
+        of ``other`` in the PAS of this tensor (TensorView Eqs. 29-32 with A = self and
+        B = other). The *active* angles (``passive=False``) satisfy
+        ``E_other = E_self R(alpha, beta, gamma)``; ``passive=True`` gives the angles of the
+        inverse parametrisation of the same R (``R = Rz(-gamma) Ry(-beta) Rz(-alpha)``), exactly
+        as for :meth:`euler_angles`. A single representative of the 16 equivalent sets is
+        returned (:meth:`equivalent_euler_to` returns all), normalised to the same range as
+        :meth:`euler_angles`.
+
+        Which way round: ``A.euler_to(B)`` is the orientation of ``B`` in the PAS of ``A``.
+        For the orientation of ``A`` in the PAS of ``B`` call ``B.euler_to(A)`` (the inverse
+        rotation, equal to ``A.euler_to(B, passive=True)`` up to the equivalent sets).
+        "Passive" is TensorView's term for the inverse parametrisation, not "rotate the axes".
+
+        The argument order is the reverse of TensorView's ``RelativeAngles(Tensor1, Tensor2)``,
+        which gives the orientation of Tensor 1 in the PAS of Tensor 2 (it decomposes
+        ``U2^-1 U1``). To compare with TensorView, put ``B`` first: ``A.euler_to(B)`` is
+        TensorView with Tensor 1 = ``B`` and Tensor 2 = ``A``. Before 0.12.0 ``euler_to`` used
+        TensorView's order for triaxial and mixed axial/triaxial pairs.
+
+        A rotation about the unique axis of an axial tensor changes nothing. If exactly one
+        tensor is axial, it is written in the PAS of the other and given the single-tensor
+        gauge of :meth:`euler_angles`, as TensorView does. For a unique axis along z this sets
+        the first active angle to zero if ``self`` is axial and the last if ``other`` is (the
+        other way round for passive angles). If both are axial, the angles are ``(0, beta, 0)``
+        for ZYZ (beta is the angle between the two unique axes, or its complement if exactly
+        one of them is along x) and TensorView's Table 1 for ZXZ, each then normalised to the
+        range above (so Table 1's ``(0, 90 deg, g)`` comes back as ``(180 deg, 90 deg,
+        180 deg - g)``, as TensorView displays it). Identical or perfectly aligned tensors
+        return zeros with a warning.
         '''
         convention = convention.lower()
         # first make sure they're not the same!
@@ -416,95 +568,52 @@ class NMRTensor(NDArrayOperatorsMixin):
                 warnings.warn("The tensors are identical. Returning zero Euler angles.")
                 return np.zeros(3)
         if self.degeneracy == 2 or other.degeneracy == 2:
-            Aevals = self.eigenvalues
-            Bevals = other.eigenvalues
-            # B (other) in the reference frame of A (self) - from paper
-            # B_at_A = np.linalg.inv(self._symm) @ other._symm
-
-            # alternative from the code
-            R_A = Rotation.from_matrix(self.eigenvectors).as_matrix() # normalises the rotation matrix
-            R_B = Rotation.from_matrix(other.eigenvectors).as_matrix() # normalises the rotation matrix
-            Rrel1 = np.linalg.inv(R_B) @ R_A
-            Rrel2 = np.linalg.inv(R_A) @ R_B
-
-            B_at_A = Rrel1.dot(np.diag(Aevals).dot(np.linalg.inv(Rrel1)))
-
-            if self.degeneracy == 2 and other.degeneracy == 2:
-                # Both are axially symmetric - need to be careful
-
-                # If both are axially symmetric, then do the following:
-                # quick check if the angles are all zero:
-                if np.abs(B_at_A[1,2] + B_at_A[0,2] + B_at_A[0,1]) < eps:
-                    warnings.warn("The tensors are perfectly aligned. Returning zero Euler angles.")
+            if self.degeneracy == 2 and other.degeneracy == 2 and convention in ("zyz", "zxz"):
+                # Both are axially symmetric: only the angle theta between the two unique
+                # axes matters, and TensorView gives a representative with the free angles
+                # zero (ZYZ) or from its Table 1 (ZXZ).
+                axis_a = _degeneracy_pattern(self.eigenvalues, eps)[1]
+                axis_b = _degeneracy_pattern(other.eigenvalues, eps)[1]
+                if 1 in (axis_a, axis_b):
+                    # same as euler_angles: not reachable with the supported orders
+                    raise ValueError("Unexpected degeneracy when computing Euler angles.\n"
+                                     "Eigenvalues are ordered: ", self.eigenvalues, other.eigenvalues)
+                if axis_a in (0, 2) and axis_b in (0, 2):
+                    R = _proper(self.eigenvectors).T @ _proper(other.eigenvectors)
+                    cos_theta = min(abs(R[axis_a, axis_b]), 1.0)
+                    theta = np.arctan2(np.sqrt(1.0 - cos_theta**2), cos_theta)
+                    # "Perfectly aligned" means the unique axes carry the same label (both z
+                    # or both x) and coincide. With different labels the PAS frames are a
+                    # quarter turn apart even when the axes are parallel, so there is a
+                    # non-trivial rotation to report (and it is not a warning case).
+                    if axis_a == axis_b and theta < eps:
+                        warnings.warn("The tensors are perfectly aligned. Returning zero Euler angles.")
+                        return np.zeros(3)
+                    # TensorView's RelativeAngles.m normalises these like any other angles,
+                    # e.g. Table 1's (0, 90 deg, g) is reported as (180 deg, 90 deg, 180 deg - g)
+                    return _normalise_euler_angles(
+                        _both_axial_euler_angles(theta, axis_a, axis_b, convention, passive), passive=passive)
+            elif {self.degeneracy, other.degeneracy} == {1, 2} and convention in ("zyz", "zxz"):
+                # Exactly one of the tensors is axially symmetric. As in TensorView's
+                # RelativeAngles.m, write the axial tensor in the PAS of the triaxial one and
+                # take its single-tensor angles, so that it gets the same gauge as in
+                # euler_angles (unique axis along z or along x). If other is axial these are
+                # the angles of B in the PAS of A directly. If self is axial, the active
+                # angles of R are the passive angles of R^T (A in the PAS of B), and the
+                # other way round.
+                E_self, E_other = _proper(self.eigenvectors), _proper(other.eigenvectors)
+                if other.degeneracy == 2:
+                    axial, rel, sense = other, E_self.T @ E_other, passive
+                else:
+                    axial, rel, sense = self, E_other.T @ E_self, not passive
+                unique_axis = _degeneracy_pattern(axial.eigenvalues, eps)[1]
+                if unique_axis == 2 and np.hypot(rel[0, 2], rel[1, 2]) < eps:
+                    # unique axis (anti)parallel to the triaxial tensor's z: only a rotation
+                    # about it is left, which the axial tensor is blind to
                     return np.zeros(3)
-
-                if convention == 'zyz':
-                    # If both are axially symmetric, then
-                    alpha = 0
-                    gamma = 0
-                    beta = np.arcsin(np.sqrt(
-                        (B_at_A[2, 2]  - Aevals[2]) /
-                        (Aevals[0] - Aevals[2])
-                        ))
-                    beta = np.abs(beta) # we can choose the sign of beta arbitrarily
-                    return np.array([alpha, beta, gamma])
-
-                if convention == 'zxz':
-                    # in this convention, it depends on the unique axis
-                    # of the other tensor
-                    # but the possible angles are:
-                    a = np.pi / 2
-                    b = np.arcsin(-1 * np.sqrt(
-                                (B_at_A[2, 2]  - Aevals[2]) /
-                                (Aevals[0] - Aevals[2])
-                                ))
-                    b = np.abs(b) # we can choose the sign arbitrarily
-                    c = 0
-
-
-                    if np.abs(Bevals[0] - Bevals[1]) < eps:
-                        # Unique axis is z
-                        return np.array([a, b, c]) # 90, arcsin(...), 0
-                    elif np.abs(Bevals[1] - Bevals[2]) < eps:
-                        # Unique axis is x
-                        return np.array([c, a, b]) # 0, 90, arcsin(...)
-                    else:
-                        raise ValueError('Unexpected eigenvalue ordering for axially symmetric tensor'
-                                            'in zxz convention. Eigenvalues are: ', Bevals)
-            elif self.degeneracy == 2 and other.degeneracy == 1:
-                # If self is axially symmetric, but other isn't
-                # just get the angles from Rrel1
-                angles = _matrix_to_euler(Rrel1, convention, False) # always active here!
-                angles = _handle_euler_edge_cases(
-                    angles,
-                    Aevals,
-                    self._symm,
-                    convention = convention,
-                    passive = passive
-                )
-                if passive:
-                    angles = angles[::-1]
-                return angles
-            elif self.degeneracy == 1 and other.degeneracy == 2:
-                # If other is axially symmetric, but self isn't
-                # TODO: check if we need to re-order Rrel2 to match ordering convention chosen for other tensor
-                angles = _matrix_to_euler(Rrel2, convention, True) # always passive here!
-                angles = _tryallanglestest(angles, np.diag(Aevals), np.diag(Bevals), Rrel1, convention)
-                angles = -1*_handle_euler_edge_cases(
-                    -1*angles[::-1],
-                    Bevals,
-                    other._symm,
-                    convention = convention,
-                    passive = passive
-                )
-                if not passive:
-                    angles= angles[::-1]
-
-                return angles
-
-
-
-
+                rel_tensor = NMRTensor((axial.eigenvalues, rel), order=axial.order)
+                angles = rel_tensor.euler_angles(convention, passive=sense)
+                return _normalise_euler_angles(angles, passive=passive)
 
             if convention not in ["zyz", "zxz"]:
                 # if neither zyz nor zxz, warn
@@ -517,7 +626,13 @@ class NMRTensor(NDArrayOperatorsMixin):
             R = other.rotation_to(self).T
         else:
             R = self.rotation_to(other)
-        return _matrix_to_euler(R.T, convention, passive)
+        # Decompose the relative rotation ``rel = R_selfᵀ · R_other`` directly.
+        # The *active* angles (passive=False) then satisfy
+        # ``R_other = R_self · R(α,β,γ)`` — the intrinsic rotation carrying this
+        # tensor's PAS onto ``other``'s PAS — consistent with the physical
+        # convention and with ``euler_angles``. (Previously this decomposed
+        # ``R.T``, which inverted the active/passive sense for euler_to.)
+        return _matrix_to_euler(R, convention, passive)
 
     def equivalent_euler_to(self, other, convention="zyz", passive=False):
         '''
@@ -1550,7 +1665,7 @@ class ElectricFieldGradient(NMRTensor):
         # Nuclear spin in Bohr magnetons
         self.spin = nmr_spin(element, iso=isotope_number)
 
-        # Quadrupole moment in barns
+        # Quadrupole moment in millibarn
         self.quadrupole_moment = quadrupole_moment or nmr_quadrupole(element, iso=isotope_number)
 
         # gamma in rad/(s*T)
@@ -1802,7 +1917,7 @@ class ElectricFieldGradient(NMRTensor):
         s =  f"Electric Field Gradient Tensor for {self.species}:\n"
         # 3x3 tensor representation neatly formatted with 5 decimal places
         s += str(np.array2string(self.data, precision=5, separator=",", suppress_small=True)) + "\n"
-        s += f"Quadrupole moment: {self.quadrupole_moment} barns\n"
+        s += f"Quadrupole moment: {self.quadrupole_moment} millibarn\n"
         s += f"Nuclear spin: {self.spin}\n"
         if self.Cq == 0:
             s += "This site is not quadrupole active.\n"

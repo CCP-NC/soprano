@@ -1196,7 +1196,7 @@ def _(
         'γ (deg)': equivalent_eulers_0_to_1_vis[:,2],
     })
     mo.vstack([
-        mo.md(f"The equivalent Euler angles (in degrees) to rotate from the MS tensor of site **{euler_selection_start_index}** to site **{euler_selection_end_index}** according to the chosen convention."),
+        mo.md(f"The equivalent Euler angles (in degrees), in the chosen convention, of the orientation of the MS tensor of site **{euler_selection_end_index}** in the principal axis system of the MS tensor of site **{euler_selection_start_index}**. Active angles rotate the axes of the first tensor onto those of the second."),
         mo.ui.table(
             df_equivalent_eulers,
             page_size=16,
@@ -1223,7 +1223,7 @@ def _(efg_tensors, filtered_indices, filtered_labels, has_efg, mo, ms_tensors, n
     df_ms_to_efg_eulers = pd.DataFrame(ms_to_efg_eulers, columns=_euler_columns, index=filtered_labels)
     mo.vstack([
         mo.md(r"""### Relative Euler angles between MS and EFG tensors"""),
-        mo.md(r"""The table below shows the Euler angles (in degrees) to rotate from the MS tensor to the EFG tensor for each of the selected atoms."""),
+        mo.md(r"""The table below shows the Euler angles (in degrees) of the orientation of the EFG tensor in the principal axis system of the MS tensor (the active angles that rotate the MS axes onto the EFG axes) for each of the selected atoms."""),
         mo.ui.table(
             df_ms_to_efg_eulers,
             page_size=50,
