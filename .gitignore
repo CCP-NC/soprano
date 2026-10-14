@@ -125,7 +125,7 @@ docs/_static/apps
 .serena/
 # Agent tooling (machine-local)
 .claude/
-AGENTS.md
+/AGENTS.md
 
 # Tutorial and test export artefacts
 tutorials/tutorial_data/_tmp_output/
