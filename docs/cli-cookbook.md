@@ -123,6 +123,8 @@ Here are some common examples:
             seedname.magres
         ```
 
+    * Exporting the 2D spectrum (`--export-file`, `--export-format`) to Bruker TopSpin, ssNake, SIMPSON, NPZ, CSV or plain text is experimental. The formats and options may change between releases, so check the exported axes against the `peaks.csv` written alongside before relying on them.
+
     * If you need the generated contour grid to match the intensity scale expected by external tools (for example when comparing with experimental files in ssNake), rescale the synthetic grid maximum with `--grid-max`:
 
         ```bash

@@ -1,7 +1,13 @@
 """Contour export helpers for 2D NMR data.
 
-This module owns all contour-grid serialization logic (SIMPSON/NPZ/CSV/JSON)
-and is the separation-of-concerns boundary between data extraction and file I/O.
+This module owns all contour-grid serialization logic (SIMPSON/NPZ/CSV/JSON/
+Bruker) and is the separation-of-concerns boundary between data extraction and
+file I/O.
+
+Experimental: the export formats, their parameters and the files they write
+may change without a deprecation period. The Bruker TopSpin and ssNake/SIMPSON
+axis conventions have been checked against nmrglue and ssNake's readers, but
+not yet against every reader version.
 
 Public entrypoints:
     export_contour_data
@@ -194,6 +200,22 @@ def _log_warning(nmr_data: Any, message: str) -> None:
         logger.warning(message)
 
 
+_EXPERIMENTAL_WARNED = False
+
+
+def _warn_experimental_once(nmr_data: Any) -> None:
+    global _EXPERIMENTAL_WARNED
+    if _EXPERIMENTAL_WARNED:
+        return
+    _EXPERIMENTAL_WARNED = True
+    _log_warning(
+        nmr_data,
+        "2D spectrum export (Bruker TopSpin, ssNake, SIMPSON, NPZ, CSV, plain text) "
+        "is experimental: formats and parameters may change. Check exported axes "
+        "against the peak list before relying on them.",
+    )
+
+
 def _write_peaks_csv(peaks: list["Peak2D"], path: str) -> None:
     with open(path, "w", newline="") as f:
         writer = csv.writer(f)
@@ -263,6 +285,11 @@ def export_contour_data(
 ) -> None:
     """Export contour data for an NMRData2D instance.
 
+    .. warning::
+        Experimental. The formats, their parameters and the files written may
+        change without a deprecation period. The first export in a session
+        logs a warning saying so.
+
     Parameters
     ----------
     nmr_data : NMRData2D
@@ -283,6 +310,7 @@ def export_contour_data(
         holds the grid that was used for plotting.
     """
     effective = config if config is not None else ExportConfig()
+    _warn_experimental_once(nmr_data)
 
     # Resolve format
     if fmt is None:

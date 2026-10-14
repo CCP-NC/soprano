@@ -783,7 +783,7 @@ plot_export_files = click.option(
     type=click.Path(exists=False, dir_okay=True, writable=True),
     multiple=True,
     metavar="PATH",
-    help="Export the 2D contour data to PATH.  May be repeated for multiple "
+    help="[Experimental] Export the 2D contour data to PATH.  May be repeated for multiple "
     "output files.  The format is inferred from the file extension: "
     ".spe / .sim -> SIMPSON TEXT (readable by ssNake); "
     ".npz -> NumPy archive; "
@@ -799,7 +799,7 @@ plot_export_format = click.option(
         case_sensitive=False,
     ),
     default=None,
-    help="Force a specific export format, overriding extension inference. "
+    help="[Experimental] Force a specific export format, overriding extension inference. "
     "Choices: simpson, npz, csv, json, plain, ssnake (alias for json), bruker.",
 )
 plot_b0_field = click.option(

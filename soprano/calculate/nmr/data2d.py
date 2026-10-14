@@ -911,6 +911,10 @@ class NMRData2D:
         """
         Export the 2D NMR contour data to a file.
 
+        .. warning::
+            Experimental. The formats, their parameters and the files written
+            may change without a deprecation period.
+
         The contour grid is computed via :meth:`get_contour_data` (and cached
         for subsequent calls).  The peak list is always included alongside the
         grid where the format supports it.

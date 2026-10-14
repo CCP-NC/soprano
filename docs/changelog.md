@@ -68,6 +68,13 @@ All notable changes to Soprano are documented here.
 
 #### 2D NMR spectra and export
 
+Exporting 2D spectra (`export_contour_data`, `plotnmr --export-file`) to Bruker TopSpin,
+ssNake, SIMPSON, NPZ, CSV and plain text is **experimental** in this release. Formats and
+options may change without a deprecation period, and the first export in a session logs a
+warning saying so.
+
+- Bruker datasets open in TopSpin 5: the parameter files carry the JCAMP-DX header TopSpin
+  requires, and `YMAX_p`/`YMIN_p` plus a `clevels` file give it usable default contours.
 - Larmor frequencies use the selected isotope (e.g. ¹⁵N rather than ¹⁴N).
 - Bruker export: the indirect axis now round-trips exactly through nmrglue; an existing
   dataset is not overwritten unless `ExportConfig(overwrite=True)` / `--overwrite` is given;
