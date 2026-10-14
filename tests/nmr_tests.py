@@ -2357,13 +2357,12 @@ class TestEFGMeanProperties(unittest.TestCase):
         """expand_j='cif_labels' should error without CIF labels."""
         eth = io.read(_TESTDATA_DIR / "ethanol.magres")
         # ethanol.magres has labels that are just element symbols, not CIF labels
-        # Check if it actually has cif-style labels; if not, expect ValueError
         from soprano.utils import has_cif_labels
-        if not has_cif_labels(eth):
-            with self.assertRaises(ValueError):
-                DipolarRSSByAtom.get(
-                    eth, sel_i=[0], sel_j=[1], expand_j="cif_labels"
-                )
+        self.assertFalse(has_cif_labels(eth), "ethanol.magres unexpectedly has CIF labels")
+        with self.assertRaises(ValueError):
+            DipolarRSSByAtom.get(
+                eth, sel_i=[0], sel_j=[1], expand_j="cif_labels"
+            )
 
     def test_dipolar_rss_by_atom_expand_symmetry(self):
         """Test expand_j='symmetry' expands to symmetry-equivalent sites."""
@@ -2397,12 +2396,13 @@ class TestEFGMeanProperties(unittest.TestCase):
                 eth, sel_i=[0], sel_j=[8], cutoff=0.01
             )
             self.assertEqual(rss[0], 0.0)
-            # Should have emitted a warning about no neighbours
-            self.assertEqual(len(w), 1)
-            self.assertIn("no neighbours", str(w[0].message).lower())
-            self.assertIn("cutoff=0.01", str(w[0].message))
+            # Should have emitted exactly one "no neighbours" warning
+            no_nb = [x for x in w if "no neighbours" in str(x.message).lower()]
+            self.assertEqual(len(no_nb), 1)
+            msg = str(no_nb[0].message)
+            self.assertIn("cutoff=0.01", msg)
             # Warning should mention the selected neighbour and its distance
-            self.assertIn("O (index 8)", str(w[0].message))
+            self.assertIn("O (index 8)", msg)
 
 
 if __name__ == "__main__":

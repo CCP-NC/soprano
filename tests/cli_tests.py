@@ -910,6 +910,107 @@ class TestPlotNMRCLI(unittest.TestCase):
         self.assertTrue(output.exists())
 
 
+class TestPlotNMRDipolarRSSCLI(unittest.TestCase):
+    """End-to-end CLI tests for `soprano plotnmr` with dipolar_rss weighting.
+
+    Uses Click's test runner so no subprocess is spawned. The default EDIZUM
+    invocation runs once for the whole class, since two tests check its output.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import matplotlib
+        matplotlib.use("Agg")   # non-interactive backend; no display required
+        cls._magres = str(Path(__file__).parent / "test_data" / "EDIZUM.magres")
+        cls._temp_dir_obj = tempfile.TemporaryDirectory(prefix="soprano_plotnmr_dipolar_test_")
+        cls._TESTSAVE_DIR = Path(cls._temp_dir_obj.name)
+        cls._basic_result = cls._run([], "basic.png")
+
+    @classmethod
+    def tearDownClass(cls):
+        import matplotlib.pyplot as plt
+        plt.close("all")
+        try:
+            cls._temp_dir_obj.cleanup()
+        except Exception:
+            pass
+
+    @classmethod
+    def _run(cls, extra_args, png_name="out.png"):
+        """Invoke plotnmr and save the plot to a PNG file to avoid plt.show()."""
+        import matplotlib.pyplot as plt
+        base = [
+            "plotnmr", cls._magres,
+            "-p", "2D",
+            "-x", "H", "-y", "H",
+            "--yaxis-order", "2Q",
+            "--references", "H:29.5",
+            "--output", str(cls._TESTSAVE_DIR / png_name),
+        ]
+        with patch("click_log.basic_config"):
+            result = CliRunner().invoke(soprano, base + extra_args)
+        plt.close("all")
+        return result
+
+    def _assert_ok(self, result):
+        self.assertEqual(result.exit_code, 0,
+                         f"Unexpected exit: {result.output}\n{result.exception}")
+
+    def test_cli_basic_2d_exits_cleanly(self):
+        """Basic 2D H–H DQ/SQ plot (default reduce, fixed weights) returns exit_code=0."""
+        self._assert_ok(self._basic_result)
+
+    def test_cli_basic_2d_writes_valid_png(self):
+        """The --output PNG must be created and be a readable, non-empty image."""
+        import matplotlib.image as mpimg
+        self._assert_ok(self._basic_result)
+        png = self._TESTSAVE_DIR / "basic.png"
+        self.assertTrue(png.exists(), "Expected output PNG to be written")
+        self.assertGreater(png.stat().st_size, 0, "Output PNG is empty")
+        img = mpimg.imread(str(png))
+        self.assertGreaterEqual(img.shape[0], 100)
+        self.assertGreaterEqual(img.shape[1], 100)
+
+    def test_cli_no_reduce_exits_cleanly(self):
+        """--no-reduce runs without errors (uses full 148-atom structure)."""
+        self._assert_ok(self._run(["--no-reduce"]))
+
+    def test_cli_dipolar_rss_periodic_images_exits_cleanly(self):
+        """--weight-by dipolar_rss with default expand_j runs cleanly."""
+        self._assert_ok(self._run(["--weight-by", "dipolar_rss", "--rss-cutoff", "10.0"]))
+
+    def test_cli_dipolar_rss_cif_labels_exits_cleanly(self):
+        """--weight-by dipolar_rss --rss-expand-j cif_labels runs cleanly."""
+        self._assert_ok(self._run([
+            "--weight-by", "dipolar_rss",
+            "--rss-cutoff", "10.0",
+            "--rss-expand-j", "cif_labels",
+        ]))
+
+    def test_cli_dipolar_rss_symmetry_expand_exits_cleanly(self):
+        """--rss-expand-j symmetry runs cleanly (uses spglib, ignores CIF labels)."""
+        self._assert_ok(self._run([
+            "--weight-by", "dipolar_rss",
+            "--rss-cutoff", "10.0",
+            "--rss-expand-j", "symmetry",
+        ]))
+
+    def test_cli_export_simpson_writes_files(self):
+        """--export-file writes SIMPSON grid and companion peaks CSV."""
+        export_path = self._TESTSAVE_DIR / "cli_export.spe"
+        result = self._run([
+            "--export-file", str(export_path),
+            "--export-format", "simpson",
+            "--x-larmor-freq", "100.0",
+        ])
+        self._assert_ok(result)
+        self.assertTrue(export_path.exists(), "Expected .spe export file")
+        self.assertTrue(
+            Path(str(export_path) + ".peaks.csv").exists(),
+            "Expected SIMPSON companion .peaks.csv file",
+        )
+
+
 class TestBasicCLICommands(unittest.TestCase):
     """Smoke tests for the core CLI subcommands."""
 

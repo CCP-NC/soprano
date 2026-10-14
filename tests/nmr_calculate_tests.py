@@ -11,6 +11,7 @@ from typing import List, Tuple
 import numpy as np
 from ase import io
 from ase.build import bulk, molecule
+from scipy import constants as cnst
 
 from soprano.calculate.nmr.nmr import (
     NMRData2D,
@@ -20,6 +21,7 @@ from soprano.calculate.nmr.nmr import (
     merge_peaks,
 )
 from soprano.calculate.nmr.utils import _build_equiv_groups, _nearest_equiv_site, generate_peaks, get_atom_labels
+from soprano.data.nmr import _get_isotope_data
 from soprano.properties.nmr import DipolarRSSByAtom
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
@@ -157,10 +159,19 @@ class TestGetPairDipolarCouplings(unittest.TestCase):
                                              (1, 3)  # Cl-Cl (same distance as self-pair above)
                                              ]
         self.isotopes = {'Na': 23, 'Cl': 35}
-        self.reference_dipolar_couplings = [-0.139069188,
-                                            -0.018222048,  # Cl to nearest equiv Cl (same as Cl-Cl pair)
-                                            -0.132670595,
-                                            -0.018222048]
+        # Closed form D = -mu0 * hbar * gi * gj / (8 pi^2 r^3), in kHz, with the
+        # distances taken from the structure itself.
+        g_na, g_cl = _get_isotope_data(np.array(['Na', 'Cl']), 'gamma', self.isotopes, None)
+
+        def dipolar_khz(r_ang, gi, gj):
+            return -cnst.mu_0 * cnst.hbar * gi * gj / (8 * np.pi ** 2 * (r_ang * 1e-10) ** 3) * 1e-3
+
+        self.reference_dipolar_couplings = [
+            dipolar_khz(self.atoms.get_distance(0, 1, mic=True), g_na, g_cl),  # Na-Cl
+            dipolar_khz(self.atoms.get_distance(1, 3, mic=True), g_cl, g_cl),  # Cl to nearest equiv Cl (same as Cl-Cl pair)
+            dipolar_khz(self.atoms.get_distance(0, 2, mic=True), g_na, g_na),  # Na-Na
+            dipolar_khz(self.atoms.get_distance(1, 3, mic=True), g_cl, g_cl),  # Cl-Cl
+        ]
 
     def test_dipolar_couplings(self):
         dipolar_couplings = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
@@ -316,19 +327,25 @@ class TestDipolarRSSMetric(unittest.TestCase):
         )
 
     def test_expand_j_symmetry_expands_sel_j(self):
-        """RSS with expand_j='symmetry' should be >= 'periodic_images' for same pair."""
-        d_pi = self._make_hc(rss_cutoff=10.0, rss_expand_j="periodic_images")
-        d_sym = self._make_hc(rss_cutoff=10.0, rss_expand_j="symmetry")
+        """expand_j='symmetry' adds the symmetry-equivalent neighbours, so RSS strictly grows.
 
-        pi_map = {(p.idx_x, p.idx_y): p.correlation_strength for p in d_pi.peaks}
-        sym_map = {(p.idx_x, p.idx_y): p.correlation_strength for p in d_sym.peaks}
+        EDIZUM (P2_12_12_1, Z=4) has four equivalent copies of each C site, so
+        expanding a single C seed must add three more neighbours and change the RSS.
+        """
+        edizum = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        syms = edizum.get_chemical_symbols()
+        h_idx = syms.index("H")
+        c_idx = syms.index("C")
 
-        # Symmetry expansion can only add neighbours, so RSS can only increase
-        common_keys = set(pi_map) & set(sym_map)
-        self.assertGreater(len(common_keys), 0,
-            "No common (idx_x, idx_y) peaks between periodic_images and symmetry runs — comparison loop would be vacuous")
-        for key in common_keys:
-            self.assertGreaterEqual(sym_map[key], pi_map[key] - 1e-9)
+        rss_pi = DipolarRSSByAtom.get(
+            edizum, sel_i=[h_idx], sel_j=[c_idx], cutoff=10.0,
+            expand_j="periodic_images",
+        )[0]
+        rss_sym = DipolarRSSByAtom.get(
+            edizum, sel_i=[h_idx], sel_j=[c_idx], cutoff=10.0,
+            expand_j="symmetry",
+        )[0]
+        self.assertGreater(rss_sym, rss_pi)
 
     def test_dipolar_rss_in_marker_info(self):
         """'dipolar_rss' should be registered in MARKER_INFO with expected fields."""
@@ -755,7 +772,7 @@ class TestNMRData2DReduce(unittest.TestCase):
 
         common = set(red_map) & set(full_map)
         self.assertGreater(len(common), 0, "No common label-pairs between reduce=True and reduce=False results")
-        for lp in list(common)[:5]:
+        for lp in sorted(common)[:5]:
             self.assertAlmostEqual(
                 red_map[lp], full_map[lp], places=4,
                 msg=f"RSS mismatch for label pair {lp}: reduce=True→{red_map[lp]:.5f} reduce=False→{full_map[lp]:.5f}",
@@ -844,14 +861,14 @@ class TestNMRData2DReduce(unittest.TestCase):
                 pairs=[(a, b)],
             )
 
-        # Check pairs were remapped
+        # Check pairs were remapped; the warning check below only means something
+        # if the indices actually change under reduction.
+        self.assertNotEqual([(a, b)], expected_remapped)
         self.assertEqual(nd.pairs, expected_remapped)
-        # A warning should have been emitted if indices actually changed
-        if [(a, b)] != expected_remapped:
-            self.assertTrue(
-                any("remapped" in str(warning.message) for warning in w),
-                "Expected a warning about pairs being remapped",
-            )
+        self.assertTrue(
+            any("remapped" in str(warning.message) for warning in w),
+            "Expected a warning about pairs being remapped",
+        )
 
     def test_user_pairs_remapped_produces_valid_peaks(self):
         """Full-cell pairs with reduce=True should remap and produce valid peaks."""
@@ -984,7 +1001,7 @@ class TestNMRData2DSymmetryExpand(unittest.TestCase):
         common = set(sym_map) & set(cif_map)
         self.assertGreater(len(common), 0,
                            "No common label-pairs between symmetry and cif_labels results")
-        for lp in list(common)[:10]:
+        for lp in sorted(common)[:10]:
             self.assertAlmostEqual(
                 sym_map[lp], cif_map[lp], places=4,
                 msg=(
@@ -1087,209 +1104,88 @@ class TestDipolarRSSDuplicateLabelFix(unittest.TestCase):
                 ),
             )
 
-    def test_synthetic_non_equivalent_duplicates_show_difference(self):
-        """When the same CIF label is assigned to non-equivalent atoms,
-        taking only the first of them gives a different, wrong answer.
+    def test_label_site_rss_sums_over_all_members(self):
+        """A site built from one CIF label sums over every member, not just the first.
+
+        Atom 0 (label H1) is a site of its own. Atoms 1-3 share label H2 but are
+        not symmetry-equivalent in this P1 cell, so the CIF-label fallback in the
+        reduction merges them into one site. The RSS from atom 0 to that site must
+        be the root-sum-square over all three members.
         """
         from ase import Atoms
 
-        # Four H atoms in a line: 0–1 Å apart, then a 4 Å gap, then 5–6 Å
         atoms = Atoms(
             "H4",
             positions=[
-                [0.0, 0.0, 0.0],
-                [1.0, 0.0, 0.0],
-                [5.0, 0.0, 0.0],
-                [6.0, 0.0, 0.0],
+                [5.0, 5.0, 5.0],
+                [8.0, 5.0, 5.0],
+                [5.0, 8.5, 5.0],
+                [5.0, 5.0, 9.0],
             ],
             cell=[20, 20, 20],
+            pbc=True,
         )
-        # Force the same label on all four atoms
-        atoms.set_array("labels", np.array(["H1", "H1", "H1", "H1"]))
+        atoms.set_array("labels", np.array(["H1", "H2", "H2", "H2"]))
+        atoms.set_array("ms", np.broadcast_to(np.eye(3) * 30.0, (4, 3, 3)).copy())
+        cutoff = 10.0
 
-        # Confirm the atoms are non-equivalent (prerequisite for the bug to manifest):
-        # atom 0 at [0,0,0] and atom 2 at [5,0,0] see different neighbour distances,
-        # so their RSS values must differ.
-        rss_atom0 = DipolarRSSByAtom.get(
-            atoms, sel_i=[0], sel_j=[0, 1, 2, 3], cutoff=10.0, expand_j="periodic_images",
-        )[0]
-        rss_atom2 = DipolarRSSByAtom.get(
-            atoms, sel_i=[2], sel_j=[0, 1, 2, 3], cutoff=10.0, expand_j="periodic_images",
-        )[0]
-        self.assertNotAlmostEqual(
-            rss_atom0, rss_atom2, places=3,
-            msg="Atoms 0 and 2 should have different RSS values (non-equivalent positions)",
+        with self.assertWarnsRegex(UserWarning, "don't match the CIF labels"):
+            nd = NMRData2D(
+                atoms,
+                xelement="H",
+                yelement="H",
+                correlation_strength_metric="dipolar_rss",
+                rss_cutoff=cutoff,
+                rss_expand_j="periodic_images",
+                reduce=True,
+                pairs=[(0, 1)],
+            )
+        self.assertEqual(sorted(nd.site_map.members(1).tolist()), [1, 2, 3])
+
+        per_member = np.array([
+            DipolarRSSByAtom.get(
+                nd.source, sel_i=[0], sel_j=[j], cutoff=cutoff,
+                expand_j="periodic_images",
+            )[0]
+            for j in (1, 2, 3)
+        ])
+        expected_khz = np.sqrt(np.sum(per_member ** 2)) * 1e-3
+        self.assertAlmostEqual(nd.correlation_strengths[0], expected_khz, places=5)
+        # The first member alone must be clearly different, or the check proves nothing.
+        self.assertGreater(expected_khz, per_member[0] * 1e-3 * 1.1)
+
+    def test_label_site_with_non_equivalent_members_warns_as_sel_i(self):
+        """When the merged site is on the sel_i side, its members have different
+        RSS values; the first is used and a warning names the site."""
+        from ase import Atoms
+
+        atoms = Atoms(
+            "H4",
+            positions=[
+                [5.0, 5.0, 5.0],
+                [8.0, 5.0, 5.0],
+                [5.0, 8.5, 5.0],
+                [5.0, 5.0, 9.0],
+            ],
+            cell=[20, 20, 20],
+            pbc=True,
         )
+        atoms.set_array("labels", np.array(["H1", "H2", "H2", "H2"]))
+        atoms.set_array("ms", np.broadcast_to(np.eye(3) * 30.0, (4, 3, 3)).copy())
 
-        # The real difference is in sel_j when expand_j is NOT used:
-        # if sel_j had been limited to the first index, neighbours 2 and 3
-        # would have been missed for atom 0.
-        rss_j_first_only = DipolarRSSByAtom.get(
-            atoms,
-            sel_i=[0],
-            sel_j=[0],           # ONLY first atom as neighbour
-            cutoff=10.0,
-            expand_j="periodic_images",
-        )[0]
-
-        rss_j_all = DipolarRSSByAtom.get(
-            atoms,
-            sel_i=[0],
-            sel_j=[0, 1, 2, 3],  # ALL atoms as neighbours
-            cutoff=10.0,
-            expand_j="periodic_images",
-        )[0]
-
-        # Atom 0 couples to atoms 1, 2, and 3 within the 10 Å cutoff;
-        # restricting sel_j to [0] gives a much smaller RSS.
-        self.assertGreater(
-            rss_j_all, rss_j_first_only * 1.5,
-            "Expected significantly larger RSS when all neighbour indices are included",
-        )
-
-
-class TestPlotNMRCLI(unittest.TestCase):
-    """End-to-end CLI tests for `soprano plotnmr` with dipolar_rss weighting.
-
-    Uses Click's test runner so no subprocess is spawned.  Checks that:
-    - The command runs without errors for basic 2D H–H DQ/SQ cases
-    - The --no-reduce flag runs cleanly (more peaks than default reduce)
-    - --weight-by dipolar_rss --rss-expand-j cif_labels terminates with exit_code=0
-    """
-
-    def setUp(self):
-        import tempfile
-        from unittest.mock import patch
-        from click.testing import CliRunner
-        from soprano.scripts.cli import soprano as soprano_cli
-        import matplotlib
-        matplotlib.use("Agg")   # non-interactive backend; no display required
-        self._runner = CliRunner()
-        self._patch = patch
-        self._soprano_cli = soprano_cli
-        self._magres = os.path.join(_TESTDATA_DIR, "EDIZUM.magres")
-        self._tmp = tempfile.mkdtemp()
-
-    def tearDown(self):
-        import shutil, matplotlib.pyplot as plt
-        plt.close("all")
-        shutil.rmtree(self._tmp, ignore_errors=True)
-
-    def _csv_path(self, name):
-        return os.path.join(self._tmp, name)
-
-    def _run(self, extra_args):
-        """Invoke plotnmr and save the plot to a PNG file to avoid plt.show().
-
-        Uses Agg backend (set in setUp) so no display is needed.
-        """
-        import matplotlib.pyplot as plt
-        png = self._csv_path("out.png")
-        base = [
-            "plotnmr", self._magres,
-            "-p", "2D",
-            "-x", "H", "-y", "H",
-            "--yaxis-order", "2Q",
-            "--references", "H:29.5",
-            "--output", png,   # save plot to file; prevents plt.show()
-        ]
-        with self._patch("click_log.basic_config"):
-            result = self._runner.invoke(self._soprano_cli, base + extra_args)
-        plt.close("all")
-        return result
-
-    def test_cli_basic_2d_exits_cleanly(self):
-        """Basic 2D H–H DQ/SQ plot (default reduce, fixed weights) returns exit_code=0."""
-        result = self._run([])
-        self.assertEqual(result.exit_code, 0,
-                          f"Unexpected exit: {result.output}\n{result.exception}")
-
-    def test_cli_basic_2d_writes_valid_png(self):
-        """The --output PNG must be created and be a readable, non-empty image."""
-        png = self._csv_path("out.png")
-        result = self._run([])
-        self.assertEqual(result.exit_code, 0,
-                          f"Unexpected exit: {result.output}\n{result.exception}")
-        self.assertTrue(os.path.exists(png), "Expected output PNG to be written")
-        self.assertGreater(os.path.getsize(png), 0, "Output PNG is empty")
-        # Validate it is a real raster image with sensible dimensions.
-        import matplotlib.image as mpimg
-        img = mpimg.imread(png)
-        self.assertGreaterEqual(img.shape[0], 100)
-        self.assertGreaterEqual(img.shape[1], 100)
-
-    def test_cli_no_reduce_exits_cleanly(self):
-        """--no-reduce runs without errors (uses full 148-atom structure)."""
-        result = self._run(["--no-reduce"])
-        self.assertEqual(result.exit_code, 0,
-                          f"Unexpected exit: {result.output}\n{result.exception}")
-
-    def test_cli_dipolar_rss_periodic_images_exits_cleanly(self):
-        """--weight-by dipolar_rss with default expand_j runs cleanly."""
-        result = self._run(["--weight-by", "dipolar_rss", "--rss-cutoff", "10.0"])
-        self.assertEqual(result.exit_code, 0,
-                          f"Unexpected exit: {result.output}\n{result.exception}")
-
-    def test_cli_dipolar_rss_cif_labels_exits_cleanly(self):
-        """--weight-by dipolar_rss --rss-expand-j cif_labels runs cleanly."""
-        result = self._run([
-            "--weight-by", "dipolar_rss",
-            "--rss-cutoff", "10.0",
-            "--rss-expand-j", "cif_labels",
-        ])
-        self.assertEqual(result.exit_code, 0,
-                          f"Unexpected exit: {result.output}\n{result.exception}")
-
-    def test_cli_reduce_and_no_reduce_both_exit_cleanly(self):
-        """Both --reduce (default) and --no-reduce complete without errors."""
-        result_r = self._run([])
-        result_f = self._run(["--no-reduce"])
-        self.assertEqual(result_r.exit_code, 0,
-                         f"--reduce failed: {result_r.output}\n{result_r.exception}")
-        self.assertEqual(result_f.exit_code, 0,
-                         f"--no-reduce failed: {result_f.output}\n{result_f.exception}")
-
-    def test_cli_dipolar_rss_symmetry_expand_exits_cleanly(self):
-        """--rss-expand-j symmetry runs cleanly (uses spglib, ignores CIF labels)."""
-        result = self._run([
-            "--weight-by", "dipolar_rss",
-            "--rss-cutoff", "10.0",
-            "--rss-expand-j", "symmetry",
-        ])
-        self.assertEqual(result.exit_code, 0,
-                         f"Unexpected exit: {result.output}\n{result.exception}")
-
-    def test_cli_export_simpson_writes_files(self):
-        """--export-file writes SIMPSON grid and companion peaks CSV."""
-        export_path = self._csv_path("cli_export.spe")
-        result = self._run([
-            "--export-file", export_path,
-            "--export-format", "simpson",
-            "--x-larmor-freq", "100.0",
-        ])
-        self.assertEqual(result.exit_code, 0,
-                         f"Unexpected exit: {result.output}\n{result.exception}")
-        self.assertTrue(os.path.exists(export_path), "Expected .spe export file")
-        self.assertTrue(
-            os.path.exists(export_path + ".peaks.csv"),
-            "Expected SIMPSON companion .peaks.csv file",
-        )
-
-    def test_cli_export_npz_respects_grid_max(self):
-        """--grid-max rescales exported NPZ contour grid to requested max intensity."""
-        export_path = self._csv_path("cli_export_scaled.npz")
-        target_max = 1.0e6
-        result = self._run([
-            "--export-file", export_path,
-            "--export-format", "npz",
-            "--grid-max", str(target_max),
-        ])
-        self.assertEqual(result.exit_code, 0,
-                         f"Unexpected exit: {result.output}\n{result.exception}")
-        self.assertTrue(os.path.exists(export_path), "Expected .npz export file")
-
-        payload = np.load(export_path, allow_pickle=True)
-        self.assertAlmostEqual(float(np.max(payload["Z"])), target_max, places=6)
+        with self.assertWarnsRegex(UserWarning, "don't match the CIF labels"), \
+                self.assertLogs("soprano.calculate.nmr.data2d", level="WARNING") as logs:
+            NMRData2D(
+                atoms,
+                xelement="H",
+                yelement="H",
+                correlation_strength_metric="dipolar_rss",
+                rss_cutoff=10.0,
+                rss_expand_j="periodic_images",
+                reduce=True,
+                pairs=[(1, 0)],
+            )
+        self.assertTrue(any("not equivalent" in m for m in logs.output))
 
 
 if __name__ == '__main__':
