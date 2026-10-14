@@ -100,7 +100,7 @@ these went unnoticed). Re-export any spin systems you generated with earlier ver
 The exact angle convention is now documented in {doc}`simpson-conventions`, with a test
 suite (`tests/nmr_export_orientation_tests.py`) that rebuilds each tensor from the written
 angles, and checks the formulas it uses against stored SIMPSON and mrsimulator spectra of the
-written spin systems, and single-crystal SIMPSON simulations that fix the absolute frame of the SIMPSON angles (run in CI from the `jkshenton/simpson` container). Note that mrsimulator's default octant powder integration is wrong for
+written spin systems, and single-crystal SIMPSON simulations that fix the absolute frame of the SIMPSON angles for a CSA with a dipolar or a J coupling (run in CI with SIMPSON 6.1.4 from the `jkshenton/simpson` container). Note that mrsimulator's default octant powder integration is wrong for
 spin systems with tensors in general relative orientations; use
 `sim.config.integration_volume = "hemisphere"`.
 

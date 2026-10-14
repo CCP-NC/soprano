@@ -3,7 +3,7 @@
 All tests use `crystal_file alpha0beta0` (single crystal) so the spectrum consists of
 sharp delta-function lines at analytically predictable frequencies.
 
-Tests were run against **SIMPSON v6.0.2**.
+Tests were run against **SIMPSON v6.0.2**, and all pass with **SIMPSON v6.1.4**.
 
 **SIMPSON conventions used:**
 - `proton_frequency = 400e6` Hz (400 MHz spectrometer)
@@ -223,7 +223,7 @@ jcoupling 1 2 100.000000 0.000000 0.000000 0.000000 0.000000 0.000000
 
 **System**: ¹H–¹³C pair, J_iso = 0 Hz, ζ = +200 Hz, η = 0
 
-For J-coupling, SIMPSON v6.0.2's `aniso` parameter is **ζ/2** (half the reduced anisotropy).
+For J-coupling, SIMPSON's `aniso` parameter (v6.0.2 and v6.1.4) is **ζ/2** (half the reduced anisotropy).
 The effective splitting is:
 ```
 Splitting = |aniso × (3cos²β − 1)|
