@@ -7,7 +7,7 @@ conventions, so each writer is tested by rebuilding the lab-frame tensor from th
 angles with that program's own formula:
 
 * SIMPSON (degrees): ``T = R diag(PAS) R^T`` with ``R = Rz(-gamma) Ry(-beta) Rz(-alpha)``
-  (passive; the ``_lab_simpson`` helper below).
+  (passive; ``lab_simpson`` in ``tests/nmr_test_helpers.py``).
 * mrsimulator (radians): ``R = Rz(gamma) Ry(beta) Rz(alpha)`` as in
   ``mrsimulator.utils.cartesian_tensor`` (``_lab_mrsimulator``). In TensorView's terms this is the
   *active* ZYZ rotation with alpha and gamma interchanged; ``Rz``/``Ry`` are ordinary rotation
@@ -35,7 +35,8 @@ Powder spectra cannot tell SIMPSON's frame from its mirror image (a pi rotation 
 ``TestSimpsonSingleCrystal`` also checks the absolute frame with single-crystal simulations:
 the field direction in the written frame for a crystallite ``(alpha, beta)`` is
 ``Rz(alpha) Ry(beta) z``, and the two lines of a CSA + dipolar pair are ``larmor * n.delta.n
-+- n.D.n / 2`` for the lab-frame tensors Soprano started from. The stored lines are in
++- n.D.n / 2`` for the lab-frame tensors Soprano started from. The same is done with an anisotropic
+J coupling in place of the dipole (``j_coupling_case``). The stored lines are in
 ``simpson_reference.json``; the live tests run SIMPSON itself if it is on the PATH (set
 ``SOPRANO_REQUIRE_SIMPSON`` to fail instead of skip; the CI job puts a ``simpson`` wrapper around
 the ``jkshenton/simpson`` container image on the PATH).
@@ -44,11 +45,8 @@ the ``jkshenton/simpson`` container image on the PATH).
 import json
 import os
 import shutil
-import subprocess
-import tempfile
 import unittest
 import warnings
-from pathlib import Path
 
 import numpy as np
 
@@ -56,39 +54,28 @@ from soprano.data.nmr import EFG_TO_CHI, nmr_gamma, nmr_quadrupole
 from soprano.nmr.coupling import DipolarCoupling, ISCoupling
 from soprano.nmr.site import Site
 from soprano.nmr.tensor import ElectricFieldGradient, MagneticShielding, NMRTensor
-
-try:
-    from mrsimulator.utils import cartesian_tensor as mrs_ct
-except Exception:  # not installed, or not importable on this Python
-    if os.environ.get("SOPRANO_REQUIRE_MRSIMULATOR"):  # set by the mrsimulator CI job
-        raise
-    mrs_ct = None
-
-
-def _Rz(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
-
-
-def _Ry(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
-
-
-def _lab_simpson(evals, alpha, beta, gamma):
-    """T_lab = E diag(evals) E^T, E = Rz(-gamma) Ry(-beta) Rz(-alpha) (SIMPSON, passive)."""
-    E = _Rz(-gamma) @ _Ry(-beta) @ _Rz(-alpha)
-    return E @ np.diag(evals) @ E.T
+from tests.nmr_test_helpers import (
+    OFF_PLANE_AXIS,
+    SPECTRUM_LB_HZ,
+    SPECTRUM_PROTON_HZ,
+    TEST_DATA,
+    Ry,
+    Rz,
+    haeberlen_evals,
+    j_coupling_case,
+    lab_simpson,
+    mrs_ct,
+    simpson_single_crystal_input,
+    simpson_single_crystal_lines,
+    simpson_spectrum,
+    spectrum_case,
+)
 
 
 def _lab_mrsimulator(evals, alpha, beta, gamma):
     """T_lab = E diag(evals) E^T, E = Rz(gamma) Ry(beta) Rz(alpha) (mrsimulator's code)."""
-    E = _Rz(gamma) @ _Ry(beta) @ _Rz(alpha)
+    E = Rz(gamma) @ Ry(beta) @ Rz(alpha)
     return E @ np.diag(evals) @ E.T
-
-
-def _haeberlen(iso, zeta, eta):
-    return np.array([iso - 0.5 * zeta * (1 + eta), iso - 0.5 * zeta * (1 - eta), iso + zeta])
 
 
 def _simpson_line(text, keyword):
@@ -106,32 +93,7 @@ def _axial(n, iso, zeta):
     return iso * np.eye(3) + 1.5 * zeta * (np.outer(n, n) - np.eye(3) / 3)
 
 
-# a direction off the xz-plane: polar 70 deg, azimuth 40 deg
-_TH, _PH = np.radians(70), np.radians(40)
-_N = np.array([np.sin(_TH) * np.cos(_PH), np.sin(_TH) * np.sin(_PH), np.cos(_TH)])
-
-
-# ---- the CSA + dipolar powder used for the stored simulator spectra ----
-
-TEST_DATA = Path(__file__).parent / "test_data"
-SPECTRUM_PROTON_HZ = 400e6
-SPECTRUM_LB_HZ = 200.0  # Lorentzian FWHM applied by the simulator and to the analytic spectrum
-
-
-def spectrum_case():
-    """13C CSA (zeta_sigma = -80 ppm, eta = 0.6, tilted) coupled to 1H (d = -4 kHz, bond off the xz-plane).
-
-    The CSA and dipolar widths are comparable (8 and 12 kHz at 400 MHz), so the spectrum depends
-    strongly on the relative orientation of the two tensors.
-    """
-    sigma = _lab_simpson(_haeberlen(0.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0]))
-    D = -4000.0 * (3 * np.outer(_N, _N) - np.eye(3))
-    carbon = Site(isotope="13C", label="C1", index=0,
-                  ms=MagneticShielding(sigma, species="13C", reference=0.0, gradient=-1.0))
-    proton = Site(isotope="1H", label="H1", index=1)
-    coupling = DipolarCoupling(site_i=0, site_j=1, species1="13C", species2="1H", tensor=NMRTensor(D, order="n"))
-    return sigma, D, carbon, proton, coupling
-
+# ---- the CSA + dipolar powder used for the stored simulator spectra (spectrum_case) ----
 
 def carbon_larmor_hz():
     return SPECTRUM_PROTON_HZ * nmr_gamma("C", iso=13) / nmr_gamma("H", iso=1)
@@ -185,46 +147,46 @@ class TestWriterOrientation(unittest.TestCase):
 
     def test_dipolar_angles_rebuild_the_tensor(self):
         d = -23328.153171
-        D = d * (3 * np.outer(_N, _N) - np.eye(3))
+        D = d * (3 * np.outer(OFF_PLANE_AXIS, OFF_PLANE_AXIS) - np.eye(3))
         coupling = DipolarCoupling(site_i=0, site_j=1, species1="13C", species2="1H",
                                    tensor=NMRTensor(D, order="n"))
 
         a, b, g = np.radians([float(x) for x in coupling.to_simpson().split()[4:7]])
-        np.testing.assert_allclose(_lab_simpson([-d, -d, 2 * d], a, b, g), D, atol=1e-6 * abs(d))
+        np.testing.assert_allclose(lab_simpson([-d, -d, 2 * d], a, b, g), D, atol=1e-6 * abs(d))
 
         mrs = coupling.to_mrsimulator()["dipolar"]
         np.testing.assert_allclose(_lab_mrsimulator([-d, -d, 2 * d], *_angles(mrs)), D, atol=1e-6 * abs(d))
 
     def test_shielding_angles_rebuild_the_tensor(self):
-        sigma_evals = _haeberlen(50.0, -80.0, 0.6)
-        sigma = _lab_simpson(sigma_evals, *np.radians([30.0, 50.0, 70.0]))
+        sigma_evals = haeberlen_evals(50.0, -80.0, 0.6)
+        sigma = lab_simpson(sigma_evals, *np.radians([30.0, 50.0, 70.0]))
         site = Site(isotope="13C", label="C1", index=0,
                     ms=MagneticShielding(sigma, species="13C", reference=0.0, gradient=-1.0))
 
         a, b, g = np.radians([float(x) for x in _simpson_line(site.to_simpson()[0], "shift")[5:8]])
         # SIMPSON gets the shift tensor, whose eigenvalues are -sigma's
-        np.testing.assert_allclose(_lab_simpson(-sigma_evals, a, b, g), -sigma, atol=1e-9)
+        np.testing.assert_allclose(lab_simpson(-sigma_evals, a, b, g), -sigma, atol=1e-9)
 
         mrs = site.to_mrsimulator()["shielding_symmetric"]
         np.testing.assert_allclose(
-            _lab_mrsimulator(_haeberlen(50.0, mrs["zeta"], mrs["eta"]), *_angles(mrs)), sigma, atol=1e-9)
+            _lab_mrsimulator(haeberlen_evals(50.0, mrs["zeta"], mrs["eta"]), *_angles(mrs)), sigma, atol=1e-9)
 
     def test_efg_angles_rebuild_the_tensor(self):
         vzz = 20000.0 / (EFG_TO_CHI * nmr_quadrupole("H", iso=2))
-        evals = _haeberlen(0.0, vzz, 0.3)
-        efg = _lab_simpson(evals, *np.radians([70.0, 40.0, 15.0]))
+        evals = haeberlen_evals(0.0, vzz, 0.3)
+        efg = lab_simpson(evals, *np.radians([70.0, 40.0, 15.0]))
         site = Site(isotope="2H", label="H1", index=0, efg=ElectricFieldGradient(efg, species="2H"))
 
         a, b, g = np.radians([float(x) for x in _simpson_line(site.to_simpson(q_order=1)[1], "quadrupole")[5:8]])
-        np.testing.assert_allclose(_lab_simpson(evals, a, b, g), efg, atol=1e-9 * vzz)
+        np.testing.assert_allclose(lab_simpson(evals, a, b, g), efg, atol=1e-9 * vzz)
 
         q = site.to_mrsimulator()["quadrupolar"]
         np.testing.assert_allclose(_lab_mrsimulator(evals, *_angles(q)), efg, atol=1e-9 * vzz)
 
     def test_writers_do_not_change_the_site_tensors(self):
         vzz = 20000.0 / (EFG_TO_CHI * nmr_quadrupole("H", iso=2))
-        efg = _lab_simpson(_haeberlen(0.0, vzz, 0.3), *np.radians([70.0, 40.0, 15.0]))
-        ms = _lab_simpson([10.0, 20.0, 50.0], *np.radians([30.0, 50.0, 20.0]))
+        efg = lab_simpson(haeberlen_evals(0.0, vzz, 0.3), *np.radians([70.0, 40.0, 15.0]))
+        ms = lab_simpson([10.0, 20.0, 50.0], *np.radians([30.0, 50.0, 20.0]))
         site = Site(isotope="2H", label="H1", index=0,
                     ms=MagneticShielding(ms, species="2H", reference=0.0, gradient=-1.0),
                     efg=ElectricFieldGradient(efg, species="2H"))
@@ -238,61 +200,106 @@ class TestWriterOrientation(unittest.TestCase):
     def test_axial_tensors_keep_their_azimuth(self):
         # Axial tensors have a free angle; it must be the one that does not move the
         # unique axis. Off-plane axes (azimuth != 0) expose the wrong choice.
-        sigma = _axial(_N, 50.0, -80.0)
+        sigma = _axial(OFF_PLANE_AXIS, 50.0, -80.0)
         site = Site(isotope="13C", label="C1", index=0,
                     ms=MagneticShielding(sigma, species="13C", reference=0.0, gradient=-1.0))
         a, b, g = np.radians([float(x) for x in _simpson_line(site.to_simpson()[0], "shift")[5:8]])
-        np.testing.assert_allclose(_lab_simpson(-_haeberlen(50.0, -80.0, 0.0), a, b, g), -sigma, atol=1e-9)
+        np.testing.assert_allclose(lab_simpson(-haeberlen_evals(50.0, -80.0, 0.0), a, b, g), -sigma, atol=1e-9)
         mrs = site.to_mrsimulator()["shielding_symmetric"]
         np.testing.assert_allclose(
-            _lab_mrsimulator(_haeberlen(50.0, mrs["zeta"], 0.0), *_angles(mrs)), sigma, atol=1e-9)
+            _lab_mrsimulator(haeberlen_evals(50.0, mrs["zeta"], 0.0), *_angles(mrs)), sigma, atol=1e-9)
 
         vzz = 20000.0 / (EFG_TO_CHI * nmr_quadrupole("H", iso=2))
-        efg = _axial(_N, 0.0, vzz)
+        efg = _axial(OFF_PLANE_AXIS, 0.0, vzz)
         site = Site(isotope="2H", label="H1", index=0, efg=ElectricFieldGradient(efg, species="2H"))
         a, b, g = np.radians([float(x) for x in _simpson_line(site.to_simpson(q_order=1)[1], "quadrupole")[5:8]])
-        np.testing.assert_allclose(_lab_simpson(_haeberlen(0.0, vzz, 0.0), a, b, g), efg, atol=1e-9 * vzz)
+        np.testing.assert_allclose(lab_simpson(haeberlen_evals(0.0, vzz, 0.0), a, b, g), efg, atol=1e-9 * vzz)
         q = site.to_mrsimulator()["quadrupolar"]
-        np.testing.assert_allclose(_lab_mrsimulator(_haeberlen(0.0, vzz, 0.0), *_angles(q)), efg, atol=1e-9 * vzz)
+        np.testing.assert_allclose(_lab_mrsimulator(haeberlen_evals(0.0, vzz, 0.0), *_angles(q)), efg, atol=1e-9 * vzz)
 
     def test_j_coupling_angles_rebuild_the_tensor(self):
         from soprano.data.nmr import nmr_gamma
         from soprano.nmr.utils import _J_constant
         scale = _J_constant(1.0, nmr_gamma("C", iso=13), nmr_gamma("H", iso=1))
 
-        non_axial = _lab_simpson(_haeberlen(150.0, 400.0, 0.5), *np.radians([20.0, 60.0, 100.0]))
-        axial = _axial(_N, 150.0, 400.0)
+        non_axial = lab_simpson(haeberlen_evals(150.0, 400.0, 0.5), *np.radians([20.0, 60.0, 100.0]))
+        axial = _axial(OFF_PLANE_AXIS, 150.0, 400.0)
 
         for J_lab in (non_axial, axial):
             coupling = ISCoupling(site_i=0, site_j=1, species1="13C", species2="1H",
                                   tensor=NMRTensor(J_lab / scale, order="h"))
-            evals = _haeberlen(coupling.Jisotropy, coupling.J_reduced_anisotropy, coupling.J_asymmetry)
+            evals = haeberlen_evals(coupling.Jisotropy, coupling.J_reduced_anisotropy, coupling.J_asymmetry)
 
             a, b, g = np.radians([float(x) for x in coupling.to_simpson().split()[6:9]])
-            np.testing.assert_allclose(_lab_simpson(evals, a, b, g), J_lab, atol=1e-9 * 400.0)
+            np.testing.assert_allclose(lab_simpson(evals, a, b, g), J_lab, atol=1e-9 * 400.0)
 
             mrs = coupling.to_mrsimulator()["j_symmetric"]
             np.testing.assert_allclose(_lab_mrsimulator(evals, *_angles(mrs)), J_lab, atol=1e-9 * 400.0)
+
+    def test_j_coupling_angles_do_not_depend_on_tensor_order(self):
+        # zeta and eta are always Haeberlen, so the angles must be too, whatever order the tensor
+        # was built with; a negative gamma product (15N) flips K's eigenvalue order relative to J's
+        from soprano.nmr.utils import _J_constant
+
+        non_axial = lab_simpson(haeberlen_evals(150.0, 400.0, 0.5), *np.radians([20.0, 60.0, 100.0]))
+        axial = _axial(OFF_PLANE_AXIS, 150.0, 400.0)
+        for species2, element, iso in (("13C", "C", 13), ("15N", "N", 15)):
+            scale = _J_constant(1.0, nmr_gamma("H", iso=1), nmr_gamma(element, iso=iso))
+            for name, J_lab in (("non-axial", non_axial), ("axial", axial)):
+                for order in ("h", "i", "d", "n"):
+                    with self.subTest(species2=species2, tensor=name, order=order):
+                        coupling = ISCoupling(site_i=0, site_j=1, species1="1H", species2=species2,
+                                              tensor=NMRTensor(J_lab / scale, order=order))
+                        evals = haeberlen_evals(coupling.Jisotropy, coupling.J_reduced_anisotropy,
+                                                coupling.J_asymmetry)
+
+                        a, b, g = np.radians([float(x) for x in coupling.to_simpson().split()[6:9]])
+                        np.testing.assert_allclose(lab_simpson(evals, a, b, g), J_lab, atol=1e-9 * 400.0)
+
+                        mrs = coupling.to_mrsimulator()["j_symmetric"]
+                        np.testing.assert_allclose(_lab_mrsimulator(evals, *_angles(mrs)), J_lab,
+                                                   atol=1e-9 * 400.0)
+                        self.assertEqual(coupling.tensor.order, order)  # the coupling is not altered
+
+    def test_dipolar_output_does_not_depend_on_tensor_order(self):
+        # the coupling constant and angles must not depend on the order the tensor was built
+        # with; d < 0 puts the unique eigenvalue first in increasing order
+        for d in (-23328.153171, 4000.0):
+            D = d * (3 * np.outer(OFF_PLANE_AXIS, OFF_PLANE_AXIS) - np.eye(3))
+            for order in ("n", "i", "d", "h"):
+                with self.subTest(d=d, order=order):
+                    coupling = DipolarCoupling(site_i=0, site_j=1, species1="13C", species2="1H",
+                                               tensor=NMRTensor(D, order=order))
+                    self.assertAlmostEqual(coupling.coupling_constant, d, delta=1e-9 * abs(d))
+
+                    a, b, g = np.radians([float(x) for x in coupling.to_simpson().split()[4:7]])
+                    np.testing.assert_allclose(lab_simpson([-d, -d, 2 * d], a, b, g), D, atol=1e-6 * abs(d))
+
+                    mrs = coupling.to_mrsimulator()["dipolar"]
+                    self.assertAlmostEqual(mrs["D"], d, delta=1e-9 * abs(d))
+                    np.testing.assert_allclose(_lab_mrsimulator([-d, -d, 2 * d], *_angles(mrs)), D,
+                                               atol=1e-6 * abs(d))
+                    self.assertEqual(coupling.tensor.order, order)
 
     def test_reading_simpson_angles_the_mrsimulator_way_rotates_the_tensor_about_x(self):
         # The two formulas differ by a mirror conjugation, which for a symmetric tensor is a pi
         # rotation about x. Powder spectra cannot see it, but it is why the numbers differ and
         # why the SIMPSON angles must not be passed to mrsimulator.
         flip_x = np.diag([-1.0, 1.0, 1.0])
-        for T in (_lab_simpson(_haeberlen(0.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0])),
-                  _axial(_N, 0.0, 60.0)):
+        for T in (lab_simpson(haeberlen_evals(0.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0])),
+                  _axial(OFF_PLANE_AXIS, 0.0, 60.0)):
             tensor = NMRTensor(T, order="h")
             evals = tensor.eigenvalues
             simpson_angles = tensor.euler_angles(passive=True)
             mrs_angles = tensor.mrsimulator_euler_angles()
-            np.testing.assert_allclose(_lab_simpson(evals, *simpson_angles), T, atol=1e-9)
+            np.testing.assert_allclose(lab_simpson(evals, *simpson_angles), T, atol=1e-9)
             np.testing.assert_allclose(_lab_mrsimulator(evals, *mrs_angles), T, atol=1e-9)
             np.testing.assert_allclose(_lab_mrsimulator(evals, *simpson_angles), flip_x @ T @ flip_x, atol=1e-9)
 
     @unittest.skipIf(mrs_ct is None, "mrsimulator is not available")
     def test_angles_agree_with_the_mrsimulator_helpers(self):
         # mrsimulator's own forward function is the reference for what its angles mean
-        sigma = _lab_simpson(_haeberlen(50.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0]))
+        sigma = lab_simpson(haeberlen_evals(50.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0]))
         t = NMRTensor(sigma, order="h")
         zeta, eta = t.reduced_anisotropy, t.asymmetry
         rebuilt = mrs_ct.from_haeberlen_params(
@@ -307,7 +314,7 @@ class TestWriterOrientation(unittest.TestCase):
                                          np.trace(sigma) / 3), sigma, atol=1e-9)
 
         d = -23328.153171
-        D = d * (3 * np.outer(_N, _N) - np.eye(3))
+        D = d * (3 * np.outer(OFF_PLANE_AXIS, OFF_PLANE_AXIS) - np.eye(3))
         dip = DipolarCoupling(site_i=0, site_j=1, species1="13C", species2="1H",
                               tensor=NMRTensor(D, order="n"))
         rebuilt = mrs_ct.from_haeberlen_params(
@@ -316,7 +323,7 @@ class TestWriterOrientation(unittest.TestCase):
         np.testing.assert_allclose(rebuilt, D, atol=1e-6 * abs(d))
 
     def test_mrsimulator_shielding_angles_do_not_depend_on_tensor_order(self):
-        sigma = _lab_simpson(_haeberlen(50.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0]))
+        sigma = lab_simpson(haeberlen_evals(50.0, -80.0, 0.6), *np.radians([30.0, 50.0, 70.0]))
         written = {}
         for order in ("h", "i", "d"):
             ms = MagneticShielding(sigma, species="13C", reference=0.0, gradient=-1.0, order=order)
@@ -354,7 +361,7 @@ def _simpson_lines(text):
 def _tensors_from_simpson(text, frame):
     (iso, aniso, eta, ms_angles), (d, d_angles) = _simpson_lines(text)
     Es, Ed = frame(*ms_angles), frame(*d_angles)
-    return Es @ np.diag(_haeberlen(iso, aniso, eta)) @ Es.T, Ed @ np.diag([-d, -d, 2 * d]) @ Ed.T
+    return Es @ np.diag(haeberlen_evals(iso, aniso, eta)) @ Es.T, Ed @ np.diag([-d, -d, 2 * d]) @ Ed.T
 
 
 def _tensors_from_mrsimulator(spin_system, frame):
@@ -362,22 +369,22 @@ def _tensors_from_mrsimulator(spin_system, frame):
     carbon, coupling = spin_system["sites"][0], spin_system["couplings"][0]["dipolar"]
     ms = carbon["shielding_symmetric"]
     Es, Ed = frame(*_angles(ms)), frame(*_angles(coupling))
-    shielding = Es @ np.diag(_haeberlen(0.0, ms["zeta"], ms["eta"])) @ Es.T
+    shielding = Es @ np.diag(haeberlen_evals(0.0, ms["zeta"], ms["eta"])) @ Es.T
     d = coupling["D"]
     return carbon["isotropic_chemical_shift"] * np.eye(3) - shielding, Ed @ np.diag([-d, -d, 2 * d]) @ Ed.T
 
 
 def _simpson_frame(a, b, g):
-    return _Rz(-g) @ _Ry(-b) @ _Rz(-a)
+    return Rz(-g) @ Ry(-b) @ Rz(-a)
 
 
 def _mrsimulator_frame(a, b, g):
-    return _Rz(g) @ _Ry(b) @ _Rz(a)
+    return Rz(g) @ Ry(b) @ Rz(a)
 
 
 def _active_frame(a, b, g):
     """TensorView's active ZYZ, i.e. Appendix B of the mrsimulator paper: the wrong reading for both."""
-    return _Rz(a) @ _Ry(b) @ _Rz(g)
+    return Rz(a) @ Ry(b) @ Rz(g)
 
 
 class TestAgainstSimulators(unittest.TestCase):
@@ -395,7 +402,7 @@ class TestAgainstSimulators(unittest.TestCase):
 
     def test_lab_mrsimulator_is_mrsimulators_from_haeberlen_params(self):
         for case in self.mrs["forward"]:
-            evals = _haeberlen(case["iso"], case["zeta"], case["eta"])
+            evals = haeberlen_evals(case["iso"], case["zeta"], case["eta"])
             expected = np.array(case["tensor"])
             np.testing.assert_allclose(_lab_mrsimulator(evals, *case["angles"]), expected, atol=1e-9)
             E = _active_frame(*case["angles"])
@@ -447,44 +454,9 @@ class TestAgainstSimulators(unittest.TestCase):
             np.testing.assert_allclose(now, then, atol=1e-6)
 
 
-# ---- single-crystal SIMPSON runs ----
+# ---- single-crystal SIMPSON runs (the runner is in tests/nmr_test_helpers.py) ----
 
-SINGLE_CRYSTAL_ORIENTATIONS = [(20, 30), (70, 55), (130, 80), (200, 40), (300, 110), (45, 65)]  # (alpha, beta), deg
 SINGLE_CRYSTAL_TOL_HZ = 2.0  # frequency grid of the simulation is 0.6 Hz
-
-SINGLE_CRYSTAL_INPUT = """\
-spinsys {{
-    channels 13C 1H
-    nuclei 13C 1H
-    {shift}
-    {dipole}
-}}
-
-par {{
-    proton_frequency {proton_hz}
-    spin_rate 0
-    start_operator I1x
-    detect_operator I1p
-    np 8192
-    sw 80000
-    crystal_file xtal
-    gamma_angles 1
-    verbose 0
-}}
-
-proc pulseq {{}} {{
-    global par
-    acq_block {{
-        delay [expr 1e6/$par(sw)]
-    }}
-}}
-
-proc main {{}} {{
-    global par
-    set f [fsimpson]
-    fsave $f out.fid -xreim
-}}
-"""
 
 
 def simpson_available():
@@ -504,43 +476,39 @@ def single_crystal_lines(shift_ppm, D, larmor_hz, n):
     return sorted([centre + half_splitting, centre - half_splitting])
 
 
-def simpson_single_crystal_input(carbon, coupling):
-    return SINGLE_CRYSTAL_INPUT.format(shift=carbon.to_simpson()[0], dipole=coupling.to_simpson(),
-                                       proton_hz=SPECTRUM_PROTON_HZ)
-
-
-def simpson_single_crystal_lines(text, alpha, beta):
-    """Run SIMPSON for the single crystallite (alpha, beta) and return the two strongest lines (Hz, sorted)."""
-    with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / "t.in").write_text(text)
-        (Path(tmp) / "xtal").write_text(f"1\n{alpha} {beta} 1\n")
-        subprocess.run(["simpson", "t.in"], cwd=tmp, check=True, capture_output=True)
-        fid = np.loadtxt(Path(tmp) / "out.fid")
-    sw, nfft = 80000.0, 2 ** 17
-    signal = fid[:, 1] + 1j * fid[:, 2]
-    signal[0] *= 0.5
-    spec = np.fft.fftshift(np.fft.fft(signal, nfft)).real
-    freqs = np.fft.fftshift(np.fft.fftfreq(nfft, 1 / sw))
-    peaks = [i for i in range(1, nfft - 1)
-             if spec[i] > spec[i - 1] and spec[i] > spec[i + 1] and spec[i] > 0.2 * spec.max()]
-    strongest = sorted(peaks, key=lambda i: -spec[i])[:2]
-    return sorted(freqs[strongest])
-
-
 class TestSimpsonSingleCrystal(unittest.TestCase):
     """Absolute frame of the SIMPSON writers: single crystallites, where the powder average cannot hide it."""
 
     @classmethod
     def setUpClass(cls):
-        cls.stored = json.loads((TEST_DATA / "simpson_reference.json").read_text())["single_crystal"]
+        stored = json.loads((TEST_DATA / "simpson_reference.json").read_text())
+        cls.stored, cls.stored_j = stored["single_crystal"], stored["single_crystal_j"]
 
     def setUp(self):
         warnings.simplefilter("ignore")
         self.sigma, self.D, self.carbon, _, self.coupling = spectrum_case()
+        _, self.J, self.j_carbon, self.j_coupling = j_coupling_case()
         self.larmor = carbon_larmor_hz()
 
-    def predicted(self, alpha, beta, mirror=False):
-        return single_crystal_lines(-self.sigma, self.D, self.larmor, field_direction(alpha, beta, mirror))
+    def predicted(self, alpha, beta, mirror=False, coupling_hz=None):
+        """Lines of the CSA with the dipole, or with the coupling tensor ``coupling_hz`` (e.g. J)."""
+        coupling_hz = self.D if coupling_hz is None else coupling_hz
+        return single_crystal_lines(-self.sigma, coupling_hz, self.larmor, field_direction(alpha, beta, mirror))
+
+    def assert_same_input(self, stored_text, written_text):
+        # The numbers on the interaction lines are compared numerically: the isotropic shift is zero
+        # up to rounding noise that differs between BLAS/LAPACK builds (e.g. macOS and Linux).
+        stored, written = stored_text.splitlines(), written_text.splitlines()
+        self.assertEqual(len(stored), len(written))
+        for stored_line, written_line in zip(stored, written):
+            stored_tokens, written_tokens = stored_line.split(), written_line.split()
+            if stored_tokens[:1] in (["shift"], ["dipole"], ["jcoupling"]):
+                self.assertEqual(stored_tokens[:2], written_tokens[:2])
+                np.testing.assert_allclose([float(t.rstrip("p")) for t in written_tokens[2:]],
+                                           [float(t.rstrip("p")) for t in stored_tokens[2:]],
+                                           rtol=1e-9, atol=1e-8)
+            else:
+                self.assertEqual(stored_line, written_line)
 
     def test_stored_lines_are_those_of_the_lab_frame_tensors(self):
         for (alpha, beta), lines in zip(self.stored["orientations_deg"], self.stored["lines_hz"]):
@@ -553,20 +521,25 @@ class TestSimpsonSingleCrystal(unittest.TestCase):
         self.assertGreater(min(errors), 100 * SINGLE_CRYSTAL_TOL_HZ)
 
     def test_stored_input_is_what_the_writers_write_now(self):
-        # The numbers on the interaction lines are compared numerically: the isotropic shift is zero
-        # up to rounding noise that differs between BLAS/LAPACK builds (e.g. macOS and Linux).
-        stored = self.stored["input"].splitlines()
-        written = simpson_single_crystal_input(self.carbon, self.coupling).splitlines()
-        self.assertEqual(len(stored), len(written))
-        for stored_line, written_line in zip(stored, written):
-            stored_tokens, written_tokens = stored_line.split(), written_line.split()
-            if stored_tokens[:1] in (["shift"], ["dipole"]):
-                self.assertEqual(stored_tokens[:2], written_tokens[:2])
-                np.testing.assert_allclose([float(t.rstrip("p")) for t in written_tokens[2:]],
-                                           [float(t.rstrip("p")) for t in stored_tokens[2:]],
-                                           rtol=1e-9, atol=1e-8)
-            else:
-                self.assertEqual(stored_line, written_line)
+        self.assert_same_input(self.stored["input"], simpson_single_crystal_input(self.carbon, self.coupling))
+
+    # The same CSA with an anisotropic J coupling instead of the dipole. The splitting depends only
+    # on J, so it fixes the frame of the jcoupling angles on its own.
+
+    def test_stored_j_lines_are_those_of_the_lab_frame_tensors(self):
+        for (alpha, beta), lines in zip(self.stored_j["orientations_deg"], self.stored_j["lines_hz"]):
+            np.testing.assert_allclose(self.predicted(alpha, beta, coupling_hz=self.J), lines,
+                                       atol=SINGLE_CRYSTAL_TOL_HZ)
+
+    def test_stored_j_splittings_exclude_the_mirrored_frame(self):
+        errors = []
+        for (alpha, beta), lines in zip(self.stored_j["orientations_deg"], self.stored_j["lines_hz"]):
+            mirrored = self.predicted(alpha, beta, mirror=True, coupling_hz=self.J)
+            errors.append(abs((mirrored[1] - mirrored[0]) - (lines[1] - lines[0])))
+        self.assertGreater(min(errors), 20 * SINGLE_CRYSTAL_TOL_HZ)
+
+    def test_stored_j_input_is_what_the_writers_write_now(self):
+        self.assert_same_input(self.stored_j["input"], simpson_single_crystal_input(self.j_carbon, self.j_coupling))
 
     @unittest.skipUnless(simpson_available() or os.environ.get("SOPRANO_REQUIRE_SIMPSON"), "simpson is not available")
     def test_simpson_single_crystal_live(self):
@@ -576,9 +549,14 @@ class TestSimpsonSingleCrystal(unittest.TestCase):
                                        self.predicted(alpha, beta), atol=SINGLE_CRYSTAL_TOL_HZ)
 
     @unittest.skipUnless(simpson_available() or os.environ.get("SOPRANO_REQUIRE_SIMPSON"), "simpson is not available")
-    def test_simpson_powder_spectrum_live(self):
-        from tests.reference_generators.simulators import simpson_spectrum  # imports this module: not at top level
+    def test_simpson_j_single_crystal_live(self):
+        text = simpson_single_crystal_input(self.j_carbon, self.j_coupling)
+        for alpha, beta in [(130, 80), (200, 40)]:
+            np.testing.assert_allclose(simpson_single_crystal_lines(text, alpha, beta),
+                                       self.predicted(alpha, beta, coupling_hz=self.J), atol=SINGLE_CRYSTAL_TOL_HZ)
 
+    @unittest.skipUnless(simpson_available() or os.environ.get("SOPRANO_REQUIRE_SIMPSON"), "simpson is not available")
+    def test_simpson_powder_spectrum_live(self):
         freqs, spec = simpson_spectrum()[:2]
         exact = analytic_powder(-self.sigma, self.D, freqs, self.larmor)
         self.assertLess(spectrum_mismatch(freqs, spec, exact), TestAgainstSimulators.MATCH)

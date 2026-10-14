@@ -7,9 +7,11 @@ Regenerate the stored simulator output used by ``tests/nmr_export_orientation_te
   arbitrary Euler angles, and the static powder spectrum of ``spectrum_case()`` simulated by
   mrsimulator from the spin system Soprano writes.
 * ``tests/test_data/simpson_reference.json`` (needs ``simpson`` on the PATH): the same spectrum
-  simulated by SIMPSON from the spin system Soprano writes, and the two lines of the same spin system
-  for a set of single crystallites. ``simpson`` may be a wrapper around a container, e.g.
-  ``podman run --rm -v "$PWD":/workspace docker.io/jkshenton/simpson "$@"``.
+  simulated by SIMPSON from the spin system Soprano writes, and the two lines of the same spin system,
+  and of the same CSA with a J coupling instead of the dipole, for a set of single crystallites.
+  ``simpson`` may be a wrapper around a container, e.g.
+  ``podman run --rm --platform linux/amd64 -v "$PWD":/workspace -w /workspace docker.io/jkshenton/simpson "$@"``
+  (the arm64 variant of the 6.1.4 image stops with SIGILL, hence the platform).
 
 Each part is skipped if its program is not available. Run from the repository root:
 
@@ -18,9 +20,7 @@ Each part is skipped if its program is not available. Run from the repository ro
 
 import json
 import shutil
-import subprocess
 import sys
-import tempfile
 import warnings
 from pathlib import Path
 
@@ -29,18 +29,19 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from tests.nmr_export_orientation_tests import (  # noqa: E402
+from tests.nmr_test_helpers import (  # noqa: E402
+    NP,
     SINGLE_CRYSTAL_ORIENTATIONS,
     SPECTRUM_LB_HZ,
     SPECTRUM_PROTON_HZ,
+    SW_HZ,
     TEST_DATA,
+    j_coupling_case,
     simpson_single_crystal_input,
     simpson_single_crystal_lines,
+    simpson_spectrum,
     spectrum_case,
 )
-
-SW_HZ = 100_000.0
-NP = 4096
 
 
 def _compact(x, decimals):
@@ -114,62 +115,6 @@ def mrsimulator_reference():
     print(f"wrote {out}")
 
 
-SIMPSON_INPUT = """\
-spinsys {{
-    channels 13C 1H
-    nuclei 13C 1H
-    {shift}
-    {dipole}
-}}
-
-par {{
-    proton_frequency {proton_hz}
-    spin_rate 0
-    start_operator I1x
-    detect_operator I1p
-    np {np}
-    sw {sw}
-    crystal_file zcw28656
-    gamma_angles 1
-    verbose 0
-}}
-
-proc pulseq {{}} {{
-    global par
-    acq_block {{
-        delay [expr 1e6/$par(sw)]
-    }}
-}}
-
-proc main {{}} {{
-    global par
-    set f [fsimpson]
-    faddlb $f {lb} 0
-    fft $f
-    fsave $f spectrum.spe -xreim
-}}
-"""
-
-
-def simpson_spectrum():
-    """Run SIMPSON on the spin system Soprano writes for ``spectrum_case()``.
-
-    Returns ``(freqs, amplitude, input_text, shift_line, dipole_line, version_line)``.
-    """
-    sigma, D, carbon, proton, coupling = spectrum_case()
-    shift = carbon.to_simpson()[0]
-    dipole = coupling.to_simpson()
-    text = SIMPSON_INPUT.format(shift=shift, dipole=dipole, proton_hz=SPECTRUM_PROTON_HZ, np=NP, sw=SW_HZ,
-                                lb=SPECTRUM_LB_HZ)
-    with tempfile.TemporaryDirectory() as tmp:
-        (Path(tmp) / "spectrum.in").write_text(text)
-        subprocess.run(["simpson", "spectrum.in"], cwd=tmp, check=True, capture_output=True)
-        spe = np.loadtxt(Path(tmp) / "spectrum.spe")
-    banner = subprocess.run(["simpson"], capture_output=True, text=True)
-    version = next(line for line in (banner.stdout + banner.stderr).splitlines() if "version" in line).strip()
-    return spe[:, 0], spe[:, 1], text, shift, dipole, version
-
-
 def simpson_reference():
     if shutil.which("simpson") is None:
         print("simpson not on the PATH: skipping simpson_reference.json")
@@ -177,6 +122,8 @@ def simpson_reference():
     _, _, carbon, _, coupling = spectrum_case()
     freqs, amplitude, text, shift, dipole, version = simpson_spectrum()
     single_crystal_text = simpson_single_crystal_input(carbon, coupling)
+    _, _, j_carbon, j_coupling = j_coupling_case()
+    j_text = simpson_single_crystal_input(j_carbon, j_coupling)
     data = {
         "description": "Output of SIMPSON; see tests/reference_generators/simulators.py",
         "simpson": version,
@@ -186,6 +133,12 @@ def simpson_reference():
             "input": single_crystal_text,
             "orientations_deg": SINGLE_CRYSTAL_ORIENTATIONS,
             "lines_hz": [_compact(simpson_single_crystal_lines(single_crystal_text, a, b), 2)
+                         for a, b in SINGLE_CRYSTAL_ORIENTATIONS],
+        },
+        "single_crystal_j": {
+            "input": j_text,
+            "orientations_deg": SINGLE_CRYSTAL_ORIENTATIONS,
+            "lines_hz": [_compact(simpson_single_crystal_lines(j_text, a, b), 2)
                          for a, b in SINGLE_CRYSTAL_ORIENTATIONS],
         },
     }

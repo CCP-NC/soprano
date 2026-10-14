@@ -6,7 +6,8 @@ The conventions are pinned to an *external* definition, the TensorView for MATLA
 (Svenningsson & Mueller, Solid State Nucl. Magn. Reson. 123 (2023) 101849), and not to the
 code under test. Oracle policy:
 
-* Every oracle rotation is built here, element by element, from the paper's explicit matrices
+* Every oracle rotation is built in the test code (here and in ``tests/nmr_test_helpers.py``),
+  element by element, from the paper's explicit matrices
   (Eq. 65 active ZYZ, Eq. 75 active ZXZ, Eq. 9 passive = active with ``(-g, -b, -a)``). No
   Soprano helper and no ``scipy.spatial.transform.Rotation`` is used to build an expected value.
 * ``TestOracle*`` validates the oracle itself (orthogonality, Eqs. 8-11, the half-turn
@@ -30,7 +31,6 @@ All random tests are seeded.
 """
 
 import json
-import os
 import unittest
 import warnings
 from pathlib import Path
@@ -41,13 +41,7 @@ from soprano.data.nmr import nmr_gamma
 from soprano.nmr.coupling import DipolarCoupling
 from soprano.nmr.site import Site
 from soprano.nmr.tensor import MagneticShielding, NMRTensor, TensorConvention
-
-try:  # mrsimulator currently installs only on Python <= 3.12
-    from mrsimulator.utils import cartesian_tensor as mrs_ct
-except Exception:
-    if os.environ.get("SOPRANO_REQUIRE_MRSIMULATOR"):  # set by the mrsimulator CI job
-        raise
-    mrs_ct = None
+from tests.nmr_test_helpers import Rx, Ry, Rz, mrs_ct, random_rotation
 
 PI = np.pi
 TWO_PI = 2 * np.pi
@@ -57,23 +51,8 @@ COMBOS = [(c, p) for c in CONVENTIONS for p in (False, True)]
 
 
 # --------------------------------------------------------------------------------------
-# The oracle: explicit matrices from the paper
+# The oracle: explicit matrices from the paper (Rz, Ry, Rx are in tests/nmr_test_helpers.py)
 # --------------------------------------------------------------------------------------
-
-def Rz(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
-
-
-def Ry(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[c, 0.0, s], [0.0, 1.0, 0.0], [-s, 0.0, c]])
-
-
-def Rx(t):
-    c, s = np.cos(t), np.sin(t)
-    return np.array([[1.0, 0.0, 0.0], [0.0, c, -s], [0.0, s, c]])
-
 
 def R_active_zyz(a, b, g):
     """TensorView Eq. 65, written out element by element."""
@@ -247,16 +226,8 @@ def b_in_a_invariants(M, u):
 
 
 # --------------------------------------------------------------------------------------
-# Tensor builders
+# Tensor builders (random_rotation is in tests/nmr_test_helpers.py)
 # --------------------------------------------------------------------------------------
-
-def random_rotation(rng):
-    q, r = np.linalg.qr(rng.normal(size=(3, 3)))
-    q = q * np.sign(np.diag(r))
-    if np.linalg.det(q) < 0:
-        q[:, 2] *= -1
-    return q
-
 
 def spaced_evals(rng, gap=0.5):
     while True:
