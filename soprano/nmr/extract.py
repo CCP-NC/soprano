@@ -41,8 +41,15 @@ from ase import Atoms, io
 from ase.units import Bohr, Ha
 
 from soprano.data.nmr import _get_isotope_list
+from soprano.nmr.dataframe import (
+    apply_df_filtering,
+    average_quaternions_by_tags,
+    expand_aliases,
+    sortdf,
+    units_rename,
+)
 from soprano.properties.labeling import MagresViewLabels, UniqueSites
-from soprano.properties.linkage import Bonds
+from soprano.properties.linkage import Bonds, ElementPairs, Molecules
 from soprano.properties.nmr import (
     EFGAsymmetry,
     EFGQuadrupolarConstant,
@@ -60,12 +67,16 @@ from soprano.properties.nmr import (
 
 from soprano.properties.nmr.ms import MSShift
 from soprano.selection import AtomSelection
-from soprano.utils import has_cif_labels, merge_first, merge_mean, merge_sites
+from soprano.utils import has_cif_labels, merge_first, merge_sites
 
 # ---------------------------------------------------------------------------
 # Module-level logger (callers can silence/configure via logging.getLogger)
 # ---------------------------------------------------------------------------
 _logger = logging.getLogger(__name__)
+
+
+class MissingReferenceError(ValueError):
+    """Raised when shifts are requested but some elements have no reference."""
 
 # ---------------------------------------------------------------------------
 # Column constants – also re-exported from soprano.scripts.nmr for compat
@@ -147,6 +158,77 @@ def find_XHn_groups(
     return all_groups
 
 
+# TODO: write guide for this on website...
+NO_CIF_LABEL_WARNING = """
+## Protip: ##
+This .magres file doesn't seem to have CIF-stlye labels.
+Using these is considered a good idea, but is not required.
+You can export these automatically from a cif file using 
+cif2cell. e.g. for CASTEP:
+
+cif2cell mystructure.cif --export-cif-labels -p castep
+
+"""
+
+def reload_as_molecular_crystal(atoms: Atoms, force=False) -> Atoms:
+    """
+    If the atoms object is a molecular crystal, reload it with the correct
+    connectivity.
+
+    We check if there are any C-H bonds, and if so, we assume it's a molecular
+    crystal and reload it as such. If there are no C-H bonds, we assume it's
+    not and return the original atoms object, unless force=True.
+
+
+    Args:
+        atoms (ASE Atoms object): the atoms object to be reloaded.
+        force (bool): if True, force the reload even if there are no C-H bonds.
+
+    Returns:
+        atoms (ASE Atoms object): the atoms object with the correct connectivity.
+    """
+    # save initial order
+    atoms.set_array("order_tag", np.arange(len(atoms)))
+    if has_CH_bonds(atoms) or force:
+        # temporarily translate the atoms to the COM
+        com = atoms.cell.T.dot([0.5, 0.5, 0.5]) - atoms.get_center_of_mass()
+        atoms.translate(com)
+        # let's assume this is an organic molecule/crystal
+        # and try to reload the atoms object with the correct
+        # connectivity:
+        mols = Molecules.get(atoms)
+        if len(mols) == 0:
+            return atoms
+
+        temp = mols[0].subset(atoms, use_cell_indices=True)
+        if len(mols) > 1:
+            for mol in mols[1:]:
+                temp.extend(mol.subset(atoms, use_cell_indices=True))
+        # restore original order
+        temp = temp[temp.get_array("order_tag").argsort()]
+        # restore original centering
+        temp.translate(-com)
+        atoms = temp
+
+    return atoms
+
+def has_CH_bonds(atoms: Atoms, rcut: float = 1.5) -> bool:
+    """Check if the atoms object has bonds with CH atoms
+    Does this simply by comparing the labels with the element symbols.
+    If they're all the same, then so special labels are present.
+    """
+    # First check if it contains C and H elements
+    symbols = atoms.get_chemical_symbols()
+    if not ("C" in symbols and "H" in symbols):
+        return False
+
+    # Test the return_pairs=False option
+    dists = ElementPairs.get(
+        atoms, element1="C", element2="H", return_pairs=False, rcut=rcut
+    )
+    return len(dists) > 0
+
+
 def label_atoms(atoms: Atoms, logger: Optional[logging.Logger] = None) -> Atoms:
     """Ensure *atoms* has CIF-style atom labels.
 
@@ -166,8 +248,6 @@ def label_atoms(atoms: Atoms, logger: Optional[logging.Logger] = None) -> Atoms:
     if has_cif_labels(atoms):
         return atoms
 
-    # Lazy import to avoid pulling click machinery into the library core.
-    from soprano.scripts.cli_utils import NO_CIF_LABEL_WARNING  # noqa: PLC0415
     log.debug(NO_CIF_LABEL_WARNING)
 
     if atoms.has("magresview_labels"):
@@ -215,7 +295,7 @@ def tag_functional_groups(
 
     for ipat, pattern in enumerate(XHn_groups):
         if len(pattern) == 0:
-            logging.warning(
+            log.warning(
                 f"No XHn groups found for pattern {average_group.split(',')[ipat]}"
             )
             continue
@@ -323,7 +403,8 @@ def get_ms_summary(
         atoms: Atoms object carrying the MS tensor array.
         euler_convention: Euler-angle convention (``"zyz"`` or ``"zxz"``).
         references: Dict mapping element symbol → reference shielding.
-        gradients: Dict mapping element symbol → shielding gradient.
+        gradients: Dict mapping element symbol → shielding gradient. Elements without
+            one use the full NMR formula; ``None`` or ``{}`` uses it for all.
         ms_tag: Name of the MS tensor array.
 
     Returns:
@@ -331,8 +412,6 @@ def get_ms_summary(
         ``MS_reduced_anisotropy``, ``MS_asymmetry``, ``MS_span``,
         ``MS_skew``, ``MS_alpha``, ``MS_beta``, ``MS_gamma``.
     """
-    from soprano.scripts.cli_utils import average_quaternions_by_tags  # noqa: PLC0415
-
     iso = MSIsotropy.get(atoms, tag=ms_tag)
     aniso = MSAnisotropy.get(atoms, tag=ms_tag)
     red_aniso = MSReducedAnisotropy.get(atoms, tag=ms_tag)
@@ -358,17 +437,15 @@ def get_ms_summary(
     }
 
     if references:
-        # Fill missing references with 0.0 so MSShift doesn't raise
-        symbols = atoms.get_chemical_symbols()
-        complete_refs = {el: references.get(el, 0.0) for el in symbols}
-        # When gradients is None (default), pass None to use full NMR formula.
-        # When gradients is provided, fill missing elements with -1.0 default
-        # (though ideally the user provides all elements they care about).
-        if gradients is None:
-            complete_grads = None
-        else:
-            complete_grads = {el: gradients.get(el, -1.0) for el in symbols}
-        ms_summary["MS_shift"] = MSShift.get(atoms, references=complete_refs, gradients=complete_grads)
+        missing = sorted({el for el in atoms.get_chemical_symbols() if el not in references})
+        if missing:
+            raise MissingReferenceError(
+                f"No reference shielding given for element(s) {', '.join(missing)}. "
+                "Give a reference for every element in the structure, e.g. "
+                "--references C:170,H:30."
+            )
+        # Elements without a gradient use the full NMR formula (see MSShift)
+        ms_summary["MS_shift"] = MSShift.get(atoms, references=references, gradients=gradients)
 
     return ms_summary
 
@@ -395,10 +472,9 @@ def get_efg_summary(
         ``EFG_asymmetry``, ``EFG_alpha``, ``EFG_beta``, ``EFG_gamma``,
         plus one ``EFG_NQR <transition>`` key per distinct NQR transition.
     """
-    from soprano.scripts.cli_utils import average_quaternions_by_tags  # noqa: PLC0415
-
     Vzz = EFGVzz.get(atoms, tag=tag)
-    Vzz = Vzz * (Ha / Bohr) * 1e-1  # au → V/m²
+    # Hartree/(e a0^2) in V/m^2: Ha [eV] / Bohr [Angstrom]^2 * 1e20 (1 A^2 = 1e-20 m^2)
+    Vzz = Vzz * Ha / Bohr**2 * 1e20
 
     qP = EFGQuadrupolarConstant(isotopes=isotopes, tag=tag)
     qC = qP(atoms) / 1e6  # Hz → MHz
@@ -436,7 +512,7 @@ def build_nmr_df(
     fname: str,
     isotopes: dict = {},
     references: dict = {},
-    gradients: dict = {},
+    gradients: Optional[dict] = None,
     properties: List[str] = None,
     euler_convention: str = "zyz",
     property_tags: dict = {},
@@ -449,7 +525,8 @@ def build_nmr_df(
         fname: Source filename — stored as the ``file`` column for provenance.
         isotopes: Dict mapping element symbol → isotope mass number.
         references: Dict mapping element symbol → reference shielding.
-        gradients: Dict mapping element symbol → shielding gradient.
+        gradients: Dict mapping element symbol → shielding gradient. Elements without
+            one use the full NMR formula; ``None`` or ``{}`` uses it for all.
         properties: List of properties to include, e.g. ``["ms", "efg"]``.
             Defaults to both when *None*.
         euler_convention: Euler-angle convention (``"zyz"`` or ``"zxz"``).
@@ -680,7 +757,7 @@ def nmr_extract_multi(
     sort_order: str = "ascending",
     isotopes: dict = {},
     references: dict = {},
-    gradients: dict = {},
+    gradients: Optional[dict] = None,
     properties: List[str] = None,
     euler_convention: str = "zyz",
     include: Optional[List[str]] = None,
@@ -703,7 +780,8 @@ def nmr_extract_multi(
         sort_order: ``"ascending"`` or ``"descending"``.
         isotopes: Dict mapping element symbol → isotope mass number.
         references: Dict mapping element symbol → reference shielding.
-        gradients: Dict mapping element symbol → shielding gradient.
+        gradients: Dict mapping element symbol → shielding gradient. Elements without
+            one use the full NMR formula; ``None`` or ``{}`` uses it for all.
         properties: List of properties to extract, e.g. ``["ms", "efg"]``.
             Defaults to both when *None*.
         euler_convention: Euler-angle convention (``"zyz"`` or ``"zxz"``).
@@ -723,15 +801,6 @@ def nmr_extract_multi(
         *images* is a list of the corresponding processed Atoms objects.
         With ``return_sources=True``, returns ``(dfs, images, sources)``.
     """
-    # Lazy imports to avoid pulling CLI dependencies at module level.
-    from soprano.scripts.cli_utils import (  # noqa: PLC0415
-        apply_df_filtering,
-        expand_aliases,
-        reload_as_molecular_crystal,
-        sortdf,
-        units_rename,
-    )
-
     if properties is None:
         properties = ["efg", "ms"]
 
@@ -759,7 +828,7 @@ def nmr_extract_multi(
             atoms = label_atoms(atoms, logger=log)
         except OSError:
             log.error(f"Could not read file {fname}, skipping.")
-            return (dfs, images, sources) if return_sources else (dfs, images)
+            continue
 
         # Keep the structure as read: reduction below discards the symmetry
         # copies, and callers such as the 2D plotter need them back.
@@ -799,7 +868,7 @@ def nmr_extract_multi(
             _include += list(properties)
 
         # apply filters
-        cols_to_include_list = expand_aliases(_include, NMR_COLUMN_ALIASES)
+        cols_to_include_list = expand_aliases(_include or [], NMR_COLUMN_ALIASES)
         # if MS_shielding in the list _and_ references are provided, add the MS_shift column
         if "MS_shielding" in cols_to_include_list and references:
             log.debug(

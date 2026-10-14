@@ -33,15 +33,13 @@ from pathlib import Path
 from ase import Atoms
 import click
 import click_log
-import matplotlib.pyplot as plt
-import numpy as np
 from ase.io import read
 
 from soprano.data.nmr import _get_nmr_data
+from soprano.nmr.extract import nmr_extract_atoms
 from soprano.nmr.spin_system import SpinSystem
 from soprano.properties.nmr import get_spin_system
 from soprano.scripts.cli_utils import SPINSYS_OPTIONS, add_options, viewimages
-from soprano.scripts.nmr import nmr_extract_atoms
 
 # logging
 logging.captureWarnings(True)
@@ -123,7 +121,7 @@ def spinsys(
         missing.append(f"EFG array '{efg_tag}' (disable with --no-efg or change tag with --efg-tag)")
     if missing:
         logger.error(
-            f"The input file is missing required data arrays:\n" +
+            "The input file is missing required data arrays:\n" +
             "\n".join(f"  - {m}" for m in missing)
         )
         return

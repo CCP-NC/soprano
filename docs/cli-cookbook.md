@@ -63,7 +63,7 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
     soprano nmr -p ms -s H1a seedname.magres
     ```
 
-* Set chemical shift references and gradients (non-specified references are set to zero and non-specified gradients are set to -1):
+* Set chemical shift references. Every element in the structure needs a reference, otherwise the command stops with an error. Gradients are optional: an element with a gradient uses the linear fit δ = reference + gradient × σ, and an element without one uses the full formula δ = (reference − σ)/(1 − reference × 10⁻⁶). A gradient of exactly -1 is still a linear fit:
 
     ```bash
     soprano nmr -p ms --references C:170,H:100 --gradients C:-1,H:-0.95 seedname.magres
@@ -90,6 +90,8 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
 ## 2D NMR plots
 
 The `plotnmr` subcommand can be used to generate 2D NMR plots from a magres file. Most of the options are the same as for the `nmr` subcommand in terms of filtering sites, setting references, isotopes etc. You can see the full help by running `soprano plotnmr --help`. 
+
+When chemical shifts are plotted (references given and `--shielding` not set), the plotted elements must all have a reference in `--references`. Otherwise the command stops with an error.
 
 Here are some common examples:
 
@@ -159,6 +161,8 @@ Here are some common examples:
 
     Use `--rss-expand-j symmetry` to use spglib symmetry operations instead of CIF labels. Both options give the same result for well-prepared CIF-derived structures, but `symmetry` works even without CIF label information.
 
+    Note that `--rss-expand-j cif_labels` requires a `.magres` file that carries CIF labels. On a file without them the command stops with an error. Use `--rss-expand-j symmetry` for those files.
+
 * DQ/SQ with RSS weighting, chemical shift references, and a heatmap/contour overlay:
 
     ```bash
@@ -214,25 +218,25 @@ Here are some common examples:
 ## Spin Systems
 The `spinsys` subcommand extracts spin systems from a magres file and writes them in Simpson or MRSimulator format. Run `soprano spinsys --help` for the full option list.
 
-Magnetic shielding (`--ms`, on by default) requires reference values for each isotope (`--ref ISOTOPE:VALUE`); use `--no-ms` to disable it. EFG/quadrupolar terms are also on by default and are included automatically for quadrupolar-active isotopes — use `--no-efg` to suppress them. Dipolar and J-couplings are opt-in via `--dip` and `--jcoupling`.
+Magnetic shielding (`--ms`, on by default) requires reference values for each isotope (`--references ISOTOPE:VALUE`); use `--no-ms` to disable it. EFG/quadrupolar terms are also on by default and are included automatically for quadrupolar-active isotopes — use `--no-efg` to suppress them. Dipolar and J-couplings are opt-in via `--dip` and `--jcoupling`.
 
 * **Basic ¹H spin system → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 -o spinsys.in
+    soprano spinsys seedname.magres -s H --references H:30 -o spinsys.in
     ```
 
 * **¹³C/¹H spin system with C–H dipolar couplings → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s C,H --ref C:170,H:30 --dip --select-i C --select-j H -o spinsys.in
+    soprano spinsys seedname.magres -s C,H --references C:170,H:30 --dip --select_i C --select_j H -o spinsys.in
     ```
-    `-s C,H` includes both species in the spin system; `--select-i C --select-j H` restricts dipolar couplings to C–H pairs only (skipping H–H).
+    `-s C,H` includes both species in the spin system; `--select_i C --select_j H` restricts dipolar couplings to C–H pairs only (skipping H–H).
 
 * **Quadrupolar nucleus (²H, 2nd order) → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s H -i 2H --ref H:0 --q-order 2 -o spinsys_2H.in
+    soprano spinsys seedname.magres -s H -i 2H --references H:0 --q-order 2 -o spinsys_2H.in
     ```
 
 * **¹⁷O quadrupolar spin system → Simpson file:**
@@ -245,26 +249,26 @@ Magnetic shielding (`--ms`, on by default) requires reference values for each is
 * **Include J-couplings:**
 
     ```bash
-    soprano spinsys seedname.magres -s C --ref C:170 --dip --jcoupling -o spinsys.in
+    soprano spinsys seedname.magres -s C --references C:170 --dip --jcoupling -o spinsys.in
     ```
 
 * **MRSimulator format:**
 
     ```bash
-    soprano spinsys seedname.magres -s C --ref C:170 --dip -f mrsimulator -o spinsys.json
+    soprano spinsys seedname.magres -s C --references C:170 --dip -f mrsimulator -o spinsys.json
     ```
 
 * **Output individual spin systems to separate files (one per site):**
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --split
+    soprano spinsys seedname.magres -s H --references H:30 --split
     ```
     With `--split`, output filenames are generated automatically from the site labels.
 
 * **Average methyl (CH₃) groups** into a single site. Use `--no-reduce` to prevent symmetry-equivalent methyls from being merged together before averaging:
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3 --no-reduce -o spinsys.in
+    soprano spinsys seedname.magres -s H --references H:30 --average-group CH3 --no-reduce -o spinsys.in
     ```
 
 * **Custom isotope** — `-i` controls which isotope is used for the dipolar coupling constant, EFG quadrupolar coupling, and J-coupling. It does **not** affect the MS tensor. For example, to compute ²H dipolar couplings for a deuterium-labelled sample (MS disabled since no reference is available):

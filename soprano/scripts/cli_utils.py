@@ -23,18 +23,15 @@ __email__ = "kane.shenton@stfc.ac.uk"
 __date__ = "August 10, 2022"
 
 
-import logging
 import os
 import re
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from configparser import ConfigParser
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import click
-import numpy as np
 import pandas as pd
-from ase import Atoms
 from ase.visualize import view as aseview
 
 from soprano.calculate.nmr import DEFAULT_MARKER_SIZE
@@ -42,10 +39,27 @@ from soprano.calculate.nmr.config import (
     DEFAULT_GRID_SIZE_GAUSSIAN,
     DEFAULT_GRID_SIZE_LORENTZIAN,
 )
-from soprano.calculate.nmr.simpson import SimpsonTemplates
 from soprano.data.nmr import _el_iso
-from soprano.properties.linkage import ElementPairs, Molecules
-from soprano.utils import average_quaternions
+
+# Non-Click helpers now live in non-CLI modules. They are re-exported here so
+# that existing ``from soprano.scripts.cli_utils import ...`` lines keep working.
+from soprano.nmr.dataframe import (  # noqa: F401
+    UNITS,
+    apply_df_filtering,
+    average_quaternions_by_tags,
+    expand_aliases,
+    get_duplicates,
+    get_matching_cols,
+    get_missing_cols,
+    sortdf,
+    units_rename,
+)
+from soprano.nmr.extract import (  # noqa: F401
+    NO_CIF_LABEL_WARNING,
+    find_XHn_groups,
+    has_CH_bonds,
+    reload_as_molecular_crystal,
+)
 
 # join home and config file
 home = os.path.expanduser("~")
@@ -55,8 +69,6 @@ DEFAULT_PRECISION = 4
 
 VALID_DF_OUTPUT_EXTENSIONS = ["csv", "json", "html", "md", "tex", "txt", "tsv", "dat", "xls", "xlsx"]
 
-
-import os
 
 def _validate_df_output_extension(output_filename: str, output_format: Optional[str] = None) -> str:
     """Validate the output filename extension.
@@ -95,53 +107,6 @@ def configure(ctx, param, filename):
             defaults = defaults.setdefault(cmdname, {})
         defaults.update(cfg[sect])
 
-
-# We'll need to rename the columns to include units before printing
-UNITS = {
-    "MS_shielding": "ppm",
-    "MS_shift": "ppm",
-    "MS_anisotropy": "ppm",
-    "MS_reduced_anisotropy": "ppm",
-    "MS_span": "ppm",
-    "MS_alpha": "deg",
-    "MS_beta": "deg",
-    "MS_gamma": "deg",
-    "EFG_Vzz": "Vm^-2",
-    "EFG_quadrupolar_constant": "MHz",
-    "EFG_alpha": "deg",
-    "EFG_beta": "deg",
-    "EFG_gamma": "deg",
-    "EFG_NQR": "MHz",
-    "D": "kHz",
-    "alpha": "deg",
-    "beta": "deg",
-    "gamma": "deg",
-}
-
-
-# TODO: write guide for this on website...
-NO_CIF_LABEL_WARNING = """
-## Protip: ##
-This .magres file doesn't seem to have CIF-stlye labels.
-Using these is considered a good idea, but is not required.
-You can export these automatically from a cif file using 
-cif2cell. e.g. for CASTEP:
-
-cif2cell mystructure.cif --export-cif-labels -p castep
-
-"""
-
-# Function to expand aliases
-def expand_aliases(input_list, alias_dict):
-    if input_list is None:
-        return None
-    output_list = []
-    for item in input_list:
-        if item in alias_dict:
-            output_list.extend(alias_dict[item])
-        else:
-            output_list.append(item)
-    return output_list
 
 ### PARSER HELPERS ###
 def isotope_selection(ctx, parameter, isotope_string):
@@ -387,11 +352,11 @@ gradients = click.option(
     "--gradients",
     callback=keyvalue_parser,
     default="",
-    help="Reference shielding gradients for each element. "
-    "When omitted, the full NMR formula is used (implicit gradient = -1). "
-    "When provided, a simple linear calibration is used instead: "
-    "δ = reference + gradient × σ. Set it like this: "
-    "``--gradients H:-1,C:-0.97``. ",
+    help="Reference shielding gradients for each element, e.g. ``--gradients H:-1,C:-0.97``. "
+    "Giving a gradient for an element selects linear-fit referencing for that element: "
+    "δ = reference + gradient × σ (no denominator). "
+    "Elements without a gradient use the full formula δ = (reference − σ)/(1 − reference×10⁻⁶). "
+    "A gradient of exactly -1 is still a linear fit.",
 )
 # TODO: have an option to set a file/env variable for the references...
 # flag to include certain columns only
@@ -737,10 +702,9 @@ plot_contour_range = click.option(
     "--contour-range",
     type=(float, float),
     default=None,
-    help="Intensity range for contour/heatmap rendering as (lo hi) percentages "
+    help="Intensity range for contour rendering as (lo hi) percentages "
          "of the maximum grid intensity (0-100 scale), for contour lines only. "
-         "Defaults to --intensity-range when unset. "
-         "Ignored when --contour-levels is an explicit list of absolute values.",
+         "Defaults to --intensity-range when unset.",
 )
 
 # heatmap range (percentages of Z.max)
@@ -750,8 +714,7 @@ plot_heatmap_range = click.option(
     default=None,
     help="Intensity range for heatmap rendering as (lo hi) percentages "
          "of the maximum grid intensity (0-100 scale), for heatmap only. "
-         "Defaults to --intensity-range when unset. "
-         "Ignored when --heatmap-levels is an explicit list of absolute values.",
+         "Defaults to --intensity-range when unset.",
 )
 
 # contour color
@@ -777,7 +740,7 @@ plot_heatmap_levels = click.option(
     default=20,
     show_default=True,
     help="Number of filled colour bands in the heatmap "
-         "(between the lo and hi values of --contour-range). Default is 20.",
+         "(between the lo and hi values of --heatmap-range). Default is 20.",
 )
 
 # heatmap grid size
@@ -880,8 +843,16 @@ plot_y_larmor_freq = click.option(
     default=None,
     metavar="MHz",
     help="Larmor frequency (MHz) of the indirect (y) dimension nucleus. "
-    "Defaults to --x-larmor-freq (homonuclear). "
-    "Overrides auto-computation from --b0-field-tesla.",
+    "If not given, it is computed for the y element from --b0-field-tesla or --spectrometer-freq. "
+    "Only when no field is given and the x and y elements are the same is --x-larmor-freq used instead.",
+)
+plot_export_overwrite = click.option(
+    "--overwrite",
+    "overwrite",
+    is_flag=True,
+    default=False,
+    help="Allow replacing an existing Bruker dataset at a --export-file path. "
+    "Other formats are written without this check.",
 )
 
 
@@ -938,6 +909,7 @@ NMR_OPTIONS = [
     isotopes,
     average_group,
     reduce,
+    mean_merge,
     euler,
     references,
     gradients,
@@ -1004,6 +976,7 @@ PLOT_SPECIFIC_OPTIONS = [
     plot_shielding,
     plot_export_files,
     plot_export_format,
+    plot_export_overwrite,
     plot_b0_field,
     plot_spectrometer_freq,
     plot_x_larmor_freq,
@@ -1273,214 +1246,3 @@ def print_results(
                 click.echo(display_df)
 
 
-def units_rename(colname, units_dict=UNITS):
-    for key, unit in units_dict.items():
-        if key in colname:
-            return f"{colname}/{unit}"
-    # if no matches found, return original name
-    return colname
-
-
-def apply_df_filtering(
-    df: pd.DataFrame,
-    include: List,
-    exclude: List,
-    query: str,
-    essential_columns: List = [],
-    logger: Optional[logging.Logger] = None,
-) -> pd.DataFrame:
-    """
-    Inlcude/exclude columns and filter the dataframe using a pandas query.
-
-    Args:
-        df (pd.DataFrame): the dataframe to filter
-        include (list): list of columns to include
-        exclude (list): list of columns to exclude
-        query (str): pandas query string to filter the dataframe
-        essential_columns (list): list of columns that must be included
-        logger (logging.Logger): logger to use
-
-    Returns:
-        pd.DataFrame: the filtered dataframe
-
-    """
-
-    # if no logger specified, use the default
-    if not logger:
-        logger = logging.getLogger(__name__)
-
-    if query:
-        # use pandas query to filter the dataframe
-        logger.info(f"\nFiltering dataframe using query: {query}")
-        df.query(query, inplace=True)
-        logger.info(f"-----> Filtered to {len(df)} sites.")
-
-    # what columns should we include/exclude?
-
-    if include:
-        # what columns should we include/exclude?
-        specified_columns = [c for c in include if c not in essential_columns]
-        logger.debug(f"\nIncluding only columns containing: {specified_columns}")
-        columns_to_include = essential_columns + specified_columns
-        missing_columns = get_missing_cols(df, columns_to_include)
-        if len(missing_columns) > 0:
-            logger.warning(
-                f"These columns specified {missing_columns}"
-                f" do not match any in the dataframe ({df.columns})"
-            )
-        columns_to_include = get_matching_cols(df, columns_to_include)
-        df = df[columns_to_include].copy()
-    if exclude:
-        logger.debug(f"\nExcluding columns: {exclude}")
-        # remove those that are already not in df
-        specified_columns = get_matching_cols(df, exclude)
-        df = df.drop(specified_columns, axis=1)
-    # drop any that have only NaN values
-    df = df.dropna(axis=1, how="all")
-    return df
-
-
-def sortdf(df, sortby, sort_order):
-    """sort df by column, return new df"""
-
-    if sortby:
-        if sortby in df.columns:
-            ascending = sort_order == "ascending"
-            if sortby == "labels":
-                isalpha = df[sortby].str.isalpha()
-                if all(isalpha):
-                    # no cif style labels, so sort by alphabetical order
-                    df = df.sort_values(by=sortby, ascending=ascending)
-                elif any(isalpha):
-                    # tricky -- we have a mix of cif style labels and non-cif style labels
-                    # so we need to sort by the cif style labels first, then sort by the non-cif style labels
-                    # this is a bit of a hack, but it works
-                    raise NotImplementedError(
-                        "Sorting by labels is not implemented"
-                        "for a mix of cif and non-cif -style labels"
-                    )
-                else:
-                    # all cif stlye
-                    # some care is needed to sort by labels in a natural way
-                    df[["_str", "_int"]] = df[sortby].str.extract(r"([a-zA-Z]*)(\d*)")
-                    df["_int"] = df["_int"].astype(int)
-
-                    df = df.sort_values(by=["_str", "_int"], ascending=ascending).drop(
-                        ["_int", "_str"], axis=1
-                    )
-            else:
-                df = df.sort_values(by=sortby, ascending=ascending)
-        else:
-            raise ValueError(f"{sortby} not found in summary columns names")
-    return df
-
-
-def get_matching_cols(df, lst):
-    """
-    Get the columns of a dataframe that roughly match a list of strings.
-    """
-    return [col for col in df.columns if any(x in col for x in lst)]
-
-
-def get_missing_cols(df, lst):
-    """
-    Get the items in list that don't match any of the columns of a dataframe
-    """
-    return [x for x in lst if all(x not in col for col in df.columns)]
-
-
-def get_duplicates(seq):
-    """
-    Returns dict {duplicate_value: [indices]} for duplicates in a list
-    """
-    tally = defaultdict(list)
-    for i, item in enumerate(seq):
-        tally[item].append(i)
-    return dict([(key, locs) for key, locs in tally.items() if len(locs) > 1])
-
-
-def average_quaternions_by_tags(quaternions, tags):
-    """
-    For repeated tags, average the quaternions.
-    Return the modified list of quaternions.
-    """
-    if len(set(tags)) != len(tags):
-        dupl_dict = get_duplicates(tags)
-        for tag, idx in dupl_dict.items():
-            quat_group = [quaternions[ig] for ig in idx]
-            # compute group average quaternion
-            quat_av = average_quaternions(quat_group)
-            # update list of quaternions
-            for ig in idx:
-                quaternions[ig] = quat_av
-    return quaternions
-
-
-def find_XHn_groups(atoms, pattern_string, tags=None, vdw_scale=1.0):
-    """Thin wrapper re-exporting :func:`soprano.nmr.extract.find_XHn_groups`.
-
-    Kept here for backward compatibility.  New code should import directly
-    from ``soprano.nmr.extract``.
-    """
-    from soprano.nmr.extract import find_XHn_groups as _impl
-    return _impl(atoms, pattern_string, tags=tags, vdw_scale=vdw_scale)
-
-
-def reload_as_molecular_crystal(atoms: Atoms, force=False) -> Atoms:
-    """
-    If the atoms object is a molecular crystal, reload it with the correct
-    connectivity.
-
-    We check if there are any C-H bonds, and if so, we assume it's a molecular
-    crystal and reload it as such. If there are no C-H bonds, we assume it's
-    not and return the original atoms object, unless force=True.
-
-
-    Args:
-        atoms (ASE Atoms object): the atoms object to be reloaded.
-        force (bool): if True, force the reload even if there are no C-H bonds.
-
-    Returns:
-        atoms (ASE Atoms object): the atoms object with the correct connectivity.
-    """
-    # save initial order
-    atoms.set_array("order_tag", np.arange(len(atoms)))
-    if has_CH_bonds(atoms) or force:
-        # temporarily translate the atoms to the COM
-        com = atoms.cell.T.dot([0.5, 0.5, 0.5]) - atoms.get_center_of_mass()
-        atoms.translate(com)
-        # let's assume this is an organic molecule/crystal
-        # and try to reload the atoms object with the correct
-        # connectivity:
-        mols = Molecules.get(atoms)
-        if len(mols) == 0:
-            return atoms
-
-        temp = mols[0].subset(atoms, use_cell_indices=True)
-        if len(mols) > 1:
-            for mol in mols[1:]:
-                temp.extend(mol.subset(atoms, use_cell_indices=True))
-        # restore original order
-        temp = temp[temp.get_array("order_tag").argsort()]
-        # restore original centering
-        temp.translate(-com)
-        atoms = temp
-
-    return atoms
-
-
-def has_CH_bonds(atoms: Atoms, rcut: float = 1.5) -> bool:
-    """Check if the atoms object has bonds with CH atoms
-    Does this simply by comparing the labels with the element symbols.
-    If they're all the same, then so special labels are present.
-    """
-    # First check if it contains C and H elements
-    symbols = atoms.get_chemical_symbols()
-    if not ("C" in symbols and "H" in symbols):
-        return False
-
-    # Test the return_pairs=False option
-    dists = ElementPairs.get(
-        atoms, element1="C", element2="H", return_pairs=False, rcut=rcut
-    )
-    return len(dists) > 0
