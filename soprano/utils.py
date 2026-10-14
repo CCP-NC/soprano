@@ -426,8 +426,7 @@ def minimum_periodic(v, latt_cart, exclude_self=False, pbc=[True, True, True]):
     |                        useful for finding nearest-neighbour images when
     |                        computing self-pairs. When all vectors are zero
     |                        (e.g. an atom paired with itself), the search
-    |                        radius is determined from the shortest non-zero
-    |                        lattice vector found by enumerating immediate
+    |                        radius is set by the shortest of the immediate
     |                        {-1,0,1}^3 neighbours in fractional space.
     |                        Default is False.
     |   pbc ([bool, bool, bool]): periodic boundary conditions - if
@@ -444,6 +443,10 @@ def minimum_periodic(v, latt_cart, exclude_self=False, pbc=[True, True, True]):
     |                         will be all [0,0,0]
 
     """
+
+    if not np.any(latt_cart):
+        # Zero cell (non-periodic input): there are no periodic copies
+        return np.asarray(v, dtype=float), np.zeros((len(v), 3), dtype=int)
 
     max_r = np.amax(np.linalg.norm(v, axis=-1))
     if max_r == 0 and exclude_self:

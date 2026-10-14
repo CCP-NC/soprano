@@ -244,6 +244,26 @@ class TestSupercellMethods(unittest.TestCase):
         self.assertTrue(np.all(norms > 0))
         self.assertTrue(np.allclose(norms, 1.0))
 
+    def test_min_periodic_exclude_self_zero_cell(self):
+        """A zero cell (non-periodic input) with zero vectors must not raise.
+
+        There are no non-zero neighbours to pick a search radius from, so the
+        base behaviour of returning the zero vectors is kept.
+        """
+        import warnings
+
+        from soprano.utils import minimum_periodic
+
+        v_zero = [[0.0, 0.0, 0.0]]
+        v_some = [[1.0, 0.0, 0.0], [0.0, 2.0, 0.0]]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            vp, vcells = minimum_periodic(v_zero, np.zeros((3, 3)), exclude_self=True)
+            vp_some, _ = minimum_periodic(v_some, np.zeros((3, 3)))
+        np.testing.assert_array_equal(vp, v_zero)
+        np.testing.assert_array_equal(vcells, [[0, 0, 0]])
+        np.testing.assert_array_equal(vp_some, v_some)
+
 
 # test the merging of sites
 class TestMergeSites(unittest.TestCase):

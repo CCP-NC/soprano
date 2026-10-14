@@ -1,8 +1,10 @@
 # Dipolar couplings and methyl group rotation
 
-Methyl groups rotate fast on the NMR timescale at essentially any temperature
-where spectra are recorded. The three-fold hop rate exceeds 10⁶ s⁻¹ well below
-100 K, while the ¹H-¹H dipolar couplings at stake are of order 10⁴ Hz. A
+Methyl groups are usually in fast rotation on the NMR timescale at the
+temperatures where spectra are recorded. Whether the three-fold hop rate exceeds
+10⁶ s⁻¹ at a given temperature depends on the rotational barrier, which varies
+widely between compounds. The ¹H-¹H dipolar couplings at stake are of order
+10⁴ Hz. A
 simulation built from a static DFT geometry therefore reports couplings that
 the experiment never sees: the measurement averages over the rotation, and the
 simulation must do the same if the two are to be compared. This document sets
@@ -36,7 +38,7 @@ coupling *tensor*, not of the coupling constant. That is, one must average the
 full $3\times 3$ matrices, orientation and all, and only then extract an
 effective constant. The distinction matters because tensors pointing in
 different directions partially cancel; averaging the scalar magnitudes ignores
-this cancellation entirely and always overestimates the residual coupling.
+this cancellation entirely and never underestimates the residual coupling.
 
 Three regimes are worth separating.
 
@@ -47,27 +49,36 @@ appropriate. Soprano's default behaviour, with no `average_group` requested,
 corresponds to this limit.
 
 **Fast exchange.** When the rate exceeds the coupling by an order of magnitude
-or more, which for CH₃ is the case at nearly all practically relevant
-temperatures, the observed tensor is
+or more, the observed tensor is
 
 $$
 \bar{D} = \frac{1}{N}\sum_{(i,j)} D_{ij}
 $$
 
-where the sum runs over the exchanging site pairs. The effective constant is
-half the eigenvalue of $\bar{D}$ with the largest magnitude, sign retained.
-Three cases follow from the same formula:
+where the sum runs over the exchanging site pairs. For ideal three-fold hops
+between equivalent sites (120° jumps) this average is exact within the rigid
+three-site model; the approximations that matter in practice are the fixed
+geometry and the neglect of vibration and libration (see Caveats). The
+effective constant is half the eigenvalue of $\bar{D}$ with the largest
+magnitude, sign retained. When $\bar{D}$ is axial, $d_{\text{eff}}$ is the
+coupling constant of the equivalent axial interaction. When it is not
+($\eta \neq 0$), $\lambda_{\max}/2$ is a convention: it summarises the
+averaged tensor but does not describe a single coupling. Three cases follow from
+the same formula:
 
 1. *External spin k to a methyl proton.* The proton visits three sites, so
    $\bar{D} = \tfrac{1}{3}\sum_i D_{ki}$. The residual tensor is in general
-   not axial ($\eta \neq 0$) and its effective constant is always smaller in
-   magnitude than the mean of the three static constants.
+   not axial ($\eta \neq 0$). Its effective constant is never larger in
+   magnitude than the mean of the three static constants' magnitudes, with
+   equality when the three vectors are parallel.
 2. *Two protons within the same methyl.* The H-H vectors are perpendicular to
    the C₃ axis, and rotation scales the coupling by
-   $P_2(\cos 90°) = -\tfrac{1}{2}$: a static coupling of $-21.5$ kHz becomes
-   $+10.7$ kHz. The tensor average over the three edge vectors reproduces
-   this factor without special-casing, since the three edges at 120° to one
-   another average to an axial tensor along the rotation axis.
+   $P_2(\cos 90°) = -\tfrac{1}{2}$: a static coupling of about $-21.5$ kHz
+   (between $-21.4$ and $-21.7$ kHz for the three edges of the ethanol test
+   structure) becomes about $+10.8$ kHz. The three edges of the H₃ triangle lie in a
+   plane perpendicular to the C₃ axis, so their tensor average is axial along
+   that axis, and the averaging reproduces this factor without
+   special-casing.
 3. *Methyl to methyl.* With uncorrelated hops the average runs over all
    $3\times 3 = 9$ site pairs.
 
@@ -89,10 +100,11 @@ protons against the CH₃ group, in kHz:
 |-----------|-------------------------------|-------------|----------------|
 | H3 | $-7.60$, $-7.52$, $-4.16$ | 6.43 | 5.09 |
 | H4 | $-7.57$, $-4.17$, $-7.69$ | 6.47 | 5.06 |
-| H5 | $-2.52$, $-7.50$, $-4.58$ | 4.86 | 4.17 |
+| H5 | $-2.52$, $-7.50$, $-4.57$ | 4.86 | 4.17 |
 
-The single-hydrogen shortcut lands anywhere from 40% below to 50% above the
-tensor average, depending on an arbitrary ordering choice. The scalar mean
+Distances are minimum-image, as in `DipolarCoupling`. The single-hydrogen
+shortcut lands anywhere from 40% below to 52% above the tensor average,
+depending on an arbitrary ordering choice. The scalar mean
 overestimates by 17-28% here; the discrepancy grows as the external spin
 approaches the group, precisely the couplings that dominate a dipolar-weighted
 spectrum.
@@ -111,11 +123,11 @@ methyl = [0, 1, 2]
 
 # External proton to the methyl group
 d_eff, D_avg = averaged_dipolar_coupling(atoms, [3], methyl)
-print(d_eff)   # -5091 Hz: signed effective constant
+print(d_eff)   # ≈ -5091 Hz: signed effective constant
 
 # Intra-methyl residual: the -1/2 factor emerges from the geometry
 d_eff, _ = averaged_dipolar_coupling(atoms, methyl, methyl)
-print(d_eff)   # +10766 Hz, versus -21500 Hz static
+print(d_eff)   # ≈ +10766 Hz, versus about -21.5 kHz static
 ```
 
 Internuclear vectors use the minimum image convention, matching

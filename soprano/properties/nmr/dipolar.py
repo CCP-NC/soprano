@@ -18,6 +18,7 @@
 couplings"""
 
 
+import hashlib
 import warnings
 
 import numpy as np
@@ -236,6 +237,12 @@ def averaged_dipolar_coupling(
     r_ij = pos[idx_j] - pos[idx_i]
     r_ij, _ = minimum_periodic(r_ij, atoms.get_cell(), exclude_self=True)
     R_ij = np.linalg.norm(r_ij, axis=1)
+    if np.any(R_ij == 0):
+        k = int(np.argmax(R_ij == 0))
+        raise ValueError(
+            f"atoms {idx_i[k]} and {idx_j[k]} coincide, so their dipolar "
+            "coupling is undefined"
+        )
     v_ij = r_ij / R_ij[:, None]
     d_ij = _dip_constant(R_ij * 1e-10, gammas[idx_i], gammas[idx_j])
 
@@ -513,6 +520,35 @@ class DipolarRSS(AtomsProperty):
         return np.array(dip_rss)
 
 
+_SYMMETRY_TAG_CACHE = {}
+_SYMMETRY_TAG_CACHE_MAX = 16
+
+
+def _symmetry_tags(s, symprec, override_cif):
+    """UniqueSites tags for *s*, memoised on a fingerprint of the structure.
+
+    The fingerprint covers every input UniqueSites reads (positions, atomic
+    numbers, cell, pbc and CIF labels) and the settings, so a modified Atoms
+    object gets fresh tags rather than stale ones.
+    """
+    digest = hashlib.sha256()
+    for arr in (s.get_positions(), s.get_atomic_numbers(), s.get_cell()[:], s.get_pbc()):
+        digest.update(np.ascontiguousarray(arr).tobytes())
+    if has_cif_labels(s):
+        digest.update("\0".join(map(str, s.get_array("labels"))).encode())
+    digest.update(repr((symprec, override_cif)).encode())
+    key = digest.hexdigest()
+
+    if key not in _SYMMETRY_TAG_CACHE:
+        if len(_SYMMETRY_TAG_CACHE) >= _SYMMETRY_TAG_CACHE_MAX:
+            _SYMMETRY_TAG_CACHE.clear()
+        tags = np.array(UniqueSites.get(s, symprec=symprec, save_info=False,
+                                        override_cif=override_cif))
+        tags.setflags(write=False)
+        _SYMMETRY_TAG_CACHE[key] = tags
+    return _SYMMETRY_TAG_CACHE[key]
+
+
 def _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec):
     """Expand *sel_j* to include all crystallographically equivalent sites.
 
@@ -545,8 +581,7 @@ def _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec):
             "atoms object (set via atoms.set_array('labels', ...))")
     # For 'symmetry', force spglib-based grouping even when CIF labels exist.
     # For 'cif_labels', let UniqueSites prefer CIF labels (its default).
-    tags = UniqueSites.get(s, symprec=symprec, save_info=False,
-                           override_cif=(expand_j == "symmetry"))
+    tags = _symmetry_tags(s, symprec, override_cif=(expand_j == "symmetry"))
     j_tags = {int(tags[i]) for i in sel_j.indices}
     expanded = np.where(np.isin(tags, list(j_tags)))[0]
     return AtomSelection(s, sorted(set(sel_j.indices) | set(map(int, expanded))))
@@ -602,7 +637,7 @@ class DipolarRSSByAtom(AtomsProperty):
                            present will fall back on the previous
                            definitions. Where an isotope is present it
                            overrides everything else.
-      expand_j (str or None): how to expand sel_j to include equivalent sites.
+      expand_j (str): how to expand sel_j to include equivalent sites.
                               'periodic_images': no expansion, use sel_j as-is
                                                  (only periodic images of the
                                                  specified atoms are included).
@@ -612,7 +647,8 @@ class DipolarRSSByAtom(AtomsProperty):
                               'cif_labels': expand to all sites sharing the
                                             same CIF label and their periodic
                                             images.
-                              By default is 'periodic_images'.
+                              By default is 'periodic_images'. Any other
+                               value, including None, raises ValueError.
       symprec (float): symmetry precision for UniqueSites when expand_j is
                        'symmetry'. Default is 1e-4.
 
@@ -654,69 +690,59 @@ class DipolarRSSByAtom(AtomsProperty):
         # Expand sel_j to equivalent sites if requested
         sel_j = _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec)
 
-        j_indices_set = set(sel_j.indices)
-
-        # Supercell size
-        scell_shape = minimum_supcell(cutoff, s.get_cell())
-        _, scell = supcell_gridgen(s.get_cell(), scell_shape)
+        # Supercell size. A zero cell (non-periodic input) has only the
+        # atoms themselves as images.
+        if np.any(s.get_cell()):
+            scell_shape = minimum_supcell(cutoff, s.get_cell())
+            _, scell = supcell_gridgen(s.get_cell(), scell_shape)
+        else:
+            scell = np.zeros((1, 3))
 
         pos = s.get_positions()
         elems = np.array(s.get_chemical_symbols())
-        n_atoms = len(elems)
 
         gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
+
+        # The neighbours and their gammas are the same for every atom in sel_i
+        j_inds = np.unique(np.asarray(sel_j.indices, dtype=int))
+        pos_j = pos[j_inds]
+        gj_all = np.tile(gammas[j_inds], len(scell))
 
         dip_rss = []
 
         for i in sel_i.indices:
-            # Filter to only j atoms
-            j_mask = np.array([k in j_indices_set for k in range(n_atoms)])
-            j_inds = np.where(j_mask)[0]
-
-            if len(j_inds) == 0:
-                dip_rss.append(0.0)
-                continue
-
-            rij = pos[j_inds]
-            gj = np.tile(gammas[j_inds], len(scell))
-
             # All periodic images of j positions relative to atom i
-            rij = rij[None, :, :] + scell[:, None, :] - pos[i, None, None]
-            Rij = np.linalg.norm(rij.reshape((-1, 3)), axis=-1)
+            rij = pos_j[None, :, :] + scell[:, None, :] - pos[i]
+            Rij = np.linalg.norm(rij, axis=-1).reshape(-1)
 
             # Valid indices: non-zero distance and within cutoff
             ij = np.where((Rij > 0) & (Rij <= cutoff))
 
             if len(ij[0]) == 0:
-                # Build a description of the selected j neighbours
-                j_elems = elems[j_inds]
-                # Minimum image distances (closest periodic image per j atom)
-                Rij_per_j = Rij.reshape(len(scell), len(j_inds))
-                min_dists = np.min(Rij_per_j[Rij_per_j.reshape(len(scell), len(j_inds)) > 0]
-                                   .reshape(-1)) if np.any(Rij_per_j > 0) else float('inf')
-                # More useful: minimum distance per j atom across images
-                min_per_j = []
-                for jj in range(len(j_inds)):
-                    col = Rij_per_j[:, jj]
-                    valid = col[col > 0]
-                    min_per_j.append(np.min(valid) if len(valid) > 0 else float('inf'))
-                neighbour_lines = []
-                for jj, ji in enumerate(j_inds):
-                    neighbour_lines.append(
-                        f"  {elems[ji]} (index {ji}): nearest image at "
-                        f"{min_per_j[jj]:.4f} Ang")
+                if len(j_inds) == 0:
+                    detail = "sel_j is empty."
+                else:
+                    # Nearest image of each j atom, to help diagnose the cutoff
+                    Rij_per_j = np.where(Rij > 0, Rij, np.inf).reshape(len(scell), len(j_inds))
+                    nearest = Rij_per_j.min(axis=0)
+                    neighbour_lines = [
+                        f"  {elems[ji]} (index {ji}): nearest image at {d:.4f} Ang"
+                        for ji, d in zip(j_inds, nearest)
+                    ]
+                    detail = (
+                        "Selected neighbours and their nearest-image distances:\n"
+                        + "\n".join(neighbour_lines)
+                    )
                 warnings.warn(
                     f"Atom {elems[i]} (index {i}) has no neighbours from "
-                    f"sel_j within cutoff={cutoff} Ang. "
-                    f"Selected neighbours and their nearest-image distances:\n"
-                    + "\n".join(neighbour_lines),
+                    f"sel_j within cutoff={cutoff} Ang. " + detail,
                     stacklevel=2,
                 )
                 dip_rss.append(0.0)
                 continue
 
             Rij = Rij[ij] * 1e-10
-            gj = gj[ij]
+            gj = gj_all[ij]
 
             dip = _dip_constant(Rij, gammas[i], gj)
             dip_rss.append(np.sqrt(np.sum(dip**2)))

@@ -11,6 +11,7 @@ Two things are worth checking beyond the obvious algebra:
 """
 
 import os
+import pickle
 import sys
 import unittest
 
@@ -82,6 +83,34 @@ class TestSiteMapConstruction(unittest.TestCase):
         with self.assertRaises(ValueError):
             m.to_sites[0] = 2
 
+    def test_rejects_non_integer_to_sites(self):
+        for bad in (
+            np.array([0.0, 1.0]),  # integral-valued floats are still floats
+            np.array([0.5, 1.0]),
+            np.array([0.0, np.nan]),
+            np.array([0, None], dtype=object),
+        ):
+            with self.assertRaises(ValueError):
+                SiteMap(bad, 2)
+
+    def test_accepts_empty_float_array(self):
+        """np.array([]) is float64 by default; an empty map must still be valid."""
+        m = SiteMap(np.array([]), 0)
+        self.assertEqual((m.n_atoms, m.n_sites), (0, 0))
+
+    def test_copies_input_array(self):
+        """Freezing the map must not lock the caller's buffer."""
+        arr = np.array([0, 1])
+        m = SiteMap(arr, 2)
+        self.assertTrue(arr.flags.writeable)
+        arr[0] = 1
+        np.testing.assert_array_equal(m.to_sites, [0, 1])
+
+    def test_from_selection_rejects_repeated_atoms(self):
+        atoms = Atoms("H3")
+        with self.assertRaises(ValueError):
+            SiteMap.from_selection(AtomSelection(atoms, [1, 1]), atoms)
+
 
 class TestSiteMapUse(unittest.TestCase):
     def test_members(self):
@@ -129,6 +158,57 @@ class TestSiteMapUse(unittest.TestCase):
         with self.assertRaises(ValueError):
             m.validate(Atoms("H4"))
 
+    def test_len_counts_source_atoms_not_sites(self):
+        sel = AtomSelection(Atoms("H4"), [0, 2])
+        m = SiteMap.from_selection(sel, 4)
+        self.assertEqual((len(m), m.n_sites), (4, 2))
+
+    def test_multiplicity(self):
+        m = SiteMap.from_tags([0, 0, 1, 2])
+        np.testing.assert_array_equal(m.multiplicity, [2, 1, 1])
+
+    def test_multiplicity_ignores_dropped_atoms(self):
+        m = SiteMap(np.array([DROPPED, 0, 0, 1]), 3)
+        np.testing.assert_array_equal(m.multiplicity, [2, 1, 0])
+        self.assertEqual(m.multiplicity.sum(), np.count_nonzero(m.to_sites != DROPPED))
+
+    def test_multiplicity_is_read_only(self):
+        m = SiteMap.identity(2)
+        with self.assertRaises(ValueError):
+            m.multiplicity[0] = 5
+
+    def test_multiplicity_empty(self):
+        self.assertEqual(SiteMap.identity(0).multiplicity.shape, (0,))
+
+    def test_pickle_round_trip(self):
+        m = SiteMap(np.array([DROPPED, 1, 0, 1]), 2)
+        clone = pickle.loads(pickle.dumps(m))
+        self.assertEqual(clone.n_sites, m.n_sites)
+        np.testing.assert_array_equal(clone.to_sites, m.to_sites)
+        self.assertFalse(clone.to_sites.flags.writeable)
+
+    def test_empty_source_with_dropped_atoms(self):
+        """Selecting nothing from a structure drops every atom."""
+        sel = AtomSelection(Atoms("H3"), [])
+        m = SiteMap.from_selection(sel, 3)
+        self.assertEqual((m.n_atoms, m.n_sites), (3, 0))
+        np.testing.assert_array_equal(m.to_sites, [DROPPED] * 3)
+        self.assertEqual(m.multiplicity.shape, (0,))
+        self.assertEqual(repr(m), "SiteMap(3 atoms -> 0 sites, 3 dropped)")
+
+    def test_compose_keeps_dropped_atoms_from_first_map(self):
+        first = SiteMap(np.array([DROPPED, 0, 0, 1]), 2)
+        second = SiteMap(np.array([1, 0]), 2)
+        combined = first.compose(second)
+        np.testing.assert_array_equal(combined.to_sites, [DROPPED, 1, 1, 0])
+        self.assertEqual(combined.n_sites, 2)
+
+    def test_compose_empty_source_with_dropped_atoms(self):
+        first = SiteMap.from_selection(AtomSelection(Atoms("H3"), []), 3)
+        combined = first.compose(SiteMap.identity(0))
+        np.testing.assert_array_equal(combined.to_sites, [DROPPED] * 3)
+        self.assertEqual((combined.n_atoms, combined.n_sites), (3, 0))
+
 
 class TestSiteMapAgainstRealOperations(unittest.TestCase):
     """The constructors claim to describe real operations. Check that they do."""
@@ -151,13 +231,17 @@ class TestSiteMapAgainstRealOperations(unittest.TestCase):
 
     def test_from_tags_matches_nmr_extract_atoms_index_map(self):
         from soprano.nmr.extract import label_atoms, nmr_extract_atoms
+        from soprano.properties.labeling import UniqueSites
 
         src = label_atoms(self.atoms.copy())
         reduced, index_map = nmr_extract_atoms(
             src.copy(), reduce=True, symprec=1e-4, return_index_map=True
         )
-        smap = SiteMap(np.asarray(index_map), len(reduced))
+        # nmr_extract_atoms groups by these UniqueSites tags, then searchsorts them
+        tags = UniqueSites.get(src.copy(), symprec=1e-4, save_info=False)
+        smap = SiteMap.from_tags(tags)
 
+        np.testing.assert_array_equal(smap.to_sites, index_map)
         self.assertEqual(smap.n_sites, len(reduced))
         # Every atom of a site must agree with that site on species and label.
         src_labels = np.asarray(src.get_array("labels"))

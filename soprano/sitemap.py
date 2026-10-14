@@ -80,7 +80,11 @@ class SiteMap:
     n_sites: int
 
     def __post_init__(self):
-        arr = np.ascontiguousarray(self.to_sites, dtype=int)
+        raw = np.asarray(self.to_sites)
+        if raw.size and raw.dtype.kind not in "iu":
+            raise ValueError(f"to_sites must be integer, got dtype {raw.dtype}")
+        # Copy so that freezing the array does not lock the caller's buffer
+        arr = np.array(raw, dtype=int, copy=True)
         if arr.ndim != 1:
             raise ValueError(f"to_sites must be 1-D, got shape {arr.shape}")
         if self.n_sites < 0:
@@ -126,6 +130,8 @@ class SiteMap:
             raise ValueError(
                 f"selection indexes atoms outside [0, {n_atoms})"
             )
+        if len(np.unique(indices)) != len(indices):
+            raise ValueError("selection repeats an atom, so it cannot map to sites")
         to_sites = np.full(int(n_atoms), DROPPED, dtype=int)
         to_sites[indices] = np.arange(len(indices))
         return cls(to_sites, len(indices))
@@ -154,7 +160,20 @@ class SiteMap:
         return len(self.to_sites)
 
     def __len__(self) -> int:
+        """Number of atoms in the source structure, not of sites."""
         return self.n_atoms
+
+    @property
+    def multiplicity(self) -> np.ndarray:
+        """Number of source atoms each site represents.
+
+        Dropped atoms belong to no site and are not counted. The array is
+        read-only and has length ``n_sites``.
+        """
+        kept = self.to_sites[self.to_sites != DROPPED]
+        counts = np.bincount(kept, minlength=self.n_sites)
+        counts.setflags(write=False)
+        return counts
 
     def compose(self, other: "SiteMap") -> "SiteMap":
         """Chain this map with one that starts where this one ends.
