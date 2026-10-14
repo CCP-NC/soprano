@@ -33,7 +33,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 import warnings
 
 from soprano.data.nmr import nmr_gamma
-from soprano.nmr.tensor import NMRTensor
+from soprano.nmr.tensor import NMRTensor, TensorConvention
 from soprano.nmr.utils import (
     _anisotropy,
     _asymmetry,
@@ -106,6 +106,13 @@ class Coupling(BaseModel, ABC):
 
     def mrsimulator_euler_angles(self, **kwargs):
         return self.tensor.mrsimulator_euler_angles(**kwargs)
+
+    def _haeberlen_tensor(self) -> NMRTensor:
+        # The exported anisotropy and asymmetry are Haeberlen, so the exported angles must refer
+        # to the same axes whatever order the tensor was built with (on a copy: don't alter it)
+        tensor = self.tensor.copy()
+        tensor.order = TensorConvention.Haeberlen
+        return tensor
     
     def copy(self, deep: bool = True, **kwargs) -> 'Coupling':
         """
@@ -275,7 +282,7 @@ class ISCoupling(Coupling):
         """
         angles = {}
         if include_angles:
-            euler_angles = self.mrsimulator_euler_angles()
+            euler_angles = self._haeberlen_tensor().mrsimulator_euler_angles()
             angles = {
                 "alpha": euler_angles[0],
                 "beta": euler_angles[1],
@@ -333,7 +340,7 @@ class ISCoupling(Coupling):
 
         angles = [0.0, 0.0, 0.0]  # Default angles if not included
         if include_angles:
-            euler_angles = self.euler_angles(
+            euler_angles = self._haeberlen_tensor().euler_angles(
                 convention=EULER_ANGLE_CONVENTION,
                 passive=EULER_ANGLE_IS_PASSIVE,
                 degrees=EULER_ANGLE_IS_DEGREES
@@ -370,16 +377,12 @@ class DipolarCoupling(Coupling):
         """
         The dipolar coupling constant for the pair of nuclei in the system in Hz.
 
-        The eigenvalues of the dipolar coupling tensor are:
-        -d, -d, 2d
-
-        We sort these in NQR ordering convention (abs increasing),
-        take half the third eigenvalue and return it.
-
-        TODO: double-check if this is general enough for all cases.
+        The eigenvalues of the dipolar coupling tensor are -d, -d, 2d, so its reduced
+        anisotropy (Haeberlen, computed whatever order the tensor is stored in) is 2d.
+        This returns half of it. A trace, which a dipolar tensor does not have, is ignored.
 
         """
-        return self.tensor.eigenvalues[2] / 2
+        return self.tensor.reduced_anisotropy / 2
 
     @classmethod
     def from_distance_vector(
@@ -431,7 +434,7 @@ class DipolarCoupling(Coupling):
         )
 
         # Create the dipolar coupling tensor
-        # NQR order (abs-ascending) is required: coupling_constant reads eigenvalues[2]/2
+        # Stored in NQR order (abs-ascending), as DipolarCouplingList does
         dipolar_tensor = NMRTensor(
             _dip_tensor(dipolar_coupling, distance_vector), order="n"
         )
@@ -482,7 +485,7 @@ class DipolarCoupling(Coupling):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
                 # Get the Euler angles in the convention used by MRSimulator
-                euler_angles = self.tensor.mrsimulator_euler_angles()
+                euler_angles = self._haeberlen_tensor().mrsimulator_euler_angles()
             result["dipolar"]["alpha"] = euler_angles[0]
             result["dipolar"]["beta"] = euler_angles[1]
             result["dipolar"]["gamma"] = euler_angles[2]
@@ -513,7 +516,7 @@ class DipolarCoupling(Coupling):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", message="Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
                 # SIMPSON takes passive ZYZ angles in degrees (see docs/simpson-conventions.md)
-                euler_angles = self.tensor.euler_angles(convention='zyz', passive=True, degrees=True)
+                euler_angles = self._haeberlen_tensor().euler_angles(convention='zyz', passive=True, degrees=True)
             a, b, c = euler_angles # alpha is the free angle of an axial tensor, so it is zero here
             result += f" {a:.6f} {b:.6f} {c:.6f}"
         else:

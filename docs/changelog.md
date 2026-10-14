@@ -53,6 +53,17 @@ these went unnoticed). Re-export any spin systems you generated with earlier ver
 - **mrsimulator and tensor order.** `Site.to_mrsimulator()` now uses Haeberlen ordering for the
   shielding angles, as `to_simpson()` does, so they refer to the same axes as `zeta` and
   `eta` for tensors built with another `order`.
+- **Coupling exports and tensor order.** `ISCoupling.to_simpson()` and `to_mrsimulator()` took
+  the Euler angles in the tensor's own eigenvalue order, while `zeta` and `eta` are always
+  Haeberlen, so the angles could refer to different axes. They now use Haeberlen order.
+  `DipolarCoupling.coupling_constant`, `to_simpson()` and `to_mrsimulator()` assumed NQR order
+  (the unique eigenvalue last). A tensor in another order gave a wrong coupling constant, for
+  example `d/2` with the opposite sign in increasing order with `d < 0`, and wrong angles. The
+  coupling constant is now half the tensor's reduced anisotropy, which doesn't depend on the order,
+  and the angles use Haeberlen order like the other exports. The angles are taken from a copy, and
+  the coupling's own tensor is not changed. Couplings from
+  `JCouplingList`, `DipolarCouplingList` and `DipolarCoupling.from_distance_vector` already used
+  these orders and are unaffected. Only couplings built from an `NMRTensor` in another order change.
 - `Site.to_mrsimulator()` no longer changes the order of the site's own EFG tensor (it works on a copy, as `to_simpson()` does).
 - `ElectricFieldGradient.__str__` and a comment gave the quadrupole moment units as barns; it is millibarn.
 
