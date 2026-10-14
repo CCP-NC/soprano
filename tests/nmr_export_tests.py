@@ -701,6 +701,21 @@ class TestBrukerExport(unittest.TestCase):
         self.assertEqual(acqus["NUC1"], "1H")
         self.assertEqual(dic["procs"]["AXNUC"], "1H")
 
+        # TopSpin sets default contours from YMAX_p/YMIN_p and clevels; without
+        # them it reports "Defined levels are outside of dataset range".
+        _, raw = ng.fileio.bruker.read_pdata(os.path.join(out, "pdata", "1"), scale_data=False)
+        for procs in (dic["procs"], dic["proc2s"]):
+            self.assertEqual(procs["YMAX_p"], int(raw.max()))
+            self.assertEqual(procs["YMIN_p"], int(raw.min()))
+        clev = ng.fileio.bruker.read_jcamp(os.path.join(out, "pdata", "1", "clevels"))
+        levels = np.array(clev["LEVELS"][: clev["MAXLEV"]], dtype=float)
+        display_max = raw.max() * 2.0 ** dic["procs"]["NC_proc"]
+        self.assertEqual(len(clev["LEVELS"]), 256)
+        self.assertTrue(np.all(np.diff(levels) > 0))
+        self.assertGreater(levels[0], 0.0)
+        self.assertLess(levels[-1], display_max)
+        self.assertAlmostEqual(levels[0], clev["POSBASE"])
+
         # The carrier (O1/BF1, in ppm) must sit at the centre of the window
         cd = self.nmr_data.get_contour_data(grid_size=40)
         sw_ppm = dic["procs"]["SW_p"] / dic["procs"]["SF"]

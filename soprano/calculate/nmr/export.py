@@ -651,6 +651,29 @@ def _bruker_procs(
     }
 
 
+def _bruker_clevels(z_max: float, n_levels: int = 8, lowest: float = 0.1, highest: float = 0.95) -> dict:
+    # Without pdata/1/clevels TopSpin falls back to levels that lie outside
+    # the data range and draws nothing. Levels are geometric, as TopSpin's own
+    # (POSBASE × POSINCR**k), from `lowest` to `highest` of the maximum, in
+    # display units (stored value × 2**NC_proc). Positive levels only: Soprano
+    # grids are non-negative unless use_signed is set.
+    base = lowest * z_max
+    incr = (highest / lowest) ** (1.0 / (n_levels - 1))
+    levels = [float(base * incr**k) for k in range(n_levels)]
+    return {
+        "_comments": [],
+        "_coreheader": _bruker_jcamp_header(),
+        "LEVELS": levels + [0.0] * (256 - n_levels),
+        "LEVSIGN": 1,
+        "MAXLEV": n_levels,
+        "METHOD": 0,
+        "NEGBASE": -base,
+        "NEGINCR": incr,
+        "POSBASE": base,
+        "POSINCR": incr,
+    }
+
+
 def _bruker_acqus(
     sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str, indirect: bool,
 ) -> dict:
@@ -755,6 +778,12 @@ def _export_bruker(
     # Bruker stores data with descending ppm (downfield first); flip both axes.
     Z_bruker = np.ascontiguousarray(cd.Z[::-1, ::-1], dtype=np.float64)
     nc_proc = _bruker_nc_proc(Z_bruker)
+    # The stored int32 values, as nmrglue's array_to_int will produce them
+    # (it scales Z_bruker in place, so take the range before writing).
+    z_int = (Z_bruker * 2.0 ** (-nc_proc)).astype(np.int32)
+    data_range = {"YMAX_p": int(z_int.max()), "YMIN_p": int(z_int.min())}
+    # TopSpin shows (and sets contour levels in) stored value × 2**NC_proc.
+    z_display_max = data_range["YMAX_p"] * 2.0 ** nc_proc
 
     x_nuc = _bruker_nucleus_label(
         nmr_data, getattr(nmr_data, "xelement", None), getattr(nmr_data, "xisotope", None)
@@ -766,8 +795,14 @@ def _export_bruker(
     y_sw_ppm = cd.ylims[1] - cd.ylims[0]
 
     dic = {
-        "procs": _bruker_procs(x_larmor_freq_mhz, x_sw_ppm, cd.xlims[1], np_, x_nuc, nc_proc),
-        "proc2s": _bruker_procs(y_larmor_freq_mhz, y_sw_ppm, cd.ylims[1], ni, y_nuc, nc_proc),
+        "procs": {
+            **_bruker_procs(x_larmor_freq_mhz, x_sw_ppm, cd.xlims[1], np_, x_nuc, nc_proc),
+            **data_range,
+        },
+        "proc2s": {
+            **_bruker_procs(y_larmor_freq_mhz, y_sw_ppm, cd.ylims[1], ni, y_nuc, nc_proc),
+            **data_range,
+        },
         "acqus": _bruker_acqus(
             x_larmor_freq_mhz, x_sw_ppm, cd.xlims[1], np_, x_nuc, indirect=False,
         ),
@@ -808,6 +843,12 @@ def _export_bruker(
             ng.fileio.bruker.write_jcamp(
                 dic[src_name], str(root / dst), overwrite=overwrite
             )
+
+    ng.fileio.bruker.write_jcamp(
+        _bruker_clevels(z_display_max),
+        str(root / "pdata" / "1" / "clevels"),
+        overwrite=overwrite,
+    )
 
     # Human-readable title shown in the TopSpin browser
     title_path = root / "pdata" / "1" / "title"
