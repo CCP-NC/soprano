@@ -6,6 +6,7 @@ no traceback.
 
 import os
 
+import pytest
 from click.testing import CliRunner
 
 from soprano.scripts.cli import soprano
@@ -96,6 +97,18 @@ def test_rss_options_without_dipolar_rss_warn(tmp_path):
     )
     assert result.exit_code == 0, result.output
     assert "--rss-cutoff only applies with --weight-by dipolar_rss" in result.output
+
+
+def test_bruker_reexport_needs_overwrite(tmp_path):
+    pytest.importorskip("nmrglue")
+    args = ["plotnmr", ETHANOL, "-x", "C", "-y", "H", *REFS_CH, "--no-ticklabels",
+            "--b0-field-tesla", "14.1", "--export-format", "bruker",
+            "--export-file", str(tmp_path / "ds" / "1"), "-o", str(tmp_path / "p.png")]
+    assert _invoke(args).exit_code == 0
+    # Second run without --overwrite must refuse; with it, must succeed.
+    _assert_usage_error(_invoke(args), "already exists")
+    result = _invoke([*args, "--overwrite"])
+    assert result.exit_code == 0, result.output
 
 
 def test_nmr_missing_reference_is_usage_error():

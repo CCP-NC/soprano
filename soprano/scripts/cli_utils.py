@@ -779,7 +779,8 @@ plot_shielding = click.option(
 plot_export_files = click.option(
     "--export-file",
     "export_files",
-    type=click.Path(exists=False, dir_okay=False, writable=True),
+    # dir_okay: a Bruker dataset is a directory, and --overwrite replaces one.
+    type=click.Path(exists=False, dir_okay=True, writable=True),
     multiple=True,
     metavar="PATH",
     help="Export the 2D contour data to PATH.  May be repeated for multiple "

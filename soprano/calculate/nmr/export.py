@@ -19,7 +19,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, Protocol, Tuple, TYPE_CHECKING
+from typing import Any, List, Optional, Protocol, Tuple, TYPE_CHECKING
 
 import numpy as np
 
@@ -614,6 +614,18 @@ def _bruker_nc_proc(Z: np.ndarray) -> int:
     return -k
 
 
+def _bruker_jcamp_header() -> List[str]:
+    # TopSpin refuses parameter files that lack the JCAMP-DX core header
+    # ("getpar failed ... Parameter file has unknown format").
+    return [
+        "##TITLE= Parameter file, Soprano",
+        "##JCAMPDX= 5.0",
+        "##DATATYPE= Parameter Values",
+        "##ORIGIN= Soprano",
+        "##OWNER= soprano",
+    ]
+
+
 def _bruker_procs(
     sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str, nc_proc: int,
 ) -> dict:
@@ -621,7 +633,7 @@ def _bruker_procs(
     # OFFSET (downfield edge) is in ppm; convert the ppm range with SF (MHz).
     return {
         "_comments": [],
-        "_coreheader": ["##NMRGLUE automatically created parameter file"],
+        "_coreheader": _bruker_jcamp_header(),
         "SF": float(sf_mhz),
         "SW_p": float(_bruker_sw_ppm(sw_ppm, si) * sf_mhz),
         "OFFSET": float(offset_ppm),
@@ -629,7 +641,7 @@ def _bruker_procs(
         "NC_proc": nc_proc,      # intensity scaling exponent (data * 2**NC_proc)
         "BYTORDP": 1,
         "DTYPP": 0,         # data type: 0 = int32
-        "AXNUC": f"<{nucleus}>",
+        "AXNUC": nucleus,     # write_jcamp adds the <...> brackets
         "XDIM": si,
         "STSI": 0,
         "STSR": 0,
@@ -653,7 +665,7 @@ def _bruker_acqus(
     sw_h = float(sw_ppm_b * sf_mhz)
     acqus = {
         "_comments": [],
-        "_coreheader": ["##NMRGLUE automatically created parameter file"],
+        "_coreheader": _bruker_jcamp_header(),
         "SFO1": sfo1,
         "BF1": float(sf_mhz),
         "O1": float(o1_hz),
@@ -663,7 +675,7 @@ def _bruker_acqus(
         # dimensions consistent with the grid.
         "SW": sw_h / sfo1,
         "TD": 2 * si,
-        "NUC1": f"<{nucleus}>",
+        "NUC1": nucleus,
         "BYTORDA": 1,
         "DTYPA": 0,
         "PARMODE": 1,       # 2D dataset (PARMODE = ndim - 1)

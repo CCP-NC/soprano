@@ -1013,21 +1013,22 @@ class NMRData2D:
 
         # Start from provided config (or defaults), then apply explicit kwargs
         base = config if config is not None else ExportConfig()
-        effective = ExportConfig(
-            x_broadening=x_broadening if x_broadening is not None else base.x_broadening,
-            y_broadening=y_broadening if y_broadening is not None else base.y_broadening,
-            grid_max=grid_max if grid_max is not None else base.grid_max,
-            broadening_type=broadening_type if broadening_type is not None else base.broadening_type,
-            grid_size=grid_size if grid_size is not None else base.grid_size,
-            xlims=xlims if xlims is not None else base.xlims,
-            ylims=ylims if ylims is not None else base.ylims,
-            x_larmor_freq_mhz=x_larmor_freq_mhz if x_larmor_freq_mhz is not None else base.x_larmor_freq_mhz,
-            y_larmor_freq_mhz=y_larmor_freq_mhz if y_larmor_freq_mhz is not None else base.y_larmor_freq_mhz,
-            b0_field_tesla=b0_field_tesla if b0_field_tesla is not None else base.b0_field_tesla,
-            spectrometer_freq_mhz=spectrometer_freq_mhz if spectrometer_freq_mhz is not None else base.spectrometer_freq_mhz,
-            use_signed=use_signed if use_signed is not None else base.use_signed,
-            include_peaks=base.include_peaks,
-        )
+        overrides = {
+            "x_broadening": x_broadening,
+            "y_broadening": y_broadening,
+            "grid_max": grid_max,
+            "broadening_type": broadening_type,
+            "grid_size": grid_size,
+            "xlims": xlims,
+            "ylims": ylims,
+            "x_larmor_freq_mhz": x_larmor_freq_mhz,
+            "y_larmor_freq_mhz": y_larmor_freq_mhz,
+            "b0_field_tesla": b0_field_tesla,
+            "spectrometer_freq_mhz": spectrometer_freq_mhz,
+            "use_signed": use_signed,
+        }
+        # replace() keeps every config field not overridden here (e.g. overwrite)
+        effective = _dc_replace(base, **{k: v for k, v in overrides.items() if v is not None})
 
         # Reuse the cached grid when no rendering params were overridden.
         # This means plot-then-export (or get_contour_data-then-export) uses

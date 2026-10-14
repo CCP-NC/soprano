@@ -688,6 +688,19 @@ class TestBrukerExport(unittest.TestCase):
         self.assertAlmostEqual(acqus["SW_h"], dic["procs"]["SW_p"], places=3)
         self.assertIn("NUC1", acqus)
 
+        # TopSpin rejects parameter files without the JCAMP-DX core header,
+        # and expects single angle brackets around strings (<1H>, not <<1H>>).
+        for rel in ("acqus", "acqu2s", "pdata/1/procs", "pdata/1/proc2s"):
+            with open(os.path.join(out, rel)) as fh:
+                text = fh.read()
+            lines = text.splitlines()
+            self.assertTrue(lines[0].startswith("##TITLE="), f"{rel}: {lines[0]}")
+            self.assertIn("##JCAMPDX= 5.0", lines[:5])
+            self.assertIn("##DATATYPE= Parameter Values", lines[:5])
+            self.assertNotIn("<<", text, rel)
+        self.assertEqual(acqus["NUC1"], "1H")
+        self.assertEqual(dic["procs"]["AXNUC"], "1H")
+
         # The carrier (O1/BF1, in ppm) must sit at the centre of the window
         cd = self.nmr_data.get_contour_data(grid_size=40)
         sw_ppm = dic["procs"]["SW_p"] / dic["procs"]["SF"]
