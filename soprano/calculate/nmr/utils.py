@@ -221,32 +221,6 @@ class Peak2D:
     def __repr__(self):
         return f'Peak({self.x}, {self.y}, {self.correlation_strength}, {self.xlabel}, {self.ylabel}, {self.color})'
 
-    def equivalent_to(self, other, xtol=0.005, ytol=0.005, corr_tol=0.1, ignore_correlation_strength=False):
-        '''
-        Check if two peaks are equivalent. We compare the x and y coordinates and the correlation strength.
-
-        Args:
-            other (Peak2D): The other peak to compare to
-            xtol (float, optional): The tolerance for the x coordinate. Defaults to 0.005.
-            ytol (float, optional): The tolerance for the y coordinate. Defaults to 0.005.
-            corr_tol (float, optional): The tolerance for the correlation strength. Defaults to 0.1.
-        
-        Returns:
-            bool: True if the peaks are equivalent, False otherwise
-        '''
-        x_match = np.abs(self.x - other.x) < xtol
-        y_match = np.abs(self.y - other.y) < ytol
-
-        if ignore_correlation_strength:
-            corr_match = True
-        else:
-            corr_match = np.abs(self.correlation_strength - other.correlation_strength) < corr_tol
-
-        return x_match and y_match and corr_match
-
-
-
-
 def lorentzian(
     X: np.ndarray,
     x0: float,
@@ -258,21 +232,16 @@ def lorentzian(
     eps: float = 1e-15,
 ) -> np.ndarray:
     """
-    Calculate a 2D Lorentzian (elliptical) broadening function.
+    Calculate a 2D Lorentzian broadening function, as the product of two 1D
+    Lorentzians (separable in x and y).
 
     .. math::
-        f(x, y) = \\frac{1}{1 + ((x-x_0)/\\gamma_x)^2 + ((y-y_0)/\\gamma_y)^2}
+        f(x, y) = L(x; x_0, \\gamma_x)\\, L(y; y_0, \\gamma_y)
 
-    where :math:`\\gamma = \\mathrm{FWHM}/2` is the half-width at half-maximum.
-
-    .. note::
-        This is the non-separable ("spherical") 2D Lorentzian.  Its integral
-        over the plane **diverges**, so unlike the Gaussian it cannot be
-        normalised to unit area.  When *normalise* is True the fixed prefactor
-        :math:`1/(\\pi\\gamma_x\\gamma_y)` is applied to give a consistent
-        amplitude scale across peaks of different widths (it is **not** a
-        unit-integral normalisation).  Do not mix normalised Lorentzian and
-        Gaussian peaks and expect matching integrated areas.
+    where :math:`\\gamma = \\mathrm{FWHM}/2` is the half-width at half-maximum
+    and :math:`L(u; u_0, \\gamma) = \\gamma / (\\pi((u-u_0)^2 + \\gamma^2))` is
+    normalised to unit area in each dimension.  The cross-section at any fixed
+    y is therefore a 1D Lorentzian of the same FWHM in x, whatever y is.
 
     Parameters
     ----------
@@ -292,9 +261,8 @@ def lorentzian(
         FWHM measured along the y-axis cross-section.  Same convention
         as *x_broadening*.
     normalise : bool, optional
-        If True, apply the amplitude prefactor ``1/(π γ_x γ_y)`` (see note; this
-        is *not* a unit-integral normalisation for this 2D form).
-        If False, the peak maximum is 1.
+        If True, the integral over the plane is 1 (each 1D factor has unit
+        area).  If False, the peak maximum is 1.
     eps : float, optional
         Small number added to broadenings for numerical stability.
 
@@ -307,17 +275,16 @@ def lorentzian(
     wx = x_broadening / 2.0 + eps
     wy = y_broadening / 2.0 + eps
 
-    denom = (
-        1.0
-        + ((X - x0) / wx) ** 2
-        + ((Y - y0) / wy) ** 2
-    )
+    # Unit-peak 1D Lorentzians; their product has maximum 1.
+    lx = wx ** 2 / ((X - x0) ** 2 + wx ** 2)
+    ly = wy ** 2 / ((Y - y0) ** 2 + wy ** 2)
+    f = lx * ly
 
     if normalise:
-        prefactor = 1.0 / (np.pi * wx * wy)
-        return prefactor / denom
+        # Each unit-peak factor integrates to π γ, so divide by (π γx)(π γy).
+        return f / (np.pi ** 2 * wx * wy)
 
-    return 1.0 / denom
+    return f
 
 
 _FWHM_TO_SIGMA = 1.0 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # ≈ 0.4247
@@ -410,7 +377,7 @@ def generate_contour_map(
     Args:
         peaks (List[Peak2D]): List of Peak2D objects containing x, y coordinates and correlation strength.
         grid_size (int, optional): Size of the grid for the contour map. Default is 100.
-        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'gaussian'.
+        broadening (str, optional): Type of broadening function to use ('lorentzian' or 'gaussian'). Default is 'lorentzian'.
         x_broadening (float, optional): FWHM linewidth in the x direction. Default is 1.0.
         y_broadening (float, optional): FWHM linewidth in the y direction. Default is 1.0.
         xlims (Tuple[float, float], optional): Explicit x limits to cover.
@@ -678,7 +645,9 @@ def generate_peaks(
             provided, each peak's ``multiplicity`` field is set to
             ``multiplicities[idx_x] * multiplicities[idx_y]`` so that merged
             sites (symmetry-equivalent or functional-group averaged) contribute
-            with the correct degeneracy weight in the heatmap.
+            with the correct degeneracy weight in the heatmap.  In 2Q mode a
+            self-pair ``(i, i)`` gets ``m(m-1)`` instead: it stands for the
+            ordered pairs of distinct atoms within the site.
 
     Returns:
         List[Peak2D]: List of generated peaks.
@@ -712,6 +681,11 @@ def generate_peaks(
 
         if multiplicities is not None:
             mult = int(multiplicities[idx_x]) * int(multiplicities[idx_y])
+            if yaxis_order == '2Q' and idx_x == idx_y:
+                # A DQ self-pair of a merged site stands for its m(m-1)
+                # ordered pairs of distinct atoms, not m² (no atom pairs with itself).
+                m = int(multiplicities[idx_x])
+                mult = m * (m - 1)
         else:
             mult = 1
 
@@ -749,7 +723,11 @@ def merge_peaks(
     corr_rel_tol: Optional[float] = None,
 ) -> List[Peak2D]:
     """
-    Merge peaks that are identical.
+    Merge peaks that agree within the given tolerances.
+
+    Each merged group is anchored on its first-seen peak: a later peak joins
+    the group when its x, y and correlation strength all lie within the
+    tolerances of that first peak.
 
     The merged peak's ``correlation_strength`` is the **weighted mean** of the
     constituent peaks' strengths (weighted by their multiplicities), so that the
@@ -768,7 +746,7 @@ def merge_peaks(
         corr_rel_tol (float, optional): Relative tolerance for coupling-strength
             comparison, expressed as a fraction on a log scale.  When set, two
             peaks with strengths *a* and *b* (both > 0) are considered equivalent
-            when ``|log(a) - log(b)| < corr_rel_tol``, which corresponds roughly
+            when ``|log(a) - log(b)| <= corr_rel_tol``, which corresponds roughly
             to requiring the strengths to agree within ``corr_rel_tol × 100 %``.
             For example ``corr_rel_tol=0.01`` tolerates ~1 % differences, which
             handles tiny numerical discrepancies caused by limited coordinate
@@ -779,65 +757,73 @@ def merge_peaks(
     Returns:
         List[Peak2D]: List of unique merged peaks.
     """
-    def _coupling_key(s: float) -> object:
-        """Return a hashable key for coupling strength *s*."""
+    def _same_strength(s: float, t: float) -> bool:
         if ignore_correlation_strength:
-            return 0
+            return True
         if corr_rel_tol is not None and corr_rel_tol > 0:
-            # Relative log-scale tolerance: |log(|s|) - log(|t|)| < corr_rel_tol
-            # maps each value to an integer bin on the natural-log axis.
-            if s == 0.0:
-                return (0, 0)
-            sign = 1 if s > 0 else -1
-            return (sign, int(np.log(abs(s)) / corr_rel_tol))
-        else:
-            return int(s / corr_tol)
+            if s == 0.0 or t == 0.0:
+                return s == t
+            return np.sign(s) == np.sign(t) and abs(np.log(abs(s)) - np.log(abs(t))) <= corr_rel_tol
+        return abs(s - t) <= corr_tol
 
-    # peak_map preserves insertion order (Python 3.7+); when a duplicate key is
-    # found, multiplicities are summed and the correlation_strength is updated
-    # to the running weighted mean so that the invariant
-    #   total_weight = merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ)
-    # is preserved exactly.
-    unique_xlabels: Dict[str, Set[str]] = {}
-    unique_ylabels: Dict[str, Set[str]] = {}
-    peak_map: Dict[Tuple[float, float, object], Peak2D] = {}
-    # Track the running sum of (strength × multiplicity) for each key so we
-    # can compute the proper weighted-mean strength when finalising.
-    _weight_sum: Dict[Tuple, float] = {}
+    # Each cluster is represented by its first-seen peak; a later peak joins the
+    # first cluster whose representative lies within the tolerances.  Fixed bins
+    # would split near-identical peaks that straddle a bin edge.  Representatives
+    # are bucketed on a (xtol, ytol) grid so only neighbouring buckets are searched.
+    # Merged peaks keep the invariant
+    #   total_weight = merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ).
+    reps: List[Peak2D] = []
+    merged: List[Peak2D] = []
+    weight_sum: List[float] = []
+    xlabels: List[Set[str]] = []
+    ylabels: List[Set[str]] = []
+    buckets: Dict[Tuple[int, int], List[int]] = {}
 
     for peak in peaks:
-        key = (
-            int(peak.x / xtol),
-            int(peak.y / ytol),
-            _coupling_key(peak.correlation_strength),
+        bx = int(np.floor(peak.x / xtol))
+        by = int(np.floor(peak.y / ytol))
+        match = None
+        candidates = sorted(
+            k
+            for dx in (-1, 0, 1)
+            for dy in (-1, 0, 1)
+            for k in buckets.get((bx + dx, by + dy), ())
         )
+        for k in candidates:
+            rep = reps[k]
+            if (abs(rep.x - peak.x) <= xtol and abs(rep.y - peak.y) <= ytol
+                    and _same_strength(rep.correlation_strength, peak.correlation_strength)):
+                match = k
+                break
+
         w = peak.correlation_strength * peak.multiplicity
-        if key in peak_map:
-            existing = peak_map[key]
-            new_mult = existing.multiplicity + peak.multiplicity
-            _weight_sum[key] += w
-            # Update strength to weighted mean so far; keep other fields from
-            # the first-seen peak (position, color, idx_x/idx_y, …).
-            new_strength = _weight_sum[key] / new_mult if new_mult != 0 else existing.correlation_strength
-            peak_map[key] = dc_replace(existing,
-                                       multiplicity=new_mult,
-                                       correlation_strength=new_strength)
-            unique_xlabels[existing.xlabel].add(peak.xlabel)
-            unique_ylabels[existing.ylabel].add(peak.ylabel)
-        else:
-            peak_map[key] = peak
-            _weight_sum[key] = w
-            unique_xlabels[peak.xlabel] = {peak.xlabel}
-            unique_ylabels[peak.ylabel] = {peak.ylabel}
+        if match is None:
+            buckets.setdefault((bx, by), []).append(len(reps))
+            reps.append(peak)
+            merged.append(peak)
+            weight_sum.append(w)
+            xlabels.append({peak.xlabel})
+            ylabels.append({peak.ylabel})
+            continue
+
+        existing = merged[match]
+        new_mult = existing.multiplicity + peak.multiplicity
+        weight_sum[match] += w
+        # Keep the other fields (position, color, idx_x/idx_y, …) from the
+        # first-seen peak.
+        new_strength = weight_sum[match] / new_mult if new_mult != 0 else existing.correlation_strength
+        merged[match] = dc_replace(existing, multiplicity=new_mult, correlation_strength=new_strength)
+        xlabels[match].add(peak.xlabel)
+        ylabels[match].add(peak.ylabel)
 
     def sort_func(x: str) -> Union[int, str]:
         int_list = re.findall(r'\d+', x)
         return int(int_list[0]) if int_list else x
 
     result = []
-    for unique_peak in peak_map.values():
-        xlabel_list = sorted(unique_xlabels[unique_peak.xlabel], key=sort_func)
-        ylabel_list = sorted(unique_ylabels[unique_peak.ylabel], key=sort_func)
+    for unique_peak, xlabs, ylabs in zip(merged, xlabels, ylabels):
+        xlabel_list = sorted(xlabs, key=sort_func)
+        ylabel_list = sorted(ylabs, key=sort_func)
         result.append(dc_replace(unique_peak,
                                  xlabel='/'.join(xlabel_list),
                                  ylabel='/'.join(ylabel_list)))
@@ -1140,19 +1126,26 @@ def process_pairs(
             - Updated array of x element indices.
             - Updated array of y element indices.
     """
-    if pairs:
+    if pairs is not None:
         pairs_el_idx = []
         for pair in pairs:
-            xidx = np.where(idx_x == pair[0])[0][0]  # there should only be one match
-            yidx = np.where(idx_y == pair[1])[0][0]  # there should only be one match
-            pairs_el_idx.append((xidx, yidx))
+            xidx = np.where(idx_x == pair[0])[0]
+            yidx = np.where(idx_y == pair[1])[0]
+            if len(xidx) == 0 or len(yidx) == 0:
+                raise ValueError(
+                    f"Pair {tuple(pair)} is not made of the requested elements: "
+                    f"atom {pair[0]} must be in the x-element set and atom {pair[1]} "
+                    "in the y-element set."
+                )
+            pairs_el_idx.append((xidx[0], yidx[0]))  # one match per element index
+        idx_x = np.array([pair[0] for pair in pairs], dtype=int)
+        idx_y = np.array([pair[1] for pair in pairs], dtype=int)
     else:
         pairs_el_idx = list(itertools.product(range(len(idx_x)), range(len(idx_y))))
         pairs = list(itertools.product(idx_x, idx_y))
-
-    # Update the indices
-    idx_x = np.array(pairs)[:, 0]
-    idx_y = np.array(pairs)[:, 1]
+        # Update the indices
+        idx_x = np.array(pairs)[:, 0]
+        idx_y = np.array(pairs)[:, 1]
     return pairs, pairs_el_idx, idx_x, idx_y
 
 def calculate_distances(

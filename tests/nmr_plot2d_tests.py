@@ -23,12 +23,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ase import io
 
-from soprano.calculate.nmr.backends import MatplotlibBackend, _resolve_levels
+from soprano.calculate.nmr.backends import (
+    PLOTLY_AVAILABLE,
+    MatplotlibBackend,
+    PlotlyBackend,
+    _resolve_levels,
+)
 from soprano.calculate.nmr.config import PlotSettings
 from soprano.calculate.nmr.data2d import NMRData2D
 from soprano.calculate.nmr.nmr import Peak2D
 from soprano.calculate.nmr.plot2d import NMRPlot2D
-from soprano.calculate.nmr.utils import generate_contour_map, generate_peaks
+from soprano.calculate.nmr.utils import generate_contour_map, generate_peaks, merge_peaks
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
@@ -79,17 +84,21 @@ class TestResolveLevels(unittest.TestCase):
         levels = _resolve_levels(Z, 4, (10.0, 100.0), use_signed=True)
         self.assertTrue(np.all(levels >= 0))
 
-    def test_zero_grid_does_not_crash(self):
-        """A grid whose values are all zero returns a benign single level."""
+    def test_zero_grid_raises(self):
+        """An all-zero grid has no contour structure: fail with a clear error."""
         Z = np.zeros((4, 4))
-        levels = _resolve_levels(Z, 10, (10.0, 100.0))
-        self.assertEqual(list(levels), [0.0])
+        with self.assertRaisesRegex(ValueError, "all zero"):
+            _resolve_levels(Z, 10, (10.0, 100.0))
 
-    def test_all_nan_grid_does_not_crash(self):
+    def test_all_nan_grid_raises(self):
         Z = np.full((4, 4), np.nan)
-        levels = _resolve_levels(Z, 10, (10.0, 100.0))
-        self.assertEqual(list(levels), [0.0])
-        self.assertTrue(np.all(np.isfinite(levels)))
+        with self.assertRaisesRegex(ValueError, "no finite values"):
+            _resolve_levels(Z, 10, (10.0, 100.0))
+
+    def test_numpy_integer_levels_are_counts(self):
+        Z = np.array([[0.0, 0.5], [1.0, 2.0]])
+        levels = _resolve_levels(Z, np.int64(5), (10.0, 100.0))
+        self.assertEqual(len(levels), 5)
 
 
 class TestBroadening(unittest.TestCase):
@@ -132,6 +141,41 @@ class TestBroadening(unittest.TestCase):
         g = gaussian(X, 50.0, Yg, 50.0, fwhm, fwhm, normalise=False)
         lo = lorentzian(X, 50.0, Yg, 50.0, fwhm, fwhm, normalise=False)
         self.assertGreater(float(lo.ravel()[0]), float(g.ravel()[0]))
+
+
+class TestSeparableLorentzian(unittest.TestCase):
+    """The 2D Lorentzian is the product of two 1D Lorentzians."""
+
+    def test_fwhm_along_x_is_the_same_at_any_y(self):
+        from soprano.calculate.nmr.utils import lorentzian
+
+        fwhm = 2.0
+        x = np.linspace(40.0, 60.0, 4001)
+        y = np.array([50.0, 50.0 + 3.0 * fwhm])
+        X, Y = np.meshgrid(x, y)
+        Z = lorentzian(X, 50.0, Y, 50.0, fwhm, fwhm, normalise=False)
+        widths = [_fwhm_of_profile(x, Z[row]) for row in range(len(y))]
+        self.assertAlmostEqual(widths[0], fwhm, places=3)
+        self.assertAlmostEqual(widths[1], widths[0], places=6)
+
+    def test_normalised_integral_is_one(self):
+        from soprano.calculate.nmr.utils import lorentzian
+
+        fwhm = 1.0
+        # ±200 FWHM window; the Lorentzian tail outside it is ~0.3 % per axis.
+        x = np.linspace(-200.0, 200.0, 1601)
+        X, Y = np.meshgrid(x, x)
+        Z = lorentzian(X, 0.0, Y, 0.0, fwhm, fwhm, normalise=True)
+        # Uniform grid, so the Riemann sum is accurate to well under 1 %.
+        area = float(Z.sum()) * (x[1] - x[0]) ** 2
+        self.assertAlmostEqual(area, 1.0, delta=0.02)
+
+    def test_unnormalised_peak_maximum_is_one(self):
+        from soprano.calculate.nmr.utils import lorentzian
+
+        X, Y = np.meshgrid(np.linspace(-5.0, 5.0, 101), np.linspace(-5.0, 5.0, 101))
+        Z = lorentzian(X, 0.0, Y, 0.0, 1.0, 2.0, normalise=False)
+        self.assertAlmostEqual(float(Z.max()), 1.0, places=6)
 
 
 class TestContourGridCoordinates(unittest.TestCase):
@@ -562,6 +606,160 @@ class TestAverageGroup(unittest.TestCase):
             references={"C": 175, "H": 30},
             correlation_strength_metric="dipolar",
         ).peaks))
+
+
+class TestMergePeaksLabels(unittest.TestCase):
+    """Merged peaks pool labels only from peaks that share the merge key."""
+
+    def test_labels_are_pooled_per_merge_key(self):
+        peaks = [
+            Peak2D(x=1.0, y=2.0, xlabel="C1", ylabel="C2", correlation_strength=1.0),
+            Peak2D(x=3.0, y=4.0, xlabel="C1", ylabel="C2", correlation_strength=2.0),
+            Peak2D(x=1.0, y=2.0, xlabel="C5", ylabel="C2", correlation_strength=1.0),
+        ]
+        merged = {(p.x, p.y): p for p in merge_peaks(peaks)}
+        self.assertEqual(merged[(3.0, 4.0)].xlabel, "C1")
+        self.assertEqual(merged[(1.0, 2.0)].xlabel, "C1/C5")
+        self.assertEqual(merged[(1.0, 2.0)].multiplicity, 2)
+
+
+class TestCorrelationStrengthInput(unittest.TestCase):
+    """Strengths can be given as a list or an array, alone or with a metric."""
+
+    def setUp(self):
+        self.ethanol = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self.pairs = [(0, 3), (1, 4)]
+
+    def test_numpy_array_strengths_are_used(self):
+        d = NMRData2D(
+            atoms=self.ethanol, xelement="H", yelement="H", pairs=self.pairs,
+            correlation_strengths=np.array([1.5, 2.5]),
+        )
+        self.assertEqual(sorted(p.correlation_strength for p in d.peaks), [1.5, 2.5])
+
+    def test_strengths_with_metric_warn_and_use_strengths(self):
+        with self.assertLogs("soprano.calculate.nmr.data2d", level="WARNING") as ctx:
+            d = NMRData2D(
+                atoms=self.ethanol, xelement="H", yelement="H", pairs=self.pairs,
+                correlation_strengths=[1.5, 2.5],
+                correlation_strength_metric="distance",
+            )
+        self.assertTrue(any("Using correlation_strengths" in m for m in ctx.output))
+        self.assertEqual(sorted(p.correlation_strength for p in d.peaks), [1.5, 2.5])
+
+
+class TestDQReducedSelfPairs(unittest.TestCase):
+    """DQ self-pairs of merged sites stand for their distinct-atom pairs."""
+
+    def setUp(self):
+        self.atoms = io.read(os.path.join(_TESTDATA_DIR, "alanine_manual_labels.magres"))
+        self.kw = dict(xelement="H", yelement="H", yaxis_order="2Q",
+                       references={"H": 29.5})
+
+    def test_total_weight_matches_unreduced(self):
+        """Each merged site contributes m(m-1) self-pair weight, so the total matches."""
+        unreduced = NMRData2D(self.atoms.copy(), reduce=False,
+                              correlation_strength_metric="fixed", **self.kw)
+        reduced = NMRData2D(self.atoms.copy(), reduce=True,
+                            correlation_strength_metric="fixed", **self.kw)
+        total_unreduced = sum(p.multiplicity for p in unreduced.peaks)
+        total_reduced = sum(p.multiplicity for p in reduced.peaks)
+        self.assertEqual(total_reduced, total_unreduced)
+
+    def test_diagonal_peaks_exist_when_reduced(self):
+        d = NMRData2D(self.atoms.copy(), reduce=True,
+                      correlation_strength_metric="distance", **self.kw)
+        diagonal = [p for p in d.peaks if abs(p.y - 2 * p.x) < 1e-6]
+        self.assertGreater(len(diagonal), 0)
+
+    def test_merged_self_pair_distance_is_nearest_distinct_atom(self):
+        """The self-pair of a merged site uses the closest distinct equivalent atom."""
+        d = NMRData2D(self.atoms.copy(), reduce=True,
+                      correlation_strength_metric="distance", **self.kw)
+        mult = d.atoms.get_array("multiplicity")
+        for k, (i, j) in enumerate(d.pairs):
+            if i != j:
+                continue
+            self.assertGreater(mult[i], 1)
+            members = d.site_map.members(int(i)).tolist()
+            nearest_distinct = min(
+                d.source.get_distance(members[0], m, mic=True)
+                for m in members[1:]
+            )
+            self.assertLessEqual(d.pair_distances[k], nearest_distinct + 1e-8)
+
+
+class TestPlotSettingsNotMutated(unittest.TestCase):
+    """Plotting fills in limits on a copy; the caller's settings stay as given."""
+
+    def test_settings_unchanged_after_plot(self):
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        d = NMRData2D(atoms=atoms, xelement="H", yelement="H", yaxis_order="2Q",
+                      references={"H": 29.5}, correlation_strength_metric="fixed")
+        settings = PlotSettings(plot_filename=None)
+        before = settings.model_dump()
+        NMRPlot2D(d, plot_settings=settings).plot()
+        plt.close("all")
+        self.assertEqual(settings.model_dump(), before)
+
+
+class TestPlotlyAnnotations(unittest.TestCase):
+    """Labels are placed in paper coordinates so inverted axes keep them on the edges."""
+
+    @unittest.skipUnless(PLOTLY_AVAILABLE, "plotly not installed")
+    def test_labels_use_paper_coordinates_for_the_edges(self):
+        backend = PlotlyBackend()
+        backend.set_axis_properties("x", "y", (0.0, 10.0), (0.0, 10.0), True)
+        backend.plot_annotations(
+            np.array([2.0, 5.0]), np.array([3.0, 7.0]),
+            ["C1", "C2"], ["H1", "H2"], PlotSettings(),
+        )
+        anns = list(backend.fig.layout.annotations)
+        top = [a for a in anns if a.text in ("C1", "C2")]
+        right = [a for a in anns if a.text in ("H1", "H2")]
+        self.assertEqual(len(top), 2)
+        self.assertEqual(len(right), 2)
+        for a in top:
+            self.assertEqual(a.yref, "paper")
+            self.assertEqual(a.y, 1.0)
+        for a in right:
+            self.assertEqual(a.xref, "paper")
+            self.assertEqual(a.x, 1.0)
+
+
+class TestPairValidation(unittest.TestCase):
+    """Explicit pairs must match the requested elements."""
+
+    def test_pair_outside_element_sets_raises(self):
+        from soprano.calculate.nmr.utils import process_pairs
+
+        idx_x, idx_y = np.array([0, 1]), np.array([2, 3])
+        with self.assertRaisesRegex(ValueError, "not made of the requested elements"):
+            process_pairs(idx_x, idx_y, [(0, 9)])
+
+    def test_matching_pair_is_kept(self):
+        from soprano.calculate.nmr.utils import process_pairs
+
+        idx_x, idx_y = np.array([0, 1]), np.array([2, 3])
+        pairs, pairs_el_idx, _, _ = process_pairs(idx_x, idx_y, [(1, 3)])
+        self.assertEqual(pairs, [(1, 3)])
+        self.assertEqual(pairs_el_idx, [(1, 1)])
+
+
+class TestBroadeningValidation(unittest.TestCase):
+    """Broadening widths must be positive when given."""
+
+    def test_nonpositive_broadening_rejected(self):
+        for field in ("x_broadening", "y_broadening"):
+            with self.subTest(field=field):
+                with self.assertRaises(ValueError):
+                    PlotSettings(**{field: 0.0})
+                with self.assertRaises(ValueError):
+                    PlotSettings(**{field: -1.0})
+
+    def test_unset_and_positive_broadening_accepted(self):
+        self.assertIsNone(PlotSettings().x_broadening)
+        self.assertEqual(PlotSettings(x_broadening=0.5).x_broadening, 0.5)
 
 
 if __name__ == "__main__":

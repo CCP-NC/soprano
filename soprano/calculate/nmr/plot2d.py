@@ -50,6 +50,9 @@ class NMRPlot2D:
         # Use default plot settings if none are provided
         if plot_settings is None:
             plot_settings = PlotSettings()
+        # Work on a copy: the plotter fills in defaults and resolved limits, and
+        # must not change the caller's settings object.
+        plot_settings = plot_settings.model_copy()
         # Let backends know about yaxis_order so they can draw the correct diagonal
         if plot_settings.yaxis_order is None:
             plot_settings.yaxis_order = nmr_data.yaxis_order
@@ -124,17 +127,20 @@ class NMRPlot2D:
         # is padded by 5× the broadening beyond the outermost peak, so if
         # we don't set explicit limits first, matplotlib autoscales to the grid
         # extent and the visible area ends up far wider than the peak range.
-        # Buffer = 2× the FWHM broadening so the outermost line shape is fully
-        # visible with a little breathing room.
+        # Buffer = 2× the FWHM broadening the contour is drawn with, so the
+        # outermost line shape is fully visible with a little breathing room.
+        x_fwhm, y_fwhm = self.nmr_data.resolve_broadening(
+            self.plot_settings.x_broadening, self.plot_settings.y_broadening
+        )
         if not self.plot_settings.xlim and len(self.x):
-            x_buf = (self.plot_settings.x_broadening or 1.0) * 2
+            x_buf = x_fwhm * 2
             self.plot_settings.xlim = (
                 float(self.x.min()) - x_buf,
                 float(self.x.max()) + x_buf,
             )
 
         if not self.plot_settings.ylim and len(self.y):
-            y_buf = (self.plot_settings.y_broadening or 1.0) * 2
+            y_buf = y_fwhm * 2
             self.plot_settings.ylim = (
                 float(self.y.min()) - y_buf,
                 float(self.y.max()) + y_buf,

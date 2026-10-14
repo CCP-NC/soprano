@@ -31,19 +31,20 @@ from soprano.calculate.nmr.export import (
 )
 from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
 from soprano.calculate.nmr.plot2d import NMRPlot2D
-from soprano.calculate.nmr.utils import Peak2D
+from soprano.calculate.nmr.utils import ContourData, Peak2D
 
 __all__ = [
-	"DEFAULT_MARKER_SIZE",
-	"NMRCalculator",
-	"NMRData2D",
-	"NMRFlags",
-	"NMRPlot2D",
+    "ContourData",
+    "DEFAULT_MARKER_SIZE",
+    "NMRCalculator",
+    "NMRData2D",
+    "NMRFlags",
+    "NMRPlot2D",
     "Peak2D",
-	"PlotSettings",
-	"ExportConfig",
-	"compute_b0_from_spectrometer_freq",
-	"compute_larmor_frequency",
-	"export_contour_data",
-	"guess_format_from_path",
+    "PlotSettings",
+    "ExportConfig",
+    "compute_b0_from_spectrometer_freq",
+    "compute_larmor_frequency",
+    "export_contour_data",
+    "guess_format_from_path",
 ]

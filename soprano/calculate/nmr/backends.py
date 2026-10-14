@@ -1,6 +1,7 @@
 """Plot backend implementations for 2D NMR plotting."""
 
 import logging
+import numbers
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Any, Optional, Tuple, Union
@@ -55,14 +56,21 @@ def _resolve_levels(
     np.ndarray
         1-D array of level values (sorted ascending).
     """
-    if isinstance(levels, (int, float)):
+    if isinstance(levels, numbers.Real):
         n = int(levels)
-        # Guard against degenerate / non-finite grids that would otherwise
-        # produce all-zero or NaN levels (e.g. every peak has zero strength).
+        # Degenerate grids have no level structure to draw; fail loudly rather
+        # than return a single placeholder level.
         finite = np.isfinite(Z)
-        z_scale = float(np.max(np.abs(Z[finite]))) if finite.any() else 0.0
-        if z_scale <= 0.0 or n < 1:
-            return np.asarray([0.0])
+        if not finite.any():
+            raise ValueError("contour grid has no finite values — cannot generate contour levels.")
+        z_scale = float(np.max(np.abs(Z[finite])))
+        if z_scale <= 0.0:
+            raise ValueError(
+                "contour grid is all zero — every peak has zero correlation strength, "
+                "so there is nothing to contour."
+            )
+        if n < 1:
+            raise ValueError(f"number of contour levels must be >= 1, got {levels}.")
         lo = contour_range[0] / 100.0 * z_scale
         hi = contour_range[1] / 100.0 * z_scale
         pos = np.linspace(lo, hi, n)
@@ -578,12 +586,15 @@ class PlotlyBackend(PlotBackend):
         
         font_size = settings.label_fontsize or 10
         
-        # X labels (top)
-        y_top = self.ylim[1] if self.ylim else max(y)
+        # X labels sit on the top edge and Y labels on the right edge, in paper
+        # coordinates, as the matplotlib backend does with axes fractions.  This
+        # keeps them on the right edge whichever way the axes are inverted.
         for xp, label in zip(xpos, xlabels_unique):
             self.fig.add_annotation(
                 x=xp,
-                y=y_top,
+                xref='x',
+                y=1.0,
+                yref='paper',
                 text=label,
                 showarrow=False,
                 textangle=270,
@@ -592,12 +603,12 @@ class PlotlyBackend(PlotBackend):
                 font=dict(size=font_size)
             )
         
-        # Y labels (right)
-        x_right = self.xlim[1] if self.xlim else max(x)
         for yp, label in zip(ypos, ylabels_unique):
             self.fig.add_annotation(
-                x=x_right,
+                x=1.0,
+                xref='paper',
                 y=yp,
+                yref='y',
                 text=label,
                 showarrow=False,
                 xanchor='left',

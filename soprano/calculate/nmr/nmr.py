@@ -74,7 +74,6 @@ from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
 from soprano.selection import AtomSelection
 from soprano.utils import minimum_supcell, supcell_gridgen
 
-DEFAULT_MARKER_SIZE = 50 # Default marker size for 2D plots (max is 100)
 ANNOTATION_LINE_WIDTH = 0.15 # Line width for annotation lines
 ANNOTATION_FONT_SCALE = 0.5 # Scale factor for annotation font size wrt to plot font size
 DEFAULT_MAX_NUM_LEGEND_ELEMENTS = 6 # Default maximum number of elements to show in the legend in 2D plots

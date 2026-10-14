@@ -9,6 +9,9 @@ DEFAULT_MARKER_SIZE = 50
 ANNOTATION_LINE_WIDTH = 0.15
 ANNOTATION_FONT_SCALE = 0.5
 DEFAULT_MAX_NUM_LEGEND_ELEMENTS = 6
+# Lorentzian wings are still ~1% of the peak height at the grid edge (5 FWHM),
+# whereas Gaussian wings are at machine zero there, so the Lorentzian grid needs
+# more points per FWHM to resolve the same contour levels.
 DEFAULT_GRID_SIZE_LORENTZIAN = 600
 DEFAULT_GRID_SIZE_GAUSSIAN = 150
 
@@ -130,6 +133,13 @@ class PlotSettings(BaseModel):
     def _validate_grid_max(cls, value: Optional[float]) -> Optional[float]:
         if value is not None and value <= 0:
             raise ValueError("grid_max must be > 0")
+        return value
+
+    @field_validator("x_broadening", "y_broadening")
+    @classmethod
+    def _validate_broadening_width(cls, value: Optional[float]) -> Optional[float]:
+        if value is not None and value <= 0:
+            raise ValueError("broadening (FWHM) must be > 0")
         return value
 
     @field_validator("marker")

@@ -2,6 +2,7 @@
 
 import logging
 import warnings
+from dataclasses import replace as _dc_replace
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -18,6 +19,7 @@ from soprano.calculate.nmr.config import MARKER_INFO
 from soprano.calculate.nmr.utils import (
     ContourData,
     Peak2D,
+    _nearest_equiv_site,
     calculate_distances,
     extract_indices,
     filter_pairs_by_distance,
@@ -36,6 +38,8 @@ from soprano.calculate.nmr.utils import (
 from soprano.data.nmr import _get_isotope_list
 from soprano.nmr.utils import _dip_constant
 from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
+from soprano.properties.nmr.dipolar import DipolarCoupling
+from soprano.properties.nmr.isc import JCIsotropy
 from soprano.sitemap import SiteMap
 
 class NMRData2D:
@@ -66,6 +70,7 @@ class NMRData2D:
                 average_group: str = "",
                 ):
 
+        self.logger = logging.getLogger(__name__)
         self.atoms = atoms
         self.xelement = xelement
         # if yelement is not provided, set it to xelement
@@ -129,7 +134,7 @@ class NMRData2D:
 
         # Either provide correlation strengths or calculate them based on the metric
         # If both are provided, the provided values will be used
-        if correlation_strengths:
+        if correlation_strengths is not None:
             if correlation_strength_metric:
                 self.logger.warning("Both correlation_strengths and correlation_strength_metric are provided. Using correlation_strengths.")
             correlation_strength_metric = 'custom'
@@ -152,7 +157,9 @@ class NMRData2D:
         self.is_shift = is_shift if is_shift is not None else (self.references is not None)
         self.include_quadrupolar = include_quadrupolar
         self.yaxis_order = yaxis_order
-        self.logger = logging.getLogger(__name__)
+        # Contour grid cache, filled by get_contour_data()
+        self._contour_data: Optional[ContourData] = None
+        self._contour_cache_key: Optional[tuple] = None
 
         self.correlation_unit = MARKER_INFO[self.correlation_strength_metric]['unit']
         self.correlation_label = MARKER_INFO[self.correlation_strength_metric]['label']
@@ -192,7 +199,6 @@ class NMRData2D:
         """
         import re  # noqa: PLC0415
         from collections import defaultdict  # noqa: PLC0415
-        from dataclasses import replace as _replace  # noqa: PLC0415
 
         from soprano.nmr.extract import find_XHn_groups, label_atoms  # noqa: PLC0415
 
@@ -302,7 +308,7 @@ class NMRData2D:
 
             xlabels = sorted({p.xlabel for p in group_peaks}, key=_sort_key)
             ylabels = sorted({p.ylabel for p in group_peaks}, key=_sort_key)
-            result.append(_replace(
+            result.append(_dc_replace(
                 group_peaks[0],
                 x=avg_x,
                 y=avg_y,
@@ -422,6 +428,13 @@ class NMRData2D:
             if self.isotopes:
                 self.logger.debug(f"Using custom isotopes: {self.isotopes}")
             correlation_strengths = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
+            correlation_strengths = self._patch_merged_self_pairs(
+                correlation_strengths,
+                lambda a0, best, _dist: list(DipolarCoupling.get(
+                    self.source, sel_i=[a0], sel_j=[best],
+                    self_coupling=(best == a0), isotopes=self.isotopes,
+                ).values())[0][0] * 1e-3,  # Hz -> kHz
+            )
             if self.correlation_strength_metric == 'dipolar2':
                 correlation_strengths = np.square(correlation_strengths)
         elif self.correlation_strength_metric == 'distance' or self.correlation_strength_metric == 'inversedistance':
@@ -439,6 +452,13 @@ class NMRData2D:
         elif self.correlation_strength_metric == 'jcoupling':
             self.logger.info("Using J-coupling as correlation strength.")
             correlation_strengths = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
+            correlation_strengths = self._patch_merged_self_pairs(
+                correlation_strengths,
+                lambda a0, best, _dist: list(JCIsotropy.get(
+                    self.source, sel_i=[a0], sel_j=[best], tag='isc',
+                    self_coupling=(best == a0), isotopes=self.isotopes,
+                ).values())[0],
+            )
         elif self.correlation_strength_metric == 'dipolar_rss':
             self.logger.info(
                 f"Using dipolar RSS (cutoff={self.rss_cutoff} Å, "
@@ -452,8 +472,12 @@ class NMRData2D:
             # the derived structure would find nothing to expand; and a site
             # stands for every atom it was merged from, so all of them have to
             # contribute. site_map.members gives exactly those atoms.
-            correlation_strengths = np.array([
-                DipolarRSSByAtom.get(
+            # Each member of site i has its own RSS; the site takes the first.
+            # Members of a symmetry-merged site agree, but a CIF-label merge
+            # can group atoms that are not equivalent, so flag that case.
+            rss_values = []
+            for i, j in self.pairs:
+                members_rss = DipolarRSSByAtom.get(
                     self.source,
                     sel_i=self.site_map.members(i).tolist(),
                     sel_j=self.site_map.members(j).tolist(),
@@ -461,9 +485,15 @@ class NMRData2D:
                     isotopes=self.isotopes,
                     expand_j=self.rss_expand_j,
                     symprec=self.symprec,
-                )[0]
-                for i, j in self.pairs
-            ]) * 1e-3  # convert Hz → kHz to match MARKER_INFO and dipolar metric
+                )
+                if not np.allclose(members_rss, members_rss[0], rtol=1e-3, atol=0.0):
+                    self.logger.warning(
+                        f"Dipolar RSS differs between the atoms merged into site {i} "
+                        f"(pair {i}-{j}): {members_rss.min():.1f} to {members_rss.max():.1f} Hz. "
+                        "The merged atoms are not equivalent; using the first atom's value."
+                    )
+                rss_values.append(members_rss[0])
+            correlation_strengths = np.array(rss_values) * 1e-3  # convert Hz → kHz to match MARKER_INFO and dipolar metric
         else:
             raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
 
@@ -508,7 +538,40 @@ class NMRData2D:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
 
 
-    def get_pairs(self) -> List[Tuple[int, int]]:
+    def _find_merged_self_partners(self) -> dict:
+        '''
+        Find the nearest equivalent source atom for each merged self-pair.
+
+        A site with multiplicity m > 1 stands for m atoms, and its self-pair
+        couples distinct atoms of the source.  Those atoms are not in the reduced
+        structure, so the partner is searched in the source, with the same rule
+        as the single-atom case.  Returns ``{site: (source_atom, partner, distance)}``.
+        '''
+        partners: dict = {}
+        if self.source is None or not self.atoms.has('multiplicity'):
+            return partners
+        mult = self.atoms.get_array('multiplicity')
+        for i, j in self.pairs:
+            i = int(i)
+            if i == int(j) and int(mult[i]) > 1 and i not in partners:
+                members = [int(a) for a in self.site_map.members(i).tolist()]
+                a0 = members[0]
+                best, dist = _nearest_equiv_site(self.source, a0, {0: members})
+                partners[i] = (a0, best, dist)
+        return partners
+
+    def _patch_merged_self_pairs(self, values, compute) -> np.ndarray:
+        '''
+        Replace the entries of merged self-pairs with ``compute(a0, partner, distance)``.
+        '''
+        values = np.array(values, dtype=float)
+        for k, (i, j) in enumerate(self.pairs):
+            i = int(i)
+            if i == int(j) and i in self._merged_self_partners:
+                values[k] = compute(*self._merged_self_partners[i])
+        return values
+
+    def get_pairs(self) -> None:
         '''
         Get the pairs of x and y indices to plot
 
@@ -524,16 +587,25 @@ class NMRData2D:
 
         # In a DQ/SQ experiment the diagonal peaks arise from two *distinct*
         # atoms of the same chemical shift — not from a spin correlated with
-        # itself.  The literal self-pair (i, i) is unphysical: the inter-nuclear
-        # distance is zero so the dipolar coupling diverges, and it contributes
-        # nothing to the real spectrum.  Remove all self-pairs unconditionally
-        # in DQ mode so that diagonal peaks emerge naturally from the physics.
+        # itself.  A self-pair (i, i) of a single atom is unphysical (zero
+        # separation) and is removed.  A self-pair of a merged site (reduce=True)
+        # stands for the m(m-1) ordered pairs of distinct atoms it represents, so
+        # it is kept; its weight is set in generate_peaks and its distance/coupling
+        # comes from the nearest equivalent site.
         if self.yaxis_order == '2Q':
             n_before = len(self.pairs)
-            valid = [(i, p) for i, p in enumerate(self.pairs) if p[0] != p[1]]
+            multiplicities = (
+                self.atoms.get_array('multiplicity')
+                if self.atoms.has('multiplicity')
+                else np.ones(len(self.atoms), dtype=int)
+            )
+            valid = [
+                (i, p) for i, p in enumerate(self.pairs)
+                if p[0] != p[1] or int(multiplicities[p[0]]) > 1
+            ]
             if not valid:
                 raise ValueError(
-                    "No valid (non-self) pairs found for DQ/SQ spectrum. "
+                    "No valid pairs found for DQ/SQ spectrum. "
                     "Diagonal peaks in a DQ experiment come from distinct atoms "
                     "with the same shift — check that the structure contains "
                     "coupled pairs of the requested elements."
@@ -544,30 +616,32 @@ class NMRData2D:
             n_removed = n_before - len(self.pairs)
             if n_removed:
                 self.logger.debug(
-                    f"Removed {n_removed} self-pair(s) (i==i) — unphysical in DQ/SQ."
+                    f"Removed {n_removed} single-atom self-pair(s) (i==i) — unphysical in DQ/SQ."
                 )
 
-        # For distance-based metrics, self-pairs would cause division by zero;
-        # after the DQ filter above they are already gone for 2Q mode.
-        # For SQ/homonuclear mode we still want to flag them rather than silently
-        # produce NaN couplings.
+        # Self-pairs that survive (merged sites, or SQ/homonuclear) take their
+        # distance/coupling from the nearest equivalent site, so they are not undefined.
         if self.correlation_strength_metric != 'fixed':
             self_pairs = [p for p in self.pairs if p[0] == p[1]]
             if self_pairs:
-                self.logger.warning(
-                    f"{len(self_pairs)} self-pair(s) remain after filtering with "
-                    f"metric='{self.correlation_strength_metric}'. "
-                    "Distance/coupling for a self-pair is undefined. "
-                    "Consider using --rcut or passing explicit pairs."
+                self.logger.info(
+                    f"{len(self_pairs)} self-pair(s) remain with "
+                    f"metric='{self.correlation_strength_metric}'. Each uses the "
+                    "distance/coupling to its nearest equivalent site."
                 )
 
         if len(self.pairs) == 0:
             raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
 
+        self._merged_self_partners = self._find_merged_self_partners()
+
         # Calculate distances
         # if pair_distances is not already calculated, calculate it
         if not hasattr(self, 'pair_distances'):
             self.pair_distances = calculate_distances(self.pairs, self.atoms)
+            self.pair_distances = self._patch_merged_self_pairs(
+                self.pair_distances, lambda a0, best, dist: dist,
+            )
 
 
         # Filter pairs by distance if rcut is specified
@@ -671,6 +745,31 @@ class NMRData2D:
         self.logger.info(f"Exported {len(df)} peaks to DataFrame.")
         return df
 
+    def resolve_broadening(
+        self,
+        x_broadening: Optional[float] = None,
+        y_broadening: Optional[float] = None,
+    ) -> Tuple[float, float]:
+        """
+        Return the FWHM broadening used for the contour grid in each dimension.
+
+        A value given explicitly is returned unchanged.  An unspecified one
+        defaults to 5 % of the peak range in that dimension (1.0 for a single
+        peak, so the default is never zero).
+        """
+        peaks = self.get_peaks()
+        if peaks:
+            x_range = max(p.x for p in peaks) - min(p.x for p in peaks) or 1.0
+            y_range = max(p.y for p in peaks) - min(p.y for p in peaks) or 1.0
+        else:
+            x_range = y_range = 1.0
+
+        if x_broadening is None:
+            x_broadening = 0.05 * x_range
+        if y_broadening is None:
+            y_broadening = 0.05 * y_range
+        return x_broadening, y_broadening
+
     def get_contour_data(
         self,
         x_broadening: Optional[float] = None,
@@ -703,15 +802,15 @@ class NMRData2D:
             equals this value. Useful when exporting to external tools that
             assume a particular intensity magnitude.
         broadening_type : str
-            ``'gaussian'`` (default) or ``'lorentzian'``.
+            ``'lorentzian'`` (default) or ``'gaussian'``.
         grid_size : int
-            Number of points along each axis of the grid.  Default 150.
+            Number of points along each axis of the grid.  Default 500.
         xlims : tuple of float, optional
-            Used **only** to compute the default 5 % broadening when
-            *x_broadening* is *None*.  The grid itself always spans the full
-            peak range plus ``5 × x_broadening`` padding on each side;
-            passing *xlims* does not clip the grid.  Use
-            ``PlotSettings.xlim`` to control the display limits.
+            Extends the grid, if needed, so that it covers these limits.  The
+            grid otherwise spans the full peak range plus ``5 × x_broadening``
+            padding on each side, and is never clipped.  The default broadening
+            does not depend on *xlims*.  Use ``PlotSettings.xlim`` to control the
+            display limits.
         ylims : tuple of float, optional
             Same as *xlims* but for the indirect (y) dimension.
         use_signed : bool, optional
@@ -734,7 +833,6 @@ class NMRData2D:
         # *magnitude* of correlation.  Signed metrics (e.g. negative dipolar
         # constants) would otherwise produce negative intensities.  When
         # use_signed=True the caller wants the signed map.
-        from dataclasses import replace as _dc_replace
         if use_signed:
             peaks_for_grid = peaks
         else:
@@ -743,24 +841,16 @@ class NMRData2D:
                 for p in peaks
             ]
 
-        # Resolve default broadening from peak spread
-        peak_x_min = min(p.x for p in peaks_for_grid)
-        peak_x_max = max(p.x for p in peaks_for_grid)
-        peak_y_min = min(p.y for p in peaks_for_grid)
-        peak_y_max = max(p.y for p in peaks_for_grid)
+        x_broadening, y_broadening = self.resolve_broadening(x_broadening, y_broadening)
 
-        x_range = peak_x_max - peak_x_min or 1.0
-        y_range = peak_y_max - peak_y_min or 1.0
-
-        if x_broadening is None:
-            x_broadening = 0.05 * x_range
-        if y_broadening is None:
-            y_broadening = 0.05 * y_range
-
-        # Check cache
-        cache_key = (x_broadening, y_broadening, grid_max, broadening_type, grid_size,
-                     xlims, ylims, use_signed)
-        if getattr(self, '_contour_cache_key', None) == cache_key:
+        # Check cache. The peak list is part of the key, so editing peaks
+        # invalidates a grid computed from the old ones.
+        peaks_key = tuple(
+            (p.x, p.y, p.correlation_strength, p.multiplicity) for p in peaks_for_grid
+        )
+        cache_key = (peaks_key, x_broadening, y_broadening, grid_max, broadening_type,
+                     grid_size, xlims, ylims, use_signed)
+        if self._contour_cache_key == cache_key:
             return self._contour_data
 
         X, Y, Z = generate_contour_map(
@@ -943,7 +1033,7 @@ class NMRData2D:
         # This means plot-then-export (or get_contour_data-then-export) uses
         # the same grid the caller already computed, avoiding silent divergence.
         precomputed = (
-            getattr(self, '_contour_data', None)
+            self._contour_data
             if not effective.has_rendering_overrides()
             else None
         )

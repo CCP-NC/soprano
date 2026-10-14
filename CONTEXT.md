@@ -54,7 +54,7 @@ Soprano's 2D NMR is nucleus-agnostic via `xelement`/`yelement`. Targeted experim
 
 - **Homonuclear (e.g. ¹³C–¹³C DARR/PDSD)** — both axes same nucleus, same Larmor frequency
 - **Heteronuclear (e.g. ¹H–¹³C HETCOR, ¹³C–¹⁵N)** — axes are different nuclei with different Larmor frequencies
-- **Double-quantum (DQ-SQ)** — y-axis is the DQ coherence frequency (δ_i + δ_j); handled via `yaxis_order='2Q'`. Self-pairs (i, i) are removed unconditionally: a DQ diagonal peak comes from two *distinct* atoms of equal shift, not from a spin correlated with itself.
+- **Double-quantum (DQ-SQ)** — y-axis is the DQ coherence frequency (δ_i + δ_j); handled via `yaxis_order='2Q'`. Self-pairs of single atoms are removed: a DQ diagonal peak comes from two *distinct* atoms of equal shift, not from a spin correlated with itself. Self-pairs of merged sites (`reduce=True`) are kept, weighted by the m(m−1) ordered pairs of distinct atoms they stand for, with distance/coupling taken from the nearest equivalent atom in the source structure.
 
 ## Export Concepts
 
