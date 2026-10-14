@@ -11,7 +11,7 @@ The Bruker processed 2D format (`pdata/1/2rr` + `procs`/`proc2s` parameter files
 
 ## Decision
 
-Add Bruker format as a new export target (`fmt="bruker"`, extension `.bruker` or output as a directory), implemented via **`nmrglue`** as an optional dependency (imported at call time; not required at install).
+Add Bruker format as a new export target (`fmt="bruker"`), implemented via **`nmrglue`** as an optional dependency (imported at call time; not required at install). The output is a directory, so there is no file extension to infer the format from: `fmt="bruker"` must be passed explicitly.
 
 **Constraints baked into this format:**
 - Requires `is_shift=True` on `NMRData2D`; raises `ValueError` for shielding data — exporting unreferenced shieldings to an experimental format is scientifically meaningless.

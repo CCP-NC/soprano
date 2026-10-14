@@ -16,7 +16,7 @@ Compatibility:
 
 import csv
 import json
-from dataclasses import dataclass, replace as dc_replace
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Protocol, Tuple, TYPE_CHECKING
@@ -75,18 +75,18 @@ def _resolve_larmor_freqs(
             "--spectrometer-freq (CLI).",
         )
 
-    def _resolve(freq: Optional[float], element: Optional[str]) -> Optional[float]:
+    def _resolve(freq: Optional[float], element: Optional[str], isotope: Optional[int]) -> Optional[float]:
         if freq is not None:
             return freq
         if element is None or b0_tesla is None:
             return None
         try:
-            return compute_larmor_frequency(element, b0_tesla=b0_tesla)
+            return compute_larmor_frequency(element, b0_tesla=b0_tesla, isotope=isotope)
         except ValueError:
             return None
 
-    x_resolved = _resolve(x_larmor, xelement)
-    y_resolved = _resolve(y_larmor, yelement)
+    x_resolved = _resolve(x_larmor, xelement, getattr(nmr_data, "xisotope", None))
+    y_resolved = _resolve(y_larmor, yelement, getattr(nmr_data, "yisotope", None))
 
     # For homonuclear spectra, y falls back to x
     if y_resolved is None and yelement == xelement and x_resolved is not None:
@@ -123,6 +123,7 @@ class ExportConfig:
 
     # Output options
     include_peaks: bool = True
+    overwrite: bool = False  # replace an existing Bruker dataset at the target path
 
     def __post_init__(self) -> None:
         if self.b0_field_tesla is not None and self.spectrometer_freq_mhz is not None:
@@ -201,6 +202,22 @@ def _write_peaks_csv(peaks: list["Peak2D"], path: str) -> None:
             writer.writerow([p.x, p.y, p.xlabel, p.ylabel, p.correlation_strength])
 
 
+def _sw_ppm_from_span(span_ppm: float, n: int) -> float:
+    # The contour grid is an endpoint-inclusive linspace with step span/(n-1),
+    # whereas ssNake's FFT axis has spacing SW/n.  Scale the width by n/(n-1)
+    # so the per-point step matches.  Inferred from ssNake's reader (SIMPSON
+    # manual unavailable).
+    return span_ppm * n / (n - 1) if n > 1 else span_ppm
+
+
+def _carrier_ppm(lo_ppm: float, span_ppm: float, n: int) -> float:
+    # ssNake places point k at (k - n//2) * SW/n from the carrier (fftshift
+    # order), so the carrier is put at grid point n//2 and that point reads back
+    # as its own ppm value.  Assumes ascending frequency order in the data block.
+    step = span_ppm / (n - 1) if n > 1 else 0.0
+    return lo_ppm + (n // 2) * step
+
+
 # ---------------------------------------------------------------------------
 # Format inference
 # ---------------------------------------------------------------------------
@@ -265,7 +282,7 @@ def export_contour_data(
         :meth:`get_contour_data` entirely — useful when the caller already
         holds the grid that was used for plotting.
     """
-    effective = dc_replace(config) if config is not None else ExportConfig()
+    effective = config if config is not None else ExportConfig()
 
     # Resolve format
     if fmt is None:
@@ -305,6 +322,7 @@ def export_contour_data(
         _export_bruker(
             nmr_data, path, cd, x_larmor, y_larmor,
             include_peaks=effective.include_peaks,
+            overwrite=effective.overwrite,
         )
     else:
         raise ValueError(
@@ -330,8 +348,8 @@ def _export_simpson(
     """Write a SIMPSON TEXT (.spe) file readable by nmrglue and ssNake."""
     Z = cd.Z
     ni, np_ = Z.shape
-    sw_ppm = cd.xlims[1] - cd.xlims[0]
-    sw1_ppm = cd.ylims[1] - cd.ylims[0]
+    sw_ppm = _sw_ppm_from_span(cd.xlims[1] - cd.xlims[0], np_)
+    sw1_ppm = _sw_ppm_from_span(cd.ylims[1] - cd.ylims[0], ni)
 
     y_freq = y_larmor_freq_mhz if y_larmor_freq_mhz is not None else x_larmor_freq_mhz
 
@@ -358,10 +376,15 @@ def _export_simpson(
         f"# SW_unit={sw_unit}",
     ]
     if x_larmor_freq_mhz is not None:
+        x_carrier_ppm = _carrier_ppm(cd.xlims[0], cd.xlims[1] - cd.xlims[0], np_)
+        y_carrier_ppm = _carrier_ppm(cd.ylims[0], cd.ylims[1] - cd.ylims[0], ni)
         meta_lines.extend([
-            f"# SPECFREQ_x={x_larmor_freq_mhz:.6g} MHz  (direct dim)",
-            f"# SPECFREQ_y={y_freq:.6g} MHz  (indirect dim)",
-            "# ssNake: Axes -> Edit axes, set carriers to these values",
+            f"# SPECREF_x={x_larmor_freq_mhz:.15g} MHz  (0 ppm reference, direct dim)",
+            f"# SPECFREQ_x={x_larmor_freq_mhz * (1 + x_carrier_ppm * 1e-6):.15g} MHz  (carrier, direct dim)",
+            f"# SPECREF_y={y_freq:.15g} MHz  (0 ppm reference, indirect dim)",
+            f"# SPECFREQ_y={y_freq * (1 + y_carrier_ppm * 1e-6):.15g} MHz  (carrier, indirect dim)",
+            # Conventions inferred from ssNake's reader (SIMPSON manual unavailable).
+            "# ssNake: Axes -> Edit axes, set Reference = SPECREF and Frequency (carrier) = SPECFREQ",
         ])
     meta_lines.extend([
         f"# x_broadening={cd.x_broadening:.6g} ppm",
@@ -375,8 +398,8 @@ def _export_simpson(
         f.write("SIMP\n")
         f.write(f"NP={np_}\n")
         f.write(f"NI={ni}\n")
-        f.write(f"SW={sw:.8g}\n")
-        f.write(f"SW1={sw1:.8g}\n")
+        f.write(f"SW={sw:.12g}\n")
+        f.write(f"SW1={sw1:.12g}\n")
         f.write("TYPE=SPE\n")
         for line in meta_lines:
             f.write(line + "\n")
@@ -443,12 +466,7 @@ def _export_csv_grid(
 
     if include_peaks:
         peaks_path = path + ".peaks.csv"
-        peaks = nmr_data.get_peaks()
-        with open(peaks_path, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
-            for p in peaks:
-                writer.writerow([p.x, p.y, p.xlabel, p.ylabel, p.correlation_strength])
+        _write_peaks_csv(nmr_data.get_peaks(), peaks_path)
         _log_info(nmr_data, f"Peak list written to '{peaks_path}'.")
 
 
@@ -480,12 +498,7 @@ def _export_plain(
 
     if include_peaks:
         peaks_path = path + ".peaks.csv"
-        peaks = nmr_data.get_peaks()
-        with open(peaks_path, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
-            for p in peaks:
-                writer.writerow([p.x, p.y, p.xlabel, p.ylabel, p.correlation_strength])
+        _write_peaks_csv(nmr_data.get_peaks(), peaks_path)
         _log_info(nmr_data, f"Peak list written to '{peaks_path}'.")
 
 
@@ -510,13 +523,16 @@ def _export_json_ssnake(
     x_freq_hz = x_larmor_freq_mhz * 1e6
     y_freq_hz = y_freq_mhz * 1e6
 
-    sw_x_hz = (cd.xlims[1] - cd.xlims[0]) * x_larmor_freq_mhz
-    sw_y_hz = (cd.ylims[1] - cd.ylims[0]) * y_freq_mhz
+    ni, np_ = cd.Z.shape
+    sw_x_hz = _sw_ppm_from_span(cd.xlims[1] - cd.xlims[0], np_) * x_larmor_freq_mhz
+    sw_y_hz = _sw_ppm_from_span(cd.ylims[1] - cd.ylims[0], ni) * y_freq_mhz
 
+    # ref is the 0 ppm frequency; freq is the carrier (see _carrier_ppm).  Both in Hz.
     ref_x = x_freq_hz
     ref_y = y_freq_hz
+    carrier_x_hz = x_freq_hz * (1 + _carrier_ppm(cd.xlims[0], cd.xlims[1] - cd.xlims[0], np_) * 1e-6)
+    carrier_y_hz = y_freq_hz * (1 + _carrier_ppm(cd.ylims[0], cd.ylims[1] - cd.ylims[0], ni) * 1e-6)
 
-    ni, np_ = cd.Z.shape
     data_3d = cd.Z.reshape(1, ni, np_)
     flat_real = data_3d.tolist()
     flat_imag = np.zeros((1, ni, np_)).tolist()
@@ -528,7 +544,7 @@ def _export_json_ssnake(
         "dataReal": flat_real,
         "dataImag": flat_imag,
         "hyper": [0],
-        "freq": [y_freq_hz, x_freq_hz],
+        "freq": [carrier_y_hz, carrier_x_hz],
         "sw": [sw_y_hz, sw_x_hz],
         "spec": [1, 1],
         "wholeEcho": [0, 0],
@@ -566,6 +582,111 @@ def _export_json_ssnake(
     )
 
 
+def _bruker_sw_ppm(sw_ppm: float, si: int) -> float:
+    # Bruker frequency axes are endpoint-EXCLUSIVE: point i sits at
+    #   ppm(i) = OFFSET - i * (SW_p / SF) / SI
+    # whereas the contour grid is an endpoint-inclusive linspace with
+    # step sw_ppm / (SI - 1).  Scale SW_p by SI/(SI-1) so the per-point
+    # step matches and the last point lands exactly on the upfield limit.
+    return sw_ppm * si / (si - 1) if si > 1 else sw_ppm
+
+
+def _bruker_nc_proc(Z: np.ndarray) -> int:
+    # nmrglue's array_to_int multiplies the data by 2 until max|Z| reaches
+    # [2**28, 2**29) (at most 30 times).  Recording the same factor as
+    # NC_proc = -k gives real = int * 2**NC_proc.
+    if not np.all(np.isfinite(Z)):
+        raise ValueError("Cannot export Bruker data: the contour grid contains NaN or inf.")
+    max_abs = float(np.max(np.abs(Z)))
+    k = 0
+    while k < 30 and max_abs * 2.0**k < 2**28:
+        k += 1
+    scaled_max = max_abs * 2.0**k
+    if scaled_max < 1.0:
+        raise ValueError(
+            f"Cannot export Bruker data: max|intensity| = {max_abs:g} is too small to "
+            "store as integers; every point would be written as zero."
+        )
+    if scaled_max > 2**31 - 1:
+        raise ValueError(
+            f"Cannot export Bruker data: max|intensity| = {max_abs:g} overflows int32."
+        )
+    return -k
+
+
+def _bruker_procs(
+    sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str, nc_proc: int,
+) -> dict:
+    # nmrglue/TopSpin store the processed spectral width (SW_p) in Hz, while
+    # OFFSET (downfield edge) is in ppm; convert the ppm range with SF (MHz).
+    return {
+        "_comments": [],
+        "_coreheader": ["##NMRGLUE automatically created parameter file"],
+        "SF": float(sf_mhz),
+        "SW_p": float(_bruker_sw_ppm(sw_ppm, si) * sf_mhz),
+        "OFFSET": float(offset_ppm),
+        "SI": si,
+        "NC_proc": nc_proc,      # intensity scaling exponent (data * 2**NC_proc)
+        "BYTORDP": 1,
+        "DTYPP": 0,         # data type: 0 = int32
+        "AXNUC": f"<{nucleus}>",
+        "XDIM": si,
+        "STSI": 0,
+        "STSR": 0,
+        "FT_mod": 6,        # marks the dimension as Fourier-transformed
+        "PHC0": 0.0,
+        "PHC1": 0.0,
+    }
+
+
+def _bruker_acqus(
+    sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str, indirect: bool,
+) -> dict:
+    # Minimal acquisition-parameter set so that TopSpin can open the
+    # dataset and nmrglue's guess_udic can reconstruct the axes.
+    # The carrier sits at the centre of the spectral window:
+    # guess_udic derives car = (SFO1 - SF) * 1e6 Hz.
+    sw_ppm_b = _bruker_sw_ppm(sw_ppm, si)
+    center_ppm = offset_ppm - sw_ppm_b / 2.0
+    o1_hz = center_ppm * sf_mhz          # ppm * MHz = Hz
+    sfo1 = float(sf_mhz + o1_hz * 1e-6)
+    sw_h = float(sw_ppm_b * sf_mhz)
+    acqus = {
+        "_comments": [],
+        "_coreheader": ["##NMRGLUE automatically created parameter file"],
+        "SFO1": sfo1,
+        "BF1": float(sf_mhz),
+        "O1": float(o1_hz),
+        "SW_h": sw_h,
+        # SW is SW_h / SFO1 (TopSpin convention).  nmrglue's guess_udic
+        # reads the indirect axis width as SW * SFO1, so this keeps both
+        # dimensions consistent with the grid.
+        "SW": sw_h / sfo1,
+        "TD": 2 * si,
+        "NUC1": f"<{nucleus}>",
+        "BYTORDA": 1,
+        "DTYPA": 0,
+        "PARMODE": 1,       # 2D dataset (PARMODE = ndim - 1)
+    }
+    if indirect:
+        acqus["FnMODE"] = 1     # QF (magnitude): simulated real data
+    else:
+        acqus["AQ_mod"] = 0     # qf: simulated real data
+    return acqus
+
+
+def _bruker_nucleus_label(nmr_data: Any, element: Optional[str], isotope: Optional[int]) -> str:
+    # Isotope label in TopSpin convention, e.g. '1H', '13C'.
+    if element is None:
+        return "off"
+    if isotope is not None:
+        return f"{isotope}{element}"
+    isotopes = getattr(nmr_data, "isotopes", None)
+    if isinstance(isotopes, dict) and element in isotopes:
+        return f"{isotopes[element]}{element}"
+    return str(element)
+
+
 def _export_bruker(
     nmr_data: _NMRData2DExportProtocol,
     path: str,
@@ -573,6 +694,7 @@ def _export_bruker(
     x_larmor_freq_mhz: Optional[float],
     y_larmor_freq_mhz: Optional[float],
     include_peaks: bool = True,
+    overwrite: bool = False,
 ) -> None:
     """Write a Bruker TopSpin 2D processed data directory (pdata/1/2rr)."""
     if x_larmor_freq_mhz is None:
@@ -584,11 +706,11 @@ def _export_bruker(
 
     try:
         import nmrglue as ng
-    except ImportError:
+    except ImportError as exc:
         raise ImportError(
             "nmrglue is required for Bruker export. "
             "Install it with: pip install nmrglue  or  pip install soprano[nmr-io]"
-        )
+        ) from exc
 
     if not getattr(nmr_data, "is_shift", False):
         raise ValueError(
@@ -620,135 +742,44 @@ def _export_bruker(
 
     # Bruker stores data with descending ppm (downfield first); flip both axes.
     Z_bruker = np.ascontiguousarray(cd.Z[::-1, ::-1], dtype=np.float64)
+    nc_proc = _bruker_nc_proc(Z_bruker)
 
-    # Determine NC_proc so that data scaled by 2**NC_proc matches the integer
-    # scaling applied by nmrglue's array_to_int (multiplying by 2 until the
-    # maximum intensity is in [2**28, 2**29]).
-    max_abs = float(np.max(np.abs(Z_bruker)))
-    k = 0
-    if max_abs > 0:
-        val = max_abs
-        for _ in range(30):
-            if val < 2**28:
-                val *= 2.0
-                k += 1
-            else:
-                break
-    nc_proc = -k
-
-    def _bruker_sw_ppm(sw_ppm: float, si: int) -> float:
-        # Bruker frequency axes are endpoint-EXCLUSIVE: point i sits at
-        #   ppm(i) = OFFSET - i * (SW_p / SF) / SI
-        # whereas the contour grid is an endpoint-inclusive linspace with
-        # step sw_ppm / (SI - 1).  Scale SW_p by SI/(SI-1) so the per-point
-        # step matches and the last point lands exactly on the upfield limit.
-        return sw_ppm * si / (si - 1) if si > 1 else sw_ppm
-
-    def _make_procs(
-        sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str
-    ) -> dict:
-        # nmrglue/TopSpin store the processed spectral width (SW_p) in Hz, while
-        # OFFSET (downfield edge) is in ppm; convert the ppm range with SF (MHz).
-        return {
-            "_comments": [],
-            "_coreheader": ["##NMRGLUE automatically created parameter file"],
-            "SF": float(sf_mhz),
-            "SW_p": float(_bruker_sw_ppm(sw_ppm, si) * sf_mhz),
-            "OFFSET": float(offset_ppm),
-            "SI": si,
-            "NC_proc": nc_proc,      # intensity scaling exponent (data * 2**NC_proc)
-            "BYTORDP": 1,
-            "DTYPP": 0,         # data type: 0 = int32
-            "AXNUC": f"<{nucleus}>",
-            "XDIM": si,
-            "STSI": 0,
-            "STSR": 0,
-            "FT_mod": 6,        # marks the dimension as Fourier-transformed
-            "PHC0": 0.0,
-            "PHC1": 0.0,
-        }
-
-    def _make_acqus(
-        sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int,
-        nucleus: str, indirect: bool,
-    ) -> dict:
-        # Minimal acquisition-parameter set so that TopSpin can open the
-        # dataset and nmrglue's guess_udic can reconstruct the axes.
-        # The carrier sits at the centre of the spectral window:
-        # guess_udic derives car = (SFO1 - SF) * 1e6 Hz.
-        sw_ppm_b = _bruker_sw_ppm(sw_ppm, si)
-        center_ppm = offset_ppm - sw_ppm_b / 2.0
-        o1_hz = center_ppm * sf_mhz          # ppm * MHz = Hz
-        acqus = {
-            "_comments": [],
-            "_coreheader": ["##NMRGLUE automatically created parameter file"],
-            "SFO1": float(sf_mhz + o1_hz * 1e-6),
-            "BF1": float(sf_mhz),
-            "O1": float(o1_hz),
-            "SW_h": float(sw_ppm_b * sf_mhz),
-            "SW": float(sw_ppm_b),
-            "TD": 2 * si,
-            "NUC1": f"<{nucleus}>",
-            "BYTORDA": 1,
-            "DTYPA": 0,
-            "PARMODE": 1,       # 2D dataset (PARMODE = ndim - 1)
-        }
-        if indirect:
-            acqus["FnMODE"] = 1     # QF (magnitude): simulated real data
-        else:
-            acqus["AQ_mod"] = 0     # qf: simulated real data
-        return acqus
-
-    def _nucleus_label(element: Optional[str], isotope: Optional[int]) -> str:
-        # Isotope label in TopSpin convention, e.g. '1H', '13C'.
-        if element is None:
-            return "off"
-        if isotope is not None:
-            return f"{isotope}{element}"
-        isotopes = getattr(nmr_data, "isotopes", None)
-        if isinstance(isotopes, dict) and element in isotopes:
-            return f"{isotopes[element]}{element}"
-        return str(element)
-
-    x_nuc = _nucleus_label(
-        getattr(nmr_data, "xelement", None), getattr(nmr_data, "xisotope", None)
+    x_nuc = _bruker_nucleus_label(
+        nmr_data, getattr(nmr_data, "xelement", None), getattr(nmr_data, "xisotope", None)
     )
-    y_nuc = _nucleus_label(
-        getattr(nmr_data, "yelement", None), getattr(nmr_data, "yisotope", None)
+    y_nuc = _bruker_nucleus_label(
+        nmr_data, getattr(nmr_data, "yelement", None), getattr(nmr_data, "yisotope", None)
     )
+    x_sw_ppm = cd.xlims[1] - cd.xlims[0]
+    y_sw_ppm = cd.ylims[1] - cd.ylims[0]
 
     dic = {
-        "procs": _make_procs(
-            x_larmor_freq_mhz,
-            cd.xlims[1] - cd.xlims[0],
-            cd.xlims[1],
-            np_,
-            x_nuc,
+        "procs": _bruker_procs(x_larmor_freq_mhz, x_sw_ppm, cd.xlims[1], np_, x_nuc, nc_proc),
+        "proc2s": _bruker_procs(y_larmor_freq_mhz, y_sw_ppm, cd.ylims[1], ni, y_nuc, nc_proc),
+        "acqus": _bruker_acqus(
+            x_larmor_freq_mhz, x_sw_ppm, cd.xlims[1], np_, x_nuc, indirect=False,
         ),
-        "proc2s": _make_procs(
-            y_larmor_freq_mhz,
-            cd.ylims[1] - cd.ylims[0],
-            cd.ylims[1],
-            ni,
-            y_nuc,
-        ),
-        "acqus": _make_acqus(
-            x_larmor_freq_mhz, cd.xlims[1] - cd.xlims[0], cd.xlims[1],
-            np_, x_nuc, indirect=False,
-        ),
-        "acqu2s": _make_acqus(
-            y_larmor_freq_mhz, cd.ylims[1] - cd.ylims[0], cd.ylims[1],
-            ni, y_nuc, indirect=True,
+        "acqu2s": _bruker_acqus(
+            y_larmor_freq_mhz, y_sw_ppm, cd.ylims[1], ni, y_nuc, indirect=True,
         ),
     }
 
-    Path(path).mkdir(parents=True, exist_ok=True)
+    root = Path(path)
+    existing = [p for p in (root / "acqus", root / "pdata" / "1" / "2rr") if p.exists()]
+    if existing and not overwrite:
+        raise FileExistsError(
+            f"Bruker dataset already exists: '{existing[0]}' is present. "
+            "Pass overwrite=True (ExportConfig(overwrite=True) or --overwrite on the CLI) "
+            "to replace it."
+        )
+
+    root.mkdir(parents=True, exist_ok=True)
 
     ng.fileio.bruker.write_pdata(
         path, dic, Z_bruker,
         write_procs=True,
         pdata_folder=True,
-        overwrite=True,
+        overwrite=overwrite,
         submatrix_shape=(ni, np_),
         big=True,
     )
@@ -763,11 +794,11 @@ def _export_bruker(
     ):
         for dst in dst_names:
             ng.fileio.bruker.write_jcamp(
-                dic[src_name], str(Path(path) / dst), overwrite=True
+                dic[src_name], str(root / dst), overwrite=overwrite
             )
 
     # Human-readable title shown in the TopSpin browser
-    title_path = Path(path) / "pdata" / "1" / "title"
+    title_path = root / "pdata" / "1" / "title"
     title_path.write_text(
         "Soprano simulated 2D NMR spectrum\n"
         f"x: {x_nuc} ({x_larmor_freq_mhz:.4f} MHz)  "
@@ -776,7 +807,7 @@ def _export_bruker(
     )
 
     if include_peaks:
-        peaks_path = str(Path(path) / "peaks.csv")
+        peaks_path = str(root / "peaks.csv")
         _write_peaks_csv(nmr_data.get_peaks(), peaks_path)
         _log_info(nmr_data, f"Peak list written to '{peaks_path}'.")
 

@@ -5,6 +5,7 @@ import csv
 import importlib.util
 import json
 import os
+import re
 import shutil
 import tempfile
 import unittest
@@ -20,6 +21,29 @@ from soprano.calculate.nmr.export import ExportConfig, export_contour_data
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 
 _NMRGLUE_AVAILABLE = importlib.util.find_spec("nmrglue") is not None
+
+
+def _ssnake_ppm_axis(n, sw_hz, freq_hz, ref_hz):
+    # ssNake (specIO.loadSimpsonFile / spectrum.resetXax): FFT axis about the carrier, then ppm.
+    xax = np.fft.fftshift(np.fft.fftfreq(n, 1.0 / sw_hz)) + (freq_hz - ref_hz)
+    return xax * 1e6 / ref_hz
+
+
+def _read_spe_header(path):
+    with open(path) as f:
+        text = f.read()
+
+    def num(pattern):
+        return float(re.search(pattern, text, re.M).group(1))
+
+    return {
+        "SW": num(r"^SW=(\S+)$"),
+        "SW1": num(r"^SW1=(\S+)$"),
+        "SPECREF_x": num(r"^# SPECREF_x=(\S+) MHz"),
+        "SPECFREQ_x": num(r"^# SPECFREQ_x=(\S+) MHz"),
+        "SPECREF_y": num(r"^# SPECREF_y=(\S+) MHz"),
+        "SPECFREQ_y": num(r"^# SPECFREQ_y=(\S+) MHz"),
+    }
 
 
 class TestNMRExportPublicAPI(unittest.TestCase):
@@ -46,6 +70,7 @@ class TestExportConfig(unittest.TestCase):
         self.assertEqual(cfg.grid_size, 500)
         self.assertEqual(cfg.broadening_type, "lorentzian")
         self.assertFalse(cfg.use_signed)
+        self.assertFalse(cfg.overwrite)
 
     def test_custom_values(self):
         from soprano.calculate.nmr.export import ExportConfig
@@ -97,6 +122,16 @@ class TestLarmorFrequencyHelpers(unittest.TestCase):
         b0 = compute_b0_from_spectrometer_freq(600.0)
         # 600 MHz ¹H → ~14.09 T
         self.assertAlmostEqual(b0, 14.09, delta=0.05)
+
+    def test_resolver_passes_isotope_to_larmor_frequency(self):
+        from types import SimpleNamespace
+        from soprano.calculate.nmr.export import _resolve_larmor_freqs
+
+        nmr = SimpleNamespace(xelement="N", yelement=None, xisotope=15, yisotope=None)
+        x, y = _resolve_larmor_freqs(nmr, None, None, 9.4)
+        # 15N @ 9.4 T ≈ 40.58 MHz (14N would be ~28.9 MHz)
+        self.assertAlmostEqual(x, 40.58, delta=0.01)
+        self.assertIsNone(y)
 
 
 
@@ -341,6 +376,75 @@ class TestNMRExportModule(unittest.TestCase):
         self.assertTrue(os.path.exists(out))
         self.assertTrue(os.path.exists(out + ".peaks.csv"))
 
+    def test_export_simpson_data_matches_contour_grid(self):
+        out = self._path("grid.spe")
+        export_contour_data(
+            self.nmr_data, out,
+            config=ExportConfig(grid_size=30, b0_field_tesla=9.4, include_peaks=False),
+        )
+        cd = self.nmr_data.get_contour_data(grid_size=30)
+        with open(out) as f:
+            lines = f.read().splitlines()
+        self.assertIn("NP=30", lines)
+        self.assertIn("NI=30", lines)
+        # The writer stores the grid in its own order (rows = indirect), unflipped
+        values = np.array([float(line.split()[0])
+                           for line in lines[lines.index("DATA") + 1:lines.index("END")]])
+        np.testing.assert_allclose(values.reshape(30, 30), cd.Z, rtol=1e-6, atol=1e-12)
+
+    def test_export_ssnake_json_data_matches_contour_grid(self):
+        out = self._path("grid.ssnake")
+        export_contour_data(
+            self.nmr_data, out,
+            config=ExportConfig(grid_size=30, b0_field_tesla=9.4, include_peaks=False),
+        )
+        cd = self.nmr_data.get_contour_data(grid_size=30)
+        with open(out) as f:
+            struct = json.load(f)
+        # Same unflipped grid as the SIMPSON writer, stored as one 2D slice
+        np.testing.assert_allclose(np.array(struct["dataReal"])[0], cd.Z, rtol=1e-12, atol=0)
+
+    def _assert_ssnake_axis_matches_grid(self, n, sw_hz, freq_hz, ref_hz, lims):
+        ppm = _ssnake_ppm_axis(n, sw_hz, freq_hz, ref_hz)
+        step = (lims[1] - lims[0]) / (n - 1)
+        np.testing.assert_allclose(ppm, np.linspace(lims[0], lims[1], n), rtol=0, atol=1e-6 * step)
+
+    def test_simpson_header_reconstructs_grid_axes_in_ssnake(self):
+        for n in (30, 31):  # even and odd grid sizes
+            with self.subTest(n=n):
+                out = self._path(f"axes_{n}.spe")
+                export_contour_data(
+                    self.nmr_data, out,
+                    config=ExportConfig(grid_size=n, b0_field_tesla=9.4, include_peaks=False),
+                )
+                cd = self.nmr_data.get_contour_data(grid_size=n)
+                h = _read_spe_header(out)
+                self._assert_ssnake_axis_matches_grid(
+                    n, h["SW"], h["SPECFREQ_x"] * 1e6, h["SPECREF_x"] * 1e6, cd.xlims,
+                )
+                self._assert_ssnake_axis_matches_grid(
+                    n, h["SW1"], h["SPECFREQ_y"] * 1e6, h["SPECREF_y"] * 1e6, cd.ylims,
+                )
+
+    def test_ssnake_json_axes_reconstruct_grid(self):
+        for n in (30, 31):  # even and odd grid sizes
+            with self.subTest(n=n):
+                out = self._path(f"axes_{n}.ssnake")
+                export_contour_data(
+                    self.nmr_data, out,
+                    config=ExportConfig(grid_size=n, b0_field_tesla=9.4, include_peaks=False),
+                )
+                cd = self.nmr_data.get_contour_data(grid_size=n)
+                with open(out) as f:
+                    struct = json.load(f)
+                # JSON lists are ordered [indirect (y), direct (x)]
+                self._assert_ssnake_axis_matches_grid(
+                    n, struct["sw"][1], struct["freq"][1], struct["ref"][1], cd.xlims,
+                )
+                self._assert_ssnake_axis_matches_grid(
+                    n, struct["sw"][0], struct["freq"][0], struct["ref"][0], cd.ylims,
+                )
+
     def test_export_config_spectrometer_freq_computes_larmor(self):
         """ExportConfig.spectrometer_freq_mhz should auto-compute Larmor freqs."""
         from soprano.calculate.nmr.export import ExportConfig
@@ -411,6 +515,9 @@ class TestBrukerExport(unittest.TestCase):
 
     def setUp(self):
         # ponytail: workaround for nmrglue numpy2 deprecation warning
+        catcher = warnings.catch_warnings()
+        catcher.__enter__()
+        self.addCleanup(catcher.__exit__, None, None, None)
         warnings.filterwarnings(
             "ignore",
             message="Data type alias 'a' was deprecated",
@@ -589,12 +696,11 @@ class TestBrukerExport(unittest.TestCase):
 
         # guess_udic must succeed (no fallback defaults) and give ppm axes
         # matching the simulated grid through the standard nmrglue workflow.
-        import warnings as _warnings
         full_dic, full_data = ng.bruker.read_pdata(
             os.path.join(out, "pdata", "1"), read_acqus=True
         )
-        with _warnings.catch_warnings():
-            _warnings.simplefilter("error")
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             udic = ng.bruker.guess_udic(full_dic, full_data)
         uc_x = ng.fileiobase.uc_from_udic(udic, dim=1)
         np.testing.assert_allclose(
@@ -655,6 +761,93 @@ class TestBrukerExport(unittest.TestCase):
             rows = list(csv.reader(f))
         self.assertEqual(rows[0], ["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
         self.assertGreater(len(rows), 1)
+
+    def test_bruker_both_axes_roundtrip_through_guess_udic(self):
+        """guess_udic + uc_from_udic must reproduce the grid on both dimensions.
+
+        Covers homonuclear H-H and heteronuclear H-C, where the indirect
+        dimension has its own Larmor frequency and therefore its own SFO1.
+        """
+        import nmrglue as ng
+        hetero = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="C",
+            references={"H": 29.5, "C": 170.0},
+            correlation_strength_metric="fixed",
+        )
+        for name, nmr in (("homonuclear", self.nmr_data), ("heteronuclear", hetero)):
+            with self.subTest(name):
+                out = self._path(f"bruker_axes_{name}")
+                export_contour_data(
+                    nmr, out, fmt="bruker",
+                    config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+                )
+                dic, data = ng.bruker.read_pdata(os.path.join(out, "pdata", "1"), read_acqus=True)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("error")
+                    udic = ng.bruker.guess_udic(dic, data)
+                cd = nmr.get_contour_data(grid_size=40)
+                # uc_from_udic dim 0 = indirect (y), dim 1 = direct (x)
+                y_limits = ng.fileiobase.uc_from_udic(udic, dim=0).ppm_limits()
+                x_limits = ng.fileiobase.uc_from_udic(udic, dim=1).ppm_limits()
+                np.testing.assert_allclose(y_limits, (cd.ylims[1], cd.ylims[0]), rtol=0, atol=1e-9)
+                np.testing.assert_allclose(x_limits, (cd.xlims[1], cd.xlims[0]), rtol=0, atol=1e-9)
+
+    def test_bruker_refuses_to_overwrite_existing_dataset(self):
+        import nmrglue as ng
+        out = self._path("bruker_overwrite")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        with self.assertRaisesRegex(FileExistsError, "overwrite"):
+            export_contour_data(
+                self.nmr_data, out, fmt="bruker",
+                config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+            )
+
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=30, b0_field_tesla=9.4, overwrite=True),
+        )
+        dic, _ = ng.bruker.read_pdata(os.path.join(out, "pdata", "1"))
+        self.assertEqual(dic["procs"]["SI"], 30)
+
+
+class TestBrukerIntegerScaling(unittest.TestCase):
+    def test_nc_proc_scales_max_into_int32_range(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        Z = np.array([[0.0, 3.0], [1.5, 0.25]])
+        k = -_bruker_nc_proc(Z)
+        self.assertTrue(2**28 <= 3.0 * 2**k < 2**29)
+
+    def test_rejects_nan_and_inf(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        for bad in (np.nan, np.inf):
+            with self.subTest(value=bad):
+                with self.assertRaises(ValueError):
+                    _bruker_nc_proc(np.array([[1.0, bad]]))
+
+    def test_rejects_all_zero_grid(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        with self.assertRaises(ValueError):
+            _bruker_nc_proc(np.zeros((3, 3)))
+
+    def test_rejects_intensities_too_small_to_store(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        with self.assertRaises(ValueError):
+            _bruker_nc_proc(np.array([[1e-12]]))
+
+    def test_rejects_int32_overflow(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        with self.assertRaises(ValueError):
+            _bruker_nc_proc(np.array([[2.0**32]]))
 
 
 if __name__ == "__main__":
