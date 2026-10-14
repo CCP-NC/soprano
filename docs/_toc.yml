@@ -18,6 +18,7 @@ sections:
   - file: tutorials/07-soprano-cli.ipynb
 - file: simpson-conventions
 - file: dipolar-averaging
+- file: chemical-shift-referencing
 - file: interactive
 - file: submitter
 - file: api

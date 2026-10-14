@@ -275,8 +275,10 @@ def write_spinsys(
                   calculation, used to convert to chemical shifts.
                   Format: {element: value} in ppm.
       gradients (float|dict|list): gradients for the chemical shift
-                  conversion. Defaults to -1.0 for all elements when
-                  references are provided.
+                  conversion, chosen per element. Elements with a gradient
+                  use the linear fit delta = ref + grad * sigma; elements
+                  without one use the full formula. Defaults to None, which
+                  uses the full formula for all elements.
       obs_nuc (str): specify the nucleus to be observed, e.g. '1H'.
       backend (str): backend to use. Options are 'spinsys' (default) or
                      'legacy'. The 'legacy' backend is deprecated and will

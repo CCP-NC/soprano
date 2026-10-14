@@ -17,6 +17,7 @@
 """Implementation of AtomsProperties that relate to NMR shieldings/shifts"""
 
 
+import logging
 import warnings
 
 import numpy as np
@@ -31,10 +32,13 @@ from soprano.nmr.utils import (
     _skew,
     _span,
     _get_tensor_array,
+    _warn_referencing_modes,
 )
 from soprano.properties import AtomsProperty
 
 DEFAULT_MS_TAG = "ms"
+
+logger = logging.getLogger(__name__)
 
 
 def _has_ms_check(f):
@@ -101,10 +105,12 @@ class MSTensor(AtomsProperty):
                     If None, no conversion is done and the outputs will be shieldings.
         gradients: list/dict/float/None
             Specification of the gradients for linear calibration.
-            Default is None, which uses the full NMR formula:
+            The mode is chosen per element. Elements with no gradient use the full NMR formula:
             delta = (reference - shielding) / (1 - reference * 1e-6).
-            When a value is provided, the simple linear form is used:
-            delta = reference + gradient * shielding.
+            Elements with a gradient m use the linear form:
+            delta = reference + m * shielding (no denominator).
+            Default is None, which uses the full formula for all elements.
+            See MSShift for the warnings emitted for partial or unusual gradients.
 
 
     Returns:
@@ -125,6 +131,7 @@ class MSTensor(AtomsProperty):
         elements = s.get_chemical_symbols()
         reference_list = _references_to_list(references, elements)
         gradient_list = _gradients_to_list(gradients, elements)
+        _warn_referencing_modes(elements, reference_list, gradient_list, gradients)
 
         if gradient_list is None:
             # Full NMR formula: pass None for gradient
@@ -239,43 +246,46 @@ class MSShift(AtomsProperty):
     Produces an array containing the chemical shifts (ppm).
     References must be provided for the chemical shifts to be calculated.
 
-    Two referencing modes are supported, selected by the *gradients* parameter:
+    Two referencing modes exist, and the mode is chosen per element:
 
-    **Full NMR formula (default, gradients=None)**
+    **Full NMR formula (element has no gradient)**
       The rigorous conversion accounting for the ppm scale definition:
 
       .. math::
           \\delta = \\frac{\\sigma_{ref} - \\sigma}{1 - \\sigma_{ref} \\times 10^{-6}}
 
-      This is the correct expression when ``gradients`` is omitted or *None*.
-      The denominator arises because ppm is a frequency ratio, not a linear
-      offset.  For typical solid-state NMR references (|σ_ref| ≲ 500 ppm) the
-      correction is < 0.05 % and is often ignored in practice, but the full
-      formula is kept as the default for strict correctness.
+      Use this with a single reference compound. The denominator arises because
+      ppm is a frequency ratio, not a linear offset.
 
-    **Linear calibration (gradients provided)**
-      A simple linear model used when an explicit slope is supplied (e.g. from
-      a calibration line):
+    **Linear fit (element has a gradient m)**
+      A linear model, with slope *m* and intercept σ_ref taken from a calibration
+      plot of computed shieldings against experimental shifts:
 
       .. math::
           \\delta = \\sigma_{ref} + m \\cdot \\sigma
 
-      where *m* is the user-supplied gradient.  This mode is selected whenever
-      ``gradients`` is not *None*.
+      There is no denominator in this form.
 
-      .. warning::
-          When the linear form is used and |σ_ref| > 500 ppm, a warning is
-          emitted because the neglected denominator correction exceeds
-          ~0.05 %.  For |σ_ref| ≈ 1000 ppm the error is ≈ 0.1 %.
+    Rules:
+
+    * ``gradients=None`` or ``{}`` uses the full formula for every element.
+    * A partial dict, e.g. ``references={'H': 31, 'C': 170}`` with
+      ``gradients={'C': -0.98}``, uses the linear fit for C and the full formula
+      for H. A ``UserWarning`` names the elements that fall back to the full
+      formula.
+    * A gradient of exactly -1 is still the linear form (δ = σ_ref − σ). A
+      ``UserWarning`` is emitted, because this is usually a leftover of the old
+      default. Omit the gradient to use the full formula.
+    * Gradients outside [-1.5, -0.5] emit a ``UserWarning``.
+    * One INFO message per call reports the mode used for each element.
 
     Parameters
     ----------
     references : list/float/dict
         Reference shielding per element (ppm). Must be provided.
     gradients : float/list/dict or None, optional
-        Slope for the linear calibration model.  If *None* (default), the full
-        NMR formula is used with an implicit slope of –1.  If a value is
-        supplied, the simple linear form above is used instead.
+        Gradients per element for the linear fit, as described above. If *None*
+        (default), or an empty dict, the full formula is used for every element.
     save_array : bool, optional
         If True, save the ``ms_shift`` array on the Atoms object. Default True.
     tag : str, optional
@@ -314,38 +324,25 @@ class MSShift(AtomsProperty):
         # --- REFERENCES and GRADIENTS --- #
         reference_list = _references_to_list(references, symbols)
         gradients_list = _gradients_to_list(gradients, symbols)
+        _warn_referencing_modes(symbols, reference_list, gradients_list, gradients)
 
         # convert to numpy arrays
         references_list = np.array(reference_list)
 
-        # Decide which formula branch to use
-        if gradients_list is None:
-            # Full NMR formula with implicit gradient = -1
-            ms_shifts = (references_list - ms_shieldings) / (1 - references_list * 1e-6)
-        else:
-            # Linear calibration: δ = reference + gradient * sigma
-            gradients_list = np.array(gradients_list)
+        # Full NMR formula for every site, then linear fit where a gradient is given
+        ms_shifts = (references_list - ms_shieldings) / (1 - references_list * 1e-6)
+        if gradients_list is not None:
+            has_gradient = np.array([grad is not None for grad in gradients_list])
+            gradients_arr = np.array([np.nan if grad is None else grad for grad in gradients_list], dtype=float)
+            linear_shifts = references_list + gradients_arr * ms_shieldings
+            ms_shifts = np.where(has_gradient, linear_shifts, ms_shifts)
 
-            # Warn if any gradient is outside the typical -1.5 to -0.5 range
-            if np.any(gradients_list < -1.5) or np.any(gradients_list > -0.5):
-                warnings.warn(
-                    "Gradients are outside the range: -1.5 to -0.5.\n"
-                    "That's a surprising value! Please double check the gradients.\n"
-                    f"You provided: {gradients}"
-                )
-
-            # Warn if |reference| > 500 ppm because the neglected denominator
-            # correction becomes significant (> 0.05 %)
-            if np.any(np.abs(references_list) > 500):
-                max_ref = np.max(np.abs(references_list))
-                correction_pct = (1 / (1 - max_ref * 1e-6) - 1) * 100
-                warnings.warn(
-                    f"Linear calibration used with |reference| = {max_ref:.1f} ppm. "
-                    f"The neglected denominator correction is ≈ {correction_pct:.3f} %. "
-                    "Use gradients=None (default) to include the full NMR formula."
-                )
-
-            ms_shifts = references_list + gradients_list * ms_shieldings
+        gradient_by_element = dict(zip(symbols, gradients_list or [None] * len(symbols)))
+        modes = [
+            f"{el}=full formula" if grad is None else f"{el}=linear fit (m={grad:g})"
+            for el, grad in gradient_by_element.items()
+        ]
+        logger.info("Chemical shift referencing: %s", ", ".join(modes))
 
         if save_array:
             # Save the isotropic shifts
@@ -364,7 +361,7 @@ class MSShift(AtomsProperty):
           weights (array-like or None): Weights for each structure. Default is None.
           **kwParameters: references and gradients parameters for the MSShift calculation. 
                     For example,
-                    references={'C': 100.0, 'H': 200.0} and gradients=-1.0.
+                    references={'C': 100.0, 'H': 200.0} and gradients={'C': -0.98}.
 
         Returns:
           ms_shift_mean (np.ndarray): The mean of the MSShift property.
@@ -389,7 +386,7 @@ class MSIsotropy(AtomsProperty):
     | Parameters:
     |   references (float/dict): reference frequency per element. If provided, the chemical shift
     |                will be returned instead of the magnetic shielding.
-    |   gradients float/list/dict: usually around -1. 
+    |   gradients float/list/dict: linear-fit slope per element (usually around -1). Elements without one use the full formula. See MSShift. 
     |   save_array (bool): if True, save the diagonalised tensors in the
     |                      Atoms object as an array. By default True.
     |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.

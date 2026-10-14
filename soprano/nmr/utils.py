@@ -17,6 +17,7 @@
 """Utility functions for NMR-related properties  
 """
 
+import numbers
 import re
 import warnings
 from typing import Union, Optional
@@ -202,7 +203,7 @@ def _J_constant(Kij, gi, gj) -> FloatOrArray:
     Returns J in Hz:  J = h · γ_i · γ_j · K_ij / (4π²).
 
     The trailing ``1e19`` converts the reduced coupling constant K_ij from its
-    tabulated/stored unit of ``10^19 T² J⁻¹`` (= ``10^19 kg⁻¹ m⁻² s²``) to SI
+    tabulated/stored unit of ``10^19 T² J⁻¹`` (= ``10^19 kg m⁻² s⁻² A⁻²``) to SI
     (T² J⁻¹).  With γ in rad s⁻¹ T⁻¹ and h in J s the product is dimensionless
     of s⁻¹, i.e. Hz.
     """
@@ -698,30 +699,34 @@ def _get_tensor_array(s, tensor_tag):
     
     
 
-def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], elements: list[str]) -> list[float]:
+def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], elements: list[str]) -> Optional[list[Optional[float]]]:
     """
     Convert gradients input to a list with one value per element in elements.
 
+    Elements without a gradient get None, which selects the full NMR formula for that site.
+    An empty dictionary is the same as None.
+
     Parameters:
-    gradients (Union[float, dict[str, float], list[float]]): The gradients input, which can be a float, a dictionary, or a list.
+    gradients (Union[float, dict[str, float], list[float]]): The gradients input, which can be a number, a dictionary, or a list.
     elements (list[str]): The list of elements.
 
     Returns:
-    Optional[list[Optional[float]]]: A list of gradients corresponding to the elements, or None if gradients is None.
+    Optional[list[Optional[float]]]: A list of gradients corresponding to the elements, or None if gradients is None or empty.
 
     Raises:
-    ValueError: If the gradients input is not a float, dictionary, or list, or if the length of the gradients list does not match the length of elements.
+    ValueError: If the gradients input is not a number, dictionary, or list, or if the length of the gradients list does not match the length of elements.
     """
     if gradients is None:
         return None
-    DEFAULT_GRADIENT = -1.0
-    if isinstance(gradients, float):
-        return [gradients] * len(elements)
+    if isinstance(gradients, numbers.Real) and not isinstance(gradients, bool):
+        return [float(gradients)] * len(elements)
     elif isinstance(gradients, dict):
-        return [gradients.get(el, DEFAULT_GRADIENT) for el in elements]
+        if not gradients:
+            return None
+        return [None if gradients.get(el) is None else float(gradients[el]) for el in elements]
     elif isinstance(gradients, list):
         if len(gradients) == len(elements):
-            return gradients
+            return [None if g is None else float(g) for g in gradients]
         else:
             raise ValueError(
                 "Mismatch between number of sites and number of gradients given."
@@ -729,6 +734,44 @@ def _gradients_to_list(gradients: Union[float, dict[str, float], list[float]], e
     else:
         raise ValueError(
             "gradients must be either None, a float, a dictionary, or a list of gradients"
+        )
+
+def _warn_referencing_modes(elements: list[str], references_list: list, gradients_list: Optional[list[Optional[float]]], gradients) -> None:
+    """
+    Warn about chemical shift referencing choices that are easy to get wrong.
+
+    Parameters:
+    elements (list[str]): The element of each site.
+    references_list (list): The reference of each site (None where there is no reference).
+    gradients_list (Optional[list[Optional[float]]]): The gradient of each site, as given by _gradients_to_list.
+    gradients: The gradients input as given by the user, used in messages.
+    """
+    if gradients_list is None:
+        return
+
+    fallback = [el for el, ref, grad in zip(elements, references_list, gradients_list) if ref is not None and grad is None]
+    if fallback:
+        warnings.warn(
+            f"No gradient given for {', '.join(dict.fromkeys(fallback))}: these use the full NMR formula, "
+            "while elements with a gradient use the linear fit. Give a gradient for every element "
+            "to use the linear fit everywhere, or omit gradients to use the full formula everywhere."
+        )
+
+    exact = [el for el, ref, grad in zip(elements, references_list, gradients_list)
+             if ref is not None and grad is not None and np.isclose(grad, -1.0, atol=0, rtol=0)]
+    if exact:
+        warnings.warn(
+            f"A gradient of exactly -1 for {', '.join(dict.fromkeys(exact))} uses the linear form "
+            "δ = σ_ref − σ without the (1 − σ_ref·10⁻⁶) denominator. "
+            "Omit the gradient to use the full formula."
+        )
+
+    given = [grad for grad in gradients_list if grad is not None]
+    if any(grad < -1.5 or grad > -0.5 for grad in given):
+        warnings.warn(
+            "Gradients are outside the range: -1.5 to -0.5.\n"
+            "That's a surprising value! Please double check the gradients.\n"
+            f"You provided: {gradients}"
         )
 
 def _references_to_list(references: Union[None, dict[str, float], list[float]], elements: list[str]) -> list[Union[float, None]]:

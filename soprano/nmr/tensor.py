@@ -1156,16 +1156,18 @@ class MagneticShielding(NMRTensor):
 
         Create an MSTensor object from a 3x3 matrix.
 
-        Two referencing modes are supported:
+        Two referencing modes are supported, chosen per tensor by ``gradient``:
 
-        **Full NMR formula (default, gradient=None)**
+        **Full NMR formula (gradient=None, the default)**
           The rigorous conversion accounting for the ppm scale definition:
           ``δ = (ref - σ) / (1 - ref×10⁻⁶)``
-          This is used when ``gradient`` is *None* (default).
 
-        **Linear calibration (gradient provided)**
-          A simple linear model: ``δ = ref + grad·σ``
-          Selected when an explicit ``gradient`` is supplied.
+        **Linear fit (gradient provided)**
+          A linear model with no denominator: ``δ = ref + grad·σ``.
+          Selected when an explicit ``gradient`` is supplied, including -1.
+
+        When used through MSTensor, the mode is chosen per element, so one
+        system can mix both modes.
 
         Arguments:
             species (str):      Element or isotope symbol of the atom the tensor refers to. e.g 'H', 'C', '13C'
@@ -1179,7 +1181,7 @@ class MagneticShielding(NMRTensor):
             reference (float):  Reference chemical shift for the tensor. If set,
                                 the isotropic chemical shift can be calculated.
                                 Defaults to None.
-            gradient (float or None):   Gradient for the magnetic shielding to shift conversion.
+            gradient (float or None):   Slope for the linear fit from magnetic shielding to shift.
                                 Defaults to None, which uses the full NMR formula.
             tag (str):          Optional tag to identify the tensor. In a magres file, this would be the
                                 'ms_sometag' though for most magres file ms is not decomposed into contributions and the tag
@@ -1415,7 +1417,7 @@ class MagneticShielding(NMRTensor):
 
         * ``gradient is None`` → full NMR formula
           ``δ = (ref - σ) / (1 - ref×10⁻⁶)``
-        * ``gradient is not None`` → linear calibration
+        * ``gradient is not None`` → linear fit
           ``δ = ref + grad·σ``
 
         Args:
@@ -1428,7 +1430,6 @@ class MagneticShielding(NMRTensor):
         """
         eigenvalues = np.array(eigenvalues)
         if gradient is None:
-            # Full NMR formula with implicit gradient = -1
             shift_eigenvalues = (reference - eigenvalues) / (1 - reference * 1e-6)
         else:
             # Linear calibration
@@ -1583,8 +1584,8 @@ class MagneticShielding(NMRTensor):
         ----------
         gradient : float or None
             If *None* (default), the full NMR formula is used.
-            If a float is given, the simple linear model
-            ``δ = reference + gradient·σ`` is used instead.
+            If a number is given, the linear fit ``δ = reference + gradient·σ``
+            is used instead.
         '''
         self.gradient = gradient
 
