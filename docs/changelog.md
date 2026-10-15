@@ -67,18 +67,13 @@ All notable changes to Soprano are documented here.
   `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
   so MHz spectra were broadened by the wrong amount. The `min_freq` and `max_freq` docstrings are
   also corrected, and the default for `bins` is now 100 as documented.
-- **`NMRCalculator.spectrum_1d` window and defaults.** (a) A new `NMRCalculator` uses a powder
-  average by default (`set_powder(N=8)`, hemisphere). Before, `spectrum_1d` raised
-  `AttributeError` for isotropic spectra unless `set_powder()` or `set_single_crystal()` had been
-  called first. (b) With a reference set, `min_freq` and `max_freq` are now a chemical-shift window,
-  in the same units and scale as the returned axis. Before, they were applied to the shielding
-  axis, so the window was reflected about the reference. To get the same spectrum, pass
-  `ref - max_shielding` and `ref - min_shielding` as the window. The returned axis still runs from
-  `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
-  so MHz spectra were broadened by the wrong amount. The `min_freq` and `max_freq` docstrings are
-  also corrected, and the default for `bins` is now 100 as documented.
 
 ### Fixes
+
+- **`NMRCalculator.spectrum_1d` with `freq_units='MHz'` for negative-gamma nuclei** (e.g. ¹⁷O)
+  returned an empty spectrum, because the powder average needs an ascending axis and the MHz axis
+  is descending. The spectrum is now computed on an ascending axis and returned in the requested
+  order.
 
 - **`AtomsProperty.get` honours instance parameters when called on an instance.**
   `EFGQuadrupolarConstant(isotopes={'H': 2}).get(atoms)` used to ignore the isotopes and return

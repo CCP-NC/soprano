@@ -567,12 +567,15 @@ class NMRCalculator:
         if use_reference is None:
             use_reference = ref != 0.0
 
-        # Shielding axis (ppm) at each requested point. The POWDER average
-        # needs an ascending axis, so compute on the reversed one and put the
-        # result back in the requested order at the end.
+        # Shielding axis (ppm) at each requested point. It is descending for
+        # negative gamma or with a reference, but the POWDER average needs an
+        # ascending one, so compute on the sorted axis and put the result back
+        # in the requested order at the end.
         freq_axis = out_freq * scale
         if use_reference:
-            freq_axis = (ref - freq_axis)[::-1]
+            freq_axis = ref - freq_axis
+        order = np.argsort(freq_axis)
+        freq_axis = freq_axis[order]
         fc = (freq_axis[0] + freq_axis[-1]) / 2.0
 
         # Let's start with peak positions - quantities non dependent on
@@ -725,9 +728,9 @@ class NMRCalculator:
         else:
             spec *= len(a_inds) * len(spec) / normsum
 
-        if use_reference:
-            spec = spec[::-1]
-        return spec, out_freq
+        spec_out = np.empty_like(spec)
+        spec_out[order] = spec
+        return spec_out, out_freq
 
     def dq_buildup(
         self,

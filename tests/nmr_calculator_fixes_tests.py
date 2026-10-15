@@ -121,5 +121,36 @@ class SpectrumDefaultsTestCase(unittest.TestCase):
         np.testing.assert_allclose(spec_mhz, spec_ppm, rtol=1e-6, atol=1e-9)
 
 
+class NegativeGammaTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+
+    def setUp(self):
+        self.calc = NMRCalculator(self.eth)
+        self.calc.set_element_isotope("O", 17)
+
+    def test_mhz_matches_ppm_for_negative_gamma(self):
+        larm = self.calc.get_larmor_frequency("17O")
+        self.assertLess(larm, 0)
+        u = 1e6 / larm
+        half = 2000 / abs(u)
+        spec_mhz, freq_mhz = self.calc.spectrum_1d(
+            "O", min_freq=-half, max_freq=half, bins=401,
+            freq_broad=20.0 / abs(u), freq_units="MHz",
+            effects=NMRFlags.Q_1_ORIENT,
+        )
+        spec_ppm, freq_ppm = self.calc.spectrum_1d(
+            "O", min_freq=-half * u, max_freq=half * u, bins=401,
+            freq_broad=20.0, freq_units="ppm",
+            effects=NMRFlags.Q_1_ORIENT,
+        )
+        self.assertTrue(np.all(np.diff(freq_mhz) > 0))
+        self.assertGreater(spec_mhz.max(), 0)
+        np.testing.assert_allclose(freq_mhz * u, freq_ppm)
+        np.testing.assert_allclose(spec_mhz, spec_ppm, rtol=1e-6, atol=1e-9)
+
+
 if __name__ == "__main__":
     unittest.main()
