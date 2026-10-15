@@ -97,6 +97,11 @@ class SiteMap:
         arr.setflags(write=False)
         object.__setattr__(self, "to_sites", arr)
 
+    def __reduce__(self):
+        # Rebuild through __init__ so that to_sites is frozen again. numpy does
+        # not keep the read-only flag through pickle in every release.
+        return (SiteMap, (self.to_sites, self.n_sites))
+
     # ------------------------------------------------------------------
     # Construction
     # ------------------------------------------------------------------

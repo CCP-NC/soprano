@@ -75,6 +75,7 @@ All notable changes to Soprano are documented here.
 - `soprano spinsys --average-group` took couplings from the merged structure, so a collapsed CH₃
   got the first hydrogen's static coupling. Couplings are now averaged over the group in the source
   structure (see {doc}`dipolar-averaging`).
+- `SiteMap` keeps its read-only array through pickle on every numpy release.
 - `nmr_extract_multi` no longer stops at the first unreadable file, and no longer crashes when
   `include` is left at its default.
 - `soprano.nmr.extract` no longer imports from `soprano.scripts`. The dataframe helpers live in
