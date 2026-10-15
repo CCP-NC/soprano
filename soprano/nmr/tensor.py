@@ -515,6 +515,15 @@ class NMRTensor(NDArrayOperatorsMixin):
         and the result is made a proper rotation. ``euler_to`` returns the Euler angles of
         this rotation.
         '''
+        self._warn_if_mixed_order(other)
+        return self._relative_rotation(other)
+
+    def _warn_if_mixed_order(self, other):
+        if type(self) is type(other) and self.order != other.order:
+            warnings.warn(f"Computing relative orientation of tensors with different ordering conventions: "
+                          f"{self.order} and {other.order}. The relative angles depend on the eigenvalue order.")
+
+    def _relative_rotation(self, other):
         R1 = self.eigenvectors
         R2 = other.eigenvectors
         R = np.linalg.inv(R1) @ R2
@@ -560,6 +569,7 @@ class NMRTensor(NDArrayOperatorsMixin):
         180 deg - g)``, as TensorView displays it). Identical or perfectly aligned tensors
         return zeros with a warning.
         '''
+        self._warn_if_mixed_order(other)
         convention = convention.lower()
         # first make sure they're not the same!
         if np.allclose(self.eigenvalues, other.eigenvalues):
@@ -623,9 +633,9 @@ class NMRTensor(NDArrayOperatorsMixin):
         if other.degeneracy == 2 and self.degeneracy != 2:
             # then let's swap them around, then transpose the result
             # TODO: test this!
-            R = other.rotation_to(self).T
+            R = other._relative_rotation(self).T
         else:
-            R = self.rotation_to(other)
+            R = self._relative_rotation(other)
         # Decompose the relative rotation ``rel = R_selfᵀ · R_other`` directly.
         # The *active* angles (passive=False) then satisfy
         # ``R_other = R_self · R(α,β,γ)`` — the intrinsic rotation carrying this
