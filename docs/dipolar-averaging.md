@@ -164,13 +164,76 @@ Other weighting metrics (`distance`, `jcoupling`, `dipolar_rss`) keep the
 multiplicity-weighted arithmetic mean, since tensor averaging has no meaning
 for them; `dipolar_rss` already sums over all group members by construction.
 
-One path is deliberately left alone. When a structure is *merged* during
-extraction (`--average-group` in `soprano nmr`), the merged site keeps the
-position of its first hydrogen, and any pair quantity computed downstream from
-that merged structure inherits the single-hydrogen error described above.
-Merging is inherently lossy for pair properties; the fix is not to patch the
-merged structure but to compute dipolar quantities against the source
-structure, which is what the 2D pipeline does through its site map.
+### Spin-system export
+
+`soprano spinsys --average-group CH3` follows the same rule. The shielding and
+EFG tensors of a group are the mean of its member tensors, and its couplings to
+every other site are the pair tensors averaged over the group's members in the
+*source* structure (`averaged_dipolar_coupling_list` and
+`averaged_j_coupling_list`), never read off a structure with the group merged
+away. Symmetry copies of an ordinary site are not averaged over, since no motion
+exchanges them. For a methyl and its own carbon this gives the expected residual
+of $P_2(\cos 109.5°) = -\tfrac{1}{3}$ times the static C-H coupling, with the
+sign reversed, where the first hydrogen alone would give the full static value.
+
+There are two ways to turn a group into spins.
+
+**Expanded** (the default whenever `--dip` or `--jcoupling` is given). Each
+atom of the group stays a spin. All three hydrogens of a methyl get the same
+group-mean shielding and EFG (what a three-site hop produces), keep their own
+labels, and couple to every other spin through the group-averaged tensor. Spins
+in the same group couple to each other through the intra-group average: about
+$+10.8$ kHz for the methyl in the ethanol test structure. This is the faithful
+representation. Three coupled spin-½ nuclei have the A₃ spin-state structure
+that one spin cannot reproduce, which matters for ¹H line shapes, spin
+diffusion, homonuclear recoupling and coupled ¹³C multiplets. The cost is a
+larger spin system. With symmetry reduction, one physical group stands for each
+class of equivalent groups, and `multiplicity` is the number of groups in the
+class.
+
+**Collapsed** (the default without couplings; `--collapse-group` forces it).
+The group is one spin. For per-site shifts and tensors this loses nothing, and
+it avoids writing the same site three times, which is why it is the default
+there. With couplings it is an approximation (see below).
+
+```python
+merged, site_sets = nmr_extract_atoms(
+    atoms, average_group="CH3", expand_groups=True, return_site_sets=True
+)
+couplings = averaged_dipolar_coupling_list(atoms, site_sets)
+```
+
+Collapsing a group that carries couplings loses three things:
+
+- **Couplings inside a group are dropped.** A collapsed CH₃ is one spin, so the
+  intra-methyl H-H term (the $+10.8$ kHz residual above) is absent. That does not
+  matter for ¹³C- or ¹⁵N-detected simulations with ¹H decoupling, but it does for
+  ¹H line shapes, spin diffusion or homonuclear recoupling.
+- **The second moment is short by the group size.** A collapsed A$_n$ spin
+  coupled to X carries $\bar d^2$ where the $n$ real spins carry $n\bar d^2$.
+  Scaling the constant by $\sqrt{n}$ would restore the second moment, but not the
+  line shape or the REDOR-type dephasing curve, so Soprano does not do it.
+- **The averaged tensor is generally not axial.** This one applies to both
+  modes. SIMPSON's `dipole` and mrsimulator's `dipolar` take one constant, so the
+  writers keep the largest-magnitude eigenvalue and drop the asymmetry. The
+  command warns when that is more than 1%.
+
+### What is averaged, and what is not
+
+The rule is the fast three-site jump average: the lab-frame mean of the member
+tensors, with the central atom left alone.
+
+- Each hydrogen visits all three sites, and the three sites have equal energy,
+  so the mean is exact for a hop and nothing needs to be projected onto the C₃
+  axis. If the crystal field breaks C₃ symmetry the mean is genuinely
+  non-axial, and that is physical.
+- The methyl carbon, or the nitrogen of an NH₃⁺, is unchanged by a hop (the
+  configuration maps onto itself), so its static tensor already is the hopped
+  average. Soprano does not average it.
+- Each physical group is averaged on its own. Symmetry-equivalent methyls share
+  a site only afterwards, by taking the first copy (or the mean, with
+  `--mean-merge`). Averaging the lab-frame tensors of differently oriented
+  methyls together would not be a C₃ average.
 
 ## Caveats
 

@@ -58,9 +58,23 @@ All notable changes to Soprano are documented here.
 
 #### NMR extraction and CLI
 
+- New `--expand-group/--collapse-group` for `soprano spinsys`. An expanded group keeps each atom
+  as a spin with the group-mean tensors and the couplings inside the group. It is the default when
+  `--dip` or `--jcoupling` is given, and groups collapse otherwise. New functions
+  `averaged_dipolar_coupling_list` and `averaged_j_coupling_list`, and the `return_site_sets` and
+  `expand_groups` arguments of `nmr_extract_atoms`, support it.
+
 - `EFG_Vzz` in `soprano nmr` output was wrong by a large factor; it is now in V m⁻²
   (ethanol O: −1.81 × 10²² V m⁻²). `EFG_quadrupolar_constant` was not affected.
 - `soprano nmr --mean-merge` is available again.
+- `--average-group` averaged symmetry-equivalent methyl groups together, because groups were
+  matched by tag. Tensors from groups in different orientations were mixed, which distorted the
+  anisotropy and Euler angles. Each group is now averaged on its own and equivalent groups merge
+  afterwards. Output changes for structures with symmetry-equivalent methyls. `--mean-merge` still
+  pools them.
+- `soprano spinsys --average-group` took couplings from the merged structure, so a collapsed CH₃
+  got the first hydrogen's static coupling. Couplings are now averaged over the group in the source
+  structure (see {doc}`dipolar-averaging`).
 - `nmr_extract_multi` no longer stops at the first unreadable file, and no longer crashes when
   `include` is left at its default.
 - `soprano.nmr.extract` no longer imports from `soprano.scripts`. The dataframe helpers live in

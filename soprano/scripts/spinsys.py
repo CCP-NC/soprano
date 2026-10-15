@@ -38,13 +38,61 @@ from ase.io import read
 from soprano.data.nmr import _get_nmr_data
 from soprano.nmr.extract import nmr_extract_atoms
 from soprano.nmr.spin_system import SpinSystem
-from soprano.properties.nmr import get_spin_system
+from soprano.properties.nmr import (
+    averaged_dipolar_coupling_list,
+    averaged_j_coupling_list,
+    get_spin_system,
+)
+from soprano.selection import AtomSelection
 from soprano.scripts.cli_utils import SPINSYS_OPTIONS, add_options, viewimages
 
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger("cli")
 click_log.basic_config(logger)
+
+
+def _with_averaged_couplings(
+    spin_system, source, site_sets, merged, isotopes, selection_i, selection_j,
+    include_dip, include_j, expanded,
+):
+    """Add couplings averaged over each functional group's motion.
+
+    The averaging runs over the group's atoms in the source structure, so it
+    does not depend on which atom survived the merge.
+    """
+    sel_i = sel_j = None
+    if selection_i:
+        sel_i = AtomSelection.from_input(merged, selection_i).indices
+    if selection_j:
+        sel_j = AtomSelection.from_input(merged, selection_j).indices
+    couplings = []
+    if include_dip:
+        couplings += averaged_dipolar_coupling_list(
+            source, site_sets, isotopes=isotopes, sel_i=sel_i, sel_j=sel_j
+        )
+        n_nonaxial = sum(1 for c in couplings if abs(c.tensor.asymmetry) > 0.01)
+        if n_nonaxial:
+            logger.warning(
+                f"{n_nonaxial} averaged dipolar tensors are not axial; the exported "
+                "single constant keeps only the largest eigenvalue and drops the "
+                "asymmetry."
+            )
+    if include_j:
+        couplings += averaged_j_coupling_list(
+            source, site_sets, isotopes=isotopes, sel_i=sel_i, sel_j=sel_j
+        )
+    if not expanded and max(len(s) for s in site_sets) > 1:
+        logger.warning(
+            "Averaged groups are exported as single spins with couplings averaged "
+            "over the group's motion (fast-exchange limit). Couplings inside a "
+            "group are dropped, and a collapsed A_n spin carries 1/n of the "
+            "second moment that the n real spins would. Use --expand-group to "
+            "keep the spins."
+        )
+    return SpinSystem(
+        sites=spin_system.sites, couplings=list(spin_system.couplings) + couplings
+    )
 
 
 @click.command()
@@ -57,6 +105,7 @@ def spinsys(
     observed_nucleus,
     subset,
     average_group,
+    expand_group,
     reduce,
     mean_merge,
     split,
@@ -126,8 +175,14 @@ def spinsys(
         )
         return
 
+    # An averaged group is expanded into its spins when couplings are exported
+    if expand_group is None:
+        expand_group = bool(average_group) and (include_dip or include_j)
+        if expand_group:
+            logger.info("Expanding averaged groups into spins (couplings exported)")
+
     # Extract the spin system
-    spinsys_atoms = nmr_extract_atoms(
+    spinsys_atoms, site_sets = nmr_extract_atoms(
         atoms,
         subset=subset,
         reduce=reduce,
@@ -135,7 +190,14 @@ def spinsys(
         symprec=symprec,
         mean_merge=mean_merge,
         logger=logger,
+        return_site_sets=True,
+        expand_groups=expand_group,
     )
+    if spinsys_atoms is None:
+        return
+    # Averaged groups collapse to one site, so couplings must be averaged
+    # over the group in the source structure, not read off the merged one.
+    average_couplings = bool(average_group) and (include_dip or include_j)
 
     # 
     coupling_kwargs = {
@@ -177,8 +239,8 @@ def spinsys(
         spinsys_atoms,
         include_shielding=include_ms,
         include_efg=include_efg,
-        include_dipolar=include_dip,
-        include_j=include_j,
+        include_dipolar=include_dip and not average_couplings,
+        include_j=include_j and not average_couplings,
         isotopes=isotopes_dict,
         references=references,
         gradients=gradients,
@@ -186,6 +248,12 @@ def spinsys(
         ms_tag=ms_tag,
         efg_tag=efg_tag,
     )
+
+    if average_couplings:
+        spin_system = _with_averaged_couplings(
+            spin_system, atoms, site_sets, spinsys_atoms, isotopes_dict,
+            selection_i, selection_j, include_dip, include_j, expand_group,
+        )
 
     # Process the angles option
     if include_angles == 'all':

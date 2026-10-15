@@ -309,6 +309,20 @@ average_group = click.option(
     "You can specify several, comma separated as in ``-g CH3,CH2,NH2``. "
     "If not specified, no averaging is performed.",
 )
+expand_group = click.option(
+    "--expand-group/--collapse-group",
+    "expand_group",
+    default=None,
+    help="How to export an ``--average-group`` group. Expanded: every atom stays its "
+    "own spin, with the group-mean shielding and EFG, and the couplings (including "
+    "those inside the group, e.g. the intra-methyl H-H term) are averaged over the "
+    "group's motion. Collapsed: one spin per group. Expanding is the faithful "
+    "representation whenever couplings are exported, since a collapsed A3 spin cannot "
+    "carry the intra-group coupling or the right second moment; collapsing is exact "
+    "for per-site shifts and tensors, where it avoids duplicate sites. "
+    "Defaults to expand when ``--dip`` or ``--jcoupling`` is given, collapse otherwise. "
+    "The expanded spin system has more spins, so it is slower to simulate.",
+)
 
 # optional argument for the precision of the output
 precision = click.option(
@@ -1120,6 +1134,7 @@ SPINSYS_OPTIONS = [
     observed_nucleus,
     isotopes,
     average_group,
+    expand_group,
     reduce,
     mean_merge,
     references,

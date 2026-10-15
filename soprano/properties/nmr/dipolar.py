@@ -256,6 +256,99 @@ def averaged_dipolar_coupling(
     return float(d_eff), D_avg
 
 
+def _site_species_and_pairs(atoms, site_sets, isotopes, isotope_list, sel_i, sel_j):
+    """Species string per site, and the sorted unique site pairs to couple.
+
+    Each site must stand for atoms of a single element and isotope.
+    """
+    n_sites = len(site_sets)
+    sel_i = list(range(n_sites)) if sel_i is None else [int(i) for i in sel_i]
+    sel_j = sel_i if sel_j is None else [int(j) for j in sel_j]
+
+    elements = atoms.get_chemical_symbols()
+    iso_list = _get_isotope_list(elements, isotopes, isotope_list)
+    species = []
+    for k, atom_set in enumerate(site_sets):
+        els = {elements[a] for a in atom_set}
+        isos = {iso_list[a] for a in atom_set}
+        if len(els) != 1 or len(isos) != 1:
+            raise ValueError(f"site {k} mixes isotopes or elements: {sorted(els)}")
+        species.append(f"{isos.pop()}{els.pop()}")
+
+    pairs = sorted({tuple(sorted((i, j))) for i in sel_i for j in sel_j if i != j})
+    return species, pairs
+
+
+def averaged_dipolar_coupling_list(
+    atoms,
+    site_sets,
+    isotopes=None,
+    isotope_list=None,
+    sel_i=None,
+    sel_j=None,
+    isonuclear=False,
+):
+    """Motionally averaged dipolar couplings between spin-system sites.
+
+    Each site stands for one or more atoms of ``atoms`` (e.g. the three
+    hydrogens of a methyl group collapsed into one site).  The coupling of two
+    sites is the average of the static pair tensors over every pair of
+    their atoms (see :func:`averaged_dipolar_coupling`), evaluated in the
+    structure the atoms come from rather than in a structure with the group
+    merged away.  A group collapsed to one site therefore has no coupling to
+    itself; if several sites share the same atoms, they couple through the
+    intra-group average.
+
+    The returned couplings hold the full averaged tensor.  Writers that take
+    a single axial constant (SIMPSON ``dipole``, mrsimulator ``dipolar``)
+    use the largest-magnitude eigenvalue and drop the asymmetry; check
+    ``coupling.tensor.asymmetry`` if that matters.
+
+    Parameters:
+      atoms (ase.Atoms): the structure the site sets index.
+      site_sets (list[list[int]]): for each site, the atom indices it
+                                   stands for.  All must be one element.
+      isotopes (dict): isotopes by element symbol.
+      isotope_list (list): per-atom isotope list.
+      sel_i (list[int]): site indices for the first side of each pair.
+                         Default is all sites.
+      sel_j (list[int]): site indices for the second side.  Default is
+                         the same as ``sel_i``.
+      isonuclear (bool): only couple sites of the same element.
+
+    Returns:
+      list of :class:`soprano.nmr.coupling.DipolarCoupling`, with
+      ``site_i < site_j`` indexing ``site_sets``.
+    """
+    if isotopes is None:
+        isotopes = {}
+    species, pairs = _site_species_and_pairs(
+        atoms, site_sets, isotopes, isotope_list, sel_i, sel_j
+    )
+    elements = atoms.get_chemical_symbols()
+    iso_list = _get_isotope_list(elements, isotopes, isotope_list)
+    couplings = []
+    for i, j in pairs:
+        if isonuclear and elements[site_sets[i][0]] != elements[site_sets[j][0]]:
+            continue
+        d_eff, D_avg = averaged_dipolar_coupling(
+            atoms, site_sets[i], site_sets[j], isotopes=isotopes,
+            isotope_list=iso_list,
+        )
+        if not np.any(D_avg):
+            continue
+        couplings.append(
+            SiteDipolarCoupling(
+                site_i=i,
+                site_j=j,
+                species1=species[i],
+                species2=species[j],
+                tensor=NMRTensor(D_avg, order="n"),
+            )
+        )
+    return couplings
+
+
 class DipolarTensor(AtomsProperty):
 
     """

@@ -95,6 +95,7 @@ DEFAULT_MERGING_STRATEGIES = {
     "charges": merge_first,
     "multiplicity": merge_sum,
     "order_tag": merge_first,
+    "xhn_group": merge_first,
     "cell_indices": merge_first,  # goes with positions
     "bonds": merge_first,  # does not make sense to merge bonds
 }

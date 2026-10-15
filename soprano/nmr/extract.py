@@ -289,10 +289,14 @@ def tag_functional_groups(
 
     tags = atoms.get_tags() if atoms.has("tags") else np.arange(len(atoms))
     labels = atoms.get_array("labels").astype("U25")
+    group_ids = np.full(len(atoms), -1, dtype=int)
 
-    XHn_groups = find_XHn_groups(atoms, average_group, tags=tags, vdw_scale=vdw_scale)
+    # Find each physical group from connectivity alone (default tags never
+    # match), so that tensors are only ever averaged within one group.
+    XHn_groups = find_XHn_groups(atoms, average_group, vdw_scale=vdw_scale)
     log.info(f"\nAveraging over functional groups: {average_group}")
 
+    next_group_id = 0
     for ipat, pattern in enumerate(XHn_groups):
         if len(pattern) == 0:
             log.warning(
@@ -300,15 +304,23 @@ def tag_functional_groups(
             )
             continue
         log.debug(f"Found {len(pattern)} {average_group.split(',')[ipat]} groups")
+        # Symmetry-equivalent groups share a tag, so they merge into one site
+        # *after* each group has been averaged on its own.
+        class_of: dict = {}
         for ig, group in enumerate(pattern):
             log.debug(f"    Group {ig} contains: {np.unique(labels[group])}")
-            combined_label = ",".join(np.unique(labels[group]))
-            labels[group] = combined_label
-            tags[group] = -(ipat + 1) * 1e5 - ig
+            key = tuple(sorted(tags[group]))
+            iclass = class_of.setdefault(key, len(class_of))
+            group_ids[group] = next_group_id
+            next_group_id += 1
+            labels[group] = ",".join(np.unique(labels[group]))
+            tags[group] = -(ipat + 1) * 1e5 - iclass
 
     atoms.set_array("labels", None)
     atoms.set_array("labels", labels, dtype="U25")
     atoms.set_tags(tags)
+    atoms.set_array("xhn_group", None)
+    atoms.set_array("xhn_group", group_ids)
     return atoms
 
 
@@ -343,10 +355,27 @@ def merge_tagged_sites(
 
     unique_tags, unique_counts = np.unique(atoms.get_tags(), return_counts=True)
     for tag in unique_tags[unique_counts > 1]:
+        # A negative tag marks functional groups.  Symmetry-equivalent groups
+        # share it, but their tensors live in different orientations, so each
+        # physical group is averaged on its own first (the fast-hop average)
+        # and the per-group results are then merged like any symmetry copies.
+        per_group = tag < 0 and atoms.has("xhn_group")
+        if per_group:
+            for gid in np.unique(atoms.get_array("xhn_group")[atoms.get_tags() == tag]):
+                members = np.where(
+                    (atoms.get_tags() == tag) & (atoms.get_array("xhn_group") == gid)
+                )[0]
+                if len(members) > 1:
+                    atoms = merge_sites(
+                        atoms, members, merging_strategies=merging_strategies,
+                        keep_all=False,
+                    )
         tag_idx = np.where(atoms.get_tags() == tag)[0]
-        # Use symmetry-specific strategies for non-negative tags (symmetry reduction)
-        # and default strategies for negative tags (functional-group averaging).
-        if tag >= 0 and symmetry_merging_strategies is not None:
+        if len(tag_idx) < 2:
+            continue
+        # What is left to merge are symmetry copies (non-negative tags, or
+        # already-averaged groups); a bare negative tag is one group to average.
+        if (tag >= 0 or per_group) and symmetry_merging_strategies is not None:
             strategies = symmetry_merging_strategies
         else:
             strategies = merging_strategies
@@ -354,6 +383,8 @@ def merge_tagged_sites(
             atoms, tag_idx, merging_strategies=strategies, keep_all=False
         )
 
+    if atoms.has("xhn_group"):
+        del atoms.arrays["xhn_group"]
     return atoms[np.argsort(atoms.get_tags())]
 
 
@@ -604,6 +635,72 @@ def build_nmr_df(
     return df
 
 
+def _average_group_tensors(atoms: Atoms, keys) -> None:
+    """Give every atom of each tagged group the group mean of the given arrays."""
+    gids = atoms.get_array("xhn_group")
+    for key in keys:
+        if not atoms.has(key):
+            continue
+        arr = atoms.get_array(key).copy()
+        for gid in np.unique(gids[gids >= 0]):
+            members = np.where(gids == gid)[0]
+            arr[members] = arr[members].mean(axis=0)
+        atoms.set_array(key, None)
+        atoms.set_array(key, arr)
+
+
+def _merge_with_expanded_groups(
+    atoms: Atoms,
+    selected: np.ndarray,
+    full_group_ids: np.ndarray,
+    merging_strategies: dict,
+    symmetry_merging_strategies: Optional[dict],
+):
+    """Merge symmetry copies, keeping every atom of one group per group class.
+
+    Atoms in a tagged group (negative tag) are not merged into one site.  For
+    each class of symmetry-equivalent groups, the first group present is kept
+    whole, with ``multiplicity`` set to the number of groups in the class.
+    All other atoms merge by tag as usual.
+
+    Returns the merged atoms (group sites first, then the rest by tag) and,
+    for each site, the source atoms its pair quantities are averaged over.
+    """
+    tags = atoms.get_tags()
+    gids = atoms.get_array("xhn_group")
+    in_group = gids >= 0
+
+    kept, multiplicity, site_sets = [], [], []
+    for tag in np.unique(tags[in_group]):
+        cand = np.where(in_group & (tags == tag))[0]
+        rep_gid = gids[cand[0]]
+        members = cand[gids[cand] == rep_gid]
+        n_groups = len(np.unique(gids[cand]))
+        source_set = [int(i) for i in np.where(full_group_ids == rep_gid)[0]]
+        for pos in members:
+            kept.append(int(pos))
+            multiplicity.append(n_groups)
+            site_sets.append(source_set)
+
+    group_part = atoms[kept]
+    group_part.set_array("multiplicity", None)
+    group_part.set_array("multiplicity", np.array(multiplicity, dtype=int))
+    del group_part.arrays["xhn_group"]
+
+    rest_pos = np.where(~in_group)[0]
+    rest = merge_tagged_sites(
+        atoms[rest_pos],
+        merging_strategies=merging_strategies,
+        symmetry_merging_strategies=symmetry_merging_strategies,
+    )
+    rest_tags = tags[rest_pos]
+    for tag in np.unique(rest_tags):
+        site_sets.append([int(selected[rest_pos[np.where(rest_tags == tag)[0][0]]])])
+
+    result = group_part + rest if len(rest) else group_part
+    return result, site_sets
+
+
 def nmr_extract_atoms(
     atoms: Atoms,
     subset: str = "",
@@ -619,6 +716,8 @@ def nmr_extract_atoms(
     mean_merge: bool = False,
     logger: Optional[logging.Logger] = None,
     return_index_map: bool = False,
+    return_site_sets: bool = False,
+    expand_groups: bool = False,
 ) -> Optional[Atoms]:
     """Extract and reduce NMR sites from a single :class:`ase.Atoms` object.
 
@@ -654,6 +753,22 @@ def nmr_extract_atoms(
             reduced/merged output.  The map is computed *before* any
             ``subset`` filtering.  When ``reduce`` is ``False`` the map
             is the identity.
+        return_site_sets: If ``True``, also return, for each site of the
+            result, the input-atom indices whose geometry it stands for when
+            pair quantities such as dipolar couplings are computed: the
+            atoms of one physical XHₙ group for an averaged group, or the
+            single representative atom otherwise.  Averaging over symmetry
+            copies of an ordinary site would be wrong, as nothing exchanges
+            them.  See :func:`soprano.properties.nmr.averaged_dipolar_coupling_list`.
+        expand_groups: If ``True``, an averaged group is not collapsed to one
+            site.  One physical group stands for each class of
+            symmetry-equivalent groups, and each of its atoms stays a site,
+            with the group-mean shielding and EFG tensors and its original
+            label.  Combined with ``return_site_sets`` and
+            :func:`~soprano.properties.nmr.averaged_dipolar_coupling_list`,
+            this keeps the coupling among the atoms of a group (the
+            intra-methyl H-H term).  ``multiplicity`` is the number of
+            equivalent groups.  Incompatible with ``return_index_map``.
 
     Returns:
         The processed Atoms object, or ``None`` if no atoms remain after
@@ -667,6 +782,12 @@ def nmr_extract_atoms(
     from that selection if you use both.
     """
     log = logger or _logger
+
+    if expand_groups and return_index_map:
+        raise ValueError("expand_groups cannot be combined with return_index_map")
+    if expand_groups and average_group:
+        # Averaging replaces tensors, which must not leak into the caller's atoms
+        atoms = atoms.copy()
 
     multiplicity = np.ones(len(atoms), dtype=int)
     atoms.set_array("multiplicity", multiplicity)
@@ -697,10 +818,24 @@ def nmr_extract_atoms(
 
     atoms.set_tags(tags)
 
+    expand = bool(expand_groups and average_group)
     if average_group:
+        original_labels = (
+            np.asarray(atoms.get_array("labels"), dtype="U25").copy()
+            if expand and atoms.has("labels")
+            else None
+        )
         atoms = tag_functional_groups(
             average_group, atoms, vdw_scale=1.0, logger=log
         )
+        if expand:
+            _average_group_tensors(atoms, (ms_tag, efg_tag, "ms_isotropy", "ms_shielding"))
+            if original_labels is not None:
+                keep = atoms.get_array("xhn_group") >= 0
+                labels = np.asarray(atoms.get_array("labels"), dtype="U25").copy()
+                labels[keep] = original_labels[keep]
+                atoms.set_array("labels", None)
+                atoms.set_array("labels", labels, dtype="U25")
 
     # Build index map *before* subset filtering so that it refers to the
     # original (input) atom ordering.
@@ -710,6 +845,11 @@ def nmr_extract_atoms(
         unique_tags = np.unique(final_tags)
         index_map = np.searchsorted(unique_tags, final_tags)
 
+    full_tags = atoms.get_tags()
+    full_group_ids = (
+        atoms.get_array("xhn_group") if atoms.has("xhn_group") else None
+    )
+
     all_selections = AtomSelection.all(atoms)
     if subset:
         log.info(f"\nSelecting atoms based on selection subset string: {subset}")
@@ -718,9 +858,10 @@ def nmr_extract_atoms(
             all_selections *= sel
         except ValueError as e:
             log.error(f"Could not select atoms based on selection string: {e}")
-            if return_index_map:
-                return None, index_map
-            return None
+            extras = ([index_map] if return_index_map else []) + (
+                [[]] if return_site_sets else []
+            )
+            return (None, *extras) if extras else None
         log.debug(f"    Selected atoms: {all_selections.indices}")
         atoms = all_selections.subset(atoms)
 
@@ -739,13 +880,35 @@ def nmr_extract_atoms(
             "efg": merge_first,
         }
 
-    result = merge_tagged_sites(
-        atoms,
-        merging_strategies=merging_strategies,
-        symmetry_merging_strategies=symmetry_merging_strategies,
-    )
+    selected = np.asarray(all_selections.indices, dtype=int)
+    if expand:
+        result, site_sets = _merge_with_expanded_groups(
+            atoms, selected, full_group_ids, merging_strategies,
+            symmetry_merging_strategies,
+        )
+    else:
+        result = merge_tagged_sites(
+            atoms,
+            merging_strategies=merging_strategies,
+            symmetry_merging_strategies=symmetry_merging_strategies,
+        )
+        sel_tags = full_tags[selected]
+        site_sets = []
+        for tag in np.unique(sel_tags):
+            rep = int(selected[np.where(sel_tags == tag)[0][0]])
+            if tag < 0 and full_group_ids is not None:
+                site_sets.append(
+                    [int(i) for i in np.where(full_group_ids == full_group_ids[rep])[0]]
+                )
+            else:
+                site_sets.append([rep])
+    extras = []
     if return_index_map:
-        return result, index_map
+        extras.append(index_map)
+    if return_site_sets:
+        extras.append(site_sets)
+    if extras:
+        return (result, *extras)
     return result
 
 

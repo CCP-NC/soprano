@@ -17,7 +17,12 @@ from scipy import constants as cnst
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from soprano.data.nmr import _get_isotope_data  # noqa: E402
-from soprano.properties.nmr.dipolar import averaged_dipolar_coupling  # noqa: E402
+from soprano.properties.nmr.dipolar import (  # noqa: E402
+    DipolarCouplingList,
+    averaged_dipolar_coupling,
+    averaged_dipolar_coupling_list,
+)
+from soprano.properties.nmr.isc import JCouplingList, averaged_j_coupling_list  # noqa: E402
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 _GAMMA_H = _get_isotope_data(["H"], "gamma", {}, None)[0]
@@ -225,6 +230,81 @@ class TestRSSByAtomHelpers(unittest.TestCase):
         atoms.positions[2] += [0.7, 0.0, 0.0]  # break the equivalence
         second = _symmetry_tags(atoms, 1e-4, override_cif=False)
         np.testing.assert_array_equal(second, [0, 1, 2])
+
+
+class TestAveragedCouplingList(unittest.TestCase):
+    """Spin-system couplings averaged over collapsed groups."""
+
+    def setUp(self):
+        self.atoms = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        self.methyl = [0, 1, 2]
+        self.c6 = 6  # the methyl carbon
+
+    def test_single_atom_sites_match_static_list(self):
+        sets = [[i] for i in range(len(self.atoms))]
+        new = {(c.site_i, c.site_j): c for c in averaged_dipolar_coupling_list(self.atoms, sets)}
+        old = {(c.site_i, c.site_j): c for c in DipolarCouplingList.get(self.atoms)}
+        self.assertEqual(new.keys(), old.keys())
+        for ij, c in old.items():
+            self.assertAlmostEqual(new[ij].coupling_constant, c.coupling_constant, places=6)
+
+    def test_collapsed_methyl_to_its_carbon_is_minus_a_third(self):
+        """The C-H vectors sit at ~109.5 deg to C3, so P2 = -1/3."""
+        sets = [self.methyl, [self.c6]]
+        (coupling,) = averaged_dipolar_coupling_list(self.atoms, sets)
+        pos = self.atoms.get_positions()
+        static = np.mean([
+            DipolarCouplingList.get(self.atoms, sel_i=[i], sel_j=[self.c6])[0].coupling_constant
+            for i in self.methyl
+        ])
+        self.assertGreater(coupling.coupling_constant, 0)
+        self.assertLess(static, 0)
+        self.assertAlmostEqual(coupling.coupling_constant / static, -1 / 3, delta=0.03)
+        # and not what the first hydrogen alone would give
+        first_h = DipolarCouplingList.get(self.atoms, sel_i=[0], sel_j=[self.c6])[0]
+        self.assertLess(first_h.coupling_constant, 0)
+
+    def test_sites_sharing_a_group_get_the_intra_group_average(self):
+        """Expanded group members couple through the -1/2 residual."""
+        (coupling,) = averaged_dipolar_coupling_list(self.atoms, [self.methyl, self.methyl])
+        d_eff, _ = averaged_dipolar_coupling(self.atoms, self.methyl, self.methyl)
+        self.assertAlmostEqual(coupling.coupling_constant, d_eff, places=6)
+        self.assertGreater(coupling.coupling_constant, 0)
+
+    def test_selection_and_isonuclear(self):
+        sets = [self.methyl, [3], [self.c6], [7]]
+        all_pairs = averaged_dipolar_coupling_list(self.atoms, sets)
+        self.assertEqual(len(all_pairs), 6)
+        c_h = averaged_dipolar_coupling_list(self.atoms, sets, sel_i=[2, 3], sel_j=[0, 1])
+        self.assertEqual({(c.site_i, c.site_j) for c in c_h}, {(0, 2), (0, 3), (1, 2), (1, 3)})
+        hh = averaged_dipolar_coupling_list(self.atoms, sets, isonuclear=True)
+        self.assertEqual({(c.site_i, c.site_j) for c in hh}, {(0, 1), (2, 3)})
+
+    def test_mixed_species_in_one_site_rejected(self):
+        with self.assertRaises(ValueError):
+            averaged_dipolar_coupling_list(self.atoms, [[0, self.c6], [3]])
+
+
+class TestAveragedJCouplingList(unittest.TestCase):
+    def setUp(self):
+        self.atoms = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+
+    def test_single_atom_sites_match_static_list(self):
+        sets = [[i] for i in range(len(self.atoms))]
+        new = {(c.site_i, c.site_j): c for c in averaged_j_coupling_list(self.atoms, sets)}
+        old = {(c.site_i, c.site_j): c for c in JCouplingList.get(self.atoms)}
+        self.assertEqual(new.keys(), old.keys())
+        for ij, c in old.items():
+            np.testing.assert_allclose(new[ij].tensor.data, c.tensor.data)
+
+    def test_group_tensor_is_the_mean_over_members(self):
+        (coupling,) = averaged_j_coupling_list(self.atoms, [[0, 1, 2], [6]])
+        static = [c for c in JCouplingList.get(self.atoms) if 6 in (c.site_i, c.site_j)
+                  and min(c.site_i, c.site_j) in (0, 1, 2)]
+        self.assertEqual(len(static), 3)
+        np.testing.assert_allclose(
+            coupling.tensor.data, np.mean([c.tensor.data for c in static], axis=0)
+        )
 
 
 if __name__ == "__main__":

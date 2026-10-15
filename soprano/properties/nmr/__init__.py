@@ -29,6 +29,7 @@ from soprano.properties.nmr.dipolar import (
     DipolarTensor,
     DipolarCouplingList,
     averaged_dipolar_coupling,
+    averaged_dipolar_coupling_list,
 )
 from soprano.properties.nmr.efg import (
     EFGNQR,
@@ -50,6 +51,7 @@ from soprano.properties.nmr.isc import (
     JCIsotropy,
     JCEuler,
     JCouplingList,
+    averaged_j_coupling_list,
 )
 from soprano.properties.nmr.ms import (
     MSAnisotropy,
