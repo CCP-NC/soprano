@@ -343,7 +343,7 @@ class NMRCalculator:
         for i, iso in enumerate(isotopes):
             # Is it an integer?
             iso_name = ""
-            if re.match("[0-9]+", str(iso)) is not None:  # numpy-proof test
+            if re.fullmatch("[0-9]+", str(iso)) is not None:  # numpy-proof test
                 iso_name = str(iso)
                 # Does it exist?
                 if iso_name not in _nmr_data[self._elems[i]]:
@@ -381,8 +381,9 @@ class NMRCalculator:
 
         """
 
-        new_isos = [int(x) for x in self._isos]
-        new_isos = np.where(self._elems == element, isotope, new_isos)
+        new_isos = [
+            isotope if e == element else i for e, i in zip(self._elems, self._isos)
+        ]
 
         self.set_isotopes(new_isos)
 
