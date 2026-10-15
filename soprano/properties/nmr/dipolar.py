@@ -18,6 +18,9 @@
 couplings"""
 
 
+import hashlib
+import warnings
+
 import numpy as np
 
 from soprano.data.nmr import _get_isotope_data, _get_isotope_list
@@ -25,9 +28,10 @@ from soprano.nmr.tensor import NMRTensor
 from soprano.nmr.coupling import DipolarCoupling as SiteDipolarCoupling
 from soprano.nmr.utils import _dip_constant, _dip_tensor
 from soprano.properties import AtomsProperty
+from soprano.properties.labeling.labeling import UniqueSites
 from soprano.rnd import Random
 from soprano.selection import AtomSelection
-from soprano.utils import minimum_periodic, minimum_supcell, supcell_gridgen
+from soprano.utils import has_cif_labels, minimum_periodic, minimum_supcell, supcell_gridgen
 
 
 class DipolarCoupling(AtomsProperty):
@@ -168,6 +172,181 @@ class DipolarCoupling(AtomsProperty):
             )
 
         return {tuple(ij): [d_ij[l], v_ij[l]] for l, ij in enumerate(pairs.T)}
+
+
+def averaged_dipolar_coupling(
+    atoms,
+    sel_i,
+    sel_j,
+    isotopes=None,
+    isotope_list=None,
+):
+    """Motionally averaged dipolar coupling between two groups of sites.
+
+    Models fast exchange (e.g. methyl rotation as a three-site hop): the
+    observed interaction is the average of the static coupling tensors over
+    every distinct pair (i, j) with i in ``sel_i``, j in ``sel_j``:
+
+    .. math::
+
+        \\bar{D} = \\frac{1}{N} \\sum_{(i,j)} d_{ij}
+                   (3 \\hat{r}_{ij} \\otimes \\hat{r}_{ij} - \\mathbb{1})
+
+    The effective coupling constant is half the eigenvalue of largest
+    magnitude of :math:`\\bar{D}`, with its sign kept.  Because the pair
+    tensors point in different directions they partially cancel, so
+    :math:`|d_{eff}|` never exceeds the mean of the static magnitudes.  For
+    the three H-H vectors within a methyl group this reproduces the familiar
+    -1/2 scaling of the intra-methyl coupling under fast rotation.
+
+    Identical index pairs (i == j) are skipped; each unordered pair is
+    counted once.  Internuclear vectors use the minimum image convention,
+    matching :class:`DipolarCoupling`.
+
+    Parameters:
+      atoms (ase.Atoms): the structure containing the sites.
+      sel_i (list[int]): indices of the first group of sites.
+      sel_j (list[int]): indices of the second group.  May be the same as
+                         ``sel_i``, in which case the average runs over the
+                         intra-group pairs.
+      isotopes (dict): isotopes by element symbol, as in
+                       :class:`DipolarCoupling`.
+      isotope_list (list): per-atom isotope list, as in
+                           :class:`DipolarCoupling`.
+
+    Returns:
+      (d_eff, D_avg): effective coupling constant in Hz (signed) and the
+                      averaged 3x3 coupling tensor in Hz.  Both are zero if
+                      no valid pairs exist.
+    """
+    if isotopes is None:
+        isotopes = {}
+
+    pairs = sorted(
+        {tuple(sorted((int(i), int(j)))) for i in sel_i for j in sel_j if i != j}
+    )
+    if not pairs:
+        return 0.0, np.zeros((3, 3))
+
+    elems = atoms.get_chemical_symbols()
+    gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
+    pos = atoms.get_positions()
+
+    idx_i = np.array([p[0] for p in pairs])
+    idx_j = np.array([p[1] for p in pairs])
+    r_ij = pos[idx_j] - pos[idx_i]
+    r_ij, _ = minimum_periodic(r_ij, atoms.get_cell(), exclude_self=True)
+    R_ij = np.linalg.norm(r_ij, axis=1)
+    if np.any(R_ij == 0):
+        k = int(np.argmax(R_ij == 0))
+        raise ValueError(
+            f"atoms {idx_i[k]} and {idx_j[k]} coincide, so their dipolar "
+            "coupling is undefined"
+        )
+    v_ij = r_ij / R_ij[:, None]
+    d_ij = _dip_constant(R_ij * 1e-10, gammas[idx_i], gammas[idx_j])
+
+    # Average of d * (3 v (x) v - 1) over all pairs
+    outer = v_ij[:, :, None] * v_ij[:, None, :]
+    tensors = d_ij[:, None, None] * (3 * outer - np.eye(3)[None])
+    D_avg = tensors.mean(axis=0)
+
+    evals = np.linalg.eigvalsh(D_avg)
+    d_eff = evals[np.argmax(np.abs(evals))] / 2.0
+    return float(d_eff), D_avg
+
+
+def _site_species_and_pairs(atoms, site_sets, isotopes, isotope_list, sel_i, sel_j):
+    """Species string per site, and the sorted unique site pairs to couple.
+
+    Each site must stand for atoms of a single element and isotope.
+    """
+    n_sites = len(site_sets)
+    sel_i = list(range(n_sites)) if sel_i is None else [int(i) for i in sel_i]
+    sel_j = sel_i if sel_j is None else [int(j) for j in sel_j]
+
+    elements = atoms.get_chemical_symbols()
+    iso_list = _get_isotope_list(elements, isotopes, isotope_list)
+    species = []
+    for k, atom_set in enumerate(site_sets):
+        els = {elements[a] for a in atom_set}
+        isos = {iso_list[a] for a in atom_set}
+        if len(els) != 1 or len(isos) != 1:
+            raise ValueError(f"site {k} mixes isotopes or elements: {sorted(els)}")
+        species.append(f"{isos.pop()}{els.pop()}")
+
+    pairs = sorted({tuple(sorted((i, j))) for i in sel_i for j in sel_j if i != j})
+    return species, pairs
+
+
+def averaged_dipolar_coupling_list(
+    atoms,
+    site_sets,
+    isotopes=None,
+    isotope_list=None,
+    sel_i=None,
+    sel_j=None,
+    isonuclear=False,
+):
+    """Motionally averaged dipolar couplings between spin-system sites.
+
+    Each site stands for one or more atoms of ``atoms`` (e.g. the three
+    hydrogens of a methyl group collapsed into one site).  The coupling of two
+    sites is the average of the static pair tensors over every pair of
+    their atoms (see :func:`averaged_dipolar_coupling`), evaluated in the
+    structure the atoms come from rather than in a structure with the group
+    merged away.  A group collapsed to one site therefore has no coupling to
+    itself; if several sites share the same atoms, they couple through the
+    intra-group average.
+
+    The returned couplings hold the full averaged tensor.  Writers that take
+    a single axial constant (SIMPSON ``dipole``, mrsimulator ``dipolar``)
+    use the largest-magnitude eigenvalue and drop the asymmetry; check
+    ``coupling.tensor.asymmetry`` if that matters.
+
+    Parameters:
+      atoms (ase.Atoms): the structure the site sets index.
+      site_sets (list[list[int]]): for each site, the atom indices it
+                                   stands for.  All must be one element.
+      isotopes (dict): isotopes by element symbol.
+      isotope_list (list): per-atom isotope list.
+      sel_i (list[int]): site indices for the first side of each pair.
+                         Default is all sites.
+      sel_j (list[int]): site indices for the second side.  Default is
+                         the same as ``sel_i``.
+      isonuclear (bool): only couple sites of the same element.
+
+    Returns:
+      list of :class:`soprano.nmr.coupling.DipolarCoupling`, with
+      ``site_i < site_j`` indexing ``site_sets``.
+    """
+    if isotopes is None:
+        isotopes = {}
+    species, pairs = _site_species_and_pairs(
+        atoms, site_sets, isotopes, isotope_list, sel_i, sel_j
+    )
+    elements = atoms.get_chemical_symbols()
+    iso_list = _get_isotope_list(elements, isotopes, isotope_list)
+    couplings = []
+    for i, j in pairs:
+        if isonuclear and elements[site_sets[i][0]] != elements[site_sets[j][0]]:
+            continue
+        d_eff, D_avg = averaged_dipolar_coupling(
+            atoms, site_sets[i], site_sets[j], isotopes=isotopes,
+            isotope_list=iso_list,
+        )
+        if not np.any(D_avg):
+            continue
+        couplings.append(
+            SiteDipolarCoupling(
+                site_i=i,
+                site_j=j,
+                species1=species[i],
+                species2=species[j],
+                tensor=NMRTensor(D_avg, order="n"),
+            )
+        )
+    return couplings
 
 
 class DipolarTensor(AtomsProperty):
@@ -433,6 +612,235 @@ class DipolarRSS(AtomsProperty):
 
         return np.array(dip_rss)
 
+
+_SYMMETRY_TAG_CACHE = {}
+_SYMMETRY_TAG_CACHE_MAX = 16
+
+
+def _symmetry_tags(s, symprec, override_cif):
+    """UniqueSites tags for *s*, memoised on a fingerprint of the structure.
+
+    The fingerprint covers every input UniqueSites reads (positions, atomic
+    numbers, cell, pbc and CIF labels) and the settings, so a modified Atoms
+    object gets fresh tags rather than stale ones.
+    """
+    digest = hashlib.sha256()
+    for arr in (s.get_positions(), s.get_atomic_numbers(), s.get_cell()[:], s.get_pbc()):
+        digest.update(np.ascontiguousarray(arr).tobytes())
+    if has_cif_labels(s):
+        digest.update("\0".join(map(str, s.get_array("labels"))).encode())
+    digest.update(repr((symprec, override_cif)).encode())
+    key = digest.hexdigest()
+
+    if key not in _SYMMETRY_TAG_CACHE:
+        if len(_SYMMETRY_TAG_CACHE) >= _SYMMETRY_TAG_CACHE_MAX:
+            _SYMMETRY_TAG_CACHE.clear()
+        tags = np.array(UniqueSites.get(s, symprec=symprec, save_info=False,
+                                        override_cif=override_cif))
+        tags.setflags(write=False)
+        _SYMMETRY_TAG_CACHE[key] = tags
+    return _SYMMETRY_TAG_CACHE[key]
+
+
+def _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec):
+    """Expand *sel_j* to include all crystallographically equivalent sites.
+
+    Uses :class:`~soprano.properties.labeling.UniqueSites` to obtain
+    equivalence tags, which internally prefers CIF-label-based grouping over
+    symmetry analysis when CIF labels are present (i.e. the same behaviour as
+    ``_build_equiv_groups`` in the NMR utilities).
+
+    Parameters
+    ----------
+    s : ase.Atoms
+    sel_j : AtomSelection
+    expand_j : {'periodic_images', 'symmetry', 'cif_labels'}
+    symprec : float
+
+    Returns
+    -------
+    AtomSelection
+        *sel_j* expanded to include all equivalent-site members.
+    """
+    if expand_j == "periodic_images":
+        return sel_j
+    if expand_j not in ("symmetry", "cif_labels"):
+        raise ValueError(
+            f"expand_j must be 'periodic_images', 'symmetry', or "
+            f"'cif_labels', got '{expand_j}'")
+    if expand_j == "cif_labels" and not has_cif_labels(s):
+        raise ValueError(
+            "expand_j='cif_labels' requires CIF labels on the "
+            "atoms object (set via atoms.set_array('labels', ...))")
+    # For 'symmetry', force spglib-based grouping even when CIF labels exist.
+    # For 'cif_labels', let UniqueSites prefer CIF labels (its default).
+    tags = _symmetry_tags(s, symprec, override_cif=(expand_j == "symmetry"))
+    j_tags = {int(tags[i]) for i in sel_j.indices}
+    expanded = np.where(np.isin(tags, list(j_tags)))[0]
+    return AtomSelection(s, sorted(set(sel_j.indices) | set(map(int, expanded))))
+
+
+class DipolarRSSByAtom(AtomsProperty):
+
+    """
+    DipolarRSSByAtom
+
+    Compute the Dipolar constant Root Sum Square for selected atoms (sel_i),
+    summing only over contributions from specified neighbour atoms (sel_j),
+    including their periodic images within a cutoff.
+
+    This is useful in solid-state NMR for analysing site-specific dipolar
+    interactions, e.g. when constructing double-quantum/single-quantum
+    (DQ/SQ) correlation plots where the RSS to a particular neighbour site
+    (or set of symmetry-equivalent sites) determines the expected DQ
+    build-up rate.
+
+    For each atom *i* in ``sel_i``, the RSS is defined as:
+
+    .. math::
+
+        \\text{RSS}_i = \\sqrt{\\sum_{j \\in J,\\, \\mathbf{n}} d_{ij\\mathbf{n}}^2}
+
+    where the sum runs over all atoms *j* in the (possibly expanded) ``sel_j``
+    set *J* and their periodic images **n**, subject to
+    :math:`0 < |\\mathbf{r}_{ij\\mathbf{n}}| \\leq r_\\text{cut}`, and the
+    dipolar coupling constant is:
+
+    .. math::
+
+        d_{ij} = -\\frac{\\mu_0 \\hbar \\gamma_i \\gamma_j}{8 \\pi^2 r_{ij}^3}
+
+    Optionally, ``sel_j`` can be expanded to include all symmetry-equivalent
+    sites or all sites sharing the same CIF label.
+
+    Parameters:
+      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+                                      for which to compute the RSS. Required.
+      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+                                      to include as neighbours in the RSS sum.
+                                      Required.
+      cutoff (float): cutoff radius in Angstroms at which the sum stops.
+                      By default 5 Ang.
+      isotopes (dict): dictionary of specific isotopes to use, by element
+                       symbol. If the isotope doesn't exist an error will
+                       be raised.
+      isotope_list (list): list of isotopes, atom-by-atom. To be used if
+                           different atoms of the same element are supposed
+                           to be of different isotopes. Where a 'None' is
+                           present will fall back on the previous
+                           definitions. Where an isotope is present it
+                           overrides everything else.
+      expand_j (str): how to expand sel_j to include equivalent sites.
+                              'periodic_images': no expansion, use sel_j as-is
+                                                 (only periodic images of the
+                                                 specified atoms are included).
+                              'symmetry': expand to all symmetry-equivalent
+                                          sites (using UniqueSites tags) and
+                                          their periodic images.
+                              'cif_labels': expand to all sites sharing the
+                                            same CIF label and their periodic
+                                            images.
+                              By default is 'periodic_images'. Any other
+                               value, including None, raises ValueError.
+      symprec (float): symmetry precision for UniqueSites when expand_j is
+                       'symmetry'. Default is 1e-4.
+
+    Returns:
+      dip_rss (np.ndarray): dipolar constant RSS for each atom in sel_i
+
+    """
+
+    default_name = "dip_rss_by_atom"
+    default_params = {
+        "sel_i": None,
+        "sel_j": None,
+        "cutoff": 5.0,
+        "isotopes": {},
+        "isotope_list": None,
+        "expand_j": "periodic_images",
+        "symprec": 1e-4,
+    }
+
+    @staticmethod
+    def extract(s, sel_i, sel_j, cutoff, isotopes, isotope_list,
+                expand_j, symprec):
+        if sel_i is None:
+            raise ValueError(
+                "sel_i must be specified for DipolarRSSByAtom. "
+                "Use DipolarRSS for the unfiltered RSS over all atoms.")
+        if sel_j is None:
+            raise ValueError(
+                "sel_j must be specified for DipolarRSSByAtom. "
+                "Use DipolarRSS for the unfiltered RSS over all atoms.")
+
+        # Resolve selections
+        if not isinstance(sel_i, AtomSelection):
+            sel_i = AtomSelection(s, sel_i)
+
+        if not isinstance(sel_j, AtomSelection):
+            sel_j = AtomSelection(s, sel_j)
+
+        # Expand sel_j to equivalent sites if requested
+        sel_j = _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec)
+
+        # Supercell size. A zero cell (non-periodic input) has only the
+        # atoms themselves as images.
+        if np.any(s.get_cell()):
+            scell_shape = minimum_supcell(cutoff, s.get_cell())
+            _, scell = supcell_gridgen(s.get_cell(), scell_shape)
+        else:
+            scell = np.zeros((1, 3))
+
+        pos = s.get_positions()
+        elems = np.array(s.get_chemical_symbols())
+
+        gammas = _get_isotope_data(elems, "gamma", isotopes, isotope_list)
+
+        # The neighbours and their gammas are the same for every atom in sel_i
+        j_inds = np.unique(np.asarray(sel_j.indices, dtype=int))
+        pos_j = pos[j_inds]
+        gj_all = np.tile(gammas[j_inds], len(scell))
+
+        dip_rss = []
+
+        for i in sel_i.indices:
+            # All periodic images of j positions relative to atom i
+            rij = pos_j[None, :, :] + scell[:, None, :] - pos[i]
+            Rij = np.linalg.norm(rij, axis=-1).reshape(-1)
+
+            # Valid indices: non-zero distance and within cutoff
+            ij = np.where((Rij > 0) & (Rij <= cutoff))
+
+            if len(ij[0]) == 0:
+                if len(j_inds) == 0:
+                    detail = "sel_j is empty."
+                else:
+                    # Nearest image of each j atom, to help diagnose the cutoff
+                    Rij_per_j = np.where(Rij > 0, Rij, np.inf).reshape(len(scell), len(j_inds))
+                    nearest = Rij_per_j.min(axis=0)
+                    neighbour_lines = [
+                        f"  {elems[ji]} (index {ji}): nearest image at {d:.4f} Ang"
+                        for ji, d in zip(j_inds, nearest)
+                    ]
+                    detail = (
+                        "Selected neighbours and their nearest-image distances:\n"
+                        + "\n".join(neighbour_lines)
+                    )
+                warnings.warn(
+                    f"Atom {elems[i]} (index {i}) has no neighbours from "
+                    f"sel_j within cutoff={cutoff} Ang. " + detail,
+                    stacklevel=2,
+                )
+                dip_rss.append(0.0)
+                continue
+
+            Rij = Rij[ij] * 1e-10
+            gj = gj_all[ij]
+
+            dip = _dip_constant(Rij, gammas[i], gj)
+            dip_rss.append(np.sqrt(np.sum(dip**2)))
+
+        return np.array(dip_rss)
 
 
 class DipolarEuler(AtomsProperty):

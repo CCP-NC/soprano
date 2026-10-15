@@ -1,0 +1,1047 @@
+"""2D NMR data extraction and peak generation."""
+
+import logging
+import warnings
+from dataclasses import replace as _dc_replace
+from typing import List, Optional, Tuple, Union
+
+import numpy as np
+from ase import Atoms
+
+try:
+    import pandas as pd
+
+    PANDAS_AVAILABLE = True
+except ImportError:
+    PANDAS_AVAILABLE = False
+
+from soprano.calculate.nmr.config import MARKER_INFO
+from soprano.calculate.nmr.utils import (
+    ContourData,
+    Peak2D,
+    _nearest_equiv_site,
+    calculate_distances,
+    extract_indices,
+    filter_pairs_by_distance,
+    generate_contour_map,
+    generate_peaks,
+    get_atom_labels,
+    get_pair_dipolar_couplings,
+    get_pair_j_couplings,
+    merge_peaks,
+    prepare_species_labels,
+    process_pairs,
+    select_atoms_by_elements,
+    sort_peaks,
+    validate_elements,
+)
+from soprano.data.nmr import _get_isotope_list
+from soprano.nmr.utils import _dip_constant
+from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
+from soprano.properties.nmr.dipolar import DipolarCoupling
+from soprano.properties.nmr.isc import JCIsotropy
+from soprano.sitemap import SiteMap
+
+class NMRData2D:
+    '''
+    Class to hold and extract 2D NMR data.
+    '''
+    def __init__(self,
+                atoms: Optional[Atoms] = None,
+                xelement: Optional[str] = None,
+                yelement: Optional[str] = None,
+                references: Optional[dict[str, float]] = None,
+                gradients: Optional[Union[dict[str, float], float]] = None,
+                peaks: Optional[List[Peak2D]] = None,
+                pairs: Optional[List[Tuple[int, int]]] = None,
+                correlation_strengths: Optional[List[float]] = None,
+                correlation_strength_metric: Optional[str] = None, # 'fixed','distance', 'dipolar', 'dipolar2', 'jcoupling', 'inversedistance', 'custom', 'dipolar_rss'
+                rcut: Optional[float] = None,
+                rss_cutoff: float = 5.0,
+                rss_expand_j: str = 'periodic_images',
+                reduce: bool = False,
+                symprec: float = 1e-4,
+                isotopes: Optional[dict[str, int]] = None,
+                is_shift: Optional[bool] = None,
+                include_quadrupolar: bool = False,
+                yaxis_order: str = '1Q',
+                x_axis_label: Optional[str] = None,
+                y_axis_label: Optional[str] = None,
+                average_group: str = "",
+                ):
+
+        self.logger = logging.getLogger(__name__)
+        self.atoms = atoms
+        self.xelement = xelement
+        # if yelement is not provided, set it to xelement
+        self.yelement = yelement if yelement is not None else xelement
+        self.references = references
+        self.gradients = gradients
+        self.peaks = peaks
+        self.pairs = pairs
+
+        # if neither atoms nor peaks are provided, raise an error
+        if self.atoms is None and self.peaks is None:
+            raise ValueError("Either atoms or peaks must be given.")
+
+        # The structure the user handed us is the source: the only index space
+        # every derived structure can be related back to.  self.site_map records
+        # that relation, and is composed as the structure is derived below.
+        self.source: Optional[Atoms] = None
+        self.site_map: Optional[SiteMap] = None
+        if self.atoms is not None:
+            from soprano.nmr.extract import label_atoms  # lazy import
+            self.atoms = label_atoms(self.atoms)
+            self.source = self.atoms
+            self.site_map = SiteMap.identity(len(self.atoms))
+
+        # Reduce to unique sites if requested, mirroring the CLI --reduce flag.
+        if reduce and self.atoms is not None:
+            from soprano.nmr.extract import nmr_extract_atoms  # lazy import
+            _reduced, _reduce_map = nmr_extract_atoms(
+                self.atoms.copy(), reduce=True, symprec=symprec,
+                return_index_map=True,
+            )
+            if _reduced is not None:
+                self.site_map = self.site_map.compose(
+                    SiteMap(_reduce_map, len(_reduced))
+                )
+                if self.pairs is not None:
+                    remapped = [
+                        (int(_reduce_map[p[0]]), int(_reduce_map[p[1]]))
+                        for p in self.pairs
+                    ]
+                    if remapped != list(self.pairs):
+                        warnings.warn(
+                            "reduce=True: user-supplied pairs have been "
+                            "remapped from full-cell to reduced "
+                            f"(asymmetric-unit) indices: {list(self.pairs)}"
+                            f" → {remapped}. Pass pairs in reduced-cell "
+                            "indices to suppress this warning.",
+                            stacklevel=2,
+                        )
+                    self.pairs = remapped
+                self.atoms = _reduced
+
+        # if atoms are provided, let's use the subset of atoms that have the xelement and yelement
+        if self.atoms is not None:
+            _sel = select_atoms_by_elements(self.atoms, [self.xelement, self.yelement])
+            self.site_map = self.site_map.compose(
+                SiteMap.from_selection(_sel, self.atoms)
+            )
+            self.atoms = _sel.subset(self.atoms)
+
+
+        # Either provide correlation strengths or calculate them based on the metric
+        # If both are provided, the provided values will be used
+        if correlation_strengths is not None:
+            if correlation_strength_metric:
+                self.logger.warning("Both correlation_strengths and correlation_strength_metric are provided. Using correlation_strengths.")
+            correlation_strength_metric = 'custom'
+
+
+        # If neither are provided, set the metric to 'fixed'
+        if correlation_strengths is None and correlation_strength_metric is None:
+            correlation_strength_metric = 'fixed'
+
+        self.correlation_strengths = correlation_strengths
+        self.correlation_strength_metric = correlation_strength_metric
+
+        self.rcut = rcut
+        self.rss_cutoff = rss_cutoff
+        self.rss_expand_j = rss_expand_j
+        self.symprec = symprec
+        self.isotopes = isotopes if isotopes is not None else {}
+        # is_shift is a boolean.  If undefined, it will be set to True if references are provided, False otherwise
+        #  If defined, it will be used as is
+        self.is_shift = is_shift if is_shift is not None else (self.references is not None)
+        self.include_quadrupolar = include_quadrupolar
+        self.yaxis_order = yaxis_order
+        # Contour grid cache, filled by get_contour_data()
+        self._contour_data: Optional[ContourData] = None
+        self._contour_cache_key: Optional[tuple] = None
+
+        self.correlation_unit = MARKER_INFO[self.correlation_strength_metric]['unit']
+        self.correlation_label = MARKER_INFO[self.correlation_strength_metric]['label']
+        self.correlation_fmt = MARKER_INFO[self.correlation_strength_metric]['fmt']
+
+        self.x_axis_label = x_axis_label
+        self.y_axis_label = y_axis_label
+        self.average_group = average_group
+
+        # run the main method to extract the data
+        self.get_peaks()
+
+    def _average_group_peaks(self, peaks: list) -> list:
+        """Merge peaks from the same functional group (e.g. CH₃) post-hoc.
+
+        This method operates on
+        peaks generated from the *original*, unmodified atoms object so that
+        every coupling is evaluated at the true inter-atomic distance.
+
+        Peaks that belong to the same functional group and are paired with the
+        same counter-atom are replaced by a single representative peak:
+
+        * **position** (x, y) — mean of the group members' positions,
+        * **correlation_strength** — mean of the members' coupling values
+          (the multiplicity weight accounts for group size separately),
+        * **multiplicity** — sum of the members' multiplicities
+          (equals the group size when starting from the default of 1),
+        * **label** — comma-separated sorted concatenation of member labels,
+          matching the CLI ``--average-group`` convention.
+
+        Args:
+            peaks: Peak list from :func:`generate_peaks` (before
+                :func:`merge_peaks`).
+
+        Returns:
+            New peak list with functional-group members merged.
+        """
+        import re  # noqa: PLC0415
+        from collections import defaultdict  # noqa: PLC0415
+
+        from soprano.nmr.extract import find_XHn_groups, label_atoms  # noqa: PLC0415
+
+        # --- build site → group-id mapping ---------------------------------
+        # Search the source structure. A pattern like CH3 or NH3 is anchored on
+        # its heavy atom, and both deriving steps can remove it: the element
+        # filter drops carbon from an H-H plot, and reduction can merge the
+        # group members away. Only the source has the bonding topology intact.
+        atoms = label_atoms(self.source.copy(), logger=self.logger)
+        all_groups = find_XHn_groups(atoms, self.average_group)
+
+        # find_XHn_groups indexes the source; peaks index the derived sites.
+        to_sites = self.site_map.to_sites
+
+        site_to_group: dict = {}
+        group_source_atoms: dict = {}
+        for ipat, pattern_groups in enumerate(all_groups):
+            for igrp, group in enumerate(pattern_groups):
+                gid = (ipat, igrp)
+                group_source_atoms[gid] = [int(a) for a in group]
+                for aidx in group:
+                    site = int(to_sites[int(aidx)])
+                    if site >= 0:
+                        site_to_group[site] = gid
+
+        if not site_to_group:
+            self.logger.warning(
+                f"average_group='{self.average_group}' matched no groups; "
+                "returning peaks unchanged."
+            )
+            return peaks
+
+        def gkey(idx: int):
+            """Group-id if the site is in a group, else its index as sentinel."""
+            return site_to_group.get(int(idx), int(idx))
+
+        # --- bucket peaks by merged-pair key --------------------------------
+        peer_map: dict = defaultdict(list)
+        for peak in peaks:
+            key = (gkey(peak.idx_x), gkey(peak.idx_y))
+            peer_map[key].append(peak)
+
+        # --- combine each bucket --------------------------------------------
+        def _sort_key(label: str):
+            m = re.search(r'\d+', label)
+            return int(m.group()) if m else label
+
+        def _source_indices(key) -> Optional[list]:
+            """Source-atom indices behind one side of a merged-pair key.
+
+            A group id maps to every atom of the functional group; a plain
+            site index maps to its representative source atom.  Averaging
+            over symmetry copies of a *non*-group site would wrongly shrink
+            the coupling (there is no motion exchanging those copies), so
+            only the representative is used there.
+            """
+            if key in group_source_atoms:
+                return group_source_atoms[key]
+            m = self.site_map.members(int(key))
+            return [int(m[0])] if len(m) else None
+
+        use_tensor_avg = (
+            self.correlation_strength_metric == 'dipolar'
+            and self.source is not None
+        )
+
+        result = []
+        for key, group_peaks in peer_map.items():
+            if len(group_peaks) == 1:
+                result.append(group_peaks[0])
+                continue
+
+            avg_x = float(np.mean([p.x for p in group_peaks]))
+            avg_y = float(np.mean([p.y for p in group_peaks]))
+            total_mult = sum(p.multiplicity for p in group_peaks)
+
+            avg_strength: Optional[float] = None
+            if use_tensor_avg:
+                # Fast exchange within the group: average the coupling
+                # *tensors* over the member pairs, not the constants.  The
+                # arithmetic mean of the constants ignores the orientational
+                # cancellation between the pair tensors and overestimates
+                # the residual coupling (see docs/dipolar-averaging.md).
+                src_i = _source_indices(key[0])
+                src_j = _source_indices(key[1])
+                # A single identical atom on both sides has no valid pairs
+                has_pairs = bool(src_i) and bool(src_j) and (
+                    len(src_i) > 1 or src_i != src_j
+                )
+                if has_pairs:
+                    from soprano.properties.nmr import (  # noqa: PLC0415
+                        averaged_dipolar_coupling,
+                    )
+                    d_eff, _ = averaged_dipolar_coupling(
+                        self.source, src_i, src_j, isotopes=self.isotopes
+                    )
+                    avg_strength = d_eff * 1e-3  # Hz -> kHz, matching MARKER_INFO
+
+            if avg_strength is None:
+                # Multiplicity-weighted mean preserves the invariant
+                # merged_strength × merged_multiplicity = Σ(sᵢ × mᵢ),
+                # consistent with merge_peaks.
+                total_weight = sum(
+                    p.correlation_strength * p.multiplicity for p in group_peaks
+                )
+                avg_strength = total_weight / total_mult if total_mult != 0 else 0.0
+
+            xlabels = sorted({p.xlabel for p in group_peaks}, key=_sort_key)
+            ylabels = sorted({p.ylabel for p in group_peaks}, key=_sort_key)
+            result.append(_dc_replace(
+                group_peaks[0],
+                x=avg_x,
+                y=avg_y,
+                correlation_strength=avg_strength,
+                xlabel=','.join(xlabels),
+                ylabel=','.join(ylabels),
+                multiplicity=total_mult,
+            ))
+
+        n_before, n_after = len(peaks), len(result)
+        if n_before != n_after:
+            self.logger.debug(
+                f"average_group='{self.average_group}': "
+                f"merged {n_before} → {n_after} peaks."
+            )
+        return result
+
+    def get_peaks(self, merge_identical=True, should_sort_peaks=False, force_recompute=False) -> List['Peak2D']:
+        '''
+        Get the correlation peaks.
+
+        If self.peaks already exists, then we return them as is.
+        If they don't exist, we make sure the required data is available 
+        and then generate the peaks and merge if desired.
+
+        Set force_recompute=True to discard any cached peaks and regenerate
+        from the underlying atoms/pairs data.
+        '''
+
+        if force_recompute:
+            self.peaks = None
+
+        if self.peaks is not None:
+            self.logger.debug("Cached peaks found. Returning without recomputing. Use force_recompute=True to regenerate.")
+            return self.peaks
+
+        if self.atoms is None:
+            raise ValueError("Either atoms or peaks must be given.")
+
+        # make sure all the data is there
+        self.extract_data()
+        labels = get_atom_labels(self.atoms, self.logger)
+
+        multiplicities = (
+            self.atoms.get_array('multiplicity')
+            if self.atoms is not None and self.atoms.has('multiplicity')
+            else None
+        )
+        self.peaks = generate_peaks(self.data, self.pairs, labels, self.correlation_strengths, self.yaxis_order, self.xelement, self.yelement, multiplicities=multiplicities)
+
+        if self.average_group:
+            self.peaks = self._average_group_peaks(self.peaks)
+
+        if merge_identical:
+            self.peaks = merge_peaks(self.peaks, corr_rel_tol=0.05)
+
+        if should_sort_peaks:
+            self.peaks = sort_peaks(self.peaks)
+
+        return self.peaks
+
+    def extract_data(self) -> None:
+        validate_elements(self.atoms, self.xelement, self.yelement)
+        self.idx_x, self.idx_y = extract_indices(self.atoms, self.xelement, self.yelement)
+        isotopes = _get_isotope_list(self.atoms.get_chemical_symbols(), isotopes=self.isotopes, use_q_isotopes=False)
+        self.xisotope = isotopes[self.idx_x[0]]
+        self.yisotope = isotopes[self.idx_y[0]]
+        self.xspecies = prepare_species_labels(self.xisotope, self.xelement)
+        self.yspecies = prepare_species_labels(self.yisotope, self.yelement)
+
+        self.get_axis_labels()
+        self.get_pairs()
+        if self.correlation_strength_metric is None:
+            raise ValueError("correlation_strength_metric is not defined. Please provide a value for this parameter.")
+
+
+        self.correlation_strengths = self.get_correlation_strengths()
+
+        self.data = MSIsotropy.get(self.atoms, references=self.references, gradients=self.gradients)
+        self.logger.debug(f'Indices of xelement in the atoms object: {self.idx_x}')
+        self.logger.debug(f'Indices of yelement in the atoms object: {self.idx_y}')
+        self.logger.debug(f'X species: {self.xspecies}')
+        self.logger.debug(f'Y species: {self.yspecies}')
+        self.logger.debug(f'X values: {self.data[self.idx_x]}')
+        self.logger.debug(f'Y values: {self.data[self.idx_y]}')
+
+
+    def get_correlation_strengths(self) -> np.ndarray:
+
+        # Check that self.atoms is not None unless the metric is 'custom' or 'fixed', which don't require atoms
+        if self.atoms is None and self.correlation_strength_metric not in ('custom', 'fixed'):
+            raise ValueError(f"atoms must be provided to calculate correlation strengths for metric '{self.correlation_strength_metric}'.")
+        
+        if self.pairs is None:
+            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
+
+        if self.correlation_strength_metric == 'custom':
+            self.logger.info("Using custom correlation strengths.")
+
+            # make sure correlation_strengths is a list or an array
+            if not isinstance(self.correlation_strengths, (list, np.ndarray)):
+                raise TypeError("correlation_strengths must be a list or an array.")
+
+            # if user provides a list of these, use it!
+            # just check that it's the right length
+            if len(self.correlation_strengths) != len(self.pairs):
+                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({len(self.pairs)}).")
+            correlation_strengths = self.correlation_strengths
+
+        elif self.correlation_strength_metric == 'fixed':
+            self.logger.info("Using fixed correlation strength.")
+            # set the correlation strength to be the same for all pairs
+            correlation_strengths = np.ones(len(self.pairs))
+
+        elif self.correlation_strength_metric in ('dipolar', 'dipolar2'):
+            self.logger.info(f"Using {self.correlation_label.lower()} as correlation strength.")
+            if self.isotopes:
+                self.logger.debug(f"Using custom isotopes: {self.isotopes}")
+            correlation_strengths = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
+            correlation_strengths = self._patch_merged_self_pairs(
+                correlation_strengths,
+                lambda a0, best, _dist: list(DipolarCoupling.get(
+                    self.source, sel_i=[a0], sel_j=[best],
+                    self_coupling=(best == a0), isotopes=self.isotopes,
+                ).values())[0][0] * 1e-3,  # Hz -> kHz
+            )
+            if self.correlation_strength_metric == 'dipolar2':
+                correlation_strengths = np.square(correlation_strengths)
+        elif self.correlation_strength_metric == 'distance' or self.correlation_strength_metric == 'inversedistance':
+            log_message = "Using minimum image convention {isinverse}distance as correlation strength."
+            isinverse = ''
+
+            # now we can use ASE get_distance to get the distances for each pair
+            correlation_strengths = self.pair_distances
+            if self.correlation_strength_metric == 'inversedistance':
+                correlation_strengths = 1 / correlation_strengths
+                isinverse = 'inverse '
+            self.logger.info(log_message.format(isinverse=isinverse))
+
+
+        elif self.correlation_strength_metric == 'jcoupling':
+            self.logger.info("Using J-coupling as correlation strength.")
+            correlation_strengths = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
+            correlation_strengths = self._patch_merged_self_pairs(
+                correlation_strengths,
+                lambda a0, best, _dist: list(JCIsotropy.get(
+                    self.source, sel_i=[a0], sel_j=[best], tag='isc',
+                    self_coupling=(best == a0), isotopes=self.isotopes,
+                ).values())[0],
+            )
+        elif self.correlation_strength_metric == 'dipolar_rss':
+            self.logger.info(
+                f"Using dipolar RSS (cutoff={self.rss_cutoff} Å, "
+                f"expand_j='{self.rss_expand_j}') as correlation strength."
+            )
+            if self.isotopes:
+                self.logger.debug(f"Using custom isotopes: {self.isotopes}")
+
+            # RSS is summed over the source structure, not over self.atoms.
+            # Reduction merges symmetry-equivalent sites away, so expanding in
+            # the derived structure would find nothing to expand; and a site
+            # stands for every atom it was merged from, so all of them have to
+            # contribute. site_map.members gives exactly those atoms.
+            # Each member of site i has its own RSS; the site takes the first.
+            # Members of a symmetry-merged site agree, but a CIF-label merge
+            # can group atoms that are not equivalent, so flag that case.
+            rss_values = []
+            for i, j in self.pairs:
+                members_rss = DipolarRSSByAtom.get(
+                    self.source,
+                    sel_i=self.site_map.members(i).tolist(),
+                    sel_j=self.site_map.members(j).tolist(),
+                    cutoff=self.rss_cutoff,
+                    isotopes=self.isotopes,
+                    expand_j=self.rss_expand_j,
+                    symprec=self.symprec,
+                )
+                if not np.allclose(members_rss, members_rss[0], rtol=1e-3, atol=0.0):
+                    self.logger.warning(
+                        f"Dipolar RSS differs between the atoms merged into site {i} "
+                        f"(pair {i}-{j}): {members_rss.min():.1f} to {members_rss.max():.1f} Hz. "
+                        "The merged atoms are not equivalent; using the first atom's value."
+                    )
+                rss_values.append(members_rss[0])
+            correlation_strengths = np.array(rss_values) * 1e-3  # convert Hz → kHz to match MARKER_INFO and dipolar metric
+        else:
+            raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
+
+        # Make sure correlation_strengths is an array
+        correlation_strengths = np.array(correlation_strengths)
+
+        self.logger.debug(f"correlation_strengths : {correlation_strengths}")
+        # Log pair with smallest and largest correlation strength
+        min_idx = np.argmin(np.abs(correlation_strengths))
+        max_idx = np.argmax(np.abs(correlation_strengths))
+        smallest_pair = self.pairs[min_idx]
+        largest_pair = self.pairs[max_idx]
+
+        # Labels for the smallest and largest pairs
+        labels = get_atom_labels(self.atoms, self.logger)
+        smallest_pair_labels = [labels[smallest_pair[0]], labels[smallest_pair[1]]]
+        largest_pair_labels = [labels[largest_pair[0]], labels[largest_pair[1]]]
+
+        self.logger.info(
+            f"Pair with smallest (abs) {self.correlation_label}: "
+            f"{smallest_pair_labels} ({correlation_strengths[min_idx]:.2f})"
+        )
+        self.logger.info(
+            f"Pair with largest (abs) {self.correlation_label}: "
+            f"{largest_pair_labels} ({correlation_strengths[max_idx]:.2f})"
+        )
+
+        return correlation_strengths
+
+    def get_axis_labels(self) -> Tuple[str, str]:
+        if self.is_shift:
+            axis_label = r"$\delta$"
+        else:
+            axis_label = r"$\sigma$"
+
+        if self.x_axis_label is None:
+            self.x_axis_label = f'{self.xspecies} ' + axis_label + ' /ppm'
+        if self.y_axis_label is None:
+            if self.yaxis_order == '2Q':
+                self.y_axis_label = f'{self.yspecies} ' + axis_label + r'$_{\mathrm{%s}}$' % self.yaxis_order + ' /ppm'
+            else:
+                self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
+
+
+    def _find_merged_self_partners(self) -> dict:
+        '''
+        Find the nearest equivalent source atom for each merged self-pair.
+
+        A site with multiplicity m > 1 stands for m atoms, and its self-pair
+        couples distinct atoms of the source.  Those atoms are not in the reduced
+        structure, so the partner is searched in the source, with the same rule
+        as the single-atom case.  Returns ``{site: (source_atom, partner, distance)}``.
+        '''
+        partners: dict = {}
+        if self.source is None or not self.atoms.has('multiplicity'):
+            return partners
+        mult = self.atoms.get_array('multiplicity')
+        for i, j in self.pairs:
+            i = int(i)
+            if i == int(j) and int(mult[i]) > 1 and i not in partners:
+                members = [int(a) for a in self.site_map.members(i).tolist()]
+                a0 = members[0]
+                best, dist = _nearest_equiv_site(self.source, a0, {0: members})
+                partners[i] = (a0, best, dist)
+        return partners
+
+    def _patch_merged_self_pairs(self, values, compute) -> np.ndarray:
+        '''
+        Replace the entries of merged self-pairs with ``compute(a0, partner, distance)``.
+        '''
+        values = np.array(values, dtype=float)
+        for k, (i, j) in enumerate(self.pairs):
+            i = int(i)
+            if i == int(j) and i in self._merged_self_partners:
+                values[k] = compute(*self._merged_self_partners[i])
+        return values
+
+    def get_pairs(self) -> None:
+        '''
+        Get the pairs of x and y indices to plot
+
+        self.idx_x and self.idx_y are the indices of the x and y elements in the atoms object
+
+        This method will set the following attributes:
+        self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
+        self.pairs: a list of tuples of the form (xindex, yindex)
+        '''
+        # Process pairs; idx_x/idx_y (unique element indices) are not overwritten here —
+        # process_pairs expands them into per-pair form internally.
+        self.pairs, self.pairs_el_idx, _, _ = process_pairs(self.idx_x, self.idx_y, self.pairs)
+
+        # In a DQ/SQ experiment the diagonal peaks arise from two *distinct*
+        # atoms of the same chemical shift — not from a spin correlated with
+        # itself.  A self-pair (i, i) of a single atom is unphysical (zero
+        # separation) and is removed.  A self-pair of a merged site (reduce=True)
+        # stands for the m(m-1) ordered pairs of distinct atoms it represents, so
+        # it is kept; its weight is set in generate_peaks and its distance/coupling
+        # comes from the nearest equivalent site.
+        if self.yaxis_order == '2Q':
+            n_before = len(self.pairs)
+            multiplicities = (
+                self.atoms.get_array('multiplicity')
+                if self.atoms.has('multiplicity')
+                else np.ones(len(self.atoms), dtype=int)
+            )
+            valid = [
+                (i, p) for i, p in enumerate(self.pairs)
+                if p[0] != p[1] or int(multiplicities[p[0]]) > 1
+            ]
+            if not valid:
+                raise ValueError(
+                    "No valid pairs found for DQ/SQ spectrum. "
+                    "Diagonal peaks in a DQ experiment come from distinct atoms "
+                    "with the same shift — check that the structure contains "
+                    "coupled pairs of the requested elements."
+                )
+            idxs, self.pairs = zip(*valid)
+            self.pairs = list(self.pairs)
+            self.pairs_el_idx = [self.pairs_el_idx[i] for i in idxs]
+            n_removed = n_before - len(self.pairs)
+            if n_removed:
+                self.logger.debug(
+                    f"Removed {n_removed} single-atom self-pair(s) (i==i) — unphysical in DQ/SQ."
+                )
+
+        # Self-pairs that survive (merged sites, or SQ/homonuclear) take their
+        # distance/coupling from the nearest equivalent site, so they are not undefined.
+        if self.correlation_strength_metric != 'fixed':
+            self_pairs = [p for p in self.pairs if p[0] == p[1]]
+            if self_pairs:
+                self.logger.info(
+                    f"{len(self_pairs)} self-pair(s) remain with "
+                    f"metric='{self.correlation_strength_metric}'. Each uses the "
+                    "distance/coupling to its nearest equivalent site."
+                )
+
+        if len(self.pairs) == 0:
+            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
+
+        self._merged_self_partners = self._find_merged_self_partners()
+
+        # Calculate distances
+        # if pair_distances is not already calculated, calculate it
+        if not hasattr(self, 'pair_distances'):
+            self.pair_distances = calculate_distances(self.pairs, self.atoms)
+            self.pair_distances = self._patch_merged_self_pairs(
+                self.pair_distances, lambda a0, best, dist: dist,
+            )
+
+
+        # Filter pairs by distance if rcut is specified
+        if self.rcut:
+            self.logger.info(f"Filtering out pairs that are further than {self.rcut} Å apart.")
+            self.logger.info(f"Number of pairs before filtering: {len(self.pairs_el_idx)}")
+
+            self.pairs, self.pairs_el_idx, self.pair_distances, _, _ = filter_pairs_by_distance(
+                self.pairs, self.pairs_el_idx, self.pair_distances, self.rcut)
+
+            self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
+            self.logger.debug(f"Pairs remaining: {self.pairs}")
+            self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
+
+    def to_dataframe(self, include_metadata=True) -> 'pd.DataFrame':
+        """
+        Convert the NMR data to a pandas DataFrame.
+        
+        This method exports all peak data and optionally includes metadata.
+        The resulting DataFrame can be saved to CSV or other formats for
+        later use or sharing.
+        
+        Parameters
+        ----------
+        include_metadata : bool, optional
+            If True, includes columns with experimental metadata such as
+            elements, isotopes, references, etc. Default is True.
+        
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing peak positions (x, y), labels (xlabel, ylabel),
+            correlation strengths, and optionally metadata.
+        
+        Raises
+        ------
+        ImportError
+            If pandas is not installed.
+        
+        Examples
+        --------
+        >>> df = nmr_data.to_dataframe()
+        >>> df.to_csv('nmr_peaks.csv', index=False)
+        
+        >>> # Load back from CSV
+        >>> import pandas as pd
+        >>> df = pd.read_csv('nmr_peaks.csv')
+        """
+        if not PANDAS_AVAILABLE:
+            raise ImportError(
+                "pandas is required to export data to DataFrame. "
+                "Install it with: pip install pandas"
+            )
+        
+        # Get peaks (this will generate them if needed)
+        peaks = self.get_peaks()
+        
+        if not peaks:
+            self.logger.warning("No peaks to export.")
+            return pd.DataFrame()
+        
+        # Extract data from Peak2D namedtuples
+        data = {
+            'x': [peak.x for peak in peaks],
+            'y': [peak.y for peak in peaks],
+            'xlabel': [peak.xlabel for peak in peaks],
+            'ylabel': [peak.ylabel for peak in peaks],
+            'correlation_strength': [peak.correlation_strength for peak in peaks],
+        }
+        
+        if include_metadata:
+            # Add metadata columns (same value for all rows)
+            data.update({
+                'xelement': self.xelement,
+                'yelement': self.yelement,
+                'xisotope': self.xisotope if hasattr(self, 'xisotope') else None,
+                'yisotope': self.yisotope if hasattr(self, 'yisotope') else None,
+                'correlation_metric': self.correlation_strength_metric,
+                'correlation_unit': self.correlation_unit,
+                'correlation_label': self.correlation_label,
+                'yaxis_order': self.yaxis_order,
+                'is_shift': self.is_shift,
+            })
+            
+            # Add references if they exist
+            if self.references:
+                data['xreference'] = self.references.get(self.xelement, None)
+                data['yreference'] = self.references.get(self.yelement, None)
+            
+            # Add gradients if they exist
+            if self.gradients:
+                data['xgradient'] = self.gradients.get(self.xelement, None)
+                data['ygradient'] = self.gradients.get(self.yelement, None)
+            
+            # Add rcut if it was used
+            if self.rcut:
+                data['rcut'] = self.rcut
+        
+        df = pd.DataFrame(data)
+        
+        self.logger.info(f"Exported {len(df)} peaks to DataFrame.")
+        return df
+
+    def resolve_broadening(
+        self,
+        x_broadening: Optional[float] = None,
+        y_broadening: Optional[float] = None,
+    ) -> Tuple[float, float]:
+        """
+        Return the FWHM broadening used for the contour grid in each dimension.
+
+        A value given explicitly is returned unchanged.  An unspecified one
+        defaults to 5 % of the peak range in that dimension (1.0 for a single
+        peak, so the default is never zero).
+        """
+        peaks = self.get_peaks()
+        if peaks:
+            x_range = max(p.x for p in peaks) - min(p.x for p in peaks) or 1.0
+            y_range = max(p.y for p in peaks) - min(p.y for p in peaks) or 1.0
+        else:
+            x_range = y_range = 1.0
+
+        if x_broadening is None:
+            x_broadening = 0.05 * x_range
+        if y_broadening is None:
+            y_broadening = 0.05 * y_range
+        return x_broadening, y_broadening
+
+    def get_contour_data(
+        self,
+        x_broadening: Optional[float] = None,
+        y_broadening: Optional[float] = None,
+        grid_max: Optional[float] = None,
+        broadening_type: str = 'lorentzian',
+        grid_size: int = 500,
+        xlims: Optional[Tuple[float, float]] = None,
+        ylims: Optional[Tuple[float, float]] = None,
+        use_signed: bool = False,
+    ) -> 'ContourData':
+        """
+        Compute (and cache) the 2D contour grid for this spectrum.
+
+        The result is stored on ``self._contour_data`` and is reused as long
+        as the same parameters are requested.  Pass any argument explicitly to
+        force recomputation with different settings.
+
+        Parameters
+        ----------
+        x_broadening : float, optional
+            FWHM linewidth in the direct (x) dimension.  Defaults to 5 % of
+            the x peak range.  Internally converted to HWHM (Lorentzian) or
+            σ (Gaussian) as appropriate.
+        y_broadening : float, optional
+            FWHM linewidth in the indirect (y) dimension.  Same default logic
+            as *x_broadening*.
+        grid_max : float, optional
+            If provided, scale the computed contour grid so that ``Z.max()``
+            equals this value. Useful when exporting to external tools that
+            assume a particular intensity magnitude.
+        broadening_type : str
+            ``'lorentzian'`` (default) or ``'gaussian'``.
+        grid_size : int
+            Number of points along each axis of the grid.  Default 500.
+        xlims : tuple of float, optional
+            Extends the grid, if needed, so that it covers these limits.  The
+            grid otherwise spans the full peak range plus ``5 × x_broadening``
+            padding on each side, and is never clipped.  The default broadening
+            does not depend on *xlims*.  Use ``PlotSettings.xlim`` to control the
+            display limits.
+        ylims : tuple of float, optional
+            Same as *xlims* but for the indirect (y) dimension.
+        use_signed : bool, optional
+            If ``True``, preserve the sign of correlation strengths when
+            building the contour grid.  The default ``False`` takes the
+            absolute value, which is appropriate for magnitude spectra.
+
+        Returns
+        -------
+        ContourData
+            Named-tuple with fields ``X``, ``Y``, ``Z`` (meshgrid arrays),
+            ``x_broadening``, ``y_broadening``, ``broadening_type``,
+            ``xlims``, ``ylims``.
+        """
+        peaks = self.get_peaks()
+        if not peaks:
+            raise ValueError("No peaks available – cannot compute contour data.")
+
+        # By default take absolute correlation strengths so the heatmap shows
+        # *magnitude* of correlation.  Signed metrics (e.g. negative dipolar
+        # constants) would otherwise produce negative intensities.  When
+        # use_signed=True the caller wants the signed map.
+        if use_signed:
+            peaks_for_grid = peaks
+        else:
+            peaks_for_grid = [
+                _dc_replace(p, correlation_strength=abs(p.correlation_strength))
+                for p in peaks
+            ]
+
+        x_broadening, y_broadening = self.resolve_broadening(x_broadening, y_broadening)
+
+        # Check cache. The peak list is part of the key, so editing peaks
+        # invalidates a grid computed from the old ones.
+        peaks_key = tuple(
+            (p.x, p.y, p.correlation_strength, p.multiplicity) for p in peaks_for_grid
+        )
+        cache_key = (peaks_key, x_broadening, y_broadening, grid_max, broadening_type,
+                     grid_size, xlims, ylims, use_signed)
+        if self._contour_cache_key == cache_key:
+            return self._contour_data
+
+        X, Y, Z = generate_contour_map(
+            peaks_for_grid,
+            grid_size=grid_size,
+            broadening=broadening_type,
+            x_broadening=x_broadening,
+            y_broadening=y_broadening,
+            xlims=xlims,
+            ylims=ylims,
+        )
+
+        if grid_max is not None:
+            z_current_max = float(np.max(Z))
+            if z_current_max > 0:
+                Z = Z * (grid_max / z_current_max)
+            else:
+                self.logger.warning(
+                    "grid_max requested but contour grid maximum is non-positive; "
+                    "skipping grid scaling."
+                )
+
+        # Actual grid limits (may be wider than xlims due to broadening padding)
+        actual_xlims = (float(X[0, 0]), float(X[0, -1]))
+        actual_ylims = (float(Y[0, 0]), float(Y[-1, 0]))
+
+        self._contour_data = ContourData(
+            X=X,
+            Y=Y,
+            Z=Z,
+            x_broadening=x_broadening,
+            y_broadening=y_broadening,
+            broadening_type=broadening_type,
+            xlims=actual_xlims,
+            ylims=actual_ylims,
+        )
+        self._contour_cache_key = cache_key
+        return self._contour_data
+
+    def export_contour_data(
+        self,
+        path: str,
+        fmt: Optional[str] = None,
+        x_broadening: Optional[float] = None,
+        y_broadening: Optional[float] = None,
+        grid_max: Optional[float] = None,
+        broadening_type: Optional[str] = None,
+        grid_size: Optional[int] = None,
+        xlims: Optional[Tuple[float, float]] = None,
+        ylims: Optional[Tuple[float, float]] = None,
+        x_larmor_freq_mhz: Optional[float] = None,
+        y_larmor_freq_mhz: Optional[float] = None,
+        b0_field_tesla: Optional[float] = None,
+        spectrometer_freq_mhz: Optional[float] = None,
+        use_signed: Optional[bool] = None,
+        config: Optional["ExportConfig"] = None,
+    ) -> None:
+        """
+        Export the 2D NMR contour data to a file.
+
+        .. warning::
+            Experimental. The formats, their parameters and the files written
+            may change without a deprecation period.
+
+        The contour grid is computed via :meth:`get_contour_data` (and cached
+        for subsequent calls).  The peak list is always included alongside the
+        grid where the format supports it.
+
+        Parameters
+        ----------
+        path : str
+            Output file path.  The format is inferred from the extension
+            unless *fmt* is given explicitly.  Supported extensions:
+            ``.spe``/``.sim`` → simpson, ``.npz`` → npz, ``.csv`` → csv,
+            ``.json``/``.ssnake`` → json, ``.txt`` → plain.
+        fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake', 'plain', 'bruker'}, optional
+            Export format.  If *None*, inferred from *path* extension.
+            ``'bruker'`` must be specified explicitly (no extension mapping);
+            *path* is treated as a directory, not a file.
+
+            ``'simpson'``
+                SIMPSON TEXT format (``TYPE=SPE``).  Readable by nmrglue
+                (``nmrglue.fileio.simpson.read``) and ssNake
+                (*Open → SIMPSON*).  The grid is written as a 2D real
+                spectrum; the imaginary channel is zero everywhere.  A
+                companion ``<path>.peaks.csv`` file is written alongside.
+
+            ``'npz'``
+                NumPy compressed archive.  Arrays ``X``, ``Y``, ``Z`` plus
+                scalar metadata are stored.  Reload with
+                ``np.load(path, allow_pickle=True)``.
+
+            ``'csv'``
+                Flat table with columns ``x``, ``y``, ``intensity``.
+                Useful for import into Origin, Excel, etc.
+
+            ``'json'``
+                ssNake native JSON format.  Stores Larmor frequency
+                (``freq``) directly, so **ppm is available immediately**
+                on load without any manual axis editing.  Larmor
+                frequencies are auto-computed from element gyromagnetic
+                ratios when possible; provide *x_larmor_freq_mhz* to
+                override.
+
+            ``'plain'``
+                Simple space-separated text file (x y z columns) with a
+                header comment block.  Useful for gnuplot or quick
+                inspection.
+
+        x_larmor_freq_mhz : float, optional
+            Larmor frequency in MHz for the **direct (x)** dimension nucleus.
+            Overrides auto-computation.  Only used by ``'simpson'`` and
+            ``'json'`` exporters.
+
+        y_larmor_freq_mhz : float, optional
+            Larmor frequency in MHz for the **indirect (y)** dimension nucleus.
+            For homonuclear experiments this equals *x_larmor_freq_mhz*.
+            For heteronuclear experiments (e.g. 13C on x, 1H on y) the two
+            frequencies differ and both must be provided.
+
+            *Why these matter for ssNake:*  The SIMPSON TEXT format has no
+            field for the spectrometer frequency.  ssNake therefore sets the
+            carrier to 0 MHz on load and cannot offer ppm as a unit.  When
+            Larmor frequencies are provided (or auto-computed):
+
+            * ``SW`` is written in Hz using *x_larmor_freq_mhz*.
+            * ``SW1`` is written in Hz using *y_larmor_freq_mhz* (falls
+              back to *x_larmor_freq_mhz* when *y_larmor_freq_mhz* is None).
+
+            After loading in ssNake, go to *Axes → Edit axes* and enter the
+            appropriate Larmor frequency for each dimension; ppm will then
+            be available.
+
+            When both are *None* and auto-computation fails, sweep widths
+            are written in ppm and a warning is emitted.
+
+        b0_field_tesla : float, optional
+            Magnetic field strength in Tesla.  Used to auto-compute Larmor
+            frequencies from gyromagnetic ratios.  Overridden by explicit
+            *x_larmor_freq_mhz* / *y_larmor_freq_mhz*.  If neither this nor
+            *spectrometer_freq_mhz* is given, auto-computation is skipped and
+            a warning is emitted.
+
+        spectrometer_freq_mhz : float, optional
+            Proton (¹H) spectrometer frequency in MHz (e.g. 600 for a 600 MHz
+            instrument).  Converted to Tesla internally; alternative to
+            *b0_field_tesla*.  *b0_field_tesla* takes precedence if both are
+            given.
+
+        config : ExportConfig, optional
+            Full configuration object.  Keyword arguments take precedence
+            over any values in *config*.
+
+        x_broadening, y_broadening, broadening_type, grid_size, xlims, ylims, use_signed
+            Forwarded to :meth:`get_contour_data`.
+
+        Raises
+        ------
+        ValueError
+            If no peaks are available, the format cannot be inferred, or an
+            unknown format is requested.
+        """
+        from soprano.calculate.nmr.export import ExportConfig, export_contour_data
+
+        # Start from provided config (or defaults), then apply explicit kwargs
+        base = config if config is not None else ExportConfig()
+        overrides = {
+            "x_broadening": x_broadening,
+            "y_broadening": y_broadening,
+            "grid_max": grid_max,
+            "broadening_type": broadening_type,
+            "grid_size": grid_size,
+            "xlims": xlims,
+            "ylims": ylims,
+            "x_larmor_freq_mhz": x_larmor_freq_mhz,
+            "y_larmor_freq_mhz": y_larmor_freq_mhz,
+            "b0_field_tesla": b0_field_tesla,
+            "spectrometer_freq_mhz": spectrometer_freq_mhz,
+            "use_signed": use_signed,
+        }
+        # replace() keeps every config field not overridden here (e.g. overwrite)
+        effective = _dc_replace(base, **{k: v for k, v in overrides.items() if v is not None})
+
+        # Reuse the cached grid when no rendering params were overridden.
+        # This means plot-then-export (or get_contour_data-then-export) uses
+        # the same grid the caller already computed, avoiding silent divergence.
+        precomputed = (
+            self._contour_data
+            if not effective.has_rendering_overrides()
+            else None
+        )
+        export_contour_data(nmr_data=self, path=path, fmt=fmt, config=effective, contour_data=precomputed)
+
+

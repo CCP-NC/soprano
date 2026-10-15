@@ -212,6 +212,58 @@ class TestSupercellMethods(unittest.TestCase):
         vp, vcells = minimum_periodic(v, c)
         self.assertTrue(np.isclose(np.linalg.norm(vp, axis=-1), 0.1).all())
 
+    def test_min_periodic_exclude_self_zero_vectors(self):
+        """Test that exclude_self works when all input vectors are zero.
+
+        This covers the max_r == 0 branch: the search radius must be
+        determined from the shortest non-zero lattice vector rather than
+        from the (zero) input vectors.
+        """
+        from soprano.utils import minimum_periodic
+
+        # Cubic cell – shortest lattice vector is 1.0 along any axis.
+        c = np.identity(3)
+        v_zero = [[0.0, 0.0, 0.0]]
+        vp, vcells = minimum_periodic(v_zero, c, exclude_self=True)
+        # Result must be non-zero and have length == 1 (nearest image).
+        result_norm = np.linalg.norm(vp[0])
+        self.assertGreater(result_norm, 0.0)
+        self.assertTrue(np.isclose(result_norm, 1.0))
+
+        # Orthorhombic cell with unequal axes – shortest vector is along b (2 Å).
+        c_ortho = np.diag([5.0, 2.0, 4.0])
+        vp_ortho, _ = minimum_periodic(v_zero, c_ortho, exclude_self=True)
+        result_norm_ortho = np.linalg.norm(vp_ortho[0])
+        self.assertGreater(result_norm_ortho, 0.0)
+        self.assertTrue(np.isclose(result_norm_ortho, 2.0))
+
+        # Multiple zero vectors – all should return a nearest image.
+        v_multi = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+        vp_multi, _ = minimum_periodic(v_multi, c, exclude_self=True)
+        norms = np.linalg.norm(vp_multi, axis=-1)
+        self.assertTrue(np.all(norms > 0))
+        self.assertTrue(np.allclose(norms, 1.0))
+
+    def test_min_periodic_exclude_self_zero_cell(self):
+        """A zero cell (non-periodic input) with zero vectors must not raise.
+
+        There are no non-zero neighbours to pick a search radius from, so the
+        base behaviour of returning the zero vectors is kept.
+        """
+        import warnings
+
+        from soprano.utils import minimum_periodic
+
+        v_zero = [[0.0, 0.0, 0.0]]
+        v_some = [[1.0, 0.0, 0.0], [0.0, 2.0, 0.0]]
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", RuntimeWarning)
+            vp, vcells = minimum_periodic(v_zero, np.zeros((3, 3)), exclude_self=True)
+            vp_some, _ = minimum_periodic(v_some, np.zeros((3, 3)))
+        np.testing.assert_array_equal(vp, v_zero)
+        np.testing.assert_array_equal(vcells, [[0, 0, 0]])
+        np.testing.assert_array_equal(vp_some, v_some)
+
 
 # test the merging of sites
 class TestMergeSites(unittest.TestCase):

@@ -1086,3 +1086,70 @@ class JCouplingList(AtomsProperty):
             )
 
         return jc_list
+
+
+def averaged_j_coupling_list(
+    atoms,
+    site_sets,
+    tag: str = "isc",
+    isotopes: Optional[dict] = None,
+    isotope_list: Optional[list] = None,
+    sel_i=None,
+    sel_j=None,
+) -> list[JCoupling]:
+    """Motionally averaged J couplings between spin-system sites.
+
+    The J-coupling counterpart of
+    :func:`soprano.properties.nmr.averaged_dipolar_coupling_list`.  Each site
+    stands for one or more atoms of ``atoms``; the coupling of two sites is
+    the mean of the reduced coupling tensors over every pair of their atoms
+    (fast exchange, e.g. a three-site methyl hop).  Sites that share all their
+    atoms couple through the intra-group average.
+
+    Parameters:
+      atoms (ase.Atoms): the structure the site sets index; it must hold the
+                         ``tag`` array.
+      site_sets (list[list[int]]): for each site, the atom indices it stands for.
+      tag (str): the J coupling array to use. Default is ``isc``.
+      isotopes (dict): isotopes by element symbol.
+      isotope_list (list): per-atom isotope list.
+      sel_i (list[int]): site indices for the first side of each pair.
+      sel_j (list[int]): site indices for the second side.
+
+    Returns:
+      list of :class:`soprano.nmr.coupling.JCoupling`, with ``site_i < site_j``
+      indexing ``site_sets``.  Pairs with no tensor between any of their atoms
+      are left out.
+    """
+    from soprano.properties.nmr.dipolar import _site_species_and_pairs  # noqa: PLC0415
+
+    species, pairs = _site_species_and_pairs(
+        atoms, site_sets, isotopes or {}, isotope_list, sel_i, sel_j
+    )
+    k_tensors = KTensor.get(atoms, tag=tag)
+    if not k_tensors:
+        return []
+
+    couplings = []
+    for i, j in pairs:
+        members = {
+            tuple(sorted((p, q)))
+            for p in site_sets[i]
+            for q in site_sets[j]
+            if p != q
+        }
+        data = [k_tensors[m].data for m in sorted(members) if m in k_tensors]
+        if not data:
+            continue
+        couplings.append(
+            JCoupling(
+                site_i=i,
+                site_j=j,
+                species1=species[i],
+                species2=species[j],
+                tensor=NMRTensor(np.mean(data, axis=0), order=JC_TENSOR_ORDER),
+                type="J",
+                tag=tag,
+            )
+        )
+    return couplings

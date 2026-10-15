@@ -24,8 +24,99 @@ All notable changes to Soprano are documented here.
 - `NMRTensor.euler_to` with two axial tensors, either of which has its unique axis along y,
   now raises `ValueError` as `euler_angles` does (this order is not reachable with the supported
   tensor orders).
+- **Chemical shift referencing: an explicit gradient now means a linear fit, with no
+  denominator.** The mode is chosen per element (see {doc}`chemical-shift-referencing`):
+  - An element without a gradient uses the full formula δ = (σ_ref − σ)/(1 − σ_ref·10⁻⁶).
+  - An element with a gradient m uses the linear fit δ = σ_ref + m·σ.
+
+  In v0.11 every gradient, including the default −1, went through the denominator formula.
+  `gradients=None` (now the default everywhere, including `get_spin_system`, `NMRSpinSystem`,
+  `NMRSites`, `write_spinsys` and `soprano nmr`) gives the same numbers as the old default.
+  An explicit `-1` now gives σ_ref − σ, which differs by about σ_ref·10⁻⁶·δ (≈0.02 ppm for ¹³C).
+
+  ```python
+  # v0.11: both lines used the denominator formula
+  MSShift.get(atoms, references={'H': 31, 'C': 170})
+  MSShift.get(atoms, references={'H': 31, 'C': 170}, gradients={'C': -0.98})  # H used m = −1
+  # v0.12: first line unchanged; second line is a linear fit for C, full formula for H
+  ```
+
+  A `UserWarning` is emitted when a gradient dict leaves out referenced elements, and when a
+  gradient is exactly −1. The warning for |σ_ref| > 500 ppm in linear mode is gone, since a
+  fitted intercept has no neglected denominator. An INFO log line reports each element's mode.
+- **Missing references raise.** `nmr_extract_multi` / `soprano nmr` used to fill elements
+  without a reference with 0 ppm; they now raise a `ValueError` naming those elements.
+- **CLI flags renamed with no aliases:** `--ref` → `--references`, `--grad` → `--gradients`,
+  `--select-i`/`--select-j` → `--select_i`/`--select_j`, `--plot_type` → `--plot-type`,
+  `-cmap` → `--colormap`.
+- **`soprano plotnmr` defaults:** `--rcut` is now `None` (all pairs; was 10 Å), and contour and
+  heatmap levels span 10–100 % of the maximum (was the full Z range).
+- **`plotnmr` exit codes:** invalid option combinations are usage errors (exit 2) rather than
+  tracebacks or a silent exit 0.
 
 ### Fixes
+
+#### NMR extraction and CLI
+
+- New `--expand-group/--collapse-group` for `soprano spinsys`. An expanded group keeps each atom
+  as a spin with the group-mean tensors and the couplings inside the group. It is the default when
+  `--dip` or `--jcoupling` is given, and groups collapse otherwise. New functions
+  `averaged_dipolar_coupling_list` and `averaged_j_coupling_list`, and the `return_site_sets` and
+  `expand_groups` arguments of `nmr_extract_atoms`, support it.
+
+- `EFG_Vzz` in `soprano nmr` output was wrong by a large factor; it is now in V m⁻²
+  (ethanol O: −1.81 × 10²² V m⁻²). `EFG_quadrupolar_constant` was not affected.
+- `soprano nmr --mean-merge` is available again.
+- `--average-group` averaged symmetry-equivalent methyl groups together, because groups were
+  matched by tag. Tensors from groups in different orientations were mixed, which distorted the
+  anisotropy and Euler angles. Each group is now averaged on its own and equivalent groups merge
+  afterwards. Output changes for structures with symmetry-equivalent methyls. `--mean-merge` still
+  pools them.
+- `soprano spinsys --average-group` took couplings from the merged structure, so a collapsed CH₃
+  got the first hydrogen's static coupling. Couplings are now averaged over the group in the source
+  structure (see {doc}`dipolar-averaging`).
+- `SiteMap` keeps its read-only array through pickle on every numpy release.
+- `nmr_extract_multi` no longer stops at the first unreadable file, and no longer crashes when
+  `include` is left at its default.
+- `soprano.nmr.extract` no longer imports from `soprano.scripts`. The dataframe helpers live in
+  `soprano.nmr.dataframe`; the old import paths in `soprano.scripts` still work.
+
+#### 2D NMR spectra and export
+
+Exporting 2D spectra (`export_contour_data`, `plotnmr --export-file`) to Bruker TopSpin,
+ssNake, SIMPSON, NPZ, CSV and plain text is **experimental** in this release. Formats and
+options may change without a deprecation period, and the first export in a session logs a
+warning saying so.
+
+- Bruker datasets open in TopSpin 5: the parameter files carry the JCAMP-DX header TopSpin
+  requires, and `YMAX_p`/`YMIN_p` plus a `clevels` file give it usable default contours.
+- Larmor frequencies use the selected isotope (e.g. ¹⁵N rather than ¹⁴N).
+- Bruker export: the indirect axis now round-trips exactly through nmrglue; an existing
+  dataset is not overwritten unless `ExportConfig(overwrite=True)` / `--overwrite` is given;
+  NaN, all-zero and int32-overflowing grids raise instead of writing corrupt data.
+- SIMPSON `.spe` and ssNake JSON export: the spectral width is scaled by N/(N−1) to match the
+  endpoint-inclusive grid, and the carrier (`SPECFREQ`, written at full precision) and
+  0 ppm reference (`SPECREF`) are written so ssNake rebuilds the ppm axis. Previously the
+  window was centred on 0 ppm and one grid step short.
+- The 2D Lorentzian is the separable product of two 1D Lorentzians, so each linewidth no
+  longer depends on the other coordinate and normalisation gives unit area.
+- DQ-SQ with `reduce=True` keeps the self-pairs of merged sites, weighted m(m−1), so diagonal
+  peaks from equivalent atoms (e.g. within a methyl group) are no longer lost.
+- `merge_peaks` merges peaks within the tolerances of a group's first peak; merged labels no
+  longer leak between groups that share a label.
+- `NMRPlot2D` no longer modifies the caller's `PlotSettings`; Plotly labels stay on the
+  correct edges when axes are inverted; an all-zero contour grid raises a clear error.
+
+#### Core
+
+- `SiteMap` rejects duplicate selection indices and non-integer maps, no longer freezes the
+  caller's array, and gains a `multiplicity` property.
+- `minimum_periodic` handles a zero cell again.
+- `UniqueSites(override_cif=True)` now actually uses the symmetry reduction; before, both
+  branches returned the CIF-label grouping. CIF labels that give the same grouping as symmetry
+  are no longer reported as a mismatch.
+- `averaged_dipolar_coupling` raises for coincident atoms instead of returning NaN.
+  `DipolarRSSByAtom` caches symmetry tags per structure.
 
 #### Tensor orientations in the SIMPSON and mrsimulator exports
 

@@ -63,7 +63,7 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
     soprano nmr -p ms -s H1a seedname.magres
     ```
 
-* Set chemical shift references and gradients (non-specified references are set to zero and non-specified gradients are set to -1):
+* Set chemical shift references. Every element in the structure needs a reference, otherwise the command stops with an error. Gradients are optional: an element with a gradient uses the linear fit δ = reference + gradient × σ, and an element without one uses the full formula δ = (reference − σ)/(1 − reference × 10⁻⁶). A gradient of exactly -1 is still a linear fit:
 
     ```bash
     soprano nmr -p ms --references C:170,H:100 --gradients C:-1,H:-0.95 seedname.magres
@@ -91,6 +91,8 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
 
 The `plotnmr` subcommand can be used to generate 2D NMR plots from a magres file. Most of the options are the same as for the `nmr` subcommand in terms of filtering sites, setting references, isotopes etc. You can see the full help by running `soprano plotnmr --help`. 
 
+When chemical shifts are plotted (references given and `--shielding` not set), the plotted elements must all have a reference in `--references`. Otherwise the command stops with an error.
+
 Here are some common examples:
 
 * Plot proton-proton correlation spectrum:
@@ -102,28 +104,89 @@ Here are some common examples:
 * Plot C-H correlation spectrum with marker sizes proportional to the dipolar coupling strength. Plot the chemical shift rather than shielding by supplying reference values:
 
     ```bash
-    soprano plotnmr -x C -y H --scale-marker-by dipolar --references C:180,H:30 seedname.magres
+    soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 seedname.magres
     ```
 
 * As previous, but plot a heatmap and contour lines in addition to the markers:
 
     ```bash
-    soprano plotnmr -x C -y H --scale-marker-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
+    soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 --heatmap --contour seedname.magres
     ```
 
-* Plot the H-H double quantum correlation spectrum:
+    * Control intensity windows cleanly: `--intensity-range` sets a shared default for both contour and heatmap. Override only one layer with `--contour-range` or `--heatmap-range` when needed:
+
+        ```bash
+        soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 \
+            --heatmap --contour \
+            --intensity-range 10 100 \
+            --heatmap-range 5 60 \
+            seedname.magres
+        ```
+
+    * Exporting the 2D spectrum (`--export-file`, `--export-format`) to Bruker TopSpin, ssNake, SIMPSON, NPZ, CSV or plain text is experimental. The formats and options may change between releases, so check the exported axes against the `peaks.csv` written alongside before relying on them.
+
+    * If you need the generated contour grid to match the intensity scale expected by external tools (for example when comparing with experimental files in ssNake), rescale the synthetic grid maximum with `--grid-max`:
+
+        ```bash
+        soprano plotnmr -x C -y H --weight-by dipolar --references C:180,H:30 \
+            --heatmap --contour --grid-max 1e6 \
+            --export-file soprano_scaled.spe --export-format simpson \
+            seedname.magres
+        ```
+
+        This keeps the relative peak intensities unchanged, but multiplies the whole grid so that `max(Z)` equals the chosen value.
+
+* Plot the H-H double quantum (DQ/SQ) correlation spectrum:
 
     ```bash
     soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q seedname.magres
     ```
 
+* DQ/SQ spectrum with marker sizes weighted by the dipolar RSS — the root-sum-squared dipolar coupling from each site to all neighbours of the paired site (within a 5 Å cutoff). This reflects the DQ build-up efficiency better than the single nearest-neighbour coupling:
+
+    ```bash
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q \
+            --weight-by dipolar_rss \
+            --rss-cutoff 5.0 \
+            seedname.magres
+    ```
+
+* As previous, but for a structure with Z > 1 (multiple crystallographically equivalent copies per unit cell), expand the neighbour set to all sites sharing the same CIF label so the RSS sums over all equivalent copies:
+
+    ```bash
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q \
+            --weight-by dipolar_rss \
+            --rss-cutoff 5.0 \
+            --rss-expand-j cif_labels \
+            seedname.magres
+    ```
+
+    Use `--rss-expand-j symmetry` to use spglib symmetry operations instead of CIF labels. Both options give the same result for well-prepared CIF-derived structures, but `symmetry` works even without CIF label information.
+
+    Note that `--rss-expand-j cif_labels` requires a `.magres` file that carries CIF labels. On a file without them the command stops with an error. Use `--rss-expand-j symmetry` for those files.
+
+* DQ/SQ with RSS weighting, chemical shift references, and a heatmap/contour overlay:
+
+    ```bash
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q \
+            --weight-by dipolar_rss \
+            --rss-cutoff 5.0 \
+            --rss-expand-j cif_labels \
+            --references H:30 \
+            --heatmap \
+            --contour \
+            seedname.magres
+    ```
+
 * As previous, but averaging over dynamic CH3 and NH3 sites:
 
     ```bash
-    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 seedname.magres
+    soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 \
+            --weight-by dipolar_rss --rss-expand-j cif_labels \
+            seedname.magres
     ```
 
-* By default, Soprano will reduce the system to the inequivalent sites first (e.g. those with the same CIF label or a symmetrically equivalent position). To prevent this, use the `--no-reduce` option:
+* By default, Soprano reduces the system to the inequivalent sites (e.g. those with the same CIF label or a symmetrically equivalent position). To prevent this, use the `--no-reduce` option:
 
     ```bash
     soprano plotnmr -p 2D -x H -y H --yaxis-order 2Q -g CH3,NH3 --no-reduce seedname.magres
@@ -141,10 +204,11 @@ Here are some common examples:
     soprano plotnmr -p 2D -x C -y H \
             -g CH3 \
             --rcut 1.5 \
-            --scale-marker-by dipolar \
+            --weight-by dipolar \
             --no-markers \
             --references C:180,H:30 \
             --heatmap \
+            --grid-max 1e6 \
             --colormap "viridis" \
             --contour \
             --contour-levels 15 \
@@ -156,25 +220,25 @@ Here are some common examples:
 ## Spin Systems
 The `spinsys` subcommand extracts spin systems from a magres file and writes them in Simpson or MRSimulator format. Run `soprano spinsys --help` for the full option list.
 
-Magnetic shielding (`--ms`, on by default) requires reference values for each isotope (`--ref ISOTOPE:VALUE`); use `--no-ms` to disable it. EFG/quadrupolar terms are also on by default and are included automatically for quadrupolar-active isotopes — use `--no-efg` to suppress them. Dipolar and J-couplings are opt-in via `--dip` and `--jcoupling`.
+Magnetic shielding (`--ms`, on by default) requires reference values for each isotope (`--references ISOTOPE:VALUE`); use `--no-ms` to disable it. EFG/quadrupolar terms are also on by default and are included automatically for quadrupolar-active isotopes — use `--no-efg` to suppress them. Dipolar and J-couplings are opt-in via `--dip` and `--jcoupling`.
 
 * **Basic ¹H spin system → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 -o spinsys.in
+    soprano spinsys seedname.magres -s H --references H:30 -o spinsys.in
     ```
 
 * **¹³C/¹H spin system with C–H dipolar couplings → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s C,H --ref C:170,H:30 --dip --select-i C --select-j H -o spinsys.in
+    soprano spinsys seedname.magres -s C,H --references C:170,H:30 --dip --select_i C --select_j H -o spinsys.in
     ```
-    `-s C,H` includes both species in the spin system; `--select-i C --select-j H` restricts dipolar couplings to C–H pairs only (skipping H–H).
+    `-s C,H` includes both species in the spin system; `--select_i C --select_j H` restricts dipolar couplings to C–H pairs only (skipping H–H).
 
 * **Quadrupolar nucleus (²H, 2nd order) → Simpson file:**
 
     ```bash
-    soprano spinsys seedname.magres -s H -i 2H --ref H:0 --q-order 2 -o spinsys_2H.in
+    soprano spinsys seedname.magres -s H -i 2H --references H:0 --q-order 2 -o spinsys_2H.in
     ```
 
 * **¹⁷O quadrupolar spin system → Simpson file:**
@@ -187,26 +251,26 @@ Magnetic shielding (`--ms`, on by default) requires reference values for each is
 * **Include J-couplings:**
 
     ```bash
-    soprano spinsys seedname.magres -s C --ref C:170 --dip --jcoupling -o spinsys.in
+    soprano spinsys seedname.magres -s C --references C:170 --dip --jcoupling -o spinsys.in
     ```
 
 * **MRSimulator format:**
 
     ```bash
-    soprano spinsys seedname.magres -s C --ref C:170 --dip -f mrsimulator -o spinsys.json
+    soprano spinsys seedname.magres -s C --references C:170 --dip -f mrsimulator -o spinsys.json
     ```
 
 * **Output individual spin systems to separate files (one per site):**
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --split
+    soprano spinsys seedname.magres -s H --references H:30 --split
     ```
     With `--split`, output filenames are generated automatically from the site labels.
 
 * **Average methyl (CH₃) groups** into a single site. Use `--no-reduce` to prevent symmetry-equivalent methyls from being merged together before averaging:
 
     ```bash
-    soprano spinsys seedname.magres -s H --ref H:30 --average-group CH3 --no-reduce -o spinsys.in
+    soprano spinsys seedname.magres -s H --references H:30 --average-group CH3 --no-reduce -o spinsys.in
     ```
 
 * **Custom isotope** — `-i` controls which isotope is used for the dipolar coupling constant, EFG quadrupolar coupling, and J-coupling. It does **not** affect the MS tensor. For example, to compute ²H dipolar couplings for a deuterium-labelled sample (MS disabled since no reference is available):

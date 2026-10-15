@@ -1,0 +1,882 @@
+#!/usr/bin/env python
+"""Focused tests for the standalone 2D NMR export module."""
+
+import csv
+import importlib.util
+import json
+import os
+import re
+import shutil
+import tempfile
+import unittest
+import warnings
+
+import numpy as np
+from ase import io
+
+from soprano.calculate.nmr.config import PlotSettings
+from soprano.calculate.nmr.data2d import NMRData2D
+from soprano.calculate.nmr.export import ExportConfig, export_contour_data
+
+_TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
+
+_NMRGLUE_AVAILABLE = importlib.util.find_spec("nmrglue") is not None
+
+
+def _ssnake_ppm_axis(n, sw_hz, freq_hz, ref_hz):
+    # ssNake (specIO.loadSimpsonFile / spectrum.resetXax): FFT axis about the carrier, then ppm.
+    xax = np.fft.fftshift(np.fft.fftfreq(n, 1.0 / sw_hz)) + (freq_hz - ref_hz)
+    return xax * 1e6 / ref_hz
+
+
+def _read_spe_header(path):
+    with open(path) as f:
+        text = f.read()
+
+    def num(pattern):
+        return float(re.search(pattern, text, re.M).group(1))
+
+    return {
+        "SW": num(r"^SW=(\S+)$"),
+        "SW1": num(r"^SW1=(\S+)$"),
+        "SPECREF_x": num(r"^# SPECREF_x=(\S+) MHz"),
+        "SPECFREQ_x": num(r"^# SPECFREQ_x=(\S+) MHz"),
+        "SPECREF_y": num(r"^# SPECREF_y=(\S+) MHz"),
+        "SPECFREQ_y": num(r"^# SPECFREQ_y=(\S+) MHz"),
+    }
+
+
+class TestNMRExportPublicAPI(unittest.TestCase):
+    def test_package_level_import(self):
+        from soprano.calculate.nmr import export_contour_data as package_export
+
+        self.assertIs(package_export, export_contour_data)
+
+    def test_new_symbols_exported(self):
+        from soprano.calculate.nmr import ExportConfig, compute_larmor_frequency, guess_format_from_path
+
+        self.assertTrue(callable(compute_larmor_frequency))
+        self.assertTrue(callable(guess_format_from_path))
+        cfg = ExportConfig()
+        self.assertIsNone(cfg.x_larmor_freq_mhz)
+
+
+class TestExportConfig(unittest.TestCase):
+    def test_defaults(self):
+        from soprano.calculate.nmr.export import ExportConfig
+
+        cfg = ExportConfig()
+        self.assertIsNone(cfg.x_larmor_freq_mhz)
+        self.assertEqual(cfg.grid_size, 500)
+        self.assertEqual(cfg.broadening_type, "lorentzian")
+        self.assertFalse(cfg.use_signed)
+        self.assertFalse(cfg.overwrite)
+
+    def test_custom_values(self):
+        from soprano.calculate.nmr.export import ExportConfig
+
+        cfg = ExportConfig(grid_size=200, x_larmor_freq_mhz=400.0, use_signed=True)
+        self.assertEqual(cfg.grid_size, 200)
+        self.assertEqual(cfg.x_larmor_freq_mhz, 400.0)
+        self.assertTrue(cfg.use_signed)
+
+
+class TestLarmorFrequencyHelpers(unittest.TestCase):
+    def test_compute_larmor_hydrogen_at_9_4_tesla(self):
+        from soprano.calculate.nmr.export import compute_larmor_frequency
+
+        freq = compute_larmor_frequency("H", b0_tesla=9.4)
+        # 1H @ 9.4 T ≈ 400 MHz
+        self.assertAlmostEqual(freq, 400.13, delta=1.0)
+
+    def test_compute_larmor_carbon_at_same_field(self):
+        from soprano.calculate.nmr.export import compute_larmor_frequency
+
+        freq = compute_larmor_frequency("C", b0_tesla=9.4)
+        # 13C @ 9.4 T ≈ 100 MHz
+        self.assertAlmostEqual(freq, 100.61, delta=1.0)
+
+    def test_compute_larman_scales_linearly_with_field(self):
+        from soprano.calculate.nmr.export import compute_larmor_frequency
+
+        f1 = compute_larmor_frequency("H", b0_tesla=9.4)
+        f2 = compute_larmor_frequency("H", b0_tesla=18.8)
+        self.assertAlmostEqual(f2, 2 * f1, places=1)
+
+    def test_compute_larman_unknown_element_raises(self):
+        from soprano.calculate.nmr.export import compute_larmor_frequency
+
+        with self.assertRaises(ValueError):
+            compute_larmor_frequency("Xx", b0_tesla=9.4)
+
+    def test_compute_b0_from_spectrometer_freq_roundtrip(self):
+        from soprano.calculate.nmr.export import compute_b0_from_spectrometer_freq, compute_larmor_frequency
+
+        b0 = compute_b0_from_spectrometer_freq(600.0)
+        freq_back = compute_larmor_frequency("H", b0_tesla=b0)
+        self.assertAlmostEqual(freq_back, 600.0, places=3)
+
+    def test_spectrometer_freq_produces_correct_b0_for_600mhz(self):
+        from soprano.calculate.nmr.export import compute_b0_from_spectrometer_freq
+
+        b0 = compute_b0_from_spectrometer_freq(600.0)
+        # 600 MHz ¹H → ~14.09 T
+        self.assertAlmostEqual(b0, 14.09, delta=0.05)
+
+    def test_resolver_passes_isotope_to_larmor_frequency(self):
+        from types import SimpleNamespace
+        from soprano.calculate.nmr.export import _resolve_larmor_freqs
+
+        nmr = SimpleNamespace(xelement="N", yelement=None, xisotope=15, yisotope=None)
+        x, y = _resolve_larmor_freqs(nmr, None, None, 9.4)
+        # 15N @ 9.4 T ≈ 40.58 MHz (14N would be ~28.9 MHz)
+        self.assertAlmostEqual(x, 40.58, delta=0.01)
+        self.assertIsNone(y)
+
+
+
+class TestFormatInference(unittest.TestCase):
+    def test_known_extensions(self):
+        from soprano.calculate.nmr.export import guess_format_from_path
+
+        self.assertEqual(guess_format_from_path("spectrum.spe"), "simpson")
+        self.assertEqual(guess_format_from_path("spectrum.npz"), "npz")
+        self.assertEqual(guess_format_from_path("spectrum.csv"), "csv")
+        self.assertEqual(guess_format_from_path("spectrum.json"), "json")
+        self.assertEqual(guess_format_from_path("spectrum.ssnake"), "json")
+        self.assertEqual(guess_format_from_path("spectrum.txt"), "plain")
+
+    def test_unknown_extension_raises(self):
+        from soprano.calculate.nmr.export import guess_format_from_path
+
+        with self.assertRaises(ValueError):
+            guess_format_from_path("spectrum.xyz")
+
+
+class TestPlotSettingsRanges(unittest.TestCase):
+    def test_shared_intensity_range_with_optional_overrides(self):
+        default_shared = PlotSettings()
+        self.assertEqual(default_shared.intensity_range, (10.0, 100.0))
+        self.assertEqual(default_shared.contour_range, (10.0, 100.0))
+        self.assertEqual(default_shared.heatmap_range, (10.0, 100.0))
+
+        shared_custom = PlotSettings(intensity_range=(5.0, 80.0))
+        self.assertEqual(shared_custom.contour_range, (5.0, 80.0))
+        self.assertEqual(shared_custom.heatmap_range, (5.0, 80.0))
+
+        split_layers = PlotSettings(
+            intensity_range=(5.0, 80.0),
+            contour_range=(20.0, 90.0),
+            heatmap_range=(2.0, 50.0),
+        )
+        self.assertEqual(split_layers.contour_range, (20.0, 90.0))
+        self.assertEqual(split_layers.heatmap_range, (2.0, 50.0))
+
+
+class TestNMRExportModule(unittest.TestCase):
+    def setUp(self):
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        if isinstance(atoms, list):
+            self.fail("Expected a single Atoms object from EDIZUM.magres")
+        self.atoms = atoms
+        self.nmr_data = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="H",
+            yaxis_order="2Q",
+            references={"H": 29.5},
+            correlation_strength_metric="fixed",
+        )
+        self.tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        import shutil
+
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _path(self, name: str) -> str:
+        return os.path.join(self.tmpdir, name)
+
+    def test_export_csv_grid(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.csv")
+        export_contour_data(self.nmr_data, out, fmt="csv", config=ExportConfig(grid_size=60))
+        self.assertTrue(os.path.exists(out))
+
+        with open(out, newline="") as f:
+            rows = list(csv.reader(f))
+        self.assertEqual(rows[0], ["x_ppm", "y_ppm", "intensity"])
+        self.assertGreater(len(rows), 10)
+
+    def test_export_npz_contains_expected_arrays(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.npz")
+        export_contour_data(self.nmr_data, out, fmt="npz", config=ExportConfig(grid_size=40))
+        self.assertTrue(os.path.exists(out))
+
+        data = np.load(out, allow_pickle=True)
+        for key in ("X", "Y", "Z", "peak_x", "peak_y", "xlims", "ylims"):
+            self.assertIn(key, data.files)
+
+    def test_export_npz_omits_peaks_when_disabled(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("no_peaks.npz")
+        export_contour_data(
+            self.nmr_data, out, fmt="npz",
+            config=ExportConfig(grid_size=40, include_peaks=False),
+        )
+        data = np.load(out, allow_pickle=True)
+        for key in ("X", "Y", "Z"):
+            self.assertIn(key, data.files)
+        for key in ("peak_x", "peak_y"):
+            self.assertNotIn(key, data.files)
+
+    def test_export_npz_respects_grid_max_scaling(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("scaled.npz")
+        target_max = 1.0e6
+        export_contour_data(
+            self.nmr_data,
+            out,
+            fmt="npz",
+            config=ExportConfig(grid_size=40, grid_max=target_max),
+        )
+        self.assertTrue(os.path.exists(out))
+
+        data = np.load(out, allow_pickle=True)
+        zmax = float(np.max(data["Z"]))
+        self.assertAlmostEqual(zmax, target_max, places=6)
+
+    def test_export_json_requires_larmor_when_auto_fails(self):
+        """JSON export raises ValueError when Larmor freq can't be determined."""
+        # Temporarily override element to something without gamma data
+        original_xelement = self.nmr_data.xelement
+        self.nmr_data.xelement = "Xx"
+        try:
+            from soprano.calculate.nmr.export import ExportConfig
+            out = self._path("out.json")
+            with self.assertRaises(ValueError):
+                export_contour_data(self.nmr_data, out, fmt="json", config=ExportConfig(grid_size=40))
+        finally:
+            self.nmr_data.xelement = original_xelement
+
+    def test_export_json_auto_computes_larmor(self):
+        """JSON export auto-computes Larmor frequency from element."""
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.json")
+        export_contour_data(
+            self.nmr_data,
+            out,
+            fmt="json",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        self.assertTrue(os.path.exists(out))
+
+        with open(out) as f:
+            payload = json.load(f)
+
+        self.assertIn("metaData", payload)
+        self.assertIn("x_larmor_MHz", payload["metaData"])
+        # 1H @ 9.4 T ≈ 400 MHz
+        self.assertAlmostEqual(payload["metaData"]["x_larmor_MHz"], 400.13, delta=1.0)
+
+    def test_export_json_includes_peaks(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.json")
+        export_contour_data(
+            self.nmr_data,
+            out,
+            fmt="json",
+            config=ExportConfig(grid_size=40, x_larmor_freq_mhz=100.0, y_larmor_freq_mhz=100.0),
+        )
+        self.assertTrue(os.path.exists(out))
+
+        with open(out) as f:
+            payload = json.load(f)
+
+        for key in ("dataReal", "dataImag", "freq", "sw", "ref", "xaxArray", "metaData", "peaks"):
+            self.assertIn(key, payload)
+        self.assertIsInstance(payload["peaks"], list)
+        self.assertGreater(len(payload["peaks"]), 0)
+        self.assertIn("x", payload["peaks"][0])
+        self.assertIn("correlation_strength", payload["peaks"][0])
+
+    def test_export_json_writes_ssnake_fields(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.json")
+        export_contour_data(
+            self.nmr_data,
+            out,
+            fmt="json",
+            config=ExportConfig(grid_size=40, x_larmor_freq_mhz=100.0, y_larmor_freq_mhz=100.0),
+        )
+        self.assertTrue(os.path.exists(out))
+
+        with open(out) as f:
+            payload = json.load(f)
+
+        for key in ("dataReal", "dataImag", "freq", "sw", "ref", "xaxArray", "metaData"):
+            self.assertIn(key, payload)
+
+    def test_export_simpson_writes_companion_peak_csv(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.spe")
+        export_contour_data(
+            self.nmr_data,
+            out,
+            fmt="simpson",
+            config=ExportConfig(grid_size=40, x_larmor_freq_mhz=100.0),
+        )
+        self.assertTrue(os.path.exists(out))
+        self.assertTrue(os.path.exists(out + ".peaks.csv"))
+
+    def test_export_auto_detects_format_from_extension(self):
+        """Format should be inferred from file extension when fmt=None."""
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("auto.npz")
+        export_contour_data(self.nmr_data, out, config=ExportConfig(grid_size=40))
+        self.assertTrue(os.path.exists(out))
+
+        data = np.load(out, allow_pickle=True)
+        self.assertIn("Z", data.files)
+
+    def test_export_plain_text_format(self):
+        """Plain text export should produce space-separated columns and a peaks companion."""
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.txt")
+        export_contour_data(self.nmr_data, out, fmt="plain", config=ExportConfig(grid_size=40))
+        self.assertTrue(os.path.exists(out))
+        self.assertTrue(os.path.exists(out + ".peaks.csv"))
+
+        with open(out) as f:
+            lines = f.readlines()
+
+        header_lines = [l for l in lines if l.startswith("#")]
+        self.assertGreater(len(header_lines), 0)
+
+        data_lines = [l for l in lines if not l.startswith("#") and l.strip()]
+        self.assertGreater(len(data_lines), 0)
+        self.assertEqual(len(data_lines[0].strip().split()), 3)
+
+    def test_export_plain_omits_peaks_when_disabled(self):
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("no_peaks.txt")
+        export_contour_data(
+            self.nmr_data, out, fmt="plain",
+            config=ExportConfig(grid_size=40, include_peaks=False),
+        )
+        self.assertTrue(os.path.exists(out))
+        self.assertFalse(os.path.exists(out + ".peaks.csv"))
+
+    def test_export_csv_includes_peaks(self):
+        """CSV export should produce a companion peaks file."""
+        from soprano.calculate.nmr.export import ExportConfig
+        out = self._path("out.csv")
+        export_contour_data(self.nmr_data, out, fmt="csv", config=ExportConfig(grid_size=40))
+        self.assertTrue(os.path.exists(out))
+        self.assertTrue(os.path.exists(out + ".peaks.csv"))
+
+    def test_export_simpson_data_matches_contour_grid(self):
+        out = self._path("grid.spe")
+        export_contour_data(
+            self.nmr_data, out,
+            config=ExportConfig(grid_size=30, b0_field_tesla=9.4, include_peaks=False),
+        )
+        cd = self.nmr_data.get_contour_data(grid_size=30)
+        with open(out) as f:
+            lines = f.read().splitlines()
+        self.assertIn("NP=30", lines)
+        self.assertIn("NI=30", lines)
+        # The writer stores the grid in its own order (rows = indirect), unflipped
+        values = np.array([float(line.split()[0])
+                           for line in lines[lines.index("DATA") + 1:lines.index("END")]])
+        np.testing.assert_allclose(values.reshape(30, 30), cd.Z, rtol=1e-6, atol=1e-12)
+
+    def test_export_ssnake_json_data_matches_contour_grid(self):
+        out = self._path("grid.ssnake")
+        export_contour_data(
+            self.nmr_data, out,
+            config=ExportConfig(grid_size=30, b0_field_tesla=9.4, include_peaks=False),
+        )
+        cd = self.nmr_data.get_contour_data(grid_size=30)
+        with open(out) as f:
+            struct = json.load(f)
+        # Same unflipped grid as the SIMPSON writer, stored as one 2D slice
+        np.testing.assert_allclose(np.array(struct["dataReal"])[0], cd.Z, rtol=1e-12, atol=0)
+
+    def _assert_ssnake_axis_matches_grid(self, n, sw_hz, freq_hz, ref_hz, lims):
+        ppm = _ssnake_ppm_axis(n, sw_hz, freq_hz, ref_hz)
+        step = (lims[1] - lims[0]) / (n - 1)
+        np.testing.assert_allclose(ppm, np.linspace(lims[0], lims[1], n), rtol=0, atol=1e-6 * step)
+
+    def test_simpson_header_reconstructs_grid_axes_in_ssnake(self):
+        for n in (30, 31):  # even and odd grid sizes
+            with self.subTest(n=n):
+                out = self._path(f"axes_{n}.spe")
+                export_contour_data(
+                    self.nmr_data, out,
+                    config=ExportConfig(grid_size=n, b0_field_tesla=9.4, include_peaks=False),
+                )
+                cd = self.nmr_data.get_contour_data(grid_size=n)
+                h = _read_spe_header(out)
+                self._assert_ssnake_axis_matches_grid(
+                    n, h["SW"], h["SPECFREQ_x"] * 1e6, h["SPECREF_x"] * 1e6, cd.xlims,
+                )
+                self._assert_ssnake_axis_matches_grid(
+                    n, h["SW1"], h["SPECFREQ_y"] * 1e6, h["SPECREF_y"] * 1e6, cd.ylims,
+                )
+
+    def test_ssnake_json_axes_reconstruct_grid(self):
+        for n in (30, 31):  # even and odd grid sizes
+            with self.subTest(n=n):
+                out = self._path(f"axes_{n}.ssnake")
+                export_contour_data(
+                    self.nmr_data, out,
+                    config=ExportConfig(grid_size=n, b0_field_tesla=9.4, include_peaks=False),
+                )
+                cd = self.nmr_data.get_contour_data(grid_size=n)
+                with open(out) as f:
+                    struct = json.load(f)
+                # JSON lists are ordered [indirect (y), direct (x)]
+                self._assert_ssnake_axis_matches_grid(
+                    n, struct["sw"][1], struct["freq"][1], struct["ref"][1], cd.xlims,
+                )
+                self._assert_ssnake_axis_matches_grid(
+                    n, struct["sw"][0], struct["freq"][0], struct["ref"][0], cd.ylims,
+                )
+
+    def test_export_config_spectrometer_freq_computes_larmor(self):
+        """ExportConfig.spectrometer_freq_mhz should auto-compute Larmor freqs."""
+        from soprano.calculate.nmr.export import ExportConfig
+
+        cfg = ExportConfig(spectrometer_freq_mhz=400.0)
+        x, _ = cfg.resolve_larmor_freqs(self.nmr_data)
+        # H @ 400 MHz spectrometer → x_larmor ≈ 400 MHz
+        self.assertIsNotNone(x)
+        self.assertAlmostEqual(x, 400.0, delta=1.0)
+
+    def test_export_config_both_b0_and_spectrometer_freq_raises(self):
+        """Specifying both b0_field_tesla and spectrometer_freq_mhz should raise."""
+        from soprano.calculate.nmr.export import ExportConfig
+
+        with self.assertRaises(ValueError):
+            ExportConfig(b0_field_tesla=9.4, spectrometer_freq_mhz=600.0)
+
+    def test_export_config_object(self):
+        """Using ExportConfig should work equivalently to kwargs."""
+        from soprano.calculate.nmr.export import ExportConfig
+
+        out = self._path("config.npz")
+        cfg = ExportConfig(grid_size=40, grid_max=1e6)
+        export_contour_data(self.nmr_data, out, config=cfg)
+        self.assertTrue(os.path.exists(out))
+
+        data = np.load(out, allow_pickle=True)
+        zmax = float(np.max(data["Z"]))
+        self.assertAlmostEqual(zmax, 1e6, places=6)
+
+    def test_export_reuses_cached_contour_data(self):
+        """NMRData2D.export_contour_data reuses the cached grid when no rendering overrides are given."""
+        from unittest.mock import patch
+
+        # Prime the cache with a specific grid
+        self.nmr_data.get_contour_data(grid_size=77)
+        cached = self.nmr_data._contour_data
+        self.assertEqual(cached.Z.shape[0], 77)
+
+        out = self._path("reuse.npz")
+        # Call the method with no rendering overrides — must reuse the cached grid
+        with patch.object(self.nmr_data, 'get_contour_data', wraps=self.nmr_data.get_contour_data) as mock_cd:
+            self.nmr_data.export_contour_data(out)
+            mock_cd.assert_not_called()
+
+        data = np.load(out, allow_pickle=True)
+        # Grid shape should match the cached grid, not the ExportConfig default (500)
+        self.assertEqual(data["Z"].shape[0], 77)
+
+    def test_export_recomputes_when_rendering_override_given(self):
+        """export_contour_data recomputes when a rendering param is explicitly overridden."""
+        from soprano.calculate.nmr.export import ExportConfig
+
+        # Prime the cache with grid_size=77
+        self.nmr_data.get_contour_data(grid_size=77)
+
+        out = self._path("override.npz")
+        # Explicit grid_size override must trigger recomputation
+        export_contour_data(self.nmr_data, out, config=ExportConfig(grid_size=50))
+
+        data = np.load(out, allow_pickle=True)
+        self.assertEqual(data["Z"].shape[0], 50)
+
+
+@unittest.skipIf(not _NMRGLUE_AVAILABLE, "nmrglue is not installed")
+class TestBrukerExport(unittest.TestCase):
+    """Tests for the Bruker TopSpin export format."""
+
+    def setUp(self):
+        # ponytail: workaround for nmrglue numpy2 deprecation warning
+        catcher = warnings.catch_warnings()
+        catcher.__enter__()
+        self.addCleanup(catcher.__exit__, None, None, None)
+        warnings.filterwarnings(
+            "ignore",
+            message="Data type alias 'a' was deprecated",
+            category=DeprecationWarning,
+        )
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        if isinstance(atoms, list):
+            self.fail("Expected a single Atoms object from EDIZUM.magres")
+        self.atoms = atoms
+        self.nmr_data = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="H",
+            yaxis_order="2Q",
+            references={"H": 29.5},
+            correlation_strength_metric="fixed",
+        )
+        self.nmr_data_no_shift = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="H",
+            yaxis_order="2Q",
+            correlation_strength_metric="fixed",
+        )
+        self.tmpdir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir, ignore_errors=True)
+
+    def _path(self, name: str) -> str:
+        return os.path.join(self.tmpdir, name)
+
+    def test_bruker_creates_expected_files(self):
+        """Bruker export should create pdata/1/2rr, procs, and proc2s."""
+        out = self._path("bruker_exp")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        self.assertTrue(os.path.exists(os.path.join(pdata, "2rr")))
+        self.assertTrue(os.path.exists(os.path.join(pdata, "procs")))
+        self.assertTrue(os.path.exists(os.path.join(pdata, "proc2s")))
+
+    def test_bruker_requires_shift_mode(self):
+        """Bruker export must raise ValueError when is_shift=False."""
+        out = self._path("bruker_no_shift")
+        with self.assertRaises(ValueError) as ctx:
+            export_contour_data(
+                self.nmr_data_no_shift, out, fmt="bruker",
+                config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+            )
+        self.assertIn("is_shift", str(ctx.exception))
+
+    def test_bruker_requires_larmor(self):
+        """Bruker export must raise ValueError when Larmor freq cannot be determined."""
+        # Override element to something without gyromagnetic data
+        original = self.nmr_data.xelement
+        self.nmr_data.xelement = "Xx"
+        try:
+            out = self._path("bruker_no_larmor")
+            with self.assertRaises(ValueError):
+                export_contour_data(
+                    self.nmr_data, out, fmt="bruker",
+                    config=ExportConfig(grid_size=40),
+                )
+        finally:
+            self.nmr_data.xelement = original
+
+    def test_bruker_warns_on_heteronuclear_larmor_fallback(self):
+        """A heteronuclear export missing the indirect Larmor must warn.
+
+        The indirect dimension falls back to the direct-dimension frequency so
+        the ppm axis still round-trips, but the Hz scale of that axis is then
+        wrong for the y nucleus.  That must not happen silently.
+        """
+        hetero = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="C",
+            references={"H": 29.5, "C": 170.0},
+            correlation_strength_metric="fixed",
+        )
+        out = self._path("bruker_hetero")
+        # Supply x only: y cannot be auto-computed without a B0 field.
+        with self.assertLogs(hetero.logger, level="WARNING") as ctx:
+            export_contour_data(
+                hetero, out, fmt="bruker",
+                config=ExportConfig(grid_size=40, x_larmor_freq_mhz=400.0),
+            )
+        self.assertTrue(
+            any("indirect dimension" in msg for msg in ctx.output),
+            f"No fallback warning emitted; got: {ctx.output}",
+        )
+
+    def test_bruker_grid_is_descending(self):
+        """OFFSET in procs should equal xlims[1] (highest ppm, downfield edge)."""
+        import nmrglue as ng
+        out = self._path("bruker_orient")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        dic, _ = ng.fileio.bruker.read_pdata(pdata)
+        # OFFSET must be the highest ppm value (downfield edge)
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+        self.assertAlmostEqual(dic["procs"]["OFFSET"], cd.xlims[1], places=3)
+
+    def test_bruker_ppm_axes_roundtrip(self):
+        """Per-point ppm axes reconstructed from procs must match the grid.
+
+        Bruker axes are endpoint-exclusive: point i sits at
+        ``OFFSET - i * (SW_p/SF)/SI``.  The contour grid is an endpoint-
+        inclusive linspace, so SW_p must carry the SI/(SI-1) correction;
+        without it peak positions drift by up to one grid step at the
+        upfield edge.  Guards both against ppm-valued SW_p and against the
+        off-by-one-bin stretch.
+        """
+        import nmrglue as ng
+        out = self._path("bruker_axes")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        dic, _ = ng.fileio.bruker.read_pdata(pdata)
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+
+        def ppm_axis(procs):
+            si = procs["SI"]
+            step_ppm = (procs["SW_p"] / procs["SF"]) / si
+            return procs["OFFSET"] - np.arange(si) * step_ppm
+
+        # Bruker stores downfield-first; the grid is ascending -> reverse.
+        x_expected = np.linspace(cd.xlims[1], cd.xlims[0], 40)
+        y_expected = np.linspace(cd.ylims[1], cd.ylims[0], 40)
+
+        np.testing.assert_allclose(ppm_axis(dic["procs"]), x_expected, atol=1e-6)
+        np.testing.assert_allclose(ppm_axis(dic["proc2s"]), y_expected, atol=1e-6)
+
+    def test_bruker_acqus_and_title_written(self):
+        """acqus/acqu2s (+ acqu/acqu2) and pdata/1/title must be written.
+
+        TopSpin requires acquisition parameter files at the experiment root
+        to open a dataset; nmrglue's guess_udic also reads axis info from
+        them.  Their SW_h/SFO1 must be consistent with procs.
+        """
+        import nmrglue as ng
+        out = self._path("bruker_acqus")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        for fname in ("acqus", "acqu", "acqu2s", "acqu2"):
+            self.assertTrue(
+                os.path.exists(os.path.join(out, fname)), f"{fname} missing"
+            )
+        self.assertTrue(os.path.exists(os.path.join(out, "pdata", "1", "title")))
+
+        dic, data = ng.fileio.bruker.read_pdata(os.path.join(out, "pdata", "1"))
+        acqus = ng.fileio.bruker.read_jcamp(os.path.join(out, "acqus"))
+        # BF1 is the reference frequency (= procs SF); SFO1 carries the O1 offset
+        self.assertAlmostEqual(acqus["BF1"], dic["procs"]["SF"], places=6)
+        self.assertAlmostEqual(
+            acqus["SFO1"], acqus["BF1"] + acqus["O1"] * 1e-6, places=8
+        )
+        self.assertAlmostEqual(acqus["SW_h"], dic["procs"]["SW_p"], places=3)
+        self.assertIn("NUC1", acqus)
+
+        # TopSpin rejects parameter files without the JCAMP-DX core header,
+        # and expects single angle brackets around strings (<1H>, not <<1H>>).
+        for rel in ("acqus", "acqu2s", "pdata/1/procs", "pdata/1/proc2s"):
+            with open(os.path.join(out, rel)) as fh:
+                text = fh.read()
+            lines = text.splitlines()
+            self.assertTrue(lines[0].startswith("##TITLE="), f"{rel}: {lines[0]}")
+            self.assertIn("##JCAMPDX= 5.0", lines[:5])
+            self.assertIn("##DATATYPE= Parameter Values", lines[:5])
+            self.assertNotIn("<<", text, rel)
+        self.assertEqual(acqus["NUC1"], "1H")
+        self.assertEqual(dic["procs"]["AXNUC"], "1H")
+
+        # TopSpin sets default contours from YMAX_p/YMIN_p and clevels; without
+        # them it reports "Defined levels are outside of dataset range".
+        _, raw = ng.fileio.bruker.read_pdata(os.path.join(out, "pdata", "1"), scale_data=False)
+        for procs in (dic["procs"], dic["proc2s"]):
+            self.assertEqual(procs["YMAX_p"], int(raw.max()))
+            self.assertEqual(procs["YMIN_p"], int(raw.min()))
+        clev = ng.fileio.bruker.read_jcamp(os.path.join(out, "pdata", "1", "clevels"))
+        levels = np.array(clev["LEVELS"][: clev["MAXLEV"]], dtype=float)
+        display_max = raw.max() * 2.0 ** dic["procs"]["NC_proc"]
+        self.assertEqual(len(clev["LEVELS"]), 256)
+        self.assertTrue(np.all(np.diff(levels) > 0))
+        self.assertGreater(levels[0], 0.0)
+        self.assertLess(levels[-1], display_max)
+        self.assertAlmostEqual(levels[0], clev["POSBASE"])
+
+        # The carrier (O1/BF1, in ppm) must sit at the centre of the window
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+        sw_ppm = dic["procs"]["SW_p"] / dic["procs"]["SF"]
+        center_ppm = dic["procs"]["OFFSET"] - sw_ppm / 2.0
+        self.assertAlmostEqual(acqus["O1"] / acqus["BF1"], center_ppm, places=4)
+
+        # guess_udic must succeed (no fallback defaults) and give ppm axes
+        # matching the simulated grid through the standard nmrglue workflow.
+        full_dic, full_data = ng.bruker.read_pdata(
+            os.path.join(out, "pdata", "1"), read_acqus=True
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            udic = ng.bruker.guess_udic(full_dic, full_data)
+        uc_x = ng.fileiobase.uc_from_udic(udic, dim=1)
+        np.testing.assert_allclose(
+            uc_x.ppm_scale(),
+            np.linspace(cd.xlims[1], cd.xlims[0], 40),
+            atol=1e-6,
+        )
+
+    def test_bruker_include_peaks_false(self):
+        """peaks.csv must NOT be created when include_peaks=False."""
+        out = self._path("bruker_no_peaks")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=False),
+        )
+        self.assertFalse(os.path.exists(os.path.join(out, "peaks.csv")))
+
+    def test_bruker_data_roundtrip(self):
+        """Bruker exported 2rr matrix must match contour grid intensities.
+
+        Guards against endianness mismatches (which produce negative or
+        byte-swapped values) and verifies that NC_proc dynamic scaling preserves
+        intensities with sub-permille relative error.
+        """
+        import nmrglue as ng
+        out = self._path("bruker_data")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        pdata = os.path.join(out, "pdata", "1")
+        dic, data = ng.fileio.bruker.read_pdata(pdata, scale_data=True)
+        cd = self.nmr_data.get_contour_data(grid_size=40)
+
+        # Bruker flips both axes so downfield (higher ppm) is index 0
+        expected = cd.Z[::-1, ::-1]
+
+        # Guard against endianness corruption: simulated intensities are all positive
+        self.assertTrue(np.all(data >= 0.0), "Bruker data contains negative intensities")
+
+        # NC_proc must be set appropriately (negative exponent for scaling up to int32 range)
+        self.assertLessEqual(dic["procs"]["NC_proc"], 0)
+
+        # Intensities must match the original simulation within int32 quantization noise
+        rel_error = np.max(np.abs(data - expected) / np.maximum(expected, 1e-10))
+        self.assertLess(rel_error, 1e-4)
+
+    def test_bruker_peaks_csv_created(self):
+        """peaks.csv must be created inside the experiment directory with correct columns."""
+        out = self._path("bruker_with_peaks")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=True),
+        )
+        peaks_path = os.path.join(out, "peaks.csv")
+        self.assertTrue(os.path.exists(peaks_path))
+        with open(peaks_path, newline="") as f:
+            rows = list(csv.reader(f))
+        self.assertEqual(rows[0], ["x_ppm", "y_ppm", "xlabel", "ylabel", "correlation_strength"])
+        self.assertGreater(len(rows), 1)
+
+    def test_bruker_both_axes_roundtrip_through_guess_udic(self):
+        """guess_udic + uc_from_udic must reproduce the grid on both dimensions.
+
+        Covers homonuclear H-H and heteronuclear H-C, where the indirect
+        dimension has its own Larmor frequency and therefore its own SFO1.
+        """
+        import nmrglue as ng
+        hetero = NMRData2D(
+            atoms=self.atoms,
+            xelement="H",
+            yelement="C",
+            references={"H": 29.5, "C": 170.0},
+            correlation_strength_metric="fixed",
+        )
+        for name, nmr in (("homonuclear", self.nmr_data), ("heteronuclear", hetero)):
+            with self.subTest(name):
+                out = self._path(f"bruker_axes_{name}")
+                export_contour_data(
+                    nmr, out, fmt="bruker",
+                    config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+                )
+                dic, data = ng.bruker.read_pdata(os.path.join(out, "pdata", "1"), read_acqus=True)
+                with warnings.catch_warnings():
+                    warnings.simplefilter("error")
+                    udic = ng.bruker.guess_udic(dic, data)
+                cd = nmr.get_contour_data(grid_size=40)
+                # uc_from_udic dim 0 = indirect (y), dim 1 = direct (x)
+                y_limits = ng.fileiobase.uc_from_udic(udic, dim=0).ppm_limits()
+                x_limits = ng.fileiobase.uc_from_udic(udic, dim=1).ppm_limits()
+                np.testing.assert_allclose(y_limits, (cd.ylims[1], cd.ylims[0]), rtol=0, atol=1e-9)
+                np.testing.assert_allclose(x_limits, (cd.xlims[1], cd.xlims[0]), rtol=0, atol=1e-9)
+
+    def test_bruker_refuses_to_overwrite_existing_dataset(self):
+        import nmrglue as ng
+        out = self._path("bruker_overwrite")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        with self.assertRaisesRegex(FileExistsError, "overwrite"):
+            export_contour_data(
+                self.nmr_data, out, fmt="bruker",
+                config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+            )
+
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=30, b0_field_tesla=9.4, overwrite=True),
+        )
+        dic, _ = ng.bruker.read_pdata(os.path.join(out, "pdata", "1"))
+        self.assertEqual(dic["procs"]["SI"], 30)
+
+
+class TestBrukerIntegerScaling(unittest.TestCase):
+    def test_nc_proc_scales_max_into_int32_range(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        Z = np.array([[0.0, 3.0], [1.5, 0.25]])
+        k = -_bruker_nc_proc(Z)
+        self.assertTrue(2**28 <= 3.0 * 2**k < 2**29)
+
+    def test_rejects_nan_and_inf(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        for bad in (np.nan, np.inf):
+            with self.subTest(value=bad):
+                with self.assertRaises(ValueError):
+                    _bruker_nc_proc(np.array([[1.0, bad]]))
+
+    def test_rejects_all_zero_grid(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        with self.assertRaises(ValueError):
+            _bruker_nc_proc(np.zeros((3, 3)))
+
+    def test_rejects_intensities_too_small_to_store(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        with self.assertRaises(ValueError):
+            _bruker_nc_proc(np.array([[1e-12]]))
+
+    def test_rejects_int32_overflow(self):
+        from soprano.calculate.nmr.export import _bruker_nc_proc
+
+        with self.assertRaises(ValueError):
+            _bruker_nc_proc(np.array([[2.0**32]]))
+
+
+if __name__ == "__main__":
+    unittest.main()

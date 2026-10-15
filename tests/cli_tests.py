@@ -304,6 +304,105 @@ class TestCLI(unittest.TestCase):
                 # Clean up the file
                 temp_filename.unlink(missing_ok=True)
 
+    def test_spinsys_average_group_dipolar_uses_source_geometry(self):
+        """A collapsed CH3 couples to its carbon through the averaged tensor.
+
+        The C-H vectors sit at ~109.5 deg to the C3 axis, so the residual is
+        about -1/3 of the static coupling (sign flipped), not the static
+        coupling of whichever hydrogen survived the merge.
+        """
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            out = self._TESTSAVE_DIR / "avg_group.spinsys"
+            try:
+                result = runner.invoke(soprano, [
+                    "spinsys", str(self._TESTDATA_DIR / "ethanol.magres"),
+                    "--format", "simpson", "--output", str(out),
+                    "--subset", "C,H", "--references", "C:170,H:31.7",
+                    "--average-group", "CH3", "--collapse-group", "--dip", "--no-efg",
+                    "--select_i", "C", "--select_j", "H",
+                ])
+                self.assertEqual(result.exit_code, 0, result.output)
+                lines = out.read_text().splitlines()
+                spins = next(l for l in lines if l.startswith("nuclei")).split()[1:]
+                dips = [l.split() for l in lines if l.startswith("dipole")]
+                # site 1 is the collapsed methyl; its carbon is site 5
+                self.assertEqual(spins[0], "1H")
+                self.assertEqual(spins[4], "13C")
+                methyl_c = next(d for d in dips if d[1:3] == ["1", "5"])
+                self.assertGreater(float(methyl_c[3]), 5000)  # ~ +7.3 kHz, not ~ -23 kHz
+                self.assertLess(float(methyl_c[3]), 10000)
+            finally:
+                out.unlink(missing_ok=True)
+
+    def test_spinsys_expand_group_keeps_intra_methyl_coupling(self):
+        """With couplings, a group is expanded by default: three coupled H spins."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            out = self._TESTSAVE_DIR / "expand_group.spinsys"
+            try:
+                result = runner.invoke(soprano, [
+                    "spinsys", str(self._TESTDATA_DIR / "ethanol.magres"),
+                    "--format", "simpson", "--output", str(out),
+                    "--subset", "H", "--references", "H:31.7", "--no-efg",
+                    "--no-reduce", "--average-group", "CH3", "--dip",
+                ])
+                self.assertEqual(result.exit_code, 0, result.output)
+                lines = out.read_text().splitlines()
+                nuclei = next(l for l in lines if l.startswith("nuclei")).split()[1:]
+                self.assertEqual(len(nuclei), 6)  # CH3 kept as three spins
+                shifts = [l.split()[2:5] for l in lines if l.startswith("shift")]
+                self.assertEqual(shifts[0], shifts[1])
+                self.assertEqual(shifts[1], shifts[2])
+                dips = {tuple(l.split()[1:3]): float(l.split()[3])
+                        for l in lines if l.startswith("dipole")}
+                for pair in (("1", "2"), ("1", "3"), ("2", "3")):
+                    self.assertAlmostEqual(dips[pair], 10766, delta=50)
+                # members of the group see an external proton identically
+                self.assertAlmostEqual(dips[("1", "4")], dips[("2", "4")], places=4)
+            finally:
+                out.unlink(missing_ok=True)
+
+    def test_spinsys_average_group_collapses_without_couplings(self):
+        """Per-site export keeps one spin per group, with no duplicate sites."""
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            out = self._TESTSAVE_DIR / "collapse_default.spinsys"
+            try:
+                result = runner.invoke(soprano, [
+                    "spinsys", str(self._TESTDATA_DIR / "ethanol.magres"),
+                    "--format", "simpson", "--output", str(out),
+                    "--subset", "H", "--references", "H:31.7", "--no-efg",
+                    "--no-reduce", "--average-group", "CH3",
+                ])
+                self.assertEqual(result.exit_code, 0, result.output)
+                nuclei = next(l for l in out.read_text().splitlines()
+                              if l.startswith("nuclei")).split()[1:]
+                self.assertEqual(len(nuclei), 4)  # CH3 once, then CH2 x2 and OH
+            finally:
+                out.unlink(missing_ok=True)
+
+    def test_spinsys_average_group_jcoupling_is_averaged_over_the_group(self):
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            out = self._TESTSAVE_DIR / "avg_group_j.spinsys"
+            try:
+                result = runner.invoke(soprano, [
+                    "spinsys", str(self._TESTDATA_DIR / "ethanol.magres"),
+                    "--format", "simpson", "--output", str(out),
+                    "--subset", "C,H", "--references", "C:170,H:31.7", "--no-efg",
+                    "--no-reduce", "--average-group", "CH3", "--jcoupling",
+                ])
+                self.assertEqual(result.exit_code, 0, result.output)
+                lines = out.read_text().splitlines()
+                js = {tuple(l.split()[1:3]): float(l.split()[3])
+                      for l in lines if l.startswith("jcoupling")}
+                # the three methyl H are equivalent to the methyl carbon (site 7)
+                self.assertAlmostEqual(js[("1", "7")], js[("2", "7")], places=4)
+                self.assertAlmostEqual(js[("2", "7")], js[("3", "7")], places=4)
+            finally:
+                out.unlink(missing_ok=True)
+
     def test_spinsys_mrsimulator_format(self):
         """Test the spinsys CLI command with MRSimulator format output"""
         runner = CliRunner()
@@ -908,6 +1007,107 @@ class TestPlotNMRCLI(unittest.TestCase):
         ])
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertTrue(output.exists())
+
+
+class TestPlotNMRDipolarRSSCLI(unittest.TestCase):
+    """End-to-end CLI tests for `soprano plotnmr` with dipolar_rss weighting.
+
+    Uses Click's test runner so no subprocess is spawned. The default EDIZUM
+    invocation runs once for the whole class, since two tests check its output.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import matplotlib
+        matplotlib.use("Agg")   # non-interactive backend; no display required
+        cls._magres = str(Path(__file__).parent / "test_data" / "EDIZUM.magres")
+        cls._temp_dir_obj = tempfile.TemporaryDirectory(prefix="soprano_plotnmr_dipolar_test_")
+        cls._TESTSAVE_DIR = Path(cls._temp_dir_obj.name)
+        cls._basic_result = cls._run([], "basic.png")
+
+    @classmethod
+    def tearDownClass(cls):
+        import matplotlib.pyplot as plt
+        plt.close("all")
+        try:
+            cls._temp_dir_obj.cleanup()
+        except Exception:
+            pass
+
+    @classmethod
+    def _run(cls, extra_args, png_name="out.png"):
+        """Invoke plotnmr and save the plot to a PNG file to avoid plt.show()."""
+        import matplotlib.pyplot as plt
+        base = [
+            "plotnmr", cls._magres,
+            "-p", "2D",
+            "-x", "H", "-y", "H",
+            "--yaxis-order", "2Q",
+            "--references", "H:29.5",
+            "--output", str(cls._TESTSAVE_DIR / png_name),
+        ]
+        with patch("click_log.basic_config"):
+            result = CliRunner().invoke(soprano, base + extra_args)
+        plt.close("all")
+        return result
+
+    def _assert_ok(self, result):
+        self.assertEqual(result.exit_code, 0,
+                         f"Unexpected exit: {result.output}\n{result.exception}")
+
+    def test_cli_basic_2d_exits_cleanly(self):
+        """Basic 2D H–H DQ/SQ plot (default reduce, fixed weights) returns exit_code=0."""
+        self._assert_ok(self._basic_result)
+
+    def test_cli_basic_2d_writes_valid_png(self):
+        """The --output PNG must be created and be a readable, non-empty image."""
+        import matplotlib.image as mpimg
+        self._assert_ok(self._basic_result)
+        png = self._TESTSAVE_DIR / "basic.png"
+        self.assertTrue(png.exists(), "Expected output PNG to be written")
+        self.assertGreater(png.stat().st_size, 0, "Output PNG is empty")
+        img = mpimg.imread(str(png))
+        self.assertGreaterEqual(img.shape[0], 100)
+        self.assertGreaterEqual(img.shape[1], 100)
+
+    def test_cli_no_reduce_exits_cleanly(self):
+        """--no-reduce runs without errors (uses full 148-atom structure)."""
+        self._assert_ok(self._run(["--no-reduce"]))
+
+    def test_cli_dipolar_rss_periodic_images_exits_cleanly(self):
+        """--weight-by dipolar_rss with default expand_j runs cleanly."""
+        self._assert_ok(self._run(["--weight-by", "dipolar_rss", "--rss-cutoff", "10.0"]))
+
+    def test_cli_dipolar_rss_cif_labels_exits_cleanly(self):
+        """--weight-by dipolar_rss --rss-expand-j cif_labels runs cleanly."""
+        self._assert_ok(self._run([
+            "--weight-by", "dipolar_rss",
+            "--rss-cutoff", "10.0",
+            "--rss-expand-j", "cif_labels",
+        ]))
+
+    def test_cli_dipolar_rss_symmetry_expand_exits_cleanly(self):
+        """--rss-expand-j symmetry runs cleanly (uses spglib, ignores CIF labels)."""
+        self._assert_ok(self._run([
+            "--weight-by", "dipolar_rss",
+            "--rss-cutoff", "10.0",
+            "--rss-expand-j", "symmetry",
+        ]))
+
+    def test_cli_export_simpson_writes_files(self):
+        """--export-file writes SIMPSON grid and companion peaks CSV."""
+        export_path = self._TESTSAVE_DIR / "cli_export.spe"
+        result = self._run([
+            "--export-file", str(export_path),
+            "--export-format", "simpson",
+            "--x-larmor-freq", "100.0",
+        ])
+        self._assert_ok(result)
+        self.assertTrue(export_path.exists(), "Expected .spe export file")
+        self.assertTrue(
+            Path(str(export_path) + ".peaks.csv").exists(),
+            "Expected SIMPSON companion .peaks.csv file",
+        )
 
 
 class TestBasicCLICommands(unittest.TestCase):
