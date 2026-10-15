@@ -47,10 +47,17 @@ from soprano.properties.nmr.efg import (
     EFGVzz,
 )
 from soprano.properties.nmr.isc import (
+    JCAnisotropy,
+    JCAsymmetry,
     JCDiagonal,
     JCIsotropy,
     JCEuler,
     JCouplingList,
+    JCQuaternion,
+    JCReducedAnisotropy,
+    JCSkew,
+    JCSpan,
+    JCTensor,
     averaged_j_coupling_list,
 )
 from soprano.properties.nmr.ms import (
@@ -61,6 +68,8 @@ from soprano.properties.nmr.ms import (
     MSIsotropy,
     MSQuaternion,
     MSReducedAnisotropy,
+    MSShielding,
+    MSShift,
     MSSkew,
     MSSpan,
     MSTensor,
