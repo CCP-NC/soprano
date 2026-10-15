@@ -56,6 +56,14 @@ All notable changes to Soprano are documented here.
 
 ### Fixes
 
+- **`AtomsProperty.get` honours instance parameters when called on an instance.**
+  `EFGQuadrupolarConstant(isotopes={'H': 2}).get(atoms)` used to ignore the isotopes and return
+  zeros for H; it now matches `instance(atoms)`. Keyword arguments still override instance
+  parameters, and calling `get` on the class is unchanged. `JCEuler` now also uses the parameters
+  it passes to `JCTensor`, so its output changes when those parameters are not the defaults.
+  `mean()` on the base class follows the same rule. The NMR `mean` overrides still ignore instance
+  parameters.
+
 - **`NMRData2D` `pairs` are always indices into the input structure.** Without `reduce=True`,
   pairs used to be read against the structure after filtering to the x and y elements, so a
   structure with O before C or H could pick the wrong atoms or raise. Pairs now refer to the atoms

@@ -21,11 +21,27 @@ A generic template class that specific Properties will inherit from.
 """
 
 
+from functools import update_wrapper
+from types import MethodType
+
 import numpy as np
 
 from soprano.collection import AtomsCollection
 from soprano.nmr.tensor import NMRTensor, contains_nmr_tensors
 from soprano.selection import AtomSelection
+
+
+class hybridmethod:
+
+    """Method that receives the class when accessed on the class, like a
+    classmethod, and the instance when accessed on an instance."""
+
+    def __init__(self, func):
+        self.func = func
+        update_wrapper(self, func)
+
+    def __get__(self, obj, objtype=None):
+        return MethodType(self.func, objtype if obj is None else obj)
 
 
 class AtomsProperty:
@@ -61,10 +77,13 @@ class AtomsProperty:
             else:
                 self.params[p] = params[p]
 
-    @classmethod
-    def get(cls, s, store_array=False, selection=None, **kwargs):
-        """Extract the given property using the default parameters
-        on an Atoms object s
+    @hybridmethod
+    def get(self, s, store_array=False, selection=None, **kwargs):
+        """Extract the given property on an Atoms object s.
+
+        Called on the class, the default parameters are used. Called on an
+        instance, the instance parameters are used. Keyword arguments always
+        take precedence.
 
         | Args:
         |   s (ase.Atoms or AtomsCollection): the structure or collection
@@ -83,13 +102,18 @@ class AtomsProperty:
 
         """
 
+        is_instance = not isinstance(self, type)
+        cls = type(self) if is_instance else self
+
         if isinstance(s, AtomsCollection):
-            arr = s.all.map(cls.get, selection=selection, **kwargs)
+            arr = s.all.map(self.get, selection=selection, **kwargs)
             if store_array:
                 s.set_array(cls.default_name, arr)
             return arr
         else:
             params = dict(cls.default_params)
+            if is_instance:
+                params.update(self.params)
             params.update(kwargs)
 
             # Handle selection
