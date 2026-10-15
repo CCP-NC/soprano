@@ -956,7 +956,9 @@ class NMRData2D:
         fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake', 'plain', 'bruker'}, optional
             Export format.  If *None*, inferred from *path* extension.
             ``'bruker'`` must be specified explicitly (no extension mapping);
-            *path* is treated as a directory, not a file.
+            *path* is treated as a directory, not a file.  The peak list is
+            written as ``peaks.csv`` inside that directory, not as a
+            ``<path>.peaks.csv`` file.
 
             ``'simpson'``
                 SIMPSON TEXT format (``TYPE=SPE``).  Readable by nmrglue
@@ -968,11 +970,14 @@ class NMRData2D:
             ``'npz'``
                 NumPy compressed archive.  Arrays ``X``, ``Y``, ``Z`` plus
                 scalar metadata are stored.  Reload with
-                ``np.load(path, allow_pickle=True)``.
+                ``np.load(path, allow_pickle=True)``.  The peak list is stored
+                in the archive (``peak_x``, ``peak_y``, ...); no companion
+                file is written.
 
             ``'csv'``
                 Flat table with columns ``x``, ``y``, ``intensity``.
-                Useful for import into Origin, Excel, etc.
+                Useful for import into Origin, Excel, etc.  A companion
+                ``<path>.peaks.csv`` file is written alongside.
 
             ``'json'``
                 ssNake native JSON format.  Stores Larmor frequency
@@ -980,12 +985,14 @@ class NMRData2D:
                 on load without any manual axis editing.  Larmor
                 frequencies are auto-computed from element gyromagnetic
                 ratios when possible; provide *x_larmor_freq_mhz* to
-                override.
+                override.  The peak list is stored under ``peaks``; no
+                companion file is written.
 
             ``'plain'``
                 Simple space-separated text file (x y z columns) with a
                 header comment block.  Useful for gnuplot or quick
-                inspection.
+                inspection.  A companion ``<path>.peaks.csv`` file is
+                written alongside.
 
         x_larmor_freq_mhz : float, optional
             Larmor frequency in MHz for the **direct (x)** dimension nucleus.
@@ -997,6 +1004,13 @@ class NMRData2D:
             For homonuclear experiments this equals *x_larmor_freq_mhz*.
             For heteronuclear experiments (e.g. 13C on x, 1H on y) the two
             frequencies differ and both must be provided.
+
+            For DQ/SQ data (``yaxis_order='2Q'``) the indirect ppm values are
+            δ_A + δ_B, so this is still the ordinary single-quantum Larmor
+            frequency of the y nucleus, not twice it: doubling it halves the
+            ppm scale.  The auto-computed value (from *b0_field_tesla* or
+            *spectrometer_freq_mhz*) is already the single-quantum frequency,
+            so leave it unset unless you need to override it.
 
             *Why these matter for ssNake:*  The SIMPSON TEXT format has no
             field for the spectrometer frequency.  ssNake therefore sets the
