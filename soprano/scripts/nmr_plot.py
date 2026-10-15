@@ -484,11 +484,17 @@ def plotnmr(
         iso_range = max_iso - min_iso
         max_iso += iso_range * 0.1
         min_iso -= iso_range * 0.1
+        if use_reference:
+            # The window is on the shift axis, shift = ref - shielding
+            ref = references[x_element]
+            min_freq, max_freq = ref - max_iso, ref - min_iso
+        else:
+            min_freq, max_freq = min_iso, max_iso
         # get 1D plot data
         spec, freq = calc.spectrum_1d(
             x_element,
-            min_freq=min_iso,
-            max_freq=max_iso,
+            min_freq=min_freq,
+            max_freq=max_freq,
             bins=1001,
             freq_broad=0.05,
             freq_units="ppm",

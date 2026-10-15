@@ -184,6 +184,9 @@ class NMRCalculator:
     - powder average (policrystalline/powder)
     - ultrafast MAS limit spectra
 
+    The sample is a powder by default (set_powder with N=8 and the
+    hemisphere mode). Use set_single_crystal to simulate a single orientation.
+
     What it can NOT simulate:
 
     - finite speed MAS spectra
@@ -246,6 +249,8 @@ class NMRCalculator:
         self.set_larmor_frequency(larmor_frequency, larmor_units)
 
         self._references = {}
+
+        self.set_powder()
 
     def set_larmor_frequency(
         self, larmor_frequency=400, larmor_units="MHz", element="1H"
@@ -443,16 +448,20 @@ class NMRCalculator:
         |                  Should be in the form <isotope><element>. Isotope
         |                  is optional, if absent the most abundant NMR active
         |                  one will be used.
-        |   min_freq (float): lower bound of the frequency range
+        |   min_freq (float): lower bound of the frequency range, in
+        |                    freq_units. If use_reference is True, this is a
+        |                    chemical shift (the window is applied to the
+        |                    shift axis, not to the shielding).
         |                    (default is -50)
-        |   min_freq (float): upper bound of the frequency range
+        |   max_freq (float): upper bound of the frequency range, same
+        |                    conventions as min_freq
         |                    (default is 50)
         |   bins (int): number of bins in which to separate the frequency range
-        |              (default is 500)
+        |              (default is 100)
         |   freq_broad (float): Gaussian broadening width to apply to the
-        |                       final spectrum (default is None)
-        |   freq_units (str): units used for frequency, can be ppm or MHz
-        |                     (default is ppm).
+        |                       final spectrum, in freq_units (default is None)
+        |   freq_units (str): units used for frequency, can be ppm or MHz. The
+        |                     axis is returned in these units (default is ppm).
         |   effects (NMRFlags): a flag, or bitwise-joined set of flags, from
         |                       this module's NMRFlags tuple, describing which
         |                       effects should be included and accounted for
@@ -482,15 +491,17 @@ class NMRCalculator:
         el, iso = _el_iso(element)
         larm = self._B * _nmr_data[el][iso]["gamma"] / (2.0 * np.pi * 1e6)
         I = _nmr_data[el][iso]["I"]
-        # Units? We want this to be in ppm
+        # Units? Internally everything is in ppm, the requested window is
+        # converted to ppm with this scale (negative for negative gamma)
         u = {
             "ppm": 1,
             "MHz": 1e6 / larm,
         }
         try:
-            freq_axis = np.linspace(min_freq, max_freq, bins) * u[freq_units]
+            scale = u[freq_units]
         except KeyError:
             raise ValueError("Invalid freq_units passed to spectrum_1d")
+        out_freq = np.linspace(min_freq, max_freq, bins)
 
         # If it's not a quadrupolar nucleus, no reason to keep those effects
         # around...
@@ -555,6 +566,14 @@ class NMRCalculator:
         # Default to using reference if it's not zero
         if use_reference is None:
             use_reference = ref != 0.0
+
+        # Shielding axis (ppm) at each requested point. The POWDER average
+        # needs an ascending axis, so compute on the reversed one and put the
+        # result back in the requested order at the end.
+        freq_axis = out_freq * scale
+        if use_reference:
+            freq_axis = (ref - freq_axis)[::-1]
+        fc = (freq_axis[0] + freq_axis[-1]) / 2.0
 
         # Let's start with peak positions - quantities non dependent on
         # orientation
@@ -681,14 +700,14 @@ class NMRCalculator:
             )
 
         if freq_broad is not None:
+            broad = abs(freq_broad * scale)
             if has_orient and use_pwd:
-                fc = (max_freq + min_freq) / 2.0
-                bk = np.exp(-(((freq_axis - fc) / freq_broad) ** 2.0))
+                bk = np.exp(-(((freq_axis - fc) / broad) ** 2.0))
                 bk /= np.sum(bk)
                 spec = np.convolve(spec, bk, mode="same")
             else:
                 bpeaks = np.exp(
-                    -(((freq_axis - peaks[:, :, None]) / freq_broad) ** 2)
+                    -(((freq_axis - peaks[:, :, None]) / broad) ** 2)
                 )  # Broadened peaks
                 # Normalise them BY PEAK MAXIMUM
                 norm_max = np.amax(bpeaks, axis=-1, keepdims=True)
@@ -707,10 +726,8 @@ class NMRCalculator:
             spec *= len(a_inds) * len(spec) / normsum
 
         if use_reference:
-            freq_axis = ref - freq_axis
-
-        freqs = freq_axis / u[freq_units]
-        return spec, freqs
+            spec = spec[::-1]
+        return spec, out_freq
 
     def dq_buildup(
         self,

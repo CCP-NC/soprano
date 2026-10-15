@@ -12,6 +12,7 @@ import numpy as np
 from ase import io
 
 from soprano.calculate.nmr.nmr import NMRCalculator, NMRFlags
+from soprano.calculate.powder.triavg import TriAvg
 
 _TESTDATA_DIR = Path(__file__).parent.resolve() / "test_data"
 
@@ -51,6 +52,73 @@ class SetElementIsotopeTestCase(unittest.TestCase):
         isos[8] = "17O"
         self.calc.set_isotopes(isos)
         self.assertEqual(self.calc._isos[8], "17")
+
+
+class SpectrumDefaultsTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.eth = io.read(_TESTDATA_DIR / "ethanol.magres")
+
+    def test_default_is_powder(self):
+        calc = NMRCalculator(self.eth)
+        expected = TriAvg("hemisphere").get_orient_points(8)[0]
+        self.assertEqual(calc._orients[0].shape, expected.shape)
+        self.assertGreater(len(calc._orients[2]), 0)
+
+    def test_isotropic_spectrum_without_orientation_setup(self):
+        calc = NMRCalculator(self.eth)
+        spec, freq = calc.spectrum_1d("C", min_freq=-50, max_freq=250, bins=301)
+        ref = NMRCalculator(self.eth)
+        ref.set_powder(N=8, mode="hemisphere")
+        spec_ref, _ = ref.spectrum_1d("C", min_freq=-50, max_freq=250, bins=301)
+        np.testing.assert_allclose(spec, spec_ref)
+
+    def test_reference_window_is_on_shift_axis(self):
+        calc = NMRCalculator(self.eth)
+        calc.set_reference(170.0, "C")
+        spec, freq = calc.spectrum_1d(
+            "C", min_freq=-20, max_freq=200, bins=221, freq_broad=1.0,
+            effects=NMRFlags.CS_ISO,
+        )
+        np.testing.assert_allclose(freq, np.linspace(-20, 200, 221))
+        # Shifts [-20, 200] are shieldings [-30, 190] reversed
+        shielding = NMRCalculator(self.eth)
+        spec_sig, _ = shielding.spectrum_1d(
+            "C", min_freq=-30, max_freq=190, bins=221, freq_broad=1.0,
+            effects=NMRFlags.CS_ISO,
+        )
+        np.testing.assert_allclose(spec, spec_sig[::-1], rtol=1e-6, atol=1e-9)
+
+    def test_reference_window_powder_broadening(self):
+        calc = NMRCalculator(self.eth)
+        calc.set_reference(170.0, "C")
+        spec, freq = calc.spectrum_1d(
+            "C", min_freq=-20, max_freq=200, bins=221, freq_broad=1.0,
+            effects=NMRFlags.CS,
+        )
+        shielding = NMRCalculator(self.eth)
+        spec_sig, _ = shielding.spectrum_1d(
+            "C", min_freq=-30, max_freq=190, bins=221, freq_broad=1.0,
+            effects=NMRFlags.CS,
+        )
+        np.testing.assert_allclose(freq, np.linspace(-20, 200, 221))
+        np.testing.assert_allclose(spec, spec_sig[::-1], rtol=1e-6, atol=1e-9)
+
+    def test_freq_broad_follows_mhz_units(self):
+        calc = NMRCalculator(self.eth)
+        larm = calc.get_larmor_frequency("13C")
+        u = 1e6 / larm
+        spec_mhz, freq_mhz = calc.spectrum_1d(
+            "C", min_freq=-0.03, max_freq=0.03, bins=1201,
+            freq_broad=3.0 / abs(u), freq_units="MHz", effects=NMRFlags.CS_ISO,
+        )
+        spec_ppm, freq_ppm = calc.spectrum_1d(
+            "C", min_freq=-0.03 * u, max_freq=0.03 * u, bins=1201,
+            freq_broad=3.0, freq_units="ppm", effects=NMRFlags.CS_ISO,
+        )
+        np.testing.assert_allclose(freq_mhz * u, freq_ppm)
+        np.testing.assert_allclose(spec_mhz, spec_ppm, rtol=1e-6, atol=1e-9)
 
 
 if __name__ == "__main__":

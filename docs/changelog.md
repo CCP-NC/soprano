@@ -19,6 +19,10 @@ All notable changes to Soprano are documented here.
   mrsimulator couplings) must be recomputed or have its arguments swapped. There is no deprecation
   period, because a warning cannot tell old callers from new ones. Details are under "Relative Euler
   angles" below.
+- **`MSTensor` defaults to Haeberlen order** (`'h'`), as `MSEuler`, `MSQuaternion` and
+  `MagneticShielding` do; it was increasing (`'i'`). Pass `order='i'` to get the old eigenvalue
+  order. Euler angles and quaternions from `MSTensor`, `MSEuler().mean` and `MSQuaternion().mean`
+  change accordingly; isotropy, span, skew and anisotropy do not.
 - **Exported Euler angles change** (`to_simpson()` for axial tensors; `to_mrsimulator()` for
   every tensor). Re-export any spin systems generated with earlier versions. See below.
 - `NMRTensor.euler_to` with two axial tensors, either of which has its unique axis along y,
@@ -53,6 +57,26 @@ All notable changes to Soprano are documented here.
   heatmap levels span 10–100 % of the maximum (was the full Z range).
 - **`plotnmr` exit codes:** invalid option combinations are usage errors (exit 2) rather than
   tracebacks or a silent exit 0.
+- **`NMRCalculator.spectrum_1d` window and defaults.** (a) A new `NMRCalculator` uses a powder
+  average by default (`set_powder(N=8)`, hemisphere). Before, `spectrum_1d` raised
+  `AttributeError` for isotropic spectra unless `set_powder()` or `set_single_crystal()` had been
+  called first. (b) With a reference set, `min_freq` and `max_freq` are now a chemical-shift window,
+  in the same units and scale as the returned axis. Before, they were applied to the shielding
+  axis, so the window was reflected about the reference. To get the same spectrum, pass
+  `ref - max_shielding` and `ref - min_shielding` as the window. The returned axis still runs from
+  `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
+  so MHz spectra were broadened by the wrong amount. The `min_freq` and `max_freq` docstrings are
+  also corrected, and the default for `bins` is now 100 as documented.
+- **`NMRCalculator.spectrum_1d` window and defaults.** (a) A new `NMRCalculator` uses a powder
+  average by default (`set_powder(N=8)`, hemisphere). Before, `spectrum_1d` raised
+  `AttributeError` for isotropic spectra unless `set_powder()` or `set_single_crystal()` had been
+  called first. (b) With a reference set, `min_freq` and `max_freq` are now a chemical-shift window,
+  in the same units and scale as the returned axis. Before, they were applied to the shielding
+  axis, so the window was reflected about the reference. To get the same spectrum, pass
+  `ref - max_shielding` and `ref - min_shielding` as the window. The returned axis still runs from
+  `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
+  so MHz spectra were broadened by the wrong amount. The `min_freq` and `max_freq` docstrings are
+  also corrected, and the default for `bins` is now 100 as documented.
 
 ### Fixes
 
