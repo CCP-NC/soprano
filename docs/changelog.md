@@ -65,11 +65,20 @@ All notable changes to Soprano are documented here.
   axis, so the window was reflected about the reference. To get the same spectrum, pass
   `ref - max_shielding` and `ref - min_shielding` as the window. The returned axis still runs from
   `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
-  so MHz spectra were broadened by the wrong amount. The `min_freq` and `max_freq` docstrings are
-  also corrected, and the default for `bins` is now 100 as documented.
+  so MHz spectra were broadened by the wrong amount. The `min_freq`/`max_freq` docstrings are
+  also corrected, and the docstring now gives the true default for `bins` (100, not 500).
 
 ### Fixes
 
+- `MSShift`, `MSShielding` and the `JC*` properties (`JCTensor`, `JCAnisotropy`,
+  `JCReducedAnisotropy`, `JCAsymmetry`, `JCSpan`, `JCSkew`, `JCQuaternion`) can now be imported
+  from `soprano.properties.nmr`, as the other NMR properties can.
+- `NMRCalculator.set_element_isotope` accepts isotope symbols (`'17O'`) as well as mass numbers
+  (`17`); symbols used to raise "Invalid isotope".
+- `NMRTensor.euler_to`, `equivalent_euler_to` and `rotation_to` warn when both tensors are of the
+  same type (e.g. two shielding tensors) but use different eigenvalue orders, since the angles then
+  differ (e.g. by 90° in γ). Mixing types, such as a Haeberlen-ordered shielding tensor with an
+  NQR-ordered EFG tensor, stays silent. Returned values are unchanged.
 - **`NMRCalculator.spectrum_1d` with `freq_units='MHz'` for negative-gamma nuclei** (e.g. ¹⁷O)
   returned an empty spectrum, because the powder average needs an ascending axis and the MHz axis
   is descending. The spectrum is now computed on an ascending axis and returned in the requested

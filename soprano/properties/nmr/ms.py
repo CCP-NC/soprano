@@ -778,7 +778,7 @@ class MSQuaternion(AtomsProperty):
     |   order (str):  Order to use for eigenvalues/eigenvectors. Can
                         be 'i' (ORDER_INCREASING), 'd'
                         (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-                        'n' (ORDER_NQR). Default is 'i'.
+                        'n' (ORDER_NQR). Default is 'h'.
     |   tag (str): name of the array containing magnetic shielding tensors. Default: 'ms'.
 
     | Returns:
