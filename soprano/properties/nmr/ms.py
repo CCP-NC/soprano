@@ -95,7 +95,7 @@ class MSTensor(AtomsProperty):
         order (str):  Order to use for eigenvalues/eigenvectors. Can
                     be 'i' (ORDER_INCREASING), 'd'
                     (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-                    'n' (ORDER_NQR). Default is 'i'.
+                    'n' (ORDER_NQR). Default is 'h' (Haeberlen), as for MSEuler.
         tag (str, optional): name of the array containing magnetic shielding tensors.
                     Defaults to 'ms'.
         references: list/dict/None
@@ -118,7 +118,7 @@ class MSTensor(AtomsProperty):
 
     """
     default_name = "ms_tensors"
-    default_params = {"order": MagneticShielding.ORDER_INCREASING,
+    default_params = {"order": MagneticShielding.ORDER_HAEBERLEN,
                       "references": None,
                       "gradients": None,
                       "tag": DEFAULT_MS_TAG}

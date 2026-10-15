@@ -1696,7 +1696,7 @@ class ElectricFieldGradient(NMRTensor):
             order (str):        Order to use for eigenvalues/eigenvectors. Can
                                 be 'i' (ORDER_INCREASING), 'd'
                                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-                                'n' (ORDER_NQR). Default is 'h' for EFG tensors.
+                                'n' (ORDER_NQR). Default is 'n' (NQR) for EFG tensors.
             quadrupole_moment (float): Quadrupole moment of the nucleus in millibarn.
             gamma (float):      Nuclear gyromagnetic ratio in rad/(s*T). If not provided, will be
                                 looked up using the species.
