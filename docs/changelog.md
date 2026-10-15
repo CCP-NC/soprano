@@ -56,6 +56,12 @@ All notable changes to Soprano are documented here.
 
 ### Fixes
 
+- **`NMRData2D` `pairs` are always indices into the input structure.** Without `reduce=True`,
+  pairs used to be read against the structure after filtering to the x and y elements, so a
+  structure with O before C or H could pick the wrong atoms or raise. Pairs now refer to the atoms
+  you passed in, with or without `reduce=True`. A pair whose atom is not of the x or y element
+  raises `ValueError`, naming the index and its element.
+
 #### NMR extraction and CLI
 
 - New `--expand-group/--collapse-group` for `soprano spinsys`. An expanded group keeps each atom

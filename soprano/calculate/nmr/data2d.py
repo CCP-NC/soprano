@@ -45,6 +45,10 @@ from soprano.sitemap import SiteMap
 class NMRData2D:
     '''
     Class to hold and extract 2D NMR data.
+
+    ``pairs``, if given, is a list of ``(x_atom, y_atom)`` tuples of indices
+    into the input structure ``atoms``, whatever ``reduce`` is set to.  Each
+    x atom must be of ``xelement`` and each y atom of ``yelement``.
     '''
     def __init__(self,
                 atoms: Optional[Atoms] = None,
@@ -108,19 +112,17 @@ class NMRData2D:
                 )
                 if self.pairs is not None:
                     remapped = [
-                        (int(_reduce_map[p[0]]), int(_reduce_map[p[1]]))
+                        (int(self.site_map.to_sites[p[0]]), int(self.site_map.to_sites[p[1]]))
                         for p in self.pairs
                     ]
-                    if remapped != list(self.pairs):
+                    if remapped != [tuple(p) for p in self.pairs]:
                         warnings.warn(
                             "reduce=True: user-supplied pairs have been "
-                            "remapped from full-cell to reduced "
+                            "remapped from input-structure to reduced "
                             f"(asymmetric-unit) indices: {list(self.pairs)}"
-                            f" → {remapped}. Pass pairs in reduced-cell "
-                            "indices to suppress this warning.",
+                            f" → {remapped}.",
                             stacklevel=2,
                         )
-                    self.pairs = remapped
                 self.atoms = _reduced
 
         # if atoms are provided, let's use the subset of atoms that have the xelement and yelement
@@ -130,6 +132,11 @@ class NMRData2D:
                 SiteMap.from_selection(_sel, self.atoms)
             )
             self.atoms = _sel.subset(self.atoms)
+
+        # User pairs are indices into the input structure; map them to the sites
+        # of the structure the peaks are built on.
+        if self.pairs is not None and self.source is not None:
+            self.pairs = self._pairs_to_sites(self.pairs)
 
 
         # Either provide correlation strengths or calculate them based on the metric
@@ -571,6 +578,26 @@ class NMRData2D:
                 values[k] = compute(*self._merged_self_partners[i])
         return values
 
+    def _pairs_to_sites(self, pairs) -> List[Tuple[int, int]]:
+        '''
+        Map user pairs from input-structure indices to indices of self.atoms.
+
+        Each pair is (x-element atom, y-element atom) in self.source.
+        '''
+        symbols = self.source.get_chemical_symbols()
+        pairs_out = []
+        for i, j in pairs:
+            i, j = int(i), int(j)
+            for idx, element, role in ((i, self.xelement, 'x'), (j, self.yelement, 'y')):
+                if symbols[idx] != element:
+                    raise ValueError(
+                        f"Pair ({i}, {j}): atom {idx} is {symbols[idx]}, but the "
+                        f"{role} element is {element}. Pairs are (x, y) indices "
+                        "into the input structure."
+                    )
+            pairs_out.append((int(self.site_map.to_sites[i]), int(self.site_map.to_sites[j])))
+        return pairs_out
+
     def get_pairs(self) -> None:
         '''
         Get the pairs of x and y indices to plot
@@ -579,7 +606,7 @@ class NMRData2D:
 
         This method will set the following attributes:
         self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
-        self.pairs: a list of tuples of the form (xindex, yindex)
+        self.pairs: a list of tuples of the form (xindex, yindex), indices into self.atoms
         '''
         # Process pairs; idx_x/idx_y (unique element indices) are not overwritten here —
         # process_pairs expands them into per-pair form internally.
