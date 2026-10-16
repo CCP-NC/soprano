@@ -551,16 +551,47 @@ class TestBrukerExport(unittest.TestCase):
         return os.path.join(self.tmpdir, name)
 
     def test_bruker_creates_expected_files(self):
-        """Bruker export should create pdata/1/2rr, procs, and proc2s."""
+        """Bruker export should create <name>/1/pdata/1/{2rr,procs,proc2s}."""
         out = self._path("bruker_exp")
         export_contour_data(
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
         )
-        pdata = os.path.join(out, "pdata", "1")
+        pdata = os.path.join(out, "1", "pdata", "1")
         self.assertTrue(os.path.exists(os.path.join(pdata, "2rr")))
         self.assertTrue(os.path.exists(os.path.join(pdata, "procs")))
         self.assertTrue(os.path.exists(os.path.join(pdata, "proc2s")))
+
+    def test_bruker_path_is_dataset_name_with_numeric_expno(self):
+        """TopSpin opens <name>/<expno>/pdata/<procno>; <name> must hold only numeric expnos.
+
+        Writing acqus/pdata straight into <name> makes TopSpin's `re` fail with
+        BROWSE_CORRUPT because it finds no numeric experiment directory.
+        """
+        out = self._path("lalanine")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        self.assertEqual(os.listdir(out), ["1"])
+        self.assertTrue(os.path.exists(os.path.join(out, "1", "acqus")))
+        self.assertTrue(os.path.exists(os.path.join(out, "1", "pdata", "1", "2rr")))
+
+    def test_bruker_writes_outd_for_topspin_plot_tab(self):
+        """TopSpin's Plot tab fails with 'getpar failed on .../outd' if outd is missing."""
+        import nmrglue as ng
+        out = self._path("bruker_outd")
+        export_contour_data(
+            self.nmr_data, out, fmt="bruker",
+            config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
+        )
+        outd = os.path.join(out, "1", "pdata", "1", "outd")
+        with open(outd) as fh:
+            self.assertIn("##JCAMPDX= 5.0", fh.read().splitlines()[:5])
+        dic = ng.fileio.bruker.read_jcamp(outd)
+        for key in ("CURPLOT", "CURPRIN", "DFORMAT", "LAYOUT", "LFORMAT", "PFORMAT"):
+            self.assertIn(key, dic)
+        self.assertEqual(dic["LAYOUT"], "+/2D_hom.xwp")
 
     def test_bruker_requires_shift_mode(self):
         """Bruker export must raise ValueError when is_shift=False."""
@@ -621,7 +652,7 @@ class TestBrukerExport(unittest.TestCase):
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
         )
-        pdata = os.path.join(out, "pdata", "1")
+        pdata = os.path.join(out, "1", "pdata", "1")
         dic, _ = ng.fileio.bruker.read_pdata(pdata)
         # OFFSET must be the highest ppm value (downfield edge)
         cd = self.nmr_data.get_contour_data(grid_size=40)
@@ -643,7 +674,7 @@ class TestBrukerExport(unittest.TestCase):
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
         )
-        pdata = os.path.join(out, "pdata", "1")
+        pdata = os.path.join(out, "1", "pdata", "1")
         dic, _ = ng.fileio.bruker.read_pdata(pdata)
         cd = self.nmr_data.get_contour_data(grid_size=40)
 
@@ -674,12 +705,12 @@ class TestBrukerExport(unittest.TestCase):
         )
         for fname in ("acqus", "acqu", "acqu2s", "acqu2"):
             self.assertTrue(
-                os.path.exists(os.path.join(out, fname)), f"{fname} missing"
+                os.path.exists(os.path.join(out, "1", fname)), f"{fname} missing"
             )
-        self.assertTrue(os.path.exists(os.path.join(out, "pdata", "1", "title")))
+        self.assertTrue(os.path.exists(os.path.join(out, "1", "pdata", "1", "title")))
 
-        dic, data = ng.fileio.bruker.read_pdata(os.path.join(out, "pdata", "1"))
-        acqus = ng.fileio.bruker.read_jcamp(os.path.join(out, "acqus"))
+        dic, data = ng.fileio.bruker.read_pdata(os.path.join(out, "1", "pdata", "1"))
+        acqus = ng.fileio.bruker.read_jcamp(os.path.join(out, "1", "acqus"))
         # BF1 is the reference frequency (= procs SF); SFO1 carries the O1 offset
         self.assertAlmostEqual(acqus["BF1"], dic["procs"]["SF"], places=6)
         self.assertAlmostEqual(
@@ -691,7 +722,7 @@ class TestBrukerExport(unittest.TestCase):
         # TopSpin rejects parameter files without the JCAMP-DX core header,
         # and expects single angle brackets around strings (<1H>, not <<1H>>).
         for rel in ("acqus", "acqu2s", "pdata/1/procs", "pdata/1/proc2s"):
-            with open(os.path.join(out, rel)) as fh:
+            with open(os.path.join(out, "1", rel)) as fh:
                 text = fh.read()
             lines = text.splitlines()
             self.assertTrue(lines[0].startswith("##TITLE="), f"{rel}: {lines[0]}")
@@ -703,11 +734,11 @@ class TestBrukerExport(unittest.TestCase):
 
         # TopSpin sets default contours from YMAX_p/YMIN_p and clevels; without
         # them it reports "Defined levels are outside of dataset range".
-        _, raw = ng.fileio.bruker.read_pdata(os.path.join(out, "pdata", "1"), scale_data=False)
+        _, raw = ng.fileio.bruker.read_pdata(os.path.join(out, "1", "pdata", "1"), scale_data=False)
         for procs in (dic["procs"], dic["proc2s"]):
             self.assertEqual(procs["YMAX_p"], int(raw.max()))
             self.assertEqual(procs["YMIN_p"], int(raw.min()))
-        clev = ng.fileio.bruker.read_jcamp(os.path.join(out, "pdata", "1", "clevels"))
+        clev = ng.fileio.bruker.read_jcamp(os.path.join(out, "1", "pdata", "1", "clevels"))
         levels = np.array(clev["LEVELS"][: clev["MAXLEV"]], dtype=float)
         display_max = raw.max() * 2.0 ** dic["procs"]["NC_proc"]
         self.assertEqual(len(clev["LEVELS"]), 256)
@@ -725,7 +756,7 @@ class TestBrukerExport(unittest.TestCase):
         # guess_udic must succeed (no fallback defaults) and give ppm axes
         # matching the simulated grid through the standard nmrglue workflow.
         full_dic, full_data = ng.bruker.read_pdata(
-            os.path.join(out, "pdata", "1"), read_acqus=True
+            os.path.join(out, "1", "pdata", "1"), read_acqus=True
         )
         with warnings.catch_warnings():
             warnings.simplefilter("error")
@@ -744,7 +775,7 @@ class TestBrukerExport(unittest.TestCase):
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=False),
         )
-        self.assertFalse(os.path.exists(os.path.join(out, "peaks.csv")))
+        self.assertFalse(os.path.exists(os.path.join(out, "1", "peaks.csv")))
 
     def test_bruker_data_roundtrip(self):
         """Bruker exported 2rr matrix must match contour grid intensities.
@@ -759,7 +790,7 @@ class TestBrukerExport(unittest.TestCase):
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
         )
-        pdata = os.path.join(out, "pdata", "1")
+        pdata = os.path.join(out, "1", "pdata", "1")
         dic, data = ng.fileio.bruker.read_pdata(pdata, scale_data=True)
         cd = self.nmr_data.get_contour_data(grid_size=40)
 
@@ -783,7 +814,7 @@ class TestBrukerExport(unittest.TestCase):
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=40, b0_field_tesla=9.4, include_peaks=True),
         )
-        peaks_path = os.path.join(out, "peaks.csv")
+        peaks_path = os.path.join(out, "1", "peaks.csv")
         self.assertTrue(os.path.exists(peaks_path))
         with open(peaks_path, newline="") as f:
             rows = list(csv.reader(f))
@@ -811,7 +842,7 @@ class TestBrukerExport(unittest.TestCase):
                     nmr, out, fmt="bruker",
                     config=ExportConfig(grid_size=40, b0_field_tesla=9.4),
                 )
-                dic, data = ng.bruker.read_pdata(os.path.join(out, "pdata", "1"), read_acqus=True)
+                dic, data = ng.bruker.read_pdata(os.path.join(out, "1", "pdata", "1"), read_acqus=True)
                 with warnings.catch_warnings():
                     warnings.simplefilter("error")
                     udic = ng.bruker.guess_udic(dic, data)
@@ -839,7 +870,7 @@ class TestBrukerExport(unittest.TestCase):
             self.nmr_data, out, fmt="bruker",
             config=ExportConfig(grid_size=30, b0_field_tesla=9.4, overwrite=True),
         )
-        dic, _ = ng.bruker.read_pdata(os.path.join(out, "pdata", "1"))
+        dic, _ = ng.bruker.read_pdata(os.path.join(out, "1", "pdata", "1"))
         self.assertEqual(dic["procs"]["SI"], 30)
 
 

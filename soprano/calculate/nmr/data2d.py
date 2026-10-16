@@ -956,8 +956,10 @@ class NMRData2D:
         fmt : {'simpson', 'npz', 'csv', 'json', 'ssnake', 'plain', 'bruker'}, optional
             Export format.  If *None*, inferred from *path* extension.
             ``'bruker'`` must be specified explicitly (no extension mapping);
-            *path* is treated as a directory, not a file.  The peak list is
-            written as ``peaks.csv`` inside that directory, not as a
+            *path* is the TopSpin dataset name (a directory, not a file).
+            The data is written to ``<path>/1/pdata/1`` (experiment 1,
+            processing 1), so open ``<path>/1/pdata/1`` in TopSpin.  The
+            peak list is written as ``<path>/1/peaks.csv``, not as a
             ``<path>.peaks.csv`` file.
 
             ``'simpson'``

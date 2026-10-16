@@ -132,6 +132,11 @@ warning saying so.
 
 - Bruker datasets open in TopSpin 5: the parameter files carry the JCAMP-DX header TopSpin
   requires, and `YMAX_p`/`YMIN_p` plus a `clevels` file give it usable default contours.
+- Bruker export writes `<path>/1/pdata/1/...`: `path` is the TopSpin dataset name and the
+  experiment is expno 1. Previously `path` was itself the experiment directory, which TopSpin
+  refused to open (`BROWSE_CORRUPT`). `peaks.csv` is now `<path>/1/peaks.csv`.
+  A `pdata/1/outd` file is also written; without it TopSpin's Plot tab fails with
+  `getpar failed ... outd`.
 - Larmor frequencies use the selected isotope (e.g. ¹⁵N rather than ¹⁴N).
 - Bruker export: the indirect axis now round-trips exactly through nmrglue; an existing
   dataset is not overwritten unless `ExportConfig(overwrite=True)` / `--overwrite` is given;

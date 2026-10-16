@@ -27,4 +27,4 @@ Add Bruker format as a new export target (`fmt="bruker"`), implemented via **`nm
 
 - `nmrglue` added as an optional dependency (e.g. `pip install soprano[nmr-io]` or similar).
 - Users without `nmrglue` get a clear `ImportError` with install instructions when they request Bruker format.
-- The format produces a directory (not a single file), which differs from all other export formats. The public API should accept a `path` that is treated as the experiment directory root.
+- The format produces a directory (not a single file), which differs from all other export formats. The public API accepts a `path` that is the TopSpin dataset *name*; the experiment is written to `<path>/1` (`<path>/1/pdata/1/2rr`). TopSpin addresses data as `<name>/<expno>/pdata/<procno>` and rejects a name directory with no numeric expno (`BROWSE_CORRUPT`), so `path` cannot itself be the experiment directory.

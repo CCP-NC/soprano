@@ -610,6 +610,9 @@ def _export_json_ssnake(
     )
 
 
+BRUKER_EXPNO = "1"
+
+
 def _bruker_sw_ppm(sw_ppm: float, si: int) -> float:
     # Bruker frequency axes are endpoint-EXCLUSIVE: point i sits at
     #   ppm(i) = OFFSET - i * (SW_p / SF) / SI
@@ -702,6 +705,22 @@ def _bruker_clevels(z_max: float, n_levels: int = 8, lowest: float = 0.1, highes
     }
 
 
+def _bruker_outd() -> dict:
+    # Output-device parameters. TopSpin's Plot tab reads pdata/1/outd with no
+    # fallback ("getpar failed on .../outd"). Empty printer names mean "use the
+    # default"; the layout is one of the 2D layouts shipped with TopSpin.
+    return {
+        "_comments": [],
+        "_coreheader": _bruker_jcamp_header(),
+        "CURPLOT": "",
+        "CURPRIN": "$",
+        "DFORMAT": "normdp",
+        "LAYOUT": "+/2D_hom.xwp",
+        "LFORMAT": "normlp",
+        "PFORMAT": "normpl",
+    }
+
+
 def _bruker_acqus(
     sf_mhz: float, sw_ppm: float, offset_ppm: float, si: int, nucleus: str, indirect: bool,
 ) -> dict:
@@ -759,7 +778,7 @@ def _export_bruker(
     include_peaks: bool = True,
     overwrite: bool = False,
 ) -> None:
-    """Write a Bruker TopSpin 2D processed data directory (pdata/1/2rr)."""
+    """Write a Bruker TopSpin 2D processed dataset (``<path>/1/pdata/1/2rr``)."""
     if x_larmor_freq_mhz is None:
         x_el = getattr(nmr_data, "xelement", "x")
         raise ValueError(
@@ -839,7 +858,10 @@ def _export_bruker(
         ),
     }
 
-    root = Path(path)
+    # TopSpin addresses data as <name>/<expno>/pdata/<procno> and refuses a
+    # directory without a numeric expno ("BROWSE_CORRUPT"), so `path` is the
+    # dataset name and the experiment lives in <path>/1.
+    root = Path(path) / BRUKER_EXPNO
     existing = [p for p in (root / "acqus", root / "pdata" / "1" / "2rr") if p.exists()]
     if existing and not overwrite:
         raise FileExistsError(
@@ -851,7 +873,7 @@ def _export_bruker(
     root.mkdir(parents=True, exist_ok=True)
 
     ng.fileio.bruker.write_pdata(
-        path, dic, Z_bruker,
+        str(root), dic, Z_bruker,
         write_procs=True,
         pdata_folder=True,
         overwrite=overwrite,
@@ -878,6 +900,12 @@ def _export_bruker(
         overwrite=overwrite,
     )
 
+    ng.fileio.bruker.write_jcamp(
+        _bruker_outd(),
+        str(root / "pdata" / "1" / "outd"),
+        overwrite=overwrite,
+    )
+
     # Human-readable title shown in the TopSpin browser
     title_path = root / "pdata" / "1" / "title"
     title_path.write_text(
@@ -894,6 +922,7 @@ def _export_bruker(
 
     _log_info(
         nmr_data,
-        f"Bruker TopSpin data written to '{path}' "
-        f"(x={x_larmor_freq_mhz} MHz, y={y_larmor_freq_mhz} MHz)."
+        f"Bruker TopSpin data written to '{root}' "
+        f"(x={x_larmor_freq_mhz} MHz, y={y_larmor_freq_mhz} MHz). "
+        f"In TopSpin open '{root / 'pdata' / '1'}'."
     )
