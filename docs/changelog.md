@@ -217,6 +217,12 @@ All notable changes to Soprano are documented here.
   `include` is left at its default.
 - `soprano.nmr.extract` no longer imports from `soprano.scripts`. The dataframe helpers live in
   `soprano.nmr.dataframe`; the old import paths in `soprano.scripts` still work.
+- `soprano spinsys` error paths now exit non-zero (`UsageError` / `ClickException`) instead of
+  logging and returning exit code 0, and multi-frame files are rejected rather than silently
+  reading the last frame.
+- `soprano plotnmr` now requires exactly one input file (instead of silently plotting only the
+  first), honours `--subset` in `-p 1D` while rejecting it in `-p 2D`, and rejects `--export-file`
+  / `--export-format` in `-p 1D`.
 
 #### 2D NMR spectra and export
 
@@ -247,7 +253,10 @@ warning saying so.
 - `merge_peaks` merges peaks within the tolerances of a group's first peak; merged labels no
   longer leak between groups that share a label.
 - `NMRPlot2D` no longer modifies the caller's `PlotSettings`; Plotly labels stay on the
-  correct edges when axes are inverted; an all-zero contour grid raises a clear error.
+  correct edges when axes are inverted; an all-zero contour grid raises a clear error; any valid
+  matplotlib colormap (including `_r` reversed variants such as `grey_r` and `viridis_r`) is
+  accepted.
+- NPZ export writes the exact path requested instead of silently appending `.npz`.
 
 #### Core
 

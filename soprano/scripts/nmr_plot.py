@@ -392,7 +392,7 @@ def plotnmr(
     elif subset:
         # Keep only the parts of the subset that select a plotted element, so
         # that partial reference dictionaries still work for the other elements.
-        parts = [p for p in subset.split(",") if p]
+        parts = [p.strip() for p in subset.split(",") if p.strip()]
         kept = [
             p for p in parts
             if (m := re.match(r"[A-Za-z]+", p)) and m.group() in plot_elements

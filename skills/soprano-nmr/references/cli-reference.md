@@ -88,7 +88,7 @@ Elements in the selection that have no reference raise a `ValueError` (they are 
 
 ## `soprano plotnmr` Key Options
 
-Plots a 1D spectrum (`-p 1D`) or a 2D correlation map (`-p 2D`, default) from a `.magres` file. `-x/--xelement` is required; `-y/--yelement` defaults to the x element. It shares `-s`, `-i`, `-g`, `--references`, `--gradients`, `--reduce`, `--mean-merge`, `--symprec` and `--euler` with `soprano nmr`. Invalid option combinations exit with a usage error (code 2).
+Plots a 1D spectrum (`-p 1D`) or a 2D correlation map (`-p 2D`, default) from a single `.magres` file. `-x/--xelement` is required; `-y/--yelement` defaults to the x element. It shares `-i`, `-g`, `--references`, `--gradients`, `--reduce`, `--symprec` and `--euler` with `soprano nmr` (`-s/--subset` works with `-p 1D` to filter sites of the `-x` element, and is rejected for 2D plots). Invalid option combinations exit with a usage error (code 2).
 
 | Option | Default | Notes |
 |---|---|---|
@@ -103,7 +103,7 @@ Plots a 1D spectrum (`-p 1D`) or a 2D correlation map (`-p 2D`, default) from a 
 | `--contour-levels INT` | `10` | Number of contour lines |
 | `--intensity-range LO HI` | `10 100` | Percent-of-max range shared by contour and heatmap; override per layer with `--contour-range` / `--heatmap-range` |
 | `--heatmap-levels INT`, `--heatmap-grid-size INT`, `--colormap TEXT`, `--contour-color`, `--contour-linewidth`, `--grid-max FLOAT` | — | Heatmap/contour styling and grid scaling |
-| `--xbroadening FLOAT`, `--ybroadening FLOAT` | 5 % of range | FWHM (ppm); `0` disables broadening |
+| `--xbroadening FLOAT`, `--ybroadening FLOAT` | 5 % of range | FWHM (ppm); must be positive |
 | `--xlim LO HI`, `--ylim LO HI`, `--grid / --no-grid`, `--diag / --no-diag`, `--connectors / --no-connectors`, `--ticklabels / --no-ticklabels`, `--shielding` | — | Axes and display; `--shielding` plots shielding even when references are given |
 | `-o, --output FILE` | window | Plot file (svg or pdf recommended) |
 | `--export-file PATH` (repeatable), `--export-format [simpson\|npz\|csv\|json\|plain\|ssnake\|bruker]`, `--overwrite` | — | **Experimental.** Export contour data; the format is inferred from the extension (`.spe`/`.sim`, `.npz`, `.csv`, `.json`) unless `--export-format` is given. A Bruker export writes `<PATH>/1/pdata/1/...`; `--overwrite` is needed to replace an existing dataset. Bruker, ssNake JSON and frequency-axis SIMPSON export need referenced data (`--references`) |

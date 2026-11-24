@@ -620,6 +620,17 @@ class TestNMRExportModule(unittest.TestCase):
         data = np.load(out, allow_pickle=True)
         self.assertEqual(data["Z"].shape, (500, 500))
 
+    def test_export_explicit_default_grid_size_kwargs_bypasses_cache(self):
+        """Passing a default-equal grid_size as a kwarg must also bypass the cached grid."""
+        self.nmr_data.get_contour_data(grid_size=600)
+        self.assertEqual(self.nmr_data._contour_data.Z.shape, (600, 600))
+
+        out = self._path("explicit_default_kwarg.npz")
+        self.nmr_data.export_contour_data(out, grid_size=500, use_signed=False)
+
+        data = np.load(out, allow_pickle=True)
+        self.assertEqual(data["Z"].shape, (500, 500))
+
 
 @unittest.skipIf(not _NMRGLUE_AVAILABLE, "nmrglue is not installed")
 class TestBrukerExport(unittest.TestCase):

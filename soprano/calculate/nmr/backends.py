@@ -96,7 +96,7 @@ def _uniform_level_runs(levels: np.ndarray) -> list:
     contours have a gap around zero), and any part that is still irregular
     falls back to one run per level.  A single level is ``(lv, lv, 1)``.
     """
-    levels = np.asarray(levels, dtype=float)
+    levels = np.unique(np.asarray(levels, dtype=float))
 
     def uniform(lv):
         return len(lv) > 1 and np.allclose(
@@ -552,8 +552,8 @@ class PlotlyBackend(PlotBackend):
                 y=Y[:, 0],
                 z=Z,
                 colorscale=colorscale,
-                zmin=float(levels[0]),
-                zmax=float(levels[-1]),
+                zmin=float(np.min(levels)),
+                zmax=float(np.max(levels)),
                 showscale=False,
                 contours=dict(
                     start=start,

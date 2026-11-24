@@ -89,7 +89,7 @@ The `nmr` subcommand has a number of options to extract NMR data from a Magres f
 
 ## 2D NMR plots
 
-The `plotnmr` subcommand can be used to generate 2D NMR plots from a magres file. Most of the options are the same as for the `nmr` subcommand in terms of filtering sites, setting references, isotopes etc. You can see the full help by running `soprano plotnmr --help`. 
+The `plotnmr` subcommand can be used to generate 2D NMR plots from a single `.magres` file. Most of the options are the same as for the `nmr` subcommand in terms of setting references, isotopes, symmetry reduction, and group averaging (site selection uses `-x`/`-y` in 2D; `-s/--subset` applies to `-p 1D` only). You can see the full help by running `soprano plotnmr --help`. 
 
 When chemical shifts are plotted (references given and `--shielding` not set), the plotted elements must all have a reference in `--references`. Otherwise the command stops with an error.
 
