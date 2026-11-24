@@ -782,17 +782,23 @@ class TestNMRData2DReduce(unittest.TestCase):
     # Peak count
     # ------------------------------------------------------------------
 
-    def test_reduce_true_fewer_peaks_than_reduce_false(self):
-        """reduce=True should produce fewer (or equal) peaks than reduce=False.
+    def test_reduce_gives_the_same_spectrum(self):
+        """Reduction is bookkeeping: the merged peaks and their weights match.
 
-        All equivalent copies are merged into one asymmetric-unit representative.
+        Each x atom counts once against each expanded j set, so the
+        equivalent copies of a j atom in the unreduced pair list do not
+        count the j orbit again.
         """
         nd_r = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=True)
         nd_f = NMRData2D(self.atoms, **self._kw, rss_expand_j="cif_labels", reduce=False)
-        self.assertLess(
-            len(nd_r.peaks), len(nd_f.peaks),
-            "Expected strictly fewer peaks with reduce=True vs reduce=False (EDIZUM Z=4 collapses equivalents)",
-        )
+
+        def summary(nd):
+            return sorted(
+                (round(p.x, 4), round(p.y, 4), round(p.correlation_strength, 4), p.multiplicity)
+                for p in nd.peaks
+            )
+
+        self.assertEqual(summary(nd_r), summary(nd_f))
 
     # ------------------------------------------------------------------
     # return_index_map from nmr_extract_atoms

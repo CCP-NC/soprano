@@ -629,6 +629,7 @@ def generate_peaks(
     xelement: str,
     yelement: str,
     multiplicities: Optional[np.ndarray] = None,
+    pair_multiplicities: Optional[np.ndarray] = None,
 ) -> List[Peak2D]:
     """
     Generate peaks for the NMR data.
@@ -648,6 +649,10 @@ def generate_peaks(
             with the correct degeneracy weight in the heatmap.  In 2Q mode a
             self-pair ``(i, i)`` gets ``m(m-1)`` instead: it stands for the
             ordered pairs of distinct atoms within the site.
+        pair_multiplicities (np.ndarray, optional): Weight of each pair, used
+            as given.  Takes precedence over ``multiplicities``.  Use it when
+            each pair is already a single atom pair standing for a known
+            number of symmetry copies, as :class:`NMRData2D` does.
 
     Returns:
         List[Peak2D]: List of generated peaks.
@@ -679,7 +684,9 @@ def generate_peaks(
         xlabel = labels[idx_x]
         ylabel = labels[idx_y]
 
-        if multiplicities is not None:
+        if pair_multiplicities is not None:
+            mult = int(pair_multiplicities[ipair])
+        elif multiplicities is not None:
             mult = int(multiplicities[idx_x]) * int(multiplicities[idx_y])
             if yaxis_order == '2Q' and idx_x == idx_y:
                 # A DQ self-pair of a merged site stands for its m(m-1)

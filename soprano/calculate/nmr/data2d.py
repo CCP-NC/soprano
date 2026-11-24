@@ -19,10 +19,8 @@ from soprano.calculate.nmr.config import MARKER_INFO
 from soprano.calculate.nmr.utils import (
     ContourData,
     Peak2D,
-    _nearest_equiv_site,
     calculate_distances,
     extract_indices,
-    filter_pairs_by_distance,
     generate_contour_map,
     generate_peaks,
     get_atom_labels,
@@ -38,8 +36,6 @@ from soprano.calculate.nmr.utils import (
 from soprano.data.nmr import _get_isotope_list
 from soprano.nmr.utils import _dip_constant
 from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
-from soprano.properties.nmr.dipolar import DipolarCoupling
-from soprano.properties.nmr.isc import JCIsotropy
 from soprano.sitemap import SiteMap
 
 class NMRData2D:
@@ -134,8 +130,11 @@ class NMRData2D:
             self.atoms = _sel.subset(self.atoms)
 
         # User pairs are indices into the input structure; map them to the sites
-        # of the structure the peaks are built on.
+        # of the structure the peaks are built on, keeping the atoms themselves
+        # so their couplings are evaluated on the real atom pair.
+        self._user_source_pairs: Optional[List[Tuple[int, int]]] = None
         if self.pairs is not None and self.source is not None:
+            self._user_source_pairs = [(int(i), int(j)) for i, j in self.pairs]
             self.pairs = self._pairs_to_sites(self.pairs)
 
 
@@ -175,31 +174,83 @@ class NMRData2D:
         self.x_axis_label = x_axis_label
         self.y_axis_label = y_axis_label
         self.average_group = average_group
+        self._groups = None
+        if self.average_group and self.source is not None:
+            self._groups = self._find_groups()
 
         # run the main method to extract the data
         self.get_peaks()
 
+    def _find_groups(self) -> dict:
+        """Find the ``average_group`` groups in the source structure.
+
+        A pattern like CH3 or NH3 is anchored on its heavy atom, and both
+        deriving steps can remove it: the element filter drops carbon from an
+        H-H plot, and reduction merges the group members away. Only the source
+        has the bonding topology intact.
+
+        Returns ``{group_id: [source atom indices]}``.
+        """
+        from soprano.nmr.extract import find_XHn_groups, label_atoms  # noqa: PLC0415
+
+        atoms = label_atoms(self.source.copy(), logger=self.logger)
+        groups = {}
+        for ipat, pattern_groups in enumerate(find_XHn_groups(atoms, self.average_group)):
+            for igrp, group in enumerate(pattern_groups):
+                groups[(ipat, igrp)] = [int(a) for a in group]
+        return groups
+
+    def _site_representatives(self) -> np.ndarray:
+        """Source atom standing for each site on the x side of a pair.
+
+        By default this is the first member of the site. With functional-group
+        averaging the representatives of the sites one group spans must come
+        from the *same* physical group, or the group's members would be read
+        off different molecules. For every class of equivalent groups (groups
+        whose atoms fall on the same sites) one group is chosen, and its atoms
+        represent their sites.
+        """
+        reps = np.array([int(self.site_map.members(k)[0])
+                         for k in range(self.site_map.n_sites)], dtype=int)
+        if not self._groups:
+            return reps
+        to_sites = self.site_map.to_sites
+        claimed: set = set()
+        for gid in sorted(self._groups):
+            atoms = [a for a in self._groups[gid] if to_sites[a] >= 0]
+            sites = {int(to_sites[a]) for a in atoms}
+            if not sites or sites & claimed:
+                continue
+            claimed |= sites
+            for a in atoms:
+                site = int(to_sites[a])
+                if reps[site] not in self._groups[gid]:
+                    reps[site] = a
+        return reps
+
     def _average_group_peaks(self, peaks: list) -> list:
         """Merge peaks from the same functional group (e.g. CH₃) post-hoc.
 
-        This method operates on
-        peaks generated from the *original*, unmodified atoms object so that
-        every coupling is evaluated at the true inter-atomic distance.
+        Each peak carries the source atom pair it was evaluated on
+        (``self.src_pairs``), so groups are identified on real atoms and every
+        coupling is evaluated at the true inter-atomic distance.
 
-        Peaks that belong to the same functional group and are paired with the
-        same counter-atom are replaced by a single representative peak:
+        Peaks whose atoms belong to the same functional group and are paired
+        with the same counter-atom (or counter-group) are replaced by a single
+        representative peak:
 
-        * **position** (x, y) — mean of the group members' positions,
-        * **correlation_strength** — mean of the members' coupling values
-          (the multiplicity weight accounts for group size separately),
-        * **multiplicity** — sum of the members' multiplicities
-          (equals the group size when starting from the default of 1),
+        * **position** (x, y) — multiplicity-weighted mean of the members'
+          positions,
+        * **correlation_strength** — for ``dipolar``, the coupling of the
+          group-averaged dipolar tensor; otherwise the multiplicity-weighted
+          mean of the members' values,
+        * **multiplicity** — sum of the members' multiplicities,
         * **label** — comma-separated sorted concatenation of member labels,
           matching the CLI ``--average-group`` convention.
 
         Args:
             peaks: Peak list from :func:`generate_peaks` (before
-                :func:`merge_peaks`).
+                :func:`merge_peaks`), in the order of ``self.src_pairs``.
 
         Returns:
             New peak list with functional-group members merged.
@@ -207,70 +258,33 @@ class NMRData2D:
         import re  # noqa: PLC0415
         from collections import defaultdict  # noqa: PLC0415
 
-        from soprano.nmr.extract import find_XHn_groups, label_atoms  # noqa: PLC0415
-
-        # --- build site → group-id mapping ---------------------------------
-        # Search the source structure. A pattern like CH3 or NH3 is anchored on
-        # its heavy atom, and both deriving steps can remove it: the element
-        # filter drops carbon from an H-H plot, and reduction can merge the
-        # group members away. Only the source has the bonding topology intact.
-        atoms = label_atoms(self.source.copy(), logger=self.logger)
-        all_groups = find_XHn_groups(atoms, self.average_group)
-
-        # find_XHn_groups indexes the source; peaks index the derived sites.
-        to_sites = self.site_map.to_sites
-
-        site_to_group: dict = {}
-        group_source_atoms: dict = {}
-        for ipat, pattern_groups in enumerate(all_groups):
-            for igrp, group in enumerate(pattern_groups):
-                gid = (ipat, igrp)
-                group_source_atoms[gid] = [int(a) for a in group]
-                for aidx in group:
-                    site = int(to_sites[int(aidx)])
-                    if site >= 0:
-                        site_to_group[site] = gid
-
-        if not site_to_group:
+        groups = self._groups or {}
+        atom_to_group = {a: gid for gid, atoms in groups.items() for a in atoms}
+        if not atom_to_group:
             self.logger.warning(
                 f"average_group='{self.average_group}' matched no groups; "
                 "returning peaks unchanged."
             )
             return peaks
 
-        def gkey(idx: int):
-            """Group-id if the site is in a group, else its index as sentinel."""
-            return site_to_group.get(int(idx), int(idx))
+        def gkey(atom: int):
+            """Group id if the atom is in a group, else the atom itself."""
+            return atom_to_group.get(int(atom), ('atom', int(atom)))
+
+        def source_atoms(key) -> list:
+            return groups[key] if key in groups else [key[1]]
 
         # --- bucket peaks by merged-pair key --------------------------------
         peer_map: dict = defaultdict(list)
-        for peak in peaks:
-            key = (gkey(peak.idx_x), gkey(peak.idx_y))
-            peer_map[key].append(peak)
+        for peak, (a, b) in zip(peaks, self.src_pairs):
+            peer_map[(gkey(a), gkey(b))].append(peak)
 
         # --- combine each bucket --------------------------------------------
         def _sort_key(label: str):
             m = re.search(r'\d+', label)
             return int(m.group()) if m else label
 
-        def _source_indices(key) -> Optional[list]:
-            """Source-atom indices behind one side of a merged-pair key.
-
-            A group id maps to every atom of the functional group; a plain
-            site index maps to its representative source atom.  Averaging
-            over symmetry copies of a *non*-group site would wrongly shrink
-            the coupling (there is no motion exchanging those copies), so
-            only the representative is used there.
-            """
-            if key in group_source_atoms:
-                return group_source_atoms[key]
-            m = self.site_map.members(int(key))
-            return [int(m[0])] if len(m) else None
-
-        use_tensor_avg = (
-            self.correlation_strength_metric == 'dipolar'
-            and self.source is not None
-        )
+        use_tensor_avg = self.correlation_strength_metric == 'dipolar'
 
         result = []
         for key, group_peaks in peer_map.items():
@@ -278,9 +292,10 @@ class NMRData2D:
                 result.append(group_peaks[0])
                 continue
 
-            avg_x = float(np.mean([p.x for p in group_peaks]))
-            avg_y = float(np.mean([p.y for p in group_peaks]))
-            total_mult = sum(p.multiplicity for p in group_peaks)
+            weights = np.array([p.multiplicity for p in group_peaks], dtype=float)
+            total_mult = int(weights.sum())
+            avg_x = float(np.average([p.x for p in group_peaks], weights=weights))
+            avg_y = float(np.average([p.y for p in group_peaks], weights=weights))
 
             avg_strength: Optional[float] = None
             if use_tensor_avg:
@@ -289,13 +304,10 @@ class NMRData2D:
                 # arithmetic mean of the constants ignores the orientational
                 # cancellation between the pair tensors and overestimates
                 # the residual coupling (see docs/dipolar-averaging.md).
-                src_i = _source_indices(key[0])
-                src_j = _source_indices(key[1])
+                src_i = source_atoms(key[0])
+                src_j = source_atoms(key[1])
                 # A single identical atom on both sides has no valid pairs
-                has_pairs = bool(src_i) and bool(src_j) and (
-                    len(src_i) > 1 or src_i != src_j
-                )
-                if has_pairs:
+                if len(src_i) > 1 or src_i != src_j:
                     from soprano.properties.nmr import (  # noqa: PLC0415
                         averaged_dipolar_coupling,
                     )
@@ -359,12 +371,11 @@ class NMRData2D:
         self.extract_data()
         labels = get_atom_labels(self.atoms, self.logger)
 
-        multiplicities = (
-            self.atoms.get_array('multiplicity')
-            if self.atoms is not None and self.atoms.has('multiplicity')
-            else None
+        self.peaks = generate_peaks(
+            self.data, self.pairs, labels, self.correlation_strengths,
+            self.yaxis_order, self.xelement, self.yelement,
+            pair_multiplicities=self.pair_multiplicities,
         )
-        self.peaks = generate_peaks(self.data, self.pairs, labels, self.correlation_strengths, self.yaxis_order, self.xelement, self.yelement, multiplicities=multiplicities)
 
         if self.average_group:
             self.peaks = self._average_group_peaks(self.peaks)
@@ -421,9 +432,11 @@ class NMRData2D:
 
             # if user provides a list of these, use it!
             # just check that it's the right length
-            if len(self.correlation_strengths) != len(self.pairs):
-                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({len(self.pairs)}).")
-            correlation_strengths = self.correlation_strengths
+            # One value per requested pair; atom pairs expanded from the same
+            # requested pair share it.
+            if len(self.correlation_strengths) != self._n_requested_pairs:
+                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({self._n_requested_pairs}).")
+            correlation_strengths = np.asarray(self.correlation_strengths)[self._pair_origin]
 
         elif self.correlation_strength_metric == 'fixed':
             self.logger.info("Using fixed correlation strength.")
@@ -434,14 +447,7 @@ class NMRData2D:
             self.logger.info(f"Using {self.correlation_label.lower()} as correlation strength.")
             if self.isotopes:
                 self.logger.debug(f"Using custom isotopes: {self.isotopes}")
-            correlation_strengths = get_pair_dipolar_couplings(self.atoms, self.pairs, self.isotopes)
-            correlation_strengths = self._patch_merged_self_pairs(
-                correlation_strengths,
-                lambda a0, best, _dist: list(DipolarCoupling.get(
-                    self.source, sel_i=[a0], sel_j=[best],
-                    self_coupling=(best == a0), isotopes=self.isotopes,
-                ).values())[0][0] * 1e-3,  # Hz -> kHz
-            )
+            correlation_strengths = get_pair_dipolar_couplings(self.source, self.src_pairs, self.isotopes)
             if self.correlation_strength_metric == 'dipolar2':
                 correlation_strengths = np.square(correlation_strengths)
         elif self.correlation_strength_metric == 'distance' or self.correlation_strength_metric == 'inversedistance':
@@ -458,14 +464,7 @@ class NMRData2D:
 
         elif self.correlation_strength_metric == 'jcoupling':
             self.logger.info("Using J-coupling as correlation strength.")
-            correlation_strengths = get_pair_j_couplings(self.atoms, self.pairs, self.isotopes)
-            correlation_strengths = self._patch_merged_self_pairs(
-                correlation_strengths,
-                lambda a0, best, _dist: list(JCIsotropy.get(
-                    self.source, sel_i=[a0], sel_j=[best], tag='isc',
-                    self_coupling=(best == a0), isotopes=self.isotopes,
-                ).values())[0],
-            )
+            correlation_strengths = get_pair_j_couplings(self.source, self.src_pairs, self.isotopes)
         elif self.correlation_strength_metric == 'dipolar_rss':
             self.logger.info(
                 f"Using dipolar RSS (cutoff={self.rss_cutoff} Å, "
@@ -479,27 +478,33 @@ class NMRData2D:
             # the derived structure would find nothing to expand; and a site
             # stands for every atom it was merged from, so all of them have to
             # contribute. site_map.members gives exactly those atoms.
-            # Each member of site i has its own RSS; the site takes the first.
+            # RSS is a per-atom quantity (one x atom against the whole j set),
+            # so each entry is evaluated for its x atom, and get_pairs weights
+            # it by the multiplicity of the x site only.
             # Members of a symmetry-merged site agree, but a CIF-label merge
             # can group atoms that are not equivalent, so flag that case.
             rss_values = []
-            for i, j in self.pairs:
-                members_rss = DipolarRSSByAtom.get(
-                    self.source,
-                    sel_i=self.site_map.members(i).tolist(),
-                    sel_j=self.site_map.members(j).tolist(),
-                    cutoff=self.rss_cutoff,
-                    isotopes=self.isotopes,
-                    expand_j=self.rss_expand_j,
-                    symprec=self.symprec,
-                )
-                if not np.allclose(members_rss, members_rss[0], rtol=1e-3, atol=0.0):
-                    self.logger.warning(
-                        f"Dipolar RSS differs between the atoms merged into site {i} "
-                        f"(pair {i}-{j}): {members_rss.min():.1f} to {members_rss.max():.1f} Hz. "
-                        "The merged atoms are not equivalent; using the first atom's value."
+            cache: dict = {}
+            for (i, j), (a, _) in zip(self.pairs, self.src_pairs):
+                if (i, j) not in cache:
+                    members_i = self.site_map.members(i).tolist()
+                    members_rss = DipolarRSSByAtom.get(
+                        self.source,
+                        sel_i=members_i,
+                        sel_j=self.site_map.members(j).tolist(),
+                        cutoff=self.rss_cutoff,
+                        isotopes=self.isotopes,
+                        expand_j=self.rss_expand_j,
+                        symprec=self.symprec,
                     )
-                rss_values.append(members_rss[0])
+                    if not np.allclose(members_rss, members_rss[0], rtol=1e-3, atol=0.0):
+                        self.logger.warning(
+                            f"Dipolar RSS differs between the atoms merged into site {i} "
+                            f"(pair {i}-{j}): {members_rss.min():.1f} to {members_rss.max():.1f} Hz. "
+                            "The merged atoms are not equivalent; using the representative atom's value."
+                        )
+                    cache[(i, j)] = dict(zip(members_i, members_rss))
+                rss_values.append(cache[(i, j)][a])
             correlation_strengths = np.array(rss_values) * 1e-3  # convert Hz → kHz to match MARKER_INFO and dipolar metric
         else:
             raise ValueError(f"Unknown correlation_strength_metric option: {self.correlation_strength_metric}")
@@ -545,39 +550,6 @@ class NMRData2D:
                 self.y_axis_label = f'{self.yspecies} ' + axis_label + ' /ppm'
 
 
-    def _find_merged_self_partners(self) -> dict:
-        '''
-        Find the nearest equivalent source atom for each merged self-pair.
-
-        A site with multiplicity m > 1 stands for m atoms, and its self-pair
-        couples distinct atoms of the source.  Those atoms are not in the reduced
-        structure, so the partner is searched in the source, with the same rule
-        as the single-atom case.  Returns ``{site: (source_atom, partner, distance)}``.
-        '''
-        partners: dict = {}
-        if self.source is None or not self.atoms.has('multiplicity'):
-            return partners
-        mult = self.atoms.get_array('multiplicity')
-        for i, j in self.pairs:
-            i = int(i)
-            if i == int(j) and int(mult[i]) > 1 and i not in partners:
-                members = [int(a) for a in self.site_map.members(i).tolist()]
-                a0 = members[0]
-                best, dist = _nearest_equiv_site(self.source, a0, {0: members})
-                partners[i] = (a0, best, dist)
-        return partners
-
-    def _patch_merged_self_pairs(self, values, compute) -> np.ndarray:
-        '''
-        Replace the entries of merged self-pairs with ``compute(a0, partner, distance)``.
-        '''
-        values = np.array(values, dtype=float)
-        for k, (i, j) in enumerate(self.pairs):
-            i = int(i)
-            if i == int(j) and i in self._merged_self_partners:
-                values[k] = compute(*self._merged_self_partners[i])
-        return values
-
     def _pairs_to_sites(self, pairs) -> List[Tuple[int, int]]:
         '''
         Map user pairs from input-structure indices to indices of self.atoms.
@@ -600,88 +572,142 @@ class NMRData2D:
 
     def get_pairs(self) -> None:
         '''
-        Get the pairs of x and y indices to plot
+        Get the pairs of x and y indices to plot.
 
-        self.idx_x and self.idx_y are the indices of the x and y elements in the atoms object
+        Every pair metric is evaluated on atom pairs of the source structure,
+        never on the derived (reduced) structure, which is not a physical
+        crystal. A site pair ``(I, J)`` is expanded into the atom pairs
+        ``(a, b)``, with ``a`` the representative atom of site ``I`` and ``b``
+        every atom merged into site ``J``. Each atom pair stands for the
+        ``m_I`` symmetry copies obtained by moving ``a`` over its site, so it
+        is weighted by ``m_I``; summed over ``b`` this recovers the
+        ``m_I × m_J`` atom pairs of the site pair, each with its own distance
+        and coupling. Without reduction every site is one atom and this is
+        the plain atom-pair list.
 
-        This method will set the following attributes:
-        self.pairs_el_idx: a list of tuples of the form (xindex, yindex)
-        self.pairs: a list of tuples of the form (xindex, yindex), indices into self.atoms
+        User-supplied pairs are not expanded: the requested atom pair is used.
+        ``dipolar_rss`` is a per-atom quantity that already sums over the j
+        set, so it keeps one entry per site pair.
+
+        This method sets, all aligned with each other:
+
+        * ``self.pairs``: ``(I, J)`` site indices into ``self.atoms``,
+        * ``self.src_pairs``: ``(a, b)`` atom indices into ``self.source``,
+        * ``self.pair_multiplicities``: weight of each entry,
+        * ``self.pair_distances``: minimum-image distance of ``(a, b)``,
+        * ``self.pairs_el_idx``: ``(x, y)`` element indices of the site pair.
         '''
-        # Process pairs; idx_x/idx_y (unique element indices) are not overwritten here —
-        # process_pairs expands them into per-pair form internally.
-        self.pairs, self.pairs_el_idx, _, _ = process_pairs(self.idx_x, self.idx_y, self.pairs)
+        if not hasattr(self, '_requested_site_pairs'):
+            self._requested_site_pairs = self.pairs
+        site_pairs, site_el_idx, _, _ = process_pairs(
+            self.idx_x, self.idx_y, self._requested_site_pairs)
+        self._n_requested_pairs = len(site_pairs)
 
-        # In a DQ/SQ experiment the diagonal peaks arise from two *distinct*
-        # atoms of the same chemical shift — not from a spin correlated with
-        # itself.  A self-pair (i, i) of a single atom is unphysical (zero
-        # separation) and is removed.  A self-pair of a merged site (reduce=True)
-        # stands for the m(m-1) ordered pairs of distinct atoms it represents, so
-        # it is kept; its weight is set in generate_peaks and its distance/coupling
-        # comes from the nearest equivalent site.
-        if self.yaxis_order == '2Q':
-            n_before = len(self.pairs)
-            multiplicities = (
-                self.atoms.get_array('multiplicity')
-                if self.atoms.has('multiplicity')
-                else np.ones(len(self.atoms), dtype=int)
-            )
-            valid = [
-                (i, p) for i, p in enumerate(self.pairs)
-                if p[0] != p[1] or int(multiplicities[p[0]]) > 1
-            ]
-            if not valid:
+        mult = (
+            self.atoms.get_array('multiplicity')
+            if self.atoms.has('multiplicity')
+            else np.ones(len(self.atoms), dtype=int)
+        )
+        reps = self._site_representatives()
+        dq = self.yaxis_order == '2Q'
+        per_atom = self.correlation_strength_metric == 'dipolar_rss'
+
+        pairs, src_pairs, mults, el_idx, origin = [], [], [], [], []
+        rss_seen: set = set()
+        rss_j_sets: dict = {}
+        for k, (I, J) in enumerate(site_pairs):
+            I, J = int(I), int(J)
+            members_j = [int(b) for b in self.site_map.members(J)]
+            if self._user_source_pairs is not None:
+                candidates = [self._user_source_pairs[k]]
+            elif per_atom:
+                # One entry per (x atom, j set). Single-atom DQ self-pairs
+                # are dropped like any other zero-separation pair.
+                if dq and I == J and len(members_j) == 1:
+                    continue
+                j_set = self._rss_j_key(members_j)
+                if (I, j_set) in rss_seen:
+                    continue  # same atom against the same expanded j set
+                rss_seen.add((I, j_set))
+                rss_j_sets[len(pairs)] = j_set
+                candidates = [(int(reps[I]), int(reps[J]))]
+            else:
+                candidates = [(int(reps[I]), b) for b in members_j]
+            for a, b in candidates:
+                # In a DQ experiment the diagonal peaks arise from two
+                # *distinct* atoms of the same shift; an atom paired with
+                # itself has zero separation and is unphysical.
+                if dq and a == b and not per_atom:
+                    continue
+                pairs.append((I, J))
+                src_pairs.append((int(a), int(b)))
+                mults.append(int(mult[I]))
+                el_idx.append(site_el_idx[k])
+                origin.append(k)
+
+        if not pairs:
+            if dq:
                 raise ValueError(
                     "No valid pairs found for DQ/SQ spectrum. "
                     "Diagonal peaks in a DQ experiment come from distinct atoms "
                     "with the same shift — check that the structure contains "
                     "coupled pairs of the requested elements."
                 )
-            idxs, self.pairs = zip(*valid)
-            self.pairs = list(self.pairs)
-            self.pairs_el_idx = [self.pairs_el_idx[i] for i in idxs]
-            n_removed = n_before - len(self.pairs)
-            if n_removed:
-                self.logger.debug(
-                    f"Removed {n_removed} single-atom self-pair(s) (i==i) — unphysical in DQ/SQ."
-                )
+            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
 
-        # Self-pairs that survive (merged sites, or SQ/homonuclear) take their
-        # distance/coupling from the nearest equivalent site, so they are not undefined.
+        # Self-pairs that survive (SQ/homonuclear) take their distance and
+        # coupling from the nearest equivalent site, so they are not undefined.
         if self.correlation_strength_metric != 'fixed':
-            self_pairs = [p for p in self.pairs if p[0] == p[1]]
-            if self_pairs:
+            n_self = sum(1 for a, b in src_pairs if a == b)
+            if n_self and not per_atom:
                 self.logger.info(
-                    f"{len(self_pairs)} self-pair(s) remain with "
+                    f"{n_self} self-pair(s) remain with "
                     f"metric='{self.correlation_strength_metric}'. Each uses the "
                     "distance/coupling to its nearest equivalent site."
                 )
 
-        if len(self.pairs) == 0:
-            raise ValueError("No pairs found after filtering. Please check the input file and/or the user-specified filters.")
+        distances = calculate_distances(src_pairs, self.source)
+        # An RSS entry stands for its whole expanded j set: use the nearest member.
+        for n, j_set in rss_j_sets.items():
+            a = src_pairs[n][0]
+            distances[n] = calculate_distances([(a, b) for b in j_set], self.source).min()
 
-        self._merged_self_partners = self._find_merged_self_partners()
-
-        # Calculate distances
-        # if pair_distances is not already calculated, calculate it
-        if not hasattr(self, 'pair_distances'):
-            self.pair_distances = calculate_distances(self.pairs, self.atoms)
-            self.pair_distances = self._patch_merged_self_pairs(
-                self.pair_distances, lambda a0, best, dist: dist,
-            )
-
-
-        # Filter pairs by distance if rcut is specified
+        keep = np.arange(len(pairs))
         if self.rcut:
             self.logger.info(f"Filtering out pairs that are further than {self.rcut} Å apart.")
-            self.logger.info(f"Number of pairs before filtering: {len(self.pairs_el_idx)}")
+            self.logger.info(f"Number of pairs before filtering: {len(pairs)}")
+            keep = np.flatnonzero(distances <= self.rcut)
+            if len(keep) == 0:
+                raise ValueError('No pairs found after filtering by distance. Try increasing the cutoff distance (rcut).')
+            self.logger.info(f"Number of pairs remaining: {len(keep)}")
 
-            self.pairs, self.pairs_el_idx, self.pair_distances, _, _ = filter_pairs_by_distance(
-                self.pairs, self.pairs_el_idx, self.pair_distances, self.rcut)
+        self.pairs = [pairs[i] for i in keep]
+        self.src_pairs = [src_pairs[i] for i in keep]
+        self.pair_multiplicities = np.array([mults[i] for i in keep], dtype=int)
+        self.pairs_el_idx = [el_idx[i] for i in keep]
+        self.pair_distances = distances[keep]
+        self._pair_origin = np.array([origin[i] for i in keep], dtype=int)
+        self.logger.debug(f"Pairs remaining: {self.pairs}")
 
-            self.logger.info(f"Number of pairs remaining: {len(self.pairs_el_idx)}")
-            self.logger.debug(f"Pairs remaining: {self.pairs}")
-            self.logger.debug(f"Pairs el indices remaining: {self.pairs_el_idx}")
+    def _rss_j_key(self, members_j: List[int]) -> tuple:
+        '''
+        The j set a dipolar RSS entry sums over, after ``rss_expand_j``.
+
+        Two entries of the same x atom with the same key are the same RSS
+        value; keeping both would count the j orbit twice.
+        '''
+        if self.rss_expand_j == 'periodic_images':
+            return tuple(sorted(members_j))
+        from soprano.properties.nmr.dipolar import _expand_sel_j_by_equiv  # noqa: PLC0415
+        from soprano.selection import AtomSelection  # noqa: PLC0415
+        cache = self.__dict__.setdefault('_rss_j_cache', {})
+        key = tuple(sorted(members_j))
+        if key not in cache:
+            sel = _expand_sel_j_by_equiv(
+                self.source, AtomSelection(self.source, list(key)),
+                self.rss_expand_j, self.symprec)
+            cache[key] = tuple(sorted(int(x) for x in sel.indices))
+        return cache[key]
 
     def to_dataframe(self, include_metadata=True) -> 'pd.DataFrame':
         """

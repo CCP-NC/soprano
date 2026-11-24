@@ -54,6 +54,14 @@ These are known index-correspondence defects that `SiteMap` is the intended fix 
 
 Group detection runs against the source rather than the reduced structure on principle, not on evidence: no fixture in the test corpus distinguishes the two. The source is the only structure guaranteed to have intact bonding topology and real positions, since a reduced site's position is whichever member `merge_first` happened to keep.
 
+## Addendum: pair metrics on source atoms
+
+The same argument covers every pair metric, not only RSS. `NMRData2D` now expands each site pair
+(I, J) into source atom pairs (a, b), with a the representative of I and b every member of J,
+weighted by m_I, so distances, `rcut` and couplings are never read off the reduced structure.
+Functional-group averaging buckets peaks by these source atoms, and the representatives of a group's
+sites are taken from one physical group (`NMRData2D._site_representatives`).
+
 ## Consequences
 
 The `NMRData2D` diff is net-negative: one composed map replaces two stored structures, two index arrays and a label join, and removes a branch, a warning and a `ValueError` from `get_correlation_strengths`.

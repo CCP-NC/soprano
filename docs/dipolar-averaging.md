@@ -162,7 +162,13 @@ soprano plotnmr -p 2D -x H --weight-by dipolar --average-group CH3 structure.mag
 
 Other weighting metrics (`distance`, `jcoupling`, `dipolar_rss`) keep the
 multiplicity-weighted arithmetic mean, since tensor averaging has no meaning
-for them; `dipolar_rss` already sums over all group members by construction.
+for them. For `dipolar_rss` this is the mean of the members' individual RSS
+values: each is computed per atom before the group is merged, not as one RSS
+of the averaged group.
+
+Groups are matched on atoms of the source structure, so this also holds with
+`reduce=True`: each group is averaged against counter-atoms of its own crystal
+neighbourhood, and the merged peaks are the same as without reduction.
 
 ### Spin-system export
 

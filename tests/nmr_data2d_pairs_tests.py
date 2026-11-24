@@ -96,20 +96,26 @@ class TestPairsReduceConsistency(unittest.TestCase):
                     return a, b
         self.fail("no two H atoms map to different sites")
 
-    def test_reduce_true_matches_representative_pair(self):
-        """pairs=[(a, b)] with reduce=True gives the distance of the representatives."""
-        a, b = self._pair_on_different_sites()
-        rep_a = int(np.flatnonzero(self.reduce_map == self.reduce_map[a])[0])
-        rep_b = int(np.flatnonzero(self.reduce_map == self.reduce_map[b])[0])
+    def test_reduce_true_uses_the_requested_atom_pair(self):
+        """pairs=[(a, b)] with reduce=True evaluates a and b themselves.
+
+        Not the site representatives, which may sit on different molecules.
+        """
+        reps = {int(self.reduce_map[a]): a for a in reversed(self.h_idx)}
+        a, b = next(
+            (a, b) for a in self.h_idx for b in self.h_idx
+            if self.reduce_map[a] != self.reduce_map[b]
+            and a != reps[int(self.reduce_map[a])]
+            and b != reps[int(self.reduce_map[b])]
+        )
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             nd_red = NMRData2D(self.atoms, **self.kw, reduce=True, pairs=[(a, b)])
-        nd_full = NMRData2D(self.atoms, **self.kw, reduce=False, pairs=[(rep_a, rep_b)])
 
-        self.assertEqual(len(nd_red.pair_distances), 1)
+        self.assertEqual(nd_red.src_pairs, [(a, b)])
         self.assertAlmostEqual(
-            nd_red.pair_distances[0], nd_full.pair_distances[0], places=6,
+            nd_red.pair_distances[0], self.atoms.get_distance(a, b, mic=True), places=6,
         )
 
     def test_reduced_pair_sites_contain_the_input_atoms(self):

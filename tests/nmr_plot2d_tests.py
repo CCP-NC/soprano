@@ -501,6 +501,33 @@ class TestAverageGroup(unittest.TestCase):
         self.assertLess(len(grouped.peaks), len(plain.peaks))
         self.assertIn(3, {p.multiplicity for p in grouped.peaks})
 
+    def test_reduced_group_average_stays_on_one_molecule(self):
+        """reduce=True averages a methyl against its own carbon (Z = 4 cells).
+
+        The group and its counter-atom must come from the same molecule. Both
+        settings give the bonded residual of about -1/3 of the static C-H
+        coupling, not an intermolecular coupling of the wrong sign.
+        """
+        for fname, xlabel, expected in (
+            ("alanine_manual_labels.magres", "C3", 7.608),
+            ("EDIZUM.magres", "C9", 10.694),
+        ):
+            atoms = io.read(os.path.join(_TESTDATA_DIR, fname))
+            for reduce in (False, True):
+                with self.subTest(fname=fname, reduce=reduce):
+                    d = NMRData2D(
+                        atoms.copy(), xelement="C", yelement="H",
+                        references={"C": 170, "H": 31},
+                        correlation_strength_metric="dipolar",
+                        average_group="CH3", reduce=reduce,
+                    )
+                    bonded = max(
+                        (p for p in d.peaks if p.xlabel == xlabel),
+                        key=lambda p: p.correlation_strength,
+                    )
+                    self.assertEqual(bonded.ylabel.count(","), 2)
+                    self.assertAlmostEqual(bonded.correlation_strength, expected, places=3)
+
     def test_dipolar_strengths_are_tensor_averaged(self):
         """Merged dipolar strengths must come from the averaged tensor.
 
@@ -672,21 +699,56 @@ class TestDQReducedSelfPairs(unittest.TestCase):
         diagonal = [p for p in d.peaks if abs(p.y - 2 * p.x) < 1e-6]
         self.assertGreater(len(diagonal), 0)
 
-    def test_merged_self_pair_distance_is_nearest_distinct_atom(self):
-        """The self-pair of a merged site uses the closest distinct equivalent atom."""
+    def test_merged_self_pair_covers_every_distinct_partner(self):
+        """A merged site's DQ self-pair couples its atom to every other member.
+
+        The m-1 partners sit at different distances, so taking only the
+        nearest one would over-weight the strongest coupling.
+        """
         d = NMRData2D(self.atoms.copy(), reduce=True,
                       correlation_strength_metric="distance", **self.kw)
         mult = d.atoms.get_array("multiplicity")
-        for k, (i, j) in enumerate(d.pairs):
-            if i != j:
-                continue
+        for i in {i for i, j in d.pairs if i == j}:
             self.assertGreater(mult[i], 1)
+            entries = [k for k, p in enumerate(d.pairs) if p == (i, i)]
             members = d.site_map.members(int(i)).tolist()
-            nearest_distinct = min(
-                d.source.get_distance(members[0], m, mic=True)
-                for m in members[1:]
+            a = d.src_pairs[entries[0]][0]
+            self.assertEqual(
+                sorted(d.src_pairs[k][1] for k in entries),
+                sorted(m for m in members if m != a),
             )
-            self.assertLessEqual(d.pair_distances[k], nearest_distinct + 1e-8)
+            for k in entries:
+                self.assertAlmostEqual(
+                    d.pair_distances[k],
+                    d.source.get_distance(*d.src_pairs[k], mic=True),
+                )
+
+    def test_reduce_matches_unreduced_for_every_metric(self):
+        """With Z > 1, reduction leaves every peak, coupling and weight unchanged.
+
+        Pair metrics are evaluated on source atom pairs, never on the reduced
+        structure, so intermolecular contacts survive an rcut and a site pair
+        is not weighted by one representative coupling.
+        """
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+
+        def summary(nd):
+            return sorted(
+                (round(p.x, 4), round(p.y, 4), round(p.correlation_strength, 4), p.multiplicity)
+                for p in nd.peaks
+            )
+
+        for metric in ("fixed", "dipolar", "distance", "jcoupling"):
+            for rcut in (None, 3.0):
+                if metric == "jcoupling" and not atoms.has("isc"):
+                    continue
+                with self.subTest(metric=metric, rcut=rcut):
+                    kw = dict(xelement="H", yelement="H", yaxis_order="2Q",
+                              references={"H": 29.5}, rcut=rcut,
+                              correlation_strength_metric=metric)
+                    full = NMRData2D(atoms.copy(), reduce=False, **kw)
+                    red = NMRData2D(atoms.copy(), reduce=True, **kw)
+                    self.assertEqual(summary(red), summary(full))
 
 
 class TestPlotSettingsNotMutated(unittest.TestCase):
