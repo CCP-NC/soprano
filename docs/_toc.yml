@@ -12,8 +12,9 @@ sections:
   - file: tutorials/02-generators_properties_calculators.ipynb
   - file: tutorials/03-atomselection_transforms.ipynb
   - file: tutorials/04-clustering.ipynb
-  - file: tutorials/05-nmr.ipynb
-  - file: tutorials/05a-nmr-spin-systems.ipynb
+  - file: tutorials/05a-nmr-parameters.ipynb
+  - file: tutorials/05b-nmr-2d-spectra.ipynb
+  - file: tutorials/05c-nmr-tensors-spin-systems.ipynb
   - file: tutorials/06-defect_calculations.ipynb
   - file: tutorials/07-soprano-cli.ipynb
 - file: simpson-conventions
