@@ -67,9 +67,62 @@ All notable changes to Soprano are documented here.
   `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
   so MHz spectra were broadened by the wrong amount. The `min_freq`/`max_freq` docstrings are
   also corrected, and the docstring now gives the true default for `bins` (100, not 500).
+- **`NMRCalculator.spectrum_1d` referencing and signs.** (a) With a reference, shifts use the
+  same formula as `MSShift`: the full formula δ = (σ_ref − σ)/(1 − σ_ref·10⁻⁶) by default, or a
+  linear fit with the new `set_reference(ref, element, gradient=...)`. Before, it was always
+  σ_ref − σ (≈0.02 ppm off for ¹³C). (b) The second-order quadrupolar shift (`Q_2_SHIFT`, and the
+  `Q_2_ORIENT_*` and `Q_1_ORIENT` terms) had the wrong sign: frequency shifts were added on the
+  shielding axis, so the central-transition shift moved peaks downfield. It now moves them upfield,
+  matching −(3/40)(C_Q/(I(2I−1)))²(I(I+1)−¾)(1+η²/3)/ν₀. (c) MHz offsets are taken against |ν₀|, so a
+  positive shift is a positive offset for negative-γ nuclei too. (d) A `multiplicity` array on the
+  sample (as left by symmetry reduction or `average_group`) now weights each site. (e) Each 1Q
+  transition m → m+1 of a quadrupolar nucleus is weighted by its transition probability
+  I(I+1) − m(m+1) (5 : 8 : 9 : 8 : 5 for I = 5/2); all transitions used to count equally, which
+  underweighted the central transition. `use_central=True` no longer averages the central
+  transition 2I times over.
+- **`NMRData2D` evaluates every pair metric on the source structure.** With `reduce=True`, a site
+  pair (I, J) is expanded into the atom pairs (a, b), with a the representative atom of I and b every
+  atom merged into J, each weighted by m_I. Distances, `rcut`, `dipolar`, `dipolar2`, `distance`,
+  `inversedistance` and `jcoupling` therefore give the same peaks and weights with and without
+  reduction. Before, they were evaluated between single representatives of the reduced structure,
+  which is not a physical crystal: `rcut` dropped intermolecular contacts (36 of 108 peaks on
+  EDIZUM at 3 Å), a site pair carried one representative coupling for all of its m_I·m_J atom pairs
+  (2.2× the total dipolar weight on EDIZUM), and a DQ self-pair used only the nearest of its m−1
+  partners. `NMRData2D.pairs`, `pair_distances` and `correlation_strengths` now hold one entry per
+  atom pair, with the atoms in the new `src_pairs` and the weights in `pair_multiplicities`.
+  User-supplied `pairs` are evaluated on the requested atoms rather than on the site
+  representatives.
+- **`dipolar_rss` peaks count each x atom once per j set.** RSS already sums over every atom of the
+  j site, so its peak is weighted by m_I instead of m_I·m_J, and with `reduce=False` and
+  `rss_expand_j='symmetry'`/`'cif_labels'` the duplicate entries for equivalent j atoms are dropped.
+  The reduced and unreduced spectra now agree.
+- **`MagneticShielding.shift_span`** (and the `herzfeldberger_shift` / `maryland_shift` Ω) is now
+  δ11 − δ33, scaled by |gradient| or 1/(1 − σ_ref·10⁻⁶). It used to return the shielding span.
+  Without a reference it still returns the shielding span.
 
 ### Fixes
 
+- `NMRData2D` with `reduce=True` and `average_group` averaged a functional group of one molecule
+  against the counter-atom of another, because every symmetry copy of the group mapped to the same
+  sites and the last one won. The methyl C–H₃ residual coupling came out at −0.13 kHz instead of
+  +7.61 kHz on alanine. Groups are now matched on source atoms, and the site representatives of a
+  group all come from one physical group.
+- `nmr_extract_atoms(reduce=True)` picked each orbit's representative independently, so for inputs
+  not ordered molecule by molecule the reduced structure could hold atoms of different molecules,
+  and `soprano spinsys` read intermolecular couplings as intramolecular ones. Representatives now
+  form one compact unit, grown by nearest neighbour from the first atom.
+- SIMPSON `.spe` export wrote its comment block before `DATA`, which SIMPSON rejects and which
+  made `nmrglue.fileio.simpson.read` fail on a line with two `=` signs. The comments now follow
+  `END`.
+- ssNake JSON export, and SIMPSON export with frequency axes, now reject unreferenced data
+  (`is_shift=False`), as Bruker export does, instead of writing carriers on the wrong side of ν₀.
+- `DipolarCoupling`, `DipolarRSS`, `DipolarRSSByAtom` and `averaged_dipolar_coupling` honour
+  `atoms.pbc`. A non-periodic structure with a bounding-box cell got couplings to images across the
+  box (−120 kHz instead of −4.4 kHz for two H 3 Å apart in a 4 Å box), and slabs got images along
+  their normal.
+- `soprano plotnmr -p 1D` crashed with `--isotopes`, ignored `--gradients`, ignored site
+  multiplicities (with `-g CH3` a merged methyl counted as one proton), and had an empty window
+  for a single site.
 - `MSShift`, `MSShielding` and the `JC*` properties (`JCTensor`, `JCAnisotropy`,
   `JCReducedAnisotropy`, `JCAsymmetry`, `JCSpan`, `JCSkew`, `JCQuaternion`) can now be imported
   from `soprano.properties.nmr`, as the other NMR properties can.
