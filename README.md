@@ -128,6 +128,22 @@ Soprano ships with several Jupyter notebooks that illustrate its core functional
     
 Additional information is available in the auto-generated documentation in the docs folder, and the same information can be retrieved by using the Python `help` function.
 
+## AI Agent Skills
+
+Soprano ships with [Agent Skills](https://agentskills.io/) under `skills/` to help AI coding agents use Soprano's CLI, Python API, and NMR tensor conventions accurately:
+
+* **`soprano-nmr`**: Extracting MS, chemical shifts, EFG/quadrupolar couplings, and dipolar couplings from `.magres` files (`soprano nmr`, `dipolar`, `soprano.properties.nmr`, `NMRCalculator`).
+* **`soprano-spin-systems`**: Building spin systems, handling `NMRTensor` / Euler angle conventions, fast-exchange dipolar averaging, and exporting to SIMPSON or mrsimulator (`soprano spinsys`, `get_spin_system`, `SpinSystem`).
+* **`soprano-structures`**: Crystal ensembles (`AtomsCollection`), `AtomsProperty`, `AtomSelection`, `SiteMap`, symmetry (`moyo`/`spglib`), molecular splitting (`soprano splitmols`), structure generators, `PhylogenCluster`, and `XRDCalculator`.
+
+Install all three skills with the Skills CLI:
+
+```bash
+npx skills add CCP-NC/soprano
+```
+
+Or copy/symlink any subdirectory from `skills/` into your agent's skills directory (for example `.agents/skills/`, `.claude/skills/`, or `.opencode/skills/`).
+
 ## Functionality
 
 Here we show a basic rundown - not by any means exhaustive - of Soprano functionality and features.

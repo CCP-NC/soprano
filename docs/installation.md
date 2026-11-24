@@ -162,6 +162,24 @@ ds = SymmetryDataset.get(atoms, backend="spglib")
 If neither backend is installed, functions that require symmetry will raise an
 `ImportError` with installation instructions.
 
+## AI Agent Skills
+
+If you use AI coding agents (such as Claude Code, OpenCode, Codex, or Cursor) with Soprano, the repository includes [Agent Skills](https://agentskills.io/) in `skills/`:
+
+| Skill | Coverage |
+|-------|----------|
+| `soprano-nmr` | `.magres` extraction (`soprano nmr`, `dipolar`), referencing, `soprano.properties.nmr`, `NMRCalculator` |
+| `soprano-spin-systems` | `soprano spinsys`, `get_spin_system`, `NMRTensor` & Euler conventions, fast-exchange dipolar averaging, SIMPSON & mrsimulator export |
+| `soprano-structures` | `AtomsCollection`, `AtomsProperty`, `AtomSelection`, `SiteMap`, `moyo`/`spglib` symmetry, `Molecules`/`splitmols`, generators, `PhylogenCluster`, `XRDCalculator` |
+
+Install all skills using the Skills CLI:
+
+```sh
+npx skills add CCP-NC/soprano
+```
+
+To install manually, copy or symlink the desired folders from `skills/` into your tool's skills directory (for example `~/.agents/skills/`, `~/.claude/skills/`, or `.opencode/skills/`).
+
 ## Testing your installation
 
 You can test your installation by first going into the tests directory:
