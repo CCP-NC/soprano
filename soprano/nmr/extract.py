@@ -345,9 +345,10 @@ def merge_tagged_sites(
         A new Atoms object with duplicate-tag sites merged and sorted by tag.
 
     Sites come out ordered by sorted unique tag, which is what
-    ``SiteMap.from_tags(atoms_in.get_tags())`` describes.  Build that map
-    before calling if you need to know which atoms each site stands for; see
-    :class:`soprano.sitemap.SiteMap`.
+    ``SiteMap.from_tags(atoms_in.get_tags())`` describes, provided the tags
+    are grouping tags (e.g. from ``UniqueSites``), not those of an untagged
+    structure.  Build that map before calling if you need to know which atoms
+    each site stands for; see :class:`soprano.sitemap.SiteMap`.
     """
     atoms = atoms_in.copy()
     if not atoms.has("tags"):
@@ -760,7 +761,7 @@ def nmr_extract_atoms(
     6. Merge tagged sites.
 
     Args:
-        atoms: Input Atoms object.
+        atoms: Input Atoms object.  It is not modified; a copy is processed.
         subset: Selection string passed to
             :meth:`soprano.selection.AtomSelection.from_selection_string`.
         reduce: If ``True``, reduce to symmetry-unique sites.
@@ -813,9 +814,9 @@ def nmr_extract_atoms(
 
     if expand_groups and return_index_map:
         raise ValueError("expand_groups cannot be combined with return_index_map")
-    if expand_groups and average_group:
-        # Averaging replaces tensors, which must not leak into the caller's atoms
-        atoms = atoms.copy()
+    # Work on a copy: the arrays and tags set below must not leak into the
+    # caller's atoms.
+    atoms = atoms.copy()
 
     multiplicity = np.ones(len(atoms), dtype=int)
     atoms.set_array("multiplicity", multiplicity)

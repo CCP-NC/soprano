@@ -31,6 +31,7 @@ __date__ = "May 09, 2023"
 
 
 import logging
+import re
 
 import click
 import click_log
@@ -56,8 +57,22 @@ def _given_on_cli(ctx, name):
     return ctx.get_parameter_source(name) == ParameterSource.COMMANDLINE
 
 
+# Options that only shape the 2D plot (or its contour export); ignored by -p 1D.
+_2D_ONLY_PARAMS = (
+    "y_element", "rcut", "yaxis_order", "show_markers", "marker_symbol",
+    "max_marker_size", "marker_linewidth", "weight_by", "rss_cutoff",
+    "rss_expand_j", "scale_markers", "marker_color", "show_marker_legend",
+    "show_diagonal", "show_grid", "show_connectors", "show_ticklabels",
+    "show_heatmap", "heatmap_levels", "heatmap_grid_size", "xbroadening",
+    "ybroadening", "grid_max", "colormap", "show_contour", "contour_levels",
+    "intensity_range", "contour_range", "heatmap_range", "contour_color",
+    "contour_linewidth", "overwrite",
+)
+
+
 def _check_plotnmr_options(
     ctx,
+    plot_type,
     export_files,
     export_format,
     b0_field_tesla,
@@ -73,6 +88,21 @@ def _check_plotnmr_options(
         raise click.UsageError(
             "--b0-field-tesla and --spectrometer-freq are mutually exclusive. Give only one."
         )
+
+    if plot_type == "1D":
+        if export_files or export_format:
+            raise click.UsageError(
+                "--export-file and --export-format only work with 2D plots (-p 2D). "
+                "There is no 1D export."
+            )
+        ignored = []
+        for param in ctx.command.params:
+            if param.name in _2D_ONLY_PARAMS and _given_on_cli(ctx, param.name):
+                ignored.append(next(o for o in param.opts if o.startswith("--")))
+        if ignored:
+            logger.warning(
+                f"Ignoring options that only apply to 2D plots: {', '.join(ignored)}."
+            )
 
     has_field = any(
         freq is not None
@@ -98,7 +128,7 @@ def _check_plotnmr_options(
             if _given_on_cli(ctx, name):
                 logger.warning(f"{opt} has no effect without --export-file.")
 
-    if weight_by != "dipolar_rss":
+    if plot_type == "2D" and weight_by != "dipolar_rss":
         for opt, name in (("--rss-cutoff", "rss_cutoff"), ("--rss-expand-j", "rss_expand_j")):
             if _given_on_cli(ctx, name):
                 logger.warning(f"{opt} only applies with --weight-by dipolar_rss. Ignoring it.")
@@ -308,8 +338,15 @@ def plotnmr(
     """
     Plot the NMR spectrum from a .magres file.
     """
+    if len(files) != 1:
+        raise click.UsageError(
+            "plotnmr plots one file at a time; "
+            f"got {len(files)}. Give exactly one FILE."
+        )
+
     _check_plotnmr_options(
         click.get_current_context(),
+        plot_type=plot_type,
         export_files=export_files,
         export_format=export_format,
         b0_field_tesla=b0_field_tesla,
@@ -344,8 +381,35 @@ def plotnmr(
     if shift:
         include.append("MS_shift")
     exclude = None
-    merge = True  # if multiple files are given, we have to merge them
-    subset = ",".join(plot_elements)
+    if subset and plot_type == "2D":
+        # 2D plots are built from the whole structure, so cannot honour a subset
+        if _given_on_cli(click.get_current_context(), "subset"):
+            raise click.UsageError(
+                "--subset is not supported for 2D plots, which use every site of "
+                "the -x/-y elements. Use it with -p 1D instead."
+            )
+        subset = ",".join(plot_elements)
+    elif subset:
+        # Keep only the parts of the subset that select a plotted element, so
+        # that partial reference dictionaries still work for the other elements.
+        parts = [p for p in subset.split(",") if p]
+        kept = [
+            p for p in parts
+            if (m := re.match(r"[A-Za-z]+", p)) and m.group() in plot_elements
+        ]
+        if not kept:
+            raise click.UsageError(
+                f"--subset '{subset}' selects none of the plotted element(s) "
+                f"{', '.join(plot_elements)}."
+            )
+        if len(kept) < len(parts):
+            logger.warning(
+                f"Ignoring parts of --subset that select elements other than "
+                f"{', '.join(plot_elements)}."
+            )
+        subset = ",".join(kept)
+    else:
+        subset = ",".join(plot_elements)
 
     # set verbosity
     if verbosity == 0:
@@ -359,7 +423,6 @@ def plotnmr(
         files,
         return_sources=True,
         subset=subset,
-        merge=merge,
         isotopes=isotopes,
         references=references if shift else None,
         gradients=gradients if shift else None,
@@ -383,10 +446,6 @@ def plotnmr(
     # write to file(s)
     if verbosity > 0:
         print_results(dfs)
-    if len(dfs) > 1:
-        logger.warning(
-            "More than one dataframe extracted. Only plotting the first one."
-        )
     if len(dfs) == 0:
         raise click.ClickException("No NMR data extracted. Nothing to plot.")
     atoms = images[0]

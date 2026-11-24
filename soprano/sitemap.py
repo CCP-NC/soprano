@@ -56,6 +56,11 @@ class SiteMap:
     and cannot go stale. The cost is that pairing a map with the wrong
     structure is possible, which is what :meth:`validate` is for.
 
+    The dataclass is declared with ``eq=False``, so ``==`` compares by identity
+    rather than by value (a generated ``__eq__`` would compare numpy arrays
+    elementwise and be ambiguous). Compare maps with
+    ``np.array_equal(a.to_sites, b.to_sites)`` and ``a.n_sites == b.n_sites``.
+
     Attributes:
         to_sites: Integer array of length ``n_atoms``. Entry ``i`` is the site
             that atom ``i`` maps to, or :data:`DROPPED` if the derivation
@@ -150,6 +155,12 @@ class SiteMap:
 
         Args:
             tags: Per-atom tag array. Atoms sharing a tag become one site.
+                These must be the grouping tags that identify equivalent
+                sites, such as those from
+                :class:`soprano.properties.labeling.UniqueSites` (or the tags
+                set by :func:`soprano.nmr.extract.nmr_extract_atoms`), not the
+                raw ``atoms.get_tags()`` of an untagged structure, where every
+                atom has tag 0 and would collapse into a single site.
         """
         tags = np.asarray(tags)
         unique = np.unique(tags)

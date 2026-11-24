@@ -144,18 +144,22 @@ def sortdf(df, sortby, sort_order):
                     # so we need to sort by the cif style labels first, then sort by the non-cif style labels
                     # this is a bit of a hack, but it works
                     raise NotImplementedError(
-                        "Sorting by labels is not implemented"
+                        "Sorting by labels is not implemented "
                         "for a mix of cif and non-cif -style labels"
                     )
                 else:
                     # all cif stlye
                     # some care is needed to sort by labels in a natural way
-                    df[["_str", "_int"]] = df[sortby].str.extract(r"([a-zA-Z]*)(\d*)")
-                    df["_int"] = df["_int"].astype(int)
-
-                    df = df.sort_values(by=["_str", "_int"], ascending=ascending).drop(
-                        ["_int", "_str"], axis=1
-                    )
+                    # Labels may lack digits or have separators (e.g. "C_1"), so
+                    # split into leading non-digits, the first number (0 if
+                    # absent) and whatever follows (e.g. the "a" of "H1a").
+                    keys = df[sortby].str.extract(r"^(\D*)(\d*)(.*)$")
+                    keys.columns = ["_str", "_int", "_rest"]
+                    keys["_int"] = pd.to_numeric(keys["_int"]).fillna(0).astype(int)
+                    order = keys.reset_index(drop=True).sort_values(
+                        by=["_str", "_int", "_rest"], ascending=ascending
+                    ).index
+                    df = df.iloc[order]
             else:
                 df = df.sort_values(by=sortby, ascending=ascending)
         else:

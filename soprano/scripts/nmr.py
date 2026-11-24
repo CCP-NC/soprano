@@ -18,10 +18,7 @@
 
 TODO: add support for different shift {Haeberlen,NQR,IUPAC}and quadrupole {Haeberlen,NQR} conventions.
 TODO: check if df is too wide to fit in window -- if so, split into multiple plots.
-TODO: spinsys output is not yet implemented.
 TODO: document config file setup
-
-REFACTORED NMR_EXTRACRT ETC., NEED TO MAKE SURE THE OTHER CLI COMMANDS STILL WORK 
 """
 
 __author__ = "J. Kane Shenton"

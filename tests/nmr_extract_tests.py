@@ -94,3 +94,53 @@ def test_reduced_sites_come_from_one_molecule(seed):
     np.testing.assert_array_equal(
         reduced.get_array("labels")[index_map], shuffled.get_array("labels")
     )
+
+
+def test_nmr_extract_atoms_does_not_modify_input():
+    from ase import io
+
+    from soprano.nmr.extract import nmr_extract_atoms
+
+    atoms = io.read(ETHANOL)
+    before = atoms.copy()
+    arrays_before = set(atoms.arrays)
+    tags_before = atoms.get_tags().copy()
+
+    nmr_extract_atoms(atoms, reduce=True, average_group="CH3")
+
+    assert set(atoms.arrays) == arrays_before
+    assert "multiplicity" not in atoms.arrays
+    assert "xhn_group" not in atoms.arrays
+    np.testing.assert_array_equal(atoms.get_tags(), tags_before)
+    np.testing.assert_array_equal(atoms.get_array("ms"), before.get_array("ms"))
+    assert len(atoms) == len(before)
+
+
+@pytest.mark.parametrize(
+    "labels, expected",
+    [
+        (["C10", "C2", "C1"], ["C1", "C2", "C10"]),
+        (["C_10", "C_2", "C_1"], ["C_1", "C_2", "C_10"]),
+        (["H1b", "H1a", "H_2"], ["H1a", "H1b", "H_2"]),
+    ],
+)
+def test_sortdf_by_labels_handles_cif_style_labels(labels, expected):
+    import pandas as pd
+
+    from soprano.nmr.dataframe import sortdf
+
+    df = pd.DataFrame({"labels": labels, "x": range(len(labels))})
+    result = sortdf(df, "labels", "ascending")
+    assert list(result["labels"]) == expected
+    assert list(sortdf(df, "labels", "descending")["labels"]) == expected[::-1]
+    assert list(df.columns) == ["labels", "x"]
+
+
+def test_sortdf_mixed_labels_message():
+    import pandas as pd
+
+    from soprano.nmr.dataframe import sortdf
+
+    df = pd.DataFrame({"labels": ["C", "C1"]})
+    with pytest.raises(NotImplementedError, match="not implemented for a mix"):
+        sortdf(df, "labels", "ascending")

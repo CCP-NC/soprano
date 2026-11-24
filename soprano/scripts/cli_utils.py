@@ -191,7 +191,7 @@ config = click.option(
     is_eager=True,
     expose_value=False,
     show_default=True,
-    help="Read option defaults from the specified INI file"
+    help="Read option defaults from the specified INI file. "
     "If not set, first checks environment variable: "
     "``SOPRANO_CONFIG`` and then ``~/.soprano/config.ini``",
 )
@@ -236,8 +236,8 @@ df_output = click.option(
     "-o",
     type=click.Path(exists=False, writable=True, dir_okay=False),
     default=None,
-    help="Output file name. If not specified, output is printed to stdout."
-    "If the output file name has a recognised extension (see ``--output-format`` for allowed values), the format is guessed from that."
+    help="Output file name. If not specified, output is printed to stdout. "
+    "If the output file name has a recognised extension (see ``--output-format`` for allowed values), the format is guessed from that. "
     "The format can be overridden with the ``--output-format`` option.",
 )
 df_output_format = click.option(
@@ -246,9 +246,9 @@ df_output_format = click.option(
     default=None,
     type=click.Choice(VALID_DF_OUTPUT_EXTENSIONS),
     help="Output file format. "
-    "If not specified, the format is guessed from output filename extension."
-    "If specified, it overrides the output filename extension."
-    "The ``txt``, ``tsv`` and ``dat`` formats all produce tab separated files."
+    "If not specified, the format is guessed from output filename extension. "
+    "If specified, it overrides the output filename extension. "
+    "The ``txt``, ``tsv`` and ``dat`` formats all produce tab separated files. "
     "The ``md`` format produces a markdown table and requires an optional dependency on the tabulate package.",
 )
 # merge output files
@@ -413,7 +413,7 @@ view = click.option(
     "--view",
     is_flag=True,
     default=False,
-    help="If present, view the structure(s) with the ASE GUI."
+    help="If present, view the structure(s) with the ASE GUI. "
     "Note that the ASE GUI can color the sites according to their tags. "
     "This can be used to see what sites were tagged as equivalent.",
 )
@@ -441,6 +441,7 @@ plot_xelement = click.option(
     "x_element",
     type=str,
     required=True,
+    help="Element to plot on the x-axis (the only element for a 1D plot), e.g. ``-x C``.",
 )
 # y element
 plot_yelement = click.option(
@@ -754,7 +755,7 @@ plot_heatmap_levels = click.option(
     default=20,
     show_default=True,
     help="Number of filled colour bands in the heatmap "
-         "(between the lo and hi values of --heatmap-range). Default is 20.",
+         "(between the lo and hi values of --heatmap-range).",
 )
 
 # heatmap grid size
@@ -786,7 +787,7 @@ plot_shielding = click.option(
     is_flag=True,
     default=None,
     help="Force plot shielding (even if references are present). "
-    "Default is to plot shifts if references are given but shielding if no references given).",
+    "Default is to plot shifts if references are given but shielding if no references are given.",
 )
 
 # ── contour data export ─────────────────────────────────────────────────────
@@ -883,8 +884,8 @@ dip_rss_flag = click.option(
     "rss_flag",
     is_flag=True,
     default=False,
-    help="Calculate the dipolar constant Root Sum Square for each atom in a system (includes periodicity)."
-    "(As opposed to the dipolar couplings between pairs of atoms)."
+    help="Calculate the dipolar constant Root Sum Square for each atom in a system (includes periodicity). "
+    "(As opposed to the dipolar couplings between pairs of atoms). "
     "Default is False.",
 )
 dip_rss_cutoff = click.option(
@@ -899,7 +900,7 @@ dip_isonuclear = click.option(
     "--isonuclear",
     is_flag=True,
     default=False,
-    help="Include only dipolar interactions between atoms of the same type."
+    help="Include only dipolar interactions between atoms of the same type. "
     "Default is False.",
 )
 
@@ -1025,7 +1026,7 @@ spinsys_format = click.option(
     "format",
     type=click.Choice(["mrsimulator", "simpson"]),
     default="simpson",
-    help="Which program to prepare the spinsys for. "
+    help="Which program to prepare the spinsys for. Default is simpson.",
 )
 spinsys_include_ms = click.option(
     "--ms/--no-ms",
@@ -1083,7 +1084,7 @@ spinsys_angles = click.option(
     "include_angles",
     type=click.Choice(["all", "none", "default"]),
     default="default",
-    help="Overall control for all angle types: 'all' enables all angles, 'none' disables all angles, 'default' respects individual flags"
+    help="Overall control for all angle types: 'all' enables all angles, 'none' disables all angles, 'default' respects individual flags. Default is 'default'.",
 )
 spinsys_ms_angles = click.option(
     "--ms-angles/--no-ms-angles",
@@ -1124,7 +1125,7 @@ observed_nucleus = click.option(
     "observed_nucleus",
     type=str,
     default="",
-    help="Observed nucleus. Default is ''. This is used to set the observed nucleus in the Simpson input file."
+    help="Observed nucleus. Default is ''. This is used to set the observed nucleus in the Simpson input file. "
     "If not specified, the observed nucleus is set to the first nucleus in the spinsys file.",
 )
 

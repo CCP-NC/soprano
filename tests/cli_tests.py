@@ -745,6 +745,69 @@ class TestCLI(unittest.TestCase):
                 nuclei_count = len(nuclei_line.split()) - 1
                 self.assertEqual(nuclei_count, 2)
 
+    def test_spinsys_partial_references_exits_nonzero(self):
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            result = runner.invoke(
+                soprano,
+                ["spinsys", str(self._TESTDATA_DIR / "ethanol.magres"),
+                 "--subset", "C,H", "--references", "C:170"],
+                prog_name="spinsys",
+            )
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("missing element(s) H", result.output)
+
+    def test_spinsys_unsupported_extension_exits_nonzero(self):
+        runner = CliRunner()
+        fname = self._TESTSAVE_DIR / "structure.cif"
+        fname.write_text("data_x\n")
+        with patch('click_log.basic_config'):
+            result = runner.invoke(soprano, ["spinsys", str(fname)], prog_name="spinsys")
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("Unsupported file type", result.output)
+
+    def test_spinsys_multi_frame_file_exits_nonzero(self):
+        """A file with several frames is rejected rather than reading the last."""
+        from ase.io import write
+
+        from ase import Atoms
+
+        full = read(self._TESTDATA_DIR / "ethanol.magres")
+        atoms = Atoms(full.symbols, full.positions, cell=full.cell, pbc=True)
+        fname = self._TESTSAVE_DIR / "two_frames.extxyz"
+        write(fname, [atoms, atoms])
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            result = runner.invoke(
+                soprano, ["spinsys", str(fname), "--no-ms", "--no-efg"], prog_name="spinsys"
+            )
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("2 structures", result.output)
+
+    def test_spinsys_split_with_couplings_exits_nonzero(self):
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            result = runner.invoke(
+                soprano,
+                ["spinsys", str(self._TESTDATA_DIR / "ethanol.magres"), "--subset", "H",
+                 "--references", "H:30", "--dip", "--split"],
+                prog_name="spinsys",
+            )
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("Cannot split spin system with couplings", result.output)
+
+    def test_spinsys_split_without_output_does_not_log_none(self):
+        runner = CliRunner()
+        with patch('click_log.basic_config'):
+            result = runner.invoke(
+                soprano,
+                ["spinsys", str(self._TESTDATA_DIR / "ethanol.magres"), "--subset", "H",
+                 "--references", "H:30", "--split", "-v"],
+                prog_name="spinsys",
+            )
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertNotIn("written to None", result.output)
+
     def test_spinsys_ms_isotropic(self):
         """Test --ms-iso strips anisotropy from shift tensors."""
         runner = CliRunner()
@@ -854,8 +917,9 @@ class TestCLI(unittest.TestCase):
                 result = runner.invoke(
                     soprano, ["spinsys", str(fname_mag)] + option_flags, prog_name="spinsys"
                 )
-                # The CLI logs an error and returns without writing output
-                self.assertIn("does not contain all references", result.output)
+                self.assertNotEqual(result.exit_code, 0)
+                self.assertIn("No references were given", result.output)
+                self.assertNotIn("(None)", result.output)
 
     def test_spinsys_observed_nucleus(self):
         """Test that --observed-nucleus places the nucleus first in Simpson channels."""

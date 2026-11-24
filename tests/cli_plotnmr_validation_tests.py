@@ -121,3 +121,82 @@ def test_nmr_mean_merge_option_works():
     result = _invoke(["nmr", "--mean-merge", ETHANOL])
     assert result.exit_code == 0, result.output
     assert "O_1" in result.output
+
+
+def test_plotnmr_rejects_multiple_files():
+    result = _invoke(["plotnmr", ETHANOL, ETHANOL, "-x", "C", "-y", "H", *REFS_CH])
+    _assert_usage_error(result, "plotnmr plots one file at a time")
+
+
+def test_1d_subset_filters_plotted_sites(tmp_path):
+    """-s must reach the 1D spectrum rather than being overwritten by -x."""
+    import matplotlib.pyplot as plt
+
+    def _run(extra):
+        plt.close("all")
+        out = tmp_path / "s.png"
+        result = _invoke(
+            ["plotnmr", ETHANOL, "-p", "1D", "-x", "C", "--no-reduce", "-o", str(out), *extra]
+        )
+        assert result.exit_code == 0, result.output
+        ax = plt.gcf().axes[0]
+        return ax.lines[0].get_ydata().sum()
+
+    full = _run([])
+    one = _run(["-s", "C.1"])
+    assert one < full * 0.75
+
+
+def test_1d_subset_of_other_element_is_usage_error():
+    result = _invoke(["plotnmr", ETHANOL, "-p", "1D", "-x", "C", "-s", "H", "--shielding"])
+    _assert_usage_error(result, "selects none of the plotted element")
+
+
+def test_2d_subset_is_usage_error():
+    result = _invoke(["plotnmr", ETHANOL, "-x", "C", "-y", "H", *REFS_CH, "-s", "C.1"])
+    _assert_usage_error(result, "--subset is not supported for 2D plots")
+
+
+def test_1d_export_file_is_usage_error(tmp_path):
+    result = _invoke(
+        ["plotnmr", ETHANOL, "-p", "1D", "-x", "C", "--references", "C:170",
+         "--export-file", str(tmp_path / "spec.csv")]
+    )
+    _assert_usage_error(result, "only work with 2D plots")
+
+
+def test_1d_export_format_is_usage_error():
+    result = _invoke(
+        ["plotnmr", ETHANOL, "-p", "1D", "-x", "C", "--references", "C:170",
+         "--export-format", "csv"]
+    )
+    _assert_usage_error(result, "only work with 2D plots")
+
+
+def test_1d_warns_about_2d_only_options(tmp_path):
+    result = _invoke(
+        ["plotnmr", ETHANOL, "-p", "1D", "-x", "C", "-y", "H", "--rcut", "3",
+         "--heatmap", "--references", "C:170", "-o", str(tmp_path / "p.png")]
+    )
+    assert result.exit_code == 0, result.output
+    assert "only apply to 2D plots" in result.output
+    for flag in ("--yelement", "--rcut", "--heatmap"):
+        assert flag in result.output
+
+
+def test_1d_without_2d_only_options_does_not_warn(tmp_path):
+    result = _invoke(
+        ["plotnmr", ETHANOL, "-p", "1D", "-x", "C", "--references", "C:170",
+         "-o", str(tmp_path / "p.png")]
+    )
+    assert result.exit_code == 0, result.output
+    assert "only apply to 2D plots" not in result.output
+
+
+def test_plotnmr_reversed_colormap(tmp_path):
+    result = _invoke(
+        ["plotnmr", ETHANOL, "-x", "C", "-y", "H", *REFS_CH, "--heatmap",
+         "--colormap", "grey_r", "--no-ticklabels", "-o", str(tmp_path / "p.png")]
+    )
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "p.png").exists()

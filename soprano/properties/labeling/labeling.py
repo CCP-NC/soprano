@@ -341,8 +341,6 @@ class UniqueSites(AtomsProperty):
         dset = get_symmetry_dataset(s, symprec=symprec, backend=backend)
         tags = dset.equivalent_atoms
 
-        unique_tags, uniqueinds = np.unique(tags, return_index=True)
-
         # -- check to make sure that no two elements have the same tag --#
         # unique elements
         elems = set(s.get_chemical_symbols())
@@ -360,11 +358,10 @@ class UniqueSites(AtomsProperty):
         #-------------------------------------------------------------------#
         if has_cif_labels(s):
             ciflabels = s.get_array('labels')
-            _, unique_cif_inds, unique_cif_tags = np.unique(ciflabels, return_index=True, return_inverse=True)
+            _, unique_cif_inds = np.unique(ciflabels, return_index=True)
             # sort
             unique_cif_inds = np.sort(unique_cif_inds)
             unique_cif_labels = ciflabels[unique_cif_inds]
-            unique_cif_tags = unique_cif_tags[unique_cif_inds]
             cif_tags = np.array([np.where(lab == unique_cif_labels)[0][0] for lab in ciflabels])
 
             def _canon(t):
