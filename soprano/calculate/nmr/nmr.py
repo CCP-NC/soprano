@@ -249,6 +249,7 @@ class NMRCalculator:
         self.set_larmor_frequency(larmor_frequency, larmor_units)
 
         self._references = {}
+        self._gradients = {}
 
         self.set_powder()
 
@@ -298,26 +299,31 @@ class NMRCalculator:
         el, iso = _el_iso(element)
         return self._B / _larm_units["MHz"](el, iso)
 
-    def set_reference(self, ref, element):
+    def set_reference(self, ref, element, gradient=None):
         """
         Set the chemical shift reference (in ppm) for a given element. If not
         provided it will be assumed to be zero.
 
         | Args:
-        |   ref (float): reference shielding value in ppm. Chemical shift will
-        |                be calculated as this minus the atom's ms.
+        |   ref (float): reference shielding value in ppm.
         |   element (str): element and isotope whose reference is set.
         |                  Should be in the form <isotope><element>. Isotope
         |                  is optional, if absent the most abundant NMR active
         |                  one will be used.
+        |   gradient (float): slope of a linear shielding-to-shift fit,
+        |                     shift = ref + gradient * ms. If None (default)
+        |                     the full formula is used,
+        |                     shift = (ref - ms) / (1 - ref * 1e-6),
+        |                     matching MagneticShielding and MSShift.
 
         """
 
         el, iso = _el_iso(element)
 
-        if el not in self._references:
-            self._references[el] = {}
-        self._references[el][iso] = float(ref)
+        self._references.setdefault(el, {})[iso] = float(ref)
+        self._gradients.setdefault(el, {})[iso] = (
+            None if gradient is None else float(gradient)
+        )
 
     def set_isotopes(self, isotopes):
         """
@@ -462,6 +468,9 @@ class NMRCalculator:
         |                       final spectrum, in freq_units (default is None)
         |   freq_units (str): units used for frequency, can be ppm or MHz. The
         |                     axis is returned in these units (default is ppm).
+        |                     MHz values are offsets of ppm * |larmor| * 1e-6,
+        |                     so a positive shift is a positive offset for
+        |                     either sign of gamma.
         |   effects (NMRFlags): a flag, or bitwise-joined set of flags, from
         |                       this module's NMRFlags tuple, describing which
         |                       effects should be included and accounted for
@@ -473,11 +482,16 @@ class NMRCalculator:
         |                       integer spin nuclei (default is False).
         |   use_reference (bool): if True, return frequencies as referenced to
         |                         the appropriate nucleus, in chemical shift
-        |                         form. If no reference has been provided for
-        |                         this nucleus, a value of 0 ppm is used and
-        |                         the frequencies are simply flipped in sign
+        |                         form (see set_reference). If no reference has
+        |                         been provided for this nucleus, a value of
+        |                         0 ppm is used and the frequencies are simply
+        |                         flipped in sign. If False the axis is the
+        |                         magnetic shielding.
         |                         (default is None, in which case use_reference is True if
         |                          references have been set).
+        |
+        | If the sample has a 'multiplicity' array (as left by symmetry
+        | reduction), each site is weighted by it.
 
         | Returns:
         |   spec (np.ndarray): array of length 'bins' containing the spectral
@@ -492,10 +506,11 @@ class NMRCalculator:
         larm = self._B * _nmr_data[el][iso]["gamma"] / (2.0 * np.pi * 1e6)
         I = _nmr_data[el][iso]["I"]
         # Units? Internally everything is in ppm, the requested window is
-        # converted to ppm with this scale (negative for negative gamma)
+        # converted to ppm with this scale.  The offset is taken against
+        # |larmor|, so it has the sign of the shift for either sign of gamma.
         u = {
             "ppm": 1,
-            "MHz": 1e6 / larm,
+            "MHz": 1e6 / abs(larm),
         }
         try:
             scale = u[freq_units]
@@ -562,18 +577,30 @@ class NMRCalculator:
             ref = self._references[el][iso]
         except KeyError:
             ref = 0.0
+        gradient = self._gradients.get(el, {}).get(iso)
 
         # Default to using reference if it's not zero
         if use_reference is None:
             use_reference = ref != 0.0
 
-        # Shielding axis (ppm) at each requested point. It is descending for
-        # negative gamma or with a reference, but the POWDER average needs an
-        # ascending one, so compute on the sorted axis and put the result back
-        # in the requested order at the end.
-        freq_axis = out_freq * scale
+        # Peaks are built on the output axis.  Shielding contributions map
+        # onto it affinely, axis = ms_off + ms_fac * ms; quadrupolar shifts
+        # are frequency shifts, so they enter with the sign of a chemical
+        # shift (q_fac = +1) and the opposite sign on a shielding axis.
         if use_reference:
-            freq_axis = ref - freq_axis
+            if gradient is None:
+                ms_fac = -1.0 / (1.0 - ref * 1e-6)
+                ms_off = ref / (1.0 - ref * 1e-6)
+            else:
+                ms_fac = gradient
+                ms_off = ref
+            q_fac = 1.0
+        else:
+            ms_fac, ms_off, q_fac = 1.0, 0.0, -1.0
+
+        # The POWDER average needs an ascending axis, so compute on the sorted
+        # axis and put the result back in the requested order at the end.
+        freq_axis = out_freq * scale
         order = np.argsort(freq_axis)
         freq_axis = freq_axis[order]
         fc = (freq_axis[0] + freq_axis[-1]) / 2.0
@@ -581,21 +608,24 @@ class NMRCalculator:
         # Let's start with peak positions - quantities non dependent on
         # orientation
 
-        # Shape: atoms*1Q transitions
-        peaks = np.zeros((len(a_inds), int(2 * I)))
-
         # Magnetic quantum number values
         if I % 1 == 0.5 and use_central:
             m = np.array([-0.5, 0.5])[None, :]
         else:
             m = np.arange(-I, I + 1).astype(float)[None, :]
 
+        # Shape: atoms*1Q transitions (m -> m+1)
+        peaks = np.zeros((len(a_inds), m.shape[1] - 1))
+        # Relative intensity of each 1Q transition, |<m+1|I+|m>|^2
+        m_lo = m[0, :-1]
+        trans_weights = I * (I + 1.0) - m_lo * (m_lo + 1.0)
+
         if effects & NMRFlags.CS_ISO:
-            peaks += np.average(ms_evals, axis=1)[:, None]
+            peaks += ms_off + ms_fac * np.average(ms_evals, axis=1)[:, None]
 
         # Quadrupole second order
         if effects & NMRFlags.Q_2_SHIFT:
-            nu_l = larm * 1e6
+            nu_l = abs(larm) * 1e6
             # NOTE: the last factor of two in this formula was inserted
             # despite not being present in M. J. Duer (5.9) as apparently
             # it's a mistake in the book. Other sources (like the quadrupolar
@@ -608,9 +638,9 @@ class NMRCalculator:
                 * (-0.2 * (I * (I + 1) - 3 * m ** 2) * (3 + eta_q[:, None] ** 2))
                 * 2
             )
-            q_shifts /= larm
+            q_shifts /= abs(larm)  # Hz/MHz = ppm
 
-            peaks += q_shifts
+            peaks += q_fac * q_shifts
 
         # Any orientational effects at all?
         has_orient = effects & (
@@ -636,7 +666,7 @@ class NMRCalculator:
             # Now get the shift contributions for each orientation
             dirs = self._orients[0]
 
-            peaks += np.sum(
+            peaks += ms_fac * np.sum(
                 dirs.T[None, :, :] * np.tensordot(ms_traceless, dirs, axes=((2), (1))),
                 axis=1,
             )[:, None, :]
@@ -658,7 +688,7 @@ class NMRCalculator:
 
             qfreqs = nu_q[:, None, None] * m_fac[:, :, None] * dir_fac[:, None, :]
 
-            peaks += qfreqs / larm  # Already ppm being Hz/MHz
+            peaks += q_fac * qfreqs / abs(larm)  # Already ppm being Hz/MHz
 
         if effects & (NMRFlags.Q_2_ORIENT_STATIC | NMRFlags.Q_2_ORIENT_MAS):
             # Which one?
@@ -678,20 +708,26 @@ class NMRCalculator:
             nu_q = chi * 1.5 / (I * (2 * I - 1.0))
 
             qfreqs = -(
-                (nu_q ** 2 / (6.0 * larm * 1e6))[:, None, None]
+                (nu_q ** 2 / (6.0 * abs(larm) * 1e6))[:, None, None]
                 * m_fac[:, :, None]
                 * dir_fac[:, None, :]
             )
 
-            peaks += qfreqs / larm
+            peaks += q_fac * qfreqs / abs(larm)
+
+        # Sites stand for their multiplicity of atoms (symmetry reduction)
+        if self._sample.has("multiplicity"):
+            weights = self._sample.get_array("multiplicity")[a_inds].astype(float)
+        else:
+            weights = np.ones(len(a_inds))
 
         # Finally, the overall spectrum
         spec = np.zeros(freq_axis.shape)
 
-        for p_nuc in peaks:
-            for p_trans in p_nuc:
+        for w, p_nuc in zip(weights, peaks):
+            for tw, p_trans in zip(trans_weights, p_nuc):
                 if has_orient and use_pwd:
-                    spec += self._pwdscheme.average(
+                    spec += w * tw * self._pwdscheme.average(
                         freq_axis, p_trans, self._orients[1], self._orients[2]
                     )
 
@@ -716,6 +752,8 @@ class NMRCalculator:
                 norm_max = np.amax(bpeaks, axis=-1, keepdims=True)
                 norm_max = np.where(np.isclose(norm_max, 0), np.inf, norm_max)
                 bpeaks /= norm_max
+                bpeaks *= weights.reshape((-1,) + (1,) * (bpeaks.ndim - 1))
+                bpeaks *= trans_weights.reshape((1, -1) + (1,) * (bpeaks.ndim - 2))
                 spec = np.sum(bpeaks, axis=(0, 1) if not has_orient else (0, 1, 2))
 
         # Normalize the spectrum to the number of nuclei
@@ -726,7 +764,7 @@ class NMRCalculator:
                 "The spectrum will be empty"
             )
         else:
-            spec *= len(a_inds) * len(spec) / normsum
+            spec *= weights.sum() * len(spec) / normsum
 
         spec_out = np.empty_like(spec)
         spec_out[order] = spec
