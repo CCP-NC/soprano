@@ -1522,7 +1522,8 @@ class TestMagneticShielding(unittest.TestCase):
 
         herzr = self.tensor_ref.herzfeldberger_shift
         self.assertAlmostEqual(herzr.delta_iso, self.ref_delta)
-        self.assertAlmostEqual(herzr.omega, 8.0) # span
+        # The full referencing formula scales the span by 1 / (1 - ref×10⁻⁶)
+        self.assertAlmostEqual(herzr.omega, 8.0 / (1 - self.ref * 1e-6)) # span
         self.assertAlmostEqual(herzr.kappa, 0.75) # skew
 
     def test_iupac_values(self):
@@ -1704,9 +1705,18 @@ class TestMagneticShielding(unittest.TestCase):
         self.assertAlmostEqual(shift_span, expected_span)
         self.assertAlmostEqual(shift_span, self.tensor.span)
         
-        # Also test with reference set to verify consistency
+        # With a reference the span is δ11 - δ33, scaled by the referencing slope
         shift_span_ref = self.tensor_ref.shift_span
-        self.assertAlmostEqual(shift_span_ref, expected_span)
+        self.assertAlmostEqual(shift_span_ref, expected_span / (1 - self.ref * 1e-6))
+        iupac = self.tensor_ref.iupac_shift
+        self.assertAlmostEqual(shift_span_ref, iupac.delta_11 - iupac.delta_33)
+
+        # A linear calibration scales it by |gradient|
+        lin = MagneticShielding(np.diag([50.0, 100.0, 200.0]), species="C",
+                                reference=170.0, gradient=-0.9)
+        self.assertAlmostEqual(lin.shift_span, 135.0)
+        self.assertAlmostEqual(lin.herzfeldberger_shift.omega, 135.0)
+        self.assertAlmostEqual(lin.maryland_shift.omega, 135.0)
 
     def test_set_reference_and_gradient(self):
         """Test setting reference and gradient values."""

@@ -1237,10 +1237,16 @@ class MagneticShielding(NMRTensor):
     @property
     def shift_span(self) -> float:
         """
-        The span is not dependent on the referencing
-        so we just return the shielding span
+        Span of the shift tensor, δ11 - δ33.
+
+        Referencing scales the span by the slope of the shielding-to-shift
+        map: ``|gradient|`` for a linear fit, ``1 / (1 - ref×10⁻⁶)`` for the
+        full formula.  Without a reference the shielding span is returned.
         """
-        return self.span
+        if self.reference is None:
+            return self.span
+        shifts = self.shift_eigenvalues
+        return float(np.max(shifts) - np.min(shifts))
 
     # Define some NamedTuples for the different representations
     # of the tensor. See here for a description of the different
