@@ -365,6 +365,16 @@ def export_contour_data(
 # ---------------------------------------------------------------------------
 # Per-format exporters
 # ---------------------------------------------------------------------------
+def _require_shifts(nmr_data: _NMRData2DExportProtocol, fmt: str) -> None:
+    """Frequency axes assume nu = nu0 (1 + delta 1e-6); shieldings run the other way."""
+    if not getattr(nmr_data, "is_shift", False):
+        raise ValueError(
+            f"{fmt} export with frequency axes requires chemical shift data "
+            "(is_shift=True). Provide references when constructing NMRData2D "
+            "to convert shieldings to shifts."
+        )
+
+
 def _export_simpson(
     nmr_data: _NMRData2DExportProtocol,
     path: str,
@@ -382,6 +392,7 @@ def _export_simpson(
     y_freq = y_larmor_freq_mhz if y_larmor_freq_mhz is not None else x_larmor_freq_mhz
 
     if x_larmor_freq_mhz is not None:
+        _require_shifts(nmr_data, "SIMPSON")
         sw = sw_ppm * x_larmor_freq_mhz
         sw1 = sw1_ppm * y_freq
         sw_unit = "Hz"
@@ -412,7 +423,7 @@ def _export_simpson(
             f"# SPECREF_y={y_freq:.15g} MHz  (0 ppm reference, indirect dim)",
             f"# SPECFREQ_y={y_freq * (1 + y_carrier_ppm * 1e-6):.15g} MHz  (carrier, indirect dim)",
             # Conventions inferred from ssNake's reader (SIMPSON manual unavailable).
-            "# ssNake: Axes -> Edit axes, set Reference = SPECREF and Frequency (carrier) = SPECFREQ",
+            "# ssNake: Axes -> Edit axes, set Reference to SPECREF and Frequency (carrier) to SPECFREQ",
         ])
     meta_lines.extend([
         f"# x_broadening={cd.x_broadening:.6g} ppm",
@@ -429,13 +440,15 @@ def _export_simpson(
         f.write(f"SW={sw:.12g}\n")
         f.write(f"SW1={sw1:.12g}\n")
         f.write("TYPE=SPE\n")
-        for line in meta_lines:
-            f.write(line + "\n")
         f.write("DATA\n")
         for i in range(ni):
             for j in range(np_):
                 f.write(f"{Z[i, j]:.8g} 0.0\n")
-        f.write("END")
+        f.write("END\n")
+        # Comments go after END: SIMPSON's reader rejects any line it does not
+        # know before DATA, and nmrglue splits every header line on '='.
+        for line in meta_lines:
+            f.write(line + "\n")
 
     if include_peaks:
         peaks_path = path + ".peaks.csv"
@@ -546,6 +559,7 @@ def _export_json_ssnake(
             f"Provide x_larmor_freq_mhz, b0_field_tesla, or ensure the element "
             f"has known gyromagnetic ratio data."
         )
+    _require_shifts(nmr_data, "ssNake JSON")
     y_freq_mhz = y_larmor_freq_mhz if y_larmor_freq_mhz is not None else x_larmor_freq_mhz
 
     x_freq_hz = x_larmor_freq_mhz * 1e6

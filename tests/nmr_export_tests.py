@@ -392,6 +392,45 @@ class TestNMRExportModule(unittest.TestCase):
                            for line in lines[lines.index("DATA") + 1:lines.index("END")]])
         np.testing.assert_allclose(values.reshape(30, 30), cd.Z, rtol=1e-6, atol=1e-12)
 
+    @unittest.skipUnless(importlib.util.find_spec("nmrglue"), "nmrglue not installed")
+    def test_export_simpson_reads_back_with_nmrglue(self):
+        """The metadata block must not break readers that parse the header."""
+        import nmrglue as ng
+
+        out = self._path("nmrglue.spe")
+        export_contour_data(
+            self.nmr_data, out,
+            config=ExportConfig(grid_size=20, b0_field_tesla=9.4, include_peaks=False),
+        )
+        with open(out) as f:
+            lines = f.read().splitlines()
+        # Nothing but SIMPSON keys before DATA
+        self.assertFalse([l for l in lines[:lines.index("DATA")] if l.startswith("#")])
+        _, data = ng.simpson.read(out)
+        cd = self.nmr_data.get_contour_data(grid_size=20)
+        np.testing.assert_allclose(np.real(data), cd.Z, rtol=1e-6, atol=1e-12)
+
+    def test_frequency_exports_reject_shieldings(self):
+        """ssNake JSON and SIMPSON-with-frequencies assume the shift sign convention."""
+        shielding = NMRData2D(
+            atoms=self.atoms, xelement="H", yelement="H",
+            correlation_strength_metric="fixed",
+        )
+        self.assertFalse(shielding.is_shift)
+        for name in ("s.ssnake", "s.spe"):
+            with self.subTest(fmt=name), self.assertRaisesRegex(ValueError, "is_shift=True"):
+                export_contour_data(
+                    shielding, self._path(name),
+                    config=ExportConfig(grid_size=10, b0_field_tesla=9.4, include_peaks=False),
+                )
+        # Without frequencies a SIMPSON file is just a ppm grid, so it is allowed
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            export_contour_data(
+                shielding, self._path("ppm.spe"),
+                config=ExportConfig(grid_size=10, include_peaks=False),
+            )
+
     def test_export_ssnake_json_data_matches_contour_grid(self):
         out = self._path("grid.ssnake")
         export_contour_data(
