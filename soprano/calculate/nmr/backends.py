@@ -4,12 +4,14 @@ import logging
 import numbers
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import Any, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Optional, Tuple, Union
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from adjustText import adjust_text
 from matplotlib.axes import Axes
+from matplotlib.colors import to_hex
 
 try:
     import plotly.graph_objects as go
@@ -24,6 +26,9 @@ from soprano.calculate.nmr.config import (
     MPL_TO_PLOTLY_COLORMAP,
     MPL_TO_PLOTLY_MARKER,
 )
+
+if TYPE_CHECKING:
+    from soprano.calculate.nmr.config import PlotSettings
 
 def _resolve_levels(
     Z: np.ndarray,
@@ -80,6 +85,59 @@ def _resolve_levels(
         return pos
     else:
         return np.asarray(levels)
+
+
+def _uniform_level_runs(levels: np.ndarray) -> list:
+    """Split sorted contour levels into ``(start, end, size)`` uniform runs.
+
+    Plotly contours take ``start/end/size``, so only evenly spaced levels fit in
+    one trace.  Levels that are evenly spaced overall give a single run;
+    otherwise negative and non-negative levels are tried separately (signed
+    contours have a gap around zero), and any part that is still irregular
+    falls back to one run per level.  A single level is ``(lv, lv, 1)``.
+    """
+    levels = np.asarray(levels, dtype=float)
+
+    def uniform(lv):
+        return len(lv) > 1 and np.allclose(
+            np.diff(lv), (lv[-1] - lv[0]) / (len(lv) - 1), rtol=1e-6, atol=0
+        )
+
+    def runs(lv):
+        if len(lv) == 0:
+            return []
+        if len(lv) == 1:
+            return [(float(lv[0]), float(lv[0]), 1.0)]
+        if uniform(lv):
+            return [(float(lv[0]), float(lv[-1]), float((lv[-1] - lv[0]) / (len(lv) - 1)))]
+        return None
+
+    whole = runs(levels)
+    if whole is not None:
+        return whole
+    result = []
+    for part in (levels[levels < 0], levels[levels >= 0]):
+        part_runs = runs(part)
+        if part_runs is None:
+            part_runs = [(float(lv), float(lv), 1.0) for lv in part]
+        result.extend(part_runs)
+    return result
+
+
+def _plotly_colorscale(name: str):
+    """Map a matplotlib colormap name (including ``_r`` variants) to Plotly.
+
+    Names in ``MPL_TO_PLOTLY_COLORMAP`` are translated directly; a reversed
+    ``<base>_r`` of a mapped base reverses the mapped Plotly scale.  Any other
+    valid matplotlib colormap is sampled into an explicit Plotly colorscale.
+    """
+    if name in MPL_TO_PLOTLY_COLORMAP:
+        return MPL_TO_PLOTLY_COLORMAP[name]
+    if name.endswith("_r") and name[:-2] in MPL_TO_PLOTLY_COLORMAP:
+        mapped = MPL_TO_PLOTLY_COLORMAP[name[:-2]]
+        return mapped[:-2] if mapped.endswith("_r") else mapped + "_r"
+    cmap = matplotlib.colormaps[name]
+    return [[float(v), to_hex(cmap(v))] for v in np.linspace(0, 1, 11)]
 
 
 class PlotBackend(ABC):
@@ -459,7 +517,7 @@ class PlotlyBackend(PlotBackend):
     
     def plot_heatmap(self, X, Y, Z, settings) -> Any:
         """Plot heatmap using Plotly"""
-        colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
+        colorscale = _plotly_colorscale(settings.colormap)
         levels = _resolve_levels(Z, settings.heatmap_levels, settings.heatmap_range,
                                  use_signed=getattr(settings, 'use_signed', False))
 
@@ -482,32 +540,35 @@ class PlotlyBackend(PlotBackend):
 
     def plot_contour(self, X, Y, Z, settings) -> Any:
         """Plot contour lines using Plotly"""
-        colorscale = MPL_TO_PLOTLY_COLORMAP.get(settings.colormap, settings.colormap)
+        colorscale = _plotly_colorscale(settings.colormap)
         levels = _resolve_levels(Z, settings.contour_levels, settings.contour_range,
                                  use_signed=getattr(settings, 'use_signed', False))
-        n = len(levels)
-        size = float(levels[-1] - levels[0]) / (n - 1) if n > 1 else 0.0
-
-        trace = go.Contour(
-            x=X[0, :],
-            y=Y[:, 0],
-            z=Z,
-            colorscale=colorscale,
-            showscale=False,
-            contours=dict(
-                start=float(levels[0]),
-                end=float(levels[-1]),
-                size=size,
-                coloring='lines',
-                showlabels=True,
-                labelfont=dict(size=8)
-            ),
-            line=dict(width=settings.contour_linewidth),
-            hoverinfo='x+y+z'
-        )
-
-        self.fig.add_trace(trace)
-        return trace
+        traces = []
+        # Plotly only draws uniformly spaced levels per trace, so signed or
+        # non-uniform levels are split into several traces to stay exact.
+        for start, end, size in _uniform_level_runs(levels):
+            trace = go.Contour(
+                x=X[0, :],
+                y=Y[:, 0],
+                z=Z,
+                colorscale=colorscale,
+                zmin=float(levels[0]),
+                zmax=float(levels[-1]),
+                showscale=False,
+                contours=dict(
+                    start=start,
+                    end=end,
+                    size=size,
+                    coloring='lines',
+                    showlabels=True,
+                    labelfont=dict(size=8)
+                ),
+                line=dict(width=settings.contour_linewidth),
+                hoverinfo='x+y+z'
+            )
+            self.fig.add_trace(trace)
+            traces.append(trace)
+        return traces
     
     def plot_connectors(self, x, y, settings) -> None:
         """Plot connecting lines between points with same y value"""

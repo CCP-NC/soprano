@@ -824,5 +824,96 @@ class TestBroadeningValidation(unittest.TestCase):
         self.assertEqual(PlotSettings(x_broadening=0.5).x_broadening, 0.5)
 
 
+class TestColormapValidation(unittest.TestCase):
+    """Any matplotlib colormap, including ``_r`` variants, is accepted."""
+
+    def test_reversed_and_other_matplotlib_colormaps_accepted(self):
+        for name in ("grey_r", "gray_r", "viridis_r", "bone_r", "coolwarm"):
+            with self.subTest(name=name):
+                self.assertEqual(PlotSettings(colormap=name).colormap, name)
+
+    def test_invalid_colormap_rejected(self):
+        with self.assertRaises(ValueError):
+            PlotSettings(colormap="not_a_cmap")
+
+    @unittest.skipUnless(PLOTLY_AVAILABLE, "plotly not installed")
+    def test_plotly_colorscale_mapping(self):
+        import plotly.graph_objects as go
+
+        from soprano.calculate.nmr.backends import _plotly_colorscale
+
+        self.assertEqual(_plotly_colorscale("viridis"), "viridis")
+        self.assertEqual(_plotly_colorscale("viridis_r"), "viridis_r")
+        self.assertEqual(_plotly_colorscale("grey_r"), "greys_r")
+        self.assertEqual(_plotly_colorscale("bone_r"), "greys_r")
+        # Not in the mapping: sampled from matplotlib, and reversed for _r.
+        fwd, rev = _plotly_colorscale("coolwarm"), _plotly_colorscale("coolwarm_r")
+        self.assertEqual(fwd[0][1], rev[-1][1])
+        self.assertEqual(fwd[-1][1], rev[0][1])
+        go.Figure(go.Heatmap(z=[[0, 1]], colorscale=rev))
+
+
+class TestHeatmapGridSizeAuto(unittest.TestCase):
+    """The auto-selected heatmap_grid_size follows broadening_type."""
+
+    def test_auto_grid_size_follows_broadening_type(self):
+        settings = PlotSettings()
+        self.assertEqual(settings.heatmap_grid_size, 600)
+        settings.broadening_type = "gaussian"
+        self.assertEqual(settings.heatmap_grid_size, 150)
+        settings.broadening_type = "lorentzian"
+        self.assertEqual(settings.heatmap_grid_size, 600)
+
+    def test_explicit_grid_size_is_kept(self):
+        settings = PlotSettings(heatmap_grid_size=77)
+        settings.broadening_type = "gaussian"
+        self.assertEqual(settings.heatmap_grid_size, 77)
+        settings.heatmap_grid_size = 33
+        settings.broadening_type = "lorentzian"
+        self.assertEqual(settings.heatmap_grid_size, 33)
+
+
+@unittest.skipUnless(PLOTLY_AVAILABLE, "plotly not installed")
+class TestPlotlyContourLevels(unittest.TestCase):
+    """Plotly contour traces reproduce the levels Matplotlib would draw."""
+
+    X, Y = np.meshgrid(np.linspace(0, 1, 5), np.linspace(0, 1, 5))
+
+    def _levels_drawn(self, **settings_kw):
+        Z = np.linspace(-2.0, 2.0, 25).reshape(5, 5)
+        backend = PlotlyBackend()
+        backend.create_figure()
+        traces = backend.plot_contour(self.X, self.Y, Z, PlotSettings(**settings_kw))
+        levels = []
+        for t in traces:
+            c = t.contours
+            self.assertGreater(c.size, 0)
+            levels.extend(np.arange(c.start, c.end + c.size / 2, c.size))
+        return np.array(sorted(levels))
+
+    def test_signed_levels_match_resolve_levels(self):
+        kw = dict(contour_levels=4, contour_range=(25.0, 100.0), use_signed=True)
+        Z = np.linspace(-2.0, 2.0, 25).reshape(5, 5)
+        expected = _resolve_levels(Z, 4, (25.0, 100.0), use_signed=True)
+        np.testing.assert_allclose(self._levels_drawn(**kw), expected)
+        self.assertFalse(np.any(np.isclose(expected, 0.0)))
+
+    def test_non_uniform_levels_are_exact(self):
+        levels = [-1.5, -0.2, 0.1, 0.5, 1.9]
+        np.testing.assert_allclose(self._levels_drawn(contour_levels=levels), levels)
+
+    def test_single_level_has_valid_size(self):
+        drawn = self._levels_drawn(contour_levels=[0.7])
+        np.testing.assert_allclose(drawn, [0.7])
+
+    def test_uniform_levels_use_one_trace(self):
+        backend = PlotlyBackend()
+        backend.create_figure()
+        Z = np.linspace(0.0, 2.0, 25).reshape(5, 5)
+        traces = backend.plot_contour(
+            self.X, self.Y, Z, PlotSettings(contour_levels=5, contour_range=(20.0, 100.0)))
+        self.assertEqual(len(traces), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

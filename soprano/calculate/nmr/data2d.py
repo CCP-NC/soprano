@@ -3,7 +3,7 @@
 import logging
 import warnings
 from dataclasses import replace as _dc_replace
-from typing import List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import numpy as np
 from ase import Atoms
@@ -34,9 +34,11 @@ from soprano.calculate.nmr.utils import (
     validate_elements,
 )
 from soprano.data.nmr import _get_isotope_list
-from soprano.nmr.utils import _dip_constant
 from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
 from soprano.sitemap import SiteMap
+
+if TYPE_CHECKING:
+    from soprano.calculate.nmr.export import ExportConfig
 
 class NMRData2D:
     '''
@@ -150,6 +152,10 @@ class NMRData2D:
         if correlation_strengths is None and correlation_strength_metric is None:
             correlation_strength_metric = 'fixed'
 
+        # The user's per-requested-pair values are kept apart from
+        # self.correlation_strengths, which extract_data() overwrites with the
+        # per-entry array derived from them.
+        self._user_correlation_strengths = correlation_strengths
         self.correlation_strengths = correlation_strengths
         self.correlation_strength_metric = correlation_strength_metric
 
@@ -427,16 +433,17 @@ class NMRData2D:
             self.logger.info("Using custom correlation strengths.")
 
             # make sure correlation_strengths is a list or an array
-            if not isinstance(self.correlation_strengths, (list, np.ndarray)):
+            user_strengths = self._user_correlation_strengths
+            if not isinstance(user_strengths, (list, np.ndarray)):
                 raise TypeError("correlation_strengths must be a list or an array.")
 
             # if user provides a list of these, use it!
             # just check that it's the right length
             # One value per requested pair; atom pairs expanded from the same
             # requested pair share it.
-            if len(self.correlation_strengths) != self._n_requested_pairs:
-                raise ValueError(f"Length of correlation_strengths ({len(self.correlation_strengths)}) does not match the number of pairs ({self._n_requested_pairs}).")
-            correlation_strengths = np.asarray(self.correlation_strengths)[self._pair_origin]
+            if len(user_strengths) != self._n_requested_pairs:
+                raise ValueError(f"Length of correlation_strengths ({len(user_strengths)}) does not match the number of pairs ({self._n_requested_pairs}).")
+            correlation_strengths = np.asarray(user_strengths)[self._pair_origin]
 
         elif self.correlation_strength_metric == 'fixed':
             self.logger.info("Using fixed correlation strength.")
@@ -587,7 +594,9 @@ class NMRData2D:
 
         User-supplied pairs are not expanded: the requested atom pair is used.
         ``dipolar_rss`` is a per-atom quantity that already sums over the j
-        set, so it keeps one entry per site pair.
+        set, so it keeps one entry per site pair; its distance (used for
+        ``rcut``) is from the x atom to the nearest member of that j set, for
+        user-supplied pairs too.
 
         This method sets, all aligned with each other:
 
@@ -620,6 +629,10 @@ class NMRData2D:
             members_j = [int(b) for b in self.site_map.members(J)]
             if self._user_source_pairs is not None:
                 candidates = [self._user_source_pairs[k]]
+                if per_atom:
+                    # RSS still sums over the whole j set, so the distance
+                    # used for rcut is to the nearest member of that set.
+                    rss_j_sets[len(pairs)] = self._rss_j_key(members_j)
             elif per_atom:
                 # One entry per (x atom, j set). Single-atom DQ self-pairs
                 # are dropped like any other zero-separation pair.
@@ -1003,7 +1016,7 @@ class NMRData2D:
                 file is written.
 
             ``'csv'``
-                Flat table with columns ``x``, ``y``, ``intensity``.
+                Flat table with columns ``x_ppm``, ``y_ppm``, ``intensity``.
                 Useful for import into Origin, Excel, etc.  A companion
                 ``<path>.peaks.csv`` file is written alongside.
 
@@ -1100,8 +1113,13 @@ class NMRData2D:
             "spectrometer_freq_mhz": spectrometer_freq_mhz,
             "use_signed": use_signed,
         }
-        # replace() keeps every config field not overridden here (e.g. overwrite)
-        effective = _dc_replace(base, **{k: v for k, v in overrides.items() if v is not None})
+        # replace() keeps every config field not overridden here (e.g. overwrite);
+        # re-applying explicit kwargs via setattr marks default-equal overrides
+        # (such as grid_size=500) as explicit in ExportConfig.
+        explicit_overrides = {k: v for k, v in overrides.items() if v is not None}
+        effective = _dc_replace(base, **explicit_overrides)
+        for k, v in explicit_overrides.items():
+            setattr(effective, k, v)
 
         # Reuse the cached grid when no rendering params were overridden.
         # This means plot-then-export (or get_contour_data-then-export) uses

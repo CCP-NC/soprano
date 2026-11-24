@@ -3,6 +3,7 @@
 from collections.abc import Sequence
 from typing import Optional, Tuple, Union
 
+import matplotlib
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 DEFAULT_MARKER_SIZE = 50
@@ -152,8 +153,11 @@ class PlotSettings(BaseModel):
     @field_validator("colormap")
     @classmethod
     def _validate_colormap(cls, value: str) -> str:
-        if value not in MPL_TO_PLOTLY_COLORMAP:
-            raise ValueError(f"colormap must be one of {sorted(MPL_TO_PLOTLY_COLORMAP)}")
+        if value not in MPL_TO_PLOTLY_COLORMAP and value not in matplotlib.colormaps:
+            raise ValueError(
+                f"colormap {value!r} is not a valid matplotlib colormap "
+                "(append '_r' to reverse, e.g. 'viridis_r')"
+            )
         return value
 
     @field_validator("heatmap_levels", "contour_levels")
@@ -199,11 +203,15 @@ class PlotSettings(BaseModel):
         else:
             object.__setattr__(self, "heatmap_range", self.intensity_range)
 
-        if self.heatmap_grid_size is None:
+        # Re-derive the auto-selected grid size on every (re)validation, so that
+        # changing broadening_type later keeps it in sync; an explicit value
+        # (recorded in model_fields_set) is never overwritten.
+        if self.heatmap_grid_size is None or "heatmap_grid_size" not in self.model_fields_set:
             grid_size = (
                 DEFAULT_GRID_SIZE_LORENTZIAN
                 if self.broadening_type == "lorentzian"
                 else DEFAULT_GRID_SIZE_GAUSSIAN
             )
             object.__setattr__(self, "heatmap_grid_size", grid_size)
+            self.model_fields_set.discard("heatmap_grid_size")
         return self

@@ -9,7 +9,7 @@ import numpy as np
 from ase import io
 
 from soprano.calculate.nmr.data2d import NMRData2D
-from soprano.calculate.nmr.utils import get_atom_labels
+from soprano.calculate.nmr.utils import calculate_distances, get_atom_labels
 from soprano.nmr.extract import label_atoms, nmr_extract_atoms
 
 _TESTDATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
@@ -128,6 +128,46 @@ class TestPairsReduceConsistency(unittest.TestCase):
         i, j = nd.pairs[0]
         self.assertIn(a, nd.site_map.members(i).tolist())
         self.assertIn(b, nd.site_map.members(j).tolist())
+
+
+class TestCustomStrengthsRecompute(unittest.TestCase):
+    """Custom correlation_strengths survive reduce=True and force_recompute."""
+
+    def test_force_recompute_with_reduce_and_custom_strengths(self):
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        h_idx = [i for i, s in enumerate(atoms.get_chemical_symbols()) if s == "H"]
+        pairs = [(h_idx[0], h_idx[1]), (h_idx[0], h_idx[2]), (h_idx[1], h_idx[2])]
+        strengths = [1.0, 2.0, 3.0]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            nd = NMRData2D(
+                atoms, xelement="H", yelement="H", reduce=True,
+                pairs=pairs, correlation_strengths=strengths,
+            )
+            first = sorted(p.correlation_strength for p in nd.peaks)
+            again = sorted(p.correlation_strength for p in nd.get_peaks(force_recompute=True))
+        self.assertEqual(first, again)
+        self.assertEqual(list(nd._user_correlation_strengths), strengths)
+
+
+class TestDipolarRSSUserPairs(unittest.TestCase):
+    """With dipolar_rss, a user pair's distance is to the j set RSS sums over."""
+
+    def test_distance_is_to_nearest_member_of_j_set(self):
+        atoms = io.read(os.path.join(_TESTDATA_DIR, "EDIZUM.magres"))
+        h_idx = [i for i, s in enumerate(atoms.get_chemical_symbols()) if s == "H"]
+        kw = dict(xelement="H", yelement="H", reduce=True,
+                  correlation_strength_metric="dipolar_rss", rss_cutoff=6.0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for a in h_idx[:6]:
+                b = next(b for b in h_idx if b != a)
+                nd = NMRData2D(atoms, **kw, pairs=[(a, b)])
+                _, J = nd.pairs[0]
+                j_set = nd._rss_j_key(
+                    [int(m) for m in nd.site_map.members(J)])
+                expected = calculate_distances([(a, m) for m in j_set], nd.source).min()
+                self.assertAlmostEqual(nd.pair_distances[0], expected, places=6)
 
 
 if __name__ == "__main__":

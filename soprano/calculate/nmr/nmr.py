@@ -20,34 +20,16 @@ from structures.
 """
 
 
-import logging
 import re
-from abc import ABC, abstractmethod
 from collections import namedtuple
-from collections.abc import Iterable
-from dataclasses import dataclass
-from typing import Any, List, Optional, Tuple, Union
+from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
-from adjustText import adjust_text
 from ase import Atoms
-from matplotlib.axes import Axes
 from scipy.special import fresnel
 
-try:
-    import plotly.graph_objects as go
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
-
-try:
-    import pandas as pd
-    PANDAS_AVAILABLE = True
-except ImportError:
-    PANDAS_AVAILABLE = False
-
-from soprano.calculate.nmr.utils import (
+# Re-exported for backward compatibility: these used to be defined in this module.
+from soprano.calculate.nmr.utils import (  # noqa: F401
     ContourData,
     Peak2D,
     calculate_distances,
@@ -68,9 +50,8 @@ from soprano.calculate.nmr.utils import (
     validate_elements,
 )
 from soprano.calculate.powder.triavg import TriAvg
-from soprano.data.nmr import EFG_TO_CHI, _el_iso, _get_isotope_data, _get_isotope_list, _get_nmr_data
+from soprano.data.nmr import EFG_TO_CHI, _el_iso, _get_isotope_data, _get_nmr_data
 from soprano.nmr.utils import _dip_constant
-from soprano.properties.nmr import DipolarRSSByAtom, MSIsotropy
 from soprano.selection import AtomSelection
 from soprano.utils import minimum_supcell, supcell_gridgen
 
@@ -884,12 +865,12 @@ class NMRCalculator:
 
 
 
-from soprano.calculate.nmr.config import (
+from soprano.calculate.nmr.config import (  # noqa: F401
     DEFAULT_MARKER_SIZE,
     MARKER_INFO,
     MPL_TO_PLOTLY_COLORMAP,
     MPL_TO_PLOTLY_MARKER,
     PlotSettings,
 )
-from soprano.calculate.nmr.data2d import NMRData2D
-from soprano.calculate.nmr.plot2d import NMRPlot2D
+from soprano.calculate.nmr.data2d import NMRData2D  # noqa: F401
+from soprano.calculate.nmr.plot2d import NMRPlot2D  # noqa: F401

@@ -10,6 +10,7 @@ import shutil
 import tempfile
 import unittest
 import warnings
+from unittest.mock import patch
 
 import numpy as np
 from ase import io
@@ -80,6 +81,24 @@ class TestExportConfig(unittest.TestCase):
         self.assertEqual(cfg.x_larmor_freq_mhz, 400.0)
         self.assertTrue(cfg.use_signed)
 
+    def test_rendering_overrides_tracks_explicit_fields(self):
+        from dataclasses import replace
+
+        self.assertIs(ExportConfig().has_rendering_overrides(), False)
+        self.assertIs(ExportConfig(b0_field_tesla=9.4).has_rendering_overrides(), False)
+        # Explicit value equal to the default still counts as an override
+        self.assertIs(ExportConfig(grid_size=500).has_rendering_overrides(), True)
+        self.assertEqual(ExportConfig(grid_size=500).grid_size, 500)
+
+        cfg = ExportConfig()
+        cfg.use_signed = False
+        self.assertIs(cfg.has_rendering_overrides(), True)
+
+        # dataclasses.replace (used by NMRData2D.export_contour_data) preserves tracking
+        self.assertIs(replace(ExportConfig(), b0_field_tesla=9.4).has_rendering_overrides(), False)
+        self.assertIs(replace(ExportConfig(grid_size=500), overwrite=True).has_rendering_overrides(), True)
+        self.assertIs(replace(ExportConfig(), grid_size=200).has_rendering_overrides(), True)
+
 
 class TestLarmorFrequencyHelpers(unittest.TestCase):
     def test_compute_larmor_hydrogen_at_9_4_tesla(self):
@@ -133,6 +152,22 @@ class TestLarmorFrequencyHelpers(unittest.TestCase):
         self.assertAlmostEqual(x, 40.58, delta=0.01)
         self.assertIsNone(y)
 
+    def test_homonuclear_given_x_freq_does_not_warn(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from soprano.calculate.nmr.export import _resolve_larmor_freqs
+
+        logger = Mock()
+        nmr = SimpleNamespace(
+            xelement="H", yelement="H", xisotope=None, yisotope=None, logger=logger
+        )
+        x, y = _resolve_larmor_freqs(nmr, 400.0, None, None)
+        self.assertEqual((x, y), (400.0, 400.0))
+        logger.warning.assert_not_called()
+
+        # Still warns when nothing can be resolved
+        _resolve_larmor_freqs(nmr, None, None, None)
+        logger.warning.assert_called_once()
 
 
 class TestFormatInference(unittest.TestCase):
@@ -207,6 +242,33 @@ class TestNMRExportModule(unittest.TestCase):
             rows = list(csv.reader(f))
         self.assertEqual(rows[0], ["x_ppm", "y_ppm", "intensity"])
         self.assertGreater(len(rows), 10)
+
+    def test_export_npz_respects_non_npz_filename(self):
+        out = self._path("out.dat")
+        export_contour_data(
+            self.nmr_data, out, fmt="npz", config=ExportConfig(grid_size=20)
+        )
+        self.assertTrue(os.path.exists(out))
+        self.assertFalse(os.path.exists(out + ".npz"))
+        with np.load(out, allow_pickle=True) as data:
+            self.assertEqual(data["Z"].shape, (20, 20))
+
+    def test_export_json_accepts_numpy_integer_strength(self):
+        from dataclasses import replace
+
+        custom = [
+            replace(p, correlation_strength=np.int64(3))
+            for p in self.nmr_data.get_peaks()[:2]
+        ]
+        out = self._path("strength.json")
+        with patch.object(self.nmr_data, "get_peaks", return_value=custom):
+            export_contour_data(
+                self.nmr_data, out, fmt="json",
+                config=ExportConfig(grid_size=20, b0_field_tesla=9.4),
+            )
+        with open(out) as f:
+            saved = json.load(f)
+        self.assertEqual([p["correlation_strength"] for p in saved["peaks"]], [3.0, 3.0])
 
     def test_export_npz_contains_expected_arrays(self):
         from soprano.calculate.nmr.export import ExportConfig
@@ -547,13 +609,24 @@ class TestNMRExportModule(unittest.TestCase):
         data = np.load(out, allow_pickle=True)
         self.assertEqual(data["Z"].shape[0], 50)
 
+    def test_export_explicit_default_grid_size_bypasses_cache(self):
+        """An explicit grid_size equal to the default must not reuse a cached grid."""
+        self.nmr_data.get_contour_data(grid_size=600)
+        self.assertEqual(self.nmr_data._contour_data.Z.shape, (600, 600))
+
+        out = self._path("explicit_default.npz")
+        self.nmr_data.export_contour_data(out, config=ExportConfig(grid_size=500))
+
+        data = np.load(out, allow_pickle=True)
+        self.assertEqual(data["Z"].shape, (500, 500))
+
 
 @unittest.skipIf(not _NMRGLUE_AVAILABLE, "nmrglue is not installed")
 class TestBrukerExport(unittest.TestCase):
     """Tests for the Bruker TopSpin export format."""
 
     def setUp(self):
-        # ponytail: workaround for nmrglue numpy2 deprecation warning
+        # Silence nmrglue's numpy 2 DeprecationWarning about the 'a' dtype alias
         catcher = warnings.catch_warnings()
         catcher.__enter__()
         self.addCleanup(catcher.__exit__, None, None, None)
@@ -911,6 +984,22 @@ class TestBrukerExport(unittest.TestCase):
         )
         dic, _ = ng.bruker.read_pdata(os.path.join(out, "1", "pdata", "1"))
         self.assertEqual(dic["procs"]["SI"], 30)
+
+    def test_bruker_overwrite_false_guards_title_and_peaks(self):
+        cfg = ExportConfig(grid_size=20, b0_field_tesla=9.4)
+        for rel in (("pdata", "1", "title"), ("peaks.csv",)):
+            with self.subTest(file=rel[-1]):
+                out = self._path(f"bruker_guard_{rel[-1]}")
+                target = os.path.join(out, "1", *rel)
+                os.makedirs(os.path.dirname(target))
+                with open(target, "w") as f:
+                    f.write("keep me")
+                with self.assertRaisesRegex(FileExistsError, "overwrite"):
+                    export_contour_data(self.nmr_data, out, fmt="bruker", config=cfg)
+                with open(target) as f:
+                    self.assertEqual(f.read(), "keep me")
+                # Nothing else was written before the check failed
+                self.assertFalse(os.path.exists(os.path.join(out, "1", "acqus")))
 
 
 class TestBrukerIntegerScaling(unittest.TestCase):

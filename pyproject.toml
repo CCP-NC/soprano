@@ -147,6 +147,8 @@ dependencies = [
     "spglib>=2.4",
     "moyopy",
     "pydantic>=2.0",
+    "nmrglue>=0.12",
+    "plotly",
     "coverage[toml]>=6.5",
     "pytest"
 ]

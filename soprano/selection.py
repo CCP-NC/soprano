@@ -612,7 +612,7 @@ class AtomSelection:
         return AtomSelection(atoms, sel_i)
 
     @staticmethod
-    def from_input(atoms: Atoms, selection_input: "AtomSelection | list[int] | int | str | None") -> "Optional[AtomSelection]":
+    def from_input(atoms: Atoms, selection_input: "AtomSelection | list[int] | int | str | None") -> "AtomSelection | None":
         """Convert various input types into an AtomSelection object.
         
         Args:

@@ -21,8 +21,9 @@ Compatibility:
 """
 
 import csv
+import functools
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, List, Optional, Protocol, Tuple, TYPE_CHECKING
@@ -69,8 +70,10 @@ def _resolve_larmor_freqs(
     xelement = getattr(nmr_data, "xelement", None)
     yelement = getattr(nmr_data, "yelement", None)
 
+    # Homonuclear y falls back to a given x frequency, so needs no B0.
+    _y_falls_back_to_x = yelement == xelement and x_larmor is not None
     _needs_auto = (x_larmor is None and xelement is not None) or (
-        y_larmor is None and yelement is not None
+        y_larmor is None and yelement is not None and not _y_falls_back_to_x
     )
     if _needs_auto and b0_tesla is None:
         _log_warning(
@@ -151,19 +154,58 @@ class ExportConfig:
             b0,
         )
 
+    # Rendering fields set explicitly (at construction or by assignment).  This
+    # is a dataclass field only so dataclasses.replace() carries it over.
+    _explicit_rendering: frozenset = field(default=frozenset(), repr=False, compare=False)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        object.__setattr__(self, name, value)
+        # Only after __init__ has installed the tracking set (last field).
+        if name in _RENDERING_FIELDS and "_explicit_rendering" in self.__dict__:
+            object.__setattr__(self, "_explicit_rendering", self._explicit_rendering | {name})
+
     def has_rendering_overrides(self) -> bool:
-        """Return True if any grid-rendering field differs from the default."""
-        d = ExportConfig()
-        return (
-            self.x_broadening != d.x_broadening
-            or self.y_broadening != d.y_broadening
-            or self.grid_max != d.grid_max
-            or self.broadening_type != d.broadening_type
-            or self.grid_size != d.grid_size
-            or self.xlims != d.xlims
-            or self.ylims != d.ylims
-            or self.use_signed != d.use_signed
-        )
+        """Return True if any grid-rendering field was explicitly set.
+
+        An explicit value equal to the default (e.g. ``grid_size=500``) counts.
+        """
+        return bool(self._explicit_rendering)
+
+
+_RENDERING_FIELDS = (
+    "x_broadening",
+    "y_broadening",
+    "grid_max",
+    "broadening_type",
+    "grid_size",
+    "xlims",
+    "ylims",
+    "use_signed",
+)
+
+_dataclass_init = ExportConfig.__init__
+_FIELD_NAMES = [f.name for f in fields(ExportConfig)]
+_FIELD_DEFAULTS = {f.name: f.default for f in fields(ExportConfig)}
+
+
+@functools.wraps(_dataclass_init)
+def _tracking_init(self: ExportConfig, *args: Any, **kwargs: Any) -> None:
+    given = dict(zip(_FIELD_NAMES, args))
+    given.update(kwargs)
+    _dataclass_init(self, *args, **kwargs)
+    carried = given.get("_explicit_rendering")
+    if carried is None:
+        explicit = {n for n in _RENDERING_FIELDS if given.get(n) is not None}
+    else:
+        # dataclasses.replace() passes every field, so only values that differ
+        # from the default (or were already explicit) count as explicit.
+        explicit = set(carried) | {
+            n for n in _RENDERING_FIELDS if given[n] != _FIELD_DEFAULTS[n]
+        }
+    object.__setattr__(self, "_explicit_rendering", frozenset(explicit))
+
+
+ExportConfig.__init__ = _tracking_init  # type: ignore[method-assign]
 
 
 # ---------------------------------------------------------------------------
@@ -487,7 +529,9 @@ def _export_npz(
             peak_ylabels=np.array([p.ylabel for p in peaks]),
         )
         _log_info(nmr_data, f"Peak data embedded in '{path}'.")
-    np.savez_compressed(path, **arrays)
+    # Pass a file object: savez_compressed appends ".npz" to string paths.
+    with open(path, "wb") as f:
+        np.savez_compressed(f, **arrays)
 
 
 def _export_csv_grid(
@@ -611,7 +655,9 @@ def _export_json_ssnake(
                 "y": p.y,
                 "xlabel": p.xlabel,
                 "ylabel": p.ylabel,
-                "correlation_strength": p.correlation_strength,
+                "correlation_strength": (
+                    float(p.correlation_strength) if p.correlation_strength is not None else None
+                ),
             }
             for p in peaks
         ]
@@ -840,7 +886,7 @@ def _export_bruker(
     Z_bruker = np.ascontiguousarray(cd.Z[::-1, ::-1], dtype=np.float64)
     nc_proc = _bruker_nc_proc(Z_bruker)
     # The stored int32 values, as nmrglue's array_to_int will produce them
-    # (it scales Z_bruker in place, so take the range before writing).
+    # (write_pdata works on a copy, so Z_bruker itself is left unscaled).
     z_int = (Z_bruker * 2.0 ** (-nc_proc)).astype(np.int32)
     data_range = {"YMAX_p": int(z_int.max()), "YMIN_p": int(z_int.min())}
     # TopSpin shows (and sets contour levels in) stored value × 2**NC_proc.
@@ -876,7 +922,15 @@ def _export_bruker(
     # directory without a numeric expno ("BROWSE_CORRUPT"), so `path` is the
     # dataset name and the experiment lives in <path>/1.
     root = Path(path) / BRUKER_EXPNO
-    existing = [p for p in (root / "acqus", root / "pdata" / "1" / "2rr") if p.exists()]
+    procdir = root / "pdata" / "1"
+    targets = [
+        root / "acqus", root / "acqu", root / "acqu2s", root / "acqu2",
+        procdir / "2rr", procdir / "procs", procdir / "proc2s",
+        procdir / "clevels", procdir / "outd", procdir / "title",
+    ]
+    if include_peaks:
+        targets.append(root / "peaks.csv")
+    existing = [p for p in targets if p.exists()]
     if existing and not overwrite:
         raise FileExistsError(
             f"Bruker dataset already exists: '{existing[0]}' is present. "
