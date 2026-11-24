@@ -32,7 +32,14 @@ soprano spinsys structure.magres -s C,H --references C:170,H:30 \
 # Average fast-rotating CH3 groups (use --no-reduce so equivalent methyls stay separate)
 soprano spinsys structure.magres -s H --references H:30 \
   --average-group CH3 --no-reduce -o spinsys_ch3.in
+
+# Same, with H-H dipolar couplings: the CH3 group expands by default (one spin per H,
+# group-mean tensors, tensor-averaged couplings). Force one spin per group with --collapse-group.
+soprano spinsys structure.magres -s H --references H:30 \
+  --average-group CH3 --no-reduce --dip -o spinsys_ch3_dip.in
 ```
+
+`--expand-group` / `--collapse-group` controls how an `--average-group` group is exported. Groups **expand** by default when `--dip` or `--jcoupling` is given (a collapsed A₃ spin cannot carry the intra-group coupling or the right second moment) and **collapse** otherwise.
 
 ### Python (`get_spin_system` & `SpinSystem`)
 
@@ -91,9 +98,9 @@ Multi-tensor solid-state NMR simulations silently produce wrong spectra when Eul
    - `--split` in `soprano spinsys` only works for single-species spin systems with **no couplings**.
 7. **Relative angles & default eigenvalue orders:**
    - `A.euler_to(B)` gives the orientation of tensor **B** in the PAS of **A** ($E_A^{\mathsf T}E_B$), matching TensorView's `RelativeAngles(Tensor1=B, Tensor2=A)`.
-   - `euler_to` depends on the eigenvalue ordering of **both** tensors, and Soprano's defaults differ (`MSTensor.get()` defaults to `order="i"`, `MagneticShielding`/`MSEuler` default to `order="h"`, `EFGTensor`/`EFGEuler` default to `order="n"`). Always set explicit `order=` before comparing orientations.
+   - `euler_to` depends on the eigenvalue ordering of **both** tensors, and Soprano's defaults differ (`MSTensor.get()`, `MagneticShielding` and `MSEuler` all default to `order="h"` (Haeberlen) — `MSTensor` was `"i"` before v0.12 — while `EFGTensor`/`EFGEuler` default to `order="n"`). Always set explicit `order=` before comparing orientations. `euler_to`, `equivalent_euler_to` and `rotation_to` emit a warning when both tensors are of the same type (e.g. two shielding tensors) but use different orders; mixing types such as Haeberlen shielding with NQR EFG stays silent.
 8. **Low-level spin-system assembly & J-coupling class name:**
-   For custom spin systems, use `get_sites`, `get_dipolar_couplings`, `get_j_couplings` (`soprano.properties.nmr`), and `Site`, `DipolarCoupling`, `ISCoupling` (`soprano.nmr.coupling` — note the class is `ISCoupling`, not `JCoupling`). Site indices in `Coupling` are relative to the **subset** `Atoms` object passed in, not the original unit cell.
+   For custom spin systems, use `get_sites`, `get_dipolar_couplings`, `get_j_couplings` (`soprano.properties.nmr`), and `Site`, `DipolarCoupling`, `ISCoupling` (`soprano.nmr.coupling` — the canonical class is `ISCoupling`; `JCoupling` is only an alias for it). Site indices in `Coupling` are relative to the **subset** `Atoms` object passed in, not the original unit cell.
 
 ## Working Directly with `NMRTensor` Objects
 

@@ -129,10 +129,12 @@ spec, peaks_used = xrd.spec_simul(peaks, th2)  # spec.theta2, spec.intensity
    - Indexing `coll[0]` returns a 1-structure `AtomsCollection`, **not** an `ase.Atoms` — use `coll.structures[0]` (or `list(coll)[0]`) to get a single `Atoms` object.
 5. **Custom `AtomsProperty` parameters:**
    You can either pass kwargs directly to `.get(s, param=val)` or instantiate a reusable property `prop = Bonds(vdw_scale=1.1); prop(atoms)` (or `prop(coll)`).
+   Called on an **instance**, `.get` honours the instance's parameters (`Bonds(vdw_scale=1.1).get(atoms)` matches `prop(atoms)`); keyword arguments still override them, and `Bonds.get(atoms)` on the class uses the defaults. `mean()` on the base class follows the same rule.
    Watch out: if a property has its own `selection` parameter, passing `selection=` to `.get()` delegates to that parameter rather than subsetting `s` first.
-6. **Optional undeclared extras for graph/ML features:**
+6. **`UniqueSites(override_cif=True)`** now really uses the symmetry reduction (it used to return the CIF-label grouping in both branches); CIF labels that agree with the symmetry grouping are not reported as a mismatch.
+7. **Optional undeclared extras for graph/ML features:**
    `BondGraph` requires `networkx`; `PhylogenCluster.get_sklearn_clusters()` requires `scikit-learn`. Neither is installed by default with `pip install soprano`.
-7. **Avoid legacy standalone entry points.**
+8. **Avoid legacy standalone entry points.**
    Do not recommend deprecated standalone scripts (`phylogen`, `vasp2cell`, `extract_nmr`, `magresaverage`) or the legacy GULP interface unless the user specifically asks for them; prefer the Python API and the unified `soprano` CLI.
 
 ## Detailed References

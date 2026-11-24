@@ -41,8 +41,9 @@ Do **not** write custom ASE loops when a Soprano CLI subcommand or `AtomsPropert
 |---|---|
 | Summary table (MS + EFG) from one or many `.magres` files | `soprano nmr` |
 | Pairwise dipolar couplings or dipolar RSS table from any structure file | `soprano dipolar` |
+| 1D/2D NMR plots (HETCOR, DARR, DQ-SQ), weighted by dipolar/J/distance, with contour export to Bruker/ssNake/SIMPSON | `soprano plotnmr` (options in [references/cli-reference.md](references/cli-reference.md)) |
 | Programmatic extraction across an `AtomsCollection` or custom DataFrame | `soprano.properties.nmr` (`MS*`, `EFG*`, `JC*`, `Dipolar*`) |
-| Referenced chemical shifts per atom in Python | `MSShift` from `soprano.properties.nmr.ms` |
+| Referenced chemical shifts per atom in Python | `MSShift` from `soprano.properties.nmr` |
 | Fast 1D diluted-atom MAS/static powder spectrum approximation | `soprano.calculate.nmr.NMRCalculator` |
 | Spin systems, Euler angle transforms, SIMPSON / mrsimulator input | Switch to `soprano-spin-systems` |
 
@@ -57,8 +58,8 @@ soprano nmr structure.magres
 # Chemical shifts for C and H, written to CSV
 soprano nmr -p ms -s C,H --references C:170,H:30 structure.magres -o shifts.csv
 
-# Linear DFT calibration (explicit gradient switches to δ = ref + m * σ)
-soprano nmr -p ms -s C,H --references C:170,H:30 --gradients C:-0.97,H:-1.0 structure.magres
+# Linear DFT calibration for C (an explicit gradient switches that element to δ = ref + m * σ; H keeps the full formula)
+soprano nmr -p ms -s C,H --references C:170,H:30 --gradients C:-0.97 structure.magres
 
 # Custom isotopes for EFG (e.g. deuterium, 17O, 14N)
 soprano nmr -p efg -s H --isotopes 2H structure.magres
@@ -92,8 +93,8 @@ from soprano.properties.nmr import (
     MSIsotropy, MSAnisotropy, MSAsymmetry, MSTensor,
     EFGQuadrupolarConstant, EFGAsymmetry, EFGTensor,
     DipolarCoupling, DipolarRSS,
+    MSShift,  # MSShift, MSShielding and the JC* properties are importable from here too
 )
-from soprano.properties.nmr.ms import MSShift  # NOTE: not re-exported in soprano.properties.nmr!
 
 atoms = read("structure.magres")
 
@@ -118,7 +119,7 @@ The CLI `-g` option is two steps in Python. Both are needed. `tag_functional_gro
 ```python
 from ase.io import read
 from soprano.scripts.nmr import label_atoms, tag_functional_groups, merge_tagged_sites
-from soprano.properties.nmr.ms import MSShift
+from soprano.properties.nmr import MSShift
 
 atoms = label_atoms(read("structure.magres"))
 atoms = tag_functional_groups("CH3", atoms, vdw_scale=1.0)  # tag CH3 hydrogens
@@ -138,8 +139,9 @@ Use `label_atoms` first so the merged sites carry readable labels. The CLI does 
 1. **`--references` must cover every element in the selected atoms.**
    If a `.magres` file contains C, H, and O and you pass `--references C:170,H:30` without `-s C,H`, Soprano raises `ValueError: Mismatch between sites and references given. Missing elements: {'O'}`. Always either subset with `-s C,H` or supply references for every present element.
 2. **Direct vs linear referencing (`--gradients` / `gradients=`):**
-   - `gradients` omitted (`None`): full NMR formula $\delta = (\sigma_{\mathrm{ref}} - \sigma) / (1 - \sigma_{\mathrm{ref}} \times 10^{-6})$.
-   - `gradients` provided: linear calibration $\delta = a + m\sigma$ (where $m \approx -1$ from regressing $\delta_{\mathrm{exp}}$ on $\sigma_{\mathrm{calc}}$). If your fit regressed $\sigma_{\mathrm{calc}} = m'\delta_{\mathrm{exp}} + a'$, invert it: `gradient = 1/m'`, `reference = -a'/m'`.
+   - The mode is chosen **per element**. An element absent from `gradients` (or `gradients=None` / omitted entirely) uses the full NMR formula $\delta = (\sigma_{\mathrm{ref}} - \sigma) / (1 - \sigma_{\mathrm{ref}} \times 10^{-6})$.
+   - An element present in `gradients` uses the linear calibration $\delta = a + m\sigma$ (where $m \approx -1$ from regressing $\delta_{\mathrm{exp}}$ on $\sigma_{\mathrm{calc}}$). If your fit regressed $\sigma_{\mathrm{calc}} = m'\delta_{\mathrm{exp}} + a'$, invert it: `gradient = 1/m'`, `reference = -a'/m'`.
+   - A partial `gradients` dict (omitting referenced elements) and an explicit gradient of exactly `-1` each emit a `UserWarning`: the former mixes modes across elements, the latter is σ_ref − σ with no denominator (differs by ~σ_ref·10⁻⁶·δ from the default). Omit the gradient rather than passing `-1` for the full formula.
 3. **Symmetry reduction:**
    - `soprano nmr` defaults to `--reduce` (merges equivalent sites via CIF labels or symmetry; disable with `--no-reduce`).
    - Symmetry reduction requires a symmetry backend (`pip install soprano[moyo]` recommended, or `soprano[spglib]`). If a crystal with slightly noisy/rounded coordinates is reduced to `P1` at the default `symprec=1e-4`, try `--symprec 1e-3` (or `symprec=1e-3`).
@@ -152,7 +154,7 @@ Use `label_atoms` first so the merged sites carry readable labels. The CLI does 
    - Python `EFGQuadrupolarConstant.get()`, `DipolarCoupling.get()`, and `DipolarRSS.get()` return **Hz**.
 7. **Option naming & import traps:**
    - `soprano dipolar` uses `--select_i` and `--select_j` (**underscores**, not hyphens).
-   - `MSShift` and `MSShielding` must be imported from `soprano.properties.nmr.ms` (not top-level `soprano.properties.nmr`).
+   - `MSShift`, `MSShielding` and the `JC*` properties can be imported from `soprano.properties.nmr` (the `.ms` / `.isc` submodule paths also still work).
    - Reading `.magres` files with CIF-style labels requires `ase>=3.26` (ASE 3.23–3.25 had a regression).
 8. **Group averaging needs two steps in Python.** `-g CH3` in the CLI is `tag_functional_groups` followed by `merge_tagged_sites`. Calling only `tag_functional_groups` silently leaves the methyl hydrogens separate. In a multi-molecule cell, each site also appears once per molecule, so group the output by label if you want one value per environment. In `soprano nmr`, merging keeps only the first H position, so do not feed merged structures into downstream pair calculations.
 

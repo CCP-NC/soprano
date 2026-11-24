@@ -13,7 +13,7 @@ Section names follow `[soprano.<subcommand>]`, using Click parameter names (unde
 ```ini
 [soprano.nmr]
 references = C:170.0,H:30.5
-gradients = C:-0.98,H:-1.0
+gradients = C:-0.98
 precision = 2
 symprec = 1e-4
 ```
@@ -57,13 +57,21 @@ Supported `-f / --output-format` values (also inferred from `-o` extension):
 | `-p, --properties [efg\|ms]` | both | Repeatable: `-p ms -p efg` |
 | `-s, --subset TEXT` | all | Selection string |
 | `--references TEXT` | none | `C:170,H:30` — must cover every element in selection |
-| `--gradients TEXT` | omitted | Omit for full formula; supply for linear $\delta = a + m\sigma$ |
+| `--gradients TEXT` | omitted | Chosen **per element**: an element without a gradient uses the full formula; one with a gradient (e.g. `C:-0.97`) uses the linear fit $\delta = a + m\sigma$. A partial dict or an explicit `-1` emits a warning |
 | `-i, --isotopes TEXT` | most common NMR-active | e.g. `-i 2H,17O,13C` |
 | `-g, --average-group TEXT` | none | Fast-exchange XHn groups: `-g CH3,NH3` |
 | `--reduce / --no-reduce` | `--reduce` | Group equivalent sites (CIF labels override symmetry) |
+| `--mean-merge / --no-mean-merge` | off | Average tensors (`merge_mean`) instead of keeping the first (`merge_first`) when reducing; only safe for sites related by translation. `-g` groups are still pooled by `--mean-merge` |
 | `--euler [zyz\|zxz]` | `zyz` | Euler angle convention |
 | `--ms-tag`, `--efg-tag` | `ms`, `efg` | Custom array names (useful for ML-predicted `.xyz` files) |
 | `--symprec FLOAT` | `1e-4` | Symmetry tolerance in Å |
+| `--precision INT` | `3` | Decimal places in the output |
+| `-o, --output FILE`, `-f, --output-format` | stdout | See "Output Formats" above |
+| `-m, --merge`, `--sortby`, `--sort-order`, `--include`, `--exclude`, `--query` | — | Table options, see above |
+| `--view` | off | View the structure(s) in the ASE GUI (sites coloured by equivalence tag) |
+| `-v` / `-vv` | warnings only | Info / debug logging; `-v` also reports each element's referencing mode |
+
+Elements in the selection that have no reference raise a `ValueError` (they are not filled with 0 ppm).
 
 ## `soprano dipolar` Key Options
 
@@ -74,4 +82,29 @@ Supported `-f / --output-format` values (also inferred from `-o` extension):
 | `--cutoff FLOAT` | `5.0` | Cutoff radius (Å) for `--rss` |
 | `--isonuclear` | off | Restrict to same-element pairs |
 | `-i, --isotopes TEXT` | default | e.g. `-i 2H,13C` |
+| `-g, --average-group TEXT` | none | Average fast-exchange XHn groups (`CH3`, ...) |
+| `--symprec FLOAT` | `1e-4` | Symmetry tolerance in Å |
 | `--query TEXT` | none | e.g. `--query "abs(D) > 10.0"` (D is in kHz in the CLI DataFrame) |
+
+## `soprano plotnmr` Key Options
+
+Plots a 1D spectrum (`-p 1D`) or a 2D correlation map (`-p 2D`, default) from a `.magres` file. `-x/--xelement` is required; `-y/--yelement` defaults to the x element. It shares `-s`, `-i`, `-g`, `--references`, `--gradients`, `--reduce`, `--mean-merge`, `--symprec` and `--euler` with `soprano nmr`. Invalid option combinations exit with a usage error (code 2).
+
+| Option | Default | Notes |
+|---|---|---|
+| `-p, --plot-type [2D\|1D]` | `2D` | Plot type |
+| `--rcut FLOAT` | none (all pairs) | Cutoff distance (Å) for correlation pairs |
+| `--yaxis-order [1Q\|2Q]` | `1Q` | `2Q` plots δ_i + δ_j on the y axis (DQ-SQ) |
+| `--weight-by [fixed\|distance\|inversedistance\|dipolar\|dipolar2\|jcoupling\|dipolar_rss]` | `fixed` | Metric weighting each cross-peak (heatmap/contour intensity and, with `--scale-markers`, marker size). `--scale-marker-by` is a legacy alias |
+| `--rss-cutoff FLOAT` | `5.0` | Cutoff (Å) for `--weight-by dipolar_rss` |
+| `--rss-expand-j [periodic_images\|symmetry\|cif_labels]` | `periodic_images` | How the j-neighbour set is expanded for `dipolar_rss` |
+| `--scale-markers / --fixed-markers`, `--marker-symbol`, `-ms/--max-marker-size`, `--marker-color`, `--marker-linewidth`, `--legend`, `--markers / --no-markers` | — | Marker styling |
+| `--heatmap / --no-heatmap`, `--contour / --no-contour` | off | Add a broadened heatmap / contour lines |
+| `--contour-levels INT` | `10` | Number of contour lines |
+| `--intensity-range LO HI` | `10 100` | Percent-of-max range shared by contour and heatmap; override per layer with `--contour-range` / `--heatmap-range` |
+| `--heatmap-levels INT`, `--heatmap-grid-size INT`, `--colormap TEXT`, `--contour-color`, `--contour-linewidth`, `--grid-max FLOAT` | — | Heatmap/contour styling and grid scaling |
+| `--xbroadening FLOAT`, `--ybroadening FLOAT` | 5 % of range | FWHM (ppm); `0` disables broadening |
+| `--xlim LO HI`, `--ylim LO HI`, `--grid / --no-grid`, `--diag / --no-diag`, `--connectors / --no-connectors`, `--ticklabels / --no-ticklabels`, `--shielding` | — | Axes and display; `--shielding` plots shielding even when references are given |
+| `-o, --output FILE` | window | Plot file (svg or pdf recommended) |
+| `--export-file PATH` (repeatable), `--export-format [simpson\|npz\|csv\|json\|plain\|ssnake\|bruker]`, `--overwrite` | — | **Experimental.** Export contour data; the format is inferred from the extension (`.spe`/`.sim`, `.npz`, `.csv`, `.json`) unless `--export-format` is given. A Bruker export writes `<PATH>/1/pdata/1/...`; `--overwrite` is needed to replace an existing dataset. Bruker, ssNake JSON and frequency-axis SIMPSON export need referenced data (`--references`) |
+| `--b0-field-tesla T`, `--spectrometer-freq MHz`, `--x-larmor-freq MHz`, `--y-larmor-freq MHz` | — | Larmor frequencies for export only (the plot stays in ppm). `--b0-field-tesla` and `--spectrometer-freq` are mutually exclusive |

@@ -54,7 +54,7 @@ Soprano's 2D NMR is nucleus-agnostic via `xelement`/`yelement`. Targeted experim
 
 - **Homonuclear (e.g. ¹³C–¹³C DARR/PDSD)** — both axes same nucleus, same Larmor frequency
 - **Heteronuclear (e.g. ¹H–¹³C HETCOR, ¹³C–¹⁵N)** — axes are different nuclei with different Larmor frequencies
-- **Double-quantum (DQ-SQ)** — y-axis is the DQ coherence frequency (δ_i + δ_j); handled via `yaxis_order='2Q'`. Self-pairs of single atoms are removed: a DQ diagonal peak comes from two *distinct* atoms of equal shift, not from a spin correlated with itself. Self-pairs of merged sites (`reduce=True`) are kept, weighted by the m(m−1) ordered pairs of distinct atoms they stand for, with distance/coupling taken from the nearest equivalent atom in the source structure.
+- **Double-quantum (DQ-SQ)** — y-axis is the DQ coherence frequency (δ_i + δ_j); handled via `yaxis_order='2Q'`. Self-pairs of single atoms are removed: a DQ diagonal peak comes from two *distinct* atoms of equal shift, not from a spin correlated with itself. Self-pairs of merged sites (`reduce=True`) are kept and expanded into the atom pairs `(rep[I], b)` for every distinct atom `b` merged into the same site, each weighted by m_I, so the site's m(m−1) ordered pairs of distinct atoms are all represented with their own distances and couplings in the source structure.
 
 ## Export Concepts
 
@@ -68,7 +68,7 @@ Soprano's 2D NMR is nucleus-agnostic via `xelement`/`yelement`. Targeted experim
 
 **SW_p endpoint convention (Bruker)** — Bruker frequency axes are endpoint-*exclusive*: point *i* sits at `OFFSET − i × (SW_p/SF)/SI`. The contour grid is an endpoint-*inclusive* `linspace` with step `range/(SI−1)`. The export therefore scales the spectral width by `SI/(SI−1)` so the per-point step matches and the last point lands exactly on the upfield limit. Omitting this puts every point one grid step out.
 
-**2Q indirect axis (Bruker)** — a DQ dimension carries δ_i + δ_j ppm values, but the export applies *no* multiple-quantum scaling to the indirect axis, and `y_larmor_freq_mhz` silently defaults to the direct-dimension value. So a DQ-SQ export is read back by TopSpin as a 1Q axis whose ppm values happen to be sums. Deliberate (it preserves the DQ ppm scale as plotted), but it means the indirect axis of an exported DQ spectrum is not a physical frequency axis.
+**2Q indirect axis (Bruker)** — a DQ dimension carries δ_i + δ_j ppm values, but the export applies *no* multiple-quantum scaling to the indirect axis, and `y_larmor_freq_mhz` defaults to the direct-dimension value (silently for homonuclear data; heteronuclear data logs a warning, since the indirect Hz scale is then wrong). So a DQ-SQ export is read back by TopSpin as a 1Q axis whose ppm values happen to be sums. Deliberate (it preserves the DQ ppm scale as plotted), but it means the indirect axis of an exported DQ spectrum is not a physical frequency axis.
 
 ## Target Workflow
 

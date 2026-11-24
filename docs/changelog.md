@@ -6,7 +6,49 @@ All notable changes to Soprano are documented here.
 
 ## v0.12.0 (unreleased)
 
+### New features
+
+- **`soprano.SiteMap`** records which atoms of a source structure each site of a derived
+  structure (a selection, or a structure with equivalent positions merged) stands for. Maps
+  compose (`SiteMap.compose`), so provenance survives chained steps such as symmetry reduction
+  followed by group averaging, and expose each site's `multiplicity`. `NMRData2D` uses it to
+  evaluate pair metrics on the source atoms.
+- **`DipolarRSSByAtom`** (`soprano.properties.nmr`) is the per-atom counterpart of `DipolarRSS`:
+  the root-sum-squared dipolar coupling of each atom in `sel_i` to a neighbour set `sel_j` and its
+  periodic images within a cutoff, with `sel_j` optionally expanded to symmetry-equivalent atoms
+  or atoms sharing a CIF label.
+- **Tensor-based methyl dipolar averaging.** `averaged_dipolar_coupling`,
+  `averaged_dipolar_coupling_list` (`soprano.properties.nmr.dipolar`) and
+  `averaged_j_coupling_list` (`soprano.properties.nmr.isc`) average the full coupling tensor
+  over the motion of a functional group, rather than averaging distances or scalar couplings.
+  See {doc}`dipolar-averaging`.
+- **2D NMR module refactor.** `soprano.calculate.nmr.nmr` is split into
+  `soprano.calculate.nmr.data2d` (`NMRData2D`), `plot2d` (`NMRPlot2D`), `backends` (Matplotlib
+  and Plotly drawing), `config` (`PlotSettings` and marker/colormap tables) and `export` (`ExportConfig` and the
+  Bruker TopSpin, ssNake, SIMPSON, NPZ, CSV and plain text writers). `NMRData2D`, `NMRPlot2D`,
+  `PlotSettings` and the marker/colormap tables are still importable from
+  `soprano.calculate.nmr.nmr`.
+- **New `soprano plotnmr` 2D options:**
+  - `--weight-by` chooses the metric that weights each cross-peak: `fixed`, `distance`,
+    `inversedistance`, `dipolar`, `dipolar2`, `jcoupling` or `dipolar_rss`. `--rss-cutoff` and
+    `--rss-expand-j` (`periodic_images`, `symmetry`, `cif_labels`) control the sum for
+    `dipolar_rss`. `--scale-markers/--fixed-markers` scales the marker sizes by the weight.
+  - `--contour-levels`, `--contour-range`, `--heatmap-range`, `--intensity-range`,
+    `--heatmap-levels` and `--heatmap-grid-size` set the contour and heatmap levels.
+  - `--export-file` (repeatable), `--export-format` and `--overwrite` export the contour data;
+    `--b0-field-tesla`, `--spectrometer-freq`, `--x-larmor-freq` and `--y-larmor-freq` give the
+    Larmor frequencies that the exports need. See "2D NMR spectra and export" below.
+- **NMR tutorials reorganised** into `05a-nmr-parameters`, `05b-nmr-2d-spectra` and
+  `05c-nmr-tensors-spin-systems` (replacing `05-nmr` and `05a-nmr-spin-systems`).
+
 ### Breaking changes
+
+- **`MagneticShielding(gradient=...)` defaults to `None`** (full-formula referencing); it was
+  `-1.0`. With a reference and no gradient the shifts are the same as before, but an explicit
+  `gradient=-1.0` is now a linear fit (δ = σ_ref − σ). See the referencing item below.
+- **`write_spinsys` Python parameters renamed:** `ref` → `references` and `grad` → `gradients`
+  (the latter now defaults to `None`, not `-1.0`). The old names still work and emit a
+  `DeprecationWarning`; passing both an old and a new name raises `ValueError`.
 
 - **`NMRTensor.euler_to` and `equivalent_euler_to` now return the inverse rotation** for
   triaxial and mixed axial/triaxial pairs, and the same call gives different numbers. This is a

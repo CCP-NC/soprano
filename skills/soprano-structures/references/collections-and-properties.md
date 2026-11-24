@@ -17,14 +17,14 @@
 
 ## 2. `AtomsProperty` Catalog (`soprano.properties.*`)
 
-Every property supports `Prop.get(atoms_or_coll, store_array=False, selection=None, **kwargs)` and reusable instantiation `p = Prop(name="custom", **kwargs); p(atoms_or_coll)`.
+Every property supports `Prop.get(atoms_or_coll, store_array=False, selection=None, **kwargs)` and reusable instantiation `p = Prop(name="custom", **kwargs); p(atoms_or_coll)`. `p.get(...)` called on an instance honours the instance parameters (keyword arguments still override them), so it matches `p(...)`; called on the class it uses the defaults.
 
 - **`soprano.properties.basic`**: `CalcEnergy`, `LatticeABC`, `LatticeCart`, `NumAtoms`
 - **`soprano.properties.symmetry`**:
   - `SymmetryDataset(symprec=1e-5, backend="auto")` → `SpacegroupDataset` with fields `international`, `hall_number`, `std_lattice`, `transformation_matrix`, `origin_shift`, `rotations`, `translations`, `equivalent_atoms`.
   - `WyckoffPoints(symprec=1e-5, backend="auto")` → list of `WyckoffPoint(fpos, pos, operations, hessian)`.
 - **`soprano.properties.labeling`**:
-  - `UniqueSites(symprec=1e-4, backend="auto")`, `SiteLabels`, `MagresViewLabels`, `MoleculeSites`, `HydrogenBondTypes`, `CarbonHybridationState`.
+  - `UniqueSites(symprec=1e-4, backend="auto", override_cif=False)` (with `override_cif=True` the symmetry reduction is used instead of CIF labels), `SiteLabels`, `MagresViewLabels`, `MoleculeSites`, `HydrogenBondTypes`, `CarbonHybridationState`.
 - **`soprano.properties.linkage`**:
   - `Bonds(vdw_set="csd", vdw_scale=1.0, default_vdw=2.0, vdw_custom={}, return_matrix=False)`
   - `Molecules(vdw_set="csd", vdw_scale=1.0, default_vdw=2.0, vdw_custom={})` → `list[AtomSelection]` with `cell_indices`
@@ -71,7 +71,10 @@ smap_tags = SiteMap.from_tags(atoms.get_tags())
 combined = smap_tags.compose(smap_sub)
 combined.validate(atoms)       # raises ValueError if length mismatches
 source_atoms = combined.members(0)  # np.ndarray of original atom indices
+mult = combined.multiplicity        # atoms per site, np.ndarray
 ```
+
+`SiteMap` rejects duplicate selection indices and non-integer maps, and does not freeze the caller's array. `NMRData2D` uses it to evaluate pair metrics on source atoms.
 
 ## 5. Periodic Minimum-Image Distances (`soprano.utils.minimum_periodic`)
 
