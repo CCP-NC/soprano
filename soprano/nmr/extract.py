@@ -701,6 +701,34 @@ def _merge_with_expanded_groups(
     return result, site_sets
 
 
+def _coherent_representatives(atoms: Atoms, tags: np.ndarray) -> List[int]:
+    """One atom per tag, chosen to form a single compact unit.
+
+    Taking the first atom of every symmetry orbit independently can pick
+    atoms from different molecules whenever the input is not ordered molecule
+    by molecule, and pair quantities read off the reduced structure would
+    then couple atoms that are not neighbours.  Instead the unit is grown
+    from atom 0, each step adding the atom of a not-yet-represented orbit
+    nearest (minimum image) to the atoms chosen so far.  Covalent bonds are
+    the shortest contacts, so a molecule is completed before the unit
+    crosses to a neighbour.
+    """
+    tags = np.asarray(tags)
+    n = len(atoms)
+    unrepresented = np.ones(n, dtype=bool)
+    dmin = np.full(n, np.inf)
+    reps = []
+    k = 0
+    while True:
+        reps.append(k)
+        unrepresented[tags == tags[k]] = False
+        if not unrepresented.any():
+            return reps
+        dmin = np.minimum(dmin, atoms.get_distances(k, np.arange(n), mic=True))
+        cand = np.flatnonzero(unrepresented)
+        k = int(cand[np.argmin(dmin[cand])])
+
+
 def nmr_extract_atoms(
     atoms: Atoms,
     subset: str = "",
@@ -793,6 +821,10 @@ def nmr_extract_atoms(
     atoms.set_array("multiplicity", multiplicity)
 
     tags = np.arange(len(atoms))
+    # Order in which the atoms are processed. Merging keeps the first atom of
+    # each orbit, so the coherent representatives are moved to the front;
+    # every returned index is mapped back to the input order at the end.
+    perm = None
 
     if reduce:
         log.info("\nTagging equivalent sites")
@@ -802,6 +834,15 @@ def nmr_extract_atoms(
         if atoms.has("labels"):
             labels = np.asarray(atoms.get_array("labels"), dtype="U25")
             log.debug(f"    The unique site labels are: {labels[unique_site_idx]}")
+        if len(unique_sites) < len(atoms):
+            reps = sorted(_coherent_representatives(atoms, tags))
+            rest = np.setdiff1d(np.arange(len(atoms)), reps)
+            order = np.concatenate([reps, rest]).astype(int)
+            if np.any(order != np.arange(len(atoms))):
+                atoms.set_tags(tags)
+                perm = order
+                atoms = atoms[perm]
+                tags = np.asarray(tags)[perm]
 
     if atoms.has(ms_tag) and not check_equivalent_sites_ms(atoms, tags, tag=ms_tag):
         log.warning(
@@ -858,6 +899,10 @@ def nmr_extract_atoms(
             all_selections *= sel
         except ValueError as e:
             log.error(f"Could not select atoms based on selection string: {e}")
+            if perm is not None and index_map is not None:
+                unpermuted = np.empty_like(index_map)
+                unpermuted[perm] = index_map
+                index_map = unpermuted
             extras = ([index_map] if return_index_map else []) + (
                 [[]] if return_site_sets else []
             )
@@ -902,6 +947,12 @@ def nmr_extract_atoms(
                 )
             else:
                 site_sets.append([rep])
+    if perm is not None:
+        if index_map is not None:
+            unpermuted = np.empty_like(index_map)
+            unpermuted[perm] = index_map
+            index_map = unpermuted
+        site_sets = [[int(perm[i]) for i in s] for s in site_sets]
     extras = []
     if return_index_map:
         extras.append(index_map)

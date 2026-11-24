@@ -65,3 +65,32 @@ def test_unreadable_file_is_skipped():
     )
     assert len(dfs) == 1
     assert len(images) == 1
+
+
+@pytest.mark.parametrize("seed", [0, 2, 3, 4])
+def test_reduced_sites_come_from_one_molecule(seed):
+    """Representatives form one molecule whatever the input atom order.
+
+    Picking the first atom of each orbit independently put C2 and H4 on
+    different molecules for these shuffles, turning the one-bond coupling
+    into an intermolecular one.
+    """
+    from ase import io
+
+    from soprano.nmr.extract import nmr_extract_atoms
+    from soprano.properties.nmr import DipolarCoupling
+
+    atoms = io.read(os.path.join(_TESTDATA_DIR, "alanine_manual_labels.magres"))
+    shuffled = atoms[np.random.default_rng(seed).permutation(len(atoms))]
+    reduced, index_map = nmr_extract_atoms(shuffled.copy(), reduce=True, return_index_map=True)
+
+    labels = list(reduced.get_array("labels"))
+    i, j = labels.index("C2"), labels.index("H4")
+    assert reduced.get_distance(i, j, mic=True) == pytest.approx(1.0913, abs=1e-3)
+    d = list(DipolarCoupling.get(reduced, sel_i=[i], sel_j=[j]).values())[0][0]
+    assert d == pytest.approx(-23243.6, abs=1.0)
+
+    # The index map still refers to the input order
+    np.testing.assert_array_equal(
+        reduced.get_array("labels")[index_map], shuffled.get_array("labels")
+    )
