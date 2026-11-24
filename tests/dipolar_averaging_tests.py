@@ -309,3 +309,35 @@ class TestAveragedJCouplingList(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestNonPeriodicCell(unittest.TestCase):
+    """A cell with pbc=False is a bounding box: it must not create images."""
+
+    def _pair(self, r, pbc):
+        return Atoms("H2", positions=[[0.5, 0.5, 0.5], [0.5 + r, 0.5, 0.5]],
+                     cell=[4.0, 4.0, 4.0], pbc=pbc)
+
+    def test_couplings_ignore_box_images(self):
+        from soprano.properties.nmr.dipolar import DipolarCoupling, DipolarRSSByAtom
+
+        for r in (1.5, 3.0):
+            with self.subTest(r=r):
+                free = self._pair(r, pbc=False)
+                bare = Atoms("H2", positions=free.get_positions())  # zero cell
+                d_ref = list(DipolarCoupling.get(bare).values())[0][0]
+                self.assertAlmostEqual(list(DipolarCoupling.get(free).values())[0][0], d_ref, places=3)
+                self.assertAlmostEqual(averaged_dipolar_coupling(free, [0], [1])[0], d_ref, places=3)
+                rss = DipolarRSSByAtom.get(free, sel_i=[0], sel_j=[1], cutoff=5.0)[0]
+                self.assertAlmostEqual(rss, abs(d_ref), places=3)
+
+    def test_periodic_directions_still_count(self):
+        """A slab keeps its in-plane images and drops the out-of-plane ones."""
+        from soprano.properties.nmr.dipolar import DipolarRSSByAtom
+
+        slab = self._pair(1.5, pbc=[True, True, False])
+        full = self._pair(1.5, pbc=True)
+        free = self._pair(1.5, pbc=False)
+        r = [DipolarRSSByAtom.get(a, sel_i=[0], sel_j=[1], cutoff=5.0)[0] for a in (free, slab, full)]
+        self.assertLess(r[0], r[1])
+        self.assertLess(r[1], r[2])

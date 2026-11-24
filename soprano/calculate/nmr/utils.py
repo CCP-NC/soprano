@@ -925,7 +925,7 @@ def _nearest_equiv_site(atoms: Atoms, idx: int, equiv_groups: Dict) -> Tuple[int
             # Displacement is zero; minimum_periodic handles this edge case
             # when exclude_self=True (returns the nearest lattice-translated copy).
             r = np.zeros((1, 3))
-            r_mic, _ = minimum_periodic(r, cell, exclude_self=True)
+            r_mic, _ = minimum_periodic(r, cell, exclude_self=True, pbc=atoms.get_pbc())
             dist = float(np.linalg.norm(r_mic))
         else:
             dist = float(atoms.get_distance(idx, j, mic=True))
@@ -1185,7 +1185,8 @@ def calculate_distances(
                 _, dist = _nearest_equiv_site(atoms, pair[0], equiv_groups)
             else:
                 r = np.zeros((1, 3))
-                r_mic, _ = minimum_periodic(r, atoms.get_cell(), exclude_self=True)
+                r_mic, _ = minimum_periodic(
+                    r, atoms.get_cell(), exclude_self=True, pbc=atoms.get_pbc())
                 dist = float(np.linalg.norm(r_mic))
             pair_distances[i] = dist
         else:

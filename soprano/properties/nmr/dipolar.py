@@ -156,7 +156,8 @@ class DipolarCoupling(AtomsProperty):
             block = pairs.T[b_i : b_i + block_size]
             r_ij = pos[block[:, 1]] - pos[block[:, 0]]
             # Reduce to NN
-            r_ij, _ = minimum_periodic(r_ij, s.get_cell(), exclude_self=True)
+            r_ij, _ = minimum_periodic(
+                r_ij, s.get_cell(), exclude_self=True, pbc=s.get_pbc())
             # Distance
             R_ij = np.linalg.norm(r_ij, axis=1)
             # Versors
@@ -235,7 +236,8 @@ def averaged_dipolar_coupling(
     idx_i = np.array([p[0] for p in pairs])
     idx_j = np.array([p[1] for p in pairs])
     r_ij = pos[idx_j] - pos[idx_i]
-    r_ij, _ = minimum_periodic(r_ij, atoms.get_cell(), exclude_self=True)
+    r_ij, _ = minimum_periodic(
+        r_ij, atoms.get_cell(), exclude_self=True, pbc=atoms.get_pbc())
     R_ij = np.linalg.norm(r_ij, axis=1)
     if np.any(R_ij == 0):
         k = int(np.argmax(R_ij == 0))
@@ -579,7 +581,7 @@ class DipolarRSS(AtomsProperty):
     @staticmethod
     def extract(s, cutoff, isonuclear, isotopes, isotope_list):
         # Supercell size
-        scell_shape = minimum_supcell(cutoff, s.get_cell())
+        scell_shape = minimum_supcell(cutoff, s.get_cell(), pbc=s.get_pbc())
         _, scell = supcell_gridgen(s.get_cell(), scell_shape)
 
         pos = s.get_positions()
@@ -783,10 +785,10 @@ class DipolarRSSByAtom(AtomsProperty):
         # Expand sel_j to equivalent sites if requested
         sel_j = _expand_sel_j_by_equiv(s, sel_j, expand_j, symprec)
 
-        # Supercell size. A zero cell (non-periodic input) has only the
-        # atoms themselves as images.
-        if np.any(s.get_cell()):
-            scell_shape = minimum_supcell(cutoff, s.get_cell())
+        # Supercell size. A zero cell or a non-periodic structure has only
+        # the atoms themselves as images; non-periodic directions get none.
+        if np.any(s.get_cell()) and np.any(s.get_pbc()):
+            scell_shape = minimum_supcell(cutoff, s.get_cell(), pbc=s.get_pbc())
             _, scell = supcell_gridgen(s.get_cell(), scell_shape)
         else:
             scell = np.zeros((1, 3))

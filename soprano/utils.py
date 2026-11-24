@@ -445,8 +445,8 @@ def minimum_periodic(v, latt_cart, exclude_self=False, pbc=[True, True, True]):
 
     """
 
-    if not np.any(latt_cart):
-        # Zero cell (non-periodic input): there are no periodic copies
+    if not np.any(latt_cart) or not np.any(pbc):
+        # Zero cell or no periodic direction: there are no periodic copies
         return np.asarray(v, dtype=float), np.zeros((len(v), 3), dtype=int)
 
     max_r = np.amax(np.linalg.norm(v, axis=-1))
