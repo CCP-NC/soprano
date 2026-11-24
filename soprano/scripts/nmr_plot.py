@@ -463,36 +463,45 @@ def plotnmr(
         element_sel = AtomSelection.from_element(atoms, x_element)
         sel = sel * element_sel
         atoms = sel.subset(atoms)
-        # get the NMR calculator
+        # get the NMR calculator; sites keep their 'multiplicity' array, so
+        # symmetry-reduced or group-averaged sites are weighted correctly
         calc = NMRCalculator(atoms)
+        # --isotopes is {element: isotope}; the species string carries the
+        # isotope into every per-isotope call below
+        species = x_element
+        if isotopes and x_element in isotopes:
+            species = f"{isotopes[x_element]}{x_element}"
+        for el, iso_num in (isotopes or {}).items():
+            if el in set(atoms.get_chemical_symbols()):
+                calc.set_element_isotope(el, iso_num)
+        gradient = (gradients or {}).get(x_element) if shift else None
         if shift:
             logger.info(f"Setting references: {references}")
-            calc.set_reference(ref=references[x_element], element=x_element)
+            calc.set_reference(ref=references[x_element], element=species,
+                               gradient=gradient)
             use_reference = True
             xlabel = f"{x_element} shift (ppm)"
         else:
             xlabel = f"{x_element} shielding (ppm)"
             use_reference = False
 
-        if isotopes:
-            calc.set_isotopes(isotopes)
         calc.set_powder(N=8)
 
-        iso = MSIsotropy.get(atoms)
+        # Window on the axis being plotted (shift or shielding)
+        if use_reference:
+            iso = MSIsotropy.get(
+                atoms, references={x_element: references[x_element]},
+                gradients={x_element: gradient} if gradient is not None else None,
+            )
+        else:
+            iso = MSIsotropy.get(atoms)
         max_iso = np.max(iso)
         min_iso = np.min(iso)
-        iso_range = max_iso - min_iso
-        max_iso += iso_range * 0.1
-        min_iso -= iso_range * 0.1
-        if use_reference:
-            # The window is on the shift axis, shift = ref - shielding
-            ref = references[x_element]
-            min_freq, max_freq = ref - max_iso, ref - min_iso
-        else:
-            min_freq, max_freq = min_iso, max_iso
+        pad = max((max_iso - min_iso) * 0.1, 1.0)  # a single site still gets a window
+        min_freq, max_freq = min_iso - pad, max_iso + pad
         # get 1D plot data
         spec, freq = calc.spectrum_1d(
-            x_element,
+            species,
             min_freq=min_freq,
             max_freq=max_freq,
             bins=1001,
