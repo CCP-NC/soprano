@@ -346,6 +346,10 @@ written spin systems, and single-crystal SIMPSON simulations that fix the absolu
 spin systems with tensors in general relative orientations; use
 `sim.config.integration_volume = "hemisphere"`.
 
+### Changes
+
+- Faster pair-distance evaluation for 2D NMR (batched minimum-image), about 2.7× faster to build a full-cell `dipolar_rss` `NMRData2D`.
+
 ---
 
 ## v0.11.1 (2026-02-25)
