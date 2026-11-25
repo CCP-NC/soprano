@@ -124,7 +124,8 @@ print(f"Intra-CH3 residual: {d_eff_intra:.1f} Hz")
 
 Notes:
 - Uses minimum-image periodic boundaries (honouring `atoms.pbc`) and skips self-pairs (`i == j`); coincident atoms raise.
-- For whole spin systems, `averaged_dipolar_coupling_list(atoms, site_sets, ...)` and `averaged_j_coupling_list(atoms, site_sets, ...)` (`soprano.properties.nmr`) return per-site-pair averaged couplings, where `site_sets[k]` lists the atom indices site `k` stands for. `soprano spinsys --average-group ... --expand-group` and `nmr_extract_atoms(..., expand_groups=True)` use them.
+- For whole spin systems, `averaged_dipolar_coupling_list(atoms, site_sets, ...)` and `averaged_j_coupling_list(atoms, site_sets, ...)` (`soprano.properties.nmr`) return `list[DipolarCoupling]` / `list[ISCoupling]` across all $i < j$ site-set pairs, where `site_sets[k]` lists the atom indices site `k` stands for. `soprano spinsys --average-group ... --expand-group` and `nmr_extract_atoms(..., expand_groups=True)` use them.
+- **Non-axial averaged dipolar warning:** Motionally averaged inter-group dipolar tensors (e.g. an external spin coupled to a rotating CH₃) are generally slightly non-axial ($\eta > 0$). Because SIMPSON and mrsimulator dipolar entries are strictly axial, `soprano spinsys -g ... --dip` logs a warning that it keeps the principal coupling eigenvalue and drops the asymmetry. This is expected.
 - Passing the same group for both `sel_i` and `sel_j` computes the intra-group residual average.
 - Only valid in the **fast-exchange** limit ($k_{\mathrm{ex}} \gg |d|$); do not apply to slow/intermediate exchange regimes.
 

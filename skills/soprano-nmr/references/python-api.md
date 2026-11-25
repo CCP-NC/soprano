@@ -21,7 +21,7 @@ Every `AtomsProperty` works on either a single `ase.Atoms` or an `AtomsCollectio
 
 > **Note:** `MSShift`, `MSShielding` and the `JC*` properties (`JCTensor`, `JCAnisotropy`, `JCReducedAnisotropy`, `JCAsymmetry`, `JCSpan`, `JCSkew`, `JCQuaternion`) are re-exported from `soprano.properties.nmr`, like the other NMR properties. They are defined in `.ms` / `.isc`, and those paths still work.
 >
-> **Referencing:** `gradients=None` (default) uses the full formula for every element; an element present in `gradients` uses the linear fit $\delta = \sigma_{\mathrm{ref}} + m\sigma$ (chosen per element). `MagneticShielding(gradient=...)` also defaults to `None` (it was `-1.0` before v0.12).
+> **Referencing:** `gradients=None` (default) uses the full formula for every element; an element present in `gradients` uses the linear fit $\delta = \sigma_{\mathrm{ref}} + m\sigma$ (chosen per element). `MagneticShielding(gradient=...)` also defaults to `None` (it was `-1.0` before v0.12). When `references` is passed to `MSTensor.get` or `MSShift.get`, it must cover every element present in `atoms` (or pass `selection=...` to restrict the sites).
 
 ### Electric Field Gradient (`soprano.properties.nmr`)
 
@@ -89,3 +89,36 @@ Behaviour to know:
 
 Useful `NMRFlags`: `CS_ISO`, `CS_ORIENT`, `CS`, `Q_1_ORIENT`, `Q_2_SHIFT`, `Q_2_ORIENT_STATIC`, `Q_2_ORIENT_MAS`, `Q_2_STATIC`, `Q_2_MAS`, `Q_STATIC`, `Q_MAS`, `STATIC`, `MAS`.
 For coupled multi-spin or exact lineshape simulations, export a spin system via `soprano-spin-systems`.
+
+## 3. 2D Correlation Spectra & Experimental Export (`soprano.calculate.nmr`)
+
+```python
+from ase.io import read
+from soprano.calculate.nmr import ExportConfig, NMRData2D, NMRPlot2D, PlotSettings
+
+atoms = read("ethanol.magres")
+data = NMRData2D(
+    atoms,
+    xelement="C",
+    yelement="H",
+    references={"C": 170.0, "H": 30.0},
+    correlation_strength_metric="dipolar",
+    rcut=3.0,
+    reduce=True,
+)
+settings = PlotSettings(show_heatmap=True, show_contour=False, colormap="grey_r")
+plotter = NMRPlot2D(data, settings=settings)
+fig, ax = plotter.plot()  # returns (fig, ax) for matplotlib; fig for plotly
+fig.savefig("ch_hetcor.png", dpi=150)
+
+# Experimental export (Bruker TopSpin requires `pip install soprano[nmr-io]`):
+data.export_contour_data(
+    "ch_hetcor.json",  # or a Bruker directory with fmt="bruker"
+    config=ExportConfig(spectrometer_freq_mhz=400.0),
+)
+```
+
+Key notes:
+- Import `NMRData2D`, `NMRPlot2D`, `PlotSettings`, and `ExportConfig` from `soprano.calculate.nmr` (not `soprano.properties.nmr`).
+- `NMRPlot2D(...).plot()` returns `(fig, ax)` with the default matplotlib backend.
+- Bruker, ssNake JSON, and frequency-axis SIMPSON exports require both referenced shifts (`references=...`) and a Larmor frequency (`spectrometer_freq_mhz`, `b0_field_tesla`, or `x_larmor_freq_mhz`).

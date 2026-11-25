@@ -67,8 +67,8 @@ orig_indices = smap.members(0)  # source atom index(es) behind derived site 0
 # Split into individual extended-XYZ files (reassembled across periodic boundaries)
 soprano splitmols crystal.cif -o mols_out
 
-# Output CASTEP .cell files centered with 10 Å vacuum
-soprano splitmols crystal.cif -o mols_out -f cell -c --vacuum 10.0
+# Output CIF files centered with 10 Å vacuum (note: `-f cell` requires a local CASTEP install for ASE's writer)
+soprano splitmols crystal.cif -o mols_out -f cif -c --vacuum 10.0
 
 # Zeolite + guest molecule: scale vdW radii and keep framework within the cell
 soprano splitmols ZSM-5_withH2O.cif --vdw-scale 1.3 --no-cell-indices -o split_zeolite
@@ -81,7 +81,7 @@ from ase.io import read
 from soprano.properties.linkage import Molecules
 
 atoms = read("mol_crystal.cif")
-mols = Molecules.get(atoms)  # list[AtomSelection], each carries cell_indices
+mols = Molecules.get(atoms)  # list[AtomSelection] (cell shifts stored internally in _arrays)
 
 # CRITICAL: pass use_cell_indices=True so boundary-crossing molecules stay intact!
 mol0_atoms = mols[0].subset(atoms, use_cell_indices=True)
@@ -121,7 +121,7 @@ spec, peaks_used = xrd.spec_simul(peaks, th2)  # spec.theta2, spec.intensity
 1. **Symmetry backends are optional since v0.11.0.**
    `SymmetryDataset`, `WyckoffPoints`, `UniqueSites`, `XRDCalculator`, and symmetry-based site reduction require either `moyopy` or `spglib`. Recommend `pip install soprano[moyo]` (Rust-based, ~4× faster) or `pip install soprano[spglib]`. Override per call with `backend="moyo"` or `backend="spglib"`.
 2. **Always use `use_cell_indices=True` when subsetting molecules.**
-   `Molecules.get(atoms)` returns `AtomSelection` objects storing `cell_indices`. Calling `mol.subset(atoms)` without `use_cell_indices=True` leaves atoms broken across periodic cell boundaries.
+   `Molecules.get(atoms)` returns `AtomSelection` objects with periodic cell shifts stored internally (`_arrays`, not a `.cell_indices` attribute). Calling `mol.subset(atoms)` without `use_cell_indices=True` leaves atoms broken across periodic cell boundaries.
 3. **Never compute periodic distances by naive Cartesian subtraction.**
    Use `soprano.utils.minimum_periodic(v, latt_cart)` (or built-in properties like `Bonds`, `LinkageList`, `HydrogenBonds`) so closest periodic images are always accounted for.
 4. **Prefer `save_tree` / `load_tree` over `save` / `load`, and watch collection indexing.**

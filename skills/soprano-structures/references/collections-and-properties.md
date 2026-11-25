@@ -64,8 +64,10 @@ from soprano.selection import AtomSelection
 sel = AtomSelection.from_element(atoms, "H")
 smap_sel = SiteMap.from_selection(sel, atoms)
 
-# Tag-based merge -> SiteMap
-smap_tags = SiteMap.from_tags(atoms.get_tags())
+# Tag-based merge -> SiteMap (use grouping tags from UniqueSites, not raw untagged atoms.get_tags())
+from soprano.properties.labeling import UniqueSites
+tags = UniqueSites.get(atoms)
+smap_tags = SiteMap.from_tags(tags)
 
 # Chain derivations: original atoms -> merged sites -> filtered sites
 combined = smap_tags.compose(smap_sub)

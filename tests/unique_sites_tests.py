@@ -92,6 +92,20 @@ class TestUniqueSites(unittest.TestCase):
             tags = UniqueSites.get(atoms, save_info=False, override_cif=True)
         self.assertTrue(np.array_equal(tags, self.sym_tags))
 
+    def test_override_cif_instance_constructor(self):
+        from soprano.properties.labeling import UniqueSites
+
+        atoms = _nacl()
+        atoms.new_array(
+            "labels",
+            np.array(["Na1", "Cl1", "Na2", "Cl1", "Na1", "Cl1", "Na2", "Cl1"]),
+        )
+        prop = UniqueSites(save_info=False, override_cif=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.assertTrue(np.array_equal(prop(atoms), self.sym_tags))
+            self.assertTrue(np.array_equal(prop.get(atoms), self.sym_tags))
+
 
 if __name__ == "__main__":
     unittest.main()

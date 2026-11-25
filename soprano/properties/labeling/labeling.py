@@ -324,13 +324,21 @@ class UniqueSites(AtomsProperty):
     |   save_info (bool): if True, save the found unique sites as part of
     |                     the Atoms object info. By default True.
     |   symprec (float): the tolerance for symmetry operations. Default: 1e-4
+    |   override_cif (bool): if True, use symmetry grouping even when CIF
+    |                        labels disagree. Default: False.
 
     | Returns:
     |   unique ([int]): list of integers 
     """
 
     default_name = "unique_sites"
-    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4, "backend": "auto"}
+    default_params = {
+        "force_recalc": False,
+        "save_info": True,
+        "symprec": 1e-4,
+        "backend": "auto",
+        "override_cif": False,
+    }
 
     @staticmethod
     def extract(s, force_recalc, save_info, symprec, backend="auto", override_cif = False):
