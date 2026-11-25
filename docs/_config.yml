@@ -8,7 +8,7 @@ copyright                   : "2022"  # Copyright year to be placed in the foote
 
 
 # Patterns to exclude from the book build (merged with Jupyter Book defaults)
-exclude_patterns            : ['_templates', 'adr']
+exclude_patterns            : ['_templates', 'adr', '_ext', '_generated']
 
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
@@ -55,6 +55,8 @@ sphinx:
   - 'sphinx.ext.mathjax'
   - 'sphinx_click'
   - 'sphinxcontrib.bibtex'
+  local_extensions:
+    skills_docs: _ext
   config:
     add_module_names: True
     html_theme: "sphinx_book_theme"

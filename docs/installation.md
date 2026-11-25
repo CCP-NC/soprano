@@ -164,21 +164,13 @@ If neither backend is installed, functions that require symmetry will raise an
 
 ## AI Agent Skills
 
-If you use AI coding agents (such as Claude Code, OpenCode, Codex, or Cursor) with Soprano, the repository includes [Agent Skills](https://agentskills.io/) in `skills/`:
-
-| Skill | Coverage |
-|-------|----------|
-| `soprano-nmr` | `.magres` extraction (`soprano nmr`, `dipolar`), referencing, `soprano.properties.nmr`, `NMRCalculator` |
-| `soprano-spin-systems` | `soprano spinsys`, `get_spin_system`, `NMRTensor` & Euler conventions, fast-exchange dipolar averaging, SIMPSON & mrsimulator export |
-| `soprano-structures` | `AtomsCollection`, `AtomsProperty`, `AtomSelection`, `SiteMap`, `moyo`/`spglib` symmetry, `Molecules`/`splitmols`, generators, `PhylogenCluster`, `XRDCalculator` |
-
-Install all skills using the Skills CLI:
+If you use AI coding agents (such as Claude Code, OpenCode, Codex, or Cursor) with Soprano, the repository includes [Agent Skills](https://agentskills.io/) in `skills/`. Install them all with:
 
 ```sh
 npx skills add CCP-NC/soprano
 ```
 
-To install manually, copy or symlink the desired folders from `skills/` into your tool's skills directory (for example `~/.agents/skills/`, `~/.claude/skills/`, or `.opencode/skills/`).
+See the [AI Agent Skills](agent-skills.md) guide for an introduction, manual installation instructions, example prompts, and the full documentation of each skill.
 
 ## Testing your installation
 
