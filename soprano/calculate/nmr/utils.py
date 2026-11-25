@@ -31,6 +31,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 from ase import Atoms
+from ase.geometry import find_mic
 from scipy.optimize import minimize
 
 from soprano.properties.labeling.labeling import MagresViewLabels
@@ -1184,21 +1185,27 @@ def calculate_distances(
     """
     equiv_groups: Optional[Dict] = None
 
-    pair_distances = np.zeros(len(pairs))
-    for i, pair in enumerate(pairs):
-        if pair[0] == pair[1]:
-            if use_equiv_sites:
-                if equiv_groups is None:
-                    equiv_groups = _build_equiv_groups(atoms)
-                _, dist = _nearest_equiv_site(atoms, pair[0], equiv_groups)
-            else:
-                r = np.zeros((1, 3))
-                r_mic, _ = minimum_periodic(
-                    r, atoms.get_cell(), exclude_self=True, pbc=atoms.get_pbc())
-                dist = float(np.linalg.norm(r_mic))
-            pair_distances[i] = dist
+    pair_idx = np.asarray(pairs, dtype=int).reshape(-1, 2)
+    is_self = pair_idx[:, 0] == pair_idx[:, 1]
+
+    pair_distances = np.zeros(len(pair_idx))
+    for i in np.flatnonzero(is_self):
+        if use_equiv_sites:
+            if equiv_groups is None:
+                equiv_groups = _build_equiv_groups(atoms)
+            _, dist = _nearest_equiv_site(atoms, int(pair_idx[i, 0]), equiv_groups)
         else:
-            pair_distances[i] = atoms.get_distance(*pair, mic=True)
+            r = np.zeros((1, 3))
+            r_mic, _ = minimum_periodic(
+                r, atoms.get_cell(), exclude_self=True, pbc=atoms.get_pbc())
+            dist = float(np.linalg.norm(r_mic))
+        pair_distances[i] = dist
+
+    others = np.flatnonzero(~is_self)
+    if len(others):
+        vectors = atoms.positions[pair_idx[others, 1]] - atoms.positions[pair_idx[others, 0]]
+        _, lengths = find_mic(vectors, atoms.cell, atoms.pbc)
+        pair_distances[others] = lengths
     return pair_distances
 
 

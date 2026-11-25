@@ -9,7 +9,7 @@ import unittest
 from typing import List, Tuple
 
 import numpy as np
-from ase import io
+from ase import Atoms, io
 from ase.build import bulk, molecule
 from scipy import constants as cnst
 
@@ -242,6 +242,33 @@ class TestCalculateDistances(unittest.TestCase):
         # but this path must not raise and must return a positive finite distance.
         self.assertGreater(dist, 0)
         self.assertTrue(np.isfinite(dist))
+
+    def test_matches_get_distance_loop_triclinic(self):
+        """Batched minimum-image distances equal a naive per-pair get_distance loop."""
+        rng = np.random.default_rng(0)
+        cell = np.array([[4.1, 0.0, 0.0], [1.5, 3.7, 0.0], [0.8, 1.1, 5.3]])
+        atoms = Atoms('Si6', scaled_positions=rng.uniform(-1, 2, (6, 3)), cell=cell, pbc=True)
+        pairs = [(i, j) for i in range(6) for j in range(6) if i != j]
+        expected = np.array([atoms.get_distance(a, b, mic=True) for a, b in pairs])
+        np.testing.assert_allclose(calculate_distances(pairs, atoms), expected, rtol=1e-12, atol=0)
+
+        # Self-pairs are mixed in and must agree with their single-pair result.
+        mixed = [(0, 0), (0, 1), (2, 2), (3, 5)]
+        d = calculate_distances(mixed, atoms, use_equiv_sites=False)
+        self.assertAlmostEqual(d[1], atoms.get_distance(0, 1, mic=True), places=12)
+        self.assertAlmostEqual(d[3], atoms.get_distance(3, 5, mic=True), places=12)
+        self.assertAlmostEqual(d[0], calculate_distances([(0, 0)], atoms, use_equiv_sites=False)[0], places=12)
+        self.assertAlmostEqual(d[2], calculate_distances([(2, 2)], atoms, use_equiv_sites=False)[0], places=12)
+
+    def test_matches_get_distance_loop_molecule(self):
+        """Non-periodic atoms: distances equal the plain Euclidean get_distance loop."""
+        atoms = molecule('C2H6')
+        pairs = [(i, j) for i in range(len(atoms)) for j in range(len(atoms)) if i != j]
+        expected = np.array([atoms.get_distance(a, b, mic=True) for a, b in pairs])
+        np.testing.assert_allclose(calculate_distances(pairs, atoms), expected, rtol=1e-12, atol=0)
+
+    def test_empty_pairs(self):
+        self.assertEqual(calculate_distances([], self.atoms).shape, (0,))
 
 
 class TestDipolarRSSMetric(unittest.TestCase):

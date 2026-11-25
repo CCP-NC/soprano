@@ -679,11 +679,16 @@ class NMRData2D:
                     "distance/coupling to its nearest equivalent site."
                 )
 
-        distances = calculate_distances(src_pairs, self.source)
         # An RSS entry stands for its whole expanded j set: use the nearest member.
-        for n, j_set in rss_j_sets.items():
-            a = src_pairs[n][0]
-            distances[n] = calculate_distances([(a, b) for b in j_set], self.source).min()
+        rss_n = list(rss_j_sets)
+        rss_pairs = [(src_pairs[n][0], b) for n in rss_n for b in rss_j_sets[n]]
+        all_distances = calculate_distances(src_pairs + rss_pairs, self.source)
+        distances = all_distances[:len(src_pairs)]
+        start = len(src_pairs)
+        for n in rss_n:
+            stop = start + len(rss_j_sets[n])
+            distances[n] = all_distances[start:stop].min()
+            start = stop
 
         keep = np.arange(len(pairs))
         if self.rcut:
