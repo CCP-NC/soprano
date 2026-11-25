@@ -7,6 +7,9 @@ logo                        : ../img/soprano_logo.svg
 copyright                   : "2022"  # Copyright year to be placed in the footer
 
 
+# Patterns to exclude from the book build (merged with Jupyter Book defaults)
+exclude_patterns            : ['_templates', 'adr']
+
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
 execute:
@@ -61,11 +64,20 @@ sphinx:
     autoclass_content: 'both'
     autodoc_default_options:
       members: True
-      inherited-members: True
+      inherited-members: object, BaseModel  # Pydantic's docstrings are not Soprano's to document
       private-members: True
       show-inheritance: True
+      # Document re-exported names only on their defining module, not under every __all__ package
+      ignore-module-all: True
+    # - misc.highlighting_failure: Pygments' IPython lexer cannot parse backslash-continued
+    #   "!soprano ..." notebook cells; they fall back to relaxed lexing and still render correctly.
+    # - etoc.toctree: sphinx.ext.autosummary generates toctree directives that external-toc flags.
+    suppress_warnings: ['misc.highlighting_failure', 'etoc.toctree']
     # Automatically include type hints in the descriptions
     autodoc_typehints: 'description'  # Or 'both' if you want them in both the signature and description
+
+    # Generate anchors for Markdown headings so that "#heading-slug" links resolve
+    myst_heading_anchors: 3
 
     bibtex_bibfiles: ['references.bib']
     html_css_files:

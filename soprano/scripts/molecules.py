@@ -320,10 +320,11 @@ def redefine_unit_cell(atoms: Atoms,
                        vacuum=None):
     """
     Redefine the unit cell of the structure.
-    If center is True, the structure is centered in the cell.
-    (Centers the atoms in the unit cell, so there is the same
-        amount of vacuum on all sides.)
+
+    If center is True, the structure is centered in the cell (centers the atoms
+    in the unit cell, so there is the same amount of vacuum on all sides).
     If vacuum is not None, a minimum vacuum is enforced.
+
     cell can be a single float (-> a cubic cell is created with that lattice constant) or
     as three floats (`a b c` -> an orthorhombic cell is created with the given side lengths) or
     as six floats (`a b c alpha beta gamma`) or

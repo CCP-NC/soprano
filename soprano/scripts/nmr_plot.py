@@ -17,10 +17,11 @@
 """CLI to plot NMR results from .magres file(s).
 
 Roadmap / open items:
+
 - [ ] Add selectable matplotlib stylesheets.
 - [x] Dipolar / J-coupling scaling of markers (implemented via --weight-by).
-      Caveat: verify the correlation-strength assumptions when combined with the
-      ``reduce`` or functional-group averaging options (multiplicity weighting).
+  Caveat: verify the correlation-strength assumptions when combined with the
+  ``reduce`` or functional-group averaging options (multiplicity weighting).
 - [ ] 1D plots -- basic simulation of a 1D NMR spectrum.
 """
 

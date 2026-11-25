@@ -137,17 +137,20 @@ def isotope_selection(ctx, parameter, isotope_string):
 
 def keyvalue_parser(ctx, parameter, value):
     """Parse strings in the form 'C:1,H:2' into a dictionary.
-        Also accept = as the separator between key and value.
-        e.g. the MS shift reference and gradient strings.
+
+    Also accept = as the separator between key and value.
+    e.g. the MS shift reference and gradient strings.
+
     Args:
         ctx: click context
         parameter: click parameter
         value (str): The references specification, in the form ``"C:100,H:123"``.
-                     If value is a single float, that will returned instead of a dict.
-                     If value is empty, returns None.
+            If value is a single float, that will returned instead of a dict.
+            If value is empty, returns None.
+
     Returns:
-        dict or None: The values for each key specified. Formatted as::
-            {key: value}.  Returns None when input is empty.
+        dict or None: The values for each key specified, formatted as
+        ``{key: value}``. Returns None when input is empty.
     """
 
     if value == "":
@@ -164,12 +167,15 @@ def keyvalue_parser(ctx, parameter, value):
 
 def get_column_list(ctx, parameter, value):
     """Parse the column names string.
+
     TODO: Document this a bit better.
+
     Args:
         ctx: click context
         parameter: click parameter
         value (str): The column names, comma-separated.
-                    Some shortcuts defined for MS_angles and EFG_angles.
+            Some shortcuts defined for MS_angles and EFG_angles.
+
     Returns:
         list: The column names specified.
     """

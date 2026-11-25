@@ -502,6 +502,7 @@ def styled_plot(*style_sheets):
     ``no_base_style`` is set in the decorated function arguments.
     The style will further be overwritten by any styles in the ``style``
     optional argument of the decorated function.
+
     Args:
         style_sheets (:obj:`list`, :obj:`str`, or :obj:`dict`): Any matplotlib
             supported definition of a style sheet. Can be a list of style of

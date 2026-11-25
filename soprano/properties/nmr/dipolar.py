@@ -716,39 +716,38 @@ class DipolarRSSByAtom(AtomsProperty):
     sites or all sites sharing the same CIF label.
 
     Parameters:
-      sel_i (AtomSelection or [int]): Selection or list of indices of atoms
-                                      for which to compute the RSS. Required.
-      sel_j (AtomSelection or [int]): Selection or list of indices of atoms
-                                      to include as neighbours in the RSS sum.
-                                      Required.
-      cutoff (float): cutoff radius in Angstroms at which the sum stops.
-                      By default 5 Ang.
-      isotopes (dict): dictionary of specific isotopes to use, by element
-                       symbol. If the isotope doesn't exist an error will
-                       be raised.
-      isotope_list (list): list of isotopes, atom-by-atom. To be used if
-                           different atoms of the same element are supposed
-                           to be of different isotopes. Where a 'None' is
-                           present will fall back on the previous
-                           definitions. Where an isotope is present it
-                           overrides everything else.
-      expand_j (str): how to expand sel_j to include equivalent sites.
-                              'periodic_images': no expansion, use sel_j as-is
-                                                 (only periodic images of the
-                                                 specified atoms are included).
-                              'symmetry': expand to all symmetry-equivalent
-                                          sites (using UniqueSites tags) and
-                                          their periodic images.
-                              'cif_labels': expand to all sites sharing the
-                                            same CIF label and their periodic
-                                            images.
-                              By default is 'periodic_images'. Any other
-                               value, including None, raises ValueError.
-      symprec (float): symmetry precision for UniqueSites when expand_j is
-                       'symmetry'. Default is 1e-4.
+        sel_i (AtomSelection or [int]): Selection or list of indices of atoms
+            for which to compute the RSS. Required.
+        sel_j (AtomSelection or [int]): Selection or list of indices of atoms
+            to include as neighbours in the RSS sum. Required.
+        cutoff (float): cutoff radius in Angstroms at which the sum stops.
+            By default 5 Ang.
+        isotopes (dict): dictionary of specific isotopes to use, by element
+            symbol. If the isotope doesn't exist an error will
+            be raised.
+        isotope_list (list): list of isotopes, atom-by-atom. To be used if
+            different atoms of the same element are supposed
+            to be of different isotopes. Where a 'None' is
+            present will fall back on the previous
+            definitions. Where an isotope is present it
+            overrides everything else.
+        expand_j (str): how to expand sel_j to include equivalent sites.
+            Options are:
+
+            - 'periodic_images': no expansion, use sel_j as-is
+              (only periodic images of the specified atoms are included).
+            - 'symmetry': expand to all symmetry-equivalent sites (using
+              UniqueSites tags) and their periodic images.
+            - 'cif_labels': expand to all sites sharing the same CIF label
+              and their periodic images.
+
+            By default is 'periodic_images'. Any other value, including None,
+            raises ValueError.
+        symprec (float): symmetry precision for UniqueSites when expand_j is
+            'symmetry'. Default is 1e-4.
 
     Returns:
-      dip_rss (np.ndarray): dipolar constant RSS for each atom in sel_i
+        dip_rss (np.ndarray): dipolar constant RSS for each atom in sel_i
 
     """
 

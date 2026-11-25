@@ -98,24 +98,24 @@ class EFGTensor(AtomsProperty):
     You can change this by specifying the 'order' parameter.
 
     Parameters:
-        order (str):  Order to use for eigenvalues/eigenvectors. Can
-                    be 'i' (ORDER_INCREASING), 'd'
-                    (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-                    'n' (ORDER_NQR). Default is 'n'.
+        order (str): Order to use for eigenvalues/eigenvectors. Can
+            be 'i' (ORDER_INCREASING), 'd'
+            (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
+            'n' (ORDER_NQR). Default is 'n'.
         use_q_isotopes (bool): if True, always use the most common quadrupole
-                             active isotope for each element, if there is
-                             one.
+            active isotope for each element, if there is
+            one.
         isotopes (dict): dictionary of specific isotopes to use, by element
-                         symbol. If the isotope doesn't exist an error will
-                          be raised. Overrides use_q_isotopes.
+            symbol. If the isotope doesn't exist an error will
+            be raised. Overrides use_q_isotopes.
         isotope_list (list): list of isotopes, atom-by-atom. To be used if
-                           different atoms of the same element are supposed
-                           to be of different isotopes. Where a 'None' is
-                           present will fall back on the previous
-                           definitions. Where an isotope is present it
-                           overrides everything else.
+            different atoms of the same element are supposed
+            to be of different isotopes. Where a 'None' is
+            present will fall back on the previous
+            definitions. Where an isotope is present it
+            overrides everything else.
         tag (str, optional): name of the array containing electric field gradient tensors.
-                            Defaults to 'efg'.
+            Defaults to 'efg'.
 
     Returns:
       efg_tensors (list): list of ElectricFieldGradient objects

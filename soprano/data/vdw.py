@@ -20,8 +20,8 @@ Van der Waals radii
 Available sets:
 
     - csd:  extrapolated from the Cambridge Structural Database by Santiago
-    Alvarez, as seen in S. Alvarez, "A cartography of the van der Waals
-    territories", Dalton Trans. 42, 8617 (2013)
+      Alvarez, as seen in S. Alvarez, "A cartography of the van der Waals
+      territories", Dalton Trans. 42, 8617 (2013)
     - jmol: extracted from the source code of JMol
     - ase:  default set for the Atomic Simulation Environment
 
@@ -55,17 +55,17 @@ def vdw_radius(el, vdwset="csd"):
     of three available databases:
 
     - csd:  extrapolated from the Cambridge Structural Database by Santiago
-    Alvarez, as seen in S. Alvarez, "A cartography of the van der Waals
-    territories", Dalton Trans. 42, 8617 (2013) [default]
+      Alvarez, as seen in S. Alvarez, "A cartography of the van der Waals
+      territories", Dalton Trans. 42, 8617 (2013) [default]
     - jmol: extracted from the source code of JMol
     - ase:  default set for the Atomic Simulation Environment
 
-    | Args:
-    |   el (str):       element symbol
-    |   vdwset (str):   VdW set to use. Default is 'csd'.
+    Args:
+        el (str): element symbol
+        vdwset (str): VdW set to use. Default is 'csd'.
 
-    | Returns:
-    |   vdw_radius (float): the Van der Waals radius
+    Returns:
+        vdw_radius (float): the Van der Waals radius
     """
 
     try:

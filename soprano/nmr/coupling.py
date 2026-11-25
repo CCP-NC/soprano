@@ -120,23 +120,17 @@ class Coupling(BaseModel, ABC):
         
         This method overrides the deprecated copy method with model_copy.
         
-        Parameters:
-        -----------
-        deep : bool, optional
-            If True, performs a deep copy of nested objects. 
-            Default is True to ensure all nested objects are properly copied.
-        **kwargs : dict
-            Additional keyword arguments to pass to model_copy
-        
+        Args:
+            deep (bool, optional): If True, performs a deep copy of nested objects.
+                Default is True to ensure all nested objects are properly copied.
+            **kwargs (dict): Additional keyword arguments to pass to model_copy.
+
         Returns:
-        --------
-        Coupling
-            A new Coupling object that is a copy of the current object
-        
+            Coupling: A new Coupling object that is a copy of the current object.
+
         Notes:
-        ------
-        Deprecation warning for the original copy method is automatically 
-        handled by Pydantic.
+            Deprecation warning for the original copy method is automatically
+            handled by Pydantic.
         """
         return self.model_copy(deep=deep, **kwargs)
     
@@ -248,37 +242,35 @@ class ISCoupling(Coupling):
             include_angles: bool = True
             ) -> dict[str, Union[tuple[int, int], float, dict[str, float]]]:
         """
-        The MRSimulator format expects the J-coupling tensor 
-        as a dict to be something like this:
-        {
-            site_index=[0, 1],
-            isotropic_j=15.0,  # in Hz
-            j_symmetric={
-                zeta=12.12,  # in Hz
-                eta=0.82,
-                alpha=2.45,  # in radians
-                beta=1.75,  # in radians
-                gamma=0.15,  # in radians
+        The MRSimulator format expects the J-coupling tensor as a dict to be
+        something like this::
+
+            {
+                site_index=[0, 1],
+                isotropic_j=15.0,  # in Hz
+                j_symmetric={
+                    zeta=12.12,  # in Hz
+                    eta=0.82,
+                    alpha=2.45,  # in radians
+                    beta=1.75,  # in radians
+                    gamma=0.15,  # in radians
+                }
             }
-        }
 
         Args:
-            include_angles: bool, optional
-                If True, include the Euler angles in the output. Default is True.
+            include_angles (bool, optional): If True, include the Euler angles in the output. Default is True.
 
         Returns:
-        -------
-        dict
-            A dictionary containing the J-coupling tensor parameters for MRSimulator.
+            dict: A dictionary containing the J-coupling tensor parameters for MRSimulator.
+
         Notes:
-        -----
-        - The isotropic J-coupling constant is reported in Hz.
-        - The J-coupling tensor is represented in a symmetric form with the parameters zeta, eta, alpha, beta, and gamma.
-        - The Euler angles are in radians.
-        - The site_index is a list of two integers representing the indices of the coupled sites.
-        - The zeta parameter is the reduced anisotropic J-coupling constant.
-        - The eta parameter is asymmetry parameter of the J-coupling tensor.
-        - The alpha, beta, and gamma parameters are the Euler angles of the J-coupling tensor in radians.
+            - The isotropic J-coupling constant is reported in Hz.
+            - The J-coupling tensor is represented in a symmetric form with the parameters zeta, eta, alpha, beta, and gamma.
+            - The Euler angles are in radians.
+            - The site_index is a list of two integers representing the indices of the coupled sites.
+            - The zeta parameter is the reduced anisotropic J-coupling constant.
+            - The eta parameter is asymmetry parameter of the J-coupling tensor.
+            - The alpha, beta, and gamma parameters are the Euler angles of the J-coupling tensor in radians.
         """
         angles = {}
         if include_angles:
@@ -305,17 +297,18 @@ class ISCoupling(Coupling):
         """
         Convert the J-coupling tensor to the Simpson format.
 
-        The expected format for Simpson is:
-        ```
-        jcoupling i j Jiso_ij Janiso_ij eta_ij alpha beta gamma
-        ```
+        The expected format for Simpson is::
+
+            jcoupling i j Jiso_ij Janiso_ij eta_ij alpha beta gamma
+
         where:
-        - `i` and `j` are the indices of the coupled sites (1-based indexing).
-        - `Jiso_ij` is the isotropic J-coupling constant in Hz.
-        - `Janiso_ij` is the reduced anisotropic J-coupling constant in Hz.
-        - `eta_ij` is the asymmetry parameter of the J-coupling tensor.
-        - `alpha`, `beta`, and `gamma` are the passive ZYZ Euler angles of the J-coupling tensor
-          in **degrees** (see ``docs/simpson-conventions.md``).
+
+        - ``i`` and ``j`` are the indices of the coupled sites (1-based indexing).
+        - ``Jiso_ij`` is the isotropic J-coupling constant in Hz.
+        - ``Janiso_ij`` is the reduced anisotropic J-coupling constant in Hz.
+        - ``eta_ij`` is the asymmetry parameter of the J-coupling tensor.
+        - ``alpha``, ``beta``, and ``gamma`` are the passive ZYZ Euler angles of the J-coupling
+          tensor in **degrees** (see ``docs/simpson-conventions.md``).
 
         **Note on anisotropy scaling:**
         For SIMPSON v6.0.2, the anisotropic J Hamiltonian is assembled internally
@@ -459,21 +452,17 @@ class DipolarCoupling(Coupling):
         including the coupling constant and orientation relative to the principal axis system.
 
         Notes:
-        ------
-        - Coupling constant is reported in Hz
-        - Euler angles are in radians, in the convention of mrsimulator's own code
-          (see :meth:`NMRTensor.mrsimulator_euler_angles` and ``docs/simpson-conventions.md``).
-          They are not the numbers written by :meth:`to_simpson`.
+            - Coupling constant is reported in Hz
+            - Euler angles are in radians, in the convention of mrsimulator's own code
+              (see :meth:`NMRTensor.mrsimulator_euler_angles` and ``docs/simpson-conventions.md``).
+              They are not the numbers written by :meth:`to_simpson`.
 
         Args:
-        ----
-        include_angles: bool, optional
-            If True, include the Euler angles in the output dictionary. Default is True.
+            include_angles (bool, optional): If True, include the Euler angles in the output dictionary. Default is True.
 
         Returns:
-        --------
-        dict
-            A nested dictionary with dipolar coupling tensor parameters:
+            dict: A nested dictionary with dipolar coupling tensor parameters:
+
             - 'D': Coupling constant (Hz)
             - 'alpha': First Euler rotation angle (radians)
             - 'beta': Second Euler rotation angle (radians)
@@ -499,14 +488,10 @@ class DipolarCoupling(Coupling):
         in the Simpson NMR simulation software.
 
         Args:
-        ----
-        include_angles: bool, optional
-            If True, include the Euler angles in the output string. Default is True.
+            include_angles (bool, optional): If True, include the Euler angles in the output string. Default is True.
 
         Returns:
-        --------
-        str
-            A string representation of the dipolar coupling tensor in the format used by Simpson.
+            str: A string representation of the dipolar coupling tensor in the format used by Simpson.
 
         """
         i, j = self.site_i, self.site_j

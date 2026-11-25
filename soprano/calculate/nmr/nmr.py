@@ -449,7 +449,7 @@ class NMRCalculator:
         |                       final spectrum, in freq_units (default is None)
         |   freq_units (str): units used for frequency, can be ppm or MHz. The
         |                     axis is returned in these units (default is ppm).
-        |                     MHz values are offsets of ppm * |larmor| * 1e-6,
+        |                     MHz values are offsets of ppm * ``|larmor|`` * 1e-6,
         |                     so a positive shift is a positive offset for
         |                     either sign of gamma.
         |   effects (NMRFlags): a flag, or bitwise-joined set of flags, from

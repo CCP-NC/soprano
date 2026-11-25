@@ -130,23 +130,22 @@ class ElementPairs(AtomsProperty):
     and element 2 in the second index of each tuple.
 
     Parameters:
-      element1 (str): first element to consider
-      element2 (str): second element to consider
-      maxsize (int): maximum number of distances to include. If not present,
-                  all of them will be included. If present, arrays will be
-                  cut reach this size. If the number of pairs is less than
-                    maxsize, only those pairs will be returned. This is different to 
-                    the behaviour of LinkageList.
-      rcut (float): maximum distance to consider (in Angstroms). If rcut is <= 0,
-                    no cutoff is applied.
-      return_pairs (bool): if True, return the pairs of atoms to which the
-                           distances correspond, as a list of tuples of
-                           indices.
+        element1 (str): first element to consider
+        element2 (str): second element to consider
+        maxsize (int): maximum number of distances to include. If not present,
+            all of them will be included. If present, arrays will be
+            cut reach this size. If the number of pairs is less than
+            maxsize, only those pairs will be returned. This is different to
+            the behaviour of LinkageList.
+        rcut (float): maximum distance to consider (in Angstroms). If rcut is <= 0,
+            no cutoff is applied.
+        return_pairs (bool): if True, return the pairs of atoms to which the
+            distances correspond, as a list of tuples of
+            indices.
 
     Returns:
-      link_list ([float]): sorted list of interatomic linkage distances
-      pair_list ([(int, int)]): only if return_pairs is True, list of pairs
-                                corresponding to the distances
+        link_list ([float]): sorted list of interatomic linkage distances
+        pair_list ([(int, int)]): only if return_pairs is True, list of pairs corresponding to the distances
 
     """
 

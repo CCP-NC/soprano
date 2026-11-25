@@ -203,12 +203,12 @@ class Site(BaseModel):
         """
         Create a Site instance from a dictionary representation.
 
-        Parameters:
-        data (dict[str, Any]): A dictionary containing Site configuration.
-                                Can include nested dictionaries for ms and efg.
+        Args:
+            data (dict[str, Any]): A dictionary containing Site configuration.
+                Can include nested dictionaries for ms and efg.
 
         Returns:
-        Site: A new Site instance created from the input dictionary.
+            Site: A new Site instance created from the input dictionary.
         """
         # Create a copy of the data to avoid modifying the original
         data_copy = data.copy()
@@ -233,23 +233,17 @@ class Site(BaseModel):
         
         This method overrides the deprecated copy method with model_copy.
         
-        Parameters:
-        -----------
-        deep : bool, optional
-            If True, performs a deep copy of nested objects. 
-            Default is True to ensure tensor objects are properly copied.
-        **kwargs : dict
-            Additional keyword arguments to pass to model_copy
-        
+        Args:
+            deep (bool, optional): If True, performs a deep copy of nested objects.
+                Default is True to ensure tensor objects are properly copied.
+            **kwargs (dict): Additional keyword arguments to pass to model_copy.
+
         Returns:
-        --------
-        Site
-            A new Site object that is a copy of the current object
-        
+            Site: A new Site object that is a copy of the current object.
+
         Notes:
-        ------
-        Deprecation warning for the original copy method is automatically 
-        handled by Pydantic.
+            Deprecation warning for the original copy method is automatically
+            handled by Pydantic.
         """
         return self.model_copy(deep=deep, **kwargs)
 
@@ -355,20 +349,18 @@ class Site(BaseModel):
         """
         Convert the Site object to a dictionary representation compatible with MRSimulator.
 
-        Parameters:
-        include_ms (bool): If True, include the magnetic shielding tensor in the output.
-        ms_isotropic (bool): If True, only output the isotropic magnetic shielding (no orientation or anisotropy information).
-        include_efg (bool): If True, include the electric field gradient tensor in the output.
-        include_angles (bool): If True, include the Euler angles in the output.
-        include_ms_angles (bool): If True, include the Euler angles for the magnetic shielding tensor.
-                                    Note this overrides include_angles.
-        include_efg_angles (bool): If True, include the Euler angles for the electric field gradient tensor.
-                                    Note this overrides include_angles.
-
-
+        Args:
+            include_ms (bool): If True, include the magnetic shielding tensor in the output.
+            ms_isotropic (bool): If True, only output the isotropic magnetic shielding (no orientation or anisotropy information).
+            include_efg (bool): If True, include the electric field gradient tensor in the output.
+            include_angles (bool): If True, include the Euler angles in the output.
+            include_ms_angles (bool): If True, include the Euler angles for the magnetic shielding tensor.
+                Note this overrides include_angles.
+            include_efg_angles (bool): If True, include the Euler angles for the electric field gradient tensor.
+                Note this overrides include_angles.
 
         Returns:
-        dict: A dictionary representation of the Site object.
+            dict: A dictionary representation of the Site object.
         """
         # Handle the angle inclusion logic
         # If the ms and efg angles are not specified, use the include_angles value
@@ -434,22 +426,23 @@ class Site(BaseModel):
             include_efg_angles: Optional[bool] = None,
             ) -> tuple[str, str]:
         """
-        Convert the Site object to a dictionary representation compatible with Simpson.
+        Convert the Site object to Simpson spin-system lines.
 
-        Parameters:
-        q_order (int, optional): The order of the quadrupole interaction. If 
-            None, and the site is quadrupole active, the order is set to 2.
-        include_ms (bool): If True, include the magnetic shielding tensor in the output.
-        ms_isotropic (bool): If True, only output the isotropic magnetic shielding (no orientation or anisotropy information).
-        include_efg (bool): If True, include the electric field gradient tensor in the output.
-        include_angles (bool): If True, include the Euler angles in the output. If False, the angles are set to 0.
-        include_ms_angles (bool): If True, include the Euler angles for the magnetic shielding tensor.
-                                    Note this overrides include_angles. If False, the angles are set to 0.
-        include_efg_angles (bool): If True, include the Euler angles for the electric field gradient tensor.
-                                    Note this overrides include_angles. If False, the angles are set to 0.
+        Args:
+            q_order (int, optional): The order of the quadrupole interaction. If
+                None, and the site is quadrupole active, the order is set to 2.
+            include_ms (bool): If True, include the magnetic shielding tensor in the output.
+            ms_isotropic (bool): If True, only output the isotropic magnetic shielding (no orientation or anisotropy information).
+            include_efg (bool): If True, include the electric field gradient tensor in the output.
+            include_angles (bool): If True, include the Euler angles in the output. If False, the angles are set to 0.
+            include_ms_angles (bool): If True, include the Euler angles for the magnetic shielding tensor.
+                Note this overrides include_angles. If False, the angles are set to 0.
+            include_efg_angles (bool): If True, include the Euler angles for the electric field gradient tensor.
+                Note this overrides include_angles. If False, the angles are set to 0.
 
         Returns:
-        dict: A dictionary representation of the Site object.
+            tuple[str, str]: The Simpson lines for the magnetic shielding and the electric field gradient
+            tensors. Either string is empty if that tensor is not included.
         """
 
         # Handle the angle inclusion logic

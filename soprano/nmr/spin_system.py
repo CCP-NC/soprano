@@ -194,23 +194,17 @@ class SpinSystem(BaseModel):
         
         This method overrides the deprecated copy method with model_copy.
         
-        Parameters:
-        -----------
-        deep : bool, optional
-            If True, performs a deep copy of nested objects. 
-            Default is True to ensure all nested objects are properly copied.
-        **kwargs : dict
-            Additional keyword arguments to pass to model_copy
-        
+        Args:
+            deep (bool, optional): If True, performs a deep copy of nested objects.
+                Default is True to ensure all nested objects are properly copied.
+            **kwargs (dict): Additional keyword arguments to pass to model_copy.
+
         Returns:
-        --------
-        SpinSystem
-            A new SpinSystem object that is a copy of the current object
-        
+            SpinSystem: A new SpinSystem object that is a copy of the current object.
+
         Notes:
-        ------
-        Deprecation warning for the original copy method is automatically 
-        handled by Pydantic.
+            Deprecation warning for the original copy method is automatically
+            handled by Pydantic.
         """
         return self.model_copy(deep=deep, **kwargs)
     def to_string(self, format: str = "simpson", **kwargs) -> str:
