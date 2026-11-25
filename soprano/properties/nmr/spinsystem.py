@@ -54,8 +54,10 @@ class NMRSpinSystem(AtomsProperty):
             If None, no conversion is done and the outputs will be shieldings.
         gradients: list/dict/float
             Specification of the gradients to convert magnetic shielding tensors to
-            chemical shifts. Default is -1.0 corresponding as in the typical formula:
-            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+            chemical shifts. Chosen per element: elements with a gradient m use the
+            linear fit delta = reference + m * shielding; elements without one use
+            the full formula delta = (reference - shielding) / (1 - reference * 1e-6).
+            Default is None, which uses the full formula for all elements.
         include_shielding: bool
             Whether to include magnetic shielding tensors in the output.
         include_efg: bool
@@ -77,7 +79,7 @@ class NMRSpinSystem(AtomsProperty):
     default_params = {
         "isotopes": None,
         "references": None,
-        "gradients": -1.0,
+        "gradients": None,
         "include_shielding": True,
         "include_efg": True,
         "include_dipolar": False,
@@ -203,8 +205,10 @@ class NMRSites(AtomsProperty):
             If None, no conversion is done and the outputs will be shieldings.
         gradients: list/dict/float
             Specification of the gradients to convert magnetic shielding tensors to
-            chemical shifts. Default is -1.0 corresponding as in the typical formula:
-            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+            chemical shifts. Chosen per element: elements with a gradient m use the
+            linear fit delta = reference + m * shielding; elements without one use
+            the full formula delta = (reference - shielding) / (1 - reference * 1e-6).
+            Default is None, which uses the full formula for all elements.
         include_shielding: bool
             Whether to include magnetic shielding tensors in the output.
         include_efg: bool
@@ -223,7 +227,7 @@ class NMRSites(AtomsProperty):
     default_params = {
         "isotopes": None,
         "references": None,
-        "gradients": -1.0,
+        "gradients": None,
         "include_shielding": True,
         "include_efg": True,
         "use_q_isotopes": False,
@@ -432,7 +436,7 @@ def get_spin_system(
         atoms: Atoms,
         isotopes: Optional[dict[str, int]] = None,
         references: Optional[dict[str, float]] = None,
-        gradients: Optional[Union[dict[str, float], float]] = -1.0,
+        gradients: Optional[Union[dict[str, float], float]] = None,
         include_shielding: bool = True,
         include_efg: bool = True,
         include_dipolar: bool = False,
@@ -451,8 +455,10 @@ def get_spin_system(
         references (dict[str, float]): Specification of the references to convert magnetic shielding tensors to
             chemical shifts. e.g. {'H': 30, 'C': 170}
         gradients (dict[str, float]/float): Specification of the gradients to convert magnetic shielding tensors to
-            chemical shifts. Default is -1.0 corresponding as in the typical formula:
-            delta = (reference + gradient * shielding) / (1 - reference * 1e-6).
+            chemical shifts. Chosen per element: elements with a gradient m use the
+            linear fit delta = reference + m * shielding; elements without one use
+            the full formula delta = (reference - shielding) / (1 - reference * 1e-6).
+            Default is None, which uses the full formula for all elements.
         include_shielding (bool): Whether to include magnetic shielding tensors in the output.
         include_efg (bool): Whether to include electric field gradient tensors in the output.
         include_dipolar (bool): Whether to include dipolar couplings in the output.

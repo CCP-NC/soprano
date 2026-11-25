@@ -33,20 +33,66 @@ from pathlib import Path
 from ase import Atoms
 import click
 import click_log
-import matplotlib.pyplot as plt
-import numpy as np
 from ase.io import read
 
 from soprano.data.nmr import _get_nmr_data
+from soprano.nmr.extract import nmr_extract_atoms
 from soprano.nmr.spin_system import SpinSystem
-from soprano.properties.nmr import get_spin_system
+from soprano.properties.nmr import (
+    averaged_dipolar_coupling_list,
+    averaged_j_coupling_list,
+    get_spin_system,
+)
+from soprano.selection import AtomSelection
 from soprano.scripts.cli_utils import SPINSYS_OPTIONS, add_options, viewimages
-from soprano.scripts.nmr import nmr_extract_atoms
 
 # logging
 logging.captureWarnings(True)
 logger = logging.getLogger("cli")
 click_log.basic_config(logger)
+
+
+def _with_averaged_couplings(
+    spin_system, source, site_sets, merged, isotopes, selection_i, selection_j,
+    include_dip, include_j, expanded,
+):
+    """Add couplings averaged over each functional group's motion.
+
+    The averaging runs over the group's atoms in the source structure, so it
+    does not depend on which atom survived the merge.
+    """
+    sel_i = sel_j = None
+    if selection_i:
+        sel_i = AtomSelection.from_input(merged, selection_i).indices
+    if selection_j:
+        sel_j = AtomSelection.from_input(merged, selection_j).indices
+    couplings = []
+    if include_dip:
+        couplings += averaged_dipolar_coupling_list(
+            source, site_sets, isotopes=isotopes, sel_i=sel_i, sel_j=sel_j
+        )
+        n_nonaxial = sum(1 for c in couplings if abs(c.tensor.asymmetry) > 0.01)
+        if n_nonaxial:
+            logger.warning(
+                f"{n_nonaxial} averaged dipolar tensors are not axial; the exported "
+                "single constant keeps only the largest eigenvalue and drops the "
+                "asymmetry."
+            )
+    if include_j:
+        couplings += averaged_j_coupling_list(
+            source, site_sets, isotopes=isotopes, sel_i=sel_i, sel_j=sel_j
+        )
+    if not expanded and max(len(s) for s in site_sets) > 1:
+        logger.warning(
+            "Averaged groups are exported as single spins with couplings averaged "
+            "over the group's motion (fast-exchange limit). Couplings inside a "
+            "group are dropped, and a collapsed A_n spin carries 1/n of the "
+            "second moment that the n real spins would. Use --expand-group to "
+            "keep the spins."
+        )
+    return SpinSystem(
+        sites=spin_system.sites, couplings=list(spin_system.couplings) + couplings
+    )
 
 
 @click.command()
@@ -59,6 +105,7 @@ def spinsys(
     observed_nucleus,
     subset,
     average_group,
+    expand_group,
     reduce,
     mean_merge,
     split,
@@ -99,21 +146,24 @@ def spinsys(
     supported_extensions = {'.magres', '.extxyz', '.xyz'}
     file_ext = Path(file).suffix.lower()
     if file_ext not in supported_extensions:
-        logger.error(
+        raise click.UsageError(
             f"Unsupported file type '{file_ext}'. "
             f"Supported formats: {', '.join(sorted(supported_extensions))}"
         )
-        return
     try:
-        atoms = read(file)
+        frames = read(file, index=":")
     except Exception as e:
-        logger.error(f"Error reading file {file}: {e}")
-        return
-    
-    # Make sure the atoms object is a single Atoms object
-    if not isinstance(atoms, Atoms):
-        logger.error("The file contains multiple structures. Please select one.")
-        return
+        raise click.ClickException(f"Error reading file {file}: {e}") from e
+
+    # Make sure the file holds a single structure
+    if isinstance(frames, Atoms):
+        frames = [frames]
+    if len(frames) != 1:
+        raise click.ClickException(
+            f"The file contains {len(frames)} structures. Please give a file "
+            "with exactly one."
+        )
+    atoms = frames[0]
 
     # Validate that required arrays are present
     missing = []
@@ -122,14 +172,19 @@ def spinsys(
     if include_efg and not atoms.has(efg_tag):
         missing.append(f"EFG array '{efg_tag}' (disable with --no-efg or change tag with --efg-tag)")
     if missing:
-        logger.error(
-            f"The input file is missing required data arrays:\n" +
+        raise click.ClickException(
+            "The input file is missing required data arrays:\n" +
             "\n".join(f"  - {m}" for m in missing)
         )
-        return
+
+    # An averaged group is expanded into its spins when couplings are exported
+    if expand_group is None:
+        expand_group = bool(average_group) and (include_dip or include_j)
+        if expand_group:
+            logger.info("Expanding averaged groups into spins (couplings exported)")
 
     # Extract the spin system
-    spinsys_atoms = nmr_extract_atoms(
+    spinsys_atoms, site_sets = nmr_extract_atoms(
         atoms,
         subset=subset,
         reduce=reduce,
@@ -137,7 +192,14 @@ def spinsys(
         symprec=symprec,
         mean_merge=mean_merge,
         logger=logger,
+        return_site_sets=True,
+        expand_groups=expand_group,
     )
+    if spinsys_atoms is None:
+        raise click.ClickException("No sites left to export after applying the selection.")
+    # Averaged groups collapse to one site, so couplings must be averaged
+    # over the group in the source structure, not read off the merged one.
+    average_couplings = bool(average_group) and (include_dip or include_j)
 
     # 
     coupling_kwargs = {
@@ -160,15 +222,18 @@ def spinsys(
     # --- References: ---
     # If the references is an empty dict or doesn't contain the set(symbols),
     # then raise an error explaining how to set the references
-    if (not references or not set(symbols).issubset(references.keys())) and include_ms:
-        logger.error(
-            f"References dictionary provided ({references}) does not contain all references for all the species" \
-            f" in the (sub)system:  {set(symbols)} \n"
-            "Please provide a dictionary with the isotopes and their references.\n" \
-            "For example:\n" \
-            "--references C:170,H:31 \n" 
+    missing_refs = sorted(set(symbols) - set(references or {}))
+    if missing_refs and include_ms:
+        given = (
+            f"The references given ({references}) are missing"
+            if references
+            else "No references were given, but they are needed for"
         )
-        return
+        raise click.UsageError(
+            f"{given} element(s) {', '.join(missing_refs)} in the (sub)system.\n"
+            "Provide them with --references, for example: --references C:170,H:31\n"
+            "or disable the shifts with --no-ms."
+        )
 
     # Observed nucleus:
     if observed_nucleus:
@@ -179,8 +244,8 @@ def spinsys(
         spinsys_atoms,
         include_shielding=include_ms,
         include_efg=include_efg,
-        include_dipolar=include_dip,
-        include_j=include_j,
+        include_dipolar=include_dip and not average_couplings,
+        include_j=include_j and not average_couplings,
         isotopes=isotopes_dict,
         references=references,
         gradients=gradients,
@@ -188,6 +253,12 @@ def spinsys(
         ms_tag=ms_tag,
         efg_tag=efg_tag,
     )
+
+    if average_couplings:
+        spin_system = _with_averaged_couplings(
+            spin_system, atoms, site_sets, spinsys_atoms, isotopes_dict,
+            selection_i, selection_j, include_dip, include_j, expand_group,
+        )
 
     # Process the angles option
     if include_angles == 'all':
@@ -221,11 +292,15 @@ def spinsys(
         
         # any couplings?
         if len(spin_system.couplings) > 0:
-            logger.error("Cannot split spin system with couplings. Set --split to False or disable the inclusion of dipolar or J-couplings.")
-            return
+            raise click.UsageError(
+                "Cannot split spin system with couplings. Drop --split or disable the "
+                "inclusion of dipolar or J-couplings."
+            )
         if len(spin_system.isotope_set) > 1:
-            logger.error("Cannot split spin system with multiple species. Set --split to False or reduce your subset to contain only one species.")
-            return
+            raise click.UsageError(
+                "Cannot split spin system with multiple species. Drop --split or "
+                "reduce your subset to contain only one species."
+            )
         # Split the spin system into separate files - one for each site
         n_sites=  spin_system.n_sites
         # File string formatting - how many leading zeros?
@@ -246,7 +321,8 @@ def spinsys(
                 format=format,
                 **writer_kwargs
             )
-            logger.info(f"Spin system written to {new_output_filename}")
+            if new_output_filename:
+                logger.info(f"Spin system written to {new_output_filename}")
 
 
     logger.info("Spin system processing completed.")

@@ -76,12 +76,13 @@ def vdw_radius(el, vdwset="csd"):
     return vdw_radii[vdwset][Z]
 
 
-def build_custom_vdw(vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom={}):
+def build_custom_vdw(vdw_set, vdw_scale=1.0, default_vdw=2.0, vdw_custom=None):
     """Build a custom VdW set"""
 
     vdw_r = np.array(vdw_radii[vdw_set]) * vdw_scale
     vdw_r = np.where(np.isnan(vdw_r), default_vdw, vdw_r)
-    for el, r in vdw_custom.items():
-        vdw_r[atomic_numbers[el]] = r
+    if vdw_custom is not None:
+        for el, r in vdw_custom.items():
+            vdw_r[atomic_numbers[el]] = r
 
     return vdw_r

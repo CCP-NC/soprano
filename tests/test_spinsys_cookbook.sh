@@ -57,19 +57,19 @@ echo "Output dir: $OUT"
 
 # ── 1. Basic 1H spin system → Simpson ────────────────────────────────────────
 sep "1. Basic 1H → Simpson"
-soprano spinsys "$MAGRES" -s H --ref H:30 -o "$OUT/01_H.in"
+soprano spinsys "$MAGRES" -s H --references H:30 -o "$OUT/01_H.in"
 check_simpson "1H Simpson" "$OUT/01_H.in" "shift"
 echo "--- output ---"; cat "$OUT/01_H.in"
 
 # ── 2. 13C spin system with 1H dipolar couplings ─────────────────────────────
 sep "2. 13C/1H + C-H dipolar → Simpson"
-soprano spinsys "$MAGRES" -s C,H --ref C:170,H:30 --dip --select-i C --select-j H -o "$OUT/02_C_dip.in"
+soprano spinsys "$MAGRES" -s C,H --references C:170,H:30 --dip --select_i C --select_j H -o "$OUT/02_C_dip.in"
 check_simpson "13C+dip Simpson" "$OUT/02_C_dip.in" "dipole"
 echo "--- output ---"; cat "$OUT/02_C_dip.in"
 
 # ── 3. Quadrupolar 2H (2nd order) → Simpson ──────────────────────────────────
 sep "3. 2H quadrupolar (q-order 2) → Simpson"
-soprano spinsys "$MAGRES" -s H -i 2H --ref H:0 --q-order 2 -o "$OUT/03_2H_quad.in"
+soprano spinsys "$MAGRES" -s H -i 2H --references H:0 --q-order 2 -o "$OUT/03_2H_quad.in"
 check_simpson "2H quad Simpson" "$OUT/03_2H_quad.in" "quadrupole"
 echo "--- output ---"; cat "$OUT/03_2H_quad.in"
 
@@ -81,19 +81,19 @@ echo "--- output ---"; cat "$OUT/04_17O.in"
 
 # ── 5. J-couplings ───────────────────────────────────────────────────────────
 sep "5. 13C + dipolar + J-couplings → Simpson"
-soprano spinsys "$MAGRES" -s C --ref C:170 --dip --jcoupling -o "$OUT/05_C_J.in"
+soprano spinsys "$MAGRES" -s C --references C:170 --dip --jcoupling -o "$OUT/05_C_J.in"
 check_simpson "C+J Simpson" "$OUT/05_C_J.in" "jcoupling"
 echo "--- output ---"; cat "$OUT/05_C_J.in"
 
 # ── 6. MRSimulator format ─────────────────────────────────────────────────────
 sep "6. 13C + dipolar → MRSimulator JSON"
-soprano spinsys "$MAGRES" -s C --ref C:170 --dip -f mrsimulator -o "$OUT/06_C_mrs.json"
+soprano spinsys "$MAGRES" -s C --references C:170 --dip -f mrsimulator -o "$OUT/06_C_mrs.json"
 check_json "MRSimulator JSON" "$OUT/06_C_mrs.json"
 echo "--- output ---"; cat "$OUT/06_C_mrs.json"
 
 # ── 7. --split ───────────────────────────────────────────────────────────────
 sep "7. --split (one file per H site)"
-soprano spinsys "$MAGRES" -s H --ref H:30 --split -o "$OUT/07_split.in"
+soprano spinsys "$MAGRES" -s H --references H:30 --split -o "$OUT/07_split.in"
 N_SPLIT=$(ls "$OUT"/07_split_*.in 2>/dev/null | wc -l | tr -d ' ')
 if [[ "$N_SPLIT" -gt 1 ]]; then
     ok "--split: created $N_SPLIT files"
@@ -104,7 +104,7 @@ ls "$OUT"/07_split_*.in 2>/dev/null
 
 # ── 8. CH3 averaging + --no-reduce ───────────────────────────────────────────
 sep "8. CH3 averaging + --no-reduce"
-soprano spinsys "$MAGRES" -s H --ref H:30 --average-group CH3 --no-reduce -o "$OUT/08_CH3.in"
+soprano spinsys "$MAGRES" -s H --references H:30 --average-group CH3 --no-reduce -o "$OUT/08_CH3.in"
 check_simpson "CH3 avg Simpson" "$OUT/08_CH3.in" "shift"
 echo "--- output ---"; cat "$OUT/08_CH3.in"
 
@@ -112,17 +112,17 @@ echo "--- output ---"; cat "$OUT/08_CH3.in"
 sep "9. Custom isotope 2H, dipolar only (no MS)"
 soprano spinsys "$MAGRES" -s H -i 2H --dip --no-ms -o "$OUT/09_2H_dip.in"
 check_simpson "2H dip only" "$OUT/09_2H_dip.in" "dipole"
-# Should NOT contain 'shift' (no --ref given)
+# Should NOT contain 'shift' (no --references given)
 if grep -q "shift" "$OUT/09_2H_dip.in"; then
     err "9. unexpected 'shift' in dipolar-only output"
 else
-    ok "9. no 'shift' in dipolar-only output (correct — no --ref given)"
+    ok "9. no 'shift' in dipolar-only output (correct — no --references given)"
 fi
 echo "--- output ---"; cat "$OUT/09_2H_dip.in"
 
 # ── 10. Symmetry reduction: --mean-merge ──────────────────────────────────────
 sep "10. --mean-merge symmetry reduction"
-soprano spinsys "$MAGRES" -s H --ref H:30 --mean-merge -o "$OUT/10_mean_merge.in"
+soprano spinsys "$MAGRES" -s H --references H:30 --mean-merge -o "$OUT/10_mean_merge.in"
 check_simpson "mean-merge Simpson" "$OUT/10_mean_merge.in" "shift"
 echo "--- output ---"; cat "$OUT/10_mean_merge.in"
 

@@ -6,7 +6,49 @@ All notable changes to Soprano are documented here.
 
 ## v0.12.0 (unreleased)
 
+### New features
+
+- **`soprano.SiteMap`** records which atoms of a source structure each site of a derived
+  structure (a selection, or a structure with equivalent positions merged) stands for. Maps
+  compose (`SiteMap.compose`), so provenance survives chained steps such as symmetry reduction
+  followed by group averaging, and expose each site's `multiplicity`. `NMRData2D` uses it to
+  evaluate pair metrics on the source atoms.
+- **`DipolarRSSByAtom`** (`soprano.properties.nmr`) is the per-atom counterpart of `DipolarRSS`:
+  the root-sum-squared dipolar coupling of each atom in `sel_i` to a neighbour set `sel_j` and its
+  periodic images within a cutoff, with `sel_j` optionally expanded to symmetry-equivalent atoms
+  or atoms sharing a CIF label.
+- **Tensor-based methyl dipolar averaging.** `averaged_dipolar_coupling`,
+  `averaged_dipolar_coupling_list` (`soprano.properties.nmr.dipolar`) and
+  `averaged_j_coupling_list` (`soprano.properties.nmr.isc`) average the full coupling tensor
+  over the motion of a functional group, rather than averaging distances or scalar couplings.
+  See {doc}`dipolar-averaging`.
+- **2D NMR module refactor.** `soprano.calculate.nmr.nmr` is split into
+  `soprano.calculate.nmr.data2d` (`NMRData2D`), `plot2d` (`NMRPlot2D`), `backends` (Matplotlib
+  and Plotly drawing), `config` (`PlotSettings` and marker/colormap tables) and `export` (`ExportConfig` and the
+  Bruker TopSpin, ssNake, SIMPSON, NPZ, CSV and plain text writers). `NMRData2D`, `NMRPlot2D`,
+  `PlotSettings` and the marker/colormap tables are still importable from
+  `soprano.calculate.nmr.nmr`.
+- **New `soprano plotnmr` 2D options:**
+  - `--weight-by` chooses the metric that weights each cross-peak: `fixed`, `distance`,
+    `inversedistance`, `dipolar`, `dipolar2`, `jcoupling` or `dipolar_rss`. `--rss-cutoff` and
+    `--rss-expand-j` (`periodic_images`, `symmetry`, `cif_labels`) control the sum for
+    `dipolar_rss`. `--scale-markers/--fixed-markers` scales the marker sizes by the weight.
+  - `--contour-levels`, `--contour-range`, `--heatmap-range`, `--intensity-range`,
+    `--heatmap-levels` and `--heatmap-grid-size` set the contour and heatmap levels.
+  - `--export-file` (repeatable), `--export-format` and `--overwrite` export the contour data;
+    `--b0-field-tesla`, `--spectrometer-freq`, `--x-larmor-freq` and `--y-larmor-freq` give the
+    Larmor frequencies that the exports need. See "2D NMR spectra and export" below.
+- **NMR tutorials reorganised** into `05a-nmr-parameters`, `05b-nmr-2d-spectra` and
+  `05c-nmr-tensors-spin-systems` (replacing `05-nmr` and `05a-nmr-spin-systems`).
+
 ### Breaking changes
+
+- **`MagneticShielding(gradient=...)` defaults to `None`** (full-formula referencing); it was
+  `-1.0`. With a reference and no gradient the shifts are the same as before, but an explicit
+  `gradient=-1.0` is now a linear fit (δ = σ_ref − σ). See the referencing item below.
+- **`write_spinsys` Python parameters renamed:** `ref` → `references` and `grad` → `gradients`
+  (the latter now defaults to `None`, not `-1.0`). The old names still work and emit a
+  `DeprecationWarning`; passing both an old and a new name raises `ValueError`.
 
 - **`NMRTensor.euler_to` and `equivalent_euler_to` now return the inverse rotation** for
   triaxial and mixed axial/triaxial pairs, and the same call gives different numbers. This is a
@@ -19,13 +61,213 @@ All notable changes to Soprano are documented here.
   mrsimulator couplings) must be recomputed or have its arguments swapped. There is no deprecation
   period, because a warning cannot tell old callers from new ones. Details are under "Relative Euler
   angles" below.
+- **`MSTensor` defaults to Haeberlen order** (`'h'`), as `MSEuler`, `MSQuaternion` and
+  `MagneticShielding` do; it was increasing (`'i'`). Pass `order='i'` to get the old eigenvalue
+  order. Euler angles and quaternions from `MSTensor`, `MSEuler().mean` and `MSQuaternion().mean`
+  change accordingly; isotropy, span, skew and anisotropy do not.
 - **Exported Euler angles change** (`to_simpson()` for axial tensors; `to_mrsimulator()` for
   every tensor). Re-export any spin systems generated with earlier versions. See below.
 - `NMRTensor.euler_to` with two axial tensors, either of which has its unique axis along y,
   now raises `ValueError` as `euler_angles` does (this order is not reachable with the supported
   tensor orders).
+- **Chemical shift referencing: an explicit gradient now means a linear fit, with no
+  denominator.** The mode is chosen per element (see {doc}`chemical-shift-referencing`):
+  - An element without a gradient uses the full formula δ = (σ_ref − σ)/(1 − σ_ref·10⁻⁶).
+  - An element with a gradient m uses the linear fit δ = σ_ref + m·σ.
+
+  In v0.11 every gradient, including the default −1, went through the denominator formula.
+  `gradients=None` (now the default everywhere, including `get_spin_system`, `NMRSpinSystem`,
+  `NMRSites`, `write_spinsys` and `soprano nmr`) gives the same numbers as the old default.
+  An explicit `-1` now gives σ_ref − σ, which differs by about σ_ref·10⁻⁶·δ (≈0.02 ppm for ¹³C).
+
+  ```python
+  # v0.11: both lines used the denominator formula
+  MSShift.get(atoms, references={'H': 31, 'C': 170})
+  MSShift.get(atoms, references={'H': 31, 'C': 170}, gradients={'C': -0.98})  # H used m = −1
+  # v0.12: first line unchanged; second line is a linear fit for C, full formula for H
+  ```
+
+  A `UserWarning` is emitted when a gradient dict leaves out referenced elements, and when a
+  gradient is exactly −1. The warning for |σ_ref| > 500 ppm in linear mode is gone, since a
+  fitted intercept has no neglected denominator. An INFO log line reports each element's mode.
+- **Missing references raise.** `nmr_extract_multi` / `soprano nmr` used to fill elements
+  without a reference with 0 ppm; they now raise a `ValueError` naming those elements.
+- **CLI flags renamed with no aliases:** `--ref` → `--references`, `--grad` → `--gradients`,
+  `--select-i`/`--select-j` → `--select_i`/`--select_j`, `--plot_type` → `--plot-type`,
+  `-cmap` → `--colormap`.
+- **`soprano plotnmr` defaults:** `--rcut` is now `None` (all pairs; was 10 Å), and contour and
+  heatmap levels span 10–100 % of the maximum (was the full Z range).
+- **`plotnmr` exit codes:** invalid option combinations are usage errors (exit 2) rather than
+  tracebacks or a silent exit 0.
+- **`NMRCalculator.spectrum_1d` window and defaults.** (a) A new `NMRCalculator` uses a powder
+  average by default (`set_powder(N=8)`, hemisphere). Before, `spectrum_1d` raised
+  `AttributeError` for isotropic spectra unless `set_powder()` or `set_single_crystal()` had been
+  called first. (b) With a reference set, `min_freq` and `max_freq` are now a chemical-shift window,
+  in the same units and scale as the returned axis. Before, they were applied to the shielding
+  axis, so the window was reflected about the reference. To get the same spectrum, pass
+  `ref - max_shielding` and `ref - min_shielding` as the window. The returned axis still runs from
+  `min_freq` to `max_freq`. (c) `freq_broad` is now in `freq_units`. Before, it was always in ppm,
+  so MHz spectra were broadened by the wrong amount. The `min_freq`/`max_freq` docstrings are
+  also corrected, and the docstring now gives the true default for `bins` (100, not 500).
+- **`NMRCalculator.spectrum_1d` referencing and signs.** (a) With a reference, shifts use the
+  same formula as `MSShift`: the full formula δ = (σ_ref − σ)/(1 − σ_ref·10⁻⁶) by default, or a
+  linear fit with the new `set_reference(ref, element, gradient=...)`. Before, it was always
+  σ_ref − σ (≈0.02 ppm off for ¹³C). (b) The second-order quadrupolar shift (`Q_2_SHIFT`, and the
+  `Q_2_ORIENT_*` and `Q_1_ORIENT` terms) had the wrong sign: frequency shifts were added on the
+  shielding axis, so the central-transition shift moved peaks downfield. It now moves them upfield,
+  matching −(3/40)(C_Q/(I(2I−1)))²(I(I+1)−¾)(1+η²/3)/ν₀. (c) MHz offsets are taken against |ν₀|, so a
+  positive shift is a positive offset for negative-γ nuclei too. (d) A `multiplicity` array on the
+  sample (as left by symmetry reduction or `average_group`) now weights each site. (e) Each 1Q
+  transition m → m+1 of a quadrupolar nucleus is weighted by its transition probability
+  I(I+1) − m(m+1) (5 : 8 : 9 : 8 : 5 for I = 5/2); all transitions used to count equally, which
+  underweighted the central transition. `use_central=True` no longer averages the central
+  transition 2I times over.
+- **`NMRData2D` evaluates every pair metric on the source structure.** With `reduce=True`, a site
+  pair (I, J) is expanded into the atom pairs (a, b), with a the representative atom of I and b every
+  atom merged into J, each weighted by m_I. Distances, `rcut`, `dipolar`, `dipolar2`, `distance`,
+  `inversedistance` and `jcoupling` therefore give the same peaks and weights with and without
+  reduction. Before, they were evaluated between single representatives of the reduced structure,
+  which is not a physical crystal: `rcut` dropped intermolecular contacts (36 of 108 peaks on
+  EDIZUM at 3 Å), a site pair carried one representative coupling for all of its m_I·m_J atom pairs
+  (2.2× the total dipolar weight on EDIZUM), and a DQ self-pair used only the nearest of its m−1
+  partners. `NMRData2D.pairs`, `pair_distances` and `correlation_strengths` now hold one entry per
+  atom pair, with the atoms in the new `src_pairs` and the weights in `pair_multiplicities`.
+  User-supplied `pairs` are evaluated on the requested atoms rather than on the site
+  representatives.
+- **`dipolar_rss` peaks count each x atom once per j set.** RSS already sums over every atom of the
+  j site, so its peak is weighted by m_I instead of m_I·m_J, and with `reduce=False` and
+  `rss_expand_j='symmetry'`/`'cif_labels'` the duplicate entries for equivalent j atoms are dropped.
+  The reduced and unreduced spectra now agree.
+- **`MagneticShielding.shift_span`** (and the `herzfeldberger_shift` / `maryland_shift` Ω) is now
+  δ11 − δ33, scaled by |gradient| or 1/(1 − σ_ref·10⁻⁶). It used to return the shielding span.
+  Without a reference it still returns the shielding span.
 
 ### Fixes
+
+- `NMRData2D` with `reduce=True` and `average_group` averaged a functional group of one molecule
+  against the counter-atom of another, because every symmetry copy of the group mapped to the same
+  sites and the last one won. The methyl C–H₃ residual coupling came out at −0.13 kHz instead of
+  +7.61 kHz on alanine. Groups are now matched on source atoms, and the site representatives of a
+  group all come from one physical group.
+- `nmr_extract_atoms(reduce=True)` picked each orbit's representative independently, so for inputs
+  not ordered molecule by molecule the reduced structure could hold atoms of different molecules,
+  and `soprano spinsys` read intermolecular couplings as intramolecular ones. Representatives now
+  form one compact unit, grown by nearest neighbour from the first atom.
+- SIMPSON `.spe` export wrote its comment block before `DATA`, which SIMPSON rejects and which
+  made `nmrglue.fileio.simpson.read` fail on a line with two `=` signs. The comments now follow
+  `END`.
+- ssNake JSON export, and SIMPSON export with frequency axes, now reject unreferenced data
+  (`is_shift=False`), as Bruker export does, instead of writing carriers on the wrong side of ν₀.
+- `DipolarCoupling`, `DipolarRSS`, `DipolarRSSByAtom` and `averaged_dipolar_coupling` honour
+  `atoms.pbc`. A non-periodic structure with a bounding-box cell got couplings to images across the
+  box (−120 kHz instead of −4.4 kHz for two H 3 Å apart in a 4 Å box), and slabs got images along
+  their normal.
+- `soprano plotnmr -p 1D` crashed with `--isotopes`, ignored `--gradients`, ignored site
+  multiplicities (with `-g CH3` a merged methyl counted as one proton), and had an empty window
+  for a single site.
+- `MSShift`, `MSShielding` and the `JC*` properties (`JCTensor`, `JCAnisotropy`,
+  `JCReducedAnisotropy`, `JCAsymmetry`, `JCSpan`, `JCSkew`, `JCQuaternion`) can now be imported
+  from `soprano.properties.nmr`, as the other NMR properties can.
+- `NMRCalculator.set_element_isotope` accepts isotope symbols (`'17O'`) as well as mass numbers
+  (`17`); symbols used to raise "Invalid isotope".
+- `NMRTensor.euler_to`, `equivalent_euler_to` and `rotation_to` warn when both tensors are of the
+  same type (e.g. two shielding tensors) but use different eigenvalue orders, since the angles then
+  differ (e.g. by 90° in γ). Mixing types, such as a Haeberlen-ordered shielding tensor with an
+  NQR-ordered EFG tensor, stays silent. Returned values are unchanged.
+- **`NMRCalculator.spectrum_1d` with `freq_units='MHz'` for negative-gamma nuclei** (e.g. ¹⁷O)
+  returned an empty spectrum, because the powder average needs an ascending axis and the MHz axis
+  is descending. The spectrum is now computed on an ascending axis and returned in the requested
+  order.
+
+- **`AtomsProperty.get` honours instance parameters when called on an instance.**
+  `EFGQuadrupolarConstant(isotopes={'H': 2}).get(atoms)` used to ignore the isotopes and return
+  zeros for H; it now matches `instance(atoms)`. Keyword arguments still override instance
+  parameters, and calling `get` on the class is unchanged. `JCEuler` now also uses the parameters
+  it passes to `JCTensor`, so its output changes when those parameters are not the defaults.
+  `mean()` on the base class follows the same rule. The NMR `mean` overrides still ignore instance
+  parameters.
+
+- **`NMRData2D` `pairs` are always indices into the input structure.** Without `reduce=True`,
+  pairs used to be read against the structure after filtering to the x and y elements, so a
+  structure with O before C or H could pick the wrong atoms or raise. Pairs now refer to the atoms
+  you passed in, with or without `reduce=True`. A pair whose atom is not of the x or y element
+  raises `ValueError`, naming the index and its element.
+
+#### NMR extraction and CLI
+
+- New `--expand-group/--collapse-group` for `soprano spinsys`. An expanded group keeps each atom
+  as a spin with the group-mean tensors and the couplings inside the group. It is the default when
+  `--dip` or `--jcoupling` is given, and groups collapse otherwise. New functions
+  `averaged_dipolar_coupling_list` and `averaged_j_coupling_list`, and the `return_site_sets` and
+  `expand_groups` arguments of `nmr_extract_atoms`, support it.
+
+- `EFG_Vzz` in `soprano nmr` output was wrong by a large factor; it is now in V m⁻²
+  (ethanol O: −1.81 × 10²² V m⁻²). `EFG_quadrupolar_constant` was not affected.
+- `soprano nmr --mean-merge` is available again.
+- `--average-group` averaged symmetry-equivalent methyl groups together, because groups were
+  matched by tag. Tensors from groups in different orientations were mixed, which distorted the
+  anisotropy and Euler angles. Each group is now averaged on its own and equivalent groups merge
+  afterwards. Output changes for structures with symmetry-equivalent methyls. `--mean-merge` still
+  pools them.
+- `soprano spinsys --average-group` took couplings from the merged structure, so a collapsed CH₃
+  got the first hydrogen's static coupling. Couplings are now averaged over the group in the source
+  structure (see {doc}`dipolar-averaging`).
+- `SiteMap` keeps its read-only array through pickle on every numpy release.
+- `nmr_extract_multi` no longer stops at the first unreadable file, and no longer crashes when
+  `include` is left at its default.
+- `soprano.nmr.extract` no longer imports from `soprano.scripts`. The dataframe helpers live in
+  `soprano.nmr.dataframe`; the old import paths in `soprano.scripts` still work.
+- `soprano spinsys` error paths now exit non-zero (`UsageError` / `ClickException`) instead of
+  logging and returning exit code 0, and multi-frame files are rejected rather than silently
+  reading the last frame.
+- `soprano plotnmr` now requires exactly one input file (instead of silently plotting only the
+  first), honours `--subset` in `-p 1D` while rejecting it in `-p 2D`, and rejects `--export-file`
+  / `--export-format` in `-p 1D`.
+
+#### 2D NMR spectra and export
+
+Exporting 2D spectra (`export_contour_data`, `plotnmr --export-file`) to Bruker TopSpin,
+ssNake, SIMPSON, NPZ, CSV and plain text is **experimental** in this release. Formats and
+options may change without a deprecation period, and the first export in a session logs a
+warning saying so.
+
+- Bruker datasets open in TopSpin 5: the parameter files carry the JCAMP-DX header TopSpin
+  requires, and `YMAX_p`/`YMIN_p` plus a `clevels` file give it usable default contours.
+- Bruker export writes `<path>/1/pdata/1/...`: `path` is the TopSpin dataset name and the
+  experiment is expno 1. Previously `path` was itself the experiment directory, which TopSpin
+  refused to open (`BROWSE_CORRUPT`). `peaks.csv` is now `<path>/1/peaks.csv`.
+  A `pdata/1/outd` file is also written; without it TopSpin's Plot tab fails with
+  `getpar failed ... outd`.
+- Larmor frequencies use the selected isotope (e.g. ¹⁵N rather than ¹⁴N).
+- Bruker export: the indirect axis now round-trips exactly through nmrglue; an existing
+  dataset is not overwritten unless `ExportConfig(overwrite=True)` / `--overwrite` is given;
+  NaN, all-zero and int32-overflowing grids raise instead of writing corrupt data.
+- SIMPSON `.spe` and ssNake JSON export: the spectral width is scaled by N/(N−1) to match the
+  endpoint-inclusive grid, and the carrier (`SPECFREQ`, written at full precision) and
+  0 ppm reference (`SPECREF`) are written so ssNake rebuilds the ppm axis. Previously the
+  window was centred on 0 ppm and one grid step short.
+- The 2D Lorentzian is the separable product of two 1D Lorentzians, so each linewidth no
+  longer depends on the other coordinate and normalisation gives unit area.
+- DQ-SQ with `reduce=True` keeps the self-pairs of merged sites, weighted m(m−1), so diagonal
+  peaks from equivalent atoms (e.g. within a methyl group) are no longer lost.
+- `merge_peaks` merges peaks within the tolerances of a group's first peak; merged labels no
+  longer leak between groups that share a label.
+- `NMRPlot2D` no longer modifies the caller's `PlotSettings`; Plotly labels stay on the
+  correct edges when axes are inverted; an all-zero contour grid raises a clear error; any valid
+  matplotlib colormap (including `_r` reversed variants such as `grey_r` and `viridis_r`) is
+  accepted.
+- NPZ export writes the exact path requested instead of silently appending `.npz`.
+
+#### Core
+
+- `SiteMap` rejects duplicate selection indices and non-integer maps, no longer freezes the
+  caller's array, and gains a `multiplicity` property.
+- `minimum_periodic` handles a zero cell again.
+- `UniqueSites(override_cif=True)` now actually uses the symmetry reduction; before, both
+  branches returned the CIF-label grouping. CIF labels that give the same grouping as symmetry
+  are no longer reported as a mismatch.
+- `averaged_dipolar_coupling` raises for coincident atoms instead of returning NaN.
+  `DipolarRSSByAtom` caches symmetry tags per structure.
 
 #### Tensor orientations in the SIMPSON and mrsimulator exports
 

@@ -40,13 +40,12 @@ import click_log
 from ase import Atoms
 from ase.io import read
 
+from soprano.nmr.extract import nmr_extract_atoms, reload_as_molecular_crystal
 from soprano.scripts.cli_utils import (
     VIEW_OPTIONS,
     add_options,
-    reload_as_molecular_crystal,
     viewimages,
 )
-from soprano.scripts.nmr import nmr_extract_atoms
 
 # logging
 logging.captureWarnings(True)

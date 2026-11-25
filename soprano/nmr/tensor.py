@@ -515,6 +515,15 @@ class NMRTensor(NDArrayOperatorsMixin):
         and the result is made a proper rotation. ``euler_to`` returns the Euler angles of
         this rotation.
         '''
+        self._warn_if_mixed_order(other)
+        return self._relative_rotation(other)
+
+    def _warn_if_mixed_order(self, other):
+        if type(self) is type(other) and self.order != other.order:
+            warnings.warn(f"Computing relative orientation of tensors with different ordering conventions: "
+                          f"{self.order} and {other.order}. The relative angles depend on the eigenvalue order.")
+
+    def _relative_rotation(self, other):
         R1 = self.eigenvectors
         R2 = other.eigenvectors
         R = np.linalg.inv(R1) @ R2
@@ -560,6 +569,7 @@ class NMRTensor(NDArrayOperatorsMixin):
         180 deg - g)``, as TensorView displays it). Identical or perfectly aligned tensors
         return zeros with a warning.
         '''
+        self._warn_if_mixed_order(other)
         convention = convention.lower()
         # first make sure they're not the same!
         if np.allclose(self.eigenvalues, other.eigenvalues):
@@ -623,9 +633,9 @@ class NMRTensor(NDArrayOperatorsMixin):
         if other.degeneracy == 2 and self.degeneracy != 2:
             # then let's swap them around, then transpose the result
             # TODO: test this!
-            R = other.rotation_to(self).T
+            R = other._relative_rotation(self).T
         else:
-            R = self.rotation_to(other)
+            R = self._relative_rotation(other)
         # Decompose the relative rotation ``rel = R_selfᵀ · R_other`` directly.
         # The *active* angles (passive=False) then satisfy
         # ``R_other = R_self · R(α,β,γ)`` — the intrinsic rotation carrying this
@@ -1149,12 +1159,25 @@ class MagneticShielding(NMRTensor):
         species: str,
         order:str = default_order,
         reference:Optional[float]=None,
-        gradient: float=-1.0,
+        gradient: Optional[float]=None,
         tag = None):
         """
         Initialise the MSTensor
 
         Create an MSTensor object from a 3x3 matrix.
+
+        Two referencing modes are supported, chosen per tensor by ``gradient``:
+
+        **Full NMR formula (gradient=None, the default)**
+          The rigorous conversion accounting for the ppm scale definition:
+          ``δ = (ref - σ) / (1 - ref×10⁻⁶)``
+
+        **Linear fit (gradient provided)**
+          A linear model with no denominator: ``δ = ref + grad·σ``.
+          Selected when an explicit ``gradient`` is supplied, including -1.
+
+        When used through MSTensor, the mode is chosen per element, so one
+        system can mix both modes.
 
         Arguments:
             species (str):      Element or isotope symbol of the atom the tensor refers to. e.g 'H', 'C', '13C'
@@ -1168,8 +1191,8 @@ class MagneticShielding(NMRTensor):
             reference (float):  Reference chemical shift for the tensor. If set,
                                 the isotropic chemical shift can be calculated.
                                 Defaults to None.
-            gradient (float):   Gradient for the magnetic shielding to shift conversion.
-                                Defaults to -1.0.
+            gradient (float or None):   Slope for the linear fit from magnetic shielding to shift.
+                                Defaults to None, which uses the full NMR formula.
             tag (str):          Optional tag to identify the tensor. In a magres file, this would be the
                                 'ms_sometag' though for most magres file ms is not decomposed into contributions and the tag
                                 is simply 'ms'. By default, this is None.
@@ -1214,10 +1237,16 @@ class MagneticShielding(NMRTensor):
     @property
     def shift_span(self) -> float:
         """
-        The span is not dependent on the referencing
-        so we just return the shielding span
+        Span of the shift tensor, δ11 - δ33.
+
+        Referencing scales the span by the slope of the shielding-to-shift
+        map: ``|gradient|`` for a linear fit, ``1 / (1 - ref×10⁻⁶)`` for the
+        full formula.  Without a reference the shielding span is returned.
         """
-        return self.span
+        if self.reference is None:
+            return self.span
+        shifts = self.shift_eigenvalues
+        return float(np.max(shifts) - np.min(shifts))
 
     # Define some NamedTuples for the different representations
     # of the tensor. See here for a description of the different
@@ -1392,21 +1421,35 @@ class MagneticShielding(NMRTensor):
         return self.species.strip('1234567890')
 
     @staticmethod
-    def _get_referenced_eigenvalues(eigenvalues: Union[list, np.ndarray], reference: float, gradient: float):
+    def _get_referenced_eigenvalues(
+        eigenvalues: Union[list, np.ndarray],
+        reference: float,
+        gradient: Optional[float],
+    ):
         """
         Get the referenced eigenvalues for the magnetic shielding tensor.
+
+        Two referencing modes are supported, selected by *gradient*:
+
+        * ``gradient is None`` → full NMR formula
+          ``δ = (ref - σ) / (1 - ref×10⁻⁶)``
+        * ``gradient is not None`` → linear fit
+          ``δ = ref + grad·σ``
 
         Args:
             eigenvalues (Union[list, np.ndarray]): Eigenvalues of the magnetic shielding tensor (ppm)
             reference (float): Reference shielding (ppm)
-            gradient (float): Gradient for the magnetic shielding to shift conversion
+            gradient (float or None): Gradient for the linear model. None selects the full formula.
+
         Returns:
             np.ndarray: Chemical shift eigenvalues (ppm)
         """
-        # Convert to numpy array if not already
         eigenvalues = np.array(eigenvalues)
-        # Reference components
-        shift_eigenvalues = (reference + gradient * eigenvalues) / (1 - reference * 1e-6)
+        if gradient is None:
+            shift_eigenvalues = (reference - eigenvalues) / (1 - reference * 1e-6)
+        else:
+            # Linear calibration
+            shift_eigenvalues = reference + gradient * eigenvalues
         return shift_eigenvalues
 
     @property
@@ -1549,9 +1592,16 @@ class MagneticShielding(NMRTensor):
         self.reference = reference
 
     # Set/update the gradient
-    def set_gradient(self, gradient: float):
+    def set_gradient(self, gradient: Optional[float]):
         '''
         Set the gradient for this tensor.
+
+        Parameters
+        ----------
+        gradient : float or None
+            If *None* (default), the full NMR formula is used.
+            If a number is given, the linear fit ``δ = reference + gradient·σ``
+            is used instead.
         '''
         self.gradient = gradient
 
@@ -1652,7 +1702,7 @@ class ElectricFieldGradient(NMRTensor):
             order (str):        Order to use for eigenvalues/eigenvectors. Can
                                 be 'i' (ORDER_INCREASING), 'd'
                                 (ORDER_DECREASING), 'h' (ORDER_HAEBERLEN) or
-                                'n' (ORDER_NQR). Default is 'h' for EFG tensors.
+                                'n' (ORDER_NQR). Default is 'n' (NQR) for EFG tensors.
             quadrupole_moment (float): Quadrupole moment of the nucleus in millibarn.
             gamma (float):      Nuclear gyromagnetic ratio in rad/(s*T). If not provided, will be
                                 looked up using the species.

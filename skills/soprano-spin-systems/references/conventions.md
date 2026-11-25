@@ -13,11 +13,10 @@ Soprano's `NMRTensor` supports four eigenvalue orderings via `TensorConvention` 
 | API | Default `order` |
 |---|---|
 | `MagneticShielding(...)` | `"h"` (Haeberlen) |
-| `MSTensor.get(...)` | `"i"` (Increasing) |
-| `MSEuler.get(...)` / `MSAnisotropy.get(...)` | `"h"` (Haeberlen) |
+| `MSTensor.get(...)` / `MSEuler.get(...)` / `MSAnisotropy.get(...)` | `"h"` (Haeberlen; `MSTensor` was `"i"` before v0.12) |
 | `ElectricFieldGradient(...)` / `EFGTensor.get(...)` / `EFGEuler.get(...)` | `"n"` (NQR) |
 
-> **Warning:** `A.euler_to(B)` depends on the PAS axis ordering of **both** tensors. Pass explicit `order="h"` (or `"n"`) to `MSTensor.get(..., order="h")` / `EFGTensor.get(...)` before computing relative Euler angles.
+> **Warning:** `A.euler_to(B)` depends on the PAS axis ordering of **both** tensors. Pass explicit `order="h"` (or `"n"`) to `MSTensor.get(..., order="h")` / `EFGTensor.get(...)` before computing relative Euler angles. `euler_to`, `equivalent_euler_to` and `rotation_to` warn when both tensors are of the same type (e.g. two shielding tensors) but use different orders, since the angles then differ (e.g. by 90° in $\gamma$); mixing types (Haeberlen shielding with NQR EFG) stays silent.
 
 In the **Haeberlen** convention:
 - Isotropic value: $\lambda_{\mathrm{iso}} = \frac{1}{3}(\lambda_{xx} + \lambda_{yy} + \lambda_{zz})$
@@ -36,7 +35,7 @@ In the **Haeberlen** convention:
   $$\delta = a + m\,\sigma$$
   If your fit was $\sigma_{\mathrm{calc}} = m'\delta_{\mathrm{exp}} + a'$, convert via `gradient = 1 / m'`, `reference = -a' / m'`.
 
-> **Subtlety in `get_spin_system()`:** `get_spin_system`'s default parameter is `gradients=-1.0` (linear with slope $-1$), whereas `MSShift` and `MagneticShielding` default to `gradients=None` (full formula). Pass `gradients=None` to `get_spin_system()` if you want the exact $1/(1 - \sigma_{\mathrm{ref}}\times 10^{-6})$ denominator.
+> **Per-element mode:** `get_spin_system()`, `MSShift`, `MagneticShielding`, `write_spinsys` and `soprano spinsys` all default to `gradients=None` (full formula for every element). The mode is chosen **per element**: an element absent from `gradients` uses the full formula, an element present uses the linear fit. An explicit `-1` is therefore a linear fit ($\delta = \sigma_{\mathrm{ref}} - \sigma$, no denominator) and emits a warning, as does a `gradients` dict that omits referenced elements.
 
 ## 3. Euler Angle Conventions (SIMPSON vs mrsimulator vs TensorView)
 

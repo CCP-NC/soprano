@@ -186,6 +186,10 @@ class AtomSelection:
         | Returns:
         |   subset (ase.Atoms):      Atoms object containing only the
         |                            specified selection
+
+        Note that the returned object does not record where its atoms came
+        from. Build a :class:`soprano.sitemap.SiteMap` from this selection if
+        you need to translate indices back to the original structure.
         """
 
         if not self.validate(atoms):
@@ -608,7 +612,7 @@ class AtomSelection:
         return AtomSelection(atoms, sel_i)
 
     @staticmethod
-    def from_input(atoms: Atoms, selection_input: "AtomSelection | list[int] | int | str | None") -> "Optional[AtomSelection]":
+    def from_input(atoms: Atoms, selection_input: "AtomSelection | list[int] | int | str | None") -> "AtomSelection | None":
         """Convert various input types into an AtomSelection object.
         
         Args:

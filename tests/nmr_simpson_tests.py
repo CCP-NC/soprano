@@ -36,14 +36,14 @@ class TestWriteSpinSys(unittest.TestCase):
     def test_magnetic_shielding(self):
         """use_ms=True produces shift lines"""
         refs = {'H': 30.0, 'C': 170.0, 'O': 300.0}
-        output = write_spinsys(self.atoms, use_ms=True, ref=refs)
+        output = write_spinsys(self.atoms, use_ms=True, references=refs)
         self.assertIn("shift", output)
 
     @pytest.mark.filterwarnings("ignore:Gimbal lock detected.*:UserWarning")
     def test_magnetic_shielding_isotropic(self):
         """ms_iso=True produces shift lines with zero anisotropy and angles"""
         refs = {'H': 30.0, 'C': 170.0, 'O': 300.0}
-        output = write_spinsys(self.atoms, use_ms=True, ms_iso=True, ref=refs)
+        output = write_spinsys(self.atoms, use_ms=True, ms_iso=True, references=refs)
         self.assertIn("shift", output)
         self.assertIn("0.0p 0.0 0.0 0.0 0.0", output)
 
@@ -97,7 +97,7 @@ class TestWriteSpinSys(unittest.TestCase):
         atoms = read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
         atoms.new_array("ms_custom", atoms.get_array("ms"))
         refs = {'H': 30.0, 'C': 170.0, 'O': 300.0}
-        output = write_spinsys(atoms, use_ms=True, ms_tag="ms_custom", ref=refs)
+        output = write_spinsys(atoms, use_ms=True, ms_tag="ms_custom", references=refs)
         self.assertIn("shift", output)
 
     def test_custom_efg_tag(self):

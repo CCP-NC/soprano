@@ -100,6 +100,105 @@ class TestCLIUtils(unittest.TestCase):
         np.testing.assert_array_equal(merged.get_array("ms")[fg_idx], np.mean(ms[2:4], axis=0))
 
 
+    def test_symmetry_equivalent_methyls_averaged_separately(self):
+        """Each CH3 is averaged on its own before symmetry copies merge.
+
+        Averaging lab-frame tensors across differently oriented, symmetry-
+        equivalent methyls would corrupt the anisotropy and orientation.
+        """
+        from soprano.nmr.extract import find_XHn_groups, nmr_extract_atoms
+
+        ala = io.read(os.path.join(_TESTDATA_DIR, "alanine_manual_labels.magres"))
+        groups = find_XHn_groups(ala, "CH3")[0]
+        self.assertEqual(len(groups), 4)
+        ms = ala.get_array("ms")
+        first_methyl_mean = ms[groups[0]].mean(axis=0)
+
+        merged = nmr_extract_atoms(ala.copy(), average_group="CH3")
+        fg = np.where(merged.get_tags() < 0)[0]
+        self.assertEqual(len(fg), 1)
+        self.assertEqual(merged.get_array("multiplicity")[fg[0]], 12)
+        np.testing.assert_allclose(merged.get_array("ms")[fg[0]], first_methyl_mean)
+        self.assertNotIn("xhn_group", merged.arrays)
+
+        # Explicitly asking for the mean across symmetry copies still works
+        pooled = nmr_extract_atoms(ala.copy(), average_group="CH3", mean_merge=True)
+        fg = np.where(pooled.get_tags() < 0)[0]
+        np.testing.assert_allclose(
+            pooled.get_array("ms")[fg[0]], ms[sum(groups, [])].mean(axis=0), atol=1e-12
+        )
+
+    def test_site_sets_for_averaged_groups(self):
+        from soprano.nmr.extract import nmr_extract_atoms
+
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        merged, sets = nmr_extract_atoms(
+            eth.copy(), average_group="CH3", reduce=False, return_site_sets=True
+        )
+        self.assertEqual(len(sets), len(merged))
+        self.assertEqual(sets[0], [0, 1, 2])  # the methyl comes first (negative tag)
+        self.assertTrue(all(len(s) == 1 for s in sets[1:]))
+
+        # Symmetry-equivalent methyls: one physical methyl stands for the site
+        ala = io.read(os.path.join(_TESTDATA_DIR, "alanine_manual_labels.magres"))
+        merged, sets = nmr_extract_atoms(
+            ala.copy(), average_group="CH3", return_site_sets=True
+        )
+        self.assertEqual(len(sets), len(merged))
+        methyl = sets[int(np.argmin(merged.get_tags()))]
+        self.assertEqual(len(methyl), 3)
+        bonded_c = {
+            int(np.argmin(np.linalg.norm(
+                ala.get_positions() - ala.get_positions()[h], axis=1
+                ) + np.where(np.array(ala.get_chemical_symbols()) == "C", 0, 1e3)))
+            for h in methyl
+        }
+        self.assertEqual(len(bonded_c), 1)
+
+        # Index map and site sets can be requested together
+        out = nmr_extract_atoms(
+            ala.copy(), average_group="CH3", return_index_map=True, return_site_sets=True
+        )
+        self.assertEqual(len(out), 3)
+
+    def test_expand_groups_keeps_every_atom_with_group_mean_tensors(self):
+        from soprano.nmr.extract import nmr_extract_atoms
+
+        eth = io.read(os.path.join(_TESTDATA_DIR, "ethanol.magres"))
+        ms_before = eth.get_array("ms").copy()
+        merged, sets = nmr_extract_atoms(
+            eth, average_group="CH3", reduce=False, return_site_sets=True,
+            expand_groups=True,
+        )
+        self.assertEqual(len(merged), len(eth))
+        self.assertEqual(sets[:3], [[0, 1, 2]] * 3)
+        ms = merged.get_array("ms")
+        for k in range(3):
+            np.testing.assert_allclose(ms[k], ms_before[:3].mean(axis=0), atol=1e-12)
+        # the caller's tensors are untouched
+        np.testing.assert_array_equal(eth.get_array("ms"), ms_before)
+
+        # Symmetry-equivalent methyls: one physical methyl stands for the class
+        ala = io.read(os.path.join(_TESTDATA_DIR, "alanine_manual_labels.magres"))
+        merged, sets = nmr_extract_atoms(
+            ala.copy(), average_group="CH3", return_site_sets=True, expand_groups=True
+        )
+        self.assertEqual(len(sets), len(merged))
+        methyl_sites = np.where(merged.get_tags() < 0)[0]
+        self.assertEqual(len(methyl_sites), 3)
+        self.assertEqual(set(merged.get_array("multiplicity")[methyl_sites]), {4})
+        self.assertEqual(
+            list(merged.get_array("labels")[methyl_sites]), ["H5", "H6", "H7"]
+        )
+        self.assertEqual(len({tuple(sets[i]) for i in methyl_sites}), 1)
+
+        with self.assertRaises(ValueError):
+            nmr_extract_atoms(
+                ala.copy(), average_group="CH3", return_index_map=True,
+                expand_groups=True,
+            )
+
+
 class TestExtractMolecules(unittest.TestCase):
     def test_extract_molecules_simple(self):
         # Load a structure file from the test_data directory

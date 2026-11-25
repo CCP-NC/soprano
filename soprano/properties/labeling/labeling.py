@@ -324,13 +324,21 @@ class UniqueSites(AtomsProperty):
     |   save_info (bool): if True, save the found unique sites as part of
     |                     the Atoms object info. By default True.
     |   symprec (float): the tolerance for symmetry operations. Default: 1e-4
+    |   override_cif (bool): if True, use symmetry grouping even when CIF
+    |                        labels disagree. Default: False.
 
     | Returns:
     |   unique ([int]): list of integers 
     """
 
     default_name = "unique_sites"
-    default_params = {"force_recalc": False, "save_info": True, "symprec": 1e-4, "backend": "auto"}
+    default_params = {
+        "force_recalc": False,
+        "save_info": True,
+        "symprec": 1e-4,
+        "backend": "auto",
+        "override_cif": False,
+    }
 
     @staticmethod
     def extract(s, force_recalc, save_info, symprec, backend="auto", override_cif = False):
@@ -340,8 +348,6 @@ class UniqueSites(AtomsProperty):
         from soprano.properties.symmetry.backend import get_symmetry_dataset
         dset = get_symmetry_dataset(s, symprec=symprec, backend=backend)
         tags = dset.equivalent_atoms
-
-        unique_tags, uniqueinds = np.unique(tags, return_index=True)
 
         # -- check to make sure that no two elements have the same tag --#
         # unique elements
@@ -360,20 +366,21 @@ class UniqueSites(AtomsProperty):
         #-------------------------------------------------------------------#
         if has_cif_labels(s):
             ciflabels = s.get_array('labels')
-            _, unique_cif_inds, unique_cif_tags = np.unique(ciflabels, return_index=True, return_inverse=True)
+            _, unique_cif_inds = np.unique(ciflabels, return_index=True)
             # sort
             unique_cif_inds = np.sort(unique_cif_inds)
             unique_cif_labels = ciflabels[unique_cif_inds]
-            unique_cif_tags = unique_cif_tags[unique_cif_inds]
             cif_tags = np.array([np.where(lab == unique_cif_labels)[0][0] for lab in ciflabels])
 
-            offset = max(tags) - max(cif_tags)
-            if len(uniqueinds) != len(unique_cif_tags) or set(tags) != set(cif_tags):
-                all_matched = False
-            else:
-                all_matched = (tags == (cif_tags+offset)).all()
+            def _canon(t):
+                first = {}
+                return np.array([first.setdefault(x, len(first)) for x in t])
+
+            canon_sym = _canon(tags)
+            canon_cif = _canon(cif_tags)
+            all_matched = np.array_equal(canon_sym, canon_cif)
             if not all_matched:
-                mismatch_locations = np.where(tags != (cif_tags+offset))[0]
+                mismatch_locations = np.where(canon_sym != canon_cif)[0]
                 warnings.warn("The symmetry-reduced sites don't match the CIF labels!"
                 "Manually check that the symmetry reduction is working as expected."
                 f"\nThe mismatched sites are: {ciflabels[mismatch_locations]} at {mismatch_locations}"
@@ -387,7 +394,6 @@ class UniqueSites(AtomsProperty):
                     warnings.warn(
                         "\nProceeding with the symmetry reduction rather than the CIF label reduction."
                         "\nThis is because the override_cif flag was set to True.")
-                    tags = cif_tags
 
 
         if save_info:

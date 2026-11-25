@@ -61,24 +61,33 @@ They can also be run using the free cloud-based virtual machine: Binder wherever
     similarity using a string of information that describes them just
     like animals can be grouped in species, families and so on based on
     the resemblance of their DNA.
--   [](tutorials/05-nmr.ipynb)    
-    ASE can read the .magres file format,
-    the output format of choice for CASTEP and Quantum Espresso, and
-    here we explore the ways in which Soprano can make use of this data.
-    These include processing the tensors into more commonly used
-    parameters following the Haeberlen or Herzfeld Berger conventions,
-    computing quantities that require isotope-specific data like
-    quadrupolar couplings, and finally produce powder spectra in the
-    dilute (=non-interacting nuclear spins) limit.
+-   [](tutorials/05a-nmr-parameters.ipynb)    
+    The first of three NMR tutorials, and the one most readers need.
+    ASE can read the `.magres` file format, the standard output format
+    for CASTEP and Quantum ESPRESSO GIPAW calculations; here we use
+    Soprano to turn those tensors into the parameters you compare with
+    experiment. These include referenced chemical shifts (from a single
+    reference or a linear calibration), shielding anisotropy in the
+    Haeberlen and Herzfeld-Berger conventions, quadrupolar couplings
+    ($C_Q$ and $\eta_Q$), dipolar and J couplings, a per-site summary
+    table, and simple 1D powder spectra in the dilute (non-interacting
+    spins) limit.
 
--   [](tutorials/05a-nmr-spin-systems.ipynb)    
-    This tutorial is a follow-up to the NMR tutorial, and it
-    focuses on the new features that have been added to Soprano to
-    support the exporting of spin systems. Spin systems are groups sites
-    and couplings between sites that are used for spectral simulations using
-    e.g. MRSimulator, Simpson or Spinach. This tutorial will show you how to
-    create spin systems from ab initio NMR calculations, and how to export them to
-    spin simulation software.
+-   [](tutorials/05b-nmr-2d-spectra.ipynb)    
+    Builds on Tutorial 5a to construct predicted 2D correlation maps,
+    both heteronuclear (e.g. ¹H–¹³C) and ¹H–¹H
+    double-quantum/single-quantum. It covers choosing and weighting
+    correlations, averaging over rapidly rotating groups such as CH₃,
+    combining 1D and 2D plots, and exporting peaks and contour data to
+    external tools.
+
+-   [](tutorials/05c-nmr-tensors-spin-systems.ipynb)    
+    For readers who want to run full spin-dynamics simulations. A
+    lineshape depends on how the tensors are oriented as well as on
+    their principal values, so this tutorial explains tensor ordering
+    and Euler angle conventions, then builds spin systems (sites plus
+    couplings) from ab initio data and exports them to SIMPSON and
+    MRSimulator.
 
 -   [](tutorials/06-defect_calculations.ipynb)    
     A series of new tools

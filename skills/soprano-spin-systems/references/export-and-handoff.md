@@ -10,7 +10,7 @@
 | `-f, --format [simpson\|mrsimulator]` | `simpson` | Output format |
 | `-s, --subset TEXT` | all | Selection string (e.g. `C,H`, `C.1-4`, `H1a`) |
 | `--references TEXT` | none | Required when `--ms` is enabled; must include every species in subset |
-| `--gradients TEXT` | omitted | Linear calibration slopes (e.g. `C:-0.97,H:-1.0`) |
+| `--gradients TEXT` | omitted | Linear calibration slopes (e.g. `C:-0.97`); chosen per element, elements without one use the full formula |
 | `-i, --isotopes TEXT` | default | e.g. `-i 2H,17O` (controls dipolar, EFG, and J; does not affect MS) |
 | `--obs, --observed-nucleus TEXT` | first sorted | Sets first channel in SIMPSON `channels` line (e.g. `--obs 13C`) |
 | `--ms / --no-ms`, `--efg / --no-efg` | on | Include MS / EFG interactions |
@@ -22,6 +22,7 @@
 | `--angles [all\|none\|default]` | `default` | Global angle toggle; fine-grained `--[no-]{ms,efg,dipolar,jcoupling}-angles` |
 | `--reduce / --no-reduce` | `--reduce` | Reduce equivalent sites; use `--no-reduce` with `--average-group CH3` |
 | `-g, --average-group TEXT` | none | Average fast-rotating XHn groups (`CH3`, `NH3`) |
+| `--expand-group / --collapse-group` | auto | How an averaged group is exported. Expanded: each atom stays a spin with group-mean tensors and tensor-averaged couplings (including intra-group). Collapsed: one spin per group. Default is expand when `--dip` or `--jcoupling` is given, collapse otherwise |
 | `--split` | off | Write one file per site (`base_0.in`, ...); only valid for 1 species & 0 couplings |
 | `--ms-tag`, `--efg-tag` | `ms`, `efg` | Custom array names for `.extxyz`/`.xyz` inputs |
 
@@ -84,20 +85,20 @@ sites = get_sites(sub, isotopes={"C": 13, "H": 1})
 dips = get_dipolar_couplings(sub, sel_i=[0, 1], sel_j=[6, 7])
 # js = get_j_couplings(sub)  # when .magres contains 'isc' J-coupling tensors
 
-# Manual Site + ISCoupling (NOTE: class is ISCoupling, NOT JCoupling;
+# Manual Site + ISCoupling (NOTE: ISCoupling is the canonical class name; JCoupling is only an alias for it;
 # tensor is the reduced K tensor in units of 10^19 T^2 J^-1, scaled by gamma1*gamma2)
 s0 = Site(index=0, label="C1", isotope="13C", ms=MagneticShielding(np.diag([120, 150, 180]), species="C", reference=170.0))
 s1 = Site(index=1, label="H1", isotope="1H", ms=MagneticShielding(np.diag([25, 28, 31]), species="H", reference=30.0))
 j_cpl = ISCoupling(site_i=0, site_j=1, species1="13C", species2="1H", tensor=NMRTensor(np.eye(3) * 1.0))
 d_cpl = SiteDipolarCoupling(
     site_i=0, site_j=1, species1="13C", species2="1H",
-    # IMPORTANT: DipolarCoupling.coupling_constant reads eigenvalues[2]/2, so tensor MUST use order="n"!
+    # coupling_constant is half the Haeberlen reduced anisotropy, so it does not depend on the tensor's order
     tensor=NMRTensor(np.diag([20000.0, 20000.0, -40000.0]), order="n"),  # axial (-d, -d, 2d) for d = -20 kHz
 )
 # Or build from a distance vector in Angstroms:
 # d_cpl = SiteDipolarCoupling.from_distance_vector(np.array([0.0, 0.0, 1.09]), "13C", "1H", site_i=0, site_j=1)
-# Or from a structure (be sure to set order="n" after make_dipolar, which defaults to order="i"!):
-# t_dip = NMRTensor.make_dipolar(sub, i=0, j=6); t_dip.order = "n"
+# Or from a structure:
+# t_dip = NMRTensor.make_dipolar(sub, i=0, j=6)
 manual_ss = SpinSystem(sites=[s0, s1], couplings=[d_cpl, j_cpl])
 ```
 
@@ -122,7 +123,9 @@ print(f"Intra-CH3 residual: {d_eff_intra:.1f} Hz")
 ```
 
 Notes:
-- Uses minimum-image periodic boundaries and skips self-pairs (`i == j`).
+- Uses minimum-image periodic boundaries (honouring `atoms.pbc`) and skips self-pairs (`i == j`); coincident atoms raise.
+- For whole spin systems, `averaged_dipolar_coupling_list(atoms, site_sets, ...)` and `averaged_j_coupling_list(atoms, site_sets, ...)` (`soprano.properties.nmr`) return `list[DipolarCoupling]` / `list[ISCoupling]` across all $i < j$ site-set pairs, where `site_sets[k]` lists the atom indices site `k` stands for. `soprano spinsys --average-group ... --expand-group` and `nmr_extract_atoms(..., expand_groups=True)` use them.
+- **Non-axial averaged dipolar warning:** Motionally averaged inter-group dipolar tensors (e.g. an external spin coupled to a rotating CH₃) are generally slightly non-axial ($\eta > 0$). Because SIMPSON and mrsimulator dipolar entries are strictly axial, `soprano spinsys -g ... --dip` logs a warning that it keeps the principal coupling eigenvalue and drops the asymmetry. This is expected.
 - Passing the same group for both `sel_i` and `sel_j` computes the intra-group residual average.
 - Only valid in the **fast-exchange** limit ($k_{\mathrm{ex}} \gg |d|$); do not apply to slow/intermediate exchange regimes.
 
