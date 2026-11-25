@@ -21,6 +21,7 @@ sections:
 - file: dipolar-averaging
 - file: chemical-shift-referencing
 - file: interactive
+- file: agent-skills
 - file: submitter
 - file: api
 - file: citing
